@@ -4,8 +4,7 @@ plugins {
 }
 
 dependencies {
-    api(projects.ktlintCliReporterCore)
+    implementation(projects.ktlintCliReporterCore)
 
-    testImplementation(libs.junit5)
-    testImplementation(libs.assertj)
+    testImplementation(projects.ktlintTest)
 }

@@ -1,15 +1,15 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
-import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_SIZE_PROPERTY
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.UsesEditorConfigProperties
 import com.pinterest.ktlint.ruleset.core.api.ElementType.KDOC
 import com.pinterest.ktlint.ruleset.core.api.ElementType.KDOC_END
 import com.pinterest.ktlint.ruleset.core.api.ElementType.KDOC_START
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.RuleId
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.ruleset.core.api.lineIndent
 import com.pinterest.ktlint.ruleset.core.api.nextLeaf
 import com.pinterest.ktlint.ruleset.core.api.noNewLineInClosedRange
@@ -103,4 +103,4 @@ public class KdocWrappingRule :
     private fun isNonIndentLeafOnSameLine(it: ASTNode) = it.elementType != WHITE_SPACE || !it.textContains('\n')
 }
 
-public val kdocWrappingRuleId: RuleId = KdocWrappingRule().ruleId
+public val KDOC_WRAPPING_RULE_ID: RuleId = KdocWrappingRule().ruleId

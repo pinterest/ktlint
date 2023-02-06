@@ -84,4 +84,4 @@ public class FunctionNamingRule :
     }
 }
 
-public val functionNamingRuleId: RuleId = FunctionNamingRule().ruleId
+public val FUNCTION_NAMING_RULE_ID: RuleId = FunctionNamingRule().ruleId

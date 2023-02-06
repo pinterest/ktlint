@@ -259,4 +259,4 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
     }
 }
 
-public val noUnusedImportsRuleId: RuleId = NoUnusedImportsRule().ruleId
+public val NO_UNUSED_IMPORTS_RULE_ID: RuleId = NoUnusedImportsRule().ruleId

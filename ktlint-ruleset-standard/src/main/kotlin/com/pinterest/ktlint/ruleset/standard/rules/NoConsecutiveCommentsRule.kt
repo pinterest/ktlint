@@ -1,10 +1,10 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.ruleset.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.ruleset.core.api.ElementType.KDOC_END
 import com.pinterest.ktlint.ruleset.core.api.ElementType.KDOC_START
+import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.isWhiteSpace
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
@@ -70,4 +70,4 @@ public class NoConsecutiveCommentsRule :
         }
 }
 
-public val noConsecutiveCommentsRuleId: RuleId = NoConsecutiveCommentsRule().ruleId
+public val NO_CONSECUTIVE_COMMENTS_RULE_ID: RuleId = NoConsecutiveCommentsRule().ruleId

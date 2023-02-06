@@ -1,12 +1,12 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import com.pinterest.ktlint.core.api.EditorConfigProperties
-import com.pinterest.ktlint.core.initKtLintKLogger
+import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.KtLint
 import com.pinterest.ktlint.rule.engine.api.KtLintParseException
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine.Companion.UTF8_BOM
+import com.pinterest.ktlint.ruleset.core.api.EditorConfigProperties
 import com.pinterest.ktlint.ruleset.core.api.Rule
 import mu.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode

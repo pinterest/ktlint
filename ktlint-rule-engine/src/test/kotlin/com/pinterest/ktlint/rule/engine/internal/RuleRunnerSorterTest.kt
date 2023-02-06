@@ -3,14 +3,14 @@ package com.pinterest.ktlint.rule.engine.internal
 import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.RuleProvider
+import com.pinterest.ktlint.ruleset.standard.rules.FUNCTION_SIGNATURE_RULE_ID
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule
+import com.pinterest.ktlint.ruleset.standard.rules.INDENTATION_RULE_ID
 import com.pinterest.ktlint.ruleset.standard.rules.IndentationRule
+import com.pinterest.ktlint.ruleset.standard.rules.TRAILING_COMMA_ON_CALL_SITE_RULE_ID
 import com.pinterest.ktlint.ruleset.standard.rules.TrailingCommaOnCallSiteRule
+import com.pinterest.ktlint.ruleset.standard.rules.WRAPPING_RULE_ID
 import com.pinterest.ktlint.ruleset.standard.rules.WrappingRule
-import com.pinterest.ktlint.ruleset.standard.rules.functionSignatureRuleId
-import com.pinterest.ktlint.ruleset.standard.rules.indentationRuleId
-import com.pinterest.ktlint.ruleset.standard.rules.trailingCommaOnCallSiteRuleId
-import com.pinterest.ktlint.ruleset.standard.rules.wrappingRuleId
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalStateException
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -273,55 +273,6 @@ class RuleRunnerSorterTest {
 
     @Nested
     inner class `Given the IndentationRule, TrailingCommaOnCallSiteRule, WrappingRule and FunctionSignatureRule` {
-        // Rule definitions below are extracted from the corresponding rules in the Standard rule set of ktlint
-        /*
-        private val indentationRule =
-            object : Rule(
-                ruleId = indentationRuleId,
-                visitorModifiers = setOf(
-                    VisitorModifier.RunAsLateAsPossible,
-                    VisitorModifier.RunAfterRule(
-                        ruleId = functionSignatureRuleId,
-                        loadOnlyWhenOtherRuleIsLoaded = false,
-                        runOnlyWhenOtherRuleIsEnabled = false,
-                    ),
-                    VisitorModifier.RunAfterRule(
-                        ruleId = trailingCommaOnCallSiteRuleId,
-                        loadOnlyWhenOtherRuleIsLoaded = false,
-                        runOnlyWhenOtherRuleIsEnabled = false,
-                    ),
-                    VisitorModifier.RunAfterRule(
-                        ruleId = trailingCommaOnDeclarationSiteRuleId,
-                        loadOnlyWhenOtherRuleIsLoaded = false,
-                        runOnlyWhenOtherRuleIsEnabled = false,
-                    ),
-                ),
-            ) {}
-        private val trailingCommaOnCallSiteRule =
-            object : Rule(
-                ruleId = trailingCommaOnCallSiteRuleId,
-                visitorModifiers = setOf(
-                    VisitorModifier.RunAfterRule(
-                        ruleId = wrappingRuleId,
-                        loadOnlyWhenOtherRuleIsLoaded = true,
-                        runOnlyWhenOtherRuleIsEnabled = true,
-                    ),
-                    VisitorModifier.RunAsLateAsPossible,
-                ),
-            ) {}
-        private val wrappingRule = object : Rule(wrappingRuleId) {}
-        private val functionSignatureRule =
-            object :
-                Rule(
-                    ruleId = functionSignatureRuleId,
-                    visitorModifiers = setOf(
-                        // Run after wrapping and spacing rules
-                        VisitorModifier.RunAsLateAsPossible,
-                    ),
-                ),
-                Rule.Experimental {}
-         */
-
         @Test
         fun `Given that the experimental FunctionSignatureRule is not included in the rules to be sorted`() {
             val actual =
@@ -335,9 +286,9 @@ class RuleRunnerSorterTest {
                     ).map { it.ruleId }
 
             assertThat(actual).containsExactly(
-                wrappingRuleId,
-                trailingCommaOnCallSiteRuleId,
-                indentationRuleId,
+                WRAPPING_RULE_ID,
+                TRAILING_COMMA_ON_CALL_SITE_RULE_ID,
+                INDENTATION_RULE_ID,
             )
         }
 
@@ -355,10 +306,10 @@ class RuleRunnerSorterTest {
                     ).map { it.ruleId }
 
             assertThat(actual).containsExactly(
-                wrappingRuleId,
-                functionSignatureRuleId,
-                trailingCommaOnCallSiteRuleId,
-                indentationRuleId,
+                WRAPPING_RULE_ID,
+                FUNCTION_SIGNATURE_RULE_ID,
+                TRAILING_COMMA_ON_CALL_SITE_RULE_ID,
+                INDENTATION_RULE_ID,
             )
         }
     }
@@ -680,7 +631,7 @@ class RuleRunnerSorterTest {
         ruleId: RuleId,
         visitorModifiers: Set<VisitorModifier> = emptySet(),
     ) : Rule(ruleId, visitorModifiers) {
-        constructor(ruleId: RuleId, visitorModifier: VisitorModifier): this(ruleId, setOf(visitorModifier))
+        constructor(ruleId: RuleId, visitorModifier: VisitorModifier) : this(ruleId, setOf(visitorModifier))
         override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,

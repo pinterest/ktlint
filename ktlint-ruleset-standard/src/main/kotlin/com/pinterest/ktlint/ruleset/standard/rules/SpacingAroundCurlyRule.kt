@@ -143,4 +143,4 @@ public class SpacingAroundCurlyRule : StandardRule("curly-spacing") {
     }
 }
 
-public val spacingAroundCurlyRuleId: RuleId = SpacingAroundCurlyRule().ruleId
+public val SPACING_AROUND_CURLY_RULE_ID: RuleId = SpacingAroundCurlyRule().ruleId

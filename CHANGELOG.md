@@ -46,9 +46,9 @@ Code style `android` has been renamed to `android_studio`. Code formatted with t
 
 #### Package restructuring and class relocation
 
-The internal structure of the Ktlint project has been revised. The Ktlint CLI and KtLint API modules have been decoupled where possible. Modules have been restructured and renamed.
+The internal structure of the Ktlint project has been revised. The Ktlint CLI and KtLint API modules have been decoupled where possible. Modules have been restructured and renamed. See [API Overview](https://pinterest.github.io/ktlint/api/overview/) for more information.
 
-This is the last release that contains module `ktlint-core` as it had to many responsibilities. Responsibilities which are specific to the Ktlint CLI or the KtLint Rule Engine are moved to one of the new modules `ktlint-cli-core` and `ktlint-rule-engine`.
+This is the last release that contains module `ktlint-core` as it had to many responsibilities. Responsibilities which are specific to the Ktlint CLI or the KtLint Rule Engine are moved to one of the new modules `ktlint-ruleset-core` and `ktlint-rule-engine`.
 
 Some classes are left behind in the `ktlint-core` module but are deprecated. The `ktlint-core` module will be removed in Ktlint `0.50.x`.
 
@@ -64,21 +64,39 @@ Classes below have been moved to the new module `ktlint-rule-engine`:
 | com.pinterest.ktlint.rule.core.api.Code                       | com.pinterest.ktlint.rule.engine.api.Code                       |
 | com.pinterest.ktlint.rule.core.api.KtLintParseException       | com.pinterest.ktlint.rule.engine.api.KtLintParseException       |
 | com.pinterest.ktlint.rule.core.api.KtLintRuleException        | com.pinterest.ktlint.rule.engine.api.KtLintRuleException        |
-| com.pinterest.ktlint.rule.core.api.UsesEditorConfigProperties | com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties |
 
 Classes below have been moved to the new module `ktlint-ruleset-core`:
 
-| Old class/package name in `ktlint-core`   | New class/package name in `ktlint-ruleset-core`        |
-|-------------------------------------------|--------------------------------------------------------|
-| com.pinterest.ktlint.core.ast.ElementType | com.pinterest.ktlint.ruleset.core.api.ElementType      |
-| com.pinterest.ktlint.core.ast.package     | com.pinterest.ktlint.ruleset.core.api.ASTNodeExtension |
-| com.pinterest.ktlint.core.IndentConfig    | com.pinterest.ktlint.ruleset.core.api.IndentConfig     |
+| Old class/package name in `ktlint-core`                       | New class/package name in `ktlint-ruleset-core`                               |
+|---------------------------------------------------------------|-------------------------------------------------------------------------------|
+| com.pinterest.ktlint.core.ast.ElementType                     | com.pinterest.ktlint.ruleset.core.api.ElementType                             |
+| com.pinterest.ktlint.core.ast.package                         | com.pinterest.ktlint.ruleset.core.api.ASTNodeExtension                        |
+| com.pinterest.ktlint.core.IndentConfig                        | com.pinterest.ktlint.ruleset.core.api.IndentConfig                            |
+| com.pinterest.ktlint.core.Rule                                | com.pinterest.ktlint.ruleset.core.api.Rule                                    |
+| com.pinterest.ktlint.core.RuleProvider                        | com.pinterest.ktlint.ruleset.core.api.RuleProvider                            |
+| com.pinterest.ktlint.core.RuleSetProviderV2                   | com.pinterest.ktlint.ruleset.core.api.RuleSetProviderV3                       |
+| com.pinterest.ktlint.rule.core.api.UsesEditorConfigProperties | com.pinterest.ktlint.ruleset.core.api.editorconfig.UsesEditorConfigProperties |
+
+
+Class below has been moved to the new module `ktlint-cli-reporter-core`:
+
+| Old class/package name in `ktlint-core`   | New class/package name in `ktlint-cli-reporter-core` |
+|-------------------------------------------|------------------------------------------------------|
+| com.pinterest.ktlint.core.KtlintVersion   | com.pinterest.ktlint.ruleset.core.api.KtlintVersion  |
+
+Class below has been moved to the new module `ktlint-logger`:
+
+| Old class/package name in `ktlint-core`               | New class/package name in `ktlint-logger`                   |
+|-------------------------------------------------------|-------------------------------------------------------------|
+| com.pinterest.ktlint.core.KtLintKLoggerInitializer.kt | com.pinterest.ktlint.logger.api.KtLintKLoggerInitializer.kt |
 
 Module `ktlint` has been renamed to `ktlint-cli`. Classes below have been relocated in this module:
 
 | Old class/package name in `ktlint-core` | New class/package name in `ktlint-core` |
 |-----------------------------------------|-----------------------------------------|
 | com.pinterest.ktlint.core.api.Baseline  | com.pinterest.ktlint.cli.api.Baseline   |
+
+IMPORTANT: All remaining classes in module `ktlint-core` (e.g. packages `com.github.shyiko.ktlint.core` and `com.pinterest.ktlint.core`) are deprecated and will be removed in KtLint `0.50.x`.
 
 Module `ktlint-reporter-baseline` has been renamed to `ktlint-cli-reporter-baseline`. Classes below have been relocated:
 

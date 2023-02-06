@@ -90,4 +90,4 @@ public class SpacingAroundOperatorsRule : StandardRule("op-spacing") {
     }
 }
 
-public val spacingAroundOperatorsRuleId: RuleId = SpacingAroundOperatorsRule().ruleId
+public val SPACING_AROUND_OPERATORS_RULE_ID: RuleId = SpacingAroundOperatorsRule().ruleId

@@ -69,7 +69,7 @@ ktlint --experimental
 !!! note
     Instead of using this command line flag, it is advised to set `.editorconfig` property `ktlint_experimental = enabled` if you want the project always to be checked with the experimental rules.
 
-To validate with a [custom ruleset](../../extensions/custom-rule-set/) run command below:  
+To validate with a [custom ruleset](../../api/custom-rule-set/) run command below:  
 
 ```shell title="Validation with standard and a custom ruleset"
 ktlint --ruleset=/path/to/custom-ruleset.jar

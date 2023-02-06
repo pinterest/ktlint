@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.core.api.EditorConfigProperties
-import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.UsesEditorConfigProperties
+import com.pinterest.ktlint.ruleset.core.api.EditorConfigProperties
 import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY
@@ -59,4 +59,4 @@ public class FinalNewlineRule :
         if (node.lastChildNode == null) node else lastChildNodeOf(node.lastChildNode)
 }
 
-public val finalNewlineRuleId: RuleId = FinalNewlineRule().ruleId
+public val FINAL_NEWLINE_RULE_ID: RuleId = FinalNewlineRule().ruleId

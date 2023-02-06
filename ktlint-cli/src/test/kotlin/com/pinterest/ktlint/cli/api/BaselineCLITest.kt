@@ -3,16 +3,11 @@ package com.pinterest.ktlint.cli.api
 import com.pinterest.ktlint.cli.CommandLineTestRunner
 import com.pinterest.ktlint.cli.containsLineMatching
 import com.pinterest.ktlint.cli.doesNotContainLineMatching
-import com.pinterest.ktlint.main
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
-import java.io.ByteArrayOutputStream
-import java.io.PrintStream
 import java.nio.file.Path
-import java.security.Permission
 
 class BaselineCLITest {
     @Test
@@ -46,7 +41,7 @@ class BaselineCLITest {
                 "baseline",
                 listOf(
                     "--baseline=$baselinePath",
-                    "TestBaselineFile.kt.test"
+                    "TestBaselineFile.kt.test",
                 ),
             ) {
                 SoftAssertions().apply {
@@ -57,8 +52,9 @@ class BaselineCLITest {
                         .containsLineMatching(
                             Regex(
                                 ".*Baseline file '$baselinePath' contains 3 reference\\(s\\) to rule ids without a rule set id. For " +
-                                    "those references the rule set id 'standard' is assumed. It is advised to regenerate this baseline file.*"
-                            )
+                                    "those references the rule set id 'standard' is assumed. It is advised to regenerate this baseline " +
+                                    "file.*",
+                            ),
                         )
                 }.assertAll()
             }
@@ -76,7 +72,7 @@ class BaselineCLITest {
                 "baseline",
                 listOf(
                     "--baseline=$baselinePath",
-                    "TestBaselineExtraErrorFile.kt.test"
+                    "TestBaselineExtraErrorFile.kt.test",
                 ),
             ) {
                 SoftAssertions().apply {
@@ -86,8 +82,9 @@ class BaselineCLITest {
                         .containsLineMatching(
                             Regex(
                                 ".*Baseline file '$baselinePath' contains 3 reference\\(s\\) to rule ids without a rule set id. For " +
-                                    "those references the rule set id 'standard' is assumed. It is advised to regenerate this baseline file.*"
-                            )
+                                    "those references the rule set id 'standard' is assumed. It is advised to regenerate this baseline " +
+                                    "file.*",
+                            ),
                         )
                 }.assertAll()
             }

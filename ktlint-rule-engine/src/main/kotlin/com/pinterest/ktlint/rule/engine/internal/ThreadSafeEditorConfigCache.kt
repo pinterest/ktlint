@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import com.pinterest.ktlint.core.initKtLintKLogger
+import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import mu.KotlinLogging
 import org.ec4j.core.Cache
 import org.ec4j.core.EditorConfigLoader

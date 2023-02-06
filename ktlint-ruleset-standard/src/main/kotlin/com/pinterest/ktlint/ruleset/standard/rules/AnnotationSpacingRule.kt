@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.ruleset.core.api.ElementType
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.isPartOf
 import com.pinterest.ktlint.ruleset.core.api.isPartOfComment
@@ -185,4 +184,4 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
         isPartOfComment() && leaves(forward = false).takeWhile { it.isWhiteSpace() }.none { "\n" in it.text }
 }
 
-public val annotationSpacingRuleId: RuleId = AnnotationSpacingRule().ruleId
+public val ANNOTATION_SPACING_RULE_ID: RuleId = AnnotationSpacingRule().ruleId

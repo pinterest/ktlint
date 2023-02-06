@@ -58,4 +58,4 @@ public class SpacingAroundCommaRule : StandardRule("comma-spacing") {
     }
 }
 
-public val spacingAroundCommaRuleId: RuleId = SpacingAroundCommaRule().ruleId
+public val SPACING_AROUND_COMMA_RULE_ID: RuleId = SpacingAroundCommaRule().ruleId

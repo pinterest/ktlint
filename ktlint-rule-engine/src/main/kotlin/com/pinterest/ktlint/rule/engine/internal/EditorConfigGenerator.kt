@@ -1,8 +1,8 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import com.pinterest.ktlint.core.initKtLintKLogger
+import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
-import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.UsesEditorConfigProperties
 import com.pinterest.ktlint.rule.engine.api.editorconfig.DEFAULT_EDITOR_CONFIG_PROPERTIES
 import com.pinterest.ktlint.rule.engine.internal.DefaultEditorConfigProperties.writeEditorConfigProperty
 import com.pinterest.ktlint.ruleset.core.api.Rule

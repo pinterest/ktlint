@@ -4,5 +4,5 @@ plugins {
 }
 
 dependencies {
-    api(projects.ktlintCore)
+    implementation(projects.ktlintCore)
 }

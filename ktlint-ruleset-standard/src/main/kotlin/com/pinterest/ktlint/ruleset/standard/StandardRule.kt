@@ -9,8 +9,8 @@ import com.pinterest.ktlint.ruleset.core.api.RuleId
  */
 public open class StandardRule internal constructor(
     id: String,
-    override val visitorModifiers: Set<VisitorModifier> = emptySet()
+    override val visitorModifiers: Set<VisitorModifier> = emptySet(),
 ) : Rule(
     ruleId = RuleId("standard:$id"),
-    visitorModifiers = visitorModifiers
+    visitorModifiers = visitorModifiers,
 )

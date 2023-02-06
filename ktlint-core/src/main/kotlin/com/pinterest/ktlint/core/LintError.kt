@@ -12,7 +12,7 @@ import java.io.Serializable
  */
 @Deprecated(
     "Deprecated since ktlint 0.49.0. See changelog 0.49. Depending on context replace with " +
-        "'com.pinterest.ktlint.rule.engine.api.LintError' or 'com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError'."
+        "'com.pinterest.ktlint.rule.engine.api.LintError' or 'com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError'.",
 )
 public data class LintError(
     val line: Int,

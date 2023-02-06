@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.CLASS
 import com.pinterest.ktlint.ruleset.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.ruleset.core.api.ElementType.CONSTRUCTOR_KEYWORD
@@ -12,6 +11,7 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.PRIMARY_CONSTRUCTOR
 import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPEALIAS
 import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.nextCodeSibling
 import com.pinterest.ktlint.ruleset.core.api.nextLeaf
@@ -198,4 +198,4 @@ public class TypeParameterListSpacingRule :
     }
 }
 
-public val typeParameterListSpacingRuleId: RuleId = TypeParameterListSpacingRule().ruleId
+public val TYPE_PARAMETER_LIST_SPACING_RULE_ID: RuleId = TypeParameterListSpacingRule().ruleId

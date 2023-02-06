@@ -21,9 +21,11 @@ tasks.shadowJar {
 
 dependencies {
     implementation(projects.ktlintCore)
+    implementation(projects.ktlintLogger)
     implementation(projects.ktlintCliReporterBaseline)
     implementation(projects.ktlintCliReporterCore)
     implementation(projects.ktlintCliReporterPlain)
+    implementation(projects.ktlintRuleEngine)
     implementation(projects.ktlintRulesetStandard)
     implementation(projects.ktlintRulesetTestTooling)
     implementation(libs.picocli)
@@ -36,8 +38,7 @@ dependencies {
     runtimeOnly(projects.ktlintCliReporterPlainSummary)
     runtimeOnly(projects.ktlintCliReporterSarif)
 
-    testImplementation(libs.junit5)
-    testImplementation(libs.assertj)
+    testImplementation(projects.ktlintTest)
     testImplementation(libs.jimfs)
 }
 

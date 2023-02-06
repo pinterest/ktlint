@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.ruleset.core.api.ElementType.CONST_KEYWORD
 import com.pinterest.ktlint.ruleset.core.api.ElementType.FILE
@@ -12,6 +11,7 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.PRIVATE_KEYWORD
 import com.pinterest.ktlint.ruleset.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.ruleset.core.api.ElementType.PROPERTY_ACCESSOR
 import com.pinterest.ktlint.ruleset.core.api.ElementType.VAL_KEYWORD
+import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.children
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -148,4 +148,4 @@ public class PropertyNamingRule :
     }
 }
 
-public val propertyNamingRuleId: RuleId = PropertyNamingRule().ruleId
+public val PROPERTY_NAMING_RULE_ID: RuleId = PropertyNamingRule().ruleId

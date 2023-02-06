@@ -2,10 +2,10 @@ package com.pinterest.ktlint.rule.engine.internal
 
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
-import com.pinterest.ktlint.ruleset.core.api.Rule
-import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
-import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.UsesEditorConfigProperties
+import com.pinterest.ktlint.ruleset.core.api.EditorConfigProperties
+import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_SIZE_PROPERTY

@@ -32,4 +32,4 @@ public class NoUnitReturnRule : StandardRule("no-unit-return") {
     }
 }
 
-public val noUnitReturnRuleId: RuleId = NoUnitReturnRule().ruleId
+public val NO_UNIT_RETURN_RULE_ID: RuleId = NoUnitReturnRule().ruleId

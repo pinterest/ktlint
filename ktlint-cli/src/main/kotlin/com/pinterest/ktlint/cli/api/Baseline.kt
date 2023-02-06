@@ -6,7 +6,7 @@ import com.pinterest.ktlint.cli.api.Baseline.Status.VALID
 import com.pinterest.ktlint.cli.internal.relativeRoute
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.BASELINE_IGNORED
-import com.pinterest.ktlint.core.initKtLintKLogger
+import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.ruleset.core.api.RuleId
 import mu.KotlinLogging
 import org.w3c.dom.Element
@@ -18,7 +18,6 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.parsers.ParserConfigurationException
-import kotlin.io.path.absolute
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.pathString
 import kotlin.io.path.relativeToOrSelf
@@ -70,8 +69,7 @@ public class Baseline(
 /**
  * Loads the [Baseline] from the file located on [path].
  */
-public fun loadBaseline(path: String): Baseline =
-    BaselineLoader(path).load()
+public fun loadBaseline(path: String): Baseline = BaselineLoader(path).load()
 
 private class BaselineLoader(private val path: String) {
     var ruleReferenceWithoutRuleSetIdPrefix = 0

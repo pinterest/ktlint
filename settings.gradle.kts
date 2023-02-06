@@ -30,10 +30,10 @@ rootProject.name = "ktlint-root"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include(
+    // ktlint-core module is no longer used internally in the ktlint project except for backwards compatibility
     ":ktlint-core",
     ":ktlint-api-consumer",
     ":ktlint-cli",
-    ":ktlint-cli-core",
     ":ktlint-cli-reporter-baseline",
     ":ktlint-cli-reporter-checkstyle",
     ":ktlint-cli-reporter-core",
@@ -43,12 +43,12 @@ include(
     ":ktlint-cli-reporter-html",
     ":ktlint-cli-reporter-plain",
     ":ktlint-cli-reporter-plain-summary",
+    ":ktlint-logger",
     ":ktlint-rule-engine",
     ":ktlint-ruleset-core",
     ":ktlint-ruleset-standard",
     ":ktlint-ruleset-template",
     ":ktlint-ruleset-test-tooling",
     ":ktlint-test",
-    ":ktlint-test-logging",
     ":ktlint-test-ruleset-provider-v2-deprecated",
 )

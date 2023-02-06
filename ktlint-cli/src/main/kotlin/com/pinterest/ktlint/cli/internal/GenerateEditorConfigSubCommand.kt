@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.cli.internal
 
-import com.pinterest.ktlint.core.initKtLintKLogger
+import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.CODE_STYLE_PROPERTY

@@ -98,4 +98,4 @@ public class SpacingAroundAngleBracketsRule : StandardRule("spacing-around-angle
     }
 }
 
-public val spacingAroundAngleBracketsRuleId: RuleId = SpacingAroundAngleBracketsRule().ruleId
+public val SPACING_AROUND_ANGLE_BRACKETS_RULE_ID: RuleId = SpacingAroundAngleBracketsRule().ruleId

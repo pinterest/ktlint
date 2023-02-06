@@ -1,14 +1,14 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
-import com.pinterest.ktlint.ruleset.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.LintError
+import com.pinterest.ktlint.ruleset.core.api.ElementType
+import com.pinterest.ktlint.ruleset.core.api.Rule
+import com.pinterest.ktlint.ruleset.core.api.RuleId
+import com.pinterest.ktlint.ruleset.core.api.RuleProvider
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.createRuleExecutionEditorConfigProperty
-import com.pinterest.ktlint.ruleset.core.api.ElementType
-import com.pinterest.ktlint.ruleset.core.api.RuleId
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.junit.jupiter.api.Test
@@ -224,8 +224,11 @@ class SuppressionLocatorBuilderTest {
             KTLINT_RULE_ENGINE.lint(code) { e -> add(e) }
         }
 
-    private fun lintError(line: Int, col: Int, ruleId: String) =
-        LintError(line, col, ruleId, "Line should not contain a foo identifier", false)
+    private fun lintError(
+        line: Int,
+        col: Int,
+        ruleId: String,
+    ) = LintError(line, col, ruleId, "Line should not contain a foo identifier", false)
 
     private companion object {
         const val NON_STANDARD_RULE_SET_ID = "custom" // Can be any value other than "standard"

@@ -2,7 +2,7 @@ package com.pinterest.ktlint.rule.engine.internal
 
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
-import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.UsesEditorConfigProperties
 import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.CodeStyleValue

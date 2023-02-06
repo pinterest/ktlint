@@ -1,8 +1,8 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.nextSibling
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -30,4 +30,5 @@ public class SpacingBetweenFunctionNameAndOpeningParenthesisRule :
     }
 }
 
-public val spacingBetweenFunctionNameAndOpeningParenthesisRuleId: RuleId = SpacingBetweenFunctionNameAndOpeningParenthesisRule().ruleId
+public val SPACING_BETWEEN_FUNCTION_NAME_AND_OPENING_PARENTHESIS_RULE_ID: RuleId =
+    SpacingBetweenFunctionNameAndOpeningParenthesisRule().ruleId

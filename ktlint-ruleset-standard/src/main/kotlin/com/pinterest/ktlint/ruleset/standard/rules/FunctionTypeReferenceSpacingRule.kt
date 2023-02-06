@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.FUN
 import com.pinterest.ktlint.ruleset.core.api.ElementType.NULLABLE_TYPE
 import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.nextSibling
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -76,4 +76,4 @@ public class FunctionTypeReferenceSpacingRule :
     }
 }
 
-public val functionTypeReferenceSpacingRuleId: RuleId = FunctionTypeReferenceSpacingRule().ruleId
+public val FUNCTION_TYPE_REFERENCE_SPACING_RULE_ID: RuleId = FunctionTypeReferenceSpacingRule().ruleId

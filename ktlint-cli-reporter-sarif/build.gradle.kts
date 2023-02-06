@@ -7,6 +7,5 @@ dependencies {
     implementation(projects.ktlintCliReporterCore)
     implementation(libs.sarif4k)
 
-    testImplementation(libs.junit5)
-    testImplementation(libs.assertj)
+    testImplementation(projects.ktlintTest)
 }

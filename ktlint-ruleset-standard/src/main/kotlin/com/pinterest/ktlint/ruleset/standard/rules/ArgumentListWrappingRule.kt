@@ -1,18 +1,17 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
-import com.pinterest.ktlint.core.api.EditorConfigProperties
-import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_SIZE_PROPERTY
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.EditorConfigProperties
 import com.pinterest.ktlint.ruleset.core.api.ElementType
 import com.pinterest.ktlint.ruleset.core.api.ElementType.ELSE
 import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.ruleset.core.api.IndentConfig
 import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.column
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.UsesEditorConfigProperties
 import com.pinterest.ktlint.ruleset.core.api.isPartOfComment
 import com.pinterest.ktlint.ruleset.core.api.isWhiteSpace
 import com.pinterest.ktlint.ruleset.core.api.isWhiteSpaceWithNewline
@@ -46,7 +45,7 @@ public class ArgumentListWrappingRule :
             VisitorModifier.RunAfterRule(
                 // ArgumentListWrapping should only be used in case after normal wrapping the max_line_length is still
                 // violated
-                ruleId = wrappingRuleId,
+                ruleId = WRAPPING_RULE_ID,
                 loadOnlyWhenOtherRuleIsLoaded = false,
                 runOnlyWhenOtherRuleIsEnabled = false,
             ),
@@ -270,4 +269,4 @@ public class ArgumentListWrappingRule :
     }
 }
 
-public val argumentListWrappingRuleId: RuleId = ArgumentListWrappingRule().ruleId
+public val ARGUMENT_LIST_WRAPPING_RULE_ID: RuleId = ArgumentListWrappingRule().ruleId

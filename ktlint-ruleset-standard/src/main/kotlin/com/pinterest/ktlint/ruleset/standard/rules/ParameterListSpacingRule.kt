@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.ruleset.core.api.ElementType.COLON
 import com.pinterest.ktlint.ruleset.core.api.ElementType.COMMA
@@ -8,6 +7,7 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.children
 import com.pinterest.ktlint.ruleset.core.api.isPartOfComment
@@ -258,4 +258,4 @@ public class ParameterListSpacingRule :
     }
 }
 
-public val parameterListSpacingRuleId: RuleId = ParameterListSpacingRule().ruleId
+public val PARAMETER_LIST_SPACING_RULE_ID: RuleId = ParameterListSpacingRule().ruleId

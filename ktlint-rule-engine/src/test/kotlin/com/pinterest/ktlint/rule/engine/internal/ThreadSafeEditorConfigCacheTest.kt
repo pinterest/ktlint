@@ -2,8 +2,8 @@ package com.pinterest.ktlint.rule.engine.internal
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
-import com.pinterest.ktlint.core.initKtLintKLogger
-import com.pinterest.ktlint.core.setDefaultLoggerModifier
+import com.pinterest.ktlint.logger.api.initKtLintKLogger
+import com.pinterest.ktlint.logger.api.setDefaultLoggerModifier
 import mu.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.EditorConfigLoader

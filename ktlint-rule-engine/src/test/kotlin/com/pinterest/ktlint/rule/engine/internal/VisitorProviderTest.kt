@@ -171,7 +171,7 @@ class VisitorProviderTest {
                             VisitorModifier.RunAfterRule(
                                 ruleId = STANDARD_RULE_C,
                                 runOnlyWhenOtherRuleIsEnabled = true,
-                            )
+                            ),
                         ),
                     ) {}
                 },
@@ -182,7 +182,7 @@ class VisitorProviderTest {
                             VisitorModifier.RunAfterRule(
                                 ruleId = STANDARD_RULE_C,
                                 runOnlyWhenOtherRuleIsEnabled = true,
-                            )
+                            ),
                         ),
                     ) {}
                 },

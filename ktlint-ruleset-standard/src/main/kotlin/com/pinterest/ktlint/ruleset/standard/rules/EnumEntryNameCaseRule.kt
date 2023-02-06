@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.internal.regExIgnoringDiacriticsAndStrokesOnLetters
@@ -37,4 +36,4 @@ public class EnumEntryNameCaseRule : StandardRule("enum-entry-name-case") {
     }
 }
 
-public val enumEntryNameCaseRuleId: RuleId = EnumEntryNameCaseRule().ruleId
+public val ENUM_ENTRY_NAME_CASE_RULE_ID: RuleId = EnumEntryNameCaseRule().ruleId

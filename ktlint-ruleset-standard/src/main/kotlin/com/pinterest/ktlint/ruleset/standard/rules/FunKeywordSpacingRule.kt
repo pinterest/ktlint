@@ -37,4 +37,4 @@ public class FunKeywordSpacingRule :
     }
 }
 
-public val funKeywordSpacingRule: RuleId = FunKeywordSpacingRule().ruleId
+public val FUN_KEYWORD_SPACING_RULE: RuleId = FunKeywordSpacingRule().ruleId

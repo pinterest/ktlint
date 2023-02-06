@@ -6,10 +6,4 @@ plugins {
 dependencies {
     api(libs.kotlin.compiler)
     api(libs.ec4j)
-    api(libs.logging)
-
-    testImplementation(projects.ktlintTestLogging)
-    testImplementation(libs.junit5)
-    testImplementation(libs.assertj)
-    testImplementation(libs.jimfs)
 }

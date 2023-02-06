@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.cli.internal
 
-import com.pinterest.ktlint.core.initKtLintKLogger
+import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import mu.KotlinLogging
 import java.io.File
 import java.io.IOException

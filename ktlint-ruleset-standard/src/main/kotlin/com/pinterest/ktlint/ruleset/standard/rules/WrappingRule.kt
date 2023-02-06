@@ -1,8 +1,8 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.core.api.EditorConfigProperties
-import com.pinterest.ktlint.core.initKtLintKLogger
-import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.logger.api.initKtLintKLogger
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.UsesEditorConfigProperties
+import com.pinterest.ktlint.ruleset.core.api.EditorConfigProperties
 import com.pinterest.ktlint.ruleset.core.api.ElementType
 import com.pinterest.ktlint.ruleset.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.ruleset.core.api.ElementType.ARROW
@@ -608,4 +608,4 @@ public class WrappingRule :
     }
 }
 
-public val wrappingRuleId: RuleId = WrappingRule().ruleId
+public val WRAPPING_RULE_ID: RuleId = WrappingRule().ruleId

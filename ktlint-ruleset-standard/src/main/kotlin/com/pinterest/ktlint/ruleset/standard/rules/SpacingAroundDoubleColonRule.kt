@@ -69,4 +69,4 @@ public class SpacingAroundDoubleColonRule : StandardRule("double-colon-spacing")
     }
 }
 
-public val spacingAroundDoubleColonRuleId: RuleId = SpacingAroundDoubleColonRule().ruleId
+public val SPACING_AROUND_DOUBLE_COLON_RULE_ID: RuleId = SpacingAroundDoubleColonRule().ruleId

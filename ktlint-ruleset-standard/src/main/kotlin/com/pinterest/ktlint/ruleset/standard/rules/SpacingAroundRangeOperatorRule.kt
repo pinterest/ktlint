@@ -42,4 +42,4 @@ public class SpacingAroundRangeOperatorRule : StandardRule("range-spacing") {
     }
 }
 
-public val spacingAroundRangeOperatorRuleId: RuleId = SpacingAroundRangeOperatorRule().ruleId
+public val SPACING_AROUND_RANGE_OPERATOR_RULE_ID: RuleId = SpacingAroundRangeOperatorRule().ruleId

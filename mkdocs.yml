@@ -43,10 +43,11 @@ nav:
     - Dependencies: rules/dependencies.md
     - KtLint configuration: rules/configuration-ktlint.md
     - IntelliJ IDEA configuration: rules/configuration-intellij-idea.md
-  - Extensions:
-      - Custom rule set: extensions/custom-rule-set.md
-      - Custom reporter: extensions/custom-reporter.md
-      - Badge: extensions/badge.md
+  - API:
+      - Overview: api/overview.md
+      - Custom rule set: api/custom-rule-set.md
+      - Custom reporter: api/custom-reporter.md
+      - Badge: api/badge.md
   - FAQ: faq.md
   - Contributing:
       - Overview: contributing/overview.md

@@ -24,4 +24,4 @@ public class NoBlankLinesInChainedMethodCallsRule : StandardRule("no-blank-lines
     }
 }
 
-public val noBlankLinesInChainedMethodCallsRuleId: RuleId = NoBlankLinesInChainedMethodCallsRule().ruleId
+public val NO_BLANK_LINES_IN_CHAINED_METHOD_CALLS_RULE_ID: RuleId = NoBlankLinesInChainedMethodCallsRule().ruleId

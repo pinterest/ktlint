@@ -64,4 +64,4 @@ public class NoConsecutiveBlankLinesRule : StandardRule("no-consecutive-blank-li
             ?: false
 }
 
-public val noConsecutiveBlankLinesRuleId: RuleId = NoConsecutiveBlankLinesRule().ruleId
+public val NO_CONSECUTIVE_BLANK_LINES_RULE_ID: RuleId = NoConsecutiveBlankLinesRule().ruleId

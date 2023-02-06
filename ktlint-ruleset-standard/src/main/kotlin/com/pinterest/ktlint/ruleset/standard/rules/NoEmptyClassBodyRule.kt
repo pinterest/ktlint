@@ -40,4 +40,4 @@ public class NoEmptyClassBodyRule : StandardRule("no-empty-class-body") {
     }
 }
 
-public val noEmptyClassBodyRuleId: RuleId = NoEmptyClassBodyRule().ruleId
+public val NO_EMPTY_CLASS_BODY_RULE_ID: RuleId = NoEmptyClassBodyRule().ruleId

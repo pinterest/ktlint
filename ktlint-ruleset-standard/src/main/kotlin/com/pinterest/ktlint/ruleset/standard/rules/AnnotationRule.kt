@@ -299,4 +299,4 @@ public class AnnotationRule : StandardRule("annotation") {
     }
 }
 
-public val annotationRuleId: RuleId = AnnotationRule().ruleId
+public val ANNOTATION_RULE_ID: RuleId = AnnotationRule().ruleId

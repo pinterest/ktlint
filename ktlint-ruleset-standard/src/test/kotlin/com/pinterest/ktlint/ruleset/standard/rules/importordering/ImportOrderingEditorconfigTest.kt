@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules.importordering
 
-import com.pinterest.ktlint.core.api.EditorConfigProperties
+import com.pinterest.ktlint.ruleset.core.api.EditorConfigProperties
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.ruleset.standard.rules.ImportOrderingRule
 import org.assertj.core.api.Assertions.assertThat

@@ -83,4 +83,4 @@ public class StringTemplateRule : StandardRule("string-template") {
     private fun Char.isPartOfIdentifier() = this == '_' || this.isLetterOrDigit()
 }
 
-public val stringTemplateRuleId: RuleId = StringTemplateRule().ruleId
+public val STRING_TEMPLATE_RULE_ID: RuleId = StringTemplateRule().ruleId

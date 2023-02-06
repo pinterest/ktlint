@@ -13,9 +13,8 @@ import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.LINT_CAN
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.LINT_CAN_NOT_BE_AUTOCORRECTED
 import com.pinterest.ktlint.cli.reporter.core.api.ReporterV2
 import com.pinterest.ktlint.cli.reporter.plain.Color
-import com.pinterest.ktlint.ruleset.core.api.RuleProvider
-import com.pinterest.ktlint.core.initKtLintKLogger
-import com.pinterest.ktlint.core.setDefaultLoggerModifier
+import com.pinterest.ktlint.logger.api.initKtLintKLogger
+import com.pinterest.ktlint.logger.api.setDefaultLoggerModifier
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.plus
@@ -23,12 +22,13 @@ import com.pinterest.ktlint.rule.engine.api.KtLintParseException
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
 import com.pinterest.ktlint.ruleset.core.api.RuleId
+import com.pinterest.ktlint.ruleset.core.api.RuleProvider
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.createRuleExecutionEditorConfigProperty
-import com.pinterest.ktlint.ruleset.standard.rules.filenameRuleId
+import com.pinterest.ktlint.ruleset.standard.rules.FILENAME_RULE_ID
 import mu.KLogger
 import mu.KotlinLogging
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
@@ -50,7 +50,6 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
-import kotlin.io.path.absolute
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.pathString
 import kotlin.io.path.relativeToOrSelf
@@ -307,7 +306,7 @@ internal class KtlintCommandLine {
                 logger.debug {
                     "Add editor config override to disable 'filename' rule which can not be used in combination with reading from <stdin>"
                 }
-                plus(filenameRuleId.createRuleExecutionEditorConfigProperty() to RuleExecution.disabled)
+                plus(FILENAME_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.disabled)
             }
 
         if (android) {

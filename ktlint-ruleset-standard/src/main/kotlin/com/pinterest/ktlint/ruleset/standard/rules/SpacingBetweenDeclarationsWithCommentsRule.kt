@@ -49,4 +49,4 @@ public class SpacingBetweenDeclarationsWithCommentsRule : StandardRule("spacing-
     }
 }
 
-public val spacingBetweenDeclarationsWithCommentsRuleId: RuleId = SpacingBetweenDeclarationsWithCommentsRule().ruleId
+public val SPACING_BETWEEN_DECLARATIONS_WITH_COMMENTS_RULE_ID: RuleId = SpacingBetweenDeclarationsWithCommentsRule().ruleId

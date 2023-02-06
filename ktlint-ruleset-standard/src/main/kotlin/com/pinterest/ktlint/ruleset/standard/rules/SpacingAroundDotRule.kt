@@ -35,4 +35,4 @@ public class SpacingAroundDotRule : StandardRule("dot-spacing") {
     }
 }
 
-public val spacingAroundDotRuleId: RuleId = SpacingAroundDotRule().ruleId
+public val SPACING_AROUND_DOT_RULE_ID: RuleId = SpacingAroundDotRule().ruleId

@@ -12,7 +12,7 @@ ktlint is a single binary with both linter & formatter included. All you need is
 
 Absolutely, "no configuration" doesn't mean "no extensibility". You can add your own ruleset(s) to discover potential bugs, check for anti-patterns, etc.
 
-See [adding a custom rule set](../extensions/custom-rule-set/) for more information.
+See [adding a custom rule set](../api/custom-rule-set/) for more information.
 
 ## How do I suppress errors for a line/block/file?
 

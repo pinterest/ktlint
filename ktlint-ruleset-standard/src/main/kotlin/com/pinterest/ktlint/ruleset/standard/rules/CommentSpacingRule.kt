@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
@@ -41,4 +40,4 @@ public class CommentSpacingRule : StandardRule("comment-spacing") {
     }
 }
 
-public val commentSpacingRuleId: RuleId = CommentSpacingRule().ruleId
+public val COMMENT_SPACING_RULE_ID: RuleId = CommentSpacingRule().ruleId

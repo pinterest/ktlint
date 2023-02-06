@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.cli.internal
 
-import com.pinterest.ktlint.core.ktlintVersion
+import com.pinterest.ktlint.cli.reporter.core.api.ktlintVersion
 import picocli.CommandLine
 
 /**

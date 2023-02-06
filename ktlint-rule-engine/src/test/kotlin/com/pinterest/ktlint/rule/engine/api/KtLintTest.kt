@@ -1,15 +1,14 @@
 package com.pinterest.ktlint.rule.engine.api
 
-import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.rule.engine.api.AutoCorrectErrorRule.Companion.STRING_VALUE_AFTER_AUTOCORRECT
 import com.pinterest.ktlint.rule.engine.api.DummyRuleWithCustomEditorConfigProperty.Companion.SOME_CUSTOM_RULE_PROPERTY_NAME
 import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.RuleMethod.AFTER_CHILDREN
 import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.RuleMethod.AFTER_LAST
 import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.RuleMethod.BEFORE_CHILDREN
 import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.RuleMethod.BEFORE_FIRST
-import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.RuleMethod.VISIT
 import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.VisitNodeType.CHILD
 import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.VisitNodeType.ROOT
+import com.pinterest.ktlint.ruleset.core.api.EditorConfigProperties
 import com.pinterest.ktlint.ruleset.core.api.ElementType.CLASS
 import com.pinterest.ktlint.ruleset.core.api.ElementType.FILE
 import com.pinterest.ktlint.ruleset.core.api.ElementType.IDENTIFIER
@@ -21,6 +20,7 @@ import com.pinterest.ktlint.ruleset.core.api.Rule.VisitorModifier.RunAsLateAsPos
 import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.RuleProvider
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.UsesEditorConfigProperties
 import com.pinterest.ktlint.ruleset.core.api.isRoot
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy

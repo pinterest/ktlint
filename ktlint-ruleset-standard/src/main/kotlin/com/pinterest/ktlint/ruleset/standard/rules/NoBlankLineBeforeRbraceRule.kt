@@ -33,4 +33,4 @@ public class NoBlankLineBeforeRbraceRule : StandardRule("no-blank-line-before-rb
     }
 }
 
-public val noBlankLineBeforeRbraceRuleId: RuleId = NoBlankLineBeforeRbraceRule().ruleId
+public val NO_BLANK_LINE_BEFORE_RBRACE_RULE_ID: RuleId = NoBlankLineBeforeRbraceRule().ruleId

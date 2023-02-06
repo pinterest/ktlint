@@ -1,4 +1,4 @@
-package com.pinterest.ktlint.core
+package com.pinterest.ktlint.cli.reporter.core.api
 
 import java.util.jar.Manifest
 

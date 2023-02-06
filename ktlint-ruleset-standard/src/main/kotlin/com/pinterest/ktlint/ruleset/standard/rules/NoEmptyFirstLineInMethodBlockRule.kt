@@ -36,4 +36,4 @@ public class NoEmptyFirstLineInMethodBlockRule : StandardRule("no-empty-first-li
     }
 }
 
-public val noEmptyFirstLineInMethodBlockRuleId: RuleId = NoEmptyFirstLineInMethodBlockRule().ruleId
+public val NO_EMPTY_FIRST_LINE_IN_METHOD_BLOCK_RULE_ID: RuleId = NoEmptyFirstLineInMethodBlockRule().ruleId

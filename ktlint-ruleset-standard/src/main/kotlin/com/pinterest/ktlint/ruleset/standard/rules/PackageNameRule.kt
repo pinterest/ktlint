@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType
 import com.pinterest.ktlint.ruleset.core.api.ElementType.PACKAGE_DIRECTIVE
 import com.pinterest.ktlint.ruleset.core.api.RuleId
@@ -40,4 +39,4 @@ public class PackageNameRule : StandardRule("package-name") {
     }
 }
 
-public val packageNameRuleId: RuleId = PackageNameRule().ruleId
+public val PACKAGE_NAME_RULE_ID: RuleId = PackageNameRule().ruleId

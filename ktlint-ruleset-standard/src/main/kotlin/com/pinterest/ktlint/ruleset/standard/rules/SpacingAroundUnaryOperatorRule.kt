@@ -42,4 +42,4 @@ public class SpacingAroundUnaryOperatorRule : StandardRule("unary-op-spacing") {
     }
 }
 
-public val spacingAroundUnaryOperatorRuleId: RuleId = SpacingAroundUnaryOperatorRule().ruleId
+public val SPACING_AROUND_UNARY_OPERATOR_RULE_ID: RuleId = SpacingAroundUnaryOperatorRule().ruleId

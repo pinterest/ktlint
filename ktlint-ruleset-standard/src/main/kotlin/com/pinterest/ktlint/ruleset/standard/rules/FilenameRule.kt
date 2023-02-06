@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.CLASS
 import com.pinterest.ktlint.ruleset.core.api.ElementType.FUN
 import com.pinterest.ktlint.ruleset.core.api.ElementType.IDENTIFIER
@@ -174,4 +173,4 @@ public class FilenameRule : StandardRule("filename") {
     }
 }
 
-public val filenameRuleId: RuleId = FilenameRule().ruleId
+public val FILENAME_RULE_ID: RuleId = FilenameRule().ruleId

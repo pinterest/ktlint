@@ -1,8 +1,8 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.core.api.EditorConfigProperties
-import com.pinterest.ktlint.core.initKtLintKLogger
-import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.logger.api.initKtLintKLogger
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.UsesEditorConfigProperties
+import com.pinterest.ktlint.ruleset.core.api.EditorConfigProperties
 import com.pinterest.ktlint.ruleset.core.api.ElementType.ANNOTATED_EXPRESSION
 import com.pinterest.ktlint.ruleset.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.ruleset.core.api.ElementType.ANNOTATION_ENTRY
@@ -120,17 +120,17 @@ public class IndentationRule :
         visitorModifiers = setOf(
             VisitorModifier.RunAsLateAsPossible,
             VisitorModifier.RunAfterRule(
-                ruleId = functionSignatureRuleId,
+                ruleId = FUNCTION_SIGNATURE_RULE_ID,
                 loadOnlyWhenOtherRuleIsLoaded = false,
                 runOnlyWhenOtherRuleIsEnabled = false,
             ),
             VisitorModifier.RunAfterRule(
-                ruleId = trailingCommaOnCallSiteRuleId,
+                ruleId = TRAILING_COMMA_ON_CALL_SITE_RULE_ID,
                 loadOnlyWhenOtherRuleIsLoaded = false,
                 runOnlyWhenOtherRuleIsEnabled = false,
             ),
             VisitorModifier.RunAfterRule(
-                ruleId = trailingCommaOnDeclarationSiteRuleId,
+                ruleId = TRAILING_COMMA_ON_DECLARATION_SITE_RULE_ID,
                 loadOnlyWhenOtherRuleIsLoaded = false,
                 runOnlyWhenOtherRuleIsEnabled = false,
             ),
@@ -1311,4 +1311,4 @@ private class StringTemplateIndenter(private val indentConfig: IndentConfig) {
     private fun String.isWhitespace() = none { !it.isWhitespace() }
 }
 
-public val indentationRuleId: RuleId = IndentationRule().ruleId
+public val INDENTATION_RULE_ID: RuleId = IndentationRule().ruleId

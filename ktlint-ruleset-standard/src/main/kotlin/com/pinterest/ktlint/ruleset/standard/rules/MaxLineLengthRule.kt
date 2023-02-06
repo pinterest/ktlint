@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.core.api.EditorConfigProperties
-import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.UsesEditorConfigProperties
+import com.pinterest.ktlint.ruleset.core.api.EditorConfigProperties
 import com.pinterest.ktlint.ruleset.core.api.ElementType
 import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
@@ -30,7 +30,7 @@ public class MaxLineLengthRule :
                 // This rule should run after all other rules. Each time a rule visitor is modified with
                 // RunAsLateAsPossible, it needs to be checked that this rule still runs after that new rule or that it
                 // won't be affected by that rule.
-                ruleId = trailingCommaOnCallSiteRuleId,
+                ruleId = TRAILING_COMMA_ON_CALL_SITE_RULE_ID,
                 loadOnlyWhenOtherRuleIsLoaded = false,
                 runOnlyWhenOtherRuleIsEnabled = false,
             ),
@@ -38,7 +38,7 @@ public class MaxLineLengthRule :
                 // This rule should run after all other rules. Each time a rule visitor is modified with
                 // RunAsLateAsPossible, it needs to be checked that this rule still runs after that new rule or that it
                 // won't be affected by that rule.
-                ruleId = trailingCommaOnDeclarationSiteRuleId,
+                ruleId = TRAILING_COMMA_ON_DECLARATION_SITE_RULE_ID,
                 loadOnlyWhenOtherRuleIsLoaded = false,
                 runOnlyWhenOtherRuleIsEnabled = false,
             ),
@@ -264,4 +264,4 @@ internal class RangeTree(seq: List<Int> = emptyList()) {
     }
 }
 
-public val maxLineLengthRuleId: RuleId = MaxLineLengthRule().ruleId
+public val MAX_LINE_LENGTH_RULE_ID: RuleId = MaxLineLengthRule().ruleId

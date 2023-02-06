@@ -26,14 +26,11 @@ artifacts {
 val ktlint: Configuration by configurations.creating
 
 dependencies {
-    ktlint(projects.ktlintCli) // was ktlintRoot
+    ktlint(projects.ktlintCli)
 
-    api(projects.ktlintRulesetCore)
+    implementation(projects.ktlintRulesetCore)
 
-    testImplementation(projects.ktlintCore)
     testImplementation(projects.ktlintTest)
-    testImplementation(libs.junit5)
-    testImplementation(libs.assertj)
 }
 
 val skipTests: String = System.getProperty("skipTests", "false")
@@ -49,8 +46,7 @@ tasks.register<JavaExec>("ktlint") {
     dependsOn(tasks.classes)
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     mainClass.set("com.pinterest.ktlint.Main")
-    // adding compiled classes to the classpath so that ktlint would validate project's sources
-    // using its own ruleset (in other words to dogfood)
+    // Adding compiled classes of this ruleset to the classpath so that ktlint validates the ruleset using its own ruleset
     classpath(ktlint, sourceSets.main.map { it.output })
     args("--log-level=debug", "src/**/*.kt")
 }.let {

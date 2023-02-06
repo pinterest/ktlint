@@ -126,4 +126,4 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
     }
 }
 
-public val spacingAroundColonRuleId: RuleId = SpacingAroundColonRule().ruleId
+public val SPACING_AROUND_COLON_RULE_ID: RuleId = SpacingAroundColonRule().ruleId

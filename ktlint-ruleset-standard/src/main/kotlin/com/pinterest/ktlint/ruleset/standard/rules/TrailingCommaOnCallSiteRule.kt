@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.core.api.EditorConfigProperties
-import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.UsesEditorConfigProperties
+import com.pinterest.ktlint.ruleset.core.api.EditorConfigProperties
 import com.pinterest.ktlint.ruleset.core.api.ElementType
 import com.pinterest.ktlint.ruleset.core.api.ElementType.COLLECTION_LITERAL_EXPRESSION
 import com.pinterest.ktlint.ruleset.core.api.ElementType.INDICES
@@ -35,7 +35,7 @@ public class TrailingCommaOnCallSiteRule :
         id = "trailing-comma-on-call-site",
         visitorModifiers = setOf(
             VisitorModifier.RunAfterRule(
-                ruleId = wrappingRuleId,
+                ruleId = WRAPPING_RULE_ID,
                 loadOnlyWhenOtherRuleIsLoaded = true,
                 runOnlyWhenOtherRuleIsEnabled = true,
             ),
@@ -274,4 +274,4 @@ public class TrailingCommaOnCallSiteRule :
     }
 }
 
-public val trailingCommaOnCallSiteRuleId: RuleId = TrailingCommaOnCallSiteRule().ruleId
+public val TRAILING_COMMA_ON_CALL_SITE_RULE_ID: RuleId = TrailingCommaOnCallSiteRule().ruleId

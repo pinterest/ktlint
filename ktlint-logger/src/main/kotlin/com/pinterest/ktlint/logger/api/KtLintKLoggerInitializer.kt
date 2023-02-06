@@ -1,4 +1,4 @@
-package com.pinterest.ktlint.core
+package com.pinterest.ktlint.logger.api
 
 import mu.KLogger
 

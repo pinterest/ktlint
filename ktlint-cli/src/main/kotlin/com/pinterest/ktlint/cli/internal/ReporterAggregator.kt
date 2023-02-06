@@ -6,7 +6,7 @@ import com.pinterest.ktlint.cli.internal.ReporterAggregator.ReporterConfiguratio
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
 import com.pinterest.ktlint.cli.reporter.core.api.ReporterProviderV2
 import com.pinterest.ktlint.cli.reporter.core.api.ReporterV2
-import com.pinterest.ktlint.core.initKtLintKLogger
+import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import mu.KotlinLogging
 import java.io.File
 import java.io.IOException

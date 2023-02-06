@@ -81,4 +81,4 @@ public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
     }
 }
 
-public val noTrailingSpacesRuleId: RuleId = NoTrailingSpacesRule().ruleId
+public val NO_TRAILING_SPACES_RULE_ID: RuleId = NoTrailingSpacesRule().ruleId

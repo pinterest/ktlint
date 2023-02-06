@@ -15,6 +15,6 @@ internal fun loadRuleProviders(urls: List<URL>): Set<RuleProvider> {
     RuleSetProviderV2::class.java.loadFromJarFiles(urls, providerId = { it.id }, ERROR_WHEN_DEPRECATED_PROVIDER_IS_FOUND)
 
     return RuleSetProviderV3::class.java.loadFromJarFiles(urls, providerId = { it.id }, ERROR_WHEN_REQUIRED_PROVIDER_IS_MISSING)
-        .flatMap { it.getRuleProviders()  }
+        .flatMap { it.getRuleProviders() }
         .toSet()
 }

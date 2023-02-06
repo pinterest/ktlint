@@ -59,4 +59,4 @@ public fun RuleId.ktLintRuleExecutionPropertyName(): String = "ktlint_${value.re
 /**
  * Constructs the name of the '.editorconfig' property that determines whether the rule set with the given [RuleSetId] is to be executed.
  */
-public fun RuleSetId.ktLintRuleSetExecutionPropertyName(): String = "ktlint_${value}"
+public fun RuleSetId.ktLintRuleSetExecutionPropertyName(): String = "ktlint_$value"

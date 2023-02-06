@@ -83,4 +83,4 @@ public class SpacingAroundKeywordRule : StandardRule("keyword-spacing") {
     }
 }
 
-public val spacingAroundKeywordRuleId: RuleId = SpacingAroundKeywordRule().ruleId
+public val SPACING_AROUND_KEYWORD_RULE_ID: RuleId = SpacingAroundKeywordRule().ruleId

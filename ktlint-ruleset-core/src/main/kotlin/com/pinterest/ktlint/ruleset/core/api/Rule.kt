@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.core.api
 
-import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.ruleset.core.internal.IdNamingPolicy
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
@@ -180,4 +179,3 @@ public open class Rule(
      */
     public interface OfficialCodeStyle
 }
-

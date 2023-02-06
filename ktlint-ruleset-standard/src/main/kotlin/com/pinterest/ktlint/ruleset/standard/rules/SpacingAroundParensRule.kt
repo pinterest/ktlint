@@ -88,4 +88,4 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
     }
 }
 
-public val spacingAroundParensRuleId: RuleId = SpacingAroundParensRule().ruleId
+public val SPACING_AROUND_PARENS_RULE_ID: RuleId = SpacingAroundParensRule().ruleId

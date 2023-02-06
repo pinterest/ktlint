@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType
+import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.findCompositeElementOfType
 import com.pinterest.ktlint.ruleset.core.api.isPartOfCompositeElementOfType
@@ -112,4 +112,4 @@ private fun ASTNode.isPartOfCallExpressionFollowedByLambda(): Boolean =
         ?.findChildByType(ElementType.LAMBDA_ARGUMENT)
         .let { it != null }
 
-public val typeArgumentListSpacingRuleId: RuleId = TypeArgumentListSpacingRule().ruleId
+public val TYPE_ARGUMENT_LIST_SPACING_RULE_ID: RuleId = TypeArgumentListSpacingRule().ruleId

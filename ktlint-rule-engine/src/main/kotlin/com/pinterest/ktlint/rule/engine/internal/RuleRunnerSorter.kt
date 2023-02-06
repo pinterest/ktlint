@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import com.pinterest.ktlint.core.initKtLintKLogger
+import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.internal.RuleRunnerSorter.RuleRunnerOrderModifier.ADD
 import com.pinterest.ktlint.rule.engine.internal.RuleRunnerSorter.RuleRunnerOrderModifier.BLOCK_UNTIL_RUN_AFTER_RULE_IS_LOADED
 import com.pinterest.ktlint.rule.engine.internal.RuleRunnerSorter.RuleRunnerOrderModifier.REQUIRED_RUN_AFTER_RULE_NOT_LOADED

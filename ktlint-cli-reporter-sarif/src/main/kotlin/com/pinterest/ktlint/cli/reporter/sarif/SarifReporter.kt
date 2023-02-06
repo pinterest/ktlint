@@ -2,7 +2,7 @@ package com.pinterest.ktlint.cli.reporter.sarif
 
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
 import com.pinterest.ktlint.cli.reporter.core.api.ReporterV2
-import com.pinterest.ktlint.core.ktlintVersion
+import com.pinterest.ktlint.cli.reporter.core.api.ktlintVersion
 import io.github.detekt.sarif4k.ArtifactLocation
 import io.github.detekt.sarif4k.Level
 import io.github.detekt.sarif4k.Location

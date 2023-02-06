@@ -109,4 +109,4 @@ public class NoSemicolonsRule : StandardRule("no-semi") {
             ?.prevCodeLeaf()
 }
 
-public val noSemicolonsRuleId: RuleId = NoSemicolonsRule().ruleId
+public val NO_SEMICOLONS_RULE_ID: RuleId = NoSemicolonsRule().ruleId

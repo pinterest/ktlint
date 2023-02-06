@@ -2,7 +2,7 @@ package com.pinterest.ktlint.cli.internal
 
 import com.pinterest.ktlint.cli.internal.CustomJarProviderCheck.ERROR_WHEN_DEPRECATED_PROVIDER_IS_FOUND
 import com.pinterest.ktlint.cli.internal.CustomJarProviderCheck.ERROR_WHEN_REQUIRED_PROVIDER_IS_MISSING
-import com.pinterest.ktlint.core.initKtLintKLogger
+import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import mu.KotlinLogging
 import java.net.URL
 import java.net.URLClassLoader
@@ -16,7 +16,7 @@ private const val KTLINT_JAR = "ktlint"
 internal fun <T> Class<T>.loadFromJarFiles(
     urls: List<URL>,
     providerId: (T) -> String,
-    customJarProviderCheck: CustomJarProviderCheck
+    customJarProviderCheck: CustomJarProviderCheck,
 ): Set<T> {
     val providersFromKtlintJars =
         this
@@ -58,8 +58,8 @@ internal fun <T> Class<T>.loadFromJarFiles(
                             }
                         } else {
                             LOGGER.error {
-                                "JAR file '${url.path}' is missing a class implementing interface '$canonicalName' (run in debug mode for " +
-                                    "more information)"
+                                "JAR file '${url.path}' is missing a class implementing interface '$canonicalName' (run in debug mode " +
+                                    "for more information)"
                             }
                         }
                         exitKtLintProcess(1)
@@ -83,8 +83,8 @@ internal fun <T> Class<T>.loadFromJarFiles(
                                     }
                                 } else {
                                     LOGGER.error {
-                                        "JAR file '${url.path}' contains a class implementing an unsupported interface '$canonicalName' (run in debug " +
-                                            "mode for more information)"
+                                        "JAR file '${url.path}' contains a class implementing an unsupported interface '$canonicalName' " +
+                                            "(run in debug mode for more information)"
                                     }
                                 }
                                 exitKtLintProcess(1)
@@ -142,5 +142,5 @@ internal enum class CustomJarProviderCheck {
     /**
      * Log an error and exit when the JAR file contains a deprecated provider class
      */
-    ERROR_WHEN_DEPRECATED_PROVIDER_IS_FOUND
+    ERROR_WHEN_DEPRECATED_PROVIDER_IS_FOUND,
 }

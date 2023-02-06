@@ -20,7 +20,12 @@ class RuleSetsLoaderCLITest {
                 SoftAssertions().apply {
                     assertErrorExitCode()
                     assertThat(normalOutput + errorOutput)
-                        .containsLineMatching(Regex(".*ERROR.* JAR file '.*$jarWithoutRulesetProviderV3' is missing a class implementing interface 'com.pinterest.ktlint.ruleset.core.api.RuleSetProviderV3'"))
+                        .containsLineMatching(
+                            Regex(
+                                ".*ERROR.* JAR file '.*$jarWithoutRulesetProviderV3' is missing a class implementing interface " +
+                                    "'com.pinterest.ktlint.ruleset.core.api.RuleSetProviderV3'",
+                            ),
+                        )
                 }.assertAll()
             }
     }
@@ -39,7 +44,12 @@ class RuleSetsLoaderCLITest {
                 SoftAssertions().apply {
                     assertErrorExitCode()
                     assertThat(normalOutput + errorOutput)
-                        .containsLineMatching(Regex(".*ERROR.* JAR file '.*$jarWithRulesetProviderV2' contains a class implementing an unsupported interface 'com.pinterest.ktlint.core.RuleSetProviderV2'"))
+                        .containsLineMatching(
+                            Regex(
+                                ".*ERROR.* JAR file '.*$jarWithRulesetProviderV2' contains a class implementing an unsupported " +
+                                    "interface 'com.pinterest.ktlint.core.RuleSetProviderV2'",
+                            ),
+                        )
                 }.assertAll()
             }
     }

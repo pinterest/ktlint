@@ -1,13 +1,10 @@
-package com.pinterest.ktlint.rule.engine.api
+package com.pinterest.ktlint.ruleset.core.api.editorconfig
 
-import com.pinterest.ktlint.core.api.EditorConfigProperties
-import com.pinterest.ktlint.core.initKtLintKLogger
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.CODE_STYLE_PROPERTY
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.CodeStyleValue
+import com.pinterest.ktlint.logger.api.initKtLintKLogger
+import com.pinterest.ktlint.ruleset.core.api.EditorConfigProperties
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.CodeStyleValue.android_studio
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.CodeStyleValue.intellij_idea
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.CodeStyleValue.ktlint_official
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
 import mu.KotlinLogging
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()

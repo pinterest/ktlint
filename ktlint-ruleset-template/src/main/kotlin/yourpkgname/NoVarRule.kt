@@ -1,7 +1,7 @@
 package yourpkgname
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType
+import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.RuleId
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 

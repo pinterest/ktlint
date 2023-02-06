@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.core.api.EditorConfigProperties
-import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.UsesEditorConfigProperties
+import com.pinterest.ktlint.ruleset.core.api.EditorConfigProperties
 import com.pinterest.ktlint.ruleset.core.api.ElementType.IMPORT_DIRECTIVE
 import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
@@ -107,4 +107,4 @@ public class NoWildcardImportsRule :
     }
 }
 
-public val noWildcardImportsRuleId: RuleId = NoWildcardImportsRule().ruleId
+public val NO_WILDCARD_IMPORTS_RULE_ID: RuleId = NoWildcardImportsRule().ruleId

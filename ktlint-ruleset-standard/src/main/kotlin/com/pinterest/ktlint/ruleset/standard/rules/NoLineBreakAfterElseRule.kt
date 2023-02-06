@@ -32,4 +32,4 @@ public class NoLineBreakAfterElseRule : StandardRule("no-line-break-after-else")
     }
 }
 
-public val noLineBreakAfterElseRuleId: RuleId = NoLineBreakAfterElseRule().ruleId
+public val NO_LINE_BREAK_AFTER_ELSE_RULE_ID: RuleId = NoLineBreakAfterElseRule().ruleId

@@ -11,6 +11,7 @@ internal class RuleRunner(private val provider: RuleProvider) {
     private var rule = provider.createNewRuleInstance()
 
     val ruleId = rule.ruleId
+
     // TODO: refactor
     val ruleSetId = rule.ruleId.ruleSetId.value
 

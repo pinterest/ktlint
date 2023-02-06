@@ -67,4 +67,4 @@ public class SpacingBetweenDeclarationsWithAnnotationsRule : StandardRule("spaci
     private fun ASTNode.hasAnnotationsAsChildren(): Boolean = children().find { it.psi is KtAnnotationEntry } != null
 }
 
-public val spacingBetweenDeclarationsWithAnnotationsRuleId: RuleId = SpacingBetweenDeclarationsWithAnnotationsRule().ruleId
+public val SPACING_BETWEEN_DECLARATIONS_WITH_ANNOTATIONS_RULE_ID: RuleId = SpacingBetweenDeclarationsWithAnnotationsRule().ruleId

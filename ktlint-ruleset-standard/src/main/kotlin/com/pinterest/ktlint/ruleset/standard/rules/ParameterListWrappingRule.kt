@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.core.api.EditorConfigProperties
-import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.UsesEditorConfigProperties
+import com.pinterest.ktlint.ruleset.core.api.EditorConfigProperties
 import com.pinterest.ktlint.ruleset.core.api.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.ruleset.core.api.ElementType.FUNCTION_TYPE
 import com.pinterest.ktlint.ruleset.core.api.ElementType.LPAR
@@ -264,4 +264,4 @@ public class ParameterListWrappingRule :
     }
 }
 
-public val parameterListWrappingRuleId: RuleId = ParameterListWrappingRule().ruleId
+public val PARAMETER_LIST_WRAPPING_RULE_ID: RuleId = ParameterListWrappingRule().ruleId

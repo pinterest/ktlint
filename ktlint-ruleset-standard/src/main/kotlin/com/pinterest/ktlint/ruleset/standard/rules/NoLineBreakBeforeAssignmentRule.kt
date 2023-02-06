@@ -44,4 +44,4 @@ public class NoLineBreakBeforeAssignmentRule : StandardRule("no-line-break-befor
     }
 }
 
-public val noLineBreakBeforeAssignmentRuleId: RuleId = NoLineBreakBeforeAssignmentRule().ruleId
+public val NO_LINE_BREAK_BEFORE_ASSIGNMENT_RULE_ID: RuleId = NoLineBreakBeforeAssignmentRule().ruleId

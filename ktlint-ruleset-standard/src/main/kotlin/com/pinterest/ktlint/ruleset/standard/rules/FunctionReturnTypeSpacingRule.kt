@@ -66,4 +66,4 @@ public class FunctionReturnTypeSpacingRule :
     }
 }
 
-public val functionReturnTypeSpacingRuleId: RuleId = FunctionReturnTypeSpacingRule().ruleId
+public val FUNCTION_RETURN_TYPE_SPACING_RULE_ID: RuleId = FunctionReturnTypeSpacingRule().ruleId

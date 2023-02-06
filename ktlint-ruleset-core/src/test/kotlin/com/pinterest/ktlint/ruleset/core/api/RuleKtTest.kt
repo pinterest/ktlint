@@ -15,7 +15,6 @@ class RuleKtTest {
             .hasMessage("Rule id 'some-unqualified-rule-id' must match '[a-z]+(-[a-z]+)*:[a-z]+(-[a-z]+)*'")
     }
 
-
     @ParameterizedTest(name = "Qualified rule id: `{0}`, expected rule id: `{1}`")
     @ValueSource(
         strings = [

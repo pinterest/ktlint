@@ -37,4 +37,4 @@ public class NoMultipleSpacesRule : StandardRule("no-multi-spaces") {
     private fun ASTNode.isPossibleAlignmentOfKdocTag() = treePrev?.elementType == KDOC_MARKDOWN_LINK && treeParent?.elementType == KDOC_TAG
 }
 
-public val noMultipleSpacesRuleId: RuleId = NoMultipleSpacesRule().ruleId
+public val NO_MULTIPLE_SPACES_RULE_ID: RuleId = NoMultipleSpacesRule().ruleId
