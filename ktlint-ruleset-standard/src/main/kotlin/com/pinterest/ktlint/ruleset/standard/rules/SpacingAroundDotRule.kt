@@ -1,15 +1,16 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.isPartOfComment
 import com.pinterest.ktlint.ruleset.core.api.isPartOfString
 import com.pinterest.ktlint.ruleset.core.api.nextLeaf
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
-public class SpacingAroundDotRule : Rule("dot-spacing") {
+public class SpacingAroundDotRule : StandardRule("dot-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -33,3 +34,5 @@ public class SpacingAroundDotRule : Rule("dot-spacing") {
         }
     }
 }
+
+public val spacingAroundDotRuleId: RuleId = SpacingAroundDotRule().ruleId

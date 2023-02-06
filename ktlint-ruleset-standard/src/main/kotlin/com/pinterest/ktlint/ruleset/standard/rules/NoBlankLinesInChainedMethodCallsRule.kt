@@ -1,12 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
+import com.pinterest.ktlint.ruleset.core.api.RuleId
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
-public class NoBlankLinesInChainedMethodCallsRule : Rule("no-blank-lines-in-chained-method-calls") {
+public class NoBlankLinesInChainedMethodCallsRule : StandardRule("no-blank-lines-in-chained-method-calls") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -22,3 +23,5 @@ public class NoBlankLinesInChainedMethodCallsRule : Rule("no-blank-lines-in-chai
         }
     }
 }
+
+public val noBlankLinesInChainedMethodCallsRuleId: RuleId = NoBlankLinesInChainedMethodCallsRule().ruleId

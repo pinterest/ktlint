@@ -1,10 +1,10 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.ruleset.core.api.ElementType.ENUM_ENTRY
 import com.pinterest.ktlint.ruleset.core.api.ElementType.OBJECT_KEYWORD
 import com.pinterest.ktlint.ruleset.core.api.ElementType.SEMICOLON
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.isWhiteSpace
 import com.pinterest.ktlint.ruleset.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.ruleset.core.api.nextLeaf
@@ -12,6 +12,7 @@ import com.pinterest.ktlint.ruleset.core.api.parent
 import com.pinterest.ktlint.ruleset.core.api.prevCodeLeaf
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.core.api.upsertWhitespaceAfterMe
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
@@ -23,7 +24,7 @@ import org.jetbrains.kotlin.psi.KtIfExpression
 import org.jetbrains.kotlin.psi.KtLoopExpression
 import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
 
-public class NoSemicolonsRule : Rule("no-semi") {
+public class NoSemicolonsRule : StandardRule("no-semi") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -107,3 +108,5 @@ public class NoSemicolonsRule : Rule("no-semi") {
             ?.lastChildLeafOrSelf()
             ?.prevCodeLeaf()
 }
+
+public val noSemicolonsRuleId: RuleId = NoSemicolonsRule().ruleId

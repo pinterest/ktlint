@@ -9,8 +9,10 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.OBJECT_DECLARATION
 import com.pinterest.ktlint.ruleset.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPEALIAS
 import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPE_REFERENCE
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.children
 import com.pinterest.ktlint.ruleset.core.api.isRoot
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.internal.regExIgnoringDiacriticsAndStrokesOnLetters
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
@@ -40,7 +42,7 @@ import org.jetbrains.kotlin.psi.KtFile
  * - file without `.kt` extension
  * - file with name `package.kt`
  */
-public class FilenameRule : Rule("filename") {
+public class FilenameRule : StandardRule("filename") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -171,3 +173,5 @@ public class FilenameRule : Rule("filename") {
         val NON_CLASS_RELATED_TOP_LEVEL_DECLARATION_TYPES = listOf(OBJECT_DECLARATION, TYPEALIAS, PROPERTY)
     }
 }
+
+public val filenameRuleId: RuleId = FilenameRule().ruleId

@@ -22,6 +22,7 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.ruleset.core.api.IndentConfig
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.children
 import com.pinterest.ktlint.ruleset.core.api.isWhiteSpace
 import com.pinterest.ktlint.ruleset.core.api.isWhiteSpaceWithNewline
@@ -35,6 +36,7 @@ import com.pinterest.ktlint.ruleset.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.core.api.prevSibling
 import com.pinterest.ktlint.ruleset.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.ruleset.core.api.upsertWhitespaceBeforeMe
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.FunctionBodyExpressionWrapping.always
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.FunctionBodyExpressionWrapping.default
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.FunctionBodyExpressionWrapping.multiline
@@ -46,7 +48,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 
 public class FunctionSignatureRule :
-    Rule(
+    StandardRule(
         id = "function-signature",
         visitorModifiers = setOf(
             // Run after wrapping and spacing rules
@@ -773,3 +775,5 @@ public class FunctionSignatureRule :
         always,
     }
 }
+
+public val functionSignatureRuleId: RuleId = FunctionSignatureRule().ruleId

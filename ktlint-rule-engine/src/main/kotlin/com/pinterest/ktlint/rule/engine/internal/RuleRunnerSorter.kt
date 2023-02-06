@@ -1,11 +1,12 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
-import com.pinterest.ktlint.ruleset.core.api.Rule.VisitorModifier.RunAfterRule
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.internal.RuleRunnerSorter.RuleRunnerOrderModifier.ADD
 import com.pinterest.ktlint.rule.engine.internal.RuleRunnerSorter.RuleRunnerOrderModifier.BLOCK_UNTIL_RUN_AFTER_RULE_IS_LOADED
 import com.pinterest.ktlint.rule.engine.internal.RuleRunnerSorter.RuleRunnerOrderModifier.REQUIRED_RUN_AFTER_RULE_NOT_LOADED
+import com.pinterest.ktlint.ruleset.core.api.Rule
+import com.pinterest.ktlint.ruleset.core.api.Rule.VisitorModifier.RunAfterRule
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import mu.KotlinLogging
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
@@ -42,7 +43,7 @@ internal class RuleRunnerSorter {
                 if (previousValue == null) {
                     // Logging was not printed for this combination of rule runners as no entry was found in the cache
                     ruleReferences
-                        .map { it.qualifiedRuleId }
+                        .map { it.ruleId }
                         .joinToString(prefix = "Rules will be executed in order below (unless disabled):") {
                             "\n           - $it"
                         }.also { LOGGER.debug(it) }
@@ -53,7 +54,7 @@ internal class RuleRunnerSorter {
 
     private fun createHashCode(ruleRunners: Set<RuleRunner>): Int {
         val cacheKey = ruleRunners
-            .map { it.qualifiedRuleId }
+            .map { it.ruleId.value }
             .sorted()
             .joinToString(prefix = "rule-ids=[", separator = ",", postfix = "]")
         return cacheKey.hashCode()
@@ -74,7 +75,7 @@ internal class RuleRunnerSorter {
             } else {
                 1
             }
-        }.thenBy { it.qualifiedRuleId }
+        }.thenBy { it.ruleId.value }
 
     private fun List<RuleRunner>.applyRunAfterRuleToRuleExecutionOrder(): List<RuleRunner> {
         // The new list of rule runners retains the order of the original list of rule runners as much as possible. Rule
@@ -112,11 +113,11 @@ internal class RuleRunnerSorter {
                         .runAfterRules
                         .map { runAfterRule ->
                             when {
-                                runAfterRule.ruleId in newRuleRunners.map { it.qualifiedRuleId } -> {
+                                runAfterRule.ruleId in newRuleRunners.map { it.ruleId } -> {
                                     ADD
                                 }
 
-                                runAfterRule.ruleId in this.map { it.qualifiedRuleId } -> {
+                                runAfterRule.ruleId in this.map { it.ruleId } -> {
                                     BLOCK_UNTIL_RUN_AFTER_RULE_IS_LOADED
                                 }
 
@@ -124,13 +125,13 @@ internal class RuleRunnerSorter {
                                     // The runAfterRule depends on a rule which will not be loaded. As the rule on which the
                                     // current rule depends is required, the current rule has to be skipped.
                                     LOGGER.warn {
-                                        "Skipping rule with id '${currentRuleRunner.qualifiedRuleId}' as it requires " +
-                                            "that the rule with id '${runAfterRule.ruleId}' is loaded. However, " +
+                                        "Skipping rule with id '${currentRuleRunner.ruleId.value}' as it requires " +
+                                            "that the rule with id '${runAfterRule.ruleId.value}' is loaded. However, " +
                                             "no rule with this id is loaded."
                                     }
                                     requiredButMissingRuleIds.add(
                                         RunAfterRuleRequiredButNotLoaded(
-                                            currentRuleRunner.qualifiedRuleId,
+                                            currentRuleRunner.ruleId,
                                             runAfterRule.ruleId,
                                         ),
                                     )
@@ -139,8 +140,8 @@ internal class RuleRunnerSorter {
 
                                 else -> {
                                     LOGGER.debug {
-                                        "Rule with id '${currentRuleRunner.qualifiedRuleId}' should run after the " +
-                                            "rule with id '${runAfterRule.ruleId}'. However, the latter " +
+                                        "Rule with id '${currentRuleRunner.ruleId.value}' should run after the " +
+                                            "rule with id '${runAfterRule.ruleId.value}'. However, the latter " +
                                             "rule is not loaded and is allowed to be ignored. For best results, it is " +
                                             "advised load the rule."
                                     }
@@ -203,9 +204,11 @@ internal class RuleRunnerSorter {
                 }
             val separator = "\n  - "
             blockedRuleRunners.joinToString(prefix = prefix + separator, separator = separator) {
-                "Rule with id '${it.qualifiedRuleId}' should run after rule(s) with id '${it.runAfterRules.joinToString(separator = ", ") {
-                    it.ruleId
-                } }'"
+                "Rule with id '${it.ruleId.value}' should run after rule(s) with id '${
+                    it.runAfterRules.joinToString(separator = ", ") {
+                        it.ruleId.value
+                    }
+                }'"
             }
         }
         check(newRuleRunners.isNotEmpty()) {
@@ -215,18 +218,18 @@ internal class RuleRunnerSorter {
     }
 
     private fun Set<RuleRunner>.canRunWith(loadedRuleRunners: List<RuleRunner>): List<RuleRunner> =
-        canRunWithRuleIds(loadedRuleRunners.map { it.qualifiedRuleId })
+        canRunWithRuleIds(loadedRuleRunners.map { it.ruleId })
 
-    private fun Set<RuleRunner>.canRunWithRuleIds(loadedRuleIds: List<String>): List<RuleRunner> {
+    private fun Set<RuleRunner>.canRunWithRuleIds(loadedRuleIds: List<RuleId>): List<RuleRunner> {
         return this
             .filter { it.canRunWith(loadedRuleIds) }
             .let { unblockedRuleRunners ->
                 if (unblockedRuleRunners.isEmpty()) {
                     unblockedRuleRunners
                 } else {
-                    val unblockedRuleIds = unblockedRuleRunners.map { it.qualifiedRuleId }
+                    val unblockedRuleIds = unblockedRuleRunners.map { it.ruleId }
                     this
-                        .filter { it.qualifiedRuleId !in unblockedRuleIds }
+                        .filter { it.ruleId !in unblockedRuleIds }
                         .toSet()
                         .canRunWithRuleIds(loadedRuleIds.plus(unblockedRuleIds))
                         .plus(unblockedRuleRunners)
@@ -234,9 +237,9 @@ internal class RuleRunnerSorter {
             }
     }
 
-    private fun RuleRunner.canRunWith(loadedRuleIds: List<String>): Boolean = this.runAfterRules.all { it.ruleId in loadedRuleIds }
+    private fun RuleRunner.canRunWith(loadedRuleIds: List<RuleId>): Boolean = this.runAfterRules.all { it.ruleId in loadedRuleIds }
 
-    private data class RunAfterRuleRequiredButNotLoaded(val ruleId: String, val runAfterRuleId: String)
+    private data class RunAfterRuleRequiredButNotLoaded(val ruleId: RuleId, val runAfterRuleId: RuleId)
 
     private enum class RuleRunnerOrderModifier(val severity: Int) {
         /**

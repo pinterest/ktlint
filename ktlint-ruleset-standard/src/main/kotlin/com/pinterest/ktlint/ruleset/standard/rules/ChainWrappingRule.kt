@@ -23,6 +23,7 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.PREFIX_EXPRESSION
 import com.pinterest.ktlint.ruleset.core.api.ElementType.SAFE_ACCESS
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.ruleset.core.api.IndentConfig
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.isPartOfComment
 import com.pinterest.ktlint.ruleset.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.ruleset.core.api.isWhiteSpaceWithoutNewline
@@ -33,6 +34,7 @@ import com.pinterest.ktlint.ruleset.core.api.prevCodeLeaf
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.ruleset.core.api.upsertWhitespaceBeforeMe
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
@@ -42,7 +44,7 @@ import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 
 public class ChainWrappingRule :
-    Rule("chain-wrapping"),
+    StandardRule("chain-wrapping"),
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> =
         listOf(
@@ -151,3 +153,5 @@ public class ChainWrappingRule :
             leaves().takeWhile { it.isWhiteSpaceWithoutNewline() || it.isPartOfComment() }.any()
     }
 }
+
+public val chainWrappingRuleId: RuleId = ChainWrappingRule().ruleId

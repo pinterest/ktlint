@@ -7,6 +7,7 @@ import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.LintError
 import com.pinterest.ktlint.ruleset.core.api.ElementType
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.standard.rules.FilenameRule
 import com.pinterest.ktlint.ruleset.standard.rules.IndentationRule
 import org.assertj.core.api.Assertions.assertThat
@@ -261,7 +262,7 @@ class KtLintRuleEngineTest {
     }
 
     private class NoVarRule :
-        Rule(NO_VAR_RULE_ID),
+        Rule(RuleId(NO_VAR_RULE_ID)),
         Rule.Experimental {
         override fun beforeVisitChildNodes(
             node: ASTNode,
@@ -274,7 +275,7 @@ class KtLintRuleEngineTest {
         }
 
         companion object {
-            const val NO_VAR_RULE_ID = "no-var-rule"
+            const val NO_VAR_RULE_ID = "test:no-var-rule"
         }
     }
 }

@@ -1,21 +1,20 @@
 package com.pinterest.ktlint.rule.engine.internal
 
+import com.pinterest.ktlint.ruleset.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.Rule.VisitorModifier.RunAfterRule
+import com.pinterest.ktlint.ruleset.core.api.Rule.VisitorModifier.RunAsLateAsPossible
 import com.pinterest.ktlint.ruleset.core.api.RuleProvider
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
 
 // TODO: Rename to RuleInstanceProvider. Also rename RuleRunnerSorter.
 internal class RuleRunner(private val provider: RuleProvider) {
     private var rule = provider.createNewRuleInstance()
 
-    val qualifiedRuleId = rule.qualifiedRuleId
-    val shortenedQualifiedRuleId = qualifiedRuleId.removePrefix("standard:")
+    val ruleId = rule.ruleId
+    // TODO: refactor
+    val ruleSetId = rule.ruleId.ruleSetId.value
 
-    val ruleId = rule.id
-    val ruleSetId = qualifiedRuleId.substringBefore(':')
-
-    val runAsLateAsPossible = rule.visitorModifiers.contains(Rule.VisitorModifier.RunAsLateAsPossible)
+    val runAsLateAsPossible = rule.visitorModifiers.contains(RunAsLateAsPossible)
     var runAfterRules = setRunAfterRules()
 
     /**
@@ -35,15 +34,15 @@ internal class RuleRunner(private val provider: RuleProvider) {
             .visitorModifiers
             .filterIsInstance<RunAfterRule>()
             .map { runAfterRuleVisitorModifier ->
-                check(qualifiedRuleId != runAfterRuleVisitorModifier.qualifiedRuleId) {
+                check(ruleId != runAfterRuleVisitorModifier.ruleId) {
                     // Do not print the fully qualified rule id in the error message as it might not appear in the code
                     // in case it is a rule from the 'standard' rule set.
-                    "Rule with id '${rule.id}' has a visitor modifier of type '${RunAfterRule::class.simpleName}' " +
+                    "Rule with id '${ruleId.value}' has a visitor modifier of type '${RunAfterRule::class.simpleName}' " +
                         "but it is not referring to another rule but to the rule itself. A rule can not run after " +
                         "itself. This should be fixed by the maintainer of the rule."
                 }
                 runAfterRuleVisitorModifier.copy(
-                    ruleId = runAfterRuleVisitorModifier.qualifiedRuleId,
+                    ruleId = runAfterRuleVisitorModifier.ruleId,
                 )
             }
 

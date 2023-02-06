@@ -3,17 +3,19 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType
 import com.pinterest.ktlint.ruleset.core.api.ElementType.FUN
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.nextLeaf
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.ruleset.core.api.upsertWhitespaceBeforeMe
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 /**
  * Lints and formats the spacing after the fun keyword
  */
 public class FunctionStartOfBodySpacingRule :
-    Rule("function-start-of-body-spacing"),
+    StandardRule("function-start-of-body-spacing"),
     Rule.Experimental {
     override fun beforeVisitChildNodes(
         node: ASTNode,
@@ -122,3 +124,5 @@ public class FunctionStartOfBodySpacingRule :
             }
     }
 }
+
+public val functionStartOfBodySpacingRuleId: RuleId = FunctionStartOfBodySpacingRule().ruleId

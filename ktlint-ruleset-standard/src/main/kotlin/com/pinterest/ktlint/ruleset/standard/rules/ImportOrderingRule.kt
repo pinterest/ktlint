@@ -6,6 +6,8 @@ import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.ruleset.core.api.ElementType
+import com.pinterest.ktlint.ruleset.core.api.RuleId
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.ImportOrderingRule.Companion.ASCII_PATTERN
 import com.pinterest.ktlint.ruleset.standard.rules.ImportOrderingRule.Companion.IDEA_PATTERN
 import com.pinterest.ktlint.ruleset.standard.rules.internal.importordering.ImportSorter
@@ -38,7 +40,7 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
  * In case the custom property is not provided, the rule defaults to alphabetical order in case of "android" flag supplied, or to idea otherwise.
  */
 public class ImportOrderingRule :
-    Rule("import-ordering"),
+    StandardRule("import-ordering"),
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
         IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY,
@@ -269,3 +271,5 @@ public class ImportOrderingRule :
             IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY
     }
 }
+
+public val importOrderingRuleId: RuleId = ImportOrderingRule().ruleId

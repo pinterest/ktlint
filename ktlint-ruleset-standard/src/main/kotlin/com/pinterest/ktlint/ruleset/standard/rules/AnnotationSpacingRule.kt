@@ -1,7 +1,8 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType
+import com.pinterest.ktlint.ruleset.core.api.Rule
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.isPartOf
 import com.pinterest.ktlint.ruleset.core.api.isPartOfComment
 import com.pinterest.ktlint.ruleset.core.api.isWhiteSpace
@@ -10,6 +11,7 @@ import com.pinterest.ktlint.ruleset.core.api.nextCodeSibling
 import com.pinterest.ktlint.ruleset.core.api.nextLeaf
 import com.pinterest.ktlint.ruleset.core.api.nextSibling
 import com.pinterest.ktlint.ruleset.core.api.prevSibling
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -24,7 +26,7 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
  *
  * https://kotlinlang.org/docs/reference/coding-conventions.html#annotation-formatting
  */
-public class AnnotationSpacingRule : Rule("annotation-spacing") {
+public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
     private companion object {
         const val ERROR_MESSAGE = "Annotations should occur immediately before the annotated construct"
     }
@@ -182,3 +184,5 @@ public class AnnotationSpacingRule : Rule("annotation-spacing") {
     private fun ASTNode.isCommentOnSameLineAsPrevLeaf() =
         isPartOfComment() && leaves(forward = false).takeWhile { it.isWhiteSpace() }.none { "\n" in it.text }
 }
+
+public val annotationSpacingRuleId: RuleId = AnnotationSpacingRule().ruleId

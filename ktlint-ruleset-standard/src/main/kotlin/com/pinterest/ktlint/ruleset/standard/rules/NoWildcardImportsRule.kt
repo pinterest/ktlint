@@ -1,17 +1,18 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.ruleset.core.api.ElementType.IMPORT_DIRECTIVE
+import com.pinterest.ktlint.ruleset.core.api.RuleId
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.internal.importordering.PatternEntry
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.psi.KtImportDirective
 
 public class NoWildcardImportsRule :
-    Rule("no-wildcard-imports"),
+    StandardRule("no-wildcard-imports"),
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
         IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND,
@@ -105,3 +106,5 @@ public class NoWildcardImportsRule :
             IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND
     }
 }
+
+public val noWildcardImportsRuleId: RuleId = NoWildcardImportsRule().ruleId

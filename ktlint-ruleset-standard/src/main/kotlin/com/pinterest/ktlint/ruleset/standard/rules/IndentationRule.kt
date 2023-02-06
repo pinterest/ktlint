@@ -1,14 +1,8 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.CODE_STYLE_PROPERTY
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.CodeStyleValue.ktlint_official
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_SIZE_PROPERTY
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.ruleset.core.api.ElementType.ANNOTATED_EXPRESSION
 import com.pinterest.ktlint.ruleset.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.ruleset.core.api.ElementType.ANNOTATION_ENTRY
@@ -85,7 +79,13 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.ruleset.core.api.IndentConfig
 import com.pinterest.ktlint.ruleset.core.api.IndentConfig.IndentStyle.SPACE
 import com.pinterest.ktlint.ruleset.core.api.IndentConfig.IndentStyle.TAB
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.children
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.CodeStyleValue.ktlint_official
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.ruleset.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.ruleset.core.api.isPartOfComment
 import com.pinterest.ktlint.ruleset.core.api.isRoot
@@ -101,6 +101,7 @@ import com.pinterest.ktlint.ruleset.core.api.parent
 import com.pinterest.ktlint.ruleset.core.api.prevCodeLeaf
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.core.api.prevSibling
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import mu.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
@@ -114,22 +115,22 @@ import java.util.LinkedList
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 public class IndentationRule :
-    Rule(
+    StandardRule(
         id = "indent",
         visitorModifiers = setOf(
             VisitorModifier.RunAsLateAsPossible,
             VisitorModifier.RunAfterRule(
-                ruleId = "function-signature",
+                ruleId = functionSignatureRuleId,
                 loadOnlyWhenOtherRuleIsLoaded = false,
                 runOnlyWhenOtherRuleIsEnabled = false,
             ),
             VisitorModifier.RunAfterRule(
-                ruleId = "trailing-comma-on-call-site",
+                ruleId = trailingCommaOnCallSiteRuleId,
                 loadOnlyWhenOtherRuleIsLoaded = false,
                 runOnlyWhenOtherRuleIsEnabled = false,
             ),
             VisitorModifier.RunAfterRule(
-                ruleId = "trailing-comma-on-declaration-site",
+                ruleId = trailingCommaOnDeclarationSiteRuleId,
                 loadOnlyWhenOtherRuleIsLoaded = false,
                 runOnlyWhenOtherRuleIsEnabled = false,
             ),
@@ -1309,3 +1310,5 @@ private class StringTemplateIndenter(private val indentConfig: IndentConfig) {
 
     private fun String.isWhitespace() = none { !it.isWhitespace() }
 }
+
+public val indentationRuleId: RuleId = IndentationRule().ruleId

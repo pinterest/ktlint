@@ -11,12 +11,14 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType
 import com.pinterest.ktlint.ruleset.core.api.ElementType.ELSE
 import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.ruleset.core.api.IndentConfig
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.column
 import com.pinterest.ktlint.ruleset.core.api.isPartOfComment
 import com.pinterest.ktlint.ruleset.core.api.isWhiteSpace
 import com.pinterest.ktlint.ruleset.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.ruleset.core.api.lineIndent
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -38,13 +40,13 @@ import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
  * in addition, "(" and ")" must be on separates line if any of the arguments are (otherwise on the same)
  */
 public class ArgumentListWrappingRule :
-    Rule(
+    StandardRule(
         id = "argument-list-wrapping",
         visitorModifiers = setOf(
             VisitorModifier.RunAfterRule(
                 // ArgumentListWrapping should only be used in case after normal wrapping the max_line_length is still
                 // violated
-                ruleId = "wrapping",
+                ruleId = wrappingRuleId,
                 loadOnlyWhenOtherRuleIsLoaded = false,
                 runOnlyWhenOtherRuleIsEnabled = false,
             ),
@@ -267,3 +269,5 @@ public class ArgumentListWrappingRule :
         return true
     }
 }
+
+public val argumentListWrappingRuleId: RuleId = ArgumentListWrappingRule().ruleId

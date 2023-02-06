@@ -1,8 +1,9 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.MODIFIER_LIST
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.children
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
@@ -17,7 +18,7 @@ import org.jetbrains.kotlin.psi.psiUtil.prevLeafs
 /**
  * @see https://youtrack.jetbrains.com/issue/KT-35106
  */
-public class SpacingBetweenDeclarationsWithAnnotationsRule : Rule("spacing-between-declarations-with-annotations") {
+public class SpacingBetweenDeclarationsWithAnnotationsRule : StandardRule("spacing-between-declarations-with-annotations") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -65,3 +66,5 @@ public class SpacingBetweenDeclarationsWithAnnotationsRule : Rule("spacing-betwe
 
     private fun ASTNode.hasAnnotationsAsChildren(): Boolean = children().find { it.psi is KtAnnotationEntry } != null
 }
+
+public val spacingBetweenDeclarationsWithAnnotationsRuleId: RuleId = SpacingBetweenDeclarationsWithAnnotationsRule().ruleId

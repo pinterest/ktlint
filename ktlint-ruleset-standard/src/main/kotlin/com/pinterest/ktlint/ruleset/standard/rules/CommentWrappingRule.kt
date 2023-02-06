@@ -8,11 +8,13 @@ import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.ruleset.core.api.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.ruleset.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.hasNewLineInClosedRange
 import com.pinterest.ktlint.ruleset.core.api.lineIndent
 import com.pinterest.ktlint.ruleset.core.api.nextLeaf
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.core.api.upsertWhitespaceBeforeMe
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiCommentImpl
@@ -22,7 +24,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiCommentImpl
  * another element on the same line is replaced with an EOL comment, if possible.
  */
 public class CommentWrappingRule :
-    Rule("comment-wrapping"),
+    StandardRule("comment-wrapping"),
     Rule.Experimental,
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> =
@@ -127,3 +129,5 @@ public class CommentWrappingRule :
 
     private fun ASTNode?.isLastElementOnLine() = this == null || (elementType == WHITE_SPACE && textContains('\n'))
 }
+
+public val commentWrappingRuleId: RuleId = CommentWrappingRule().ruleId

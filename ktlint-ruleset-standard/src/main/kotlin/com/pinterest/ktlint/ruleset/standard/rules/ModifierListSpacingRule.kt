@@ -5,12 +5,14 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.ruleset.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.ruleset.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.children
 import com.pinterest.ktlint.ruleset.core.api.isPartOfComment
 import com.pinterest.ktlint.ruleset.core.api.lineIndent
 import com.pinterest.ktlint.ruleset.core.api.nextLeaf
 import com.pinterest.ktlint.ruleset.core.api.nextSibling
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
@@ -18,7 +20,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
  * Lint and format the spacing between the modifiers in and after the last modifier in a modifier list.
  */
 public class ModifierListSpacingRule :
-    Rule("modifier-list-spacing"),
+    StandardRule("modifier-list-spacing"),
     Rule.Experimental {
     override fun beforeVisitChildNodes(
         node: ASTNode,
@@ -84,3 +86,5 @@ public class ModifierListSpacingRule :
 
     private fun ASTNode?.isAnnotationElement() = this != null && (elementType == ANNOTATION || elementType == ANNOTATION_ENTRY)
 }
+
+public val modifierListSpacingRuleId: RuleId = ModifierListSpacingRule().ruleId

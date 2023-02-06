@@ -2,13 +2,15 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.EOL_COMMENT
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.core.api.upsertWhitespaceBeforeMe
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
-public class CommentSpacingRule : Rule("comment-spacing") {
+public class CommentSpacingRule : StandardRule("comment-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -38,3 +40,5 @@ public class CommentSpacingRule : Rule("comment-spacing") {
         }
     }
 }
+
+public val commentSpacingRuleId: RuleId = CommentSpacingRule().ruleId

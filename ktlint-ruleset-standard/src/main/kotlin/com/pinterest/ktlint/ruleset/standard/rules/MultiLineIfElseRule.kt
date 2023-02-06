@@ -15,12 +15,14 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.ruleset.core.api.ElementType.RPAR
 import com.pinterest.ktlint.ruleset.core.api.ElementType.THEN
 import com.pinterest.ktlint.ruleset.core.api.IndentConfig
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.isPartOfComment
 import com.pinterest.ktlint.ruleset.core.api.isWhiteSpace
 import com.pinterest.ktlint.ruleset.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.ruleset.core.api.lineIndent
 import com.pinterest.ktlint.ruleset.core.api.nextSibling
 import com.pinterest.ktlint.ruleset.core.api.upsertWhitespaceBeforeMe
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
@@ -31,7 +33,7 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
  * https://kotlinlang.org/docs/reference/coding-conventions.html#formatting-control-flow-statements
  */
 public class MultiLineIfElseRule :
-    Rule("multiline-if-else"),
+    StandardRule("multiline-if-else"),
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> =
         listOf(
@@ -120,3 +122,5 @@ public class MultiLineIfElseRule :
         }
     }
 }
+
+public val multiLineIfElseRuleId: RuleId = MultiLineIfElseRule().ruleId

@@ -1,13 +1,14 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.RBRACE
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.nextLeaf
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
-public class NoBlankLineBeforeRbraceRule : Rule("no-blank-line-before-rbrace") {
+public class NoBlankLineBeforeRbraceRule : StandardRule("no-blank-line-before-rbrace") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -31,3 +32,5 @@ public class NoBlankLineBeforeRbraceRule : Rule("no-blank-line-before-rbrace") {
         }
     }
 }
+
+public val noBlankLineBeforeRbraceRuleId: RuleId = NoBlankLineBeforeRbraceRule().ruleId

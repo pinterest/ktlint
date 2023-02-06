@@ -1,10 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.children
 import com.pinterest.ktlint.ruleset.core.api.isPartOfComment
 import com.pinterest.ktlint.ruleset.core.api.isWhiteSpace
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 /**
@@ -12,7 +13,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  *
  * @see [Kotlin Style Guide](https://kotlinlang.org/docs/reference/coding-conventions.html#horizontal-whitespace)
  */
-public class SpacingAroundUnaryOperatorRule : Rule("unary-op-spacing") {
+public class SpacingAroundUnaryOperatorRule : StandardRule("unary-op-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -40,3 +41,5 @@ public class SpacingAroundUnaryOperatorRule : Rule("unary-op-spacing") {
         }
     }
 }
+
+public val spacingAroundUnaryOperatorRuleId: RuleId = SpacingAroundUnaryOperatorRule().ruleId

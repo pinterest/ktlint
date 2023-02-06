@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.api.EditorConfigProperties
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.internal.IdNamingPolicyLegacy
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
@@ -43,13 +42,11 @@ public open class Rule(
     /**
      * The id of the rule without the rule set id as prefix.
      */
-    @OptIn(FeatureInAlphaState::class)
     public val ruleId: String = id.ruleId()
 
     /**
      * The rule set id of the rule. Defaults to "standard" when not specified during construction of the rule.
      */
-    @OptIn(FeatureInAlphaState::class)
     public val ruleSetId: String = id.ruleSetId()
 
     /**

@@ -1,9 +1,9 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.GT
 import com.pinterest.ktlint.ruleset.core.api.ElementType.RBRACKET
 import com.pinterest.ktlint.ruleset.core.api.ElementType.RPAR
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.isPartOfString
 import com.pinterest.ktlint.ruleset.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.ruleset.core.api.nextLeaf
@@ -11,13 +11,14 @@ import com.pinterest.ktlint.ruleset.core.api.nextSibling
 import com.pinterest.ktlint.ruleset.core.api.prevCodeLeaf
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.core.api.upsertWhitespaceAfterMe
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 
-public class SpacingAroundCommaRule : Rule("comma-spacing") {
+public class SpacingAroundCommaRule : StandardRule("comma-spacing") {
     private val rTokenSet = TokenSet.create(RPAR, RBRACKET, GT)
 
     override fun beforeVisitChildNodes(
@@ -56,3 +57,5 @@ public class SpacingAroundCommaRule : Rule("comma-spacing") {
         }
     }
 }
+
+public val spacingAroundCommaRuleId: RuleId = SpacingAroundCommaRule().ruleId

@@ -6,11 +6,13 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.NULLABLE_TYPE
 import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.nextSibling
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 public class FunctionTypeReferenceSpacingRule :
-    Rule("function-type-reference-spacing"),
+    StandardRule("function-type-reference-spacing"),
     Rule.Experimental {
     override fun beforeVisitChildNodes(
         node: ASTNode,
@@ -73,3 +75,5 @@ public class FunctionTypeReferenceSpacingRule :
         }
     }
 }
+
+public val functionTypeReferenceSpacingRuleId: RuleId = FunctionTypeReferenceSpacingRule().ruleId

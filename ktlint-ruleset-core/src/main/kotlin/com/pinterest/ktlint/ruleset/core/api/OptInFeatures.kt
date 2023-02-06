@@ -1,4 +1,4 @@
-package com.pinterest.ktlint.core.api
+package com.pinterest.ktlint.ruleset.core.api
 
 @RequiresOptIn(
     message = "This Ktlint feature is highly experimental, and most probably will change in the future releases.",

@@ -1,14 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.CODE_STYLE_PROPERTY
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.CodeStyleValue.ktlint_official
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_SIZE_PROPERTY
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.ruleset.core.api.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.ruleset.core.api.ElementType.FUNCTION_TYPE
 import com.pinterest.ktlint.ruleset.core.api.ElementType.LPAR
@@ -19,13 +12,21 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.ruleset.core.api.IndentConfig
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.column
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.CodeStyleValue.ktlint_official
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.ruleset.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.ruleset.core.api.lineIndent
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.core.api.prevSibling
 import com.pinterest.ktlint.ruleset.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.ruleset.core.api.upsertWhitespaceBeforeMe
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -35,7 +36,7 @@ import org.jetbrains.kotlin.psi.psiUtil.children
 import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 
 public class ParameterListWrappingRule :
-    Rule("parameter-list-wrapping"),
+    StandardRule("parameter-list-wrapping"),
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> =
         listOf(
@@ -262,3 +263,5 @@ public class ParameterListWrappingRule :
         return typeListNode.children().any { it.isWhiteSpaceWithNewline() }
     }
 }
+
+public val parameterListWrappingRuleId: RuleId = ParameterListWrappingRule().ruleId

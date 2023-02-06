@@ -1,18 +1,19 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.EQ
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.isPartOfComment
 import com.pinterest.ktlint.ruleset.core.api.isWhiteSpace
 import com.pinterest.ktlint.ruleset.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.ruleset.core.api.prevCodeSibling
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.psiUtil.siblings
 
-public class NoLineBreakBeforeAssignmentRule : Rule("no-line-break-before-assignment") {
+public class NoLineBreakBeforeAssignmentRule : StandardRule("no-line-break-before-assignment") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -42,3 +43,5 @@ public class NoLineBreakBeforeAssignmentRule : Rule("no-line-break-before-assign
         }
     }
 }
+
+public val noLineBreakBeforeAssignmentRuleId: RuleId = NoLineBreakBeforeAssignmentRule().ruleId

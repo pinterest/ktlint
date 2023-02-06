@@ -1,9 +1,7 @@
 package com.pinterest.ktlint.ruleset.core.api.editorconfig
 
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
-import com.pinterest.ktlint.ruleset.core.api.Rule
-import com.pinterest.ktlint.ruleset.core.api.ruleId
-import com.pinterest.ktlint.ruleset.core.api.ruleSetId
+import com.pinterest.ktlint.ruleset.core.api.RuleId
+import com.pinterest.ktlint.ruleset.core.api.RuleSetId
 import org.ec4j.core.model.PropertyType
 
 @Suppress("EnumEntryName")
@@ -33,20 +31,9 @@ public val EXPERIMENTAL_RULES_EXECUTION_PROPERTY: EditorConfigProperty<RuleExecu
     )
 
 /**
- * Generates the rule execution '.editorconfig' property for the given rule set id.
+ * Generates the rule execution '.editorconfig' property for the given [RuleSetId].
  */
-public fun createRuleSetExecutionEditorConfigProperty(ruleSetId: String): EditorConfigProperty<RuleExecution> =
-    EditorConfigProperty(
-        // Explicitly name the rule as multiple properties exists for this property type
-        name = ktLintRuleSetExecutionPropertyName(ruleSetId),
-        type = RULE_EXECUTION_PROPERTY_TYPE,
-        defaultValue = RuleExecution.enabled,
-    )
-
-/**
- * Generates the rule execution '.editorconfig' property for the rule set id of the given [Rule].
- */
-public fun Rule.createRuleSetExecutionEditorConfigProperty(): EditorConfigProperty<RuleExecution> =
+public fun RuleSetId.createRuleSetExecutionEditorConfigProperty(): EditorConfigProperty<RuleExecution> =
     EditorConfigProperty(
         // Explicitly name the rule as multiple properties exists for this property type
         name = ktLintRuleSetExecutionPropertyName(),
@@ -55,42 +42,21 @@ public fun Rule.createRuleSetExecutionEditorConfigProperty(): EditorConfigProper
     )
 
 /**
- * Generates the rule execution '.editorconfig' property for the given [qualifiedRuleId]. Note that the property is
- * the same as the [qualifiedRuleId] but prefixed with 'ktlint_' followed by the ruleSetId and ruleId which both are
- * based on the [qualifiedRuleId].
+ * Generates the rule execution '.editorconfig' property for the given [RuleId].
  */
-public fun createRuleExecutionEditorConfigProperty(qualifiedRuleId: String): EditorConfigProperty<RuleExecution> =
+public fun RuleId.createRuleExecutionEditorConfigProperty(): EditorConfigProperty<RuleExecution> =
     EditorConfigProperty(
-        name = ktLintRuleExecutionPropertyName(qualifiedRuleId),
+        name = ktLintRuleExecutionPropertyName(),
         type = RULE_EXECUTION_PROPERTY_TYPE,
         defaultValue = RuleExecution.enabled,
     )
 
 /**
- * Constructs the name of the '.editorconfig' property that determines whether the given rule is to be executed.
+ * Constructs the name of the '.editorconfig' property that determines whether the given [RuleId] is to be executed.
  */
-// TODO: Move as internal to ktlint-rule-engine?
-@OptIn(FeatureInAlphaState::class)
-public fun ktLintRuleExecutionPropertyName(qualifiedRuleId: String): String =
-    "ktlint_${qualifiedRuleId.ruleSetId()}_${qualifiedRuleId.ruleId()}"
+public fun RuleId.ktLintRuleExecutionPropertyName(): String = "ktlint_${value.replaceFirst(":", "_")}"
 
 /**
- * Constructs the name of the '.editorconfig' property that determines whether the given [Rule] is to be executed.
+ * Constructs the name of the '.editorconfig' property that determines whether the rule set with the given [RuleSetId] is to be executed.
  */
-// TODO: Move as internal to ktlint-rule-engine?
-public fun Rule.ktLintRuleExecutionPropertyName(): String = "ktlint_${ruleSetId}_$ruleId"
-
-/**
- * Constructs the name of the '.editorconfig' property that determines whether the rule set of the given
- * [qualifiedRuleId] is to be executed.
- */
-@OptIn(FeatureInAlphaState::class)
-// TODO: Move as internal to ktlint-rule-engine?
-public fun ktLintRuleSetExecutionPropertyName(qualifiedRuleId: String): String = "ktlint_${qualifiedRuleId.ruleSetId()}"
-
-/**
- * Constructs the name of the '.editorconfig' property that determines whether the rule set of the given
- * [Rule] is to be executed.
- */
-// TODO: Move as internal to ktlint-rule-engine?
-public fun Rule.ktLintRuleSetExecutionPropertyName(): String = "ktlint_$ruleSetId"
+public fun RuleSetId.ktLintRuleSetExecutionPropertyName(): String = "ktlint_${value}"

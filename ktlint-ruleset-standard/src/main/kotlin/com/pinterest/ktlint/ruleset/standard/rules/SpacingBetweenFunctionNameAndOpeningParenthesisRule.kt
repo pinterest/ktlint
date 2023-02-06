@@ -3,11 +3,13 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.nextSibling
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 public class SpacingBetweenFunctionNameAndOpeningParenthesisRule :
-    Rule("spacing-between-function-name-and-opening-parenthesis"),
+    StandardRule("spacing-between-function-name-and-opening-parenthesis"),
     Rule.Experimental {
     override fun beforeVisitChildNodes(
         node: ASTNode,
@@ -27,3 +29,5 @@ public class SpacingBetweenFunctionNameAndOpeningParenthesisRule :
             }
     }
 }
+
+public val spacingBetweenFunctionNameAndOpeningParenthesisRuleId: RuleId = SpacingBetweenFunctionNameAndOpeningParenthesisRule().ruleId

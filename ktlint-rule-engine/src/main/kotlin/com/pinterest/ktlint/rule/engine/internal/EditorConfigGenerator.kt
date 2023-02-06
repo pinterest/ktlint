@@ -1,18 +1,18 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
 import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.rule.engine.api.editorconfig.DEFAULT_EDITOR_CONFIG_PROPERTIES
+import com.pinterest.ktlint.rule.engine.internal.DefaultEditorConfigProperties.writeEditorConfigProperty
+import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.CodeStyleValue
-import com.pinterest.ktlint.rule.engine.api.editorconfig.DEFAULT_EDITOR_CONFIG_PROPERTIES
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
-import com.pinterest.ktlint.rule.engine.internal.DefaultEditorConfigProperties.writeEditorConfigProperty
 import mu.KotlinLogging
 import org.ec4j.core.model.Property
 import org.ec4j.core.model.PropertyType
@@ -80,12 +80,12 @@ internal class EditorConfigGenerator(
                             )
                         }
                         LOGGER.debug {
-                            "Rule '${rule.id}' uses property '${property.type.name}' with value '$value'"
+                            "Rule '${rule.ruleId.value}' uses property '${property.type.name}' with value '$value'"
                         }
                         ConfigurationSetting(
                             key = property.type.name,
                             value = value,
-                            usage = "Rule '${rule.id}'",
+                            usage = "Rule '${rule.ruleId.value}'",
                         )
                     }
             } else {

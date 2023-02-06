@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.ANNOTATED_EXPRESSION
 import com.pinterest.ktlint.ruleset.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.ruleset.core.api.ElementType.ANNOTATION_ENTRY
@@ -10,6 +9,7 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.children
 import com.pinterest.ktlint.ruleset.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.ruleset.core.api.isPartOf
@@ -22,6 +22,7 @@ import com.pinterest.ktlint.ruleset.core.api.nextLeaf
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.ruleset.core.api.upsertWhitespaceBeforeMe
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -40,7 +41,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.safeAs
  *
  * @see [AnnotationSpacingRule] for white space rules. Moved since
  */
-public class AnnotationRule : Rule("annotation") {
+public class AnnotationRule : StandardRule("annotation") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -297,3 +298,5 @@ public class AnnotationRule : Rule("annotation") {
         }
     }
 }
+
+public val annotationRuleId: RuleId = AnnotationRule().ruleId

@@ -1,16 +1,17 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType
 import com.pinterest.ktlint.ruleset.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.ruleset.core.api.ElementType.FUN
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.isPartOf
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
-public class NoEmptyFirstLineInMethodBlockRule : Rule("no-empty-first-line-in-method-block") {
+public class NoEmptyFirstLineInMethodBlockRule : StandardRule("no-empty-first-line-in-method-block") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -34,3 +35,5 @@ public class NoEmptyFirstLineInMethodBlockRule : Rule("no-empty-first-line-in-me
         }
     }
 }
+
+public val noEmptyFirstLineInMethodBlockRuleId: RuleId = NoEmptyFirstLineInMethodBlockRule().ruleId

@@ -1,16 +1,17 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.ruleset.core.api.ElementType
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
-import com.pinterest.ktlint.ruleset.core.api.ElementType
 import com.pinterest.ktlint.ruleset.core.api.isPartOf
 import com.pinterest.ktlint.ruleset.core.api.isRoot
 import com.pinterest.ktlint.ruleset.core.api.nextLeaf
 import com.pinterest.ktlint.ruleset.core.api.parent
 import com.pinterest.ktlint.ruleset.core.api.prevCodeSibling
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
@@ -22,14 +23,14 @@ import org.jetbrains.kotlin.psi.KtPackageDirective
 import kotlin.properties.Delegates
 
 public class MaxLineLengthRule :
-    Rule(
+    StandardRule(
         id = "max-line-length",
         visitorModifiers = setOf(
             VisitorModifier.RunAfterRule(
                 // This rule should run after all other rules. Each time a rule visitor is modified with
                 // RunAsLateAsPossible, it needs to be checked that this rule still runs after that new rule or that it
                 // won't be affected by that rule.
-                ruleId = "trailing-comma-on-call-site",
+                ruleId = trailingCommaOnCallSiteRuleId,
                 loadOnlyWhenOtherRuleIsLoaded = false,
                 runOnlyWhenOtherRuleIsEnabled = false,
             ),
@@ -37,7 +38,7 @@ public class MaxLineLengthRule :
                 // This rule should run after all other rules. Each time a rule visitor is modified with
                 // RunAsLateAsPossible, it needs to be checked that this rule still runs after that new rule or that it
                 // won't be affected by that rule.
-                ruleId = "trailing-comma-on-declaration-site",
+                ruleId = trailingCommaOnDeclarationSiteRuleId,
                 loadOnlyWhenOtherRuleIsLoaded = false,
                 runOnlyWhenOtherRuleIsEnabled = false,
             ),
@@ -262,3 +263,5 @@ internal class RangeTree(seq: List<Int> = emptyList()) {
         }
     }
 }
+
+public val maxLineLengthRuleId: RuleId = MaxLineLengthRule().ruleId

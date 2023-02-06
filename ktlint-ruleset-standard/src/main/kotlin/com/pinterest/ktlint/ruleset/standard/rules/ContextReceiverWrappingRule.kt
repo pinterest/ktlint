@@ -14,6 +14,7 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.RPAR
 import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPE_PROJECTION
 import com.pinterest.ktlint.ruleset.core.api.IndentConfig
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.children
 import com.pinterest.ktlint.ruleset.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.ruleset.core.api.isPartOf
@@ -26,6 +27,7 @@ import com.pinterest.ktlint.ruleset.core.api.nextLeaf
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.ruleset.core.api.upsertWhitespaceBeforeMe
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 /**
@@ -33,7 +35,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  * whenever the max line length is exceeded.
  */
 public class ContextReceiverWrappingRule :
-    Rule("context-receiver-wrapping"),
+    StandardRule("context-receiver-wrapping"),
     Rule.Experimental,
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> =
@@ -171,3 +173,5 @@ public class ContextReceiverWrappingRule :
 
     private fun isMaxLineLengthSet() = maxLineLength > -1
 }
+
+public val contextReceiverWrappingRuleId: RuleId = ContextReceiverWrappingRule().ruleId

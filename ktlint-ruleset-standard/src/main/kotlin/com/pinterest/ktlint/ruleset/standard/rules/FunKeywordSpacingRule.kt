@@ -1,9 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType
 import com.pinterest.ktlint.ruleset.core.api.ElementType.FUN_KEYWORD
+import com.pinterest.ktlint.ruleset.core.api.Rule
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.nextLeaf
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
@@ -11,7 +13,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
  * Lints and formats the spacing after the fun keyword
  */
 public class FunKeywordSpacingRule :
-    Rule("fun-keyword-spacing"),
+    StandardRule("fun-keyword-spacing"),
     Rule.Experimental {
     override fun beforeVisitChildNodes(
         node: ASTNode,
@@ -34,3 +36,5 @@ public class FunKeywordSpacingRule :
             }
     }
 }
+
+public val funKeywordSpacingRule: RuleId = FunKeywordSpacingRule().ruleId

@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.rule.engine.internal
 
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
@@ -14,7 +15,7 @@ import org.jetbrains.kotlin.psi.psiUtil.startOffset
 /**
  * Detects if given `ruleId` at given `offset` is suppressed.
  */
-internal typealias SuppressionLocator = (offset: Int, ruleId: String) -> Boolean
+internal typealias SuppressionLocator = (offset: Int, ruleId: RuleId) -> Boolean
 
 internal object SuppressionLocatorBuilder {
     /**
@@ -28,15 +29,17 @@ internal object SuppressionLocatorBuilder {
      * for the same violation.
      */
     private val SUPPRESS_ANNOTATION_RULE_MAP = mapOf(
-        "EnumEntryName" to "enum-entry-name-case",
-        "RemoveCurlyBracesFromTemplate" to "string-template",
-        "ClassName" to "class-naming",
-        "FunctionName" to "function-naming",
-        "PackageName" to "package-name",
-        "PropertyName" to "property-naming",
+        // It would have been nice if the official rule id's as defined in the Rules themselves could have been used here. But that would
+        // introduce a circular dependency between the ktlint-rule-engine and the ktlint-ruleset-standard modules.
+        "EnumEntryName" to RuleId("standard:enum-entry-name-case"),
+        "RemoveCurlyBracesFromTemplate" to RuleId("standard:string-template"),
+        "ClassName" to RuleId("standard:class-naming"),
+        "FunctionName" to RuleId("standard:function-naming"),
+        "PackageName" to RuleId("standard:package-name"),
+        "PropertyName" to RuleId("standard:property-naming"),
     )
     private val SUPPRESS_ANNOTATIONS = setOf("Suppress", "SuppressWarnings")
-    private const val SUPPRESS_ALL_KTLINT_RULES = "ktlint-all"
+    private val SUPPRESS_ALL_KTLINT_RULES_RULE_ID = RuleId("ktlint:suppress-all-rules")
 
     private val COMMENT_REGEX = Regex("\\s")
 
@@ -56,16 +59,16 @@ internal object SuppressionLocatorBuilder {
         { offset, ruleId ->
             hintsList
                 .filter { offset in it.range }
-                .any { hint -> hint.disabledRules.isEmpty() || hint.disabledRules.contains(ruleId) }
+                .any { hint -> hint.disabledRuleIds.isEmpty() || hint.disabledRuleIds.contains(ruleId) }
         }
 
     /**
      * @param range zero-based range of lines where lint errors should be suppressed
-     * @param disabledRules empty set means "all"
+     * @param disabledRuleIds empty set means "all"
      */
     private data class SuppressionHint(
         val range: IntRange,
-        val disabledRules: Set<String> = emptySet(),
+        val disabledRuleIds: Set<RuleId> = emptySet(),
     )
 
     private fun collect(rootNode: ASTNode): List<SuppressionHint> {
@@ -92,7 +95,7 @@ internal object SuppressionLocatorBuilder {
                         ?: parseHintArgs(commentText, "ktlint-enable")?.apply {
                             // match open hint
                             val disabledRules = HashSet(this)
-                            val openHintIndex = open.indexOfLast { it.disabledRules == disabledRules }
+                            val openHintIndex = open.indexOfLast { it.disabledRuleIds == disabledRules }
                             if (openHintIndex != -1) {
                                 val openingHint = open.removeAt(openHintIndex)
                                 result.add(
@@ -115,7 +118,7 @@ internal object SuppressionLocatorBuilder {
         }
         result.addAll(
             open.map {
-                SuppressionHint(IntRange(it.range.first, rootNode.textLength), it.disabledRules)
+                SuppressionHint(IntRange(it.range.first, rootNode.textLength), it.disabledRuleIds)
             },
         )
         return result
@@ -131,12 +134,19 @@ internal object SuppressionLocatorBuilder {
     private fun parseHintArgs(
         commentText: String,
         key: String,
-    ): List<String>? {
+    ): List<RuleId>? {
         if (commentText.startsWith(key)) {
             val parsedComment = splitCommentBySpace(commentText)
             // assert exact match
             if (parsedComment[0] == key) {
-                return parsedComment.tail()
+                return parsedComment
+                    .tail()
+                    .map {
+                        // For backwards compatibility the suppression hints have to be prefixed with the standard rule set id when the rule id
+                        // is not prefixed with any rule set id.
+                        RuleId.prefixWithStandardRuleSetIdWhenMissing(it)
+                    }
+                    .map { RuleId(it) }
             }
         }
         return null
@@ -164,10 +174,10 @@ internal object SuppressionLocatorBuilder {
                         ?.getReferencedName() in SUPPRESS_ANNOTATIONS
                 }.flatMap(KtAnnotationEntry::getValueArguments)
                 .mapNotNull { it.toRuleId(SUPPRESS_ANNOTATION_RULE_MAP) }
-                .let { suppressedRules ->
+                .let { suppressedRuleIds ->
                     when {
-                        suppressedRules.isEmpty() -> null
-                        suppressedRules.contains(SUPPRESS_ALL_KTLINT_RULES) ->
+                        suppressedRuleIds.isEmpty() -> null
+                        suppressedRuleIds.contains(SUPPRESS_ALL_KTLINT_RULES_RULE_ID) ->
                             SuppressionHint(
                                 IntRange(ktAnnotated.startOffset, ktAnnotated.endOffset),
                                 emptySet(),
@@ -176,29 +186,31 @@ internal object SuppressionLocatorBuilder {
                         else ->
                             SuppressionHint(
                                 IntRange(ktAnnotated.startOffset, ktAnnotated.endOffset),
-                                suppressedRules.toSet(),
+                                suppressedRuleIds.toSet(),
                             )
                     }
                 }
         }
 
-    private fun ValueArgument.toRuleId(annotationValueToRuleMapping: Map<String, String>): String? =
+    private fun ValueArgument.toRuleId(annotationValueToRuleMapping: Map<String, RuleId>): RuleId? =
         getArgumentExpression()
             ?.text
             ?.removeSurrounding("\"")
-            ?.let {
+            ?.let { argumentExpressionText ->
                 when {
-                    it == "ktlint" -> {
+                    argumentExpressionText == "ktlint" -> {
                         // Disable all rules
-                        SUPPRESS_ALL_KTLINT_RULES
+                        SUPPRESS_ALL_KTLINT_RULES_RULE_ID
                     }
-                    it.startsWith("ktlint:") -> {
+                    argumentExpressionText.startsWith("ktlint:") -> {
                         // Disable specific rule
-                        it.removePrefix("ktlint:")
+                        argumentExpressionText.removePrefix("ktlint:")
+                            .let { RuleId.prefixWithStandardRuleSetIdWhenMissing(it) }
+                            .let { RuleId(it) }
                     }
                     else -> {
                         // Disable specific rule if the annotation value is mapped to a specific rule
-                        annotationValueToRuleMapping[it]
+                        annotationValueToRuleMapping[argumentExpressionText]
                     }
                 }
             }

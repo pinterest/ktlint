@@ -5,8 +5,8 @@ package com.pinterest.ktlint.ruleset.core.internal
  */
 internal object IdNamingPolicy {
     private const val SIMPLE_ID_REGEX = "[a-z]+(-[a-z]+)*"
-    private val RULE_ID_REGEX = "($SIMPLE_ID_REGEX:)?($SIMPLE_ID_REGEX)".toRegex()
-    private val RULE_SET_ID_REGEX = "($SIMPLE_ID_REGEX)".toRegex()
+    private val RULE_ID_REGEX = "$SIMPLE_ID_REGEX:$SIMPLE_ID_REGEX".toRegex()
+    private val RULE_SET_ID_REGEX = SIMPLE_ID_REGEX.toRegex()
 
     /**
      * Checks provided [ruleId] is valid.

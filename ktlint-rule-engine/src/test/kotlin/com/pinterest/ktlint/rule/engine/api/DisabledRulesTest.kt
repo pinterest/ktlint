@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.rule.engine.api
 
 import com.pinterest.ktlint.ruleset.core.api.Rule
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.RuleProvider
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.createRuleExecutionEditorConfigProperty
@@ -17,21 +18,18 @@ class DisabledRulesTest {
             ArrayList<LintError>().apply {
                 KtLintRuleEngine(
                     ruleProviders = setOf(
-                        RuleProvider { NoVarRule("no-var") },
+                        RuleProvider { NoVarRule("test:no-var") },
                     ),
                 ).lint("var foo") { e -> add(e) }
             },
         ).contains(
-            LintError(1, 1, "no-var", NoVarRule.SOME_NO_VAR_RULE_VIOLATION, false),
+            LintError(1, 1, "test:no-var", NoVarRule.SOME_NO_VAR_RULE_VIOLATION, false),
         )
     }
 
     @ParameterizedTest(name = "RuleId: {0}, Disabled ruleId: {1}")
     @CsvSource(
         value = [
-            "no-var,no-var",
-            "no-var,standard:no-var",
-            "standard:no-var,no-var",
             "standard:no-var,standard:no-var",
             "custom:no-var,custom:no-var",
         ],
@@ -47,14 +45,14 @@ class DisabledRulesTest {
                         RuleProvider { NoVarRule(ruleId) },
                     ),
                     editorConfigOverride = EditorConfigOverride.from(
-                        createRuleExecutionEditorConfigProperty(disabledRuleId) to RuleExecution.disabled,
+                        RuleId(disabledRuleId).createRuleExecutionEditorConfigProperty() to RuleExecution.disabled,
                     ),
                 ).lint("var foo") { e -> add(e) }
             },
         ).isEmpty()
     }
 
-    class NoVarRule(id: String) : Rule(id) {
+    class NoVarRule(id: String) : Rule(RuleId(id)) {
         override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,

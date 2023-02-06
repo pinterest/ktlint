@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.CATCH_KEYWORD
 import com.pinterest.ktlint.ruleset.core.api.ElementType.DO_KEYWORD
 import com.pinterest.ktlint.ruleset.core.api.ElementType.ELSE_KEYWORD
@@ -14,9 +13,11 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.TRY_KEYWORD
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHEN_KEYWORD
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHILE_KEYWORD
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.nextLeaf
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.core.api.upsertWhitespaceAfterMe
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
@@ -27,7 +28,7 @@ import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtPropertyAccessor
 import org.jetbrains.kotlin.psi.KtWhenEntry
 
-public class SpacingAroundKeywordRule : Rule("keyword-spacing") {
+public class SpacingAroundKeywordRule : StandardRule("keyword-spacing") {
     private val noLFBeforeSet = create(ELSE_KEYWORD, CATCH_KEYWORD, FINALLY_KEYWORD)
     private val tokenSet = create(
         FOR_KEYWORD, IF_KEYWORD, ELSE_KEYWORD, WHILE_KEYWORD, DO_KEYWORD,
@@ -81,3 +82,5 @@ public class SpacingAroundKeywordRule : Rule("keyword-spacing") {
         }
     }
 }
+
+public val spacingAroundKeywordRuleId: RuleId = SpacingAroundKeywordRule().ruleId

@@ -53,7 +53,7 @@ class NoConsecutiveCommentsRuleTest {
             """.trimIndent()
         noConsecutiveBlankLinesRuleAssertThat(code)
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyle)
-            .withEditorConfigOverride(createRuleExecutionEditorConfigProperty("no-consecutive-comments") to RuleExecution.enabled)
+            .withEditorConfigOverride(noConsecutiveCommentsRuleId.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled)
             .hasLintViolationsWithoutAutoCorrect(
                 LintViolation(2, 1, "a block comment may not be preceded by an EOL comment"),
                 LintViolation(3, 1, "a KDoc may not be preceded by a block comment"),

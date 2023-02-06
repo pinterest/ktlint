@@ -2,8 +2,9 @@ package com.pinterest.ktlint.rule.engine.internal
 
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.ruleset.core.api.Rule
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
 import org.assertj.core.api.Assertions.assertThat
@@ -66,13 +67,13 @@ internal class EditorConfigGeneratorTest {
         val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
             filePath = tempFileSystem.normalizedPath(rootDir).resolve("test.kt"),
             rules = setOf(
-                object : TestRule("test-rule-two"), UsesEditorConfigProperties {
+                object : TestRule(RuleId("test:rule-two")), UsesEditorConfigProperties {
                     override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
                         EDITOR_CONFIG_PROPERTY_2,
                         EDITOR_CONFIG_PROPERTY_1,
                     )
                 },
-                object : TestRule("test-rule-two"), UsesEditorConfigProperties {
+                object : TestRule(RuleId("test:rule-two")), UsesEditorConfigProperties {
                     override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
                         EDITOR_CONFIG_PROPERTY_1,
                     )
@@ -92,12 +93,12 @@ internal class EditorConfigGeneratorTest {
         val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
             filePath = tempFileSystem.normalizedPath(rootDir).resolve("test.kt"),
             rules = setOf(
-                object : TestRule("test-rule-two"), UsesEditorConfigProperties {
+                object : TestRule(RuleId("test:test-rule-two")), UsesEditorConfigProperties {
                     override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
                         EDITOR_CONFIG_PROPERTY_3_WITH_DEFAULT_VALUE_A,
                     )
                 },
-                object : TestRule("test-rule-two"), UsesEditorConfigProperties {
+                object : TestRule(RuleId("test:test-rule-two")), UsesEditorConfigProperties {
                     override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
                         EDITOR_CONFIG_PROPERTY_3_WITH_DEFAULT_VALUE_B,
                     )
@@ -177,14 +178,14 @@ internal class EditorConfigGeneratorTest {
         return getPath("$root$path")
     }
 
-    private class TestRule1 : TestRule("test-rule-one"), UsesEditorConfigProperties {
+    private class TestRule1 : TestRule(RuleId("test:test-rule-one")), UsesEditorConfigProperties {
         override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
             EDITOR_CONFIG_PROPERTY_2,
             EDITOR_CONFIG_PROPERTY_1,
         )
     }
 
-    private open class TestRule(ruleId: String) : Rule(ruleId) {
+    private open class TestRule(ruleId: RuleId) : Rule(ruleId) {
         override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,

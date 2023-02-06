@@ -22,11 +22,13 @@ import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.plus
 import com.pinterest.ktlint.rule.engine.api.KtLintParseException
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.createRuleExecutionEditorConfigProperty
+import com.pinterest.ktlint.ruleset.standard.rules.filenameRuleId
 import mu.KLogger
 import mu.KotlinLogging
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
@@ -48,6 +50,8 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
+import kotlin.io.path.absolute
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.pathString
 import kotlin.io.path.relativeToOrSelf
 import kotlin.system.exitProcess
@@ -269,7 +273,10 @@ internal class KtlintCommandLine {
         disabledRules
             .split(",")
             .filter { it.isNotBlank() }
-            .map { ruleId -> createRuleExecutionEditorConfigProperty(ruleId) to RuleExecution.disabled }
+            .map {
+                // For backwards compatibility, prefix the rule id with the standard rule set id when missing
+                RuleId.prefixWithStandardRuleSetIdWhenMissing(it)
+            }.map { RuleId(it).createRuleExecutionEditorConfigProperty() to RuleExecution.disabled }
             .toTypedArray()
 
     fun run() {
@@ -300,7 +307,7 @@ internal class KtlintCommandLine {
                 logger.debug {
                     "Add editor config override to disable 'filename' rule which can not be used in combination with reading from <stdin>"
                 }
-                plus(createRuleExecutionEditorConfigProperty("standard:filename") to RuleExecution.disabled)
+                plus(filenameRuleId.createRuleExecutionEditorConfigProperty() to RuleExecution.disabled)
             }
 
         if (android) {
@@ -409,15 +416,16 @@ internal class KtlintCommandLine {
             .map { it.toFile() }
             .takeWhile { errorNumber.get() < limit }
             .map { file ->
+                val fileName = file.toPath().absolutePathString()
                 Callable {
-                    file to process(
+                    fileName to process(
                         ktLintRuleEngine = ktLintRuleEngine,
                         code = file.readText(),
-                        fileName = file.path,
-                        baselineLintErrors = lintErrorsPerFile.getOrDefault(file.toPath().relativeRoute, emptyList()),
+                        fileName = fileName,
+                        baselineLintErrors = lintErrorsPerFile.getOrDefault(fileName, emptyList()),
                     )
                 }
-            }.parallel({ (file, errList) -> report(file.location(relative), errList, reporter) })
+            }.parallel({ (fileName, errList) -> report(Paths.get(fileName).relativeRoute, errList, reporter) })
     }
 
     private fun lintStdin(

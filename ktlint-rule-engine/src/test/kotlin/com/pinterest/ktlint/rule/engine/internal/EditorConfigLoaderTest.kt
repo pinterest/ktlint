@@ -6,6 +6,7 @@ import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
 import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY
@@ -449,7 +450,7 @@ internal class EditorConfigLoaderTest {
         }
     }
 
-    private class TestRule : Rule("editorconfig-test"), UsesEditorConfigProperties {
+    private class TestRule : Rule(RuleId("test:editorconfig")), UsesEditorConfigProperties {
         override val editorConfigProperties: List<EditorConfigProperty<*>> = emptyList()
 
         override fun beforeVisitChildNodes(

@@ -2,7 +2,9 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.BLOCK_COMMENT
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.lineIndent
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 
@@ -10,13 +12,13 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
  * When present, align the initial star in a block comment.
  */
 public class BlockCommentInitialStarAlignmentRule :
-    Rule(
+    StandardRule(
         "block-comment-initial-star-alignment",
         visitorModifiers = setOf(
             // The block comment is a node which can contain multiple lines. The indent of the second and later line
             // should be determined based on the indent of the block comment node. This indent is determined by the
             // indentation rule.
-            VisitorModifier.RunAfterRule("standard:indent"),
+            VisitorModifier.RunAfterRule(indentationRuleId),
         ),
     ),
     Rule.Experimental {
@@ -60,3 +62,5 @@ public class BlockCommentInitialStarAlignmentRule :
         val CONTINUATION_COMMENT_REGEX = Regex("^([\t ]+\\*)(.*)$")
     }
 }
+
+public val blockCommentInitialStarAlignmentRuleId: RuleId = BlockCommentInitialStarAlignmentRule().ruleId

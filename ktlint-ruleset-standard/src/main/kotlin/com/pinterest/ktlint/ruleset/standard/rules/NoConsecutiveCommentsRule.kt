@@ -5,12 +5,14 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.ruleset.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.ruleset.core.api.ElementType.KDOC_END
 import com.pinterest.ktlint.ruleset.core.api.ElementType.KDOC_START
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.isWhiteSpace
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 public class NoConsecutiveCommentsRule :
-    Rule("no-consecutive-comments"),
+    StandardRule("no-consecutive-comments"),
     Rule.Experimental,
     Rule.OfficialCodeStyle {
     override fun beforeVisitChildNodes(
@@ -67,3 +69,5 @@ public class NoConsecutiveCommentsRule :
             else -> this.elementType.toString().lowercase()
         }
 }
+
+public val noConsecutiveCommentsRuleId: RuleId = NoConsecutiveCommentsRule().ruleId

@@ -27,13 +27,15 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.SEALED_KEYWORD
 import com.pinterest.ktlint.ruleset.core.api.ElementType.SUSPEND_KEYWORD
 import com.pinterest.ktlint.ruleset.core.api.ElementType.TAILREC_KEYWORD
 import com.pinterest.ktlint.ruleset.core.api.ElementType.VARARG_KEYWORD
+import com.pinterest.ktlint.ruleset.core.api.RuleId
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtDeclarationModifierList
 import java.util.Arrays
 
-public class ModifierOrderRule : Rule("modifier-order") {
+public class ModifierOrderRule : StandardRule("modifier-order") {
     // subset of ElementType.MODIFIER_KEYWORDS_ARRAY (+ annotations entries)
     private val order = arrayOf(
         ANNOTATION_ENTRY,
@@ -96,3 +98,5 @@ public class ModifierOrderRule : Rule("modifier-order") {
         }
     }
 }
+
+public val modifierOrderRuleId: RuleId = ModifierOrderRule().ruleId

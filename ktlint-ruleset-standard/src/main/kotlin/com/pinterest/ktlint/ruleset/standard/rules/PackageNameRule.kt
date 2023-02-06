@@ -3,14 +3,16 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType
 import com.pinterest.ktlint.ruleset.core.api.ElementType.PACKAGE_DIRECTIVE
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.nextCodeSibling
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.internal.regExIgnoringDiacriticsAndStrokesOnLetters
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 /**
  * https://kotlinlang.org/docs/coding-conventions.html#naming-rules
  */
-public class PackageNameRule : Rule("package-name") {
+public class PackageNameRule : StandardRule("package-name") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -37,3 +39,5 @@ public class PackageNameRule : Rule("package-name") {
         val VALID_PACKAGE_NAME_REGEXP = "[a-z_][a-zA-Z\\d_]*(\\.[a-z_][a-zA-Z\\d_]*)*".regExIgnoringDiacriticsAndStrokesOnLetters()
     }
 }
+
+public val packageNameRuleId: RuleId = PackageNameRule().ruleId

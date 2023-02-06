@@ -10,7 +10,8 @@ dependencies {
     api(libs.ec4j)
     api(libs.logging)
 
-    testImplementation(projects.ktlintRulesetCore)
+//    testImplementation(projects.ktlintRulesetCore)
+    testImplementation(projects.ktlintRulesetStandard)
     testImplementation(projects.ktlintTestLogging)
     testImplementation(libs.junit5)
     testImplementation(libs.assertj)

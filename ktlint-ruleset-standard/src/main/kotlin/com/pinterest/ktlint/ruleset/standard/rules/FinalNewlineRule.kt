@@ -1,18 +1,19 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY
 import com.pinterest.ktlint.ruleset.core.api.isRoot
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import kotlin.properties.Delegates
 
 public class FinalNewlineRule :
-    Rule("final-newline"),
+    StandardRule("final-newline"),
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
         INSERT_FINAL_NEWLINE_PROPERTY,
@@ -57,3 +58,5 @@ public class FinalNewlineRule :
     private tailrec fun lastChildNodeOf(node: ASTNode): ASTNode? =
         if (node.lastChildNode == null) node else lastChildNodeOf(node.lastChildNode)
 }
+
+public val finalNewlineRuleId: RuleId = FinalNewlineRule().ruleId

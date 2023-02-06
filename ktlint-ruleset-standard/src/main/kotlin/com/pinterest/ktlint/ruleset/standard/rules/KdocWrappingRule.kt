@@ -9,18 +9,20 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.KDOC
 import com.pinterest.ktlint.ruleset.core.api.ElementType.KDOC_END
 import com.pinterest.ktlint.ruleset.core.api.ElementType.KDOC_START
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.lineIndent
 import com.pinterest.ktlint.ruleset.core.api.nextLeaf
 import com.pinterest.ktlint.ruleset.core.api.noNewLineInClosedRange
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.core.api.upsertWhitespaceBeforeMe
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 /**
  * Checks external wrapping of KDoc comment. Wrapping inside the KDoc comment is not altered.
  */
 public class KdocWrappingRule :
-    Rule("kdoc-wrapping"),
+    StandardRule("kdoc-wrapping"),
     Rule.Experimental,
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> =
@@ -100,3 +102,5 @@ public class KdocWrappingRule :
 
     private fun isNonIndentLeafOnSameLine(it: ASTNode) = it.elementType != WHITE_SPACE || !it.textContains('\n')
 }
+
+public val kdocWrappingRuleId: RuleId = KdocWrappingRule().ruleId

@@ -1,19 +1,20 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.FUN_KEYWORD
 import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.ruleset.core.api.ElementType.VAL_KEYWORD
 import com.pinterest.ktlint.ruleset.core.api.ElementType.VAR_KEYWORD
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.ruleset.core.api.nextLeaf
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 
-public class SpacingAroundAngleBracketsRule : Rule("spacing-around-angle-brackets") {
+public class SpacingAroundAngleBracketsRule : StandardRule("spacing-around-angle-brackets") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -96,3 +97,5 @@ public class SpacingAroundAngleBracketsRule : Rule("spacing-around-angle-bracket
         val ELEMENT_TYPES_ALLOWING_PRECEDING_WHITESPACE = setOf(VAL_KEYWORD, VAR_KEYWORD, FUN_KEYWORD)
     }
 }
+
+public val spacingAroundAngleBracketsRuleId: RuleId = SpacingAroundAngleBracketsRule().ruleId

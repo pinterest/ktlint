@@ -619,7 +619,7 @@ class ASTNodeExtensionTest {
      */
     private open class DummyRule(
         val block: (node: ASTNode) -> Unit = {},
-    ) : Rule(DUMMY_RULE_ID) {
+    ) : Rule(RuleId(DUMMY_RULE_ID)) {
         override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,
@@ -629,7 +629,7 @@ class ASTNodeExtensionTest {
         }
 
         companion object {
-            const val DUMMY_RULE_ID = "dummy-rule"
+            const val DUMMY_RULE_ID = "test:dummy-rule"
         }
     }
 }

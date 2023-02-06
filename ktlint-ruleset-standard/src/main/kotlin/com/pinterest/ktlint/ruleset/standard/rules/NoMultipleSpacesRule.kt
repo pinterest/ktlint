@@ -1,13 +1,14 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.KDOC_MARKDOWN_LINK
 import com.pinterest.ktlint.ruleset.core.api.ElementType.KDOC_TAG
+import com.pinterest.ktlint.ruleset.core.api.RuleId
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
-public class NoMultipleSpacesRule : Rule("no-multi-spaces") {
+public class NoMultipleSpacesRule : StandardRule("no-multi-spaces") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -35,3 +36,5 @@ public class NoMultipleSpacesRule : Rule("no-multi-spaces") {
     // @param foobar   stuff2
     private fun ASTNode.isPossibleAlignmentOfKdocTag() = treePrev?.elementType == KDOC_MARKDOWN_LINK && treeParent?.elementType == KDOC_TAG
 }
+
+public val noMultipleSpacesRuleId: RuleId = NoMultipleSpacesRule().ruleId

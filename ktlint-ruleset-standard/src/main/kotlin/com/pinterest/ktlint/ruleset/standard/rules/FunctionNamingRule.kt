@@ -1,9 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.FUN
 import com.pinterest.ktlint.ruleset.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.ruleset.core.api.ElementType.IMPORT_DIRECTIVE
+import com.pinterest.ktlint.ruleset.core.api.Rule
+import com.pinterest.ktlint.ruleset.core.api.RuleId
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.internal.regExIgnoringDiacriticsAndStrokesOnLetters
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.psi.KtFunction
@@ -13,7 +15,7 @@ import org.jetbrains.kotlin.psi.KtImportDirective
  * https://kotlinlang.org/docs/coding-conventions.html#function-names
  */
 public class FunctionNamingRule :
-    Rule("function-naming"),
+    StandardRule("function-naming"),
     Rule.Experimental {
     private var isTestClass = false
 
@@ -81,3 +83,5 @@ public class FunctionNamingRule :
         private const val ORG_TESTNG = "org.testng"
     }
 }
+
+public val functionNamingRuleId: RuleId = FunctionNamingRule().ruleId

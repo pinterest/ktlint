@@ -1,17 +1,18 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.ruleset.core.api.ElementType.LBRACE
 import com.pinterest.ktlint.ruleset.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.children
 import com.pinterest.ktlint.ruleset.core.api.isPartOf
 import com.pinterest.ktlint.ruleset.core.api.nextLeaf
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.psi.KtObjectLiteralExpression
 
-public class NoEmptyClassBodyRule : Rule("no-empty-class-body") {
+public class NoEmptyClassBodyRule : StandardRule("no-empty-class-body") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -38,3 +39,5 @@ public class NoEmptyClassBodyRule : Rule("no-empty-class-body") {
         }
     }
 }
+
+public val noEmptyClassBodyRuleId: RuleId = NoEmptyClassBodyRule().ruleId

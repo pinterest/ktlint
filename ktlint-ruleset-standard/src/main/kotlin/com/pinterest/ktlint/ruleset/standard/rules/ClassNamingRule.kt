@@ -6,6 +6,8 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.DOT_QUALIFIED_EXPRESSIO
 import com.pinterest.ktlint.ruleset.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.ruleset.core.api.ElementType.IMPORT_DIRECTIVE
 import com.pinterest.ktlint.ruleset.core.api.ElementType.OBJECT_DECLARATION
+import com.pinterest.ktlint.ruleset.core.api.RuleId
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.internal.regExIgnoringDiacriticsAndStrokesOnLetters
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
@@ -16,7 +18,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  * well as it is more consistent with name of test functions.
  */
 public class ClassNamingRule :
-    Rule("class-naming"),
+    StandardRule("class-naming"),
     Rule.Experimental {
     private var allowBacktickedClassName = false
 
@@ -56,3 +58,5 @@ public class ClassNamingRule :
         val BACK_TICKED_FUNCTION_NAME_REGEXP = Regex("`.*`")
     }
 }
+
+public val classNamingRuleId: RuleId = ClassNamingRule().ruleId

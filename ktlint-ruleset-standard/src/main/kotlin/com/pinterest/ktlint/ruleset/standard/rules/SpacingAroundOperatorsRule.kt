@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.ANDAND
 import com.pinterest.ktlint.ruleset.core.api.ElementType.ARROW
 import com.pinterest.ktlint.ruleset.core.api.ElementType.DIV
@@ -26,18 +25,20 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.PERCEQ
 import com.pinterest.ktlint.ruleset.core.api.ElementType.PLUS
 import com.pinterest.ktlint.ruleset.core.api.ElementType.PLUSEQ
 import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_ARGUMENT
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.isPartOf
 import com.pinterest.ktlint.ruleset.core.api.nextLeaf
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.ruleset.core.api.upsertWhitespaceBeforeMe
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPrefixExpression
 
-public class SpacingAroundOperatorsRule : Rule("op-spacing") {
+public class SpacingAroundOperatorsRule : StandardRule("op-spacing") {
     private val tokenSet = TokenSet.create(
         MUL, PLUS, MINUS, DIV, PERC, LT, GT, LTEQ, GTEQ, EQEQEQ, EXCLEQEQEQ, EQEQ,
         EXCLEQ, ANDAND, OROR, ELVIS, EQ, MULTEQ, DIVEQ, PERCEQ, PLUSEQ, MINUSEQ, ARROW,
@@ -88,3 +89,5 @@ public class SpacingAroundOperatorsRule : Rule("op-spacing") {
         }
     }
 }
+
+public val spacingAroundOperatorsRuleId: RuleId = SpacingAroundOperatorsRule().ruleId

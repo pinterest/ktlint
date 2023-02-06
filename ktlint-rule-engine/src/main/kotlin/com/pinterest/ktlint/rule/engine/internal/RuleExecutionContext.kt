@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.Code
@@ -8,6 +7,7 @@ import com.pinterest.ktlint.rule.engine.api.KtLint
 import com.pinterest.ktlint.rule.engine.api.KtLintParseException
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine.Companion.UTF8_BOM
+import com.pinterest.ktlint.ruleset.core.api.Rule
 import mu.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
@@ -62,14 +62,14 @@ internal class RuleExecutionContext private constructor(
         val suppressHandler = SuppressHandler(suppressionLocator, autoCorrect, emit)
         if (rule.shouldContinueTraversalOfAST()) {
             try {
-                suppressHandler.handle(node, fqRuleId) { autoCorrect, emit ->
+                suppressHandler.handle(node, rule.ruleId) { autoCorrect, emit ->
                     rule.beforeVisitChildNodes(node, autoCorrect, emit)
                 }
                 if (rule.shouldContinueTraversalOfAST()) {
                     node
                         .getChildren(null)
                         .forEach { childNode ->
-                            suppressHandler.handle(childNode, fqRuleId) { autoCorrect, emit ->
+                            suppressHandler.handle(childNode, rule.ruleId) { autoCorrect, emit ->
                                 this.executeRuleOnNodeRecursively(
                                     childNode,
                                     rule,
@@ -80,7 +80,7 @@ internal class RuleExecutionContext private constructor(
                             }
                         }
                 }
-                suppressHandler.handle(node, fqRuleId) { autoCorrect, emit ->
+                suppressHandler.handle(node, rule.ruleId) { autoCorrect, emit ->
                     rule.afterVisitChildNodes(node, autoCorrect, emit)
                 }
             } catch (e: Exception) {

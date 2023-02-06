@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.BY_KEYWORD
 import com.pinterest.ktlint.ruleset.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.ruleset.core.api.ElementType.FILE
@@ -9,12 +8,14 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.IMPORT_DIRECTIVE
 import com.pinterest.ktlint.ruleset.core.api.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.ruleset.core.api.ElementType.PACKAGE_DIRECTIVE
 import com.pinterest.ktlint.ruleset.core.api.ElementType.REFERENCE_EXPRESSION
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.isPartOf
 import com.pinterest.ktlint.ruleset.core.api.isRoot
 import com.pinterest.ktlint.ruleset.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.ruleset.core.api.nextLeaf
 import com.pinterest.ktlint.ruleset.core.api.nextSibling
 import com.pinterest.ktlint.ruleset.core.api.prevSibling
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.CompositeElement
@@ -27,7 +28,7 @@ import org.jetbrains.kotlin.psi.KtPackageDirective
 import org.jetbrains.kotlin.resolve.ImportPath
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
-public class NoUnusedImportsRule : Rule("no-unused-imports") {
+public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
     private val ref = mutableSetOf(
         Reference("*", false),
     )
@@ -257,3 +258,5 @@ public class NoUnusedImportsRule : Rule("no-unused-imports") {
         )
     }
 }
+
+public val noUnusedImportsRuleId: RuleId = NoUnusedImportsRule().ruleId

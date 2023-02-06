@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.rule.engine.internal
 
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 internal class SuppressHandler(
@@ -9,7 +10,7 @@ internal class SuppressHandler(
 ) {
     fun handle(
         node: ASTNode,
-        ruleId: String,
+        ruleId: RuleId,
         function: (Boolean, (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) -> Unit,
     ) {
         val suppress = suppressionLocator(

@@ -2,8 +2,10 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPE_PARAMETER_LIST
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.isPartOfComment
 import com.pinterest.ktlint.ruleset.core.api.prevCodeSibling
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 /**
@@ -28,7 +30,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  * ```
  */
 public class DiscouragedCommentLocationRule :
-    Rule("discouraged-comment-location"),
+    StandardRule("discouraged-comment-location"),
     Rule.Experimental {
     override fun beforeVisitChildNodes(
         node: ASTNode,
@@ -51,3 +53,5 @@ public class DiscouragedCommentLocationRule :
             }
     }
 }
+
+public val discouragedCommentLocationRuleId: RuleId = DiscouragedCommentLocationRule().ruleId

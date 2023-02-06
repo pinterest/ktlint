@@ -1,14 +1,15 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.FUN
 import com.pinterest.ktlint.ruleset.core.api.ElementType.LBRACE
 import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_PARAMETER_LIST
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.nextCodeLeaf
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
-public class NoUnitReturnRule : Rule("no-unit-return") {
+public class NoUnitReturnRule : StandardRule("no-unit-return") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -30,3 +31,5 @@ public class NoUnitReturnRule : Rule("no-unit-return") {
         }
     }
 }
+
+public val noUnitReturnRuleId: RuleId = NoUnitReturnRule().ruleId

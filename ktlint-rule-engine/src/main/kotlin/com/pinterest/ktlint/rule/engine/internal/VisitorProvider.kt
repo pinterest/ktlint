@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.rule.engine.internal
 
 import com.pinterest.ktlint.core.api.EditorConfigProperties
-import com.pinterest.ktlint.core.api.FeatureInAlphaState
 import com.pinterest.ktlint.core.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
 import com.pinterest.ktlint.ruleset.core.api.Rule
@@ -28,13 +27,14 @@ private val RULE_RUNNER_SORTER = RuleRunnerSorter()
 internal class VisitorProvider(
     ruleRunners: Set<RuleRunner>,
     /**
-     * Creates a new [RuleRunnerSorter]. Only to be used in unit tests where the same set of rules are used with distinct [Rule.VisitorModifier]s.
+     * Creates a new [RuleRunnerSorter]. Only to be used in unit tests where the same set of rules are used with distinct
+     * [Rule.VisitorModifier]s.
      */
     recreateRuleSorter: Boolean = false,
 ) : UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> =
         ruleRunners.map {
-            createRuleExecutionEditorConfigProperty(it.qualifiedRuleId)
+            it.ruleId.createRuleExecutionEditorConfigProperty()
         }
 
     /**
@@ -47,7 +47,6 @@ internal class VisitorProvider(
             RULE_RUNNER_SORTER
         }.getSortedRuleRunners(ruleRunners)
 
-    @OptIn(FeatureInAlphaState::class)
     internal fun visitor(editorConfigProperties: EditorConfigProperties): ((rule: Rule, fqRuleId: String) -> Unit) -> Unit {
         val enabledRuleRunners =
             ruleRunnersSorted
@@ -60,11 +59,11 @@ internal class VisitorProvider(
             ruleRunnersSorted
                 .filter { ruleRunner ->
                     val runAfterRules = ruleRunner.runAfterRules
-                    val runAfterRuleIds = runAfterRules.map { it.qualifiedRuleId }
+                    val runAfterRuleIds = runAfterRules.map { it.ruleId }
                     runAfterRules
-                        .any {
-                            it.runOnlyWhenOtherRuleIsEnabled &&
-                                enabledRuleRunners.none { it.qualifiedRuleId in runAfterRuleIds }
+                        .any { runAfterRule ->
+                            runAfterRule.runOnlyWhenOtherRuleIsEnabled &&
+                                enabledRuleRunners.none { it.ruleId in runAfterRuleIds }
                         }
                 }
         if (ruleRunnersToBeSkipped.isNotEmpty()) {
@@ -72,8 +71,8 @@ internal class VisitorProvider(
                 ruleRunnersToBeSkipped
                     .forEach { ruleRunner ->
                         println(
-                            "Skipping rule with id '${ruleRunner.qualifiedRuleId}'. This rule has to run after rules with " +
-                                "ids '${ruleRunner.runAfterRules.joinToString { it.qualifiedRuleId }}' and will " +
+                            "Skipping rule with id '${ruleRunner.ruleId.value}'. This rule has to run after rules with " +
+                                "ids '${ruleRunner.runAfterRules.joinToString { it.ruleId.value }}' and will " +
                                 "not run in case that rule is disabled.",
                         )
                     }
@@ -86,7 +85,8 @@ internal class VisitorProvider(
         }
         return { visit ->
             ruleRunnersToExecute.forEach {
-                visit(it.getRule(), it.shortenedQualifiedRuleId)
+                // TODO: Remove it.ruleId.value parameter as it can be deducted from it.getRule().ruleId
+                visit(it.getRule(), it.ruleId.value)
             }
         }
     }
@@ -95,7 +95,7 @@ internal class VisitorProvider(
         // If set for the rule, the rule execution property takes precedence above other checks. This allows for execution of a specific
         // experimental or ktlint_official code style rule without enabling them all. Also, this allows to disable a specific rule in case
         // the experimental and/or ktlint_official code style rules are enabled.
-        ruleExecution(rule.ktLintRuleExecutionPropertyName())
+        ruleExecution(rule.ruleId.ktLintRuleExecutionPropertyName())
             ?.let { it == RuleExecution.enabled }
             ?: isRuleConditionallyEnabled(rule)
 
@@ -113,16 +113,16 @@ internal class VisitorProvider(
 
     private fun EditorConfigProperties.isExperimentalEnabled(rule: Rule) =
         ruleExecution(EXPERIMENTAL_RULES_EXECUTION_PROPERTY.name) == RuleExecution.enabled &&
-            ruleExecution(rule.ktLintRuleSetExecutionPropertyName()) != RuleExecution.disabled &&
-            ruleExecution(rule.ktLintRuleExecutionPropertyName()) != RuleExecution.disabled
+            ruleExecution(rule.ruleId.ruleSetId.ktLintRuleSetExecutionPropertyName()) != RuleExecution.disabled &&
+            ruleExecution(rule.ruleId.ktLintRuleExecutionPropertyName()) != RuleExecution.disabled
 
     private fun EditorConfigProperties.isOfficialCodeStyleEnabled(rule: Rule) =
         codeStyle() == CodeStyleValue.ktlint_official &&
-            ruleExecution(rule.ktLintRuleSetExecutionPropertyName()) != RuleExecution.disabled &&
-            ruleExecution(rule.ktLintRuleExecutionPropertyName()) != RuleExecution.disabled
+            ruleExecution(rule.ruleId.ruleSetId.ktLintRuleSetExecutionPropertyName()) != RuleExecution.disabled &&
+            ruleExecution(rule.ruleId.ktLintRuleExecutionPropertyName()) != RuleExecution.disabled
 
     private fun EditorConfigProperties.isRuleSetEnabled(rule: Rule) =
-        ruleExecution(rule.ktLintRuleSetExecutionPropertyName())
+        ruleExecution(rule.ruleId.ruleSetId.ktLintRuleSetExecutionPropertyName())
             .let { ruleSetExecution ->
                 if (ruleSetExecution?.name == "ktlint_experimental") {
                     // Rules in the experimental rule set are only run when enabled explicitly.

@@ -1,9 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.rule.engine.api.UsesEditorConfigProperties
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.ruleset.core.api.ElementType
 import com.pinterest.ktlint.ruleset.core.api.ElementType.ARROW
 import com.pinterest.ktlint.ruleset.core.api.ElementType.CLASS
@@ -14,13 +12,16 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.children
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.ruleset.core.api.isCodeLeaf
 import com.pinterest.ktlint.ruleset.core.api.lineIndent
 import com.pinterest.ktlint.ruleset.core.api.noNewLineInClosedRange
 import com.pinterest.ktlint.ruleset.core.api.prevCodeLeaf
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.core.api.upsertWhitespaceAfterMe
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.PropertyType.PropertyValueParser
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -51,11 +52,11 @@ import kotlin.properties.Delegates
  * @see [Kotlin Style Guide](https://kotlinlang.org/docs/coding-conventions.html#trailing-commas)
  */
 public class TrailingCommaOnDeclarationSiteRule :
-    Rule(
+    StandardRule(
         id = "trailing-comma-on-declaration-site",
         visitorModifiers = setOf(
             VisitorModifier.RunAfterRule(
-                ruleId = "standard:wrapping",
+                ruleId = wrappingRuleId,
                 loadOnlyWhenOtherRuleIsLoaded = true,
                 runOnlyWhenOtherRuleIsEnabled = true,
             ),
@@ -471,3 +472,5 @@ public class TrailingCommaOnDeclarationSiteRule :
         )
     }
 }
+
+public val trailingCommaOnDeclarationSiteRuleId: RuleId = TrailingCommaOnDeclarationSiteRule().ruleId

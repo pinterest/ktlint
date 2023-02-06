@@ -1,16 +1,18 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.COLON
 import com.pinterest.ktlint.ruleset.core.api.ElementType.FUN
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.ruleset.core.api.Rule
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.nextLeaf
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.core.api.upsertWhitespaceAfterMe
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 public class FunctionReturnTypeSpacingRule :
-    Rule("function-return-type-spacing"),
+    StandardRule("function-return-type-spacing"),
     Rule.Experimental {
     override fun beforeVisitChildNodes(
         node: ASTNode,
@@ -63,3 +65,5 @@ public class FunctionReturnTypeSpacingRule :
             }
     }
 }
+
+public val functionReturnTypeSpacingRuleId: RuleId = FunctionReturnTypeSpacingRule().ruleId

@@ -2,6 +2,7 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.findCompositeElementOfType
 import com.pinterest.ktlint.ruleset.core.api.isPartOfCompositeElementOfType
 import com.pinterest.ktlint.ruleset.core.api.nextLeaf
@@ -9,13 +10,14 @@ import com.pinterest.ktlint.ruleset.core.api.nextSibling
 import com.pinterest.ktlint.ruleset.core.api.parent
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.core.api.prevSibling
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 /**
  * Lints and formats the spacing before and after the angle brackets of a type argument list.
  */
 public class TypeArgumentListSpacingRule :
-    Rule("type-argument-list-spacing"),
+    StandardRule("type-argument-list-spacing"),
     Rule.Experimental {
     override fun beforeVisitChildNodes(
         node: ASTNode,
@@ -109,3 +111,5 @@ private fun ASTNode.isPartOfCallExpressionFollowedByLambda(): Boolean =
         ?.takeIf { it.elementType == ElementType.CALL_EXPRESSION }
         ?.findChildByType(ElementType.LAMBDA_ARGUMENT)
         .let { it != null }
+
+public val typeArgumentListSpacingRuleId: RuleId = TypeArgumentListSpacingRule().ruleId

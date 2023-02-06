@@ -1,16 +1,17 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.CLASS
 import com.pinterest.ktlint.ruleset.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.ruleset.core.api.ElementType.PRIMARY_CONSTRUCTOR
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.nextLeaf
 import com.pinterest.ktlint.ruleset.core.api.prevCodeLeaf
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
-public class NoConsecutiveBlankLinesRule : Rule("no-consecutive-blank-lines") {
+public class NoConsecutiveBlankLinesRule : StandardRule("no-consecutive-blank-lines") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -62,3 +63,5 @@ public class NoConsecutiveBlankLinesRule : Rule("no-consecutive-blank-lines") {
             }
             ?: false
 }
+
+public val noConsecutiveBlankLinesRuleId: RuleId = NoConsecutiveBlankLinesRule().ruleId

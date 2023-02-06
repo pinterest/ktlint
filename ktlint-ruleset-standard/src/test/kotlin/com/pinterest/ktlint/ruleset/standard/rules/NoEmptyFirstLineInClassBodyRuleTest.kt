@@ -129,7 +129,7 @@ class NoEmptyFirstLineInClassBodyRuleTest {
             """.trimIndent()
         noEmptyFirstLineInClassBodyRuleAssertThat(code)
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyleValue)
-            .withEditorConfigOverride(createRuleExecutionEditorConfigProperty("no-empty-first-line-in-class-body") to RuleExecution.enabled)
+            .withEditorConfigOverride(noEmptyFirstLineInClassBodyRuleId.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled)
             .hasLintViolation(2, 1, "Class body should not start with blank line")
             .isFormattedAs(formattedCode)
     }

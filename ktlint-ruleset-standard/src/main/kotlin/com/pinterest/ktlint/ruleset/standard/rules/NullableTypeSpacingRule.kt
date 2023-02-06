@@ -3,12 +3,14 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.QUEST
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 public class NullableTypeSpacingRule :
-    Rule("nullable-type-spacing"),
+    StandardRule("nullable-type-spacing"),
     Rule.Experimental {
     override fun beforeVisitChildNodes(
         node: ASTNode,
@@ -27,3 +29,5 @@ public class NullableTypeSpacingRule :
             }
     }
 }
+
+public val nullableTypeSpacingRuleId: RuleId = NullableTypeSpacingRule().ruleId

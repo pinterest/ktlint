@@ -1,16 +1,17 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.isPartOfComment
 import com.pinterest.ktlint.ruleset.core.api.nextLeaf
 import com.pinterest.ktlint.ruleset.core.api.parent
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 
-public class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
+public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -79,3 +80,5 @@ public class NoTrailingSpacesRule : Rule("no-trailing-spaces") {
         val SPACE_OR_TAB_BEFORE_NEWLINE_REGEX = Regex(" +\\n")
     }
 }
+
+public val noTrailingSpacesRuleId: RuleId = NoTrailingSpacesRule().ruleId

@@ -2,8 +2,11 @@ package com.pinterest.ruleset.testtooling
 
 import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.isRoot
 import com.pinterest.ktlint.ruleset.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.ruleset.standard.StandardRule
+import com.pinterest.ktlint.ruleset.standard.rules.WrappingRule
 import com.pinterest.ruleset.testtooling.internal.Color
 import com.pinterest.ruleset.testtooling.internal.color
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -15,7 +18,7 @@ import java.util.Locale
 public class DumpASTRule @JvmOverloads constructor(
     private val out: PrintStream = System.err,
     private val color: Boolean = false,
-) : Rule("dump") {
+) : Rule(RuleId("standard:dump")) {
     private companion object {
         val ELEMENT_TYPE_SET = ElementType::class.members.map { it.name }.toSet()
     }

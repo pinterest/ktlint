@@ -6,16 +6,18 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.LAMBDA_ARGUMENT
 import com.pinterest.ktlint.ruleset.core.api.ElementType.LPAR
 import com.pinterest.ktlint.ruleset.core.api.ElementType.RPAR
 import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_ARGUMENT_LIST
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.children
 import com.pinterest.ktlint.ruleset.core.api.isPartOf
 import com.pinterest.ktlint.ruleset.core.api.nextCodeSibling
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 /**
  * Ensures there are no unnecessary parentheses before a trailing lambda.
  */
 public class UnnecessaryParenthesesBeforeTrailingLambdaRule :
-    Rule("unnecessary-parentheses-before-trailing-lambda"),
+    StandardRule("unnecessary-parentheses-before-trailing-lambda"),
     Rule.Experimental {
     override fun beforeVisitChildNodes(
         node: ASTNode,
@@ -43,3 +45,5 @@ public class UnnecessaryParenthesesBeforeTrailingLambdaRule :
                 .filterNot { it.elementType == LPAR || it.elementType == RPAR }
                 .none()
 }
+
+public val unnecessaryParenthesesBeforeTrailingLambdaRuleId: RuleId = UnnecessaryParenthesesBeforeTrailingLambdaRule().ruleId

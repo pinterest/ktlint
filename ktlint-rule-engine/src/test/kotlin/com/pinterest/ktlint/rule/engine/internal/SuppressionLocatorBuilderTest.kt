@@ -8,6 +8,7 @@ import com.pinterest.ktlint.rule.engine.api.LintError
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import com.pinterest.ktlint.ruleset.core.api.ElementType
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.junit.jupiter.api.Test
@@ -21,9 +22,9 @@ class SuppressionLocatorBuilderTest {
             val fooWithSuffix = "fooWithSuffix"
             """.trimIndent()
         assertThat(lint(code)).containsExactly(
-            lintError(1, 5, "no-foo-identifier-standard"),
+            lintError(1, 5, "standard:no-foo-identifier-standard"),
             lintError(1, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
-            lintError(2, 5, "no-foo-identifier-standard"),
+            lintError(2, 5, "standard:no-foo-identifier-standard"),
             lintError(2, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
         )
     }
@@ -56,7 +57,7 @@ class SuppressionLocatorBuilderTest {
             val fooReported = "foo"
             """.trimIndent()
         assertThat(lint(code)).containsExactly(
-            lintError(4, 5, "no-foo-identifier-standard"),
+            lintError(4, 5, "standard:no-foo-identifier-standard"),
             lintError(4, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
         )
     }
@@ -71,7 +72,7 @@ class SuppressionLocatorBuilderTest {
             val fooReported = "foo"
             """.trimIndent()
         assertThat(lint(code)).containsExactly(
-            lintError(4, 5, "no-foo-identifier-standard"),
+            lintError(4, 5, "standard:no-foo-identifier-standard"),
             lintError(4, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
         )
     }
@@ -86,7 +87,7 @@ class SuppressionLocatorBuilderTest {
             val fooReported = "foo"
             """.trimIndent()
         assertThat(lint(code)).containsExactly(
-            lintError(4, 5, "no-foo-identifier-standard"),
+            lintError(4, 5, "standard:no-foo-identifier-standard"),
             lintError(4, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
         )
     }
@@ -101,7 +102,7 @@ class SuppressionLocatorBuilderTest {
             val fooReported = "foo"
             """.trimIndent()
         assertThat(lint(code)).containsExactly(
-            lintError(4, 5, "no-foo-identifier-standard"),
+            lintError(4, 5, "standard:no-foo-identifier-standard"),
             lintError(4, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
         )
     }
@@ -118,7 +119,7 @@ class SuppressionLocatorBuilderTest {
             val fooReported = "foo"
             """.trimIndent()
         assertThat(lint(code)).containsExactly(
-            lintError(6, 5, "no-foo-identifier-standard"),
+            lintError(6, 5, "standard:no-foo-identifier-standard"),
             lintError(6, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
         )
     }
@@ -135,7 +136,7 @@ class SuppressionLocatorBuilderTest {
             val fooReported = "foo"
             """.trimIndent()
         assertThat(lint(code)).containsExactly(
-            lintError(6, 5, "no-foo-identifier-standard"),
+            lintError(6, 5, "standard:no-foo-identifier-standard"),
             lintError(6, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
         )
     }
@@ -206,7 +207,7 @@ class SuppressionLocatorBuilderTest {
         assertThat(lint(code)).isEmpty()
     }
 
-    private class NoFooIdentifierRule(id: String) : Rule(id) {
+    private class NoFooIdentifierRule(id: RuleId) : Rule(id) {
         override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,
@@ -228,16 +229,18 @@ class SuppressionLocatorBuilderTest {
 
     private companion object {
         const val NON_STANDARD_RULE_SET_ID = "custom" // Can be any value other than "standard"
+        val STANDARD_NO_FOO_IDENTIFIER_RULE_ID = RuleId("standard:no-foo-identifier-standard")
+        val NON_STANDARD_NO_FOO_IDENTIFIER_RULE_ID = RuleId("$NON_STANDARD_RULE_SET_ID:no-foo-identifier")
         val KTLINT_RULE_ENGINE = KtLintRuleEngine(
             ruleProviders = setOf(
                 // The same rule is supplied once a standard rule and once as non-standard rule. Note that the
                 // ruleIds are different.
-                RuleProvider { NoFooIdentifierRule("no-foo-identifier-standard") },
-                RuleProvider { NoFooIdentifierRule("$NON_STANDARD_RULE_SET_ID:no-foo-identifier") },
+                RuleProvider { NoFooIdentifierRule(STANDARD_NO_FOO_IDENTIFIER_RULE_ID) },
+                RuleProvider { NoFooIdentifierRule(NON_STANDARD_NO_FOO_IDENTIFIER_RULE_ID) },
             ),
             editorConfigOverride = EditorConfigOverride.from(
-                createRuleExecutionEditorConfigProperty("no-foo-identifier-standard") to RuleExecution.enabled,
-                createRuleExecutionEditorConfigProperty("$NON_STANDARD_RULE_SET_ID:no-foo-identifier") to RuleExecution.enabled,
+                STANDARD_NO_FOO_IDENTIFIER_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled,
+                NON_STANDARD_NO_FOO_IDENTIFIER_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled,
             ),
         )
     }

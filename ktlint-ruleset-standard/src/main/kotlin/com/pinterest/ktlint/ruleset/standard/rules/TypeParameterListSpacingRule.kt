@@ -12,12 +12,14 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.PRIMARY_CONSTRUCTOR
 import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPEALIAS
 import com.pinterest.ktlint.ruleset.core.api.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.ruleset.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.nextCodeSibling
 import com.pinterest.ktlint.ruleset.core.api.nextLeaf
 import com.pinterest.ktlint.ruleset.core.api.nextSibling
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.core.api.prevSibling
 import com.pinterest.ktlint.ruleset.core.api.upsertWhitespaceBeforeMe
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
@@ -25,7 +27,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
  * Lints and formats the spacing before and after the angle brackets of a type parameter list.
  */
 public class TypeParameterListSpacingRule :
-    Rule("type-parameter-list-spacing"),
+    StandardRule("type-parameter-list-spacing"),
     Rule.Experimental {
     override fun beforeVisitChildNodes(
         node: ASTNode,
@@ -195,3 +197,5 @@ public class TypeParameterListSpacingRule :
         }
     }
 }
+
+public val typeParameterListSpacingRuleId: RuleId = TypeParameterListSpacingRule().ruleId

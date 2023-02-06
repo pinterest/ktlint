@@ -8,14 +8,16 @@ import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.ruleset.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.ruleset.core.api.IndentConfig
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.ruleset.core.api.lineIndent
 import com.pinterest.ktlint.ruleset.core.api.nextLeaf
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 public class NoEmptyFirstLineInClassBodyRule :
-    Rule("no-empty-first-line-in-class-body"),
+    StandardRule("no-empty-first-line-in-class-body"),
     Rule.Experimental,
     Rule.OfficialCodeStyle,
     UsesEditorConfigProperties {
@@ -64,3 +66,5 @@ public class NoEmptyFirstLineInClassBodyRule :
         }
     }
 }
+
+public val noEmptyFirstLineInClassBodyRuleId: RuleId = NoEmptyFirstLineInClassBodyRule().ruleId

@@ -1,8 +1,5 @@
 package com.pinterest.ktlint.rule.engine.api
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
-import com.pinterest.ktlint.ruleset.core.api.Rule.VisitorModifier.RunAsLateAsPossible
-import com.pinterest.ktlint.ruleset.core.api.RuleProvider
 import com.pinterest.ktlint.core.api.EditorConfigProperties
 import com.pinterest.ktlint.rule.engine.api.AutoCorrectErrorRule.Companion.STRING_VALUE_AFTER_AUTOCORRECT
 import com.pinterest.ktlint.rule.engine.api.DummyRuleWithCustomEditorConfigProperty.Companion.SOME_CUSTOM_RULE_PROPERTY_NAME
@@ -13,13 +10,17 @@ import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.RuleMethod.BEFORE_
 import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.RuleMethod.VISIT
 import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.VisitNodeType.CHILD
 import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.VisitNodeType.ROOT
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.ruleset.core.api.ElementType.CLASS
 import com.pinterest.ktlint.ruleset.core.api.ElementType.FILE
 import com.pinterest.ktlint.ruleset.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.ruleset.core.api.ElementType.IMPORT_LIST
 import com.pinterest.ktlint.ruleset.core.api.ElementType.PACKAGE_DIRECTIVE
 import com.pinterest.ktlint.ruleset.core.api.ElementType.REGULAR_STRING_PART
+import com.pinterest.ktlint.ruleset.core.api.Rule
+import com.pinterest.ktlint.ruleset.core.api.Rule.VisitorModifier.RunAsLateAsPossible
+import com.pinterest.ktlint.ruleset.core.api.RuleId
+import com.pinterest.ktlint.ruleset.core.api.RuleProvider
+import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.ruleset.core.api.isRoot
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -84,7 +85,7 @@ class KtLintTest {
                     CallbackResult(
                         line = 1,
                         col = 12,
-                        ruleId = "auto-correct",
+                        ruleId = AutoCorrectErrorRule.RULE_ID,
                         detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED,
                         canBeAutoCorrected = false,
                         corrected = false,
@@ -92,7 +93,7 @@ class KtLintTest {
                     CallbackResult(
                         line = 2,
                         col = 12,
-                        ruleId = "auto-correct",
+                        ruleId = AutoCorrectErrorRule.RULE_ID,
                         detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_BE_AUTOCORRECTED,
                         canBeAutoCorrected = true,
                         corrected = false,
@@ -154,7 +155,7 @@ class KtLintTest {
                     CallbackResult(
                         line = 1,
                         col = 12,
-                        ruleId = "auto-correct",
+                        ruleId = AutoCorrectErrorRule.RULE_ID,
                         detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED,
                         canBeAutoCorrected = false,
                         corrected = false,
@@ -162,7 +163,7 @@ class KtLintTest {
                     CallbackResult(
                         line = 2,
                         col = 12,
-                        ruleId = "auto-correct",
+                        ruleId = AutoCorrectErrorRule.RULE_ID,
                         detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_BE_AUTOCORRECTED,
                         canBeAutoCorrected = true,
                         corrected = true,
@@ -180,14 +181,14 @@ class KtLintTest {
                 RuleProvider {
                     SimpleTestRule(
                         ruleExecutionCalls = ruleExecutionCalls,
-                        id = "a",
+                        ruleId = SimpleTestRule.RULE_ID_A,
                         visitorModifiers = setOf(),
                     )
                 },
                 RuleProvider {
                     SimpleTestRule(
                         ruleExecutionCalls = ruleExecutionCalls,
-                        id = "b",
+                        ruleId = SimpleTestRule.RULE_ID_B,
                         visitorModifiers = setOf(RunAsLateAsPossible),
                     )
                 },
@@ -198,23 +199,23 @@ class KtLintTest {
         )
         assertThat(ruleExecutionCalls).containsExactly(
             // File a
-            RuleExecutionCall("a", BEFORE_FIRST),
-            RuleExecutionCall("a", BEFORE_CHILDREN, ROOT, FILE),
-            RuleExecutionCall("a", BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall("a", AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall("a", BEFORE_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall("a", AFTER_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall("a", AFTER_CHILDREN, ROOT, FILE),
-            RuleExecutionCall("a", AFTER_LAST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_A, BEFORE_FIRST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_A, BEFORE_CHILDREN, ROOT, FILE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_A, BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_A, AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_A, BEFORE_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_A, AFTER_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_A, AFTER_CHILDREN, ROOT, FILE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_A, AFTER_LAST),
             // File b
-            RuleExecutionCall("b", BEFORE_FIRST),
-            RuleExecutionCall("b", BEFORE_CHILDREN, ROOT, FILE),
-            RuleExecutionCall("b", BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall("b", AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall("b", BEFORE_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall("b", AFTER_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall("b", AFTER_CHILDREN, ROOT, FILE),
-            RuleExecutionCall("b", AFTER_LAST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_FIRST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_CHILDREN, ROOT, FILE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_CHILDREN, ROOT, FILE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_LAST),
         )
     }
 
@@ -226,20 +227,20 @@ class KtLintTest {
                 RuleProvider {
                     SimpleTestRule(
                         ruleExecutionCalls = ruleExecutionCalls,
-                        id = "d",
+                        ruleId = SimpleTestRule.RULE_ID_D,
                         visitorModifiers = setOf(RunAsLateAsPossible),
                     )
                 },
                 RuleProvider {
                     SimpleTestRule(
                         ruleExecutionCalls = ruleExecutionCalls,
-                        id = "b",
+                        ruleId = SimpleTestRule.RULE_ID_B,
                     )
                 },
                 RuleProvider {
                     SimpleTestRule(
                         ruleExecutionCalls = ruleExecutionCalls,
-                        id = "c",
+                        ruleId = SimpleTestRule.RULE_ID_C,
                     )
                 },
             ),
@@ -249,32 +250,32 @@ class KtLintTest {
         )
         assertThat(ruleExecutionCalls).containsExactly(
             // File b
-            RuleExecutionCall("b", BEFORE_FIRST),
-            RuleExecutionCall("b", BEFORE_CHILDREN, ROOT, FILE),
-            RuleExecutionCall("b", BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall("b", AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall("b", BEFORE_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall("b", AFTER_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall("b", AFTER_CHILDREN, ROOT, FILE),
-            RuleExecutionCall("b", AFTER_LAST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_FIRST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_CHILDREN, ROOT, FILE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_CHILDREN, ROOT, FILE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_LAST),
             // File c
-            RuleExecutionCall("c", BEFORE_FIRST),
-            RuleExecutionCall("c", BEFORE_CHILDREN, ROOT, FILE),
-            RuleExecutionCall("c", BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall("c", AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall("c", BEFORE_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall("c", AFTER_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall("c", AFTER_CHILDREN, ROOT, FILE),
-            RuleExecutionCall("c", AFTER_LAST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_C, BEFORE_FIRST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_C, BEFORE_CHILDREN, ROOT, FILE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_C, BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_C, AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_C, BEFORE_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_C, AFTER_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_C, AFTER_CHILDREN, ROOT, FILE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_C, AFTER_LAST),
             // File d
-            RuleExecutionCall("d", BEFORE_FIRST),
-            RuleExecutionCall("d", BEFORE_CHILDREN, ROOT, FILE),
-            RuleExecutionCall("d", BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall("d", AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall("d", BEFORE_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall("d", AFTER_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall("d", AFTER_CHILDREN, ROOT, FILE),
-            RuleExecutionCall("d", AFTER_LAST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_D, BEFORE_FIRST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_D, BEFORE_CHILDREN, ROOT, FILE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_D, BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_D, AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_D, BEFORE_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_D, AFTER_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_D, AFTER_CHILDREN, ROOT, FILE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_D, AFTER_LAST),
         )
     }
 
@@ -300,7 +301,7 @@ class KtLintTest {
                 ruleProviders = setOf(
                     RuleProvider {
                         SimpleTestRule(
-                            id = "stop-traversal",
+                            ruleId = SimpleTestRule.RULE_ID_STOP_TRAVERSAL,
                             ruleExecutionCalls = ruleExecutionCalls,
                             stopTraversalInBeforeFirstNode = true,
                         )
@@ -309,8 +310,8 @@ class KtLintTest {
             ).format("class Foo")
 
             assertThat(ruleExecutionCalls).containsExactly(
-                RuleExecutionCall("stop-traversal", BEFORE_FIRST),
-                RuleExecutionCall("stop-traversal", AFTER_LAST),
+                RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, BEFORE_FIRST),
+                RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, AFTER_LAST),
             )
         }
 
@@ -331,7 +332,7 @@ class KtLintTest {
                 ruleProviders = setOf(
                     RuleProvider {
                         SimpleTestRule(
-                            id = "stop-traversal",
+                            ruleId = SimpleTestRule.RULE_ID_STOP_TRAVERSAL,
                             ruleExecutionCalls = ruleExecutionCalls,
                             stopTraversalInBeforeVisitChildNodes = { node ->
                                 // Stop when Class Foo has been entered
@@ -345,12 +346,12 @@ class KtLintTest {
             assertThat(ruleExecutionCalls)
                 .filteredOn { it.elementType == null || it.classIdentifier != null }
                 .containsExactly(
-                    RuleExecutionCall("stop-traversal", BEFORE_FIRST),
-                    RuleExecutionCall("stop-traversal", BEFORE_CHILDREN, CHILD, CLASS, "FooBar"),
-                    RuleExecutionCall("stop-traversal", BEFORE_CHILDREN, CHILD, CLASS, "Foo"),
-                    RuleExecutionCall("stop-traversal", AFTER_CHILDREN, CHILD, CLASS, "Foo"),
-                    RuleExecutionCall("stop-traversal", AFTER_CHILDREN, CHILD, CLASS, "FooBar"),
-                    RuleExecutionCall("stop-traversal", AFTER_LAST),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, BEFORE_FIRST),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, BEFORE_CHILDREN, CHILD, CLASS, "FooBar"),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, BEFORE_CHILDREN, CHILD, CLASS, "Foo"),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, AFTER_CHILDREN, CHILD, CLASS, "Foo"),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, AFTER_CHILDREN, CHILD, CLASS, "FooBar"),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, AFTER_LAST),
                 )
         }
 
@@ -371,7 +372,7 @@ class KtLintTest {
                 ruleProviders = setOf(
                     RuleProvider {
                         SimpleTestRule(
-                            id = "stop-traversal",
+                            ruleId = SimpleTestRule.RULE_ID_STOP_TRAVERSAL,
                             ruleExecutionCalls = ruleExecutionCalls,
                             stopTraversalInAfterVisitChildNodes = { node ->
                                 // Stop when Class Foo has been visited
@@ -385,14 +386,14 @@ class KtLintTest {
             assertThat(ruleExecutionCalls)
                 .filteredOn { it.elementType == null || it.classIdentifier != null }
                 .containsExactly(
-                    RuleExecutionCall("stop-traversal", BEFORE_FIRST),
-                    RuleExecutionCall("stop-traversal", BEFORE_CHILDREN, CHILD, CLASS, "FooBar"),
-                    RuleExecutionCall("stop-traversal", BEFORE_CHILDREN, CHILD, CLASS, "Foo"),
-                    RuleExecutionCall("stop-traversal", BEFORE_CHILDREN, CHILD, CLASS, "InsideFoo"),
-                    RuleExecutionCall("stop-traversal", AFTER_CHILDREN, CHILD, CLASS, "InsideFoo"),
-                    RuleExecutionCall("stop-traversal", AFTER_CHILDREN, CHILD, CLASS, "Foo"),
-                    RuleExecutionCall("stop-traversal", AFTER_CHILDREN, CHILD, CLASS, "FooBar"),
-                    RuleExecutionCall("stop-traversal", AFTER_LAST),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, BEFORE_FIRST),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, BEFORE_CHILDREN, CHILD, CLASS, "FooBar"),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, BEFORE_CHILDREN, CHILD, CLASS, "Foo"),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, BEFORE_CHILDREN, CHILD, CLASS, "InsideFoo"),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, AFTER_CHILDREN, CHILD, CLASS, "InsideFoo"),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, AFTER_CHILDREN, CHILD, CLASS, "Foo"),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, AFTER_CHILDREN, CHILD, CLASS, "FooBar"),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, AFTER_LAST),
                 )
         }
 
@@ -403,7 +404,7 @@ class KtLintTest {
                 ruleProviders = setOf(
                     RuleProvider {
                         SimpleTestRule(
-                            id = "stop-traversal",
+                            ruleId = SimpleTestRule.RULE_ID_STOP_TRAVERSAL,
                             ruleExecutionCalls = ruleExecutionCalls,
                             stopTraversalInBeforeFirstNode = true,
                         )
@@ -412,8 +413,8 @@ class KtLintTest {
             ).format("class Foo")
 
             assertThat(ruleExecutionCalls).containsExactly(
-                RuleExecutionCall("stop-traversal", BEFORE_FIRST),
-                RuleExecutionCall("stop-traversal", AFTER_LAST),
+                RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, BEFORE_FIRST),
+                RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, AFTER_LAST),
             )
         }
     }
@@ -436,7 +437,7 @@ class KtLintTest {
     fun `Issue 1623 - Given a file with multiple top-level declarations then a file suppression annotation should be applied on each top level declaration`() {
         val code =
             """
-            @file:Suppress("ktlint:auto-correct")
+            @file:Suppress("ktlint:${AutoCorrectErrorRule.RULE_ID}")
             val foo = "${AutoCorrectErrorRule.STRING_VALUE_TO_BE_AUTOCORRECTED}" // Won't be auto corrected due to suppress annotation
             val bar = "${AutoCorrectErrorRule.STRING_VALUE_TO_BE_AUTOCORRECTED}" // Won't be auto corrected due to suppress annotation
             """.trimIndent()
@@ -564,7 +565,7 @@ class KtLintLegacyTest {
             }
 
             @Test
-            fun `Given a rule returning an errors which can and can not be autocorrected than that state of the error can be retrieved in the callback`() {
+            fun `Given a rule returning errors which can and can not be autocorrected than that state of the error can be retrieved in the callback`() {
                 val code =
                     """
                     val foo = "${AutoCorrectErrorRule.STRING_VALUE_NOT_TO_BE_CORRECTED}"
@@ -598,7 +599,7 @@ class KtLintLegacyTest {
                     CallbackResult(
                         line = 1,
                         col = 12,
-                        ruleId = "auto-correct",
+                        ruleId = AutoCorrectErrorRule.RULE_ID,
                         detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED,
                         canBeAutoCorrected = false,
                         corrected = false,
@@ -606,7 +607,7 @@ class KtLintLegacyTest {
                     CallbackResult(
                         line = 2,
                         col = 12,
-                        ruleId = "auto-correct",
+                        ruleId = AutoCorrectErrorRule.RULE_ID,
                         detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_BE_AUTOCORRECTED,
                         canBeAutoCorrected = true,
                         corrected = false,
@@ -761,7 +762,7 @@ class KtLintLegacyTest {
                     CallbackResult(
                         line = 1,
                         col = 12,
-                        ruleId = "auto-correct",
+                        ruleId = AutoCorrectErrorRule.RULE_ID,
                         detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED,
                         canBeAutoCorrected = false,
                         corrected = false,
@@ -769,7 +770,7 @@ class KtLintLegacyTest {
                     CallbackResult(
                         line = 2,
                         col = 12,
-                        ruleId = "auto-correct",
+                        ruleId = AutoCorrectErrorRule.RULE_ID,
                         detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_BE_AUTOCORRECTED,
                         canBeAutoCorrected = true,
                         corrected = true,
@@ -790,14 +791,14 @@ class KtLintLegacyTest {
                     RuleProvider {
                         SimpleTestRule(
                             ruleExecutionCalls = ruleExecutionCalls,
-                            id = "a",
+                            ruleId = SimpleTestRule.RULE_ID_A,
                             visitorModifiers = setOf(),
                         )
                     },
                     RuleProvider {
                         SimpleTestRule(
                             ruleExecutionCalls = ruleExecutionCalls,
-                            id = "b",
+                            ruleId = SimpleTestRule.RULE_ID_B,
                             visitorModifiers = setOf(RunAsLateAsPossible),
                         )
                     },
@@ -807,23 +808,23 @@ class KtLintLegacyTest {
         )
         assertThat(ruleExecutionCalls).containsExactly(
             // File a
-            RuleExecutionCall("a", BEFORE_FIRST),
-            RuleExecutionCall("a", BEFORE_CHILDREN, ROOT, FILE),
-            RuleExecutionCall("a", BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall("a", AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall("a", BEFORE_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall("a", AFTER_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall("a", AFTER_CHILDREN, ROOT, FILE),
-            RuleExecutionCall("a", AFTER_LAST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_A, BEFORE_FIRST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_A, BEFORE_CHILDREN, ROOT, FILE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_A, BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_A, AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_A, BEFORE_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_A, AFTER_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_A, AFTER_CHILDREN, ROOT, FILE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_A, AFTER_LAST),
             // File b
-            RuleExecutionCall("b", BEFORE_FIRST),
-            RuleExecutionCall("b", BEFORE_CHILDREN, ROOT, FILE),
-            RuleExecutionCall("b", BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall("b", AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall("b", BEFORE_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall("b", AFTER_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall("b", AFTER_CHILDREN, ROOT, FILE),
-            RuleExecutionCall("b", AFTER_LAST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_FIRST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_CHILDREN, ROOT, FILE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_CHILDREN, ROOT, FILE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_LAST),
         )
     }
 
@@ -838,20 +839,20 @@ class KtLintLegacyTest {
                     RuleProvider {
                         SimpleTestRule(
                             ruleExecutionCalls = ruleExecutionCalls,
-                            id = "d",
+                            ruleId = SimpleTestRule.RULE_ID_D,
                             visitorModifiers = setOf(RunAsLateAsPossible),
                         )
                     },
                     RuleProvider {
                         SimpleTestRule(
                             ruleExecutionCalls = ruleExecutionCalls,
-                            id = "b",
+                            ruleId = SimpleTestRule.RULE_ID_B,
                         )
                     },
                     RuleProvider {
                         SimpleTestRule(
                             ruleExecutionCalls = ruleExecutionCalls,
-                            id = "c",
+                            ruleId = SimpleTestRule.RULE_ID_C,
                         )
                     },
                 ),
@@ -860,32 +861,32 @@ class KtLintLegacyTest {
         )
         assertThat(ruleExecutionCalls).containsExactly(
             // File b
-            RuleExecutionCall("b", BEFORE_FIRST),
-            RuleExecutionCall("b", BEFORE_CHILDREN, ROOT, FILE),
-            RuleExecutionCall("b", BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall("b", AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall("b", BEFORE_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall("b", AFTER_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall("b", AFTER_CHILDREN, ROOT, FILE),
-            RuleExecutionCall("b", AFTER_LAST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_FIRST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_CHILDREN, ROOT, FILE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_CHILDREN, ROOT, FILE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_LAST),
             // File c
-            RuleExecutionCall("c", BEFORE_FIRST),
-            RuleExecutionCall("c", BEFORE_CHILDREN, ROOT, FILE),
-            RuleExecutionCall("c", BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall("c", AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall("c", BEFORE_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall("c", AFTER_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall("c", AFTER_CHILDREN, ROOT, FILE),
-            RuleExecutionCall("c", AFTER_LAST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_C, BEFORE_FIRST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_C, BEFORE_CHILDREN, ROOT, FILE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_C, BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_C, AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_C, BEFORE_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_C, AFTER_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_C, AFTER_CHILDREN, ROOT, FILE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_C, AFTER_LAST),
             // File d
-            RuleExecutionCall("d", BEFORE_FIRST),
-            RuleExecutionCall("d", BEFORE_CHILDREN, ROOT, FILE),
-            RuleExecutionCall("d", BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall("d", AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall("d", BEFORE_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall("d", AFTER_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall("d", AFTER_CHILDREN, ROOT, FILE),
-            RuleExecutionCall("d", AFTER_LAST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_D, BEFORE_FIRST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_D, BEFORE_CHILDREN, ROOT, FILE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_D, BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_D, AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_D, BEFORE_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_D, AFTER_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_D, AFTER_CHILDREN, ROOT, FILE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_D, AFTER_LAST),
         )
     }
 
@@ -917,7 +918,7 @@ class KtLintLegacyTest {
                     ruleProviders = setOf(
                         RuleProvider {
                             SimpleTestRule(
-                                id = "stop-traversal",
+                                ruleId = SimpleTestRule.RULE_ID_STOP_TRAVERSAL,
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 stopTraversalInBeforeFirstNode = true,
                             )
@@ -928,8 +929,8 @@ class KtLintLegacyTest {
             )
 
             assertThat(ruleExecutionCalls).containsExactly(
-                RuleExecutionCall("stop-traversal", BEFORE_FIRST),
-                RuleExecutionCall("stop-traversal", AFTER_LAST),
+                RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, BEFORE_FIRST),
+                RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, AFTER_LAST),
             )
         }
 
@@ -952,7 +953,7 @@ class KtLintLegacyTest {
                     ruleProviders = setOf(
                         RuleProvider {
                             SimpleTestRule(
-                                id = "stop-traversal",
+                                ruleId = SimpleTestRule.RULE_ID_STOP_TRAVERSAL,
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 stopTraversalInBeforeVisitChildNodes = { node ->
                                     // Stop when Class Foo has been entered
@@ -968,12 +969,12 @@ class KtLintLegacyTest {
             assertThat(ruleExecutionCalls)
                 .filteredOn { it.elementType == null || it.classIdentifier != null }
                 .containsExactly(
-                    RuleExecutionCall("stop-traversal", BEFORE_FIRST),
-                    RuleExecutionCall("stop-traversal", BEFORE_CHILDREN, CHILD, CLASS, "FooBar"),
-                    RuleExecutionCall("stop-traversal", BEFORE_CHILDREN, CHILD, CLASS, "Foo"),
-                    RuleExecutionCall("stop-traversal", AFTER_CHILDREN, CHILD, CLASS, "Foo"),
-                    RuleExecutionCall("stop-traversal", AFTER_CHILDREN, CHILD, CLASS, "FooBar"),
-                    RuleExecutionCall("stop-traversal", AFTER_LAST),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, BEFORE_FIRST),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, BEFORE_CHILDREN, CHILD, CLASS, "FooBar"),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, BEFORE_CHILDREN, CHILD, CLASS, "Foo"),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, AFTER_CHILDREN, CHILD, CLASS, "Foo"),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, AFTER_CHILDREN, CHILD, CLASS, "FooBar"),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, AFTER_LAST),
                 )
         }
 
@@ -996,7 +997,7 @@ class KtLintLegacyTest {
                     ruleProviders = setOf(
                         RuleProvider {
                             SimpleTestRule(
-                                id = "stop-traversal",
+                                ruleId = SimpleTestRule.RULE_ID_STOP_TRAVERSAL,
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 stopTraversalInAfterVisitChildNodes = { node ->
                                     // Stop when Class Foo has been visited
@@ -1012,14 +1013,14 @@ class KtLintLegacyTest {
             assertThat(ruleExecutionCalls)
                 .filteredOn { it.elementType == null || it.classIdentifier != null }
                 .containsExactly(
-                    RuleExecutionCall("stop-traversal", BEFORE_FIRST),
-                    RuleExecutionCall("stop-traversal", BEFORE_CHILDREN, CHILD, CLASS, "FooBar"),
-                    RuleExecutionCall("stop-traversal", BEFORE_CHILDREN, CHILD, CLASS, "Foo"),
-                    RuleExecutionCall("stop-traversal", BEFORE_CHILDREN, CHILD, CLASS, "InsideFoo"),
-                    RuleExecutionCall("stop-traversal", AFTER_CHILDREN, CHILD, CLASS, "InsideFoo"),
-                    RuleExecutionCall("stop-traversal", AFTER_CHILDREN, CHILD, CLASS, "Foo"),
-                    RuleExecutionCall("stop-traversal", AFTER_CHILDREN, CHILD, CLASS, "FooBar"),
-                    RuleExecutionCall("stop-traversal", AFTER_LAST),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, BEFORE_FIRST),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, BEFORE_CHILDREN, CHILD, CLASS, "FooBar"),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, BEFORE_CHILDREN, CHILD, CLASS, "Foo"),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, BEFORE_CHILDREN, CHILD, CLASS, "InsideFoo"),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, AFTER_CHILDREN, CHILD, CLASS, "InsideFoo"),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, AFTER_CHILDREN, CHILD, CLASS, "Foo"),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, AFTER_CHILDREN, CHILD, CLASS, "FooBar"),
+                    RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, AFTER_LAST),
                 )
         }
 
@@ -1032,7 +1033,7 @@ class KtLintLegacyTest {
                     ruleProviders = setOf(
                         RuleProvider {
                             SimpleTestRule(
-                                id = "stop-traversal",
+                                ruleId = SimpleTestRule.RULE_ID_STOP_TRAVERSAL,
                                 ruleExecutionCalls = ruleExecutionCalls,
                                 stopTraversalInBeforeFirstNode = true,
                             )
@@ -1043,8 +1044,8 @@ class KtLintLegacyTest {
             )
 
             assertThat(ruleExecutionCalls).containsExactly(
-                RuleExecutionCall("stop-traversal", BEFORE_FIRST),
-                RuleExecutionCall("stop-traversal", AFTER_LAST),
+                RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, BEFORE_FIRST),
+                RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, AFTER_LAST),
             )
         }
     }
@@ -1071,7 +1072,7 @@ class KtLintLegacyTest {
     fun `Issue 1623 - Given a file with multiple top-level declarations then a file suppression annotation should be applied on each top level declaration`() {
         val code =
             """
-            @file:Suppress("ktlint:auto-correct")
+            @file:Suppress("ktlint:${AutoCorrectErrorRule.RULE_ID}")
             val foo = "${AutoCorrectErrorRule.STRING_VALUE_TO_BE_AUTOCORRECTED}" // Won't be auto corrected due to suppress annotation
             val bar = "${AutoCorrectErrorRule.STRING_VALUE_TO_BE_AUTOCORRECTED}" // Won't be auto corrected due to suppress annotation
             """.trimIndent()
@@ -1092,7 +1093,7 @@ class KtLintLegacyTest {
 }
 
 private class DummyRuleWithCustomEditorConfigProperty :
-    Rule("dummy-rule-with-custom-editor-config-property"),
+    Rule(RuleId("test:dummy-rule-with-custom-editor-config-property")),
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> =
         listOf(SOME_CUSTOM_RULE_PROPERTY)
@@ -1119,7 +1120,7 @@ private class DummyRuleWithCustomEditorConfigProperty :
  */
 private open class DummyRule(
     val block: (node: ASTNode) -> Unit = {},
-) : Rule(DUMMY_RULE_ID) {
+) : Rule(RuleId("test:dummy")) {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -1127,16 +1128,12 @@ private open class DummyRule(
     ) {
         block(node)
     }
-
-    companion object {
-        const val DUMMY_RULE_ID = "dummy-rule"
-    }
 }
 
 /**
  * A dummy rule for testing
  */
-private class AutoCorrectErrorRule : Rule("auto-correct") {
+private class AutoCorrectErrorRule : Rule(RuleId("test:auto-correct")) {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -1157,6 +1154,7 @@ private class AutoCorrectErrorRule : Rule("auto-correct") {
     }
 
     companion object {
+        const val RULE_ID = "test:auto-correct"
         const val STRING_VALUE_TO_BE_AUTOCORRECTED = "string-value-to-be-autocorrected"
         const val STRING_VALUE_NOT_TO_BE_CORRECTED = "string-value-not-to-be-corrected"
         const val STRING_VALUE_AFTER_AUTOCORRECT = "string-value-after-autocorrect"
@@ -1167,39 +1165,21 @@ private class AutoCorrectErrorRule : Rule("auto-correct") {
 }
 
 /**
- * Rule in style up to ktlint 0.46.x in which a rule only has to override method [Rule.beforeVisitChildNodes]. For each invocation to
- * this method a [RuleExecutionCall] is added to the list of previously calls made.
- */
-private class SimpleTestRuleLegacy(
-    private val ruleExecutionCalls: MutableList<RuleExecutionCall>,
-    id: String,
-    visitorModifiers: Set<VisitorModifier> = emptySet(),
-) : Rule(id, visitorModifiers) {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-    ) {
-        ruleExecutionCalls.add(RuleExecutionCall(id, VISIT, node.visitNodeType, node.elementType))
-    }
-}
-
-/**
  * Rule in style starting from ktlint 0.47.x in which a rule can can override method [Rule.beforeFirstNode],
  * [Rule.beforeVisitChildNodes], [Rule.afterVisitChildNodes] and [Rule.afterLastNode]. For each invocation to
  * this method a [RuleExecutionCall] is added to the list of previously calls made.
  */
 private class SimpleTestRule(
     private val ruleExecutionCalls: MutableList<RuleExecutionCall>,
-    id: String,
+    ruleId: RuleId,
     visitorModifiers: Set<VisitorModifier> = emptySet(),
     private val stopTraversalInBeforeFirstNode: Boolean = false,
     private val stopTraversalInBeforeVisitChildNodes: (ASTNode) -> Boolean = { false },
     private val stopTraversalInAfterVisitChildNodes: (ASTNode) -> Boolean = { false },
     private val stopTraversalInAfterLastNode: Boolean = false,
-) : Rule(id, visitorModifiers) {
+) : Rule(ruleId, visitorModifiers) {
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
-        ruleExecutionCalls.add(RuleExecutionCall(id, BEFORE_FIRST))
+        ruleExecutionCalls.add(RuleExecutionCall(ruleId, BEFORE_FIRST))
         if (stopTraversalInBeforeFirstNode) {
             stopTraversalOfAST()
         }
@@ -1210,7 +1190,7 @@ private class SimpleTestRule(
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        ruleExecutionCalls.add(node.toRuleExecutionCall(id, BEFORE_CHILDREN))
+        ruleExecutionCalls.add(node.toRuleExecutionCall(ruleId, BEFORE_CHILDREN))
         if (stopTraversalInBeforeVisitChildNodes(node)) {
             stopTraversalOfAST()
         }
@@ -1221,24 +1201,24 @@ private class SimpleTestRule(
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        ruleExecutionCalls.add(node.toRuleExecutionCall(id, AFTER_CHILDREN))
+        ruleExecutionCalls.add(node.toRuleExecutionCall(ruleId, AFTER_CHILDREN))
         if (stopTraversalInAfterVisitChildNodes(node)) {
             stopTraversalOfAST()
         }
     }
 
     override fun afterLastNode() {
-        ruleExecutionCalls.add(RuleExecutionCall(id, AFTER_LAST))
+        ruleExecutionCalls.add(RuleExecutionCall(ruleId, AFTER_LAST))
         if (stopTraversalInAfterLastNode) {
             stopTraversalOfAST()
         }
     }
 
     private fun ASTNode.toRuleExecutionCall(
-        id: String,
+        ruleId: RuleId,
         ruleMethod: RuleExecutionCall.RuleMethod,
     ) = RuleExecutionCall(
-        id,
+        ruleId,
         ruleMethod,
         visitNodeType,
         elementType,
@@ -1248,10 +1228,18 @@ private class SimpleTestRule(
             null
         },
     )
+
+    companion object {
+        val RULE_ID_A = RuleId("simple-test:a")
+        val RULE_ID_B = RuleId("simple-test:b")
+        val RULE_ID_C = RuleId("simple-test:c")
+        val RULE_ID_D = RuleId("simple-test:d")
+        val RULE_ID_STOP_TRAVERSAL = RuleId("simple-test:stop-traversal")
+    }
 }
 
 private data class RuleExecutionCall(
-    val ruleId: String,
+    val ruleId: RuleId,
     val ruleMethod: RuleMethod,
     val visitNodeType: VisitNodeType? = null,
     val elementType: IElementType? = null,
@@ -1286,7 +1274,7 @@ private data class CallbackResult(
 /**
  * This rule throws an exception when it is visited more than once.
  */
-private class WithStateRule : Rule("with-state") {
+private class WithStateRule : Rule(RuleId("test:with-state")) {
     private var hasNotBeenVisitedYet = true
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {

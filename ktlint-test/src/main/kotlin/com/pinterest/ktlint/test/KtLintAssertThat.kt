@@ -316,7 +316,7 @@ public class KtLintAssertThatAssertable(
      */
     private val additionalRuleProviders: Set<RuleProvider>,
 ) : AbstractAssert<KtLintAssertThatAssertable, String>(code, KtLintAssertThatAssertable::class.java) {
-    private val ruleId = ruleProvider.createNewRuleInstance().id
+    private val ruleId = ruleProvider.createNewRuleInstance().ruleId
 
     /**
      * Asserts that the code does not contain any [LintViolation]s caused by the rule associated with the
@@ -512,9 +512,9 @@ public class KtLintAssertThatAssertable(
         }.toTypedArray()
     }
 
-    private fun List<LintError>.filterAdditionalRulesOnly() = filter { it.ruleId != ruleId }
+    private fun List<LintError>.filterAdditionalRulesOnly() = filter { it.ruleId != ruleId.value }
 
-    private fun List<LintError>.filterCurrentRuleOnly() = filter { it.ruleId == ruleId }
+    private fun List<LintError>.filterCurrentRuleOnly() = filter { it.ruleId == ruleId.value }
 
     private fun List<LintError>.toLintViolationsFields(): Array<LintViolationFields> =
         map {

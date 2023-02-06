@@ -1,17 +1,18 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.CALLABLE_REFERENCE_EXPRESSION
 import com.pinterest.ktlint.ruleset.core.api.ElementType.CLASS_LITERAL_EXPRESSION
 import com.pinterest.ktlint.ruleset.core.api.ElementType.COLONCOLON
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.isPartOf
 import com.pinterest.ktlint.ruleset.core.api.nextLeaf
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
-public class SpacingAroundDoubleColonRule : Rule("double-colon-spacing") {
+public class SpacingAroundDoubleColonRule : StandardRule("double-colon-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -67,3 +68,5 @@ public class SpacingAroundDoubleColonRule : Rule("double-colon-spacing") {
         }
     }
 }
+
+public val spacingAroundDoubleColonRuleId: RuleId = SpacingAroundDoubleColonRule().ruleId

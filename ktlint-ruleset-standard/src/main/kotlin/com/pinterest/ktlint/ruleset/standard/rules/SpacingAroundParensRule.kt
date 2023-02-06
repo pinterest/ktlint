@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.ruleset.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.ruleset.core.api.ElementType.FUNCTION_TYPE
@@ -12,8 +11,10 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.RPAR
 import com.pinterest.ktlint.ruleset.core.api.ElementType.SUPER_KEYWORD
 import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.ruleset.core.api.ElementType.VALUE_PARAMETER_LIST
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.nextLeaf
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 
@@ -22,7 +23,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
  *
  * See https://kotlinlang.org/docs/reference/coding-conventions.html#horizontal-whitespace
  */
-public class SpacingAroundParensRule : Rule("paren-spacing") {
+public class SpacingAroundParensRule : StandardRule("paren-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -86,3 +87,5 @@ public class SpacingAroundParensRule : Rule("paren-spacing") {
         return nextLeaf()?.elementType in commentTypes
     }
 }
+
+public val spacingAroundParensRuleId: RuleId = SpacingAroundParensRule().ruleId

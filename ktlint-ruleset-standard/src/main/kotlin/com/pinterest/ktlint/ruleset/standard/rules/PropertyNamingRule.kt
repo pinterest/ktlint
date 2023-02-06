@@ -12,7 +12,9 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.PRIVATE_KEYWORD
 import com.pinterest.ktlint.ruleset.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.ruleset.core.api.ElementType.PROPERTY_ACCESSOR
 import com.pinterest.ktlint.ruleset.core.api.ElementType.VAL_KEYWORD
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.children
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.internal.regExIgnoringDiacriticsAndStrokesOnLetters
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
@@ -22,7 +24,7 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
  * https://kotlinlang.org/docs/coding-conventions.html#property-names
  */
 public class PropertyNamingRule :
-    Rule("property-naming"),
+    StandardRule("property-naming"),
     Rule.Experimental {
     override fun beforeVisitChildNodes(
         node: ASTNode,
@@ -145,3 +147,5 @@ public class PropertyNamingRule :
         val BACKING_PROPERTY_LOWER_CAMEL_CASE_REGEXP = "_[a-z][a-zA-Z0-9]*".regExIgnoringDiacriticsAndStrokesOnLetters()
     }
 }
+
+public val propertyNamingRuleId: RuleId = PropertyNamingRule().ruleId

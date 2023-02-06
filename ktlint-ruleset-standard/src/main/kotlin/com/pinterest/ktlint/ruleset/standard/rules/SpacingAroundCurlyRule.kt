@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
 import com.pinterest.ktlint.ruleset.core.api.ElementType.AT
 import com.pinterest.ktlint.ruleset.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.ruleset.core.api.ElementType.COLONCOLON
@@ -18,12 +17,14 @@ import com.pinterest.ktlint.ruleset.core.api.ElementType.RBRACKET
 import com.pinterest.ktlint.ruleset.core.api.ElementType.RPAR
 import com.pinterest.ktlint.ruleset.core.api.ElementType.SAFE_ACCESS
 import com.pinterest.ktlint.ruleset.core.api.ElementType.SEMICOLON
+import com.pinterest.ktlint.ruleset.core.api.RuleId
 import com.pinterest.ktlint.ruleset.core.api.isLeaf
 import com.pinterest.ktlint.ruleset.core.api.isPartOfString
 import com.pinterest.ktlint.ruleset.core.api.nextLeaf
 import com.pinterest.ktlint.ruleset.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.ruleset.core.api.upsertWhitespaceBeforeMe
+import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
@@ -32,7 +33,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.TreeElement
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtLambdaExpression
 
-public class SpacingAroundCurlyRule : Rule("curly-spacing") {
+public class SpacingAroundCurlyRule : StandardRule("curly-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -141,3 +142,5 @@ public class SpacingAroundCurlyRule : Rule("curly-spacing") {
             )
     }
 }
+
+public val spacingAroundCurlyRuleId: RuleId = SpacingAroundCurlyRule().ruleId
