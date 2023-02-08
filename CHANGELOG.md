@@ -14,6 +14,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+* Update Kotlin development version to `1.8.20-Beta` and Kotlin version to `1.8.10`.
 * Revert to matrix build to speed up build, especially for the Windows related build ([#1786](https://github.com/pinterest/ktlint/pull/1787))
 
 ## [0.48.2] - 2023-01-21
