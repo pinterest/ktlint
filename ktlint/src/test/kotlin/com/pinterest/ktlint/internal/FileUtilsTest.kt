@@ -381,10 +381,10 @@ internal class FileUtilsTest {
     }
 
     private fun getFiles(
-        patterns: List<String> = emptyList(),
+        patterns: List<String> = DEFAULT_PATTERNS,
         rootDir: Path = tempFileSystem.rootDirectories.first(),
     ): List<String> = tempFileSystem
-        .fileSequence(patterns, rootDir, defaultPatterns = DEFAULT_PATTERNS)
+        .fileSequence(patterns, rootDir)
         .map { it.normalize().toString() }
         .toList()
         .also {

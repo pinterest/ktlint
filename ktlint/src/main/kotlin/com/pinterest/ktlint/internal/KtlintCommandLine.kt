@@ -228,7 +228,7 @@ internal class KtlintCommandLine {
     private var baselinePath: String = ""
 
     @Parameters(hidden = true)
-    private var patterns = ArrayList<String>()
+    private var patterns = emptyList<String>()
 
     @Option(
         names = ["--log-level", "-l"],
@@ -287,8 +287,7 @@ internal class KtlintCommandLine {
             }
 
         assertStdinAndPatternsFromStdinOptionsMutuallyExclusive()
-
-        addStdinPatternsOrDefaultPatterns()
+        patterns = patterns.replaceWithPatternsFromStdinOrDefaultPatternsWhenEmpty()
 
         val start = System.currentTimeMillis()
 
@@ -342,26 +341,27 @@ internal class KtlintCommandLine {
         }
     }
 
-    private fun addStdinPatternsOrDefaultPatterns() {
+    private fun List<String>.replaceWithPatternsFromStdinOrDefaultPatternsWhenEmpty(): List<String> {
         val localStdinDelimiter: String? = stdinDelimiter
-
-        when {
+        return when {
             localStdinDelimiter != null -> {
-                // TBD: log warning in case patterns were also specified at command line?
-                //      if (this.patterns.isNotEmpty()) {
-                //          logger.warn { "Both the option --patterns-from-stdin and command line arguments are given" }
-                //      }
                 val stdinPatterns: Set<String> = readPatternsFromStdin(localStdinDelimiter.ifEmpty { "\u0000" })
-                this.patterns.addAll(stdinPatterns)
+                if (isNotEmpty() && stdinPatterns.isNotEmpty()) {
+                    logger.warn {
+                        "Patterns specified at command line (${this@KtlintCommandLine.patterns}) and patterns from 'stdin' due to flag '--patterns-from-stdin' " +
+                            "($stdinPatterns) are merged"
+                    }
+                }
+                // Note: it is okay in case both the original patterns and the patterns from stdin are empty
+                this.plus(stdinPatterns)
             }
-            this.patterns.isEmpty() -> {
-                // Set default value to patterns only after the logger has been configured to avoid a warning about
-                // initializing the logger multiple times
+            this.isEmpty() -> {
                 logger.info { "Enable default patterns $DEFAULT_PATTERNS" }
-                this.patterns.addAll(DEFAULT_PATTERNS)
+                DEFAULT_PATTERNS
             }
             else -> {
-                // Keep patterns specified at command line
+                // Keep original patterns
+                this
             }
         }
     }
@@ -408,7 +408,7 @@ internal class KtlintCommandLine {
         reporter: Reporter,
     ) {
         FileSystems.getDefault()
-            .fileSequence(patterns, defaultPatterns = emptyList())
+            .fileSequence(patterns)
             .map { it.toFile() }
             .takeWhile { errorNumber.get() < limit }
             .map { file ->
