@@ -40,6 +40,7 @@ internal val DEFAULT_PATTERNS = DEFAULT_KOTLIN_FILE_EXTENSIONS.map { "**/*.$it" 
 internal fun FileSystem.fileSequence(
     patterns: List<String>,
     rootDir: Path = Paths.get(".").toAbsolutePath().normalize(),
+    defaultPatterns: List<String>,
 ): Sequence<Path> {
     val result = mutableListOf<Path>()
 
@@ -61,7 +62,7 @@ internal fun FileSystem.fileSequence(
     val globs = expand(patternsExclusiveExistingFiles, rootDir)
 
     val pathMatchers = if (globs.isEmpty()) {
-        DEFAULT_PATTERNS
+        defaultPatterns
             .map { getPathMatcher("glob:$it") }
             .toSet()
     } else {

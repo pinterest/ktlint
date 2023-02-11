@@ -392,7 +392,7 @@ internal class KtlintCommandLine {
         reporter: Reporter,
     ) {
         FileSystems.getDefault()
-            .fileSequence(patterns)
+            .fileSequence(patterns, defaultPatterns = emptyList())
             .map { it.toFile() }
             .takeWhile { errorNumber.get() < limit }
             .map { file ->

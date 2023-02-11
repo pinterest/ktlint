@@ -384,7 +384,7 @@ internal class FileUtilsTest {
         patterns: List<String> = emptyList(),
         rootDir: Path = tempFileSystem.rootDirectories.first(),
     ): List<String> = tempFileSystem
-        .fileSequence(patterns, rootDir)
+        .fileSequence(patterns, rootDir, defaultPatterns = DEFAULT_PATTERNS)
         .map { it.normalize().toString() }
         .toList()
         .also {
