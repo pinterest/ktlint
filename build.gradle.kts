@@ -19,6 +19,20 @@ allprojects {
         } else {
             logger.warn("Skipping tests for task '$name' as system property 'skipTests=$skipTests'")
         }
+
+        val args = mutableSetOf<String>()
+        if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_16)) {
+            // https://docs.gradle.org/7.5/userguide/upgrading_version_7.html#removes_implicit_add_opens_for_test_workers
+            args += listOf(
+                "--add-opens=java.base/java.lang=ALL-UNNAMED",
+                "--add-opens=java.base/java.util=ALL-UNNAMED",
+            )
+        }
+        if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_18)) {
+            // https://openjdk.org/jeps/411
+            args += "-Djava.security.manager=allow"
+        }
+        jvmArgs(args)
     }
 }
 

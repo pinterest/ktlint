@@ -288,8 +288,7 @@ internal class KtlintCommandLine {
 
         assertStdinAndPatternsFromStdinOptionsMutuallyExclusive()
 
-        val stdinPatterns: Set<String> = readPatternsFromStdin()
-        patterns.addAll(stdinPatterns)
+        addStdinPatternsOrDefaultPatterns()
 
         val start = System.currentTimeMillis()
 
@@ -343,6 +342,30 @@ internal class KtlintCommandLine {
         }
     }
 
+    private fun addStdinPatternsOrDefaultPatterns() {
+        val localStdinDelimiter: String? = stdinDelimiter
+
+        when {
+            localStdinDelimiter != null -> {
+                // TBD: log warning in case patterns were also specified at command line?
+                //      if (this.patterns.isNotEmpty()) {
+                //          logger.warn { "Both the option --patterns-from-stdin and command line arguments are given" }
+                //      }
+                val stdinPatterns: Set<String> = readPatternsFromStdin(localStdinDelimiter.ifEmpty { "\u0000" })
+                this.patterns.addAll(stdinPatterns)
+            }
+            this.patterns.isEmpty() -> {
+                // Set default value to patterns only after the logger has been configured to avoid a warning about
+                // initializing the logger multiple times
+                logger.info { "Enable default patterns $DEFAULT_PATTERNS" }
+                this.patterns.addAll(DEFAULT_PATTERNS)
+            }
+            else -> {
+                // Keep patterns specified at command line
+            }
+        }
+    }
+
     // Do not convert to "val" as the function depends on PicoCli options which are not fully instantiated until the "run" method is started
     internal fun ruleProviders(): Set<RuleProvider> =
         rulesetJarPaths
@@ -385,7 +408,7 @@ internal class KtlintCommandLine {
         reporter: Reporter,
     ) {
         FileSystems.getDefault()
-            .fileSequence(patterns, enableDefaultPatterns = (stdinDelimiter == null))
+            .fileSequence(patterns, defaultPatterns = emptyList())
             .map { it.toFile() }
             .takeWhile { errorNumber.get() < limit }
             .map { file ->
@@ -591,10 +614,8 @@ internal class KtlintCommandLine {
                 map
             }
 
-    private fun readPatternsFromStdin(): Set<String> {
-        val delimiter: String = stdinDelimiter
-            ?.ifEmpty { "\u0000" }
-            ?: return emptySet()
+    private fun readPatternsFromStdin(delimiter: String): Set<String> {
+        require(delimiter.isNotEmpty())
 
         return String(System.`in`.readBytes())
             .split(delimiter)

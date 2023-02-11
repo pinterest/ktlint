@@ -107,7 +107,9 @@ class SimpleCLITest {
                 SoftAssertions()
                     .apply {
                         assertErrorExitCode()
-                        assertThat(normalOutput).containsLineMatching("Needless blank line(s)")
+                        assertThat(normalOutput)
+                            .containsLineMatching("Enable default patterns")
+                            .containsLineMatching("Needless blank line(s)")
                     }
                     .assertAll()
             }
@@ -184,6 +186,9 @@ class SimpleCLITest {
                 stdin = ByteArrayInputStream(ByteArray(0)),
             ) {
                 assertNormalExitCode()
+                assertThat(normalOutput)
+                    .doesNotContainLineMatching("Enable default patterns")
+                    .containsLineMatching("No files matched []")
             }
     }
 
