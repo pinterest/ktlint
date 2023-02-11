@@ -175,6 +175,24 @@ class SimpleCLITest {
     }
 
     @Test
+    fun `Issue 1793 - Given some code with an error and no patterns read in from stdin then return nothing `(
+        @TempDir
+        tempDir: Path,
+    ) {
+        CommandLineTestRunner(tempDir)
+            .run(
+                "too-many-empty-lines",
+                listOf("--patterns-from-stdin"),
+                stdin = ByteArrayInputStream(ByteArray(0)),
+            ) {
+                assertNormalExitCode()
+                assertThat(normalOutput)
+                    .doesNotContainLineMatching("Enable default patterns")
+                    .containsLineMatching("No files matched []")
+            }
+    }
+
+    @Test
     fun `Issue 1608 - --relative and --reporter=sarif should play well together`(
         @TempDir
         tempDir: Path,

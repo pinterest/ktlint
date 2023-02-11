@@ -288,18 +288,7 @@ internal class KtlintCommandLine {
 
         assertStdinAndPatternsFromStdinOptionsMutuallyExclusive()
 
-        val localStdinDelimiter: String? = stdinDelimiter
-        if (localStdinDelimiter != null) {
-            val stdinPatterns: Set<String> = readPatternsFromStdin(localStdinDelimiter.ifEmpty { "\u0000" })
-            patterns.addAll(stdinPatterns)
-        }
-
-        // Set default value to patterns only after the logger has been configured to avoid a warning about initializing
-        // the logger multiple times
-        if (patterns.isEmpty()) {
-            logger.info { "Enable default patterns $DEFAULT_PATTERNS" }
-            patterns = ArrayList(DEFAULT_PATTERNS)
-        }
+        addStdinPatternsOrDefaultPatterns()
 
         val start = System.currentTimeMillis()
 
@@ -350,6 +339,30 @@ internal class KtlintCommandLine {
             exitKtLintProcess(1)
         } else {
             exitKtLintProcess(0)
+        }
+    }
+
+    private fun addStdinPatternsOrDefaultPatterns() {
+        val localStdinDelimiter: String? = stdinDelimiter
+
+        when {
+            localStdinDelimiter != null -> {
+                // TBD: log warning in case patterns were also specified at command line?
+                //      if (this.patterns.isNotEmpty()) {
+                //          logger.warn { "Both the option --patterns-from-stdin and command line arguments are given" }
+                //      }
+                val stdinPatterns: Set<String> = readPatternsFromStdin(localStdinDelimiter.ifEmpty { "\u0000" })
+                this.patterns.addAll(stdinPatterns)
+            }
+            this.patterns.isEmpty() -> {
+                // Set default value to patterns only after the logger has been configured to avoid a warning about
+                // initializing the logger multiple times
+                logger.info { "Enable default patterns $DEFAULT_PATTERNS" }
+                this.patterns.addAll(DEFAULT_PATTERNS)
+            }
+            else -> {
+                // Keep patterns specified at command line
+            }
         }
     }
 
