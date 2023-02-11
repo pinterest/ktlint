@@ -288,8 +288,11 @@ internal class KtlintCommandLine {
 
         assertStdinAndPatternsFromStdinOptionsMutuallyExclusive()
 
-        val stdinPatterns: Set<String> = readPatternsFromStdin()
-        patterns.addAll(stdinPatterns)
+        val localStdinDelimiter: String? = stdinDelimiter
+        if (localStdinDelimiter != null) {
+            val stdinPatterns: Set<String> = readPatternsFromStdin(localStdinDelimiter.ifEmpty { "\u0000" })
+            patterns.addAll(stdinPatterns)
+        }
 
         // Set default value to patterns only after the logger has been configured to avoid a warning about initializing
         // the logger multiple times
@@ -598,10 +601,8 @@ internal class KtlintCommandLine {
                 map
             }
 
-    private fun readPatternsFromStdin(): Set<String> {
-        val delimiter: String = stdinDelimiter
-            ?.ifEmpty { "\u0000" }
-            ?: return emptySet()
+    private fun readPatternsFromStdin(delimiter: String): Set<String> {
+        require(delimiter.isNotEmpty())
 
         return String(System.`in`.readBytes())
             .split(delimiter)
