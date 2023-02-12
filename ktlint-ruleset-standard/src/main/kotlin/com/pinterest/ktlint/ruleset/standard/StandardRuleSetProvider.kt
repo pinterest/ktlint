@@ -72,17 +72,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.UnnecessaryParenthesesBeforeT
 import com.pinterest.ktlint.ruleset.standard.rules.WrappingRule
 
 public class StandardRuleSetProvider :
-    RuleSetProviderV3(
-        id = "standard",
-        about = About(
-            maintainer = "KtLint",
-            description = "Standard rules based on the Kotlin coding conventions (https://kotlinlang.org/docs/coding-conventions.html) " +
-                "and Android Kotlin styleguide (https://developer.android.com/kotlin/style-guide)",
-            license = "https://github.com/pinterest/ktlint/blob/master/LICENSE",
-            repositoryUrl = "https://github.com/pinterest/ktlint",
-            issueTrackerUrl = "https://github.com/pinterest/ktlint/issues",
-        ),
-    ) {
+    RuleSetProviderV3("standard") {
     override fun getRuleProviders(): Set<RuleProvider> =
         setOf(
             RuleProvider { AnnotationRule() },

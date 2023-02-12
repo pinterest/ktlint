@@ -39,12 +39,24 @@ public value class RuleSetId(public val value: String) {
  * The implementation of a [Rule] **doesn't** have to be thread-safe or stateless provided that the [RuleProvider] creates a new instance of
  * [Rule] on each call to [RuleProvider.createNewRuleInstance]. The KtLint Rule Engine never re-uses a [Rule] instance once is has been used
  * for traversal of the AST of a file.
+ *
+ * When wrapping a rule from the ktlint project and modifying its behavior, please change the [ruleId] and [about] fields, so that it is
+ * clear to users whenever they used the original rule provided by KtLint versus a modified version which is not maintained by the KtLint
+ * project.
  */
 public open class Rule(
     /**
-     * Identification of the rule.
+     * Identification of the rule. A [ruleId] has a value that must adhere the convention "<rule-set-id>:<rule-id>". The rule set id
+     * 'standard' is reserved for rules which are maintained by the KtLint project. Rules created by custom rule set providers and API
+     * Consumers should use a prefix other than 'standard' to mark the origin of rules which are not maintained by the KtLint project.
      */
     public open val ruleId: RuleId,
+
+    /**
+     * About the rule. Background information about the rule and its maintainer. About information is meant to be used in stack traces or
+     * API consumers to provide more detailed information about the rule.
+     */
+    public open val about: About,
 
     /**
      * Set of modifiers of the visitor. Preferably a rule has no modifiers at all, meaning that it is completely
@@ -148,6 +160,28 @@ public open class Rule(
          */
         STOP,
     }
+
+    /**
+     * About the rule. Background information about the rule and its maintainer. About information is meant to be used in stack traces or
+     * API consumers to provide more detailed information about the rule. Please provide all details below, so that users of your rule set
+     * can easily get up-to-date information about the rule.
+     */
+    public data class About(
+        /**
+         * Name of person, organisation or group maintaining the rule.
+         */
+        val maintainer: String = "Not specified (and not maintained by the Ktlint project)",
+
+        /**
+         * Url to the repository containing the rule.
+         */
+        val repositoryUrl: String = "Not specified",
+
+        /**
+         * Url to the issue tracker of the project which provides the rule.
+         */
+        val issueTrackerUrl: String = "Not specified",
+    )
 
     public sealed class VisitorModifier {
         public data class RunAfterRule(

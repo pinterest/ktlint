@@ -146,21 +146,37 @@ Module `ktlint-reporter-sarif` has been renamed to `ktlint-cli-reporter-sarif`. 
 |---------------------------------------------------|-------------------------------------------------------|
 | com.pinterest.ktlint.reporter.sarif               | com.pinterest.ktlint.cli.reporter.sarif               |
 
-### Custom Ruleset Provider `RuleSetProviderV2`
+#### Custom Ruleset Provider `RuleSetProviderV2`
 
 Custom Rule Sets build for older versions of KtLint no longer supported by this version of KtLint. The `com.pinterest.ktlint.core.RuleSetProviderV2` interface has been replaced with `com.pinterest.ktlint.ruleset.core.api.RuleSetProviderV3`. The accompanying interfaces `com.pinterest.ktlint.core.RuleProvider` and `com.pinterest.ktlint.core.Rule` have been replaced with `com.pinterest.ktlint.ruleset.core.api.RuleProvider` and `com.pinterest.ktlint.ruleset.core.api.Rule` respectively.
 
+Contrary to `RuleSetProviderV2`, the `RuleSetProviderV3` no longer contains information about the rule set. About information now has to be specified in the new `Rule` class. This allows custom rule set providers to combine rules originating from different rule sets into a new rule set without loosing information about its origin.
+
 Note that due to renaming and relocation of the `RuleSetProviderV3` interface the name of the service provider in the custom reporter needs to be changed from `resources/META-INF/services/com.pinterest.ktlint.core.RuleSetProviderV2` to `resources/META-INF/services/com.pinterest.ktlint.ruleset.core.api.RuleSetProviderV3`.
 
-The rule id's in `com.pinterest.ktlint.ruleset.core.api.Rule` have been changed from type `String` to `RuleId`. A `RuleId` has a value that must adhere the convention "`rule-set-id`:`rule-id`". The `rule-set-id` is reserved for rules which are maintained by the KtLint project. Rules created by custom rule set providers and API Consumers should use a prefix other than `standard` to mark the origin of rules which are not maintained by the KtLint project.
+The rule id's in `com.pinterest.ktlint.ruleset.core.api.Rule` have been changed from type `String` to `RuleId`. A `RuleId` has a value that must adhere the convention "`rule-set-id`:`rule-id`". The rule set id `standard` is reserved for rules which are maintained by the KtLint project. Rules created by custom rule set providers and API Consumers should use a prefix other than `standard` to mark the origin of rules which are not maintained by the KtLint project.
 
-### Custom Reporter Provider `ReporterProvider`
+When wrapping a rule from the ktlint project and modifying its behavior, please change the `ruleId` and `about` fields in the wrapped rule, so that it is clear to users whenever they use the original rule provided by KtLint versus a modified version which is not maintained by the KtLint project.
+
+#### Custom Reporter Provider `ReporterProvider`
 
 Custom Reporters build for older versions of KtLint are no longer supported by this version of KtLint. The `com.pinterest.ktlint.core.ReporterProvider` interface has been replaced with `com.pinterest.ktlint.cli.reporter.core.api.ReporterProviderV2`. The accompanying interface `com.pinterest.ktlint.core.Reporter` has been replaced with `com.pinterest.ktlint.cli.reporter.core.api.ReporterV2`.
 
 Note that due to renaming and relocation of the `ReporterProviderV2` interface the name of the service provider in the custom reporter needs to be changed from `resources/META-INF/services/com.pinterest.ktlint.core.ReporterProvider` to `resources/META-INF/services/com.pinterest.ktlint.cli.reporter.core.api.ReporterProviderV2`.
 
-The biggest change in the `ReporterV2` is the replacement of the `LintError` class with `KtlintCliError` class. The latter class now contains a status field which more clearly explains the difference between a lint error which can be autocorrected versus a lint error that actually has been autocorrected.    
+The biggest change in the `ReporterV2` is the replacement of the `LintError` class with `KtlintCliError` class. The latter class now contains a status field which more clearly explains the difference between a lint error which can be autocorrected versus a lint error that actually has been autocorrected.
+
+#### Custom rules provided by API Consumer
+
+API Consumers provide a set of rules directly to the Ktlint Rule Engine. The `com.pinterest.ktlint.core.Rule` has been replaced with `com.pinterest.ktlint.ruleset.core.api.Rule`.
+
+The type of the rule id's has been changed from type `String` to `RuleId`. A `RuleId` has a value that must adhere the convention "`rule-set-id`:`rule-id`". Rule set id `standard` is reserved for rules which are maintained by the KtLint project. Custom rules created by the API Consumer should use a prefix other than `standard` to clearly mark the origin of rules which are not maintained by the KtLint project.
+
+Also, the field `About` has been added. This field specifies the name of the maintainer, and the repository url and issue tracker url of the rule. 
+
+When wrapping a rule from the ktlint project and modifying its behavior, please change the `ruleId` and `about` fields in the wrapped rule, so that it is clear to users whenever they use the original rule provided by KtLint versus a modified version which is not maintained by the KtLint project.
+
+Like before, the API Consumer can still offer a mix of rules originating from `ktlint-ruleset-standard` as well as custom rules.
 
 ### Added
 

@@ -630,7 +630,11 @@ class RuleRunnerSorterTest {
     private open class R(
         ruleId: RuleId,
         visitorModifiers: Set<VisitorModifier> = emptySet(),
-    ) : Rule(ruleId, visitorModifiers) {
+    ) : Rule(
+        ruleId = ruleId,
+        about = About(),
+        visitorModifiers
+    ) {
         constructor(ruleId: RuleId, visitorModifier: VisitorModifier) : this(ruleId, setOf(visitorModifier))
         override fun beforeVisitChildNodes(
             node: ASTNode,

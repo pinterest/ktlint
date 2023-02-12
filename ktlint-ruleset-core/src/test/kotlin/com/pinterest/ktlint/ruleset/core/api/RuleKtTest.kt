@@ -10,7 +10,7 @@ import org.junit.jupiter.params.provider.ValueSource
 class RuleKtTest {
     @Test
     fun `Given a rule with an unqualified rule id than the rule can not be instantiated`() {
-        assertThatThrownBy { object : Rule(RuleId("some-unqualified-rule-id")) {} }
+        assertThatThrownBy { creatRule("some-unqualified-rule-id") }
             .isInstanceOf(IllegalArgumentException::class.java)
             .hasMessage("Rule id 'some-unqualified-rule-id' must match '[a-z]+(-[a-z]+)*:[a-z]+(-[a-z]+)*'")
     }
@@ -23,7 +23,7 @@ class RuleKtTest {
         ],
     )
     fun `Given a rule with a qualified rule id then return the rule id`(id: String) {
-        val rule = object : Rule(RuleId(id)) {}
+        val rule = creatRule(id)
         assertThat(rule.ruleId.value).isEqualTo(id)
     }
 
@@ -38,7 +38,13 @@ class RuleKtTest {
         id: String,
         ruleSetId: String,
     ) {
-        val rule = object : Rule(RuleId(id)) {}
+        val rule = creatRule(id)
         assertThat(rule.ruleId.ruleSetId.value).isEqualTo(ruleSetId)
     }
+
+    private fun creatRule(ruleId: String) =
+        object : Rule(
+            ruleId = RuleId(ruleId),
+            about = About()
+        ) {}
 }

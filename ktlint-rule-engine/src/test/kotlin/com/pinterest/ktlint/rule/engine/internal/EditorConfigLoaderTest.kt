@@ -450,7 +450,10 @@ internal class EditorConfigLoaderTest {
         }
     }
 
-    private class TestRule : Rule(RuleId("test:editorconfig")), UsesEditorConfigProperties {
+    private class TestRule : Rule(
+        ruleId = RuleId("test:editorconfig"),
+        about = About(),
+    ), UsesEditorConfigProperties {
         override val editorConfigProperties: List<EditorConfigProperty<*>> = emptyList()
 
         override fun beforeVisitChildNodes(

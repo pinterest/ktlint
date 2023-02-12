@@ -274,7 +274,11 @@ class VisitorProviderTest {
     private open class R(
         ruleId: RuleId,
         visitorModifiers: Set<VisitorModifier> = emptySet(),
-    ) : Rule(ruleId, visitorModifiers) {
+    ) : Rule(
+        ruleId = ruleId,
+        about = About(),
+        visitorModifiers,
+    ) {
         override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,

@@ -207,7 +207,10 @@ class SuppressionLocatorBuilderTest {
         assertThat(lint(code)).isEmpty()
     }
 
-    private class NoFooIdentifierRule(id: RuleId) : Rule(id) {
+    private class NoFooIdentifierRule(id: RuleId) : Rule(
+        ruleId = id,
+        about = About(),
+    ) {
         override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,

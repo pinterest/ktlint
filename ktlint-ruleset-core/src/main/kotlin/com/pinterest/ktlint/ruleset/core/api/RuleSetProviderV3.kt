@@ -9,10 +9,7 @@ import java.io.Serializable
  * `META-INF/services/com.pinterest.ktlint.ruleset.core.api.RuleSetProviderV2` (see `ktlint-ruleset-standard/src/main/resources`
  * for an example).
  */
-public abstract class RuleSetProviderV3(
-    public val id: String,
-    public val about: About,
-) : Serializable {
+public abstract class RuleSetProviderV3(public val id: String) : Serializable {
     init {
         IdNamingPolicy.enforceRuleSetIdNaming(id)
     }
@@ -24,10 +21,7 @@ public abstract class RuleSetProviderV3(
      * Intended usage:
      * ```
      * public class CustomRuleSetProvider :
-     *     RuleSetProviderV2(
-     *         id = "custom",
-     *         about = About(...)
-     *     ) {
+     *     RuleSetProviderV3("custom") {
      *     override fun getRuleProviders(): Set<RuleProvider> =
      *         setOf(
      *             RuleProvider { CustomRule1() },
@@ -37,51 +31,4 @@ public abstract class RuleSetProviderV3(
      * ```
      */
     public abstract fun getRuleProviders(): Set<RuleProvider>
-
-    /**
-     * For publicly available rule sets, it is advised to provide all details below, so that users of your rule set can
-     * easily get up-to-date information about the rule set.
-     */
-    public data class About(
-        /**
-         * Name of person, organisation or group maintaining the rule set.
-         */
-        val maintainer: String?,
-
-        /**
-         * Short description of the rule set.
-         */
-        val description: String?,
-        val license: String?,
-        val repositoryUrl: String?,
-        val issueTrackerUrl: String?,
-    ) {
-        init {
-            require(maintainer == null || maintainer.length <= 50) {
-                "Length of maintainer should be 50 characters or less"
-            }
-            require(description == null || description.length <= 400) {
-                "Length of description should be 400 characters or less"
-            }
-            require(license == null || license.length <= 120) {
-                "Length of license url should be 80 characters or less"
-            }
-            require(repositoryUrl == null || repositoryUrl.length <= 120) {
-                "Length of repository url should be 80 characters or less"
-            }
-            require(issueTrackerUrl == null || issueTrackerUrl.length <= 120) {
-                "Length of repository url should be 80 characters or less"
-            }
-        }
-    }
-
-    public companion object {
-        public val NO_ABOUT: About = About(
-            maintainer = "Not specified",
-            description = "Not specified",
-            license = "Not specified",
-            repositoryUrl = "Not specified",
-            issueTrackerUrl = "Not specified",
-        )
-    }
 }

@@ -262,7 +262,10 @@ class KtLintRuleEngineTest {
     }
 
     private class NoVarRule :
-        Rule(RuleId(NO_VAR_RULE_ID)),
+        Rule(
+            ruleId = RuleId(NO_VAR_RULE_ID),
+            about = About(),
+        ),
         Rule.Experimental {
         override fun beforeVisitChildNodes(
             node: ASTNode,

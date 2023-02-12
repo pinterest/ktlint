@@ -6,6 +6,7 @@ import com.pinterest.ktlint.rule.engine.api.KtLint
 import com.pinterest.ktlint.rule.engine.api.KtLintParseException
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine.Companion.UTF8_BOM
+import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
 import com.pinterest.ktlint.ruleset.core.api.EditorConfigProperties
 import com.pinterest.ktlint.ruleset.core.api.Rule
 import mu.KotlinLogging
@@ -21,6 +22,7 @@ private val KOTLIN_PSI_FILE_FACTORY_PROVIDER = KotlinPsiFileFactoryProvider()
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 internal class RuleExecutionContext private constructor(
+    val code: Code,
     val rootNode: FileASTNode,
     val ruleRunners: Set<RuleRunner>,
     val editorConfigProperties: EditorConfigProperties,
@@ -42,10 +44,25 @@ internal class RuleExecutionContext private constructor(
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        rule.startTraversalOfAST()
-        rule.beforeFirstNode(editorConfigProperties)
-        this.executeRuleOnNodeRecursively(rootNode, rule, fqRuleId, autoCorrect, emit)
-        rule.afterLastNode()
+        try {
+            rule.startTraversalOfAST()
+            rule.beforeFirstNode(editorConfigProperties)
+            this.executeRuleOnNodeRecursively(rootNode, rule, fqRuleId, autoCorrect, emit)
+            rule.afterLastNode()
+        } catch (e: RuleExecutionException) {
+            throw KtLintRuleException(
+                    e.line,
+                    e.col,
+                    e.rule.ruleId.value,
+                    """
+                    Rule '${e.rule.ruleId.value}' throws exception in file '${code.fileName}' at position (${e.line}:${e.col})
+                       Rule maintainer: ${e.rule.about.maintainer}
+                       Issue tracker  : ${e.rule.about.issueTrackerUrl}
+                       Repository     : ${e.rule.about.repositoryUrl}
+                    """.trimIndent(),
+                    e.cause,
+                )
+        }
     }
 
     private fun executeRuleOnNodeRecursively(
@@ -88,18 +105,18 @@ internal class RuleExecutionContext private constructor(
                     // line/col cannot be reliably mapped as exception might originate from a node not present in the
                     // original AST
                     throw RuleExecutionException(
+                        rule,
                         0,
                         0,
-                        fqRuleId,
                         // Prevent extreme long stack trace caused by recursive call and only pass root cause
                         e.cause ?: e,
                     )
                 } else {
                     val (line, col) = positionInTextLocator(node.startOffset)
                     throw RuleExecutionException(
+                        rule,
                         line,
                         col,
-                        fqRuleId,
                         // Prevent extreme long stack trace caused by recursive call and only pass root cause
                         e.cause ?: e,
                     )
@@ -170,6 +187,7 @@ internal class RuleExecutionContext private constructor(
             }
 
             return RuleExecutionContext(
+                code,
                 rootNode,
                 ruleRunners,
                 editorConfigProperties,
@@ -211,9 +229,9 @@ private fun EditorConfigProperties.warnIfPropertyIsObsolete(
     }
 }
 
-internal class RuleExecutionException(
+private class RuleExecutionException(
+    val rule: Rule,
     val line: Int,
     val col: Int,
-    val ruleId: String,
     override val cause: Throwable,
 ) : Throwable(cause)

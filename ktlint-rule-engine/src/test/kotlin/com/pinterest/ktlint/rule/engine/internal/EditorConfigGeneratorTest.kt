@@ -185,7 +185,10 @@ internal class EditorConfigGeneratorTest {
         )
     }
 
-    private open class TestRule(ruleId: RuleId) : Rule(ruleId) {
+    private open class TestRule(ruleId: RuleId) : Rule(
+        ruleId = ruleId,
+        about = About(),
+    ) {
         override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,

@@ -1093,7 +1093,10 @@ class KtLintLegacyTest {
 }
 
 private class DummyRuleWithCustomEditorConfigProperty :
-    Rule(RuleId("test:dummy-rule-with-custom-editor-config-property")),
+    Rule(
+        ruleId = RuleId("test:dummy-rule-with-custom-editor-config-property"),
+        about = About(),
+    ),
     UsesEditorConfigProperties {
     override val editorConfigProperties: List<EditorConfigProperty<*>> =
         listOf(SOME_CUSTOM_RULE_PROPERTY)
@@ -1120,7 +1123,10 @@ private class DummyRuleWithCustomEditorConfigProperty :
  */
 private open class DummyRule(
     val block: (node: ASTNode) -> Unit = {},
-) : Rule(RuleId("test:dummy")) {
+) : Rule(
+    ruleId = RuleId("test:dummy"),
+    about = About(),
+) {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -1133,7 +1139,10 @@ private open class DummyRule(
 /**
  * A dummy rule for testing
  */
-private class AutoCorrectErrorRule : Rule(RuleId("test:auto-correct")) {
+private class AutoCorrectErrorRule : Rule(
+    ruleId = RuleId("test:auto-correct"),
+    about = About(),
+) {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -1177,7 +1186,11 @@ private class SimpleTestRule(
     private val stopTraversalInBeforeVisitChildNodes: (ASTNode) -> Boolean = { false },
     private val stopTraversalInAfterVisitChildNodes: (ASTNode) -> Boolean = { false },
     private val stopTraversalInAfterLastNode: Boolean = false,
-) : Rule(ruleId, visitorModifiers) {
+) : Rule(
+    ruleId = ruleId,
+    about = About(),
+    visitorModifiers,
+) {
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
         ruleExecutionCalls.add(RuleExecutionCall(ruleId, BEFORE_FIRST))
         if (stopTraversalInBeforeFirstNode) {
@@ -1274,7 +1287,10 @@ private data class CallbackResult(
 /**
  * This rule throws an exception when it is visited more than once.
  */
-private class WithStateRule : Rule(RuleId("test:with-state")) {
+private class WithStateRule : Rule(
+    ruleId = RuleId("test:with-state"),
+    about = About(),
+) {
     private var hasNotBeenVisitedYet = true
 
     override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {

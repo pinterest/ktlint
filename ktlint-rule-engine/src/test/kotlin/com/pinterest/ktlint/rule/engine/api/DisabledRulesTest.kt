@@ -52,7 +52,10 @@ class DisabledRulesTest {
         ).isEmpty()
     }
 
-    class NoVarRule(id: String) : Rule(RuleId(id)) {
+    class NoVarRule(id: String) : Rule(
+        ruleId = RuleId(id),
+        about = About(),
+    ) {
         override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,
