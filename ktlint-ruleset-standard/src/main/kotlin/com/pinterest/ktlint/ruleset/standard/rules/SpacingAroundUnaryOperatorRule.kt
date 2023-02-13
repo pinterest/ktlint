@@ -1,10 +1,10 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.ElementType
-import com.pinterest.ktlint.ruleset.core.api.RuleId
-import com.pinterest.ktlint.ruleset.core.api.children
-import com.pinterest.ktlint.ruleset.core.api.isPartOfComment
-import com.pinterest.ktlint.ruleset.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 

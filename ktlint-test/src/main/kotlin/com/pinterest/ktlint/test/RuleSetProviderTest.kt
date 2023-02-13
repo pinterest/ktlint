@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.test
 
-import com.pinterest.ktlint.ruleset.core.api.RuleSetProviderV3
+import com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.io.File

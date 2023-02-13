@@ -23,7 +23,7 @@ class RuleSetsLoaderCLITest {
                         .containsLineMatching(
                             Regex(
                                 ".*ERROR.* JAR file '.*$jarWithoutRulesetProviderV3' is missing a class implementing interface " +
-                                    "'com.pinterest.ktlint.ruleset.core.api.RuleSetProviderV3'",
+                                    "'com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3'",
                             ),
                         )
                 }.assertAll()

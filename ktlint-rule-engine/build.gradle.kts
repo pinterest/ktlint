@@ -6,7 +6,7 @@ plugins {
 dependencies {
     implementation(projects.ktlintLogger)
 
-    api(projects.ktlintRulesetCore)
+    api(projects.ktlintRuleEngineCore)
     api(libs.kotlin.compiler)
     api(libs.ec4j)
 

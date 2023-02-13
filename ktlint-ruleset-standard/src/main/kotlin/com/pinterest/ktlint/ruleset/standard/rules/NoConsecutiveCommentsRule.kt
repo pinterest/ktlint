@@ -1,13 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.ElementType.BLOCK_COMMENT
-import com.pinterest.ktlint.ruleset.core.api.ElementType.EOL_COMMENT
-import com.pinterest.ktlint.ruleset.core.api.ElementType.KDOC_END
-import com.pinterest.ktlint.ruleset.core.api.ElementType.KDOC_START
-import com.pinterest.ktlint.ruleset.core.api.Rule
-import com.pinterest.ktlint.ruleset.core.api.RuleId
-import com.pinterest.ktlint.ruleset.core.api.isWhiteSpace
-import com.pinterest.ktlint.ruleset.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK_COMMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC_END
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC_START
+import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 

@@ -1,7 +1,8 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.ruleset.core.api.RuleProvider
-import com.pinterest.ktlint.ruleset.core.api.RuleSetProviderV3
+import com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3
+import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import com.pinterest.ktlint.ruleset.standard.rules.AnnotationRule
 import com.pinterest.ktlint.ruleset.standard.rules.AnnotationSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ArgumentListWrappingRule
@@ -71,8 +72,10 @@ import com.pinterest.ktlint.ruleset.standard.rules.TypeParameterListSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.UnnecessaryParenthesesBeforeTrailingLambdaRule
 import com.pinterest.ktlint.ruleset.standard.rules.WrappingRule
 
+internal const val STANDARD_RULE_SET_ID = "standard"
+
 public class StandardRuleSetProvider :
-    RuleSetProviderV3("standard") {
+    RuleSetProviderV3(RuleSetId(STANDARD_RULE_SET_ID)) {
     override fun getRuleProviders(): Set<RuleProvider> =
         setOf(
             RuleProvider { AnnotationRule() },

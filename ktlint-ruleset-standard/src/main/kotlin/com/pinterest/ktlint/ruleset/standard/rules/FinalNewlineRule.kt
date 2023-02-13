@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.UsesEditorConfigProperties
-import com.pinterest.ktlint.ruleset.core.api.EditorConfigProperties
-import com.pinterest.ktlint.ruleset.core.api.RuleId
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY
-import com.pinterest.ktlint.ruleset.core.api.isRoot
+import com.pinterest.ktlint.rule.engine.core.api.EditorConfigProperties
+import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.UsesEditorConfigProperties
+import com.pinterest.ktlint.rule.engine.core.api.isRoot
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace

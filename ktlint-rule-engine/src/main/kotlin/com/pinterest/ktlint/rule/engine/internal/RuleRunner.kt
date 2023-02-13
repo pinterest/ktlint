@@ -1,10 +1,10 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import com.pinterest.ktlint.ruleset.core.api.FeatureInAlphaState
-import com.pinterest.ktlint.ruleset.core.api.Rule
-import com.pinterest.ktlint.ruleset.core.api.Rule.VisitorModifier.RunAfterRule
-import com.pinterest.ktlint.ruleset.core.api.Rule.VisitorModifier.RunAsLateAsPossible
-import com.pinterest.ktlint.ruleset.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.FeatureInAlphaState
+import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule
+import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAsLateAsPossible
+import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 
 // TODO: Rename to RuleInstanceProvider. Also rename RuleRunnerSorter.
 internal class RuleRunner(private val provider: RuleProvider) {

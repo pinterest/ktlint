@@ -1,10 +1,10 @@
 package com.pinterest.ruleset.testtooling
 
-import com.pinterest.ktlint.ruleset.core.api.ElementType
-import com.pinterest.ktlint.ruleset.core.api.Rule
-import com.pinterest.ktlint.ruleset.core.api.RuleId
-import com.pinterest.ktlint.ruleset.core.api.isRoot
-import com.pinterest.ktlint.ruleset.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.isRoot
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ruleset.testtooling.internal.Color
 import com.pinterest.ruleset.testtooling.internal.color
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -22,7 +22,7 @@ public class DumpASTRule @JvmOverloads constructor(
         maintainer = "Ktlint",
         repositoryUrl = "https://github.com/pinterest/ktlint",
         issueTrackerUrl = "https://github.com/pinterest/ktlint/issues",
-    )
+    ),
 ) {
     private companion object {
         val ELEMENT_TYPE_SET = ElementType::class.members.map { it.name }.toSet()

@@ -1,15 +1,15 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.core.api.ElementType
-import com.pinterest.ktlint.ruleset.core.api.RuleId
-import com.pinterest.ktlint.ruleset.core.api.isPartOf
-import com.pinterest.ktlint.ruleset.core.api.isPartOfComment
-import com.pinterest.ktlint.ruleset.core.api.isWhiteSpace
-import com.pinterest.ktlint.ruleset.core.api.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.ruleset.core.api.nextCodeSibling
-import com.pinterest.ktlint.ruleset.core.api.nextLeaf
-import com.pinterest.ktlint.ruleset.core.api.nextSibling
-import com.pinterest.ktlint.ruleset.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.isPartOf
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace

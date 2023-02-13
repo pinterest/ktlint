@@ -4,5 +4,6 @@ plugins {
 }
 
 dependencies {
-    api(projects.ktlintRulesetCore)
+    api(projects.ktlintCliRulesetCore)
+    api(projects.ktlintRuleEngineCore)
 }

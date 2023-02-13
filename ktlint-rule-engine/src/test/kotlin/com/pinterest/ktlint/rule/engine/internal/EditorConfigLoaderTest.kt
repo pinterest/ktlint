@@ -3,13 +3,13 @@ package com.pinterest.ktlint.rule.engine.internal
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.UsesEditorConfigProperties
-import com.pinterest.ktlint.ruleset.core.api.EditorConfigProperties
-import com.pinterest.ktlint.ruleset.core.api.Rule
-import com.pinterest.ktlint.ruleset.core.api.RuleId
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.INDENT_SIZE_PROPERTY
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.EditorConfigProperties
+import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.UsesEditorConfigProperties
 import org.assertj.core.api.Assertions.assertThat
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -450,10 +450,12 @@ internal class EditorConfigLoaderTest {
         }
     }
 
-    private class TestRule : Rule(
-        ruleId = RuleId("test:editorconfig"),
-        about = About(),
-    ), UsesEditorConfigProperties {
+    private class TestRule :
+        Rule(
+            ruleId = RuleId("test:editorconfig"),
+            about = About(),
+        ),
+        UsesEditorConfigProperties {
         override val editorConfigProperties: List<EditorConfigProperty<*>> = emptyList()
 
         override fun beforeVisitChildNodes(

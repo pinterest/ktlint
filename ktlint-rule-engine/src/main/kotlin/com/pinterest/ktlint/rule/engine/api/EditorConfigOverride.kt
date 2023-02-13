@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.rule.engine.api
 
-import com.pinterest.ktlint.ruleset.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import org.ec4j.core.model.PropertyType.PropertyValue
 
 /**

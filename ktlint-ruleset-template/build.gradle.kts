@@ -28,7 +28,8 @@ val ktlint: Configuration by configurations.creating
 dependencies {
     ktlint(projects.ktlintCli)
 
-    implementation(projects.ktlintRulesetCore)
+    implementation(projects.ktlintCliRulesetCore)
+    implementation(projects.ktlintRuleEngineCore)
 
     testImplementation(projects.ktlintTest)
 }

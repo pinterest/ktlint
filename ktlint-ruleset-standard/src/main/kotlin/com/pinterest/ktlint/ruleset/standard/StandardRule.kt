@@ -1,9 +1,9 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.ruleset.core.api.Rule
-import com.pinterest.ktlint.ruleset.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.RuleId
 
-internal val standardRuleAbout = Rule.About(
+internal val STANDARD_RULE_ABOUT = Rule.About(
     maintainer = "KtLint",
     repositoryUrl = "https://github.com/pinterest/ktlint",
     issueTrackerUrl = "https://github.com/pinterest/ktlint/issues",
@@ -17,7 +17,7 @@ public open class StandardRule internal constructor(
     id: String,
     override val visitorModifiers: Set<VisitorModifier> = emptySet(),
 ) : Rule(
-    ruleId = RuleId("standard:$id"),
+    ruleId = RuleId("$STANDARD_RULE_SET_ID:$id"),
     visitorModifiers = visitorModifiers,
-    about = standardRuleAbout
+    about = STANDARD_RULE_ABOUT,
 )

@@ -48,41 +48,44 @@ Code style `android` has been renamed to `android_studio`. Code formatted with t
 
 The internal structure of the Ktlint project has been revised. The Ktlint CLI and KtLint API modules have been decoupled where possible. Modules have been restructured and renamed. See [API Overview](https://pinterest.github.io/ktlint/api/overview/) for more information.
 
-This is the last release that contains module `ktlint-core` as it had to many responsibilities. Responsibilities which are specific to the Ktlint CLI or the KtLint Rule Engine are moved to one of the new modules `ktlint-ruleset-core` and `ktlint-rule-engine`.
-
-Some classes are left behind in the `ktlint-core` module but are deprecated. The `ktlint-core` module will be removed in Ktlint `0.50.x`.
+This is the last release that contains module `ktlint-core` as it had too many responsibilities. All classes in this module are relocated to other modules. Some classes have also been renamed. See tables below for details. Classes that are left behind in the `ktlint-core` module are deprecated and were kept in this version for backwards compatibility only. The `ktlint-core` module will be removed in Ktlint `0.50.x`.
 
 Classes below have been moved to the new module `ktlint-rule-engine`:
 
-| Old class/package name in `ktlint-core`                       | New class/package name in `ktlint-rule-engine`                  |
-|---------------------------------------------------------------|-----------------------------------------------------------------|
-| com.pinterest.ktlint.rule.core.api.editorconfig               | com.pinterest.ktlint.rule.engine.api.editorconfig               |
-| com.pinterest.ktlint.rule.core.api.EditorConfigDefaults       | com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults       |
-| com.pinterest.ktlint.rule.core.api.EditorConfigOverride       | com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults       |
-| com.pinterest.ktlint.rule.core.KtLint                         | com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine           |
-| com.pinterest.ktlint.rule.core.LintError                      | com.pinterest.ktlint.rule.engine.api.LintError                  |
-| com.pinterest.ktlint.rule.core.api.Code                       | com.pinterest.ktlint.rule.engine.api.Code                       |
-| com.pinterest.ktlint.rule.core.api.KtLintParseException       | com.pinterest.ktlint.rule.engine.api.KtLintParseException       |
-| com.pinterest.ktlint.rule.core.api.KtLintRuleException        | com.pinterest.ktlint.rule.engine.api.KtLintRuleException        |
+| Old class/package name in `ktlint-core`                  | New class/package name in `ktlint-rule-engine-core`                               |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------|
+| com.pinterest.ktlint.core.api.editorconfig               | com.pinterest.ktlint.rule.engine.core.api.editorconfig                            |
+| com.pinterest.ktlint.core.api.EditorConfigProperties     | com.pinterest.ktlint.rule.engine.core.api.EditorConfigProperties                  |
+| com.pinterest.ktlint.core.api.OptInFeatures              | com.pinterest.ktlint.rule.engine.core.api.OptInFeatures                           |
+| com.pinterest.ktlint.core.api.UsesEditorConfigProperties | com.pinterest.ktlint.rule.engine.core.api.editorconfig.UsesEditorConfigProperties |
+| com.pinterest.ktlint.core.ast.ElementType                | com.pinterest.ktlint.rule.engine.core.api.ElementType                             |
+| com.pinterest.ktlint.core.ast.package                    | com.pinterest.ktlint.rule.engine.core.api.ASTNodeExtension                        |
+| com.pinterest.ktlint.core.IndentConfig                   | com.pinterest.ktlint.rule.engine.core.api.IndentConfig                            |
+| com.pinterest.ktlint.core.Rule                           | com.pinterest.ktlint.rule.engine.core.api.Rule                                    |
+| com.pinterest.ktlint.core.RuleProvider                   | com.pinterest.ktlint.rule.engine.core.api.RuleProvider                            |
 
-Classes below have been moved to the new module `ktlint-ruleset-core`:
 
-| Old class/package name in `ktlint-core`                       | New class/package name in `ktlint-ruleset-core`                               |
-|---------------------------------------------------------------|-------------------------------------------------------------------------------|
-| com.pinterest.ktlint.core.ast.ElementType                     | com.pinterest.ktlint.ruleset.core.api.ElementType                             |
-| com.pinterest.ktlint.core.ast.package                         | com.pinterest.ktlint.ruleset.core.api.ASTNodeExtension                        |
-| com.pinterest.ktlint.core.IndentConfig                        | com.pinterest.ktlint.ruleset.core.api.IndentConfig                            |
-| com.pinterest.ktlint.core.Rule                                | com.pinterest.ktlint.ruleset.core.api.Rule                                    |
-| com.pinterest.ktlint.core.RuleProvider                        | com.pinterest.ktlint.ruleset.core.api.RuleProvider                            |
-| com.pinterest.ktlint.core.RuleSetProviderV2                   | com.pinterest.ktlint.ruleset.core.api.RuleSetProviderV3                       |
-| com.pinterest.ktlint.rule.core.api.UsesEditorConfigProperties | com.pinterest.ktlint.ruleset.core.api.editorconfig.UsesEditorConfigProperties |
+| Old class/package name in `ktlint-core`                  | New class/package name in `ktlint-rule-engine`                               |
+|----------------------------------------------------------|------------------------------------------------------------------------------|
+| com.pinterest.ktlint.core.api.EditorConfigDefaults       | com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults                    |
+| com.pinterest.ktlint.core.api.EditorConfigOverride       | com.pinterest.ktlint.rule.engine.api.EditorConfigOverride                    |
+| com.pinterest.ktlint.core.api.KtLintParseException       | com.pinterest.ktlint.rule.engine.api.KtLintParseException                    |
+| com.pinterest.ktlint.core.api.KtLintRuleException        | com.pinterest.ktlint.rule.engine.api.KtLintRuleException                     |
+| com.pinterest.ktlint.core.KtLint                         | com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine                        |
+| com.pinterest.ktlint.core.LintError                      | com.pinterest.ktlint.rule.engine.api.LintError                               |
+
+Classes below have been moved to the new module `ktlint-cli-ruleset-core`:
+
+| Old class/package name in `ktlint-core`                  | New class/package name in `ktlint-cli-ruleset-core`                           |
+|----------------------------------------------------------|-------------------------------------------------------------------------------|
+| com.pinterest.ktlint.core.RuleSetProviderV2              | com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3                   |
 
 
 Class below has been moved to the new module `ktlint-cli-reporter-core`:
 
-| Old class/package name in `ktlint-core`   | New class/package name in `ktlint-cli-reporter-core` |
-|-------------------------------------------|------------------------------------------------------|
-| com.pinterest.ktlint.core.KtlintVersion   | com.pinterest.ktlint.ruleset.core.api.KtlintVersion  |
+| Old class/package name in `ktlint-core`   | New class/package name in `ktlint-cli-reporter-core`     |
+|-------------------------------------------|----------------------------------------------------------|
+| com.pinterest.ktlint.core.KtlintVersion   | com.pinterest.ktlint.cli.reporter.core.api.KtlintVersion |
 
 Class below has been moved to the new module `ktlint-logger`:
 
@@ -92,11 +95,9 @@ Class below has been moved to the new module `ktlint-logger`:
 
 Module `ktlint` has been renamed to `ktlint-cli`. Classes below have been relocated in this module:
 
-| Old class/package name in `ktlint-core` | New class/package name in `ktlint-core` |
-|-----------------------------------------|-----------------------------------------|
-| com.pinterest.ktlint.core.api.Baseline  | com.pinterest.ktlint.cli.api.Baseline   |
-
-IMPORTANT: All remaining classes in module `ktlint-core` (e.g. packages `com.github.shyiko.ktlint.core` and `com.pinterest.ktlint.core`) are deprecated and will be removed in KtLint `0.50.x`.
+| Old class/package name in `ktlint-core` | New class/package name in `ktlint-cli` |
+|-----------------------------------------|----------------------------------------|
+| com.pinterest.ktlint.core.api.Baseline  | com.pinterest.ktlint.cli.api.Baseline  |
 
 Module `ktlint-reporter-baseline` has been renamed to `ktlint-cli-reporter-baseline`. Classes below have been relocated:
 
@@ -148,11 +149,11 @@ Module `ktlint-reporter-sarif` has been renamed to `ktlint-cli-reporter-sarif`. 
 
 #### Custom Ruleset Provider `RuleSetProviderV2`
 
-Custom Rule Sets build for older versions of KtLint no longer supported by this version of KtLint. The `com.pinterest.ktlint.core.RuleSetProviderV2` interface has been replaced with `com.pinterest.ktlint.ruleset.core.api.RuleSetProviderV3`. The accompanying interfaces `com.pinterest.ktlint.core.RuleProvider` and `com.pinterest.ktlint.core.Rule` have been replaced with `com.pinterest.ktlint.ruleset.core.api.RuleProvider` and `com.pinterest.ktlint.ruleset.core.api.Rule` respectively.
+Custom Rule Sets build for older versions of KtLint no longer supported by this version of KtLint. The `com.pinterest.ktlint.core.RuleSetProviderV2` interface has been replaced with `RuleSetProviderV3`. The accompanying interfaces `com.pinterest.ktlint.core.RuleProvider` and `com.pinterest.ktlint.core.Rule` have been replaced with `com.pinterest.ktlint.ruleset.core.api.RuleProvider` and `com.pinterest.ktlint.ruleset.core.api.Rule` respectively.
 
-Contrary to `RuleSetProviderV2`, the `RuleSetProviderV3` no longer contains information about the rule set. About information now has to be specified in the new `Rule` class. This allows custom rule set providers to combine rules originating from different rule sets into a new rule set without loosing information about its origin.
+Contrary to `RuleSetProviderV2`, the `RuleSetProviderV3` no longer contains information about the rule set. About information now has to be specified in the new `Rule` class. This allows custom rule set providers to combine rules originating from different rule sets into a new rule set without loosing information about its origin. The typ of the id of the rule set is changed from `String` to `RuleSetId`. 
 
-Note that due to renaming and relocation of the `RuleSetProviderV3` interface the name of the service provider in the custom reporter needs to be changed from `resources/META-INF/services/com.pinterest.ktlint.core.RuleSetProviderV2` to `resources/META-INF/services/com.pinterest.ktlint.ruleset.core.api.RuleSetProviderV3`.
+Note that due to renaming and relocation of the `RuleSetProviderV3` interface the name of the service provider in the custom reporter needs to be changed from `resources/META-INF/services/com.pinterest.ktlint.core.RuleSetProviderV2` to `resources/META-INF/services/com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3`.
 
 The rule id's in `com.pinterest.ktlint.ruleset.core.api.Rule` have been changed from type `String` to `RuleId`. A `RuleId` has a value that must adhere the convention "`rule-set-id`:`rule-id`". The rule set id `standard` is reserved for rules which are maintained by the KtLint project. Rules created by custom rule set providers and API Consumers should use a prefix other than `standard` to mark the origin of rules which are not maintained by the KtLint project.
 

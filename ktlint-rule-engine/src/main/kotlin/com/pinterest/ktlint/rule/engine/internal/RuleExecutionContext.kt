@@ -7,8 +7,8 @@ import com.pinterest.ktlint.rule.engine.api.KtLintParseException
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine.Companion.UTF8_BOM
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
-import com.pinterest.ktlint.ruleset.core.api.EditorConfigProperties
-import com.pinterest.ktlint.ruleset.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.EditorConfigProperties
+import com.pinterest.ktlint.rule.engine.core.api.Rule
 import mu.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
@@ -51,17 +51,17 @@ internal class RuleExecutionContext private constructor(
             rule.afterLastNode()
         } catch (e: RuleExecutionException) {
             throw KtLintRuleException(
-                    e.line,
-                    e.col,
-                    e.rule.ruleId.value,
-                    """
-                    Rule '${e.rule.ruleId.value}' throws exception in file '${code.fileName}' at position (${e.line}:${e.col})
-                       Rule maintainer: ${e.rule.about.maintainer}
-                       Issue tracker  : ${e.rule.about.issueTrackerUrl}
-                       Repository     : ${e.rule.about.repositoryUrl}
-                    """.trimIndent(),
-                    e.cause,
-                )
+                e.line,
+                e.col,
+                e.rule.ruleId.value,
+                """
+                Rule '${e.rule.ruleId.value}' throws exception in file '${code.fileName}' at position (${e.line}:${e.col})
+                   Rule maintainer: ${e.rule.about.maintainer}
+                   Issue tracker  : ${e.rule.about.issueTrackerUrl}
+                   Repository     : ${e.rule.about.repositoryUrl}
+                """.trimIndent(),
+                e.cause,
+            )
         }
     }
 
