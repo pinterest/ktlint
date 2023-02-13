@@ -32,7 +32,7 @@ All rules in a rule set can be enabled or disabled with a rule set property. The
 ```editorconfig
 ktlint_standard = disabled # Disable all rules from the `standard` rule set provided by KtLint
 ktlint_experimental = enabled # Enable all rules from the `experimental` rule set provided by KtLint
-ktlint_your-custom-rule-set_custom-rule = enabled # Enable all rules in the `custom-rule-set` rule set (not provided by KtLint)
+ktlint_custom-rule-set = enabled # Enable all rules in the `custom-rule-set` rule set (not provided by KtLint)
 ```
 
 !!! note
