@@ -48,7 +48,7 @@ internal class PrintASTSubCommand : Runnable {
             printAST(fileContent = String(System.`in`.readBytes()))
         } else {
             FileSystems.getDefault()
-                .fileSequence(patterns)
+                .fileSequence(patterns.ifEmpty { DEFAULT_PATTERNS })
                 .map { it.toFile() }
                 .forEach {
                     printAST(

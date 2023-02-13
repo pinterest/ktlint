@@ -23,7 +23,7 @@ import org.jetbrains.kotlin.util.prefixIfNot
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
-internal val WORK_DIR: String = File(".").canonicalPath
+private val WORK_DIR: String = File(".").canonicalPath
 
 private val TILDE_REGEX = Regex("^(!)?~")
 private const val NEGATION_PREFIX = "!"
@@ -35,7 +35,7 @@ internal val DEFAULT_PATTERNS = DEFAULT_KOTLIN_FILE_EXTENSIONS.map { "**/*.$it" 
 
 /**
  * Transform the [patterns] to a sequence of files. Each element in [patterns] can be a glob, a file or directory path
- * relative to the [rootDir] or a absolute file or directory path.
+ * relative to the [rootDir] or an absolute file or directory path.
  */
 internal fun FileSystem.fileSequence(
     patterns: List<String>,
@@ -60,23 +60,15 @@ internal fun FileSystem.fileSequence(
 
     val globs = expand(patternsExclusiveExistingFiles, rootDir)
 
-    val pathMatchers = if (globs.isEmpty()) {
-        DEFAULT_PATTERNS
-            .map { getPathMatcher("glob:$it") }
-            .toSet()
-    } else {
+    val pathMatchers =
         globs
             .filterNot { it.startsWith(NEGATION_PREFIX) }
             .map { getPathMatcher(it) }
-    }
 
-    val negatedPathMatchers = if (globs.isEmpty()) {
-        emptySet()
-    } else {
+    val negatedPathMatchers =
         globs
             .filter { it.startsWith(NEGATION_PREFIX) }
             .map { getPathMatcher(it.removePrefix(NEGATION_PREFIX)) }
-    }
 
     LOGGER.debug {
         """
