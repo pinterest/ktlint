@@ -228,7 +228,7 @@ internal class KtlintCommandLine {
     private var baselinePath: String = ""
 
     @Parameters(hidden = true)
-    private var patterns = ArrayList<String>()
+    private var patterns = emptyList<String>()
 
     @Option(
         names = ["--log-level", "-l"],
@@ -287,16 +287,7 @@ internal class KtlintCommandLine {
             }
 
         assertStdinAndPatternsFromStdinOptionsMutuallyExclusive()
-
-        val stdinPatterns: Set<String> = readPatternsFromStdin()
-        patterns.addAll(stdinPatterns)
-
-        // Set default value to patterns only after the logger has been configured to avoid a warning about initializing
-        // the logger multiple times
-        if (patterns.isEmpty()) {
-            logger.info { "Enable default patterns $DEFAULT_PATTERNS" }
-            patterns = ArrayList(DEFAULT_PATTERNS)
-        }
+        patterns = patterns.replaceWithPatternsFromStdinOrDefaultPatternsWhenEmpty()
 
         val start = System.currentTimeMillis()
 
@@ -350,6 +341,31 @@ internal class KtlintCommandLine {
         }
     }
 
+    private fun List<String>.replaceWithPatternsFromStdinOrDefaultPatternsWhenEmpty(): List<String> {
+        val localStdinDelimiter: String? = stdinDelimiter
+        return when {
+            localStdinDelimiter != null -> {
+                val stdinPatterns: Set<String> = readPatternsFromStdin(localStdinDelimiter.ifEmpty { "\u0000" })
+                if (isNotEmpty() && stdinPatterns.isNotEmpty()) {
+                    logger.warn {
+                        "Patterns specified at command line (${this@KtlintCommandLine.patterns}) and patterns from 'stdin' due to flag '--patterns-from-stdin' " +
+                            "($stdinPatterns) are merged"
+                    }
+                }
+                // Note: it is okay in case both the original patterns and the patterns from stdin are empty
+                this.plus(stdinPatterns)
+            }
+            this.isEmpty() -> {
+                logger.info { "Enable default patterns $DEFAULT_PATTERNS" }
+                DEFAULT_PATTERNS
+            }
+            else -> {
+                // Keep original patterns
+                this
+            }
+        }
+    }
+
     // Do not convert to "val" as the function depends on PicoCli options which are not fully instantiated until the "run" method is started
     internal fun ruleProviders(): Set<RuleProvider> =
         rulesetJarPaths
@@ -381,7 +397,7 @@ internal class KtlintCommandLine {
         if (stdin && stdinDelimiter != null) {
             throw ParameterException(
                 commandSpec.commandLine(),
-                "Options --stdin and --patterns-from-stdin mutually exclusive",
+                "Options --stdin and --patterns-from-stdin are mutually exclusive",
             )
         }
     }
@@ -598,10 +614,8 @@ internal class KtlintCommandLine {
                 map
             }
 
-    private fun readPatternsFromStdin(): Set<String> {
-        val delimiter: String = stdinDelimiter
-            ?.ifEmpty { "\u0000" }
-            ?: return emptySet()
+    private fun readPatternsFromStdin(delimiter: String): Set<String> {
+        require(delimiter.isNotEmpty())
 
         return String(System.`in`.readBytes())
             .split(delimiter)

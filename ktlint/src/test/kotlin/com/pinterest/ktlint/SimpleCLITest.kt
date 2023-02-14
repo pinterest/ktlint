@@ -95,6 +95,27 @@ class SimpleCLITest {
     }
 
     @Test
+    fun `Given some code with an error but no patterns given return from lint with the error exit code and error output (default patterns)`(
+        @TempDir
+        tempDir: Path,
+    ) {
+        CommandLineTestRunner(tempDir)
+            .run(
+                "too-many-empty-lines",
+                emptyList(),
+            ) {
+                SoftAssertions()
+                    .apply {
+                        assertErrorExitCode()
+                        assertThat(normalOutput)
+                            .containsLineMatching("Enable default patterns")
+                            .containsLineMatching("Needless blank line(s)")
+                    }
+                    .assertAll()
+            }
+    }
+
+    @Test
     fun `Given some code with an error which can be autocorrected then return from from with the normal exit code`(
         @TempDir
         tempDir: Path,
@@ -150,6 +171,24 @@ class SimpleCLITest {
                     assertNormalExitCode()
                     assertThat(normalOutput).containsLineMatching("No files matched [$somePatternProvidedViaStdin]")
                 }.assertAll()
+            }
+    }
+
+    @Test
+    fun `Issue 1793 - Given some code with an error and no patterns read in from stdin then return nothing `(
+        @TempDir
+        tempDir: Path,
+    ) {
+        CommandLineTestRunner(tempDir)
+            .run(
+                "too-many-empty-lines",
+                listOf("--patterns-from-stdin"),
+                stdin = ByteArrayInputStream(ByteArray(0)),
+            ) {
+                assertNormalExitCode()
+                assertThat(normalOutput)
+                    .doesNotContainLineMatching("Enable default patterns")
+                    .containsLineMatching("No files matched []")
             }
     }
 
