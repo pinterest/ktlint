@@ -97,6 +97,8 @@ signing {
     val signingPassword = System.getenv("ORG_GRADLE_PROJECT_signingKeyPassword")
     useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
 
+    // This property allows OS package maintainers to disable signing
+    val enableSigning = project.findProperty("ktlint.publication.signing.enable") != "false"
     sign(publishing.publications["maven"])
-    isRequired = !version.toString().endsWith("SNAPSHOT")
+    isRequired = enableSigning && !version.toString().endsWith("SNAPSHOT")
 }
