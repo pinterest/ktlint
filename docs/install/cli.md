@@ -12,7 +12,7 @@ All releases of `ktlint` can be downloaded from the [releases](https://github.co
 A particular version of `ktlint` can be downloaded with next command which also changes the file to an executable in directory `/usr/local/bin`:
 
 ```sh title="Download"
-curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.48.1/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
+curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.48.2/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
 ```
 
 !!! tip "Curl not installed or behind proxy"
@@ -96,10 +96,10 @@ Globs can be used to specify more exactly what files and directories are to be v
 
 ```shell title="Check only certain locations starting from the current directory"
 # Check all '.kt' files in 'src/' directory, but ignore files ending with 'Test.kt':
-ktlint "src/**/*.kt" "!src/**/*Test.kt"
+ktlint 'src/**/*.kt' '!src/**/*Test.kt'
 
 # Check all '.kt' files in 'src/' directory, but ignore 'generated' directory and its subdirectories:
-ktlint "src/**/*.kt" "!src/**/generated/**"
+ktlint 'src/**/*.kt' '!src/**/generated/**'
 ```
 
 ### Violation reporting
