@@ -142,7 +142,7 @@ All rules in a rule set can be enabled or disabled with a rule set property. The
 ```editorconfig
 ktlint_standard = disabled # Disable all rules from the `standard` rule set provided by KtLint
 ktlint_experimental = enabled # Enable rules marked as experimental for all rule sets that are enabled
-ktlint_your-custom-rule-set_custom-rule = enabled # Enable all rules in the `custom-rule-set` rule set (not provided by KtLint)
+ktlint_custom-rule-set = enabled # Enable all rules in the `custom-rule-set` rule set (not provided by KtLint)
 ```
 
 !!! note
@@ -157,3 +157,7 @@ ktlint_custom-rule-set_custom-rule = disabled # Disables the `custom-rule` rule 
 
 !!! note
     The *rule* properties are applied after applying the *rule set* properties and take precedence. So if a rule set is disabled but a specific rule of that rule set is enabled, then the rule will be executed.  
+
+## Why is wildcard import `java.util.*` not reported by the `no-wildcard-imports` rule?
+
+The `no-wildcard-imports` rule forbids wildcard imports, except for imports defined in `.editorconfig` property `ij_kotlin_packages_to_use_import_on_demand`. If ths property is not set explicitly set, it allows wildcards imports like `java.util.*` by default to keep in sync with IntelliJ IDEA behavior.

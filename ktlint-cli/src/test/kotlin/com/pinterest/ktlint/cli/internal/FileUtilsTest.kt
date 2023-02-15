@@ -377,7 +377,7 @@ internal class FileUtilsTest {
     }
 
     private fun getFiles(
-        patterns: List<String> = emptyList(),
+        patterns: List<String> = DEFAULT_PATTERNS,
         rootDir: Path = tempFileSystem.rootDirectories.first(),
     ): List<String> =
         tempFileSystem

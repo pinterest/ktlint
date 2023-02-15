@@ -310,6 +310,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                             }
                         }
 
+                        val comma = KtPsiFactory(prevNode.psi).createComma()
                         if (inspectNode.treeParent.elementType == ElementType.ENUM_ENTRY) {
                             with(KtPsiFactory(prevNode.psi)) {
                                 val parentIndent =
@@ -318,15 +319,15 @@ public class TrailingCommaOnDeclarationSiteRule :
                                 val newline = createWhiteSpace(parentIndent)
                                 val enumEntry = inspectNode.treeParent.psi
                                 enumEntry.apply {
+                                    inspectNode.psi.replace(comma)
                                     add(newline)
-                                    removeChild(inspectNode)
-                                    parent.addAfter(createSemicolon(), this)
+                                    add(createSemicolon())
                                 }
                             }
+                            Unit
+                        } else {
+                            prevNode.psi.parent.addAfter(comma, prevNode.psi)
                         }
-
-                        val comma = KtPsiFactory(prevNode.psi).createComma()
-                        prevNode.psi.parent.addAfter(comma, prevNode.psi)
                     }
                 }
             TrailingCommaState.REDUNDANT -> {

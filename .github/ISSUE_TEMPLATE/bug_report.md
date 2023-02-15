@@ -4,7 +4,7 @@ about: Report ktlint bug
 
 ---
 
-<!-- The bug you're experiencing might have already be reported!
+<!-- The bug you're experiencing might have already been reported!
 Please search in the [issues](https://github.com/pinterest/ktlint/issues) before creating one. -->
 
 ## Expected Behavior

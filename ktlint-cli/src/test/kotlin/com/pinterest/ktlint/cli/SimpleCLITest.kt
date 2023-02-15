@@ -97,6 +97,28 @@ class SimpleCLITest {
     }
 
     @Test
+    fun `Given some code in a file ending with a default kotlin extension then it will be picked up if no patterns are specified at the command line`(
+        @TempDir
+        tempDir: Path,
+    ) {
+        CommandLineTestRunner(tempDir)
+            .run(
+                "no-code-style-error",
+                // No patterns specified at the command line. As of that it has to pick up all files having a default kotlin extension
+                emptyList(),
+            ) {
+                SoftAssertions()
+                    .apply {
+                        assertNormalExitCode()
+                        assertThat(normalOutput)
+                            .containsLineMatching("Enable default patterns")
+                            .containsLineMatching("1 file(s) scanned / 0 error(s)")
+                    }
+                    .assertAll()
+            }
+    }
+
+    @Test
     fun `Given some code with an error which can be autocorrected then return from from with the normal exit code`(
         @TempDir
         tempDir: Path,
@@ -152,6 +174,24 @@ class SimpleCLITest {
                     assertNormalExitCode()
                     assertThat(normalOutput).containsLineMatching("No files matched [$somePatternProvidedViaStdin]")
                 }.assertAll()
+            }
+    }
+
+    @Test
+    fun `Issue 1793 - Given some code with an error and no patterns read in from stdin then return nothing `(
+        @TempDir
+        tempDir: Path,
+    ) {
+        CommandLineTestRunner(tempDir)
+            .run(
+                "too-many-empty-lines",
+                listOf("--patterns-from-stdin"),
+                stdin = ByteArrayInputStream(ByteArray(0)),
+            ) {
+                assertNormalExitCode()
+                assertThat(normalOutput)
+                    .doesNotContainLineMatching("Enable default patterns")
+                    .containsLineMatching("No files matched []")
             }
     }
 

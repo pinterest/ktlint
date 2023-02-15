@@ -156,6 +156,12 @@ public class KtLintAssertThat(
     public fun hasNoLintViolations(): Unit = ktLintAssertThatAssertable().hasNoLintViolations()
 
     /**
+     * Asserts that the code does not contain any [LintViolation]s for a given rule id.
+     */
+    public fun hasNoLintViolationsForRuleId(ruleId: String): KtLintAssertThatAssertable =
+        ktLintAssertThatAssertable().hasNoLintViolationsForRuleId(ruleId)
+
+    /**
      * Asserts that the code does not contain any [LintViolation]s except in the additional formatting rules.
      *
      * Note: When linting succeeds without errors, formatting is also checked.
@@ -358,6 +364,19 @@ public class KtLintAssertThatAssertable(
                     .isEqualTo(code)
             },
         )
+    }
+
+    /**
+     * Asserts that the code does not contain any [LintViolation]s for the given rule id.
+     */
+    public fun hasNoLintViolationsForRuleId(ruleId: String): KtLintAssertThatAssertable {
+        val (_, lintErrorsWhenFormatting) = format()
+
+        assertThat(lintErrorsWhenFormatting.filter { it.ruleId == ruleId })
+            .describedAs("At least 1 lint violation was found for rule id '$ruleId' while none were expected")
+            .isEmpty()
+
+        return this
     }
 
     /**
