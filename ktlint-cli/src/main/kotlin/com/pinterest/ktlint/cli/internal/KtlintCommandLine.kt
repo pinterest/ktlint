@@ -381,7 +381,7 @@ internal class KtlintCommandLine {
                 val stdinPatterns: Set<String> = readPatternsFromStdin(localStdinDelimiter.ifEmpty { "\u0000" })
                 if (isNotEmpty() && stdinPatterns.isNotEmpty()) {
                     logger.warn {
-                        "Patterns specified at command line (${this@KtlintCommandLine.patterns}) and patterns from 'stdin' due to flag '--patterns-from-stdin' " +
+                        "Patterns specified at command line ($this) and patterns from 'stdin' due to flag '--patterns-from-stdin' " +
                             "($stdinPatterns) are merged"
                     }
                 }
