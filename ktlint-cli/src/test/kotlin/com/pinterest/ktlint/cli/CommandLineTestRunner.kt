@@ -68,10 +68,15 @@ class CommandLineTestRunner(private val tempDir: Path) {
             // Destroy the process as it is still running
             process.destroyForcibly()
 
-            if (output.contains("Exit ktlint with exit code: 0")) {
-                // For unknown reasons the process sometimes results in a timeout although the ktlint command is
-                // terminated successfully.
-                executionAssertions(ExecutionResult(0, output, error, projectPath))
+            // For unknown reasons the process sometimes results in a timeout although the ktlint command is terminated when the last line
+            // of the output contains the debug line containing the exit code. If this line is found, consider it as a normal termination.
+            val exitCode =
+                output
+                    .lastOrNull { it.contains(EXIT_KTLINT_WITH_EXIT_CODE_DEBUG_LINE) }
+                    ?.substringAfter(EXIT_KTLINT_WITH_EXIT_CODE_DEBUG_LINE)
+                    ?.toInt()
+            if (exitCode != null) {
+                executionAssertions(ExecutionResult(exitCode, output, error, projectPath))
             } else {
                 // Ktlint is either not terminated or is terminated with a non-zero exit code.
                 val maxDurationInSeconds = (WAIT_INTERVAL_DURATION * WAIT_INTERVAL_MAX_OCCURRENCES).div(1000.0)
@@ -266,10 +271,18 @@ class CommandLineTestRunner(private val tempDir: Path) {
 
     companion object {
         private const val WAIT_INTERVAL_DURATION = 100L
-        private const val WAIT_INTERVAL_MAX_OCCURRENCES = 300
+        private val WAIT_INTERVAL_MAX_OCCURRENCES =
+            // The local machine is most often faster than the Github CICD when running the CLI tests. A system environment property has
+            // been defined in the gradle-pr-build workflow to increase the timeout.
+            System
+                .getenv("CLI_TEST_MAX_DURATION_IN_SECONDS")
+                ?.toIntOrNull()
+                ?.let { it * 1000 / WAIT_INTERVAL_DURATION }
+                ?: 10 // Default applies to local machine on which the system environment property most likely is not set
         private val TEST_PROJECTS_PATHS: Path = Path("src", "test", "resources", "cli")
         private const val PATH = "PATH"
         private val JAVA_VERSION_REGEX = Regex("""^1\.(?<version>\d+)(?:\.[^.].*)?$""")
+        private const val EXIT_KTLINT_WITH_EXIT_CODE_DEBUG_LINE = "Exit ktlint with exit code: "
 
         // Path to java bin directory on which tests will be executed
         private val JAVA_HOME_BIN_DIR = Path(System.getProperty("java.home")).resolve("bin")
