@@ -1,7 +1,7 @@
 import com.example.ktlint.api.consumer.KtlintApiConsumer
-import com.pinterest.ktlint.core.initKtLintKLogger
-import kotlin.system.exitProcess
+import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import mu.KotlinLogging
+import kotlin.system.exitProcess
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 

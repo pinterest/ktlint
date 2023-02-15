@@ -38,7 +38,12 @@ Before releasing a new version of KtLint, the release candidate is tested on a s
    git clone https://github.com/ExpediaGroup/graphql-kotlin.git
    git clone https://github.com/Kotlin/kotlinx.serialization.git
    ```
-4. Create an alias or script to run the latest development-version of ktlint (note that this script will print the version and the datetime of compilation as reference to which version is used):
+4. Create an alias or script to run the latest released version of ktlint (note that this script will print the version as reference to which version is used):
+   ```shell
+   alias ktlint-prev="ktlint-0.47.1 $@" # Replace with the latest release version
+   ```
+   Note that `~/git/ktlint` is the directory in which the ktlint project is checked out and that `~/git/ktlint/ktlint` refers to the `ktlint` CLI-module.
+5. Create an alias or script to run the latest development-version of ktlint (note that this script will print the version and the datetime of compilation as reference to which version is used):
    ```shell
    alias ktlint-dev="echo 'ktlint-dev version:';ls -aslh ~/git/ktlint/ktlint/build/run/ktlint;echo ' ';~/git/ktlint/ktlint/build/run/ktlint $@"
    ```
@@ -64,6 +69,10 @@ Before releasing a new version of KtLint, the release candidate is tested on a s
 Pre-requisites:
 * All changes have been merged to master.
 * Latest version of master has been pulled to the local machine.
+* The latest released version of ktlint matches with command `ktlint`:
+   ```shell
+   ktlint-prev --version
+   ```
 * The latest version of master has been build on the local machine. And it is verified that the datetime of `ktlint-dev` (more or less) matches with the datetime of this compilation.
    ```shell
    ktlint-dev --version
@@ -75,7 +84,7 @@ TODO: After release 0.48, update procedure below as the parameter "--experimenta
 
 1. Format the sample projects with the *latest released* ktlint version:
    ```shell
-   ktlint -F --experimental --relative # Do not call this command via the "./exec-in-each-project.sh" script.
+   ktlint-prev -F --experimental --relative # Do not call this command via the "./exec-in-each-project.sh" script.
    ```
    Note: Ignore all output as this is the old version!
 2. Commit changes:
@@ -86,7 +95,7 @@ TODO: After release 0.48, update procedure below as the parameter "--experimenta
 3. Create a new baseline file with the *latest released* ktlint version to ignore all lint violations that could not be autocorrected using the latest ktlint version:
    ```shell
    rm baseline.xml
-   ktlint --experimental --baseline=baseline.xml --relative # Do not call this command via the "./exec-in-each-project.sh" script as we want one combined baseline.xml file for all projects.
+   ktlint-prev --experimental --baseline=baseline.xml --relative # Do not call this command via the "./exec-in-each-project.sh" script as we want one combined baseline.xml file for all projects.
    ```
 4. Check that besides the `baseline.xml` no files are changed (in step 1 and 2 all violations which could be autocorrected have already been committed). Remaining violations which could not be autocorrected are saved in the `baseline.xml` which is stored outside the project directories.
    ```shell
@@ -105,13 +114,12 @@ TODO: After release 0.48, update procedure below as the parameter "--experimenta
    #        graphql
    #          ktlint_standard_import-ordering = disabled
    #          ktlint_standard_package-name = disabled
+   ktlint_experimental = enabled
    ktlint_standard = enabled
    ktlint_standard_filename = disabled
    ktlint_standard_no-wildcard-imports = disabled
-
-   ktlint_experimental = enabled
-   ktlint_experimental_function-naming = disabled
-   ktlint_experimental_property-naming = disabled
+   ktlint_standard_function-naming = disabled
+   ktlint_standard_property-naming = disabled
    ```
 6. Commit changes:
    ```shell

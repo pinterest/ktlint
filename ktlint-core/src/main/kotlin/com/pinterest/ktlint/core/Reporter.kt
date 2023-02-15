@@ -6,6 +6,7 @@ package com.pinterest.ktlint.core
  * on the same thread).
  * @see ReporterProvider
  */
+@Deprecated("Deprecated since ktlint 0.49.0. Custom reporters have to be migrated to ReporterV2. See changelog 0.49.")
 public interface Reporter {
     /**
      * Called once, before the processing begins
@@ -23,7 +24,11 @@ public interface Reporter {
      * Called once for each lint violation that is found. The [corrected] flag indicated whether the violations has been
      * fixed automatically.
      */
-    public fun onLintError(file: String, err: LintError, corrected: Boolean)
+    public fun onLintError(
+        file: String,
+        err: LintError,
+        corrected: Boolean,
+    )
 
     /**
      * Called after ktlint is done with the file.
@@ -43,20 +48,19 @@ public interface Reporter {
          */
         public fun from(vararg reporters: Reporter): Reporter =
             object : Reporter {
-                override fun beforeAll() =
-                    reporters.forEach(Reporter::beforeAll)
+                override fun beforeAll() = reporters.forEach(Reporter::beforeAll)
 
-                override fun before(file: String) =
-                    reporters.forEach { it.before(file) }
+                override fun before(file: String) = reporters.forEach { it.before(file) }
 
-                override fun onLintError(file: String, err: LintError, corrected: Boolean) =
-                    reporters.forEach { it.onLintError(file, err, corrected) }
+                override fun onLintError(
+                    file: String,
+                    err: LintError,
+                    corrected: Boolean,
+                ) = reporters.forEach { it.onLintError(file, err, corrected) }
 
-                override fun after(file: String) =
-                    reporters.forEach { it.after(file) }
+                override fun after(file: String) = reporters.forEach { it.after(file) }
 
-                override fun afterAll() =
-                    reporters.forEach(Reporter::afterAll)
+                override fun afterAll() = reporters.forEach(Reporter::afterAll)
             }
     }
 }

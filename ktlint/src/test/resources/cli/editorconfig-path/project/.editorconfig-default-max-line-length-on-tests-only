@@ -1,4 +1,0 @@
-root = true
-
-[*Test.{kt,kts}]
-max_line_length = 25

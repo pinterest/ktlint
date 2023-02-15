@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.core
 
 import com.pinterest.ktlint.core.api.EditorConfigProperties
-import com.pinterest.ktlint.core.internal.IdNamingPolicy
+import com.pinterest.ktlint.core.internal.IdNamingPolicyLegacy
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 /**
@@ -11,11 +11,19 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  * instance of the [Rule] on each call to [RuleProvider.createNewRuleInstance]. The KtLint engine never re-uses a [Rule]
  * instance once is has been used for traversal of the AST of a file.
  */
+@Deprecated("Deprecated since ktlint 0.49.0. Custom rulesets have to be migrated to RuleSetProviderV3. See changelog 0.49.")
 public open class Rule(
     /**
      * Identification of the rule. Except for rules in the "standard" rule set, this id needs to be prefixed with the
      * identifier of the rule set (e.g. "some-rule-set-id:some-rule-id") to avoid naming conflicts with referring to the
      * rule (e.g. in [Rule.VisitorModifier.RunAfterRule] and in enable/disable rule suppression directives).
+     *
+     * In a future version of Ktlint this field is likely to be split into separate fields for the "rule-set-id" and the "rule-id". For now,
+     * the following fields are supported:
+     *   - id: the id as given during construction of the rule. It may (preferred) or may not contain a rule set id.
+     *   - ruleId: the id of the rule without the rule set id prefix.
+     *   - ruleSetId: the rule set if of the rule. Defaults to "standard" when not specified during construction of the rule.
+     *   - qualifiedRuleId: the guaranteed fully qualified rule id containing the rule set id as prefix.
      */
     public val id: String,
 
@@ -28,8 +36,24 @@ public open class Rule(
     private var traversalState = TraversalState.NOT_STARTED
 
     init {
-        IdNamingPolicy.enforceRuleIdNaming(id)
+        IdNamingPolicyLegacy.enforceRuleIdNaming(id)
     }
+
+    /**
+     * The id of the rule without the rule set id as prefix.
+     */
+    public val ruleId: String = id.ruleId()
+
+    /**
+     * The rule set id of the rule. Defaults to "standard" when not specified during construction of the rule.
+     */
+    public val ruleSetId: String = id.ruleSetId()
+
+    /**
+     * The guaranteed fully qualified rule id containing the rule set id as prefix. The rule set id defaults to "standard" when not
+     * specified during construction of the rule.
+     */
+    public val qualifiedRuleId: String = qualifiedRuleId(ruleSetId, ruleId)
 
     /**
      * This method is called once before the first node is visited. It can be used to initialize the state of the rule
@@ -68,24 +92,24 @@ public open class Rule(
     public open fun afterLastNode() {}
 
     /**
-     * Checks whether [Rule] instance has not yet being used for traversal of the AST.
+     * Checks whether the [Rule] instance is used for traversal of the AST and as of that potentially has changed the state of the [Rule]
+     * provided that it has state.
      */
-    internal fun isUsedForTraversalOfAST() =
-        traversalState != TraversalState.NOT_STARTED
+    public fun isUsedForTraversalOfAST(): Boolean = traversalState != TraversalState.NOT_STARTED
 
     /**
      * Marks the [Rule] instance as being used for traversal of an AST. From this moment on, this instance of the [Rule]
      * can not be used to start a new traversal of the same or another AST as the instance might contain state.
      */
-    internal fun startTraversalOfAST() {
+    public fun startTraversalOfAST() {
+        require(traversalState == TraversalState.NOT_STARTED)
         traversalState = TraversalState.CONTINUE
     }
 
     /**
      * Checks whether the next node in the AST is to be traversed. By default, the entire AST is traversed.
      */
-    internal fun shouldContinueTraversalOfAST() =
-        traversalState == TraversalState.CONTINUE
+    public fun shouldContinueTraversalOfAST(): Boolean = traversalState == TraversalState.CONTINUE
 
     /**
      * Stops traversal of the AST. Intended usage it to prevent parsing of the remainder of the AST once the goal of the
@@ -127,7 +151,6 @@ public open class Rule(
     }
 
     public sealed class VisitorModifier {
-
         public data class RunAfterRule(
             /**
              * Qualified ruleId in format "ruleSetId:ruleId". For a rule in the standard rule set it suffices to specify
@@ -142,8 +165,48 @@ public open class Rule(
              * The annotated rule will only be run in case the other rule is enabled.
              */
             val runOnlyWhenOtherRuleIsEnabled: Boolean = false,
-        ) : VisitorModifier()
+        ) : VisitorModifier() {
+            init {
+                IdNamingPolicyLegacy.enforceRuleIdNaming(ruleId)
+            }
+
+            /**
+             * The guaranteed fully qualified rule id containing the rule set id as prefix. The rule set id defaults to "standard" when not
+             * specified during construction of the RunAfterRule.
+             */
+            public val qualifiedRuleId: String = ruleId.qualifiedRuleId()
+        }
 
         public object RunAsLateAsPossible : VisitorModifier()
     }
+
+    /**
+     * This interface marks a rule as an 'experimental' rule. A rule marked with this interface will only be executed by ktlint in case the
+     * '.editorconfig' allows this rule specifically or all experimental rules. This interface is used by Ktlint internally but is also
+     * explicitly meant to be used by custom rule providers.
+     */
+    public interface Experimental
+
+    /**
+     * This interface marks a rule as an Official rule. A rule marked with this interface will only be executed when by ktlint in case the
+     * '.editorconfig' contains property "code_style = ktlint_official" or when enabled explicitly. This interface is intended to be used
+     * in Ktlint internally only. It may be subject to change at any time without providing any backward compatibility.
+     */
+    public interface OfficialCodeStyle
+}
+
+private const val STANDARD_RULE_SET_ID = "standard"
+private const val DELIMITER = ":"
+
+private fun String.ruleId(): String = this.substringAfter(DELIMITER, this)
+
+private fun String.ruleSetId(): String = substringBefore(DELIMITER, STANDARD_RULE_SET_ID)
+
+private fun String.qualifiedRuleId(): String = "${ruleSetId()}$DELIMITER${ruleId()}"
+
+private fun qualifiedRuleId(
+    ruleSetId: String,
+    ruleId: String,
+): String {
+    return "$ruleSetId$DELIMITER$ruleId"
 }

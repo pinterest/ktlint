@@ -1,7 +1,7 @@
 package com.example.ktlint.api.consumer.rules
 
-import com.pinterest.ktlint.core.RuleProvider
-import com.pinterest.ktlint.ruleset.standard.IndentationRule
+import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.ruleset.standard.rules.IndentationRule
 
 internal val CUSTOM_RULE_SET_ID = "custom-rule-set-id"
 

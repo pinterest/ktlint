@@ -1,0 +1,7 @@
+# Files in this directory and it subdirectories contain files with lint violations which are needed for the cli tests.
+# Those file should not  be changed when ktlint is ran on its own source code as that would result in breaking tests.
+root = true
+
+[*.{kt,kts}]
+ktlint_standard = disabled
+ktlint_experimental = disabled

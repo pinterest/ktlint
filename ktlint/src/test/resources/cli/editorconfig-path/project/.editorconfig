@@ -1,7 +1,0 @@
-root = true
-
-[Foo*.{kt,kts}]
-max_line_length = 30
-
-[src/**/example/*.kt]
-ktlint_standard_filename = disabled

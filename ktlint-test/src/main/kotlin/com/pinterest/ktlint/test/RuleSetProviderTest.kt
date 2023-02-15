@@ -1,12 +1,12 @@
 package com.pinterest.ktlint.test
 
-import com.pinterest.ktlint.core.RuleSetProviderV2
-import java.io.File
+import com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.io.File
 
 public open class RuleSetProviderTest(
-    private val rulesetClass: Class<out RuleSetProviderV2>,
+    private val rulesetClass: Class<out RuleSetProviderV3>,
     private val packageName: String,
 ) {
     private val ruleSetProvider =
@@ -26,6 +26,9 @@ public open class RuleSetProviderTest(
             ?.map { it.name.removeSuffix(".class") }
             ?.filter { it.endsWith("Rule") }
             ?: arrayListOf()
+        assertThat(packageRules)
+            .withFailMessage("No rules were found in package '$rulesDir'. Is the packagname '$packageName' correct?")
+            .isNotEmpty
 
         val providerRules = rules.map { it::class.java.simpleName }
         val missingRules =
@@ -33,7 +36,9 @@ public open class RuleSetProviderTest(
                 .minus(providerRules.toSet())
                 .joinToString(separator = NEWLINE_AND_INDENT)
         assertThat(missingRules)
-            .withFailMessage("${ruleSetProvider::class.simpleName} is missing to provide the following rules:${NEWLINE_AND_INDENT}$missingRules")
+            .withFailMessage(
+                "${ruleSetProvider::class.simpleName} is missing to provide the following rules:${NEWLINE_AND_INDENT}$missingRules",
+            )
             .isEmpty()
     }
 

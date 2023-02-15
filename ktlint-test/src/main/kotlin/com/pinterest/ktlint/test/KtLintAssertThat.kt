@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.test
 
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.core.Rule
-import com.pinterest.ktlint.core.RuleProvider
-import com.pinterest.ktlint.core.api.EditorConfigOverride
-import com.pinterest.ktlint.core.api.editorconfig.EditorConfigProperty
-import com.pinterest.ktlint.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
+import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
+import com.pinterest.ktlint.rule.engine.api.LintError
+import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import org.assertj.core.api.AbstractAssert
@@ -53,9 +53,7 @@ public class KtLintAssertThat(
      * Set the [EditorConfigOverride] properties to be used by the rule. This function can be called multiple times.
      * Properties which have been set before, are silently overwritten with the new vale.
      */
-    public fun withEditorConfigOverride(
-        vararg properties: Pair<EditorConfigProperty<*>, *>,
-    ): KtLintAssertThat {
+    public fun withEditorConfigOverride(vararg properties: Pair<EditorConfigProperty<*>, *>): KtLintAssertThat {
         editorConfigProperties = editorConfigProperties + properties.toSet()
 
         return this
@@ -179,8 +177,7 @@ public class KtLintAssertThat(
         line: Int,
         col: Int,
         detail: String,
-    ): KtLintAssertThatAssertable =
-        ktLintAssertThatAssertable().hasLintViolation(line, col, detail)
+    ): KtLintAssertThatAssertable = ktLintAssertThatAssertable().hasLintViolation(line, col, detail)
 
     /**
      * Asserts that the code does contain given [LintViolation]s which can be automatically corrected. Note that tests
@@ -198,8 +195,7 @@ public class KtLintAssertThat(
         line: Int,
         col: Int,
         detail: String,
-    ): KtLintAssertThatAssertable =
-        ktLintAssertThatAssertable().hasLintViolationForAdditionalRule(line, col, detail)
+    ): KtLintAssertThatAssertable = ktLintAssertThatAssertable().hasLintViolationForAdditionalRule(line, col, detail)
 
     /**
      * Asserts that the code does contain given [LintViolation]s caused by an additional rules which can be
@@ -212,8 +208,7 @@ public class KtLintAssertThat(
     /**
      * Asserts that the code is formatted as given.
      */
-    public fun isFormattedAs(formattedCode: String): KtLintAssertThatAssertable =
-        ktLintAssertThatAssertable().isFormattedAs(formattedCode)
+    public fun isFormattedAs(formattedCode: String): KtLintAssertThatAssertable = ktLintAssertThatAssertable().isFormattedAs(formattedCode)
 
     /**
      * Asserts that the code does contain the given [LintViolation] which can not be automatically corrected.
@@ -222,8 +217,7 @@ public class KtLintAssertThat(
         line: Int,
         col: Int,
         detail: String,
-    ): Unit =
-        ktLintAssertThatAssertable().hasLintViolationWithoutAutoCorrect(line, col, detail)
+    ): Unit = ktLintAssertThatAssertable().hasLintViolationWithoutAutoCorrect(line, col, detail)
 
     /**
      * Asserts that the code does contain the given [LintViolation]s which can not be automatically corrected. Note that
@@ -258,8 +252,7 @@ public class KtLintAssertThat(
          * Creates an assertThat assertion function for the rule provided by [provider]. This assertion function has
          * extensions specifically for testing KtLint rules.
          */
-        public fun assertThatRule(provider: () -> Rule): (String) -> KtLintAssertThat =
-            RuleProvider { provider() }.assertThat()
+        public fun assertThatRule(provider: () -> Rule): (String) -> KtLintAssertThat = RuleProvider { provider() }.assertThat()
 
         /**
          * Creates an assertThat assertion function for the rule provided by [provider]. This assertion function has
@@ -272,12 +265,9 @@ public class KtLintAssertThat(
         public fun assertThatRule(
             provider: () -> Rule,
             additionalRuleProviders: Set<RuleProvider>,
-        ): (String) -> KtLintAssertThat =
-            RuleProvider { provider() }.assertThat(additionalRuleProviders)
+        ): (String) -> KtLintAssertThat = RuleProvider { provider() }.assertThat(additionalRuleProviders)
 
-        private fun RuleProvider.assertThat(
-            additionalRuleProviders: Set<RuleProvider> = emptySet(),
-        ): (String) -> KtLintAssertThat =
+        private fun RuleProvider.assertThat(additionalRuleProviders: Set<RuleProvider> = emptySet()): (String) -> KtLintAssertThat =
             { code ->
                 KtLintAssertThat(
                     ruleProvider = this,
@@ -289,12 +279,28 @@ public class KtLintAssertThat(
         /**
          * See [setMaxLineLength] for intended usage.
          */
-        public const val MAX_LINE_LENGTH_MARKER: String = "Max line length marker:" // Keep length of constant name same as length of value
+        public const val MAX_LINE_LENGTH_MARKER: String = "Max line length marker:"
 
         /**
          * See [setMaxLineLength] for intended usage.
          */
         public const val EOL_CHAR: Char = '#'
+
+        init {
+            /* A unit test using the max line length marker typically looks like:
+             * val code =
+             *     """
+             *     // $MAX_LINE_LENGTH_MARKER                   $EOL_CHAR
+             *     val fooooooooooooooo = "fooooooooooooooooooooo"
+             *     """.trimIndent()
+             * In order for this to work properly, the length of "$MAX_LINE_LENGTH_MARKER" must be identical to the length of the real value
+             * of the constant MAX_LINE_LENGTH_MARKER.
+             */
+            require("$".plus(::MAX_LINE_LENGTH_MARKER.name).length == MAX_LINE_LENGTH_MARKER.length) {
+                "Length of the value of the string '${'$'}MAX_LINE_LENGTH_MARKER' must be identical to length of the value of the " +
+                    "constant. Tests using this constant will not work as intended otherwise."
+            }
+        }
     }
 }
 
@@ -316,7 +322,7 @@ public class KtLintAssertThatAssertable(
      */
     private val additionalRuleProviders: Set<RuleProvider>,
 ) : AbstractAssert<KtLintAssertThatAssertable, String>(code, KtLintAssertThatAssertable::class.java) {
-    private val ruleId = ruleProvider.createNewRuleInstance().id
+    private val ruleId = ruleProvider.createNewRuleInstance().ruleId
 
     /**
      * Asserts that the code does not contain any [LintViolation]s caused by the rule associated with the
@@ -525,11 +531,9 @@ public class KtLintAssertThatAssertable(
         }.toTypedArray()
     }
 
-    private fun List<LintError>.filterAdditionalRulesOnly() =
-        filter { it.ruleId != ruleId }
+    private fun List<LintError>.filterAdditionalRulesOnly() = filter { it.ruleId != ruleId.value }
 
-    private fun List<LintError>.filterCurrentRuleOnly() =
-        filter { it.ruleId == ruleId }
+    private fun List<LintError>.filterCurrentRuleOnly() = filter { it.ruleId == ruleId.value }
 
     private fun List<LintError>.toLintViolationsFields(): Array<LintViolationFields> =
         map {
@@ -541,14 +545,21 @@ public class KtLintAssertThatAssertable(
             )
         }.toTypedArray()
 
+    private val filePathOrSnippetName: String
+        get() =
+            when {
+                filePath != null -> filePath
+                kotlinScript -> "snippet.kts"
+                else -> "snippet.kt"
+            }
+
     private fun lint(): List<LintError> {
         return setOf(ruleProvider)
             // Also run the additional rules as the main rule might have a VisitorModifier which requires one or more of
             // the additional rules to be loaded and enabled as well.
             .plus(additionalRuleProviders)
             .lint(
-                lintedFilePath = filePath,
-                script = kotlinScript,
+                filePath = filePathOrSnippetName,
                 text = code,
                 editorConfigOverride = editorConfigOverride,
             )
@@ -558,8 +569,7 @@ public class KtLintAssertThatAssertable(
         setOf(ruleProvider)
             .plus(additionalRuleProviders)
             .format(
-                lintedFilePath = filePath,
-                script = kotlinScript,
+                filePath = filePathOrSnippetName,
                 text = code,
                 editorConfigOverride = editorConfigOverride,
             )

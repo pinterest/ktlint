@@ -1,4 +1,0 @@
-root = true
-
-[**/*-example/*.{kt,kts}]
-ktlint_standard_filename = disabled

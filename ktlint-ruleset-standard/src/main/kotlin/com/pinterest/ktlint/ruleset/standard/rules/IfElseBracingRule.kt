@@ -1,0 +1,171 @@
+package com.pinterest.ktlint.ruleset.standard.rules
+
+import com.pinterest.ktlint.rule.engine.core.api.EditorConfigProperties
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ELSE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ELSE_KEYWORD
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.IF
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.THEN
+import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
+import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.UsesEditorConfigProperties
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.lineIndent
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
+import com.pinterest.ktlint.ruleset.standard.StandardRule
+import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
+import org.jetbrains.kotlin.psi.KtBlockExpression
+import org.jetbrains.kotlin.psi.psiUtil.leaves
+
+/**
+ * https://kotlinlang.org/docs/reference/coding-conventions.html#formatting-control-flow-statements
+ */
+public class IfElseBracingRule :
+    StandardRule("if-else-bracing"),
+    Rule.Experimental,
+    Rule.OfficialCodeStyle,
+    UsesEditorConfigProperties {
+    override val editorConfigProperties: List<EditorConfigProperty<*>> =
+        listOf(
+            INDENT_SIZE_PROPERTY,
+            INDENT_STYLE_PROPERTY,
+        )
+    private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
+
+    override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
+        indentConfig = IndentConfig(
+            indentStyle = editorConfigProperties.getEditorConfigValue(INDENT_STYLE_PROPERTY),
+            tabWidth = editorConfigProperties.getEditorConfigValue(INDENT_SIZE_PROPERTY),
+        )
+    }
+
+    override fun beforeVisitChildNodes(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+    ) {
+        if (node.elementType == IF) {
+            visitIfStatement(node, autoCorrect, emit)
+        }
+    }
+
+    private fun visitIfStatement(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+    ) {
+        val thenNode = requireNotNull(node.findChildByType(THEN)) {
+            "Can not find THEN branch in IF"
+        }
+        val elseNode = node.findChildByType(ELSE) ?: return
+        val parentIfBracing =
+            node
+                .treeParent
+                .takeIf { it.elementType == ELSE }
+                ?.treeParent
+                ?.hasBracing()
+                ?: false
+        val thenBracing = thenNode.hasBracing()
+        val elseBracing = elseNode.hasBracing()
+        if (parentIfBracing || thenBracing || elseBracing) {
+            if (!thenBracing) {
+                visitBranchWithoutBraces(thenNode, autoCorrect, emit)
+            }
+            if (!elseBracing) {
+                if (elseNode.firstChildNode?.elementType != IF) {
+                    visitBranchWithoutBraces(elseNode, autoCorrect, emit)
+                } else {
+                    // Postpone changing the else-if until that node is being processed
+                }
+            }
+        }
+    }
+
+    private fun ASTNode?.hasBracing(): Boolean =
+        when {
+            this == null -> {
+                false
+            }
+            this.elementType == BLOCK -> {
+                true
+            }
+            this.elementType == IF -> {
+                findChildByType(THEN).hasBracing() || findChildByType(ELSE).hasBracing()
+            }
+            else -> {
+                this.firstChildNode.hasBracing()
+            }
+        }
+
+    private fun visitBranchWithoutBraces(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+    ): Boolean {
+        emit(
+            node.firstChildNode.startOffset,
+            "All branches of the if statement should be wrapped between braces if at least one branch is wrapped between braces",
+            true,
+        )
+        if (autoCorrect) {
+            autocorrect(node)
+        }
+        return true
+    }
+
+    private fun autocorrect(node: ASTNode) {
+        val prevLeaves =
+            node
+                .leaves(forward = false)
+                .takeWhile { it.elementType !in listOf(RPAR, ELSE_KEYWORD) }
+                .toList()
+                .reversed()
+        val nextLeaves =
+            node
+                .leaves(forward = true)
+                .takeWhile { it.isWhiteSpaceWithoutNewline() || it.isPartOfComment() }
+                .toList()
+                .dropLastWhile { it.isWhiteSpaceWithoutNewline() }
+
+        prevLeaves
+            .firstOrNull()
+            .takeIf { it.isWhiteSpace() }
+            ?.let {
+                (it as LeafPsiElement).rawReplaceWithText(" ")
+            }
+        KtBlockExpression(null).apply {
+            val previousChild = node.firstChildNode
+            node.replaceChild(node.firstChildNode, this)
+            addChild(LeafPsiElement(LBRACE, "{"))
+            addChild(PsiWhiteSpaceImpl("\n" + node.lineIndent() + indentConfig.indent))
+            prevLeaves
+                .dropWhile { it.isWhiteSpace() }
+                .forEach(::addChild)
+            addChild(previousChild)
+            nextLeaves.forEach(::addChild)
+            addChild(PsiWhiteSpaceImpl("\n" + node.lineIndent()))
+            addChild(LeafPsiElement(RBRACE, "}"))
+        }
+
+        // Make sure else starts on same line as newly inserted right brace
+        if (node.elementType == THEN) {
+            node
+                .nextSibling { !it.isPartOfComment() }
+                ?.upsertWhitespaceBeforeMe(" ")
+        }
+    }
+}
+
+public val IF_ELSE_BRACING_RULE_ID: RuleId = IfElseBracingRule().ruleId

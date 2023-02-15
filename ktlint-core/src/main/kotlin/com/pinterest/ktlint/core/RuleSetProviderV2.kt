@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.core
 
-import com.pinterest.ktlint.core.internal.IdNamingPolicy
+import com.pinterest.ktlint.core.internal.IdNamingPolicyLegacy
 import java.io.Serializable
 
 /**
@@ -9,14 +9,13 @@ import java.io.Serializable
  * `META-INF/services/com.pinterest.ktlint.core.RuleSetProvider`
  * (see `ktlint-ruleset-standard/src/main/resources` for an example).
  */
-
+@Deprecated("Deprecated since ktlint 0.49.0. Custom rulesets have to be migrated to RuleSetProviderV3. See changelog 0.49.")
 public abstract class RuleSetProviderV2(
     public val id: String,
     public val about: About,
 ) : Serializable {
-
     init {
-        IdNamingPolicy.enforceRuleSetIdNaming(id)
+        IdNamingPolicyLegacy.enforceRuleSetIdNaming(id)
     }
 
     /**

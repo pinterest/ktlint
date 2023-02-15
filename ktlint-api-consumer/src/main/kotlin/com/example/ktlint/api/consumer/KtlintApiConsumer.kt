@@ -1,11 +1,11 @@
 package com.example.ktlint.api.consumer
 
 import com.example.ktlint.api.consumer.rules.KTLINT_API_CONSUMER_RULE_PROVIDERS
-import com.pinterest.ktlint.core.Code
-import com.pinterest.ktlint.core.KtLintRuleEngine
-import com.pinterest.ktlint.core.initKtLintKLogger
-import java.io.File
+import com.pinterest.ktlint.logger.api.initKtLintKLogger
+import com.pinterest.ktlint.rule.engine.api.Code
+import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import mu.KotlinLogging
+import java.io.File
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -15,7 +15,10 @@ public class KtlintApiConsumer {
         ruleProviders = KTLINT_API_CONSUMER_RULE_PROVIDERS,
     )
 
-    public fun run(command: String, fileName: String) {
+    public fun run(
+        command: String,
+        fileName: String,
+    ) {
         val codeFile = Code.CodeFile(
             File(fileName),
         )

@@ -4,10 +4,11 @@ plugins {
 }
 
 dependencies {
-    implementation(projects.ktlintCore)
+    implementation(projects.ktlintLogger)
     implementation(libs.logging)
 
+    api(projects.ktlintCliRulesetCore)
+    api(projects.ktlintRuleEngineCore)
+
     testImplementation(projects.ktlintTest)
-    testImplementation(libs.junit5)
-    testImplementation(libs.assertj)
 }

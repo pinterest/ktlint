@@ -1,19 +1,20 @@
 package com.pinterest.ktlint.test
 
-import com.pinterest.ktlint.core.KtLint
-import com.pinterest.ktlint.core.KtLintRuleEngine
-import com.pinterest.ktlint.core.LintError
-import com.pinterest.ktlint.core.RuleProvider
-import com.pinterest.ktlint.core.api.EditorConfigOverride
-import com.pinterest.ktlint.core.api.EditorConfigOverride.Companion.plus
-import com.pinterest.ktlint.core.api.editorconfig.RuleExecution
-import com.pinterest.ktlint.core.api.editorconfig.createRuleSetExecutionEditorConfigProperty
-import com.pinterest.ktlint.core.initKtLintKLogger
-import com.pinterest.ktlint.core.setDefaultLoggerModifier
-import com.pinterest.ruleset.test.DumpASTRule
-import java.nio.file.Paths
+import com.pinterest.ktlint.logger.api.initKtLintKLogger
+import com.pinterest.ktlint.logger.api.setDefaultLoggerModifier
+import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
+import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.plus
+import com.pinterest.ktlint.rule.engine.api.KtLint
+import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
+import com.pinterest.ktlint.rule.engine.api.LintError
+import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleSetExecutionEditorConfigProperty
+import com.pinterest.ruleset.testtooling.DumpASTRule
 import mu.KotlinLogging
 import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
+import java.nio.file.Paths
 
 private val LOGGER =
     KotlinLogging
@@ -79,7 +80,9 @@ public fun Set<RuleProvider>.lint(
         fileName = lintedFilePath,
         text = text,
         ruleProviders = this.toRuleProviders(),
-        editorConfigOverride = editorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProviders),
+        editorConfigOverride = editorConfigOverride
+            .enableExperimentalRules()
+            .extendWithRuleSetRuleExecutionsFor(ruleProviders),
         userData = userData,
         script = script,
         cb = { lintError, _ -> lintErrors.add(lintError) },
@@ -89,6 +92,14 @@ public fun Set<RuleProvider>.lint(
     return lintErrors
 }
 
+/**
+ * Execute [KtLintRuleEngine.lint] on given code snippet. To test a kotlin script file, provide a filepath ending with
+ * ".kts". For each invocation of this method, a fresh instance of the [KtLintRuleEngine] is instantiated for the given
+ * set of rules.
+ * This method is intended to be executed in a unit test environment only. If the project that is containing the unit
+ * test contains an '.editorconfig' file, then it will be ignored entirely. Provide '.editorconfig' properties that have
+ * to be applied on the code snippet via [editorConfigOverride].
+ */
 public fun Set<RuleProvider>.lint(
     text: String,
     filePath: String? = null,
@@ -98,7 +109,12 @@ public fun Set<RuleProvider>.lint(
     val ruleProviders = toRuleProviders()
     KtLintRuleEngine(
         ruleProviders = ruleProviders,
-        editorConfigOverride = editorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProviders),
+        editorConfigOverride = editorConfigOverride
+            .enableExperimentalRules()
+            .extendWithRuleSetRuleExecutionsFor(ruleProviders),
+        // The unit test itself has to obey with the ktlint configuration in the '.editorconfig' file. The code snippets
+        // inside the unit may not be affected by the '.editorconfig' configuration of the ktlint project itself.
+        ignoreEditorConfigOnFileSystem = true,
     ).lint(
         code = text,
         filePath = filePath?.let { Paths.get(filePath) },
@@ -113,8 +129,7 @@ public fun Set<RuleProvider>.lint(
 private fun EditorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProviders: Set<RuleProvider>): EditorConfigOverride {
     val ruleSetRuleExecutions = ruleProviders
         .asSequence()
-        .map { it.createNewRuleInstance().id }
-        .map { ruleId -> createRuleSetExecutionEditorConfigProperty(ruleId) }
+        .map { it.createNewRuleInstance().ruleId.ruleSetId.createRuleSetExecutionEditorConfigProperty() }
         .distinct()
         .filter { editorConfigProperty -> this.properties[editorConfigProperty] == null }
         .map { it to RuleExecution.enabled }
@@ -122,6 +137,9 @@ private fun EditorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProvider
         .toTypedArray()
     return this.plus(*ruleSetRuleExecutions)
 }
+
+private fun EditorConfigOverride.enableExperimentalRules(): EditorConfigOverride =
+    plus(EXPERIMENTAL_RULES_EXECUTION_PROPERTY to RuleExecution.enabled)
 
 @Deprecated(
     message = "Marked for removal in KtLint 0.49",
@@ -141,7 +159,9 @@ public fun Set<RuleProvider>.format(
         fileName = lintedFilePath,
         text = text,
         ruleProviders = ruleProviders,
-        editorConfigOverride = editorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProviders),
+        editorConfigOverride = editorConfigOverride
+            .enableExperimentalRules()
+            .extendWithRuleSetRuleExecutionsFor(ruleProviders),
         userData = userData,
         script = script,
         cb = { lintError, _ -> lintErrors.add(lintError) },
@@ -151,6 +171,14 @@ public fun Set<RuleProvider>.format(
     return Pair(formattedCode, lintErrors)
 }
 
+/**
+ * Execute [KtLintRuleEngine.format] on given code snippet. To test a kotlin script file, provide a filepath ending with
+ * ".kts". For each invocation of this method, a fresh instance of the [KtLintRuleEngine] is instantiated for the given
+ * set of rules.
+ * This method is intended to be executed in a unit test environment only. If the project that is containing the unit
+ * test contains an '.editorconfig' file, then it will be ignored entirely. Provide '.editorconfig' properties that have
+ * to be applied on the code snippet via [editorConfigOverride].
+ */
 public fun Set<RuleProvider>.format(
     text: String,
     filePath: String?,
@@ -161,7 +189,12 @@ public fun Set<RuleProvider>.format(
     val formattedCode =
         KtLintRuleEngine(
             ruleProviders = ruleProviders,
-            editorConfigOverride = editorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProviders),
+            editorConfigOverride = editorConfigOverride
+                .enableExperimentalRules()
+                .extendWithRuleSetRuleExecutionsFor(ruleProviders),
+            // The unit test itself has to obey with the ktlint configuration in the '.editorconfig' file. The code snippets
+            // inside the unit may not be affected by the '.editorconfig' configuration of the ktlint project itself.
+            ignoreEditorConfigOnFileSystem = true,
         ).format(
             code = text,
             filePath = filePath?.let { Paths.get(filePath) },

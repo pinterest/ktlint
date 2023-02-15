@@ -8,7 +8,12 @@ import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.stubs.elements.KtFileElementType
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
-@Suppress("unused")
+// TODO: Might be removed in 0.49 if breaking changes are stacking
+@Deprecated(
+    message = "Marked for removal in KtLint 0.50. For now kept for backward compatibility with custom rulesets compiled with Ktlint " +
+        "0.48 or before",
+    replaceWith = ReplaceWith("ElementType", "com.pinterest.ktlint.ruleset.core.api"),
+)
 public object ElementType {
     public val FILE: IElementType = KtFileElementType.INSTANCE
 

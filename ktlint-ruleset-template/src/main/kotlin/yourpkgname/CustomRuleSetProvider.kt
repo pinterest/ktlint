@@ -1,21 +1,13 @@
 package yourpkgname
 
-import com.pinterest.ktlint.core.RuleProvider
-import com.pinterest.ktlint.core.RuleSetProviderV2
+import com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3
+import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 
 internal val CUSTOM_RULE_SET_ID = "custom-rule-set-id"
 
 public class CustomRuleSetProvider :
-    RuleSetProviderV2(
-        id = CUSTOM_RULE_SET_ID,
-        about = About(
-            maintainer = "KtLint",
-            description = "Example of a custom rule set",
-            license = "https://github.com/pinterest/ktlint/blob/master/LICENSE",
-            repositoryUrl = "https://github.com/pinterest/ktlint",
-            issueTrackerUrl = "https://github.com/pinterest/ktlint/issues",
-        ),
-    ) {
+    RuleSetProviderV3(RuleSetId(CUSTOM_RULE_SET_ID)) {
     override fun getRuleProviders(): Set<RuleProvider> =
         setOf(
             RuleProvider { NoVarRule() },
