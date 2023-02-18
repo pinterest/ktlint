@@ -191,7 +191,7 @@ By default, the maximum line length is not set. The `android` code style sets th
 
 ```ini
 [*.{kt,kts}]
-max_line_length = -1 # Use "off" (or -1) to ignore max line length or a positive number to set max line length
+max_line_length = off # Use "off" to ignore max line length or a positive number to set max line length
 ```
 
 This setting is used by multiple rules of which rule `max-line-length` is the most important.
