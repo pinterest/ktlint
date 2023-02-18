@@ -3,13 +3,11 @@ package com.pinterest.ktlint.rule.engine.internal
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
-import com.pinterest.ktlint.rule.engine.core.api.EditorConfigProperties
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.UsesEditorConfigProperties
 import org.assertj.core.api.Assertions.assertThat
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -72,6 +70,7 @@ internal class EditorConfigLoaderTest {
             .containsExactlyInAnyOrder(
                 "indent_size = 2",
                 "tab_width = 2",
+                "end_of_line = lf",
             )
     }
 
@@ -115,27 +114,30 @@ internal class EditorConfigLoaderTest {
         val lintFileSubdirectory = fileSystemMock.normalizedPath(project1Subdirectory).resolve("test.kt")
         var editorConfigProperties = editorConfigLoader.load(lintFileSubdirectory, rules = rules)
 
-        assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
-            "indent_size = 2",
-            "tab_width = 2",
-            "indent_style = space",
-        )
+        assertThat(editorConfigProperties.convertToPropertyValues())
+            .containsExactlyInAnyOrder(
+                "indent_size = 2",
+                "tab_width = 2",
+                "indent_style = space",
+                "end_of_line = lf",
+            )
 
         val lintFileMainDir = fileSystemMock.normalizedPath(project1Dir).resolve("test.kts")
         editorConfigProperties = editorConfigLoader.load(lintFileMainDir, rules = rules)
 
-        assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
-            "indent_size = 4",
-            "tab_width = 4",
-            "indent_style = space",
-        )
+        assertThat(editorConfigProperties.convertToPropertyValues())
+            .containsExactlyInAnyOrder(
+                "indent_size = 4",
+                "tab_width = 4",
+                "indent_style = space",
+                "end_of_line = lf",
+            )
 
         val lintFileRoot = fileSystemMock.normalizedPath(rootDir).resolve("test.kt")
         editorConfigProperties = editorConfigLoader.load(lintFileRoot, rules = rules)
 
-        assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
-            "end_of_line = lf",
-        )
+        assertThat(editorConfigProperties.convertToPropertyValues())
+            .containsExactlyInAnyOrder("end_of_line = lf")
     }
 
     @Test
@@ -156,12 +158,14 @@ internal class EditorConfigLoaderTest {
         val lintFile = fileSystemMock.normalizedPath(projectDir).resolve("test.kt")
         val editorConfigProperties = editorConfigLoader.load(lintFile, rules = rules)
 
-        assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
-            "insert_final_newline = true",
-            "disabled_rules = import-ordering",
-            "ktlint_disabled_rules = import-ordering",
-            "ktlint_standard_import-ordering = disabled",
-        )
+        assertThat(editorConfigProperties.convertToPropertyValues())
+            .containsExactlyInAnyOrder(
+                "insert_final_newline = true",
+                "disabled_rules = import-ordering",
+                "ktlint_disabled_rules = import-ordering",
+                "ktlint_standard_import-ordering = disabled",
+                "end_of_line = lf",
+            )
     }
 
     @Test
@@ -179,10 +183,12 @@ internal class EditorConfigLoaderTest {
         val lintFile = fileSystemMock.normalizedPath(projectDir).resolve("test.kt")
         val editorConfigProperties = editorConfigLoader.load(lintFile, rules = rules)
 
-        assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
-            "indent_size = unset",
-            "tab_width = unset",
-        )
+        assertThat(editorConfigProperties.convertToPropertyValues())
+            .containsExactlyInAnyOrder(
+                "indent_size = unset",
+                "tab_width = unset",
+                "end_of_line = lf",
+            )
     }
 
     @Test
@@ -201,10 +207,12 @@ internal class EditorConfigLoaderTest {
 
         val editorConfigProperties = editorConfigLoader.load(lintFile, rules = rules)
 
-        assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
-            "disabled_rules = import-ordering, no-wildcard-imports",
-            "ktlint_disabled_rules = import-ordering, no-wildcard-imports",
-        )
+        assertThat(editorConfigProperties.convertToPropertyValues())
+            .containsExactlyInAnyOrder(
+                "disabled_rules = import-ordering, no-wildcard-imports",
+                "ktlint_disabled_rules = import-ordering, no-wildcard-imports",
+                "end_of_line = lf",
+            )
     }
 
     @Test
@@ -215,9 +223,11 @@ internal class EditorConfigLoaderTest {
             editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to "true"),
         )
 
-        assertThat(parsedEditorConfig.convertToPropertyValues()).containsExactlyInAnyOrder(
-            "insert_final_newline = true",
-        )
+        assertThat(parsedEditorConfig.convertToPropertyValues())
+            .containsExactlyInAnyOrder(
+                "insert_final_newline = true",
+                "end_of_line = lf",
+            )
     }
 
     @Test
@@ -228,9 +238,11 @@ internal class EditorConfigLoaderTest {
             editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to "true"),
         )
 
-        assertThat(parsedEditorConfig.convertToPropertyValues()).containsExactlyInAnyOrder(
-            "insert_final_newline = true",
-        )
+        assertThat(parsedEditorConfig.convertToPropertyValues())
+            .containsExactlyInAnyOrder(
+                "insert_final_newline = true",
+                "end_of_line = lf",
+            )
     }
 
     @Test
@@ -258,6 +270,7 @@ internal class EditorConfigLoaderTest {
                 "disabled_rules = import-ordering",
                 "ktlint_disabled_rules = import-ordering",
                 "ktlint_standard_import-ordering = disabled",
+                "end_of_line = lf",
             )
     }
 
@@ -304,6 +317,7 @@ internal class EditorConfigLoaderTest {
                 "indent_style = space",
                 "indent_size = 2",
                 "tab_width = 2",
+                "end_of_line = lf",
             )
     }
 
@@ -326,11 +340,12 @@ internal class EditorConfigLoaderTest {
             editorConfigOverride = EditorConfigOverride.from(INDENT_SIZE_PROPERTY to 2),
         )
 
-        assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
-            "end_of_line = lf",
-            "indent_size = 2",
-            "tab_width = 2",
-        )
+        assertThat(editorConfigProperties.convertToPropertyValues())
+            .containsExactlyInAnyOrder(
+                "end_of_line = lf",
+                "indent_size = 2",
+                "tab_width = 2",
+            )
     }
 
     @Test
@@ -357,12 +372,14 @@ internal class EditorConfigLoaderTest {
 
         val editorConfigProperties = editorConfigLoader.load(lintFile, rules = rules)
 
-        assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
-            "insert_final_newline = true",
-            "disabled_rules = class-must-be-internal",
-            "ktlint_disabled_rules = class-must-be-internal",
-            "ktlint_standard_import-ordering = disabled",
-        )
+        assertThat(editorConfigProperties.convertToPropertyValues())
+            .containsExactlyInAnyOrder(
+                "insert_final_newline = true",
+                "disabled_rules = class-must-be-internal",
+                "ktlint_disabled_rules = class-must-be-internal",
+                "ktlint_standard_import-ordering = disabled",
+                "end_of_line = lf",
+            )
     }
 
     @Test
@@ -388,13 +405,15 @@ internal class EditorConfigLoaderTest {
             editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to "true"),
         )
 
-        assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
-            "disabled_rules = import-ordering, no-wildcard-imports",
-            "ktlint_standard_import-ordering = disabled",
-            "ktlint_standard_no-wildcard-imports = disabled",
-            "ktlint_disabled_rules = import-ordering, no-wildcard-imports",
-            "insert_final_newline = true",
-        )
+        assertThat(editorConfigProperties.convertToPropertyValues())
+            .containsExactlyInAnyOrder(
+                "disabled_rules = import-ordering, no-wildcard-imports",
+                "ktlint_standard_import-ordering = disabled",
+                "ktlint_standard_no-wildcard-imports = disabled",
+                "ktlint_disabled_rules = import-ordering, no-wildcard-imports",
+                "insert_final_newline = true",
+                "end_of_line = lf",
+            )
     }
 
     @Test
@@ -417,9 +436,11 @@ internal class EditorConfigLoaderTest {
             editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to "false"),
         )
 
-        assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
-            "insert_final_newline = false",
-        )
+        assertThat(editorConfigProperties.convertToPropertyValues())
+            .containsExactlyInAnyOrder(
+                "insert_final_newline = false",
+                "end_of_line = lf",
+            )
     }
 
     private fun FileSystem.normalizedPath(path: String): Path {
@@ -435,29 +456,21 @@ internal class EditorConfigLoaderTest {
         Files.write(normalizedPath("$filePath/.editorconfig"), content.toByteArray())
     }
 
-    private fun EditorConfigProperties.convertToPropertyValues(): List<String> {
-        return if (isEmpty()) {
-            emptyList()
-        } else {
-            map {
-                val value = if (it.value.isUnset) {
-                    "unset"
-                } else {
-                    it.value.sourceValue
-                }
-                "${it.key} = $value"
+    private fun EditorConfig.convertToPropertyValues(): Collection<String> =
+        map {
+            val value = if (it.isUnset) {
+                "unset"
+            } else {
+                it.sourceValue
             }
+            "${it.name} = $value"
         }
-    }
 
     private class TestRule :
         Rule(
             ruleId = RuleId("test:editorconfig"),
             about = About(),
-        ),
-        UsesEditorConfigProperties {
-        override val editorConfigProperties: List<EditorConfigProperty<*>> = emptyList()
-
+        ) {
         override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,

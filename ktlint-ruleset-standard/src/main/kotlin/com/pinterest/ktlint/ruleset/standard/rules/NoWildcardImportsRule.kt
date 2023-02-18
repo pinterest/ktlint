@@ -1,10 +1,9 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.EditorConfigProperties
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IMPORT_DIRECTIVE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.UsesEditorConfigProperties
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.internal.importordering.PatternEntry
 import org.ec4j.core.model.PropertyType
@@ -12,16 +11,16 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.psi.KtImportDirective
 
 public class NoWildcardImportsRule :
-    StandardRule("no-wildcard-imports"),
-    UsesEditorConfigProperties {
-    override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
-        IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND,
-    )
-
+    StandardRule(
+        id = "no-wildcard-imports",
+        usesEditorConfigProperties = setOf(
+            IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND,
+        ),
+    ) {
     private lateinit var allowedWildcardImports: List<PatternEntry>
 
-    override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
-        allowedWildcardImports = editorConfigProperties.getEditorConfigValue(IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND)
+    override fun beforeFirstNode(editorConfig: EditorConfig) {
+        allowedWildcardImports = editorConfig[IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND]
     }
 
     override fun beforeVisitChildNodes(

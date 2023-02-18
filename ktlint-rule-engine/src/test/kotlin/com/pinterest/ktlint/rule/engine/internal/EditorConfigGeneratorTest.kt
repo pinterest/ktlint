@@ -6,7 +6,6 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.UsesEditorConfigProperties
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -67,17 +66,17 @@ internal class EditorConfigGeneratorTest {
         val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
             filePath = tempFileSystem.normalizedPath(rootDir).resolve("test.kt"),
             rules = setOf(
-                object : TestRule(RuleId("test:rule-two")), UsesEditorConfigProperties {
-                    override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
+                object : TestRule(
+                    ruleId = RuleId("test:rule-two"),
+                    usesEditorConfigProperties = setOf(
                         EDITOR_CONFIG_PROPERTY_2,
                         EDITOR_CONFIG_PROPERTY_1,
-                    )
-                },
-                object : TestRule(RuleId("test:rule-two")), UsesEditorConfigProperties {
-                    override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
-                        EDITOR_CONFIG_PROPERTY_1,
-                    )
-                },
+                    ),
+                ) {},
+                object : TestRule(
+                    ruleId = RuleId("test:rule-two"),
+                    usesEditorConfigProperties = setOf(EDITOR_CONFIG_PROPERTY_1),
+                ) {},
             ),
             codeStyle = CodeStyleValue.intellij_idea,
         )
@@ -85,31 +84,6 @@ internal class EditorConfigGeneratorTest {
         assertThat(generatedEditorConfig.lines()).contains(
             "$PROPERTY_1_NAME = $PROPERTY_1_DEFAULT_VALUE",
             "$PROPERTY_2_NAME = $PROPERTY_2_DEFAULT_VALUE",
-        )
-    }
-
-    @Test
-    fun `Given distinct rules that use the same property with different default values then the distinct values should be written to the editorconfig file`() {
-        val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
-            filePath = tempFileSystem.normalizedPath(rootDir).resolve("test.kt"),
-            rules = setOf(
-                object : TestRule(RuleId("test:test-rule-two")), UsesEditorConfigProperties {
-                    override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
-                        EDITOR_CONFIG_PROPERTY_3_WITH_DEFAULT_VALUE_A,
-                    )
-                },
-                object : TestRule(RuleId("test:test-rule-two")), UsesEditorConfigProperties {
-                    override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
-                        EDITOR_CONFIG_PROPERTY_3_WITH_DEFAULT_VALUE_B,
-                    )
-                },
-            ),
-            codeStyle = CodeStyleValue.intellij_idea,
-        )
-
-        assertThat(generatedEditorConfig.lines()).contains(
-            "$PROPERTY_3_NAME = $PROPERTY_3_VALUE_A",
-            "$PROPERTY_3_NAME = $PROPERTY_3_VALUE_B",
         )
     }
 
@@ -178,15 +152,20 @@ internal class EditorConfigGeneratorTest {
         return getPath("$root$path")
     }
 
-    private class TestRule1 : TestRule(RuleId("test:test-rule-one")), UsesEditorConfigProperties {
-        override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
+    private class TestRule1 : TestRule(
+        ruleId = RuleId("test:test-rule-one"),
+        usesEditorConfigProperties = setOf(
             EDITOR_CONFIG_PROPERTY_2,
             EDITOR_CONFIG_PROPERTY_1,
-        )
-    }
+        ),
+    )
 
-    private open class TestRule(ruleId: RuleId) : Rule(
+    private open class TestRule(
+        ruleId: RuleId,
+        override val usesEditorConfigProperties: Set<EditorConfigProperty<*>>,
+    ) : Rule(
         ruleId = ruleId,
+        usesEditorConfigProperties = usesEditorConfigProperties,
         about = About(),
     ) {
         override fun beforeVisitChildNodes(

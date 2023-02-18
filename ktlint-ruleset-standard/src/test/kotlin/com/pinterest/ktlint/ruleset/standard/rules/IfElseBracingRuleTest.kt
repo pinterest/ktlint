@@ -21,7 +21,7 @@ class IfElseBracingRuleTest {
         mode = EnumSource.Mode.EXCLUDE,
         names = ["ktlint_official"],
     )
-    fun `Given another code style then ktlint_official and IF with inconsistent bracing of the branches`(enumValue: CodeStyleValue) {
+    fun `Given another code style then ktlint_official and IF with inconsistent bracing of the branches`(codeStyle: CodeStyleValue) {
         val code =
             """
                 fun foo() {
@@ -30,7 +30,9 @@ class IfElseBracingRuleTest {
                     } else doSomethingElse()
                 }
             """.trimIndent()
-        multiLineIfElseRuleAssertThat(code).hasNoLintViolations()
+        multiLineIfElseRuleAssertThat(code)
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyle)
+            .hasNoLintViolations()
     }
 
     @ParameterizedTest(name = "CodeStyleValue: {0}")

@@ -4,22 +4,6 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
-### Added
-
-### Removed
-
-### Fixed
-
-* Do not report an "unnecessary semicolon" after adding a trailing comma to an enum class containing a code element after the last enum entry `trailing-comma-on-declaration-site` ([#1786](https://github.com/pinterest/ktlint/issues/1786))
-
-### Changed
-
-* Disable the default patterns if the option `--patterns-from-stdin` is specified ([#1793](https://github.com/pinterest/ktlint/issues/1793))
-* Update Kotlin development version to `1.8.20-Beta` and Kotlin version to `1.8.10`.
-* Revert to matrix build to speed up build, especially for the Windows related build ([#1786](https://github.com/pinterest/ktlint/pull/1787))
-
-## [0.48.2] - 2023-01-21
-
 WARNING: This version on KtLint contains a number of breaking changes in KtLint CLI and KtLint API. If you are using KtLint with custom ruleset jars or custom reporter jars, then those need to be upgrade before you can use them with this version of ktlint. Please contact the maintainers of those jars and ask them to upgrade a.s.a.p.
 
 All rule id's in the output of Ktlint are now prefixed with a rule set. Although KtLint currently supports standard rules to be unqualified, users are encouraged to migrate to include the rule set id in all references to rules. This includes following:
@@ -71,9 +55,8 @@ Classes below have been moved to the new module `ktlint-rule-engine`:
 | Old class/package name in `ktlint-core`                  | New class/package name in `ktlint-rule-engine-core`                               |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------|
 | com.pinterest.ktlint.core.api.editorconfig               | com.pinterest.ktlint.rule.engine.core.api.editorconfig                            |
-| com.pinterest.ktlint.core.api.EditorConfigProperties     | com.pinterest.ktlint.rule.engine.core.api.EditorConfigProperties                  |
+| com.pinterest.ktlint.core.api.EditorConfigProperties     | com.pinterest.ktlint.rule.engine.core.api.EditorConfig                            |
 | com.pinterest.ktlint.core.api.OptInFeatures              | com.pinterest.ktlint.rule.engine.core.api.OptInFeatures                           |
-| com.pinterest.ktlint.core.api.UsesEditorConfigProperties | com.pinterest.ktlint.rule.engine.core.api.editorconfig.UsesEditorConfigProperties |
 | com.pinterest.ktlint.core.ast.ElementType                | com.pinterest.ktlint.rule.engine.core.api.ElementType                             |
 | com.pinterest.ktlint.core.ast.package                    | com.pinterest.ktlint.rule.engine.core.api.ASTNodeExtension                        |
 | com.pinterest.ktlint.core.IndentConfig                   | com.pinterest.ktlint.rule.engine.core.api.IndentConfig                            |
@@ -175,6 +158,23 @@ The rule id's in `com.pinterest.ktlint.ruleset.core.api.Rule` have been changed 
 
 When wrapping a rule from the ktlint project and modifying its behavior, please change the `ruleId` and `about` fields in the wrapped rule, so that it is clear to users whenever they use the original rule provided by KtLint versus a modified version which is not maintained by the KtLint project.
 
+The typealias `com.pinterest.ktlint.core.api.EditorConfigProperties` has been replaced with `com.pinterest.ktlint.rule.engine.core.api.EditorConfig`. The interface `com.pinterest.ktlint.core.api.UsesEditorConfigProperties` has been removed. Instead, the Rule property `usesEditorConfigProperties` needs to be set. As a result of those changes, the `beforeFirstNode` function in each rule has to changed to something like below: 
+
+```kotlin
+public class SomeRule : Rule(
+  ruleId = RuleId("some-rule-set:some-rule"),
+  usesEditorConfigProperties = setOf(MY_EDITOR_CONFIG_PROPERTY),
+) {
+  private lateinit var myEditorConfigProperty: MyEditorConfigProperty
+
+  override fun beforeFirstNode(editorConfig: EditorConfig) {
+    myEditorConfigProperty = editorConfig[MY_EDITOR_CONFIG_PROPERTY]
+  }
+  
+  ...
+}
+```
+
 #### Custom Reporter Provider `ReporterProvider`
 
 Custom Reporters build for older versions of KtLint are no longer supported by this version of KtLint. The `com.pinterest.ktlint.core.ReporterProvider` interface has been replaced with `com.pinterest.ktlint.cli.reporter.core.api.ReporterProviderV2`. The accompanying interface `com.pinterest.ktlint.core.Reporter` has been replaced with `com.pinterest.ktlint.cli.reporter.core.api.ReporterV2`.
@@ -189,9 +189,26 @@ API Consumers provide a set of rules directly to the Ktlint Rule Engine. The `co
 
 The type of the rule id's has been changed from type `String` to `RuleId`. A `RuleId` has a value that must adhere the convention "`rule-set-id`:`rule-id`". Rule set id `standard` is reserved for rules which are maintained by the KtLint project. Custom rules created by the API Consumer should use a prefix other than `standard` to clearly mark the origin of rules which are not maintained by the KtLint project.
 
-Also, the field `About` has been added. This field specifies the name of the maintainer, and the repository url and issue tracker url of the rule. 
+Also, the field `About` has been added. This field specifies the name of the maintainer, and the repository url and issue tracker url of the rule.
 
 When wrapping a rule from the ktlint project and modifying its behavior, please change the `ruleId` and `about` fields in the wrapped rule, so that it is clear to users whenever they use the original rule provided by KtLint versus a modified version which is not maintained by the KtLint project.
+
+The typealias `com.pinterest.ktlint.core.api.EditorConfigProperties` has been replaced with `com.pinterest.ktlint.rule.engine.core.api.EditorConfig`. The interface `com.pinterest.ktlint.core.api.UsesEditorConfigProperties` has been removed. Instead, the Rule property `usesEditorConfigProperties` needs to be set. As a result of those changes, the `beforeFirstNode` function in each rule has to changed to something like below:
+
+```kotlin
+public class SomeRule : Rule(
+  ruleId = RuleId("some-rule-set:some-rule"),
+  usesEditorConfigProperties = setOf(MY_EDITOR_CONFIG_PROPERTY),
+) {
+  private lateinit var myEditorConfigProperty: MyEditorConfigProperty
+
+  override fun beforeFirstNode(editorConfig: EditorConfig) {
+    myEditorConfigProperty = editorConfig[MY_EDITOR_CONFIG_PROPERTY]
+  }
+  
+  ...
+}
+```
 
 Like before, the API Consumer can still offer a mix of rules originating from `ktlint-ruleset-standard` as well as custom rules.
 
@@ -215,6 +232,7 @@ Like before, the API Consumer can still offer a mix of rules originating from `k
 * Do not throw exception when enum class does not contain entries `trailing-comma-on-declaration-site` ([#1711](https://github.com/pinterest/ktlint/issues/1711))
 * Fix continuation indent for a dot qualified array access expression in `ktlint_official` code style only `indent` ([#1540](https://github.com/pinterest/ktlint/issues/1540)).
 * When generating the `.editorconfig` use value `off` for the `max_line_length` property instead of value `-1` to denote that lines are not restricted to a maximum length ([#1824](https://github.com/pinterest/ktlint/issues/1824)).
+* Do not report an "unnecessary semicolon" after adding a trailing comma to an enum class containing a code element after the last enum entry `trailing-comma-on-declaration-site` ([#1786](https://github.com/pinterest/ktlint/issues/1786))
 
 ### Changed
 * Wrap the parameters of a function literal containing a multiline parameter list (only in `ktlint_official` code style) `parameter-list-wrapping` ([#1681](https://github.com/pinterest/ktlint/issues/1681)).
@@ -224,8 +242,11 @@ Like before, the API Consumer can still offer a mix of rules originating from `k
   - A custom ruleset jar is to be loaded and that jar does not contain the required RuleSetProviderV3.
   - A custom reporter jar is to be loaded and that jar contains a deprecated ReporterProvider.
   - A custom reporter jar is to be loaded and that jar does not contain the required ReporterProviderV2.
+* Disable the default patterns if the option `--patterns-from-stdin` is specified ([#1793](https://github.com/pinterest/ktlint/issues/1793))
+* Update Kotlin development version to `1.8.20-Beta` and Kotlin version to `1.8.10`.
+* Revert to matrix build to speed up build, especially for the Windows related build ([#1787](https://github.com/pinterest/ktlint/pull/1787))
 
-## [0.48.2] - Unreleased
+## [0.48.2] - 2023-01-21
 
 ### Additional clarification on API Changes in `0.48.0` and `0.48.1`
 

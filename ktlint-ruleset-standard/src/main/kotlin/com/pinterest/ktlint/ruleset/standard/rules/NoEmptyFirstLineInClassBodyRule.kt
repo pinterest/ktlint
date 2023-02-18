@@ -1,14 +1,12 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.EditorConfigProperties
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.UsesEditorConfigProperties
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.lineIndent
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -17,21 +15,21 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 public class NoEmptyFirstLineInClassBodyRule :
-    StandardRule("no-empty-first-line-in-class-body"),
-    Rule.Experimental,
-    Rule.OfficialCodeStyle,
-    UsesEditorConfigProperties {
-    override val editorConfigProperties: List<EditorConfigProperty<*>> =
-        listOf(
+    StandardRule(
+        id = "no-empty-first-line-in-class-body",
+        usesEditorConfigProperties = setOf(
             INDENT_SIZE_PROPERTY,
             INDENT_STYLE_PROPERTY,
-        )
+        ),
+    ),
+    Rule.Experimental,
+    Rule.OfficialCodeStyle {
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 
-    override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
+    override fun beforeFirstNode(editorConfig: EditorConfig) {
         indentConfig = IndentConfig(
-            indentStyle = editorConfigProperties.getEditorConfigValue(INDENT_STYLE_PROPERTY),
-            tabWidth = editorConfigProperties.getEditorConfigValue(INDENT_SIZE_PROPERTY),
+            indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
+            tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
         )
     }
 

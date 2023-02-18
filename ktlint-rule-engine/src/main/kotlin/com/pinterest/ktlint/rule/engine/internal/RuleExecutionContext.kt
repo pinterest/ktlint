@@ -7,8 +7,8 @@ import com.pinterest.ktlint.rule.engine.api.KtLintParseException
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine.Companion.UTF8_BOM
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
-import com.pinterest.ktlint.rule.engine.core.api.EditorConfigProperties
 import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import mu.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
@@ -25,7 +25,7 @@ internal class RuleExecutionContext private constructor(
     val code: Code,
     val rootNode: FileASTNode,
     val ruleRunners: Set<RuleRunner>,
-    val editorConfigProperties: EditorConfigProperties,
+    val editorConfig: EditorConfig,
     val positionInTextLocator: (offset: Int) -> LineAndColumn,
 ) {
     private lateinit var suppressionLocator: SuppressionLocator
@@ -46,7 +46,12 @@ internal class RuleExecutionContext private constructor(
     ) {
         try {
             rule.startTraversalOfAST()
-            rule.beforeFirstNode(editorConfigProperties)
+            rule.beforeFirstNode(
+                // The rule get access to an EditConfig which is filtered by the properties which are actually registered as being used by
+                // the rule. In this way it can be forced that the rule actually registers the properties that it uses and the field becomes
+                // reliable to be used by for example the ".editorconfig" file generator.
+                editorConfig.filterBy(rule.usesEditorConfigProperties),
+            )
             this.executeRuleOnNodeRecursively(rootNode, rule, fqRuleId, autoCorrect, emit)
             rule.afterLastNode()
         } catch (e: RuleExecutionException) {
@@ -217,7 +222,7 @@ internal class RuleExecutionContext private constructor(
     }
 }
 
-private fun EditorConfigProperties.warnIfPropertyIsObsolete(
+private fun EditorConfig.warnIfPropertyIsObsolete(
     propertyName: String,
     ktlintVersion: String,
 ) {

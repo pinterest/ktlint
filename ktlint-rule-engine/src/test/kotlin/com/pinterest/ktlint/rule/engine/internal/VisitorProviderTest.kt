@@ -3,6 +3,7 @@ package com.pinterest.ktlint.rule.engine.internal
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RULE_EXECUTION_PROPERTY_TYPE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
@@ -36,7 +37,7 @@ class VisitorProviderTest {
                 RuleProvider { NormalRule(STANDARD_RULE_A) },
                 RuleProvider { NormalRule(STANDARD_RULE_B) },
                 RuleProvider { NormalRule(STANDARD_RULE_C) },
-                editorConfigProperties = mapOf(
+                editorConfig = EditorConfig(
                     ktLintRuleExecutionEditorConfigProperty("ktlint_$STANDARD", RuleExecution.enabled),
                     ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_C, RuleExecution.disabled),
                 ),
@@ -55,7 +56,7 @@ class VisitorProviderTest {
                 RuleProvider { ExperimentalRule(STANDARD_RULE_B) },
                 RuleProvider { NormalRule(STANDARD_RULE_C) },
                 RuleProvider { NormalRule(STANDARD_RULE_D) },
-                editorConfigProperties = mapOf(
+                editorConfig = EditorConfig(
                     ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_C, RuleExecution.disabled),
                 ),
             )
@@ -72,7 +73,7 @@ class VisitorProviderTest {
                 RuleProvider { NormalRule(STANDARD_RULE_A) },
                 RuleProvider { NormalRule(STANDARD_RULE_B) },
                 RuleProvider { NormalRule(STANDARD_RULE_C) },
-                editorConfigProperties = mapOf(
+                editorConfig = EditorConfig(
                     ktLintRuleExecutionEditorConfigProperty("ktlint_$STANDARD", RuleExecution.disabled),
                     ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_A, RuleExecution.enabled),
                     ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_B, RuleExecution.enabled),
@@ -92,7 +93,7 @@ class VisitorProviderTest {
                 RuleProvider { ExperimentalRule(STANDARD_RULE_C) },
                 RuleProvider { ExperimentalRule(CUSTOM_RULE_B) },
                 RuleProvider { ExperimentalRule(CUSTOM_RULE_C) },
-                editorConfigProperties = mapOf(
+                editorConfig = EditorConfig(
                     ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_B, RuleExecution.enabled),
                     ktLintRuleExecutionEditorConfigProperty(CUSTOM_RULE_B, RuleExecution.enabled),
                 ),
@@ -111,7 +112,7 @@ class VisitorProviderTest {
                 RuleProvider { ExperimentalRule(STANDARD_RULE_C) },
                 RuleProvider { ExperimentalRule(CUSTOM_RULE_B) },
                 RuleProvider { ExperimentalRule(CUSTOM_RULE_C) },
-                editorConfigProperties = mapOf(
+                editorConfig = EditorConfig(
                     ktLintRuleExecutionEditorConfigProperty("ktlint_experimental", RuleExecution.disabled),
                     ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_B, RuleExecution.enabled),
                     ktLintRuleExecutionEditorConfigProperty("ktlint_$CUSTOM", RuleExecution.disabled),
@@ -132,7 +133,7 @@ class VisitorProviderTest {
                 RuleProvider { ExperimentalRule(STANDARD_RULE_C) },
                 RuleProvider { ExperimentalRule(CUSTOM_RULE_B) },
                 RuleProvider { ExperimentalRule(CUSTOM_RULE_C) },
-                editorConfigProperties = mapOf(
+                editorConfig = EditorConfig(
                     ktLintRuleExecutionEditorConfigProperty("ktlint_experimental", RuleExecution.enabled),
                     ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_C, RuleExecution.disabled),
                     ktLintRuleExecutionEditorConfigProperty("ktlint_$CUSTOM", RuleExecution.enabled),
@@ -151,7 +152,7 @@ class VisitorProviderTest {
             val actual = testVisitorProvider(
                 RuleProvider { NormalRule(STANDARD_RULE_A) },
                 RuleProvider { NormalRule(STANDARD_RULE_B) },
-                editorConfigProperties = mapOf(
+                editorConfig = EditorConfig(
                     ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_A, RuleExecution.disabled),
                     ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_B, RuleExecution.disabled),
                 ),
@@ -186,7 +187,7 @@ class VisitorProviderTest {
                         ),
                     ) {}
                 },
-                editorConfigProperties = mapOf(
+                editorConfig = EditorConfig(
                     ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_C, RuleExecution.disabled),
                 ),
             )
@@ -201,7 +202,7 @@ class VisitorProviderTest {
          */
         private fun testVisitorProvider(
             vararg ruleProviders: RuleProvider,
-            editorConfigProperties: Map<String, Property> = emptyMap(),
+            editorConfig: EditorConfig = EditorConfig(),
         ): List<Visit> =
             VisitorProvider(
                 // Creates a new VisitorProviderFactory for each unit test to prevent that tests for the exact same set of
@@ -213,40 +214,27 @@ class VisitorProviderTest {
                 recreateRuleSorter = true,
             ).run {
                 val visits = mutableListOf<Visit>()
-                visitor(
-                    editorConfigProperties,
-                ).invoke { rule, _ ->
-                    visits.add(Visit(rule.ruleId))
-                }
+                visitor(editorConfig)
+                    .invoke { rule, _ ->
+                        visits.add(Visit(rule.ruleId))
+                    }
                 visits
             }
 
         private fun ktLintRuleExecutionEditorConfigProperty(
             ktlintRuleExecutionPropertyName: String,
             ruleExecution: RuleExecution,
-        ): Pair<String, Property> =
-            ktlintRuleExecutionPropertyName
-                .let { propertyName ->
-                    propertyName to Property.builder()
-                        .name(propertyName)
-                        .type(RULE_EXECUTION_PROPERTY_TYPE)
-                        .value(ruleExecution.name)
-                        .build()
-                }
+        ) = Property
+            .builder()
+            .type(RULE_EXECUTION_PROPERTY_TYPE)
+            .name(ktlintRuleExecutionPropertyName)
+            .value(ruleExecution.name)
+            .build()
 
         private fun ktLintRuleExecutionEditorConfigProperty(
             ruleId: RuleId,
             ruleExecution: RuleExecution,
-        ): Pair<String, Property> =
-            ruleId
-                .createRuleExecutionEditorConfigProperty()
-                .let { property ->
-                    property.name to Property.builder()
-                        .name(property.name)
-                        .type(RULE_EXECUTION_PROPERTY_TYPE)
-                        .value(ruleExecution.name)
-                        .build()
-                }
+        ) = ktLintRuleExecutionEditorConfigProperty(ruleId.createRuleExecutionEditorConfigProperty().name, ruleExecution)
     }
 
     private companion object {

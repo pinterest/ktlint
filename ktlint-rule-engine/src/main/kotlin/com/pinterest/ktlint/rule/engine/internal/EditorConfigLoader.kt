@@ -5,11 +5,11 @@ import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
-import com.pinterest.ktlint.rule.engine.core.api.EditorConfigProperties
 import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.END_OF_LINE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.UsesEditorConfigProperties
 import com.pinterest.ktlint.rule.engine.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFE_EDITOR_CONFIG_CACHE
 import mu.KotlinLogging
 import org.ec4j.core.EditorConfigLoader
@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 import java.nio.file.Path
+import java.nio.file.Paths
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -42,7 +43,7 @@ public class EditorConfigLoader(
      *
      * Properties specified in [editorConfigDefaults] will be used in case the property was not found in any
      * '.editorconfig' on [filePath]. If the property is not specified in [editorConfigDefaults] then the default value
-     * as specified in the property definition [UsesEditorConfigProperties.EditorConfigProperty] is used.
+     * as specified in the property definition [EditorConfigProperty] is used.
      *
      * Properties specified in [editorConfigOverride] take precedence above any other '.editorconfig' file on [filePath]
      * or default value.
@@ -53,38 +54,48 @@ public class EditorConfigLoader(
         editorConfigDefaults: EditorConfigDefaults = EMPTY_EDITOR_CONFIG_DEFAULTS,
         editorConfigOverride: EditorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
         ignoreEditorConfigOnFileSystem: Boolean = false,
-    ): EditorConfigProperties {
-        val normalizedFilePath = filePath ?: defaultFilePath()
-        val properties: MutableMap<String, Property> =
+    ): EditorConfig {
+        val editorConfigProperties: MutableMap<String, Property> =
             if (ignoreEditorConfigOnFileSystem) {
-                mutableMapOf()
+                // The editorConfigDefaults will only be taken into account whenever the ec4j library is queried to retrieve the editor
+                // config for an extension at an existing path. This flag is supposed to be enabled while running unit tests which should
+                // not be affected by a '.editorconfig' file which exists on the filesystem where the tests are executed. For now, it is
+                // assumed that the file system does not contain such file in the root of the file system.
+                createLoaderService(rules, editorConfigDefaults)
+                    .queryProperties(Paths.get("/.kt").resource())
+                    .properties
             } else {
+                val normalizedFilePath = filePath ?: defaultFilePath()
                 createLoaderService(rules, editorConfigDefaults)
                     .queryProperties(normalizedFilePath.resource())
                     .properties
             }
-        return properties
-            .also { loaded ->
-                if (loaded[TAB_WIDTH_PROPERTY_NAME]?.sourceValue == loaded[INDENT_SIZE_PROPERTY.name]?.sourceValue &&
+        return editorConfigProperties
+            .also { properties ->
+                if (properties[TAB_WIDTH_PROPERTY_NAME]?.sourceValue == properties[INDENT_SIZE_PROPERTY.name]?.sourceValue &&
                     editorConfigOverride.properties[INDENT_SIZE_PROPERTY] != null
                 ) {
                     // The tab_width property can not be overridden via the editorConfigOverride. So if it has been
                     // set to the same value as the indent_size property then keep its value in sync with that
                     // property.
-                    loaded[TAB_WIDTH_PROPERTY_NAME] = Property
-                        .builder()
-                        .name(TAB_WIDTH_PROPERTY_NAME)
-                        .type(PropertyType.tab_width)
-                        .value(editorConfigOverride.properties[INDENT_SIZE_PROPERTY]?.source)
-                        .build()
+                    properties[TAB_WIDTH_PROPERTY_NAME] =
+                        Property
+                            .builder()
+                            .name(TAB_WIDTH_PROPERTY_NAME)
+                            .type(PropertyType.tab_width)
+                            .value(editorConfigOverride.properties[INDENT_SIZE_PROPERTY]?.source)
+                            .build()
                 }
                 editorConfigOverride
                     .properties
                     .forEach {
-                        loaded[it.key.name] = property(it.key, it.value)
+                        properties[it.key.name] = it.key.toPropertyWithValue(it.value)
                     }
-            }.also { editorConfigProperties ->
-                LOGGER.debug { editorConfigProperties.prettyPrint(filePath) }
+            }.also { properties ->
+                LOGGER.debug { properties.prettyPrint(filePath) }
+            }.let { properties ->
+                // Only add properties which are not related to rules but which are needed by the KtLint Rule Engine
+                EditorConfig(properties).addPropertiesWithDefaultValueIfMissing(END_OF_LINE_PROPERTY)
             }
     }
 
@@ -102,16 +113,6 @@ public class EditorConfigLoader(
             )
 
     private fun Path?.resource() = Resource.Resources.ofPath(this, StandardCharsets.UTF_8)
-
-    private fun property(
-        property: EditorConfigProperty<*>,
-        value: PropertyType.PropertyValue<*>,
-    ) = Property
-        .builder()
-        .name(property.name)
-        .type(property.type)
-        .value(value)
-        .build()
 
     private fun defaultFilePath() =
         fileSystem
@@ -144,12 +145,12 @@ public class EditorConfigLoader(
             .of(Version.CURRENT, propertyTypeRegistry(rules))
 
     private fun propertyTypeRegistry(rules: Set<Rule>) =
-        PropertyTypeRegistry.builder()
+        PropertyTypeRegistry
+            .builder()
             .defaults()
             .apply {
                 rules
-                    .filterIsInstance<UsesEditorConfigProperties>()
-                    .flatMap(UsesEditorConfigProperties::editorConfigProperties)
+                    .flatMap(Rule::usesEditorConfigProperties)
                     .forEach { editorConfigProperty ->
                         type(editorConfigProperty.type)
                     }

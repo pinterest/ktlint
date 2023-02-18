@@ -1,11 +1,10 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
-import com.pinterest.ktlint.rule.engine.core.api.EditorConfigProperties
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.UsesEditorConfigProperties
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.ImportOrderingRule.Companion.ASCII_PATTERN
 import com.pinterest.ktlint.ruleset.standard.rules.ImportOrderingRule.Companion.IDEA_PATTERN
@@ -39,17 +38,15 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
  * In case the custom property is not provided, the rule defaults to alphabetical order in case of "android" flag supplied, or to idea otherwise.
  */
 public class ImportOrderingRule :
-    StandardRule("import-ordering"),
-    UsesEditorConfigProperties {
-    override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
-        IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY,
-    )
-
+    StandardRule(
+        id = "import-ordering",
+        usesEditorConfigProperties = setOf(IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY),
+    ) {
     private lateinit var importsLayout: List<PatternEntry>
     private lateinit var importSorter: ImportSorter
 
-    override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
-        importsLayout = editorConfigProperties.getEditorConfigValue(IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY)
+    override fun beforeFirstNode(editorConfig: EditorConfig) {
+        importsLayout = editorConfig[IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY]
         importSorter = ImportSorter(importsLayout)
     }
 

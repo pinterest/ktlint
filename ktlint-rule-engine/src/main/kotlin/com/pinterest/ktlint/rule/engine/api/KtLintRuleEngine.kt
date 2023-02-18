@@ -12,7 +12,7 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.UsesEditorConfigProperties
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.END_OF_LINE_PROPERTY
 import com.pinterest.ktlint.rule.engine.internal.DEFAULT_EDITOR_CONFIG_PROPERTIES
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigFinder
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigGenerator
@@ -25,6 +25,8 @@ import com.pinterest.ktlint.rule.engine.internal.VisitorProvider
 import mu.KotlinLogging
 import org.ec4j.core.Resource
 import org.ec4j.core.model.PropertyType
+import org.ec4j.core.model.PropertyType.EndOfLineValue.crlf
+import org.ec4j.core.model.PropertyType.EndOfLineValue.lf
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.openapi.util.Key
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
@@ -118,8 +120,7 @@ public object KtLint {
             val editorConfigProperties =
                 getRules()
                     .asSequence()
-                    .filterIsInstance<UsesEditorConfigProperties>()
-                    .map { it.editorConfigProperties }
+                    .map { it.usesEditorConfigProperties }
                     .flatten()
                     .plus(DEFAULT_EDITOR_CONFIG_PROPERTIES)
                     .map { it.name }
@@ -437,7 +438,7 @@ public class KtLintRuleEngine(
         val errors = mutableListOf<LintError>()
 
         VisitorProvider(ruleExecutionContext.ruleRunners)
-            .visitor(ruleExecutionContext.editorConfigProperties)
+            .visitor(ruleExecutionContext.editorConfig)
             .invoke { rule, fqRuleId ->
                 ruleExecutionContext.executeRule(rule, fqRuleId, false) { offset, errorMessage, canBeAutoCorrected ->
                     val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
@@ -515,7 +516,7 @@ public class KtLintRuleEngine(
                 .toSet()
         val visitorProvider = VisitorProvider(ruleRunners)
         visitorProvider
-            .visitor(ruleExecutionContext.editorConfigProperties)
+            .visitor(ruleExecutionContext.editorConfig)
             .invoke { rule, fqRuleId ->
                 ruleExecutionContext.executeRule(rule, fqRuleId, true) { offset, errorMessage, canBeAutoCorrected ->
                     tripped = true
@@ -540,7 +541,7 @@ public class KtLintRuleEngine(
             }
         if (tripped) {
             visitorProvider
-                .visitor(ruleExecutionContext.editorConfigProperties)
+                .visitor(ruleExecutionContext.editorConfig)
                 .invoke { rule, fqRuleId ->
                     ruleExecutionContext.executeRule(
                         rule,
@@ -582,12 +583,9 @@ public class KtLintRuleEngine(
     }
 
     private fun RuleExecutionContext.determineLineSeparator(fileContent: String): String {
-        val eol =
-            editorConfigProperties["end_of_line"]
-                ?.sourceValue
+        val eol = editorConfig[END_OF_LINE_PROPERTY]
         return when {
-            eol == "native" -> System.lineSeparator()
-            eol == "crlf" || eol != "lf" && fileContent.lastIndexOf('\r') != -1 -> "\r\n"
+            eol == crlf || eol != lf && fileContent.lastIndexOf('\r') != -1 -> "\r\n"
             else -> "\n"
         }
     }

@@ -1,8 +1,7 @@
 package com.pinterest.ktlint.rule.engine.core.api.editorconfig
 
+import com.pinterest.ktlint.rule.engine.internal.toPropertyWithValue
 import org.assertj.core.api.Assertions.assertThat
-import org.ec4j.core.model.Property
-import org.ec4j.core.model.PropertyType
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
@@ -46,7 +45,7 @@ class MaxLineLengthEditorConfigPropertyTest {
             codeStyleValue: CodeStyleValue,
             expectedDefaultValue: Int,
         ) {
-            val property = maxLineLengthProperty("unset")
+            val property = MAX_LINE_LENGTH_PROPERTY.toPropertyWithValue("unset")
 
             val actual = maxLineLengthPropertyMapper(property, codeStyleValue)
 
@@ -57,7 +56,7 @@ class MaxLineLengthEditorConfigPropertyTest {
         @EnumSource(CodeStyleValue::class)
         fun `Given a valid string value then the property mapper returns the integer value`(codeStyleValue: CodeStyleValue) {
             val someValue = 123
-            val property = maxLineLengthProperty(someValue.toString())
+            val property = MAX_LINE_LENGTH_PROPERTY.toPropertyWithValue(someValue.toString())
 
             val actual = maxLineLengthPropertyMapper(property, codeStyleValue)
 
@@ -69,7 +68,7 @@ class MaxLineLengthEditorConfigPropertyTest {
         fun `Given the value 'off' then the property mapper returns -1 which is internally used to disable the max line length`(
             codeStyleValue: CodeStyleValue,
         ) {
-            val property = maxLineLengthProperty("off")
+            val property = MAX_LINE_LENGTH_PROPERTY.toPropertyWithValue("off")
 
             val actual = maxLineLengthPropertyMapper(property, codeStyleValue)
 
@@ -81,7 +80,7 @@ class MaxLineLengthEditorConfigPropertyTest {
         fun `Given an invalid value then the property mapper returns -1 which is internally used to disable the max line length`(
             codeStyleValue: CodeStyleValue,
         ) {
-            val property = maxLineLengthProperty("some-invalid-value")
+            val property = MAX_LINE_LENGTH_PROPERTY.toPropertyWithValue("some-invalid-value")
 
             val actual = maxLineLengthPropertyMapper(property, codeStyleValue)
 
@@ -105,12 +104,4 @@ class MaxLineLengthEditorConfigPropertyTest {
 
         assertThat(actual).isEqualTo(expectedOutputValue)
     }
-
-    private fun maxLineLengthProperty(value: String?): Property? =
-        Property
-            .builder()
-            .name("max_line_length")
-            .type(PropertyType.max_line_length)
-            .value(value)
-            .build()
 }

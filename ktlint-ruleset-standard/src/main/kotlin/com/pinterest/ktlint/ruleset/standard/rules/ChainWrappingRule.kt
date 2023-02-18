@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.EditorConfigProperties
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANDAND
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DIV
@@ -19,10 +18,9 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.SAFE_ACCESS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.UsesEditorConfigProperties
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
@@ -43,28 +41,25 @@ import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 
 public class ChainWrappingRule :
-    StandardRule("chain-wrapping"),
-    UsesEditorConfigProperties {
-    override val editorConfigProperties: List<EditorConfigProperty<*>> =
-        listOf(
+    StandardRule(
+        id = "chain-wrapping",
+        usesEditorConfigProperties = setOf(
             INDENT_SIZE_PROPERTY,
             INDENT_STYLE_PROPERTY,
-        )
-
+        ),
+    ) {
     private var indent: String? = null
     private val sameLineTokens = TokenSet.create(MUL, DIV, PERC, ANDAND, OROR)
     private val prefixTokens = TokenSet.create(PLUS, MINUS)
     private val nextLineTokens = TokenSet.create(DOT, SAFE_ACCESS, ELVIS)
     private val noSpaceAroundTokens = TokenSet.create(DOT, SAFE_ACCESS)
 
-    override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
-        with(editorConfigProperties) {
-            val indentConfig = IndentConfig(
-                indentStyle = getEditorConfigValue(INDENT_STYLE_PROPERTY),
-                tabWidth = getEditorConfigValue(INDENT_SIZE_PROPERTY),
-            )
-            indent = indentConfig.indent
-        }
+    override fun beforeFirstNode(editorConfig: EditorConfig) {
+        val indentConfig = IndentConfig(
+            indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
+            tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
+        )
+        indent = indentConfig.indent
     }
 
     override fun beforeVisitChildNodes(
