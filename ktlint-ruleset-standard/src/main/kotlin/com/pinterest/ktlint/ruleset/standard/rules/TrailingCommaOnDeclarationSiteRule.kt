@@ -198,34 +198,22 @@ public class TrailingCommaOnDeclarationSiteRule :
             .takeIf { psi.isEnum() }
             ?.findChildByType(ElementType.CLASS_BODY)
             ?.takeUnless {
-                // Do nothing when last two entries are on same line as no trailing comma should be inserted
-                it.lastTwoEnumEntriesAreOnSameLine()
+                it.noEnumEntries() || it.lastTwoEnumEntriesAreOnSameLine()
             }?.let { classBody ->
-                val nodeAfterTrailingCommaPosition = classBody.findNodeAfterTrailingCommaPosition()
-                node.reportAndCorrectTrailingCommaNodeBefore(
-                    inspectNode = nodeAfterTrailingCommaPosition,
-                    isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
-                    autoCorrect = autoCorrect,
-                    emit = emit,
-                )
+                classBody
+                    .findNodeAfterLastEnumEntry()
+                    ?.let { nodeAfterLastEnumEntry ->
+                        node.reportAndCorrectTrailingCommaNodeBefore(
+                            inspectNode = nodeAfterLastEnumEntry,
+                            isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
+                            autoCorrect = autoCorrect,
+                            emit = emit,
+                        )
+                    }
             }
     }
 
-    /**
-     * Determines the [ASTNode] before which the trailing comma is allowed.
-     *
-     * If the list of enumeration entries is terminated by a semicolon, that semicolon will be returned. Otherwise, the
-     * last element of the class.
-     */
-    private fun ASTNode.findNodeAfterTrailingCommaPosition(): ASTNode {
-        val lastEnumEntry = children().last { it.psi is KtEnumEntry }
-
-        val semicolonAfterLastEnumEntry = lastEnumEntry
-            .children()
-            .singleOrNull { it.elementType == ElementType.SEMICOLON }
-
-        return semicolonAfterLastEnumEntry ?: lastChildNode
-    }
+    private fun ASTNode.noEnumEntries() = children().none { it.psi is KtEnumEntry }
 
     private fun ASTNode.lastTwoEnumEntriesAreOnSameLine(): Boolean {
         val lastTwoEnumEntries =
@@ -236,6 +224,19 @@ public class TrailingCommaOnDeclarationSiteRule :
 
         return lastTwoEnumEntries.count() == 2 && noNewLineInClosedRange(lastTwoEnumEntries[0], lastTwoEnumEntries[1])
     }
+
+    /**
+     * Determines the [ASTNode] before which the trailing comma is allowed.
+     *
+     * If the list of enumeration entries is terminated by a semicolon, that semicolon will be returned. Otherwise, the
+     * last element of the class.
+     */
+    private fun ASTNode.findNodeAfterLastEnumEntry() =
+        children()
+            .lastOrNull { it.psi is KtEnumEntry }
+            ?.children()
+            ?.singleOrNull { it.elementType == ElementType.SEMICOLON }
+            ?: lastChildNode
 
     private fun ASTNode.reportAndCorrectTrailingCommaNodeBefore(
         inspectNode: ASTNode,
