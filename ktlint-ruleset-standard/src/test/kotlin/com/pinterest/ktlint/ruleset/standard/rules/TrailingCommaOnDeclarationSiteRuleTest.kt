@@ -1033,4 +1033,17 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             .hasNoLintViolationsForRuleId("no-semi")
             .isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Issue 1711 - Given an empty enum class then do not throw an exception`() {
+        val code =
+            """
+            enum class Dummy(val type: String) {
+                // empty
+            }
+            """.trimIndent()
+        trailingCommaOnDeclarationSiteRuleAssertThat(code)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
+            .hasNoLintViolations()
+    }
 }
