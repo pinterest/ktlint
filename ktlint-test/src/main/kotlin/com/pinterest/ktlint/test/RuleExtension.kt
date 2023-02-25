@@ -113,7 +113,7 @@ public fun Set<RuleProvider>.lint(
             .enableExperimentalRules()
             .extendWithRuleSetRuleExecutionsFor(ruleProviders),
         // The unit test itself has to obey with the ktlint configuration in the '.editorconfig' file. The code snippets
-        // inside the unit may not be affected by the '.editorconfig' configuration of the ktlint project itself.
+        // inside the unit test may not be affected by the '.editorconfig' configuration of the ktlint project itself.
         ignoreEditorConfigOnFileSystem = true,
     ).lint(
         code = text,
@@ -193,7 +193,7 @@ public fun Set<RuleProvider>.format(
                 .enableExperimentalRules()
                 .extendWithRuleSetRuleExecutionsFor(ruleProviders),
             // The unit test itself has to obey with the ktlint configuration in the '.editorconfig' file. The code snippets
-            // inside the unit may not be affected by the '.editorconfig' configuration of the ktlint project itself.
+            // inside the unit test may not be affected by the '.editorconfig' configuration of the ktlint project itself.
             ignoreEditorConfigOnFileSystem = true,
         ).format(
             code = text,

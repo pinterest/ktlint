@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.rule.engine.internal
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -11,6 +12,17 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.writeText
 
 class EditorConfigFinderTest {
+    private lateinit var editorConfigFinder: EditorConfigFinder
+
+    @BeforeEach
+    fun setUp() {
+        // Create a new EditorConfigFinder in each test to avoid that tests influence each other
+        editorConfigFinder =
+            EditorConfigFinder(
+                EditorConfigLoaderEc4j(emptySet()),
+            )
+    }
+
     @Nested
     inner class `Given a kotlin file in a subdirectory ` {
         @Test
@@ -22,7 +34,7 @@ class EditorConfigFinderTest {
             tempDir.createFile("$someSubDir/.editorconfig", "root=true")
             val kotlinFilePath = tempDir.createFile("$someSubDir/test.kt", "val foo = 42")
 
-            val actual = EditorConfigFinder().findEditorConfigs(kotlinFilePath)
+            val actual = editorConfigFinder.findEditorConfigs(kotlinFilePath)
 
             assertThat(actual).contains(
                 tempDir.plus("$someSubDir/.editorconfig"),
@@ -38,7 +50,7 @@ class EditorConfigFinderTest {
             tempDir.createFile("$someProjectDirectory/.editorconfig", "root=true")
             val kotlinFilePath = tempDir.createFile("$someProjectDirectory/src/main/kotlin/test.kt", "val foo = 42")
 
-            val actual = EditorConfigFinder().findEditorConfigs(kotlinFilePath)
+            val actual = editorConfigFinder.findEditorConfigs(kotlinFilePath)
 
             assertThat(actual).contains(
                 tempDir.plus("$someProjectDirectory/.editorconfig"),
@@ -55,7 +67,7 @@ class EditorConfigFinderTest {
             tempDir.createFile("$someProjectDirectory/src/main/.editorconfig", "root=false")
             val kotlinFilePath = tempDir.createFile("$someProjectDirectory/src/main/kotlin/test.kt", "val foo = 42")
 
-            val actual = EditorConfigFinder().findEditorConfigs(kotlinFilePath)
+            val actual = editorConfigFinder.findEditorConfigs(kotlinFilePath)
 
             assertThat(actual).contains(
                 tempDir.plus("$someProjectDirectory/.editorconfig"),
@@ -74,7 +86,7 @@ class EditorConfigFinderTest {
             tempDir.createFile("$someProjectDirectory/.editorconfig", "root=true")
             val kotlinFilePath = tempDir.createFile("$someProjectDirectory/src/main/kotlin/test.kt", "val foo = 42")
 
-            val actual = EditorConfigFinder().findEditorConfigs(kotlinFilePath)
+            val actual = editorConfigFinder.findEditorConfigs(kotlinFilePath)
 
             assertThat(actual)
                 .contains(
@@ -97,7 +109,7 @@ class EditorConfigFinderTest {
             tempDir.createFile("$someDirectory/.editorconfig", "root=true")
             tempDir.createFile("$someDirectory/src/main/kotlin/.editorconfig", "some-property=some-value")
 
-            val actual = EditorConfigFinder().findEditorConfigs(tempDir.plus(someDirectory))
+            val actual = editorConfigFinder.findEditorConfigs(tempDir.plus(someDirectory))
 
             assertThat(actual).contains(
                 tempDir.plus("$someDirectory/.editorconfig"),
@@ -115,7 +127,7 @@ class EditorConfigFinderTest {
             tempDir.createFile("$someProjectDirectory/src/main/kotlin/.editorconfig", "some-property=some-value")
             tempDir.createFile("$someProjectDirectory/src/test/kotlin/.editorconfig", "some-property=some-value")
 
-            val actual = EditorConfigFinder().findEditorConfigs(tempDir.plus("$someProjectDirectory/src/main/kotlin"))
+            val actual = editorConfigFinder.findEditorConfigs(tempDir.plus("$someProjectDirectory/src/main/kotlin"))
 
             assertThat(actual)
                 .contains(
@@ -136,7 +148,7 @@ class EditorConfigFinderTest {
             tempDir.createFile("$someProjectDirectory/src/main/kotlin/.editorconfig", "some-property=some-value")
             tempDir.createFile("$someProjectDirectory/src/test/kotlin/.editorconfig", "some-property=some-value")
 
-            val actual = EditorConfigFinder().findEditorConfigs(tempDir.plus(someProjectDirectory))
+            val actual = editorConfigFinder.findEditorConfigs(tempDir.plus(someProjectDirectory))
 
             assertThat(actual).contains(
                 tempDir.plus("$someProjectDirectory/.editorconfig"),

@@ -13,10 +13,12 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.END_OF_LINE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
 import com.pinterest.ktlint.rule.engine.internal.DEFAULT_EDITOR_CONFIG_PROPERTIES
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigFinder
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigGenerator
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigLoader
+import com.pinterest.ktlint.rule.engine.internal.EditorConfigLoaderEc4j
 import com.pinterest.ktlint.rule.engine.internal.RuleExecutionContext
 import com.pinterest.ktlint.rule.engine.internal.RuleExecutionContext.Companion.createRuleExecutionContext
 import com.pinterest.ktlint.rule.engine.internal.RuleRunner
@@ -228,19 +230,6 @@ public object KtLint {
     }
 
     /**
-     * Get the list of files which will be accessed by KtLint when linting or formatting the given file or directory.
-     * The API consumer can use this list to observe changes in '.editorconfig' files. Whenever such a change is
-     * observed, the API consumer should call [reloadEditorConfigFile].
-     * To avoid unnecessary access to the file system, it is best to call this method only once for the root of the
-     * project which is to be [lint] or [format].
-     */
-    @Deprecated(
-        message = "Marked for removal in KtLint 0.49",
-        replaceWith = ReplaceWith("ktLintRuleEngine.editorConfigFilePaths"),
-    )
-    public fun editorConfigFilePaths(path: Path): List<Path> = EditorConfigFinder().findEditorConfigs(path)
-
-    /**
      * Reloads an '.editorconfig' file given that it is currently loaded into the KtLint cache. This method is intended
      * to be called by the API consumer when it is aware of changes in the '.editorconfig' file that should be taken
      * into account with next calls to [lint] and/or [format]. See [editorConfigFilePaths] to get the list of
@@ -370,6 +359,9 @@ public class KtLintRuleEngine(
      * **For internal use only**: indicates that the '.editorconfig' on the file system has to be ignored. This primarily is used to prevent
      * that code snippets in unit test are linted/formatted based on values in the '.editorconfig' which might interfere with the actual
      * set up of the test. This property can be removed in any of next versions without further notice and without providing a fallback.
+     *
+     * TODO: xxx consider to implement a FileSystem parameter. When set to KtlintTestFileSystem the ".editorconfig" can easily be ignored as
+     *  that is the default when not explicitly creating one
      */
     internal val ignoreEditorConfigOnFileSystem: Boolean = false,
 ) {
@@ -379,7 +371,15 @@ public class KtLintRuleEngine(
         }
     }
 
-    internal val editorConfigLoader = EditorConfigLoader(FileSystems.getDefault())
+    internal val editorConfigLoaderEc4j = EditorConfigLoaderEc4j(ruleProviders.propertyTypes())
+
+    internal val editorConfigLoader = EditorConfigLoader(
+        FileSystems.getDefault(),
+        editorConfigLoaderEc4j,
+        editorConfigDefaults,
+        editorConfigOverride,
+        ignoreEditorConfigOnFileSystem,
+    )
 
     /**
      * Check [code] for lint errors. When [filePath] is provided, the '.editorconfig' files on the path are taken into
@@ -617,11 +617,12 @@ public class KtLintRuleEngine(
                 .toSet()
                 .map { it.getRule() }
                 .toSet()
-        return EditorConfigGenerator(this.editorConfigLoader).generateEditorconfig(
-            filePath,
-            rules,
-            codeStyle,
-        )
+        return EditorConfigGenerator(editorConfigLoaderEc4j)
+            .generateEditorconfig(
+                rules,
+                codeStyle,
+                filePath,
+            )
     }
 
     /**
@@ -638,7 +639,7 @@ public class KtLintRuleEngine(
      * To avoid unnecessary access to the file system, it is best to call this method only once for the root of the
      * project which is to be [lint] or [format].
      */
-    public fun editorConfigFilePaths(path: Path): List<Path> = EditorConfigFinder().findEditorConfigs(path)
+    public fun editorConfigFilePaths(path: Path): List<Path> = EditorConfigFinder(editorConfigLoaderEc4j).findEditorConfigs(path)
 
     /**
      * Reloads an '.editorconfig' file given that it is currently loaded into the KtLint cache. This method is intended

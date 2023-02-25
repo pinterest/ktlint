@@ -5,9 +5,7 @@ import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
 import com.pinterest.ktlint.rule.engine.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFE_EDITOR_CONFIG_CACHE
 import mu.KotlinLogging
-import org.ec4j.core.EditorConfigLoader
 import org.ec4j.core.Resource
-import org.ec4j.core.model.Version
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import kotlin.io.path.isDirectory
@@ -19,9 +17,7 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 /**
  * Load all properties from an ".editorconfig" file without filtering on a glob.
  */
-internal class EditorConfigDefaultsLoader {
-    private val editorConfigLoader: EditorConfigLoader = EditorConfigLoader.of(Version.CURRENT)
-
+internal class EditorConfigDefaultsLoader(private val editorConfigLoaderEc4j: EditorConfigLoaderEc4j) {
     /**
      * Loads properties from [path]. [path] may either locate a file (also allows specifying a file with a name other
      * than ".editorconfig") or a directory in which a file with name ".editorconfig" is expected to exist. Properties
@@ -44,7 +40,7 @@ internal class EditorConfigDefaultsLoader {
         }
 
         return THREAD_SAFE_EDITOR_CONFIG_CACHE
-            .get(editorConfigFilePath.resource(), editorConfigLoader)
+            .get(editorConfigFilePath.resource(), editorConfigLoaderEc4j.editorConfigLoader)
             .also {
                 LOGGER.debug {
                     it

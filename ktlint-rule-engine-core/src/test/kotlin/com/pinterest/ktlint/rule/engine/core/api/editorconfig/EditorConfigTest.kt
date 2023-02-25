@@ -1,6 +1,8 @@
 package com.pinterest.ktlint.rule.engine.core.api.editorconfig
 
+import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
 import com.pinterest.ktlint.rule.engine.internal.toPropertyWithValue
+import com.pinterest.ktlint.test.KtlintTestFileSystem
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatNoException
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -220,6 +222,93 @@ class EditorConfigTest {
         val actual = editorConfig[SOME_EDITOR_CONFIG_PROPERTY]
 
         assertThat(actual).isEqualTo(SOME_PROPERTY_VALUE_INTELLIJ_IDEA)
+    }
+
+    @Test
+    fun `Given an editorconfig containing a property with undefined type then retrieving that property via the EditConfig may not result in an exception`() {
+        // The Property and PropertyValue builders of the ec4j library do not allow to build a property having field "Property.type" set to
+        // null. However, when loading an ".editorconfig" file containing a property with a name for which no property type exists with that
+        // same name, this does result in such a property. It takes a detour to create the property:
+        //  - Create an ".editorconfig" file on the file system mock
+        //  - Load the ".editorconfig" via the EditorConfigDefaults loader
+        //  - Find the property which is set in the ".editorconfig" file and validate that its type is null
+        //  - Transform the property to a KtLint EditorConfig
+        //  - Extract the property of the KtLint EditorConfig
+        // Note that two properties are created which are identical except that only one of the properties has a null type and the other
+        // property has a correctly defined type.
+        //language=
+        val ktlintTestRuleExecutionProperty1 = "ktlint_test_rule-1"
+        val ktlintTestRuleExecutionPropertyType1 =
+            EditorConfigProperty(
+                name = ktlintTestRuleExecutionProperty1,
+                type = PropertyType.LowerCasingPropertyType(
+                    ktlintTestRuleExecutionProperty1,
+                    "",
+                    SafeEnumValueParser(RuleExecution::class.java),
+                    RuleExecution.values().map { it.name }.toSet(),
+                ),
+                defaultValue = RuleExecution.enabled,
+            )
+        //language=
+        val ktlintTestRuleExecutionProperty2 = "ktlint_test_rule-2"
+        val ktlintTestRuleExecutionPropertyType2 =
+            EditorConfigProperty(
+                name = ktlintTestRuleExecutionProperty2,
+                type = PropertyType.LowerCasingPropertyType(
+                    ktlintTestRuleExecutionProperty2,
+                    "",
+                    SafeEnumValueParser(RuleExecution::class.java),
+                    RuleExecution.values().map { it.name }.toSet(),
+                ),
+                defaultValue = RuleExecution.enabled,
+            )
+
+        val ktlintTestFileSystem = KtlintTestFileSystem().apply {
+            writeRootEditorConfigFile(
+                //language=EditorConfig
+                """
+                [*.{kt,kts}]
+                $ktlintTestRuleExecutionProperty1 = disabled
+                $ktlintTestRuleExecutionProperty2 = disabled
+                """.trimIndent(),
+            )
+        }
+
+        val ktlintTestRuleProperties =
+            EditorConfigDefaults
+                .load(
+                    path = ktlintTestFileSystem.resolve(""),
+                    propertyTypes = setOf(
+                        // Note that ktlintTestRuleEditorConfigPropertyType1 has been left out on purpose
+                        ktlintTestRuleExecutionPropertyType2.type,
+                    ),
+                ).value
+                .sections
+                .flatMap { it.properties.values }
+                .associateBy { it.name }
+
+        // Validate that both properties are loaded
+        require(ktlintTestRuleProperties[ktlintTestRuleExecutionProperty1] != null) {
+            "Can not find property '$ktlintTestRuleExecutionProperty1' in the '.editorconfig' file on the file system mock"
+        }
+        require(ktlintTestRuleProperties[ktlintTestRuleExecutionProperty2] != null) {
+            "Can not find property '$ktlintTestRuleExecutionProperty2' in the '.editorconfig' file on the file system mock"
+        }
+
+        // Validate that the type of one of the properties is null
+        require(ktlintTestRuleProperties[ktlintTestRuleExecutionProperty1]?.type == null) {
+            "Property '$ktlintTestRuleExecutionProperty1' should have an undefined type"
+        }
+        require(ktlintTestRuleProperties[ktlintTestRuleExecutionProperty2]?.type != null) {
+            "Property '$ktlintTestRuleExecutionProperty2' should have a defined type"
+        }
+
+        val editorConfig = EditorConfig(ktlintTestRuleProperties)
+
+        // Although the type of one of the properties is null, both can be loaded as the type of EditorConfigProperty is used to parse the
+        // raw value of the property
+        assertThat(editorConfig[ktlintTestRuleExecutionPropertyType1]).isEqualTo(RuleExecution.disabled)
+        assertThat(editorConfig[ktlintTestRuleExecutionPropertyType2]).isEqualTo(RuleExecution.disabled)
     }
 
     private companion object {

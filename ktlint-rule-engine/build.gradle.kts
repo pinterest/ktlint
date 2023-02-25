@@ -12,5 +12,4 @@ dependencies {
 
     testImplementation(projects.ktlintTest)
     testImplementation(projects.ktlintRulesetStandard)
-    testImplementation(libs.jimfs)
 }

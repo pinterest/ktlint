@@ -28,12 +28,15 @@ import java.nio.file.Paths
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
-@Deprecated("Marked for removal of public API in KtLint 0.49. Please raise an issue if you use this function.")
 /**
  * Loader for `.editorconfig` properties for files on [fileSystem].
  */
-public class EditorConfigLoader(
+internal class EditorConfigLoader(
     private val fileSystem: FileSystem = FileSystems.getDefault(),
+    private val editorConfigLoaderEc4j: EditorConfigLoaderEc4j,
+    private val editorConfigDefaults: EditorConfigDefaults = EMPTY_EDITOR_CONFIG_DEFAULTS,
+    private val editorConfigOverride: EditorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
+    private val ignoreEditorConfigOnFileSystem: Boolean = false,
 ) {
     /**
      * Loads properties used by [Rule]s from the `.editorconfig` file on given [filePath]. When [filePath] is null, the
@@ -48,28 +51,22 @@ public class EditorConfigLoader(
      * Properties specified in [editorConfigOverride] take precedence above any other '.editorconfig' file on [filePath]
      * or default value.
      */
-    internal fun load(
-        filePath: Path?,
-        rules: Set<Rule> = emptySet(),
-        editorConfigDefaults: EditorConfigDefaults = EMPTY_EDITOR_CONFIG_DEFAULTS,
-        editorConfigOverride: EditorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
-        ignoreEditorConfigOnFileSystem: Boolean = false,
-    ): EditorConfig {
-        val editorConfigProperties: MutableMap<String, Property> =
-            if (ignoreEditorConfigOnFileSystem) {
-                // The editorConfigDefaults will only be taken into account whenever the ec4j library is queried to retrieve the editor
-                // config for an extension at an existing path. This flag is supposed to be enabled while running unit tests which should
-                // not be affected by a '.editorconfig' file which exists on the filesystem where the tests are executed. For now, it is
-                // assumed that the file system does not contain such file in the root of the file system.
-                createLoaderService(rules, editorConfigDefaults)
-                    .queryProperties(Paths.get("/.kt").resource())
-                    .properties
-            } else {
-                val normalizedFilePath = filePath ?: defaultFilePath()
-                createLoaderService(rules, editorConfigDefaults)
-                    .queryProperties(normalizedFilePath.resource())
-                    .properties
+    internal fun load(filePath: Path?): EditorConfig {
+        val editorConfigPath =
+            when {
+                ignoreEditorConfigOnFileSystem -> { // TODO: xxx Can this flag be removed by using KtlintTestFileSystem in those tests?
+                    // The editorConfigDefaults will only be taken into account whenever the ec4j library is queried to retrieve the editor
+                    // config for an extension at an existing path. This flag is supposed to be enabled while running unit tests which should
+                    // not be affected by a '.editorconfig' file which exists on the filesystem where the tests are executed. For now, it is
+                    // assumed that the file system does not contain such file in the root of the file system.
+                    Paths.get("/.kt")
+                }
+                else -> filePath ?: defaultFilePath()
             }
+        val editorConfigProperties: MutableMap<String, Property> =
+            createResourcePropertiesService(editorConfigLoaderEc4j.editorConfigLoader, editorConfigDefaults)
+                .queryProperties(editorConfigPath.resource())
+                .properties
         return editorConfigProperties
             .also { properties ->
                 if (properties[TAB_WIDTH_PROPERTY_NAME]?.sourceValue == properties[INDENT_SIZE_PROPERTY.name]?.sourceValue &&
@@ -120,14 +117,6 @@ public class EditorConfigLoader(
             .toAbsolutePath()
             .resolve(SUPPORTED_FILES.first())
 
-    private fun createLoaderService(
-        rules: Set<Rule>,
-        editorConfigDefaults: EditorConfigDefaults,
-    ) = createResourcePropertiesService(
-        editorConfigLoader(rules),
-        editorConfigDefaults,
-    )
-
     private fun createResourcePropertiesService(
         editorConfigLoader: EditorConfigLoader,
         editorConfigDefaults: EditorConfigDefaults,
@@ -140,24 +129,7 @@ public class EditorConfigLoader(
             defaultEditorConfigs(editorConfigDefaults.value)
         }.build()
 
-    private fun editorConfigLoader(rules: Set<Rule>) =
-        EditorConfigLoader
-            .of(Version.CURRENT, propertyTypeRegistry(rules))
-
-    private fun propertyTypeRegistry(rules: Set<Rule>) =
-        PropertyTypeRegistry
-            .builder()
-            .defaults()
-            .apply {
-                rules
-                    .flatMap(Rule::usesEditorConfigProperties)
-                    .forEach { editorConfigProperty ->
-                        type(editorConfigProperty.type)
-                    }
-            }
-            .build()
-
-    public companion object {
+    companion object {
         /**
          * List of file extensions, editorconfig lookup will be performed.
          */
@@ -168,4 +140,28 @@ public class EditorConfigLoader(
 
         private const val TAB_WIDTH_PROPERTY_NAME = "tab_width"
     }
+}
+
+/**
+ * Wrapper around the native EditorConfigLoader of the ec4j library. Whenever Ktlints loads ".editorconfig" files via the ec4j library, it
+ * needs to be aware of all native (ec4j) but also the custom property types defined in KtLint and the custom rules sets provided to KtLint.
+ *
+ * The ec4j library uses the convention that a property type has a name that is identical to the name of that property. If no
+ * property type is registered for a property the property will be returned with a null type. When retrieving the property value it will be
+ * returned as type "String" which results in class cast exceptions in KtLint's EditorConfig whenever the expected type of the variable is
+ * not of type String.
+ */
+internal class EditorConfigLoaderEc4j(
+    private val propertyTypes: Set<PropertyType<*>>,
+) {
+    val editorConfigLoader: EditorConfigLoader
+        get() = EditorConfigLoader.of(Version.CURRENT, propertyTypeRegistry(propertyTypes))
+
+    private fun propertyTypeRegistry(propertyTypes: Set<PropertyType<*>>) =
+        PropertyTypeRegistry
+            .builder()
+            .defaults()
+            .apply {
+                propertyTypes.forEach { type(it) }
+            }.build()
 }

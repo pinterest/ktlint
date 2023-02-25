@@ -68,7 +68,10 @@ public data class EditorConfig(
                     }
                 }
         } else {
-            property.getValueAs()
+            // In case the EditorConfig is loaded incorrectly it can happen that the type field of the loaded property is null. Getting the
+            // value via "property.getValueAs()" can lead to a class cast exception as the actual type of the value returned is transformed
+            // to a String instead of type T. Getting the value via the editorConfigProperty type is safe as it can not be null.
+            editorConfigProperty.type.getParsedValue() ?: editorConfigProperty.getDefaultValue()
         }
     }
 
