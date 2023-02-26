@@ -5,6 +5,7 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule
 import mu.KotlinLogging
 import org.ec4j.core.model.Property
 import org.ec4j.core.model.PropertyType
+import org.ec4j.core.model.PropertyType.PropertyValue
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -19,7 +20,15 @@ public data class EditorConfig(
     )
 
     private val codeStyle: CodeStyleValue
-        get() = CODE_STYLE_PROPERTY.type.getParsedValue() ?: CODE_STYLE_PROPERTY.defaultValue
+        get() =
+            with(CODE_STYLE_PROPERTY) {
+                // Prevent printing a lot of warnings when the code_style_value is not defined explicitly by not using the function to get
+                // the default value for the property
+                type
+                    .getPropertyValue(type.name)
+                    .parsed
+                    ?: defaultValue
+            }
 
     /**
      * Gets the value of [editorConfigProperty] from [EditorConfig] provided that the name of the property is identical to the name of the
@@ -71,7 +80,7 @@ public data class EditorConfig(
             // In case the EditorConfig is loaded incorrectly it can happen that the type field of the loaded property is null. Getting the
             // value via "property.getValueAs()" can lead to a class cast exception as the actual type of the value returned is transformed
             // to a String instead of type T. Getting the value via the editorConfigProperty type is safe as it can not be null.
-            editorConfigProperty.type.getParsedValue() ?: editorConfigProperty.getDefaultValue()
+            editorConfigProperty.getParsedValueOrDefault() ?: editorConfigProperty.getDefaultValue()
         }
     }
 
@@ -79,10 +88,10 @@ public data class EditorConfig(
      * Gets the value of the property with [propertyType] and name [propertyName] from [EditorConfig]. Returns null if the type is not
      * found. Also, returns null when no property with the name is found.
      */
-    public fun <T> getEditorConfigValue(
+    public fun <T> getEditorConfigValueOrNull(
         propertyType: PropertyType<T>,
         propertyName: String,
-    ): T? = propertyType.getParsedValue(propertyName)
+    ): T? = propertyType.getPropertyValue(propertyName).parsed
 
     private fun <T> EditorConfigProperty<T>.getDefaultValue() =
         when (codeStyle) {
@@ -102,16 +111,34 @@ public data class EditorConfig(
      * Gets the parsed value of the property with type [PropertyType]. Returns null if the property type is not found. Can only be used for
      * properties for which the name of the property is identical to the name of the type.
      */
-    private fun <T> PropertyType<T>.getParsedValue(): T? = this.getParsedValue(name)
+    private fun <T> EditorConfigProperty<T>.getParsedValueOrDefault(): T? =
+        this.type.getParsedValueOrDefault(this.type.name, this.defaultValue)
 
     /**
      * Gets the parsed value of the property with type [PropertyType] and name [propertyName]. Returns null if the property type is not
      * found. Intended to be used for properties for which the name is not identical to the name of the property type.
      */
-    private fun <T> PropertyType<T>.getParsedValue(propertyName: String): T? =
+    private fun <T> PropertyType<T>.getParsedValueOrDefault(
+        propertyName: String,
+        defaultValue: T,
+    ): T =
+        getPropertyValue(propertyName)
+            .let { propertyValue ->
+                if (propertyValue.isValid) {
+                    propertyValue.parsed
+                } else {
+                    LOGGER.warn {
+                        "Editorconfig property '$propertyName' contains an invalid value '${propertyValue.source}'. The default value " +
+                            "'$defaultValue' is used instead."
+                    }
+                    defaultValue
+                }
+            }
+
+    private fun <T> PropertyType<T>.getPropertyValue(propertyName: String): PropertyValue<T> =
         parse(
             properties[propertyName]?.sourceValue,
-        ).parsed
+        )
 
     /**
      * Maps all properties with given [mapper] to a collection.

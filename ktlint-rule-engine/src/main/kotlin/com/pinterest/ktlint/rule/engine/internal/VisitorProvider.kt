@@ -126,5 +126,5 @@ internal class VisitorProvider(
             }
 
     private fun EditorConfig.ruleExecution(ruleExecutionPropertyName: String) =
-        this.getEditorConfigValue(RULE_EXECUTION_PROPERTY_TYPE, ruleExecutionPropertyName)
+        this.getEditorConfigValueOrNull(RULE_EXECUTION_PROPERTY_TYPE, ruleExecutionPropertyName)
 }

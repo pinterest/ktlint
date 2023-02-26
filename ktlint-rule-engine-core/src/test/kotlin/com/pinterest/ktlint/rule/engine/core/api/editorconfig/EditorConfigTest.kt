@@ -190,7 +190,7 @@ class EditorConfigTest {
                     .toPropertyWithValue(SOME_PROPERTY_VALUE_INTELLIJ_IDEA),
             )
 
-        val actual = editorConfig.getEditorConfigValue(SOME_EDITOR_CONFIG_PROPERTY.type, property2)
+        val actual = editorConfig.getEditorConfigValueOrNull(SOME_EDITOR_CONFIG_PROPERTY.type, property2)
 
         assertThat(actual).isEqualTo(SOME_PROPERTY_VALUE_INTELLIJ_IDEA)
     }
@@ -214,7 +214,7 @@ class EditorConfigTest {
     }
 
     @Test
-    fun `Given an editorconfig containing a property for which he value is unset then return its default value`() {
+    fun `Given an editorconfig containing a property for which the value is unset then return its default value`() {
         val editorConfig = EditorConfig(
             SOME_EDITOR_CONFIG_PROPERTY.toPropertyWithValue("unset"),
         )
@@ -222,6 +222,18 @@ class EditorConfigTest {
         val actual = editorConfig[SOME_EDITOR_CONFIG_PROPERTY]
 
         assertThat(actual).isEqualTo(SOME_PROPERTY_VALUE_INTELLIJ_IDEA)
+    }
+
+    @Test
+    fun `Given an editorconfig containing a property with an invalid source value then return its default value`() {
+        val someEditorConfigProperty = editorConfigProperty("some-editor-config-property")
+        val editorConfig = EditorConfig(
+            someEditorConfigProperty.toPropertyWithValue("some-invalid-value"),
+        )
+
+        val actual = editorConfig[someEditorConfigProperty]
+
+        assertThat(actual).isEqualTo(someEditorConfigProperty.defaultValue)
     }
 
     @Test
@@ -238,30 +250,10 @@ class EditorConfigTest {
         // property has a correctly defined type.
         //language=
         val ktlintTestRuleExecutionProperty1 = "ktlint_test_rule-1"
-        val ktlintTestRuleExecutionPropertyType1 =
-            EditorConfigProperty(
-                name = ktlintTestRuleExecutionProperty1,
-                type = PropertyType.LowerCasingPropertyType(
-                    ktlintTestRuleExecutionProperty1,
-                    "",
-                    SafeEnumValueParser(RuleExecution::class.java),
-                    RuleExecution.values().map { it.name }.toSet(),
-                ),
-                defaultValue = RuleExecution.enabled,
-            )
+        val ktlintTestRuleExecutionPropertyType1 = editorConfigProperty(ktlintTestRuleExecutionProperty1)
         //language=
         val ktlintTestRuleExecutionProperty2 = "ktlint_test_rule-2"
-        val ktlintTestRuleExecutionPropertyType2 =
-            EditorConfigProperty(
-                name = ktlintTestRuleExecutionProperty2,
-                type = PropertyType.LowerCasingPropertyType(
-                    ktlintTestRuleExecutionProperty2,
-                    "",
-                    SafeEnumValueParser(RuleExecution::class.java),
-                    RuleExecution.values().map { it.name }.toSet(),
-                ),
-                defaultValue = RuleExecution.enabled,
-            )
+        val ktlintTestRuleExecutionPropertyType2 = editorConfigProperty(ktlintTestRuleExecutionProperty2)
 
         val ktlintTestFileSystem = KtlintTestFileSystem().apply {
             writeRootEditorConfigFile(
@@ -310,6 +302,18 @@ class EditorConfigTest {
         assertThat(editorConfig[ktlintTestRuleExecutionPropertyType1]).isEqualTo(RuleExecution.disabled)
         assertThat(editorConfig[ktlintTestRuleExecutionPropertyType2]).isEqualTo(RuleExecution.disabled)
     }
+
+    private fun editorConfigProperty(name: String) =
+        EditorConfigProperty(
+            name = name,
+            type = PropertyType.LowerCasingPropertyType(
+                name,
+                "",
+                SafeEnumValueParser(RuleExecution::class.java),
+                RuleExecution.values().map { it.name }.toSet(),
+            ),
+            defaultValue = RuleExecution.enabled,
+        )
 
     private companion object {
         const val SOME_PROPERTY_NAME = "some-property-name"

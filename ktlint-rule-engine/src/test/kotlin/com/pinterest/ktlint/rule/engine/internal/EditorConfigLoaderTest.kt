@@ -3,11 +3,14 @@ package com.pinterest.ktlint.rule.engine.internal
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY
 import com.pinterest.ktlint.test.KtlintTestFileSystem
 import org.assertj.core.api.Assertions.assertThat
+import org.ec4j.core.model.PropertyType
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -78,7 +81,6 @@ internal class EditorConfigLoaderTest {
                 """
                 root = true
                 [*]
-                end_of_line = lf
                 some_property_1 = some_value_1
                 """.trimIndent(),
             )
@@ -89,8 +91,6 @@ internal class EditorConfigLoaderTest {
                 """
                 root = true
                 [*.{kt,kts}]
-                indent_size = 4
-                indent_style = space
                 some_property_2 = some_value_2
                 """.trimIndent(),
             )
@@ -216,57 +216,155 @@ internal class EditorConfigLoaderTest {
             }
     }
 
-    @Test
-    fun `Given some override properties and a null file path then return only the default ktlint properties and the override properties`() {
-        val editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to "true")
-        createEditorConfigLoader(editorConfigOverride = editorConfigOverride)
-            .load(null)
-            .run {
-                assertThat(convertToPropertyValues())
-                    .containsExactlyInAnyOrder(
-                        "insert_final_newline = true",
-                        "end_of_line = lf",
-                    )
-            }
-    }
-
-    @Test
-    fun `Given some override properties and a file with a non supported file extension then return only the default ktlint properties and the override properties`() {
-        val editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to "true")
-        createEditorConfigLoader(editorConfigOverride = editorConfigOverride)
-            .load(ktlintTestFileSystem.resolve("test.java"))
-            .run {
-                assertThat(convertToPropertyValues())
-                    .containsExactlyInAnyOrder(
-                        "insert_final_newline = true",
-                        "end_of_line = lf",
-                    )
-            }
-    }
-
-    @Test
-    fun `Should return properties for stdin from editorconfig file in current directory and override properties`() {
-        ktlintTestFileSystem.apply {
-            writeRootEditorConfigFile(
-                //language=EditorConfig
-                """
-                [*.{kt,kts}]
-                some_property_1 = some_value_1
-                """.trimIndent(),
-            )
+    @Nested
+    inner class `Given a null file path` {
+        @Test
+        fun `Given no default and no override properties then return only the properties required for internal processing by KtLint`() {
+            createEditorConfigLoader()
+                .load(null)
+                .run {
+                    assertThat(convertToPropertyValues())
+                        .containsExactlyInAnyOrder(
+                            "ktlint_code_style = intellij_idea",
+                            "end_of_line = lf",
+                        )
+                }
         }
 
-        val editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to true)
-        createEditorConfigLoader(editorConfigOverride = editorConfigOverride)
-            .load(ktlintTestFileSystem.resolve(".kt"))
-            .run {
-                assertThat(convertToPropertyValues())
-                    .containsExactlyInAnyOrder(
-                        "some_property_1 = some_value_1",
-                        "insert_final_newline = true",
-                        "end_of_line = lf",
-                    )
+        @Test
+        fun `Given some override properties then return the override properties`() {
+            val editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to "true")
+            createEditorConfigLoader(editorConfigOverride = editorConfigOverride)
+                .load(null)
+                .run {
+                    assertThat(convertToPropertyValues())
+                        .contains("insert_final_newline = true")
+                }
+        }
+
+        @Test
+        fun `Given some properties in an editorconfig file then return the properties from this file`() {
+            ktlintTestFileSystem.apply {
+                writeRootEditorConfigFile(
+                    //language=EditorConfig
+                    """
+                [*.{kt,kts}]
+                some_property = some_value
+                    """.trimIndent(),
+                )
             }
+
+            createEditorConfigLoader()
+                .load(ktlintTestFileSystem.resolve(".kt"))
+                .run {
+                    assertThat(convertToPropertyValues())
+                        .contains("some_property = some_value")
+                }
+        }
+    }
+
+    @Nested
+    inner class `Given a file path with a non kotlin extension` {
+        @Test
+        fun `Given no default and no override properties then return only the properties required for internal processing by KtLint`() {
+            createEditorConfigLoader()
+                .load(ktlintTestFileSystem.resolve("test.java"))
+                .run {
+                    assertThat(convertToPropertyValues())
+                        .containsExactlyInAnyOrder(
+                            "ktlint_code_style = intellij_idea",
+                            "end_of_line = lf",
+                        )
+                }
+        }
+
+        @Test
+        fun `Given some override properties then return the override properties`() {
+            val editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to "true")
+            createEditorConfigLoader(editorConfigOverride = editorConfigOverride)
+                .load(ktlintTestFileSystem.resolve("test.java"))
+                .run {
+                    assertThat(convertToPropertyValues())
+                        .contains("insert_final_newline = true")
+                }
+        }
+
+        @Test
+        fun `Given some kotlin properties in an editorconfig file then do not return the properties from this file`() {
+            ktlintTestFileSystem.apply {
+                writeRootEditorConfigFile(
+                    //language=EditorConfig
+                    """
+                [*.{kt,kts}]
+                some_property = some_value
+                    """.trimIndent(),
+                )
+            }
+
+            createEditorConfigLoader()
+                .load(ktlintTestFileSystem.resolve("test.java"))
+                .run {
+                    assertThat(convertToPropertyValues())
+                        .doesNotContain("some_property = some_value")
+                }
+        }
+    }
+
+    @Nested
+    inner class `Given input from stdin` {
+        @Test
+        fun `Given no default and no override properties then return only the properties required for internal processing by KtLint`() {
+            createEditorConfigLoader()
+                .load(ktlintTestFileSystem.resolve(".kt"))
+                .run {
+                    assertThat(convertToPropertyValues())
+                        .containsExactlyInAnyOrder(
+                            "ktlint_code_style = intellij_idea",
+                            "end_of_line = lf",
+                        )
+                }
+        }
+
+        @Test
+        fun `Given some override properties then return the override properties`() {
+            ktlintTestFileSystem.apply {
+                writeRootEditorConfigFile(
+                    //language=EditorConfig
+                    """
+                [*.{kt,kts}]
+                some_property_1 = some_value_1
+                    """.trimIndent(),
+                )
+            }
+
+            val editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to true)
+            createEditorConfigLoader(editorConfigOverride = editorConfigOverride)
+                .load(ktlintTestFileSystem.resolve(".kt"))
+                .run {
+                    assertThat(convertToPropertyValues())
+                        .contains("insert_final_newline = true")
+                }
+        }
+
+        @Test
+        fun `Given some properties in an editorconfig file then return the properties from this file`() {
+            ktlintTestFileSystem.apply {
+                writeRootEditorConfigFile(
+                    //language=EditorConfig
+                    """
+                [*.{kt,kts}]
+                some_property = some_value
+                    """.trimIndent(),
+                )
+            }
+
+            createEditorConfigLoader()
+                .load(ktlintTestFileSystem.resolve(".kt"))
+                .run {
+                    assertThat(convertToPropertyValues())
+                        .contains("some_property = some_value")
+                }
+        }
     }
 
     @Test
@@ -310,27 +408,49 @@ internal class EditorConfigLoaderTest {
     }
 
     @Test
-    fun `Should load properties from override on stdin input`() {
+    fun `Given that code is loaded via stdin then load properties from override and properties required for internal processing of KtLint`() {
         ktlintTestFileSystem.apply {
             writeRootEditorConfigFile(
                 //language=EditorConfig
                 """
                 root = true
                 [*]
-                end_of_line = lf
+                ${SOME_EDITOR_CONFIG_PROPERTY.name} = $SOME_PROPERTY_VALUE_1
                 """.trimIndent(),
             )
         }
 
-        val editorConfigOverride = EditorConfigOverride.from(INDENT_SIZE_PROPERTY to 2)
+        val editorConfigOverride = EditorConfigOverride.from(SOME_EDITOR_CONFIG_PROPERTY to SOME_PROPERTY_VALUE_2)
         createEditorConfigLoader(editorConfigOverride = editorConfigOverride)
             .load(null)
             .run {
                 assertThat(convertToPropertyValues())
-                    .containsExactlyInAnyOrder(
-                        "end_of_line = lf",
-                        "indent_size = 2",
-                        "tab_width = 2",
+                    .contains("${SOME_EDITOR_CONFIG_PROPERTY.name} = $SOME_PROPERTY_VALUE_2")
+            }
+    }
+
+    @Test
+    fun `Given that the indent_size and tab_width property have same value and the indent_size is changed in the override properties then also keep the tab_width property in sync with the indent_size`() {
+        ktlintTestFileSystem.apply {
+            writeRootEditorConfigFile(
+                //language=EditorConfig
+                """
+                root = true
+                [*]
+                indent_size = 5
+                tab_width = 5
+                """.trimIndent(),
+            )
+        }
+
+        val editorConfigOverride = EditorConfigOverride.from(INDENT_SIZE_PROPERTY to 3)
+        createEditorConfigLoader(editorConfigOverride = editorConfigOverride)
+            .load(ktlintTestFileSystem.resolve("test.kt"))
+            .run {
+                assertThat(convertToPropertyValues())
+                    .contains(
+                        "indent_size = 3",
+                        "tab_width = 3",
                     )
             }
     }
@@ -430,4 +550,22 @@ internal class EditorConfigLoaderTest {
             }
             "${it.name} = $value"
         }.toList()
+
+    private companion object {
+        const val SOME_PROPERTY_NAME = "some-property-name"
+
+        //language=
+        const val SOME_PROPERTY_VALUE_1 = "some-property-value-1"
+        const val SOME_PROPERTY_VALUE_2 = "some-property-value-2"
+        val SOME_EDITOR_CONFIG_PROPERTY = EditorConfigProperty(
+            name = SOME_PROPERTY_NAME,
+            type = PropertyType(
+                SOME_PROPERTY_NAME,
+                "",
+                PropertyType.PropertyValueParser.IDENTITY_VALUE_PARSER,
+                setOf(SOME_PROPERTY_VALUE_1, SOME_PROPERTY_VALUE_2),
+            ),
+            defaultValue = SOME_PROPERTY_VALUE_1,
+        )
+    }
 }

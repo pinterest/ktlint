@@ -5,7 +5,9 @@ import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
+import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.END_OF_LINE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
@@ -80,7 +82,18 @@ internal class EditorConfigLoader(
                 LOGGER.debug { properties.prettyPrint(filePath) }
             }.let { properties ->
                 // Only add properties which are not related to rules but which are needed by the KtLint Rule Engine
-                EditorConfig(properties).addPropertiesWithDefaultValueIfMissing(END_OF_LINE_PROPERTY)
+                EditorConfig(properties)
+                    .addPropertiesWithDefaultValueIfMissing(
+                        /**
+                         * Used in [EditorConfig] to determine the default value for a property when it is not specified in the
+                         * [EditorConfig].
+                         */
+                        CODE_STYLE_PROPERTY,
+                        /**
+                         * Used by [KtLintRuleEngine] to use correct line separator when writing the formatted output.
+                         */
+                        END_OF_LINE_PROPERTY,
+                    )
             }
     }
 
