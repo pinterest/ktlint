@@ -47,11 +47,25 @@ public class KtlintTestFileSystem(
         filePath: String,
         content: String,
     ) {
-        Files.createDirectories(fileSystem.getPath(filePath).parent)
-        Files.write(fileSystem.getPath(filePath), content.toByteArray())
+        pathFromFileSystemRoot(filePath)
+            .let { path ->
+                Files.createDirectories(path.parent)
+                Files.write(path, content.toByteArray())
+            }
     }
 
-    private fun pathFromRoot(pathRelativeToRoot: String = ""): Path = fileSystem.getPath("$rootDirectory/$pathRelativeToRoot")
+    private fun pathFromRoot(pathRelativeToRoot: String = ""): Path = pathFromFileSystemRoot("$rootDirectory/$pathRelativeToRoot")
+
+    private fun pathFromFileSystemRoot(path: String = ""): Path =
+        fileSystem
+            // On Windows OS the exception below is thrown when not taking the file system root directory into account:
+            //     java.nio.file.InvalidPathException: Jimfs does not currently support the Windows syntax for an absolute path on the
+            //     current drive (e.g. "\foo\bar"): /project/
+            // So first resolve the path starting from the first root directory of the filesystem (not be confused wit the rootDirectory
+            // property of the KtLintTestFileSystem)
+            .rootDirectories
+            .first()
+            .resolve(path)
 
     /**
      * Resolves the path relative to the root of the mock file system.
