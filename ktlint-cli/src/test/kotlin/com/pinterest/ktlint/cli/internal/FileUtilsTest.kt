@@ -4,7 +4,6 @@ import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.test.KtlintTestFileSystem
 import mu.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
-import org.jetbrains.kotlin.util.suffixIfNot
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -14,7 +13,6 @@ import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import java.nio.file.Path
-import kotlin.io.path.pathString
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -22,7 +20,7 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
  * Tests for [fileSequence] method.
  */
 internal class FileUtilsTest {
-    private val tempFileSystem = KtlintTestFileSystem()
+    private val ktlintTestFileSystem = KtlintTestFileSystem()
 
     private val javaFileRootDirectory = "Root.java"
     private val ktFileRootDirectory = "Root.kt"
@@ -40,7 +38,7 @@ internal class FileUtilsTest {
 
     @BeforeEach
     internal fun setUp() {
-        tempFileSystem.apply {
+        ktlintTestFileSystem.apply {
             createFile(javaFileRootDirectory)
             createFile(ktFileRootDirectory)
             createFile(ktsFileRootDirectory)
@@ -59,7 +57,7 @@ internal class FileUtilsTest {
 
     @AfterEach
     internal fun tearDown() {
-        tempFileSystem.close()
+        ktlintTestFileSystem.close()
     }
 
     @Test
@@ -123,7 +121,7 @@ internal class FileUtilsTest {
             patterns = listOf(
                 "**/main/**/*.kt",
             ),
-            rootDir = tempFileSystem.resolve("project1"),
+            rootDir = ktlintTestFileSystem.resolve("project1"),
         )
 
         assertThat(foundFiles).containsExactlyInAnyOrder(
@@ -151,7 +149,7 @@ internal class FileUtilsTest {
     ) {
         val foundFiles = getFiles(
             patterns = listOf(pattern),
-            rootDir = tempFileSystem.resolve("project1"),
+            rootDir = ktlintTestFileSystem.resolve("project1"),
         )
 
         assertThat(foundFiles).containsExactlyInAnyOrder(
@@ -164,7 +162,7 @@ internal class FileUtilsTest {
     fun `Given an (relative) file path from the workdir then find all files in that workdir and all its sub directories that match the pattern`() {
         val foundFiles = getFiles(
             patterns = listOf("src/main/kotlin/One.kt"),
-            rootDir = tempFileSystem.resolve("project1"),
+            rootDir = ktlintTestFileSystem.resolve("project1"),
         )
 
         assertThat(foundFiles).containsExactlyInAnyOrder(
@@ -177,9 +175,9 @@ internal class FileUtilsTest {
         val foundFiles = getFiles(
             patterns = listOf(
                 "src/main/kotlin/One.kt",
-                "${tempFileSystem.rootDirectoryPathString()}$ktFile2InProjectSubDirectory",
+                "${ktlintTestFileSystem.resolve(ktFile2InProjectSubDirectory).toAbsolutePath()}",
             ),
-            rootDir = tempFileSystem.resolve("project1"),
+            rootDir = ktlintTestFileSystem.resolve("project1"),
         )
 
         assertThat(foundFiles).containsExactlyInAnyOrder(
@@ -205,13 +203,13 @@ internal class FileUtilsTest {
     ) {
         val homeDir = System.getProperty("user.home")
         val filePath = "$homeDir/project/src/main/kotlin/One.kt"
-        tempFileSystem.apply {
+        ktlintTestFileSystem.apply {
             writeFile(filePath, SOME_CONTENT)
         }
 
         val foundFiles = getFiles(
             patterns = listOf(pattern),
-            rootDir = tempFileSystem.fileSystem.rootDirectories.first(),
+            rootDir = ktlintTestFileSystem.fileSystem.rootDirectories.first(),
         )
 
         assertThat(foundFiles).containsExactlyInAnyOrder(filePath)
@@ -223,7 +221,7 @@ internal class FileUtilsTest {
             patterns = listOf(
                 "**/*.kt",
             ),
-            rootDir = tempFileSystem.resolve("project1/src/main/kotlin/"),
+            rootDir = ktlintTestFileSystem.resolve("project1/src/main/kotlin/"),
         )
 
         assertThat(foundFiles).containsExactlyInAnyOrder(
@@ -238,7 +236,7 @@ internal class FileUtilsTest {
             patterns = listOf(
                 "src/**/kotlin/**/*.kt",
             ),
-            rootDir = tempFileSystem.resolve("project1"),
+            rootDir = ktlintTestFileSystem.resolve("project1"),
         )
 
         assertThat(foundFiles).containsExactlyInAnyOrder(
@@ -258,7 +256,7 @@ internal class FileUtilsTest {
         }
         val foundFiles = getFiles(
             patterns = listOf("src/main/kotlin"),
-            rootDir = tempFileSystem.resolve("project1"),
+            rootDir = ktlintTestFileSystem.resolve("project1"),
         )
 
         assertThat(foundFiles).containsExactlyInAnyOrder(
@@ -299,7 +297,7 @@ internal class FileUtilsTest {
     ) {
         val foundFiles = getFiles(
             patterns = listOf(pattern),
-            rootDir = tempFileSystem.resolve("project1"),
+            rootDir = ktlintTestFileSystem.resolve("project1"),
         )
 
         assertThat(foundFiles).contains(ktFile1InProjectSubDirectory)
@@ -323,7 +321,7 @@ internal class FileUtilsTest {
                 pattern,
                 "/some/non/existing/file", // This prevents the default patterns to be added
             ),
-            rootDir = tempFileSystem.resolve("project1"),
+            rootDir = ktlintTestFileSystem.resolve("project1"),
         )
 
         assertThat(foundFiles).isEmpty()
@@ -341,7 +339,7 @@ internal class FileUtilsTest {
     fun `On non-WindowsOS, a pattern containing a wildcard may followed by a double-dot (parent directory) reference`(pattern: String) {
         val foundFiles = getFiles(
             patterns = listOf(pattern),
-            rootDir = tempFileSystem.resolve("project1"),
+            rootDir = ktlintTestFileSystem.resolve("project1"),
         )
 
         assertThat(foundFiles).contains(ktFile1InProjectSubDirectory)
@@ -362,7 +360,7 @@ internal class FileUtilsTest {
                 pattern,
                 "/some/non/existing/file", // This prevents the default patterns to be added
             ),
-            rootDir = tempFileSystem.resolve("project1"),
+            rootDir = ktlintTestFileSystem.resolve("project1"),
         )
 
         assertThat(foundFiles).isEmpty()
@@ -377,29 +375,21 @@ internal class FileUtilsTest {
 
     private fun getFiles(
         patterns: List<String> = DEFAULT_PATTERNS,
-        rootDir: Path = tempFileSystem.rootDirectoryPath(),
+        rootDir: Path = ktlintTestFileSystem.rootDirectoryPath(),
     ): List<String> =
-        tempFileSystem
+        ktlintTestFileSystem
             .fileSystem
             .fileSequence(patterns, rootDir)
             .map { it.normalize().toString() }
             .toList()
-            .map {
-                tempFileSystem
-                    .unixPathString(it)
-                    .removePrefix(tempFileSystem.rootDirectoryPathString())
-            }.also {
+            .map { ktlintTestFileSystem.unixPathStringRelativeToRootDirectoryOfFileSystem(it) }
+            .also {
                 LOGGER.info {
                     "Getting files with [patterns = $patterns] and [rootdir = $rootDir] returns [files = $it]"
                 }
             }
 
     private fun KtlintTestFileSystem.rootDirectoryPath() = resolve()
-
-    private fun KtlintTestFileSystem.rootDirectoryPathString() =
-        rootDirectoryPath()
-            .pathString
-            .suffixIfNot("/")
 
     private companion object {
         const val SOME_CONTENT = "// Not relevant for test"

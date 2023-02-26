@@ -4,6 +4,7 @@ import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import mu.KotlinLogging
+import org.jetbrains.kotlin.util.suffixIfNot
 import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
@@ -44,7 +45,8 @@ public class KtlintTestFileSystem(
         fileSystem
             .rootDirectories
             .first()
-    private val fileSystemRootPathString = fileSystemRootPath.pathString
+
+    private val rootDirectoryPathString = operatingSystemPath(rootDirectory).pathString
 
     /**
      * Creates the ".editorconfig" file in the root directory with given [content].
@@ -100,7 +102,6 @@ public class KtlintTestFileSystem(
                     .removePrefix(fileSystem.separator)
                     .removePrefix(fileSystem.separator)
             }.let { path ->
-                LOGGER.debug { "Input path: '$path'" }
                 // On Windows OS the exception below is thrown when not taking the file system root directory into account:
                 //     java.nio.file.InvalidPathException: Jimfs does not currently support the Windows syntax for an absolute path on the
                 //     current drive (e.g. "\foo\bar"): /project/
@@ -109,9 +110,9 @@ public class KtlintTestFileSystem(
                 fileSystemRootPath.resolve(path)
             }
 
-    public fun unixPathString(nativePath: String): String =
+    public fun unixPathStringRelativeToRootDirectoryOfFileSystem(nativePath: String): String =
         nativePath
-            .replace(fileSystemRootPathString, "/")
+            .removePrefix(rootDirectoryPathString.suffixIfNot(fileSystem.separator))
             .replace(fileSystem.separator, "/")
 
     /**
