@@ -5,6 +5,7 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
+import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 import java.nio.file.Path
 
@@ -13,6 +14,7 @@ import java.nio.file.Path
  * of [Rule]s. The default values for missing properties are based on the given [CodeStyleValue].
  */
 internal class EditorConfigGenerator(
+    private val fileSystem: FileSystem = FileSystems.getDefault(),
     private val editorConfigLoaderEc4j: EditorConfigLoaderEc4j,
 ) {
     /**
@@ -54,7 +56,7 @@ internal class EditorConfigGenerator(
         codeStyle: CodeStyleValue,
         filePath: Path,
     ) = EditorConfigLoader(
-        fileSystem = FileSystems.getDefault(),
+        fileSystem = fileSystem,
         editorConfigLoaderEc4j = editorConfigLoaderEc4j,
         editorConfigOverride = EditorConfigOverride.from(CODE_STYLE_PROPERTY to codeStyle.name),
     ).load(filePath = filePath)

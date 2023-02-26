@@ -24,7 +24,6 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 import java.nio.file.Path
-import java.nio.file.Paths
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -36,7 +35,6 @@ internal class EditorConfigLoader(
     private val editorConfigLoaderEc4j: EditorConfigLoaderEc4j,
     private val editorConfigDefaults: EditorConfigDefaults = EMPTY_EDITOR_CONFIG_DEFAULTS,
     private val editorConfigOverride: EditorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
-    private val ignoreEditorConfigOnFileSystem: Boolean = false,
 ) {
     /**
      * Loads properties used by [Rule]s from the `.editorconfig` file on given [filePath]. When [filePath] is null, the
@@ -52,17 +50,7 @@ internal class EditorConfigLoader(
      * or default value.
      */
     internal fun load(filePath: Path?): EditorConfig {
-        val editorConfigPath =
-            when {
-                ignoreEditorConfigOnFileSystem -> { // TODO: xxx Can this flag be removed by using KtlintTestFileSystem in those tests?
-                    // The editorConfigDefaults will only be taken into account whenever the ec4j library is queried to retrieve the editor
-                    // config for an extension at an existing path. This flag is supposed to be enabled while running unit tests which should
-                    // not be affected by a '.editorconfig' file which exists on the filesystem where the tests are executed. For now, it is
-                    // assumed that the file system does not contain such file in the root of the file system.
-                    Paths.get("/.kt")
-                }
-                else -> filePath ?: defaultFilePath()
-            }
+        val editorConfigPath = filePath ?: defaultFilePath()
         val editorConfigProperties: MutableMap<String, Property> =
             createResourcePropertiesService(editorConfigLoaderEc4j.editorConfigLoader, editorConfigDefaults)
                 .queryProperties(editorConfigPath.resource())

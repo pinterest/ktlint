@@ -20,19 +20,20 @@ internal class EditorConfigGeneratorTest {
         ruleProviders
             .map { it.createNewRuleInstance() }
             .toSet()
-    private val tempFileSystem = KtlintTestFileSystem()
+    private val ktlintTestFileSystem = KtlintTestFileSystem()
     private val editorConfigGenerator = EditorConfigGenerator(
+        fileSystem = ktlintTestFileSystem.fileSystem,
         EditorConfigLoaderEc4j(ruleProviders.propertyTypes()),
     )
 
     @AfterEach
     fun tearDown() {
-        tempFileSystem.close()
+        ktlintTestFileSystem.close()
     }
 
     @Test
     fun `Should use default rule value if property is missing`() {
-        tempFileSystem.apply {
+        ktlintTestFileSystem.apply {
             writeRootEditorConfigFile(
                 //language=EditorConfig
                 """
@@ -44,7 +45,7 @@ internal class EditorConfigGeneratorTest {
         val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
             rules = rules,
             codeStyle = CodeStyleValue.intellij_idea,
-            filePath = tempFileSystem.resolve("test.kt"),
+            filePath = ktlintTestFileSystem.resolve("test.kt"),
         )
 
         assertThat(generatedEditorConfig.lines()).doesNotContainAnyElementsOf(listOf("root = true"))
@@ -59,7 +60,7 @@ internal class EditorConfigGeneratorTest {
         val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
             rules = rules,
             codeStyle = CodeStyleValue.android_studio,
-            filePath = tempFileSystem.resolve("test.kt"),
+            filePath = ktlintTestFileSystem.resolve("test.kt"),
         )
 
         assertThat(generatedEditorConfig.lines()).contains(
@@ -90,7 +91,7 @@ internal class EditorConfigGeneratorTest {
                 ) {},
             ),
             codeStyle = CodeStyleValue.intellij_idea,
-            filePath = tempFileSystem.resolve("test.kt"),
+            filePath = ktlintTestFileSystem.resolve("test.kt"),
         )
 
         assertThat(generatedEditorConfig.lines()).contains(
@@ -101,7 +102,7 @@ internal class EditorConfigGeneratorTest {
 
     @Test
     fun `Should not modify existing editorconfig property`() {
-        tempFileSystem.apply {
+        ktlintTestFileSystem.apply {
             writeRootEditorConfigFile(
                 //language=EditorConfig
                 """
@@ -117,7 +118,7 @@ internal class EditorConfigGeneratorTest {
         val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
             rules = rules,
             codeStyle = CodeStyleValue.intellij_idea,
-            filePath = tempFileSystem.resolve("test.kt"),
+            filePath = ktlintTestFileSystem.resolve("test.kt"),
         )
 
         assertThat(generatedEditorConfig.lines()).doesNotContainAnyElementsOf(listOf("root = true"))
@@ -130,7 +131,7 @@ internal class EditorConfigGeneratorTest {
     @Test
     fun `Should not modify the value of a property defined in the root editorconfig file`() {
         val rootEditorConfigPropertyValue1 = false
-        tempFileSystem.apply {
+        ktlintTestFileSystem.apply {
             writeRootEditorConfigFile(
                 //language=EditorConfig
                 """
@@ -146,7 +147,7 @@ internal class EditorConfigGeneratorTest {
         val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
             rules = rules,
             codeStyle = CodeStyleValue.intellij_idea,
-            filePath = tempFileSystem.resolve("test.kt"),
+            filePath = ktlintTestFileSystem.resolve("test.kt"),
         )
 
         assertThat(generatedEditorConfig.lines()).doesNotContainAnyElementsOf(listOf("root = true"))

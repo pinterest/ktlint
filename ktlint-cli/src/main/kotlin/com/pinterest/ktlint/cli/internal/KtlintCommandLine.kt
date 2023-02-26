@@ -429,7 +429,8 @@ internal class KtlintCommandLine {
         lintErrorsPerFile: Map<String, List<KtlintCliError>>,
         reporter: ReporterV2,
     ) {
-        FileSystems.getDefault()
+        FileSystems
+            .getDefault()
             .fileSequence(patterns)
             .map { it.toFile() }
             .takeWhile { errorNumber.get() < limit }

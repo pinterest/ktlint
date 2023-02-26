@@ -34,6 +34,7 @@ import org.jetbrains.kotlin.com.intellij.openapi.util.Key
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.io.File
 import java.nio.charset.StandardCharsets
+import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -356,14 +357,12 @@ public class KtLintRuleEngine(
     public val isInvokedFromCli: Boolean = false,
 
     /**
-     * **For internal use only**: indicates that the '.editorconfig' on the file system has to be ignored. This primarily is used to prevent
-     * that code snippets in unit test are linted/formatted based on values in the '.editorconfig' which might interfere with the actual
-     * set up of the test. This property can be removed in any of next versions without further notice and without providing a fallback.
-     *
-     * TODO: xxx consider to implement a FileSystem parameter. When set to KtlintTestFileSystem the ".editorconfig" can easily be ignored as
-     *  that is the default when not explicitly creating one
+     * The [FileSystem] to be used. This property is primarily intended to be used in unit tests. By specifying an alternative [FileSystem]
+     * the unit test gains control on whether the [EditorConfigLoader] should or should not read specific ".editorconfig" files. For
+     * example, it is considered unwanted that a unit test is influenced by the ".editorconfig" file of the project in which the unit test
+     * is included.
      */
-    internal val ignoreEditorConfigOnFileSystem: Boolean = false,
+    public val fileSystem: FileSystem = FileSystems.getDefault(),
 ) {
     init {
         require(ruleProviders.any()) {
@@ -374,11 +373,10 @@ public class KtLintRuleEngine(
     internal val editorConfigLoaderEc4j = EditorConfigLoaderEc4j(ruleProviders.propertyTypes())
 
     internal val editorConfigLoader = EditorConfigLoader(
-        FileSystems.getDefault(),
+        fileSystem,
         editorConfigLoaderEc4j,
         editorConfigDefaults,
         editorConfigOverride,
-        ignoreEditorConfigOnFileSystem,
     )
 
     /**
@@ -617,7 +615,7 @@ public class KtLintRuleEngine(
                 .toSet()
                 .map { it.getRule() }
                 .toSet()
-        return EditorConfigGenerator(editorConfigLoaderEc4j)
+        return EditorConfigGenerator(fileSystem, editorConfigLoaderEc4j)
             .generateEditorconfig(
                 rules,
                 codeStyle,

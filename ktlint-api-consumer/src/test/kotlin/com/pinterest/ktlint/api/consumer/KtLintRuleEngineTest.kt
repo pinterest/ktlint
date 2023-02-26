@@ -15,11 +15,13 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutio
 import com.pinterest.ktlint.rule.engine.internal.toPropertyBuilderWithValue
 import com.pinterest.ktlint.ruleset.standard.rules.FilenameRule
 import com.pinterest.ktlint.ruleset.standard.rules.IndentationRule
+import com.pinterest.ktlint.test.KtlintTestFileSystem
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.model.EditorConfig
 import org.ec4j.core.model.Glob
 import org.ec4j.core.model.Section
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -32,6 +34,13 @@ import java.nio.file.Path
  * of an API Consumer to ensure that the API is usable and stable across releases.
  */
 class KtLintRuleEngineTest {
+    private val ktlintTestFileSystem = KtlintTestFileSystem()
+
+    @AfterEach
+    fun tearDown() {
+        ktlintTestFileSystem.close()
+    }
+
     @Nested
     inner class `Lint with KtLintRuleEngine` {
         @Test
@@ -45,7 +54,7 @@ class KtLintRuleEngineTest {
                 ruleProviders = setOf(
                     RuleProvider { IndentationRule() },
                 ),
-                ignoreEditorConfigOnFileSystem = true,
+                fileSystem = ktlintTestFileSystem.fileSystem,
             )
 
             val lintErrors = mutableListOf<LintError>()
@@ -63,7 +72,7 @@ class KtLintRuleEngineTest {
                 ruleProviders = setOf(
                     RuleProvider { IndentationRule() },
                 ),
-                ignoreEditorConfigOnFileSystem = true,
+                fileSystem = ktlintTestFileSystem.fileSystem,
             )
 
             val lintErrors = mutableListOf<LintError>()
@@ -87,7 +96,7 @@ class KtLintRuleEngineTest {
                 ruleProviders = setOf(
                     RuleProvider { IndentationRule() },
                 ),
-                ignoreEditorConfigOnFileSystem = true,
+                fileSystem = ktlintTestFileSystem.fileSystem,
             )
 
             val lintErrors = mutableListOf<LintError>()
@@ -116,7 +125,7 @@ class KtLintRuleEngineTest {
                 editorConfigOverride = EditorConfigOverride.from(
                     NoVarRule.NO_VAR_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled,
                 ),
-                ignoreEditorConfigOnFileSystem = true,
+                fileSystem = ktlintTestFileSystem.fileSystem,
             )
 
             val lintErrors = mutableListOf<LintError>()
@@ -138,7 +147,7 @@ class KtLintRuleEngineTest {
                 ruleProviders = setOf(
                     RuleProvider { FilenameRule() },
                 ),
-                ignoreEditorConfigOnFileSystem = true,
+                fileSystem = ktlintTestFileSystem.fileSystem,
             )
             val lintErrors = mutableListOf<LintError>()
             ktLintRuleEngine.lint(
@@ -167,7 +176,7 @@ class KtLintRuleEngineTest {
                 ruleProviders = setOf(
                     RuleProvider { IndentationRule() },
                 ),
-                ignoreEditorConfigOnFileSystem = true,
+                fileSystem = ktlintTestFileSystem.fileSystem,
             )
 
             val original = File("$dir/Main.kt").readText()
@@ -185,7 +194,7 @@ class KtLintRuleEngineTest {
                 ruleProviders = setOf(
                     RuleProvider { IndentationRule() },
                 ),
-                ignoreEditorConfigOnFileSystem = true,
+                fileSystem = ktlintTestFileSystem.fileSystem,
             )
 
             val actual = ktLintRuleEngine.format(
@@ -213,7 +222,7 @@ class KtLintRuleEngineTest {
                 ruleProviders = setOf(
                     RuleProvider { IndentationRule() },
                 ),
-                ignoreEditorConfigOnFileSystem = true,
+                fileSystem = ktlintTestFileSystem.fileSystem,
             )
 
             val actual = ktLintRuleEngine.format(
@@ -258,7 +267,7 @@ class KtLintRuleEngineTest {
                     )
                     .build(),
             ),
-            ignoreEditorConfigOnFileSystem = true,
+            fileSystem = ktlintTestFileSystem.fileSystem,
         )
         val errors = mutableListOf<LintError>()
         ktLintEngine.lint(
