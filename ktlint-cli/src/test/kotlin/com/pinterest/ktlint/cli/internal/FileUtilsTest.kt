@@ -4,6 +4,7 @@ import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.test.KtlintTestFileSystem
 import mu.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
+import org.jetbrains.kotlin.util.suffixIfNot
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import java.nio.file.Path
+import kotlin.io.path.pathString
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -22,20 +24,19 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 internal class FileUtilsTest {
     private val tempFileSystem = KtlintTestFileSystem()
 
-    private val rootDirectory = tempFileSystem.rootDirectory
-    private val javaFileRootDirectory = "$rootDirectory/Root.java"
-    private val ktFileRootDirectory = "$rootDirectory/Root.kt"
-    private val ktsFileRootDirectory = "$rootDirectory/Root.kts"
-    private val javaFileInHiddenDirectory = "$rootDirectory/project1/.git/Ignored.java"
-    private val ktFileInHiddenDirectory = "$rootDirectory/project1/.git/Ignored.kt"
-    private val ktsFileInHiddenDirectory = "$rootDirectory/project1/.git/Ignored.kts"
-    private val javaFileInProjectRootDirectory = "$rootDirectory/project1/ProjectRoot.java"
-    private val ktFileInProjectRootDirectory = "$rootDirectory/project1/ProjectRoot.kt"
-    private val ktsFileInProjectRootDirectory = "$rootDirectory/project1/ProjectRoot.kts"
-    private val ktFile1InProjectSubDirectory = "$rootDirectory/project1/src/main/kotlin/One.kt"
-    private val ktFile2InProjectSubDirectory = "$rootDirectory/project1/src/main/kotlin/example/Two.kt"
-    private val ktsFileInProjectSubDirectory = "$rootDirectory/project1/src/scripts/Script.kts"
-    private val javaFileInProjectSubDirectory = "$rootDirectory/project1/src/main/java/One.java"
+    private val javaFileRootDirectory = "Root.java"
+    private val ktFileRootDirectory = "Root.kt"
+    private val ktsFileRootDirectory = "Root.kts"
+    private val javaFileInHiddenDirectory = "project1/.git/Ignored.java"
+    private val ktFileInHiddenDirectory = "project1/.git/Ignored.kt"
+    private val ktsFileInHiddenDirectory = "project1/.git/Ignored.kts"
+    private val javaFileInProjectRootDirectory = "project1/ProjectRoot.java"
+    private val ktFileInProjectRootDirectory = "project1/ProjectRoot.kt"
+    private val ktsFileInProjectRootDirectory = "project1/ProjectRoot.kts"
+    private val ktFile1InProjectSubDirectory = "project1/src/main/kotlin/One.kt"
+    private val ktFile2InProjectSubDirectory = "project1/src/main/kotlin/example/Two.kt"
+    private val ktsFileInProjectSubDirectory = "project1/src/scripts/Script.kts"
+    private val javaFileInProjectSubDirectory = "project1/src/main/java/One.java"
 
     @BeforeEach
     internal fun setUp() {
@@ -176,7 +177,7 @@ internal class FileUtilsTest {
         val foundFiles = getFiles(
             patterns = listOf(
                 "src/main/kotlin/One.kt",
-                ktFile2InProjectSubDirectory,
+                "${tempFileSystem.rootDirectoryPathString()}$ktFile2InProjectSubDirectory",
             ),
             rootDir = tempFileSystem.resolve("project1"),
         )
@@ -369,27 +370,36 @@ internal class FileUtilsTest {
 
     private fun KtlintTestFileSystem.createFile(fileName: String) =
         writeFile(
-            relativeDirectoryToRoot = fileName
-                .removePrefix(rootDirectory)
-                .substringBeforeLast("/", ""),
+            relativeDirectoryToRoot = fileName.substringBeforeLast("/", ""),
             fileName = fileName.substringAfterLast("/", fileName),
             content = SOME_CONTENT,
         )
 
     private fun getFiles(
         patterns: List<String> = DEFAULT_PATTERNS,
-        rootDir: Path = tempFileSystem.fileSystem.getPath(rootDirectory),
+        rootDir: Path = tempFileSystem.rootDirectoryPath(),
     ): List<String> =
         tempFileSystem
             .fileSystem
             .fileSequence(patterns, rootDir)
             .map { it.normalize().toString() }
             .toList()
-            .also {
+            .map {
+                tempFileSystem
+                    .unixPathString(it)
+                    .removePrefix(tempFileSystem.rootDirectoryPathString())
+            }.also {
                 LOGGER.info {
                     "Getting files with [patterns = $patterns] and [rootdir = $rootDir] returns [files = $it]"
                 }
             }
+
+    private fun KtlintTestFileSystem.rootDirectoryPath() = resolve()
+
+    private fun KtlintTestFileSystem.rootDirectoryPathString() =
+        rootDirectoryPath()
+            .pathString
+            .suffixIfNot("/")
 
     private companion object {
         const val SOME_CONTENT = "// Not relevant for test"
