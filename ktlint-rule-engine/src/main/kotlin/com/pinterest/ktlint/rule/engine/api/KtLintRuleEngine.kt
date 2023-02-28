@@ -436,7 +436,7 @@ public class KtLintRuleEngine(
         val errors = mutableListOf<LintError>()
 
         VisitorProvider(ruleExecutionContext.ruleRunners)
-            .visitor(ruleExecutionContext.editorConfig)
+            .visitor()
             .invoke { rule, fqRuleId ->
                 ruleExecutionContext.executeRule(rule, fqRuleId, false) { offset, errorMessage, canBeAutoCorrected ->
                     val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
@@ -507,14 +507,9 @@ public class KtLintRuleEngine(
         var tripped = false
         var mutated = false
         val errors = mutableSetOf<Pair<LintError, Boolean>>()
-        val ruleRunners =
-            ruleProviders
-                .map { RuleRunner(it) }
-                .distinctBy { it.ruleId }
-                .toSet()
-        val visitorProvider = VisitorProvider(ruleRunners)
+        val visitorProvider = VisitorProvider(ruleExecutionContext.ruleRunners)
         visitorProvider
-            .visitor(ruleExecutionContext.editorConfig)
+            .visitor()
             .invoke { rule, fqRuleId ->
                 ruleExecutionContext.executeRule(rule, fqRuleId, true) { offset, errorMessage, canBeAutoCorrected ->
                     tripped = true
@@ -539,7 +534,7 @@ public class KtLintRuleEngine(
             }
         if (tripped) {
             visitorProvider
-                .visitor(ruleExecutionContext.editorConfig)
+                .visitor()
                 .invoke { rule, fqRuleId ->
                     ruleExecutionContext.executeRule(
                         rule,

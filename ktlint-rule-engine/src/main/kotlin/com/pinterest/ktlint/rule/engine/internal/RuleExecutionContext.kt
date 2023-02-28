@@ -161,12 +161,6 @@ internal class RuleExecutionContext private constructor(
 
             val rootNode = psiFile.node
 
-            val ruleRunners =
-                ktLintRuleEngine
-                    .ruleProviders
-                    .map { RuleRunner(it) }
-                    .distinctBy { it.ruleId }
-                    .toSet()
             val editorConfigProperties = with(ktLintRuleEngine) {
                 ktLintRuleEngine
                     .editorConfigLoader
@@ -187,7 +181,7 @@ internal class RuleExecutionContext private constructor(
             return RuleExecutionContext(
                 code,
                 rootNode,
-                ruleRunners,
+                RuleRunnerFilter(ktLintRuleEngine, editorConfigProperties).filter(),
                 editorConfigProperties,
                 positionInTextLocator,
             )

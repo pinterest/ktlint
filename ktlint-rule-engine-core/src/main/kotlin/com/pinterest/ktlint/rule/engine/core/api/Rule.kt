@@ -191,17 +191,39 @@ public open class Rule(
     )
 
     public sealed class VisitorModifier {
+        /**
+         * Defines that the [Rule] that declares this [VisitorModifier] will be run after the [Rule] with rule id
+         * [VisitorModifier.RunAfterRule.ruleId].
+         */
         public data class RunAfterRule(
+            /**
+             * The [RuleId] of the [Rule] which should run before the [Rule] that declares the [VisitorModifier.RunAfterRule].
+             */
             val ruleId: RuleId,
+
             /**
-             * The annotated rule will only be loaded in case the other rule is loaded as well.
+             * The [Mode] determines whether the [Rule] that declares this [VisitorModifier] can be run in case the [Rule] with rule id
+             * [VisitorModifier.RunAfterRule.ruleId] is not loaded or enabled.
              */
-            val loadOnlyWhenOtherRuleIsLoaded: Boolean = false,
-            /**
-             * The annotated rule will only be run in case the other rule is enabled.
-             */
-            val runOnlyWhenOtherRuleIsEnabled: Boolean = false,
-        ) : VisitorModifier()
+            val mode: Mode,
+
+        ) : VisitorModifier() {
+            public enum class Mode {
+                /**
+                 * Run the [Rule] that declares the [VisitorModifier.RunAfterRule] regardless whether the [Rule] with ruleId
+                 * [VisitorModifier.RunAfterRule.ruleId] is loaded or disabled. However, if that other rule is loaded and enabled, it runs
+                 * before the [Rule] that declares the [VisitorModifier.RunAfterRule].
+                 */
+                REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+
+                /**
+                 * Run the [Rule] that declares the [VisitorModifier.RunAfterRule] only in case the [Rule] with ruleId
+                 * [VisitorModifier.RunAfterRule.ruleId] is loaded *and* enabled. That other rule runs before the [Rule] that declares the
+                 * [VisitorModifier.RunAfterRule].
+                 */
+                ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED,
+            }
+        }
 
         public object RunAsLateAsPossible : VisitorModifier()
     }

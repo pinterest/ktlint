@@ -175,6 +175,8 @@ public class SomeRule : Rule(
 }
 ```
 
+Fields `loadOnlyWhenOtherRuleIsLoaded` and `runOnlyWhenOtherRuleIsEnabled` have been removed from class `com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule` and are replaced with a single field `mode`. The `mode` either contains value `REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED` or `ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED`.
+
 #### Custom Reporter Provider `ReporterProvider`
 
 Custom Reporters build for older versions of KtLint are no longer supported by this version of KtLint. The `com.pinterest.ktlint.core.ReporterProvider` interface has been replaced with `com.pinterest.ktlint.cli.reporter.core.api.ReporterProviderV2`. The accompanying interface `com.pinterest.ktlint.core.Reporter` has been replaced with `com.pinterest.ktlint.cli.reporter.core.api.ReporterV2`.
@@ -209,6 +211,8 @@ public class SomeRule : Rule(
   ...
 }
 ```
+
+Fields `loadOnlyWhenOtherRuleIsLoaded` and `runOnlyWhenOtherRuleIsEnabled` have been removed from class `com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule` and are replaced with a single field `mode`. The `mode` either contains value `REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED` or `ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED`.
 
 Like before, the API Consumer can still offer a mix of rules originating from `ktlint-ruleset-standard` as well as custom rules.
 

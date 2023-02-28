@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
@@ -30,16 +31,14 @@ public class MaxLineLengthRule :
                 // RunAsLateAsPossible, it needs to be checked that this rule still runs after that new rule or that it
                 // won't be affected by that rule.
                 ruleId = TRAILING_COMMA_ON_CALL_SITE_RULE_ID,
-                loadOnlyWhenOtherRuleIsLoaded = false,
-                runOnlyWhenOtherRuleIsEnabled = false,
+                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
             ),
             VisitorModifier.RunAfterRule(
                 // This rule should run after all other rules. Each time a rule visitor is modified with
                 // RunAsLateAsPossible, it needs to be checked that this rule still runs after that new rule or that it
                 // won't be affected by that rule.
                 ruleId = TRAILING_COMMA_ON_DECLARATION_SITE_RULE_ID,
-                loadOnlyWhenOtherRuleIsLoaded = false,
-                runOnlyWhenOtherRuleIsEnabled = false,
+                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
             ),
             VisitorModifier.RunAsLateAsPossible,
         ),

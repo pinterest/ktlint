@@ -225,8 +225,9 @@ internal class EditorConfigLoaderTest {
                 .run {
                     assertThat(convertToPropertyValues())
                         .containsExactlyInAnyOrder(
-                            "ktlint_code_style = intellij_idea",
                             "end_of_line = lf",
+                            "ktlint_code_style = intellij_idea",
+                            "ktlint_experimental = disabled",
                         )
                 }
         }
@@ -272,8 +273,9 @@ internal class EditorConfigLoaderTest {
                 .run {
                     assertThat(convertToPropertyValues())
                         .containsExactlyInAnyOrder(
-                            "ktlint_code_style = intellij_idea",
                             "end_of_line = lf",
+                            "ktlint_code_style = intellij_idea",
+                            "ktlint_experimental = disabled",
                         )
                 }
         }
@@ -319,8 +321,9 @@ internal class EditorConfigLoaderTest {
                 .run {
                     assertThat(convertToPropertyValues())
                         .containsExactlyInAnyOrder(
-                            "ktlint_code_style = intellij_idea",
                             "end_of_line = lf",
+                            "ktlint_code_style = intellij_idea",
+                            "ktlint_experimental = disabled",
                         )
                 }
         }

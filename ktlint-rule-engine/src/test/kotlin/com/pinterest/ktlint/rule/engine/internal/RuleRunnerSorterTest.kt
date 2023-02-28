@@ -1,6 +1,8 @@
 package com.pinterest.ktlint.rule.engine.internal
 
 import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
+import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.ruleset.standard.rules.FUNCTION_SIGNATURE_RULE_ID
@@ -164,7 +166,10 @@ class RuleRunnerSorterTest {
                         ruleRunners = createRuleRunners(
                             object : R(
                                 ruleId = RuleId(ruleId),
-                                visitorModifier = VisitorModifier.RunAfterRule(RuleId(ruleId)),
+                                visitorModifier = VisitorModifier.RunAfterRule(
+                                    ruleId = RuleId(ruleId),
+                                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                ),
                             ) {},
                         ),
                     )
@@ -192,8 +197,14 @@ class RuleRunnerSorterTest {
                             object : R(
                                 ruleId = RuleId(ruleId),
                                 visitorModifiers = setOf(
-                                    VisitorModifier.RunAfterRule(RuleId("custom:some-other-rule-id")),
-                                    VisitorModifier.RunAfterRule(RuleId(ruleId)),
+                                    VisitorModifier.RunAfterRule(
+                                        ruleId = RuleId("custom:some-other-rule-id"),
+                                        mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                    ),
+                                    VisitorModifier.RunAfterRule(
+                                        ruleId = RuleId(ruleId),
+                                        mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                    ),
                                 ),
                             ) {},
                         ),
@@ -214,16 +225,25 @@ class RuleRunnerSorterTest {
                     ruleRunners = createRuleRunners(
                         object : R(
                             ruleId = STANDARD_RULE_A,
-                            visitorModifier = VisitorModifier.RunAfterRule(STANDARD_RULE_C),
+                            visitorModifier = VisitorModifier.RunAfterRule(
+                                ruleId = STANDARD_RULE_C,
+                                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                            ),
                         ) {},
                         NormalRule(STANDARD_RULE_B),
                         object : R(
                             ruleId = STANDARD_RULE_D,
-                            visitorModifier = VisitorModifier.RunAfterRule(STANDARD_RULE_B),
+                            visitorModifier = VisitorModifier.RunAfterRule(
+                                ruleId = STANDARD_RULE_B,
+                                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                            ),
                         ) {},
                         object : R(
                             ruleId = STANDARD_RULE_C,
-                            visitorModifier = VisitorModifier.RunAfterRule(STANDARD_RULE_B),
+                            visitorModifier = VisitorModifier.RunAfterRule(
+                                ruleId = STANDARD_RULE_B,
+                                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                            ),
                         ) {},
                     ),
                 ).map { it.ruleId }
@@ -248,16 +268,25 @@ class RuleRunnerSorterTest {
                         NormalRule(STANDARD_RULE_B),
                         object : R(
                             ruleId = STANDARD_RULE_D,
-                            visitorModifier = VisitorModifier.RunAfterRule(STANDARD_RULE_B),
+                            visitorModifier = VisitorModifier.RunAfterRule(
+                                ruleId = STANDARD_RULE_B,
+                                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                            ),
                         ) {},
                         object : R(
                             ruleId = STANDARD_RULE_C,
-                            visitorModifier = VisitorModifier.RunAfterRule(STANDARD_RULE_B),
+                            visitorModifier = VisitorModifier.RunAfterRule(
+                                ruleId = STANDARD_RULE_B,
+                                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                            ),
                         ) {},
                         object :
                             R(
                                 ruleId = EXPERIMENTAL_RULE_A,
-                                visitorModifier = VisitorModifier.RunAfterRule(STANDARD_RULE_C),
+                                visitorModifier = VisitorModifier.RunAfterRule(
+                                    ruleId = STANDARD_RULE_C,
+                                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                ),
                             ),
                             Rule.Experimental {},
                     ),
@@ -326,7 +355,7 @@ class RuleRunnerSorterTest {
                                 ruleId = STANDARD_RULE_A,
                                 visitorModifier = VisitorModifier.RunAfterRule(
                                     ruleId = STANDARD_RULE_B,
-                                    loadOnlyWhenOtherRuleIsLoaded = true,
+                                    mode = ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED,
                                 ),
                             ) {},
                             object :
@@ -334,7 +363,7 @@ class RuleRunnerSorterTest {
                                     ruleId = EXPERIMENTAL_RULE_C,
                                     visitorModifier = VisitorModifier.RunAfterRule(
                                         ruleId = EXPERIMENTAL_RULE_B,
-                                        loadOnlyWhenOtherRuleIsLoaded = true,
+                                        mode = ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED,
                                     ),
                                 ),
                                 Rule.Experimental {},
@@ -342,7 +371,7 @@ class RuleRunnerSorterTest {
                     )
             }.withMessage(
                 """
-                Skipping rule(s) which are depending on a rule which is not loaded. Please check if you need to additional rule sets before creating an issue.
+                Skipping rule(s) which are depending on a rule which is not loaded. Please check if you need to add additional rule sets before creating an issue.
                   - Rule with id '$STANDARD_RULE_A' requires rule with id '$STANDARD_RULE_B' to be loaded
                   - Rule with id '$EXPERIMENTAL_RULE_C' requires rule with id '$EXPERIMENTAL_RULE_B' to be loaded
                 """.trimIndent(),
@@ -358,10 +387,13 @@ class RuleRunnerSorterTest {
                             object : R(
                                 ruleId = STANDARD_RULE_A,
                                 visitorModifiers = setOf(
-                                    VisitorModifier.RunAfterRule(STANDARD_RULE_B),
+                                    VisitorModifier.RunAfterRule(
+                                        ruleId = STANDARD_RULE_B,
+                                        mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                    ),
                                     VisitorModifier.RunAfterRule(
                                         ruleId = STANDARD_RULE_C,
-                                        loadOnlyWhenOtherRuleIsLoaded = true,
+                                        mode = ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED,
                                     ),
                                 ),
                             ) {},
@@ -371,7 +403,7 @@ class RuleRunnerSorterTest {
                                     visitorModifiers = setOf(
                                         VisitorModifier.RunAfterRule(
                                             ruleId = EXPERIMENTAL_RULE_C,
-                                            loadOnlyWhenOtherRuleIsLoaded = true,
+                                            mode = ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED,
                                         ),
                                     ),
                                 ),
@@ -380,7 +412,7 @@ class RuleRunnerSorterTest {
                     )
             }.withMessage(
                 """
-                Skipping rule(s) which are depending on a rule which is not loaded. Please check if you need to additional rule sets before creating an issue.
+                Skipping rule(s) which are depending on a rule which is not loaded. Please check if you need to add additional rule sets before creating an issue.
                   - Rule with id '$STANDARD_RULE_A' requires rule with id '$STANDARD_RULE_C' to be loaded
                   - Rule with id '$EXPERIMENTAL_RULE_B' requires rule with id '$EXPERIMENTAL_RULE_C' to be loaded
                 """.trimIndent(),
@@ -400,7 +432,7 @@ class RuleRunnerSorterTest {
                                 ruleId = STANDARD_RULE_A,
                                 visitorModifier = VisitorModifier.RunAfterRule(
                                     ruleId = RuleId("test:not-loaded-rule"),
-                                    loadOnlyWhenOtherRuleIsLoaded = false,
+                                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
                                 ),
                             ) {},
                         ),
@@ -421,10 +453,13 @@ class RuleRunnerSorterTest {
                             object : R(
                                 ruleId = STANDARD_RULE_B,
                                 visitorModifiers = setOf(
-                                    VisitorModifier.RunAfterRule(STANDARD_RULE_A),
+                                    VisitorModifier.RunAfterRule(
+                                        ruleId = STANDARD_RULE_A,
+                                        mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                    ),
                                     VisitorModifier.RunAfterRule(
                                         ruleId = RuleId("test:not-loaded-rule"),
-                                        loadOnlyWhenOtherRuleIsLoaded = false,
+                                        mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
                                     ),
                                 ),
                             ) {},
@@ -448,16 +483,25 @@ class RuleRunnerSorterTest {
                         ruleRunners = createRuleRunners(
                             object : R(
                                 ruleId = STANDARD_RULE_A,
-                                visitorModifier = VisitorModifier.RunAfterRule(STANDARD_RULE_B),
+                                visitorModifier = VisitorModifier.RunAfterRule(
+                                    ruleId = STANDARD_RULE_B,
+                                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                ),
                             ) {},
                             object : R(
                                 ruleId = STANDARD_RULE_B,
-                                visitorModifier = VisitorModifier.RunAfterRule(STANDARD_RULE_C),
+                                visitorModifier = VisitorModifier.RunAfterRule(
+                                    ruleId = STANDARD_RULE_C,
+                                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                ),
                             ) {},
                             object :
                                 R(
                                     ruleId = STANDARD_RULE_C,
-                                    visitorModifier = VisitorModifier.RunAfterRule(STANDARD_RULE_A),
+                                    visitorModifier = VisitorModifier.RunAfterRule(
+                                        ruleId = STANDARD_RULE_A,
+                                        mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                    ),
                                 ),
                                 Rule.Experimental {},
                         ),
@@ -481,21 +525,36 @@ class RuleRunnerSorterTest {
                             object : R(
                                 ruleId = STANDARD_RULE_A,
                                 visitorModifiers = setOf(
-                                    VisitorModifier.RunAfterRule(CUSTOM_RULE_SET_A_RULE_B),
-                                    VisitorModifier.RunAfterRule(STANDARD_RULE_B),
+                                    VisitorModifier.RunAfterRule(
+                                        ruleId = CUSTOM_RULE_SET_A_RULE_B,
+                                        mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                    ),
+                                    VisitorModifier.RunAfterRule(
+                                        ruleId = STANDARD_RULE_B,
+                                        mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                    ),
                                 ),
                             ) {},
                             object : R(
                                 ruleId = STANDARD_RULE_B,
                                 visitorModifiers = setOf(
-                                    VisitorModifier.RunAfterRule(STANDARD_RULE_C),
-                                    VisitorModifier.RunAfterRule(CUSTOM_RULE_SET_A_RULE_C),
+                                    VisitorModifier.RunAfterRule(
+                                        ruleId = STANDARD_RULE_C,
+                                        mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                    ),
+                                    VisitorModifier.RunAfterRule(
+                                        ruleId = CUSTOM_RULE_SET_A_RULE_C,
+                                        mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                    ),
                                 ),
                             ) {},
                             object :
                                 R(
                                     ruleId = CUSTOM_RULE_SET_A_RULE_C,
-                                    visitorModifier = VisitorModifier.RunAfterRule(STANDARD_RULE_A),
+                                    visitorModifier = VisitorModifier.RunAfterRule(
+                                        ruleId = STANDARD_RULE_A,
+                                        mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                    ),
                                 ),
                                 Rule.Experimental {},
                         ),
@@ -521,15 +580,24 @@ class RuleRunnerSorterTest {
                         ruleRunners = createRuleRunners(
                             object : R(
                                 ruleId = STANDARD_RULE_C,
-                                visitorModifier = VisitorModifier.RunAfterRule(CUSTOM_RULE_SET_B_RULE_B),
+                                visitorModifier = VisitorModifier.RunAfterRule(
+                                    ruleId = CUSTOM_RULE_SET_B_RULE_B,
+                                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                ),
                             ) {},
                             object : R(
                                 ruleId = CUSTOM_RULE_SET_B_RULE_B,
-                                visitorModifier = VisitorModifier.RunAfterRule(CUSTOM_RULE_SET_A_RULE_A),
+                                visitorModifier = VisitorModifier.RunAfterRule(
+                                    ruleId = CUSTOM_RULE_SET_A_RULE_A,
+                                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                ),
                             ) {},
                             object : R(
                                 ruleId = CUSTOM_RULE_SET_A_RULE_A,
-                                visitorModifier = VisitorModifier.RunAfterRule(STANDARD_RULE_C),
+                                visitorModifier = VisitorModifier.RunAfterRule(
+                                    ruleId = STANDARD_RULE_C,
+                                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                ),
                             ) {},
                         ),
                     )
@@ -552,20 +620,35 @@ class RuleRunnerSorterTest {
                             object : R(
                                 ruleId = STANDARD_RULE_C,
                                 visitorModifiers = setOf(
-                                    VisitorModifier.RunAfterRule(CUSTOM_RULE_SET_B_RULE_B),
-                                    VisitorModifier.RunAfterRule(STANDARD_RULE_B),
+                                    VisitorModifier.RunAfterRule(
+                                        ruleId = CUSTOM_RULE_SET_B_RULE_B,
+                                        mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                    ),
+                                    VisitorModifier.RunAfterRule(
+                                        ruleId = STANDARD_RULE_B,
+                                        mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                    ),
                                 ),
                             ) {},
                             object : R(
                                 ruleId = CUSTOM_RULE_SET_B_RULE_B,
                                 visitorModifiers = setOf(
-                                    VisitorModifier.RunAfterRule(STANDARD_RULE_A),
-                                    VisitorModifier.RunAfterRule(CUSTOM_RULE_SET_A_RULE_A),
+                                    VisitorModifier.RunAfterRule(
+                                        ruleId = STANDARD_RULE_A,
+                                        mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                    ),
+                                    VisitorModifier.RunAfterRule(
+                                        ruleId = CUSTOM_RULE_SET_A_RULE_A,
+                                        mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                    ),
                                 ),
                             ) {},
                             object : R(
                                 ruleId = CUSTOM_RULE_SET_A_RULE_A,
-                                visitorModifier = VisitorModifier.RunAfterRule(STANDARD_RULE_C),
+                                visitorModifier = VisitorModifier.RunAfterRule(
+                                    ruleId = STANDARD_RULE_C,
+                                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                ),
                             ) {},
                         ),
                     )

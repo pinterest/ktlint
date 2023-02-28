@@ -9,6 +9,7 @@ import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.END_OF_LINE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
@@ -93,6 +94,10 @@ internal class EditorConfigLoader(
                          * Used by [KtLintRuleEngine] to use correct line separator when writing the formatted output.
                          */
                         END_OF_LINE_PROPERTY,
+                        /**
+                         * Used by [VisitorProvider] to determine whether experimental rules have to be executed.
+                         */
+                        EXPERIMENTAL_RULES_EXECUTION_PROPERTY,
                     )
             }
     }

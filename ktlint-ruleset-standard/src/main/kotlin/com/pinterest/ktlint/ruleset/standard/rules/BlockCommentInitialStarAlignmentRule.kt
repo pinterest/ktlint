@@ -2,6 +2,7 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.lineIndent
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -18,7 +19,10 @@ public class BlockCommentInitialStarAlignmentRule :
             // The block comment is a node which can contain multiple lines. The indent of the second and later line
             // should be determined based on the indent of the block comment node. This indent is determined by the
             // indentation rule.
-            VisitorModifier.RunAfterRule(INDENTATION_RULE_ID),
+            VisitorModifier.RunAfterRule(
+                ruleId = INDENTATION_RULE_ID,
+                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+            ),
         ),
     ),
     Rule.Experimental {

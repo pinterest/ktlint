@@ -126,8 +126,13 @@ public fun Set<RuleProvider>.lint(
 private fun EditorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProviders: Set<RuleProvider>): EditorConfigOverride {
     val ruleSetRuleExecutions = ruleProviders
         .asSequence()
-        .map { it.createNewRuleInstance().ruleId.ruleSetId.createRuleSetExecutionEditorConfigProperty() }
-        .distinct()
+        .map { ruleProvider ->
+            ruleProvider
+                .createNewRuleInstance()
+                .ruleId
+                .ruleSetId
+                .createRuleSetExecutionEditorConfigProperty()
+        }.distinct()
         .filter { editorConfigProperty -> this.properties[editorConfigProperty] == null }
         .map { it to RuleExecution.enabled }
         .toList()

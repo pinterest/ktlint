@@ -3,6 +3,7 @@ package com.pinterest.ktlint.rule.engine.internal
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule
+import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.internal.RuleRunnerSorter.RuleRunnerOrderModifier.ADD
 import com.pinterest.ktlint.rule.engine.internal.RuleRunnerSorter.RuleRunnerOrderModifier.BLOCK_UNTIL_RUN_AFTER_RULE_IS_LOADED
@@ -13,6 +14,10 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
  * Sorts the [RuleRunner]s based on [Rule.VisitorModifier]s.
+ *
+ * TODO: Rules which depend on other rules which must have been loaded (e.g. RunAfterRule.loadOnlyWhenOtherRuleIsLoaded = true) or have been
+ *   enabled (e.g. RunAfterRule.runOnlyWhenOtherRuleIsEnabled) should already have been removed before the rules are getting sorted
+ *
  */
 internal class RuleRunnerSorter {
     /**
@@ -121,9 +126,7 @@ internal class RuleRunnerSorter {
                                     BLOCK_UNTIL_RUN_AFTER_RULE_IS_LOADED
                                 }
 
-                                runAfterRule.loadOnlyWhenOtherRuleIsLoaded -> {
-                                    // The runAfterRule depends on a rule which will not be loaded. As the rule on which the
-                                    // current rule depends is required, the current rule has to be skipped.
+                                runAfterRule.mode == ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED -> {
                                     LOGGER.warn {
                                         "Skipping rule with id '${currentRuleRunner.ruleId.value}' as it requires " +
                                             "that the rule with id '${runAfterRule.ruleId.value}' is loaded. However, " +
@@ -181,7 +184,7 @@ internal class RuleRunnerSorter {
             requiredButMissingRuleIds
                 .joinToString(
                     prefix = "Skipping rule(s) which are depending on a rule which is not loaded. Please check if " +
-                        "you need to additional rule sets before creating an issue.$separator",
+                        "you need to add additional rule sets before creating an issue.$separator",
                     separator = separator,
                 ) {
                     "Rule with id '${it.ruleId}' requires rule with id '${it.runAfterRuleId}' to be loaded"
@@ -210,9 +213,6 @@ internal class RuleRunnerSorter {
                     }
                 }'"
             }
-        }
-        check(newRuleRunners.isNotEmpty()) {
-            "No runnable rules found. Please ensure that at least one is enabled."
         }
         return newRuleRunners
     }

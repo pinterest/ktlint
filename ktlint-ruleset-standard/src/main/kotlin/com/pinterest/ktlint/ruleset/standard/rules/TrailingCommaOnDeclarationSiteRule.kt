@@ -10,6 +10,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
@@ -56,8 +57,7 @@ public class TrailingCommaOnDeclarationSiteRule :
         visitorModifiers = setOf(
             VisitorModifier.RunAfterRule(
                 ruleId = WRAPPING_RULE_ID,
-                loadOnlyWhenOtherRuleIsLoaded = true,
-                runOnlyWhenOtherRuleIsEnabled = true,
+                mode = ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED,
             ),
             VisitorModifier.RunAsLateAsPossible,
         ),
