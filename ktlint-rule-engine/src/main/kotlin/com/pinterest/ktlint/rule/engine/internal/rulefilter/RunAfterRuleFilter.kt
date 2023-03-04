@@ -3,6 +3,7 @@ package com.pinterest.ktlint.rule.engine.internal.rulefilter
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
+import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.internal.RuleRunner
 import com.pinterest.ktlint.rule.engine.internal.rulefilter.RunAfterRuleFilter.RunAfterRuleOrderModifier.ADD
@@ -19,6 +20,9 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
  * [Rule.VisitorModifier.RunAfterRule] for rules that are not loaded or are loaded but not enabled.
  */
 internal class RunAfterRuleFilter : RuleFilter {
+    // List of rule ids that are to be filtered
+    private val ruleIdsToBeFiltered = mutableSetOf<RuleId>()
+
     // The list of rule runners that still need to be processed
     private val unprocessedRuleRunners = mutableSetOf<RuleRunner>()
 
@@ -38,6 +42,7 @@ internal class RunAfterRuleFilter : RuleFilter {
     private val requiredButMissingRuleIds = mutableSetOf<RunAfterRuleRequiredButNotLoaded>()
 
     override fun filter(ruleRunners: Set<RuleRunner>): Set<RuleRunner> {
+        ruleIdsToBeFiltered.addAll(ruleRunners.map { it.ruleId })
         unprocessedRuleRunners.addAll(ruleRunners)
 
         // Initially the list only contains the rules which have no RunAfterRules (e.g. are not depending on another rule).
@@ -70,6 +75,7 @@ internal class RunAfterRuleFilter : RuleFilter {
         } while (newRuleRunnersAdded)
         check(requiredButMissingRuleIds.isEmpty()) { createRequiredRuleIsMissingMessage() }
         check(blockedRuleRunners.isEmpty()) { createCyclicDependencyMessage() }
+        check(unprocessedRuleRunners.isEmpty())
         return loadableRuleRunners
     }
 
@@ -95,6 +101,7 @@ internal class RunAfterRuleFilter : RuleFilter {
 
                 REQUIRED_RUN_AFTER_RULE_NOT_LOADED -> {
                     // The rule depends on a rule which will not be loaded
+                    Unit
                 }
             }
         }
@@ -162,7 +169,10 @@ internal class RunAfterRuleFilter : RuleFilter {
                 }
             }.toSet()
     }
-    private fun RuleRunner.canRunWith(loadedRuleIds: Set<RuleId>): Boolean = this.runAfterRules.all { it.ruleId in loadedRuleIds }
+    private fun RuleRunner.canRunWith(loadedRuleIds: Set<RuleId>): Boolean =
+        this
+            .runAfterRules
+            .all { it.ruleId in loadedRuleIds || it.mode == REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED }
 
     private fun createRequiredRuleIsMissingMessage(): String {
         val separator = "\n  - "
