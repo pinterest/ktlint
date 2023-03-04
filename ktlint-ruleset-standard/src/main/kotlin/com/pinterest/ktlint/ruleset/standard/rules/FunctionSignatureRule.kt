@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.EditorConfigProperties
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
@@ -19,11 +18,11 @@ import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.UsesEditorConfigProperties
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.lineIndent
@@ -54,36 +53,31 @@ public class FunctionSignatureRule :
             // Run after wrapping and spacing rules
             VisitorModifier.RunAsLateAsPossible,
         ),
-    ),
-    Rule.Experimental,
-    UsesEditorConfigProperties {
-    override val editorConfigProperties: List<EditorConfigProperty<*>> =
-        listOf(
+        usesEditorConfigProperties = setOf(
             INDENT_SIZE_PROPERTY,
             INDENT_STYLE_PROPERTY,
             MAX_LINE_LENGTH_PROPERTY,
             FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY,
             FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY,
-        )
-
+        ),
+    ),
+    Rule.Experimental {
     private var indent: String? = null
     private var maxLineLength = -1
     private var functionSignatureWrappingMinimumParameters = -1
     private var functionBodyExpressionWrapping = default
 
-    override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
-        with(editorConfigProperties) {
-            functionSignatureWrappingMinimumParameters = getEditorConfigValue(
-                FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY,
-            )
-            functionBodyExpressionWrapping = getEditorConfigValue(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY)
-            val indentConfig = IndentConfig(
-                indentStyle = getEditorConfigValue(INDENT_STYLE_PROPERTY),
-                tabWidth = getEditorConfigValue(INDENT_SIZE_PROPERTY),
-            )
-            indent = indentConfig.indent
-            maxLineLength = getEditorConfigValue(MAX_LINE_LENGTH_PROPERTY)
-        }
+    override fun beforeFirstNode(editorConfig: EditorConfig) {
+        functionSignatureWrappingMinimumParameters = editorConfig[
+            FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY,
+        ]
+        functionBodyExpressionWrapping = editorConfig[FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY]
+        val indentConfig = IndentConfig(
+            indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
+            tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
+        )
+        indent = indentConfig.indent
+        maxLineLength = editorConfig[MAX_LINE_LENGTH_PROPERTY]
     }
 
     override fun beforeVisitChildNodes(
@@ -714,7 +708,7 @@ public class FunctionSignatureRule :
                     PropertyType.PropertyValueParser.POSITIVE_INT_VALUE_PARSER,
                     setOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "unset"),
                 ),
-                defaultValue = -1,
+                defaultValue = Int.MAX_VALUE,
                 ktlintOfficialCodeStyleDefaultValue = 2,
             )
 

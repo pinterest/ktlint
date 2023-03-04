@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.EditorConfigProperties
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ARROW
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
@@ -11,10 +10,11 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.UsesEditorConfigProperties
 import com.pinterest.ktlint.rule.engine.core.api.isCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.lineIndent
 import com.pinterest.ktlint.rule.engine.core.api.noNewLineInClosedRange
@@ -57,23 +57,18 @@ public class TrailingCommaOnDeclarationSiteRule :
         visitorModifiers = setOf(
             VisitorModifier.RunAfterRule(
                 ruleId = WRAPPING_RULE_ID,
-                loadOnlyWhenOtherRuleIsLoaded = true,
-                runOnlyWhenOtherRuleIsEnabled = true,
+                mode = ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED,
             ),
             VisitorModifier.RunAsLateAsPossible,
         ),
-    ),
-    UsesEditorConfigProperties {
-    override val editorConfigProperties: List<EditorConfigProperty<*>> = listOf(
-        TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY,
-    )
-
+        usesEditorConfigProperties = setOf(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY),
+    ) {
     private var allowTrailingComma by Delegates.notNull<Boolean>()
 
     private fun ASTNode.isTrailingCommaAllowed() = elementType in TYPES_ON_DECLARATION_SITE && allowTrailingComma
 
-    override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
-        allowTrailingComma = editorConfigProperties.getEditorConfigValue(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY)
+    override fun beforeFirstNode(editorConfig: EditorConfig) {
+        allowTrailingComma = editorConfig[TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY]
     }
 
     override fun beforeVisitChildNodes(

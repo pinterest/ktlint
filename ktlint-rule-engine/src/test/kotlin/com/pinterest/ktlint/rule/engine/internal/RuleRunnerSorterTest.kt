@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.rule.engine.internal
 
 import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.ruleset.standard.rules.FUNCTION_SIGNATURE_RULE_ID
@@ -12,12 +13,9 @@ import com.pinterest.ktlint.ruleset.standard.rules.TrailingCommaOnCallSiteRule
 import com.pinterest.ktlint.ruleset.standard.rules.WRAPPING_RULE_ID
 import com.pinterest.ktlint.ruleset.standard.rules.WrappingRule
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatIllegalStateException
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.ValueSource
 
 class RuleRunnerSorterTest {
     @Test
@@ -148,64 +146,6 @@ class RuleRunnerSorterTest {
         )
     }
 
-    @Nested
-    inner class `Given a rule having a RunAfterRule visitor modifier then this modifier can not refer to the rule itself` {
-        @ParameterizedTest(name = "Rule id: {0}")
-        @ValueSource(
-            strings = [
-                "$STANDARD:$RULE_A",
-                "$CUSTOM_RULE_SET_A:$RULE_A",
-            ],
-        )
-        fun `Given a rule with a single RunAfterRule modifier`(ruleId: String) {
-            assertThatIllegalStateException().isThrownBy {
-                RuleRunnerSorter()
-                    .getSortedRuleRunners(
-                        ruleRunners = createRuleRunners(
-                            object : R(
-                                ruleId = RuleId(ruleId),
-                                visitorModifier = VisitorModifier.RunAfterRule(RuleId(ruleId)),
-                            ) {},
-                        ),
-                    )
-            }.withMessage(
-                "Rule with id '$ruleId' has a visitor modifier of type 'RunAfterRule' but it is not referring to another " +
-                    "rule but to the rule itself. A rule can not run after itself. This should be fixed by the maintainer " +
-                    "of the rule.",
-            )
-        }
-
-        @ParameterizedTest(name = "Rule id: {0}")
-        @ValueSource(
-            strings = [
-                "$STANDARD:$RULE_A",
-                "$CUSTOM_RULE_SET_A:$RULE_A",
-            ],
-        )
-        fun `A rule having multiple RunAfterRule visitor modifiers then none of those modifiers may refer to the rule itself`(
-            ruleId: String,
-        ) {
-            assertThatIllegalStateException().isThrownBy {
-                RuleRunnerSorter()
-                    .getSortedRuleRunners(
-                        ruleRunners = createRuleRunners(
-                            object : R(
-                                ruleId = RuleId(ruleId),
-                                visitorModifiers = setOf(
-                                    VisitorModifier.RunAfterRule(RuleId("custom:some-other-rule-id")),
-                                    VisitorModifier.RunAfterRule(RuleId(ruleId)),
-                                ),
-                            ) {},
-                        ),
-                    )
-            }.withMessage(
-                "Rule with id '$ruleId' has a visitor modifier of type 'RunAfterRule' but it is not referring to another " +
-                    "rule but to the rule itself. A rule can not run after itself. This should be fixed by the maintainer " +
-                    "of the rule.",
-            )
-        }
-    }
-
     @Test
     fun `A rule annotated with run after rule for a rule in the same rule set runs after that rule and override the alphabetical sort order`() {
         val actual =
@@ -214,16 +154,25 @@ class RuleRunnerSorterTest {
                     ruleRunners = createRuleRunners(
                         object : R(
                             ruleId = STANDARD_RULE_A,
-                            visitorModifier = VisitorModifier.RunAfterRule(STANDARD_RULE_C),
+                            visitorModifier = VisitorModifier.RunAfterRule(
+                                ruleId = STANDARD_RULE_C,
+                                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                            ),
                         ) {},
                         NormalRule(STANDARD_RULE_B),
                         object : R(
                             ruleId = STANDARD_RULE_D,
-                            visitorModifier = VisitorModifier.RunAfterRule(STANDARD_RULE_B),
+                            visitorModifier = VisitorModifier.RunAfterRule(
+                                ruleId = STANDARD_RULE_B,
+                                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                            ),
                         ) {},
                         object : R(
                             ruleId = STANDARD_RULE_C,
-                            visitorModifier = VisitorModifier.RunAfterRule(STANDARD_RULE_B),
+                            visitorModifier = VisitorModifier.RunAfterRule(
+                                ruleId = STANDARD_RULE_B,
+                                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                            ),
                         ) {},
                     ),
                 ).map { it.ruleId }
@@ -231,11 +180,8 @@ class RuleRunnerSorterTest {
         assertThat(actual).containsExactly(
             STANDARD_RULE_B,
             STANDARD_RULE_C,
-            STANDARD_RULE_D,
-            // RULE_D is ordered before RULE_A because rules are evaluated in order of the initial sorting (A, B, C, D). In the first
-            // iteration of the rules, RULE_A is blocked because rule C is not yet added. RULE_B, RULE_C and RULE_D can be added during the
-            // first iteration as the rules are not blocked when they are evaluated. In the second iteration, RULE_A can be added as well.
             STANDARD_RULE_A,
+            STANDARD_RULE_D,
         )
     }
 
@@ -248,16 +194,25 @@ class RuleRunnerSorterTest {
                         NormalRule(STANDARD_RULE_B),
                         object : R(
                             ruleId = STANDARD_RULE_D,
-                            visitorModifier = VisitorModifier.RunAfterRule(STANDARD_RULE_B),
+                            visitorModifier = VisitorModifier.RunAfterRule(
+                                ruleId = STANDARD_RULE_B,
+                                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                            ),
                         ) {},
                         object : R(
                             ruleId = STANDARD_RULE_C,
-                            visitorModifier = VisitorModifier.RunAfterRule(STANDARD_RULE_B),
+                            visitorModifier = VisitorModifier.RunAfterRule(
+                                ruleId = STANDARD_RULE_B,
+                                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                            ),
                         ) {},
                         object :
                             R(
-                                ruleId = EXPERIMENTAL_RULE_A,
-                                visitorModifier = VisitorModifier.RunAfterRule(STANDARD_RULE_C),
+                                ruleId = CUSTOM_RULE_SET_A_RULE_A,
+                                visitorModifier = VisitorModifier.RunAfterRule(
+                                    ruleId = STANDARD_RULE_C,
+                                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                ),
                             ),
                             Rule.Experimental {},
                     ),
@@ -267,7 +222,7 @@ class RuleRunnerSorterTest {
             STANDARD_RULE_B,
             STANDARD_RULE_C,
             STANDARD_RULE_D,
-            EXPERIMENTAL_RULE_A,
+            CUSTOM_RULE_SET_A_RULE_A,
         )
     }
 
@@ -315,80 +270,6 @@ class RuleRunnerSorterTest {
     }
 
     @Nested
-    inner class `Given a rule with a RunAfterRule visitor modifier for a rule which is required to be loaded then throw an exception` {
-        @Test
-        fun `Given that the rule contains a single visitor modifier`() {
-            assertThatIllegalStateException().isThrownBy {
-                RuleRunnerSorter()
-                    .getSortedRuleRunners(
-                        ruleRunners = createRuleRunners(
-                            object : R(
-                                ruleId = STANDARD_RULE_A,
-                                visitorModifier = VisitorModifier.RunAfterRule(
-                                    ruleId = STANDARD_RULE_B,
-                                    loadOnlyWhenOtherRuleIsLoaded = true,
-                                ),
-                            ) {},
-                            object :
-                                R(
-                                    ruleId = EXPERIMENTAL_RULE_C,
-                                    visitorModifier = VisitorModifier.RunAfterRule(
-                                        ruleId = EXPERIMENTAL_RULE_B,
-                                        loadOnlyWhenOtherRuleIsLoaded = true,
-                                    ),
-                                ),
-                                Rule.Experimental {},
-                        ),
-                    )
-            }.withMessage(
-                """
-                Skipping rule(s) which are depending on a rule which is not loaded. Please check if you need to additional rule sets before creating an issue.
-                  - Rule with id '$STANDARD_RULE_A' requires rule with id '$STANDARD_RULE_B' to be loaded
-                  - Rule with id '$EXPERIMENTAL_RULE_C' requires rule with id '$EXPERIMENTAL_RULE_B' to be loaded
-                """.trimIndent(),
-            )
-        }
-
-        @Test
-        fun `Given that the rule contains multiple visitor modifiers`() {
-            assertThatIllegalStateException().isThrownBy {
-                RuleRunnerSorter()
-                    .getSortedRuleRunners(
-                        ruleRunners = createRuleRunners(
-                            object : R(
-                                ruleId = STANDARD_RULE_A,
-                                visitorModifiers = setOf(
-                                    VisitorModifier.RunAfterRule(STANDARD_RULE_B),
-                                    VisitorModifier.RunAfterRule(
-                                        ruleId = STANDARD_RULE_C,
-                                        loadOnlyWhenOtherRuleIsLoaded = true,
-                                    ),
-                                ),
-                            ) {},
-                            object :
-                                R(
-                                    ruleId = EXPERIMENTAL_RULE_B,
-                                    visitorModifiers = setOf(
-                                        VisitorModifier.RunAfterRule(
-                                            ruleId = EXPERIMENTAL_RULE_C,
-                                            loadOnlyWhenOtherRuleIsLoaded = true,
-                                        ),
-                                    ),
-                                ),
-                                Rule.Experimental {},
-                        ),
-                    )
-            }.withMessage(
-                """
-                Skipping rule(s) which are depending on a rule which is not loaded. Please check if you need to additional rule sets before creating an issue.
-                  - Rule with id '$STANDARD_RULE_A' requires rule with id '$STANDARD_RULE_C' to be loaded
-                  - Rule with id '$EXPERIMENTAL_RULE_B' requires rule with id '$EXPERIMENTAL_RULE_C' to be loaded
-                """.trimIndent(),
-            )
-        }
-    }
-
-    @Nested
     inner class `Given a rule with a RunAfterRule visitor modifier on a rule which is not required to be loaded then run the rule` {
         @Test
         fun `Given a rule with a single RunAfterRule visitor modifier`() {
@@ -400,7 +281,7 @@ class RuleRunnerSorterTest {
                                 ruleId = STANDARD_RULE_A,
                                 visitorModifier = VisitorModifier.RunAfterRule(
                                     ruleId = RuleId("test:not-loaded-rule"),
-                                    loadOnlyWhenOtherRuleIsLoaded = false,
+                                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
                                 ),
                             ) {},
                         ),
@@ -421,10 +302,13 @@ class RuleRunnerSorterTest {
                             object : R(
                                 ruleId = STANDARD_RULE_B,
                                 visitorModifiers = setOf(
-                                    VisitorModifier.RunAfterRule(STANDARD_RULE_A),
+                                    VisitorModifier.RunAfterRule(
+                                        ruleId = STANDARD_RULE_A,
+                                        mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                    ),
                                     VisitorModifier.RunAfterRule(
                                         ruleId = RuleId("test:not-loaded-rule"),
-                                        loadOnlyWhenOtherRuleIsLoaded = false,
+                                        mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
                                     ),
                                 ),
                             ) {},
@@ -434,148 +318,6 @@ class RuleRunnerSorterTest {
             assertThat(actual).containsExactly(
                 STANDARD_RULE_A,
                 STANDARD_RULE_B,
-            )
-        }
-    }
-
-    @Nested
-    inner class `Given some rules that have a cyclic dependency and no custom rules sets involved` {
-        @Test
-        fun `Given some rules, including an experimental rule, having only a single RunAfterRule visitor modifier then throw an exception`() {
-            assertThatIllegalStateException().isThrownBy {
-                RuleRunnerSorter()
-                    .getSortedRuleRunners(
-                        ruleRunners = createRuleRunners(
-                            object : R(
-                                ruleId = STANDARD_RULE_A,
-                                visitorModifier = VisitorModifier.RunAfterRule(STANDARD_RULE_B),
-                            ) {},
-                            object : R(
-                                ruleId = STANDARD_RULE_B,
-                                visitorModifier = VisitorModifier.RunAfterRule(STANDARD_RULE_C),
-                            ) {},
-                            object :
-                                R(
-                                    ruleId = STANDARD_RULE_C,
-                                    visitorModifier = VisitorModifier.RunAfterRule(STANDARD_RULE_A),
-                                ),
-                                Rule.Experimental {},
-                        ),
-                    )
-            }.withMessage(
-                """
-                Found cyclic dependencies between required rules that should run after another rule:
-                  - Rule with id '${STANDARD_RULE_A.value}' should run after rule(s) with id '${STANDARD_RULE_B.value}'
-                  - Rule with id '${STANDARD_RULE_B.value}' should run after rule(s) with id '${STANDARD_RULE_C.value}'
-                  - Rule with id '${STANDARD_RULE_C.value}' should run after rule(s) with id '${STANDARD_RULE_A.value}'
-                """.trimIndent(),
-            )
-        }
-
-        @Test
-        fun `Given a rule with multiple RunAfterRule visitor modifier is part of a cyclic dependency then throw an exception`() {
-            assertThatIllegalStateException().isThrownBy {
-                RuleRunnerSorter()
-                    .getSortedRuleRunners(
-                        ruleRunners = createRuleRunners(
-                            object : R(
-                                ruleId = STANDARD_RULE_A,
-                                visitorModifiers = setOf(
-                                    VisitorModifier.RunAfterRule(CUSTOM_RULE_SET_A_RULE_B),
-                                    VisitorModifier.RunAfterRule(STANDARD_RULE_B),
-                                ),
-                            ) {},
-                            object : R(
-                                ruleId = STANDARD_RULE_B,
-                                visitorModifiers = setOf(
-                                    VisitorModifier.RunAfterRule(STANDARD_RULE_C),
-                                    VisitorModifier.RunAfterRule(CUSTOM_RULE_SET_A_RULE_C),
-                                ),
-                            ) {},
-                            object :
-                                R(
-                                    ruleId = CUSTOM_RULE_SET_A_RULE_C,
-                                    visitorModifier = VisitorModifier.RunAfterRule(STANDARD_RULE_A),
-                                ),
-                                Rule.Experimental {},
-                        ),
-                    )
-            }.withMessage(
-                """
-                Found cyclic dependencies between required rules that should run after another rule. Please contact the maintainer(s) of the custom rule set(s) [custom-rule-set-a] before creating an issue in the KtLint project. Dependencies:
-                  - Rule with id '${STANDARD_RULE_A.value}' should run after rule(s) with id '${STANDARD_RULE_B.value}'
-                  - Rule with id '${STANDARD_RULE_B.value}' should run after rule(s) with id '${CUSTOM_RULE_SET_A_RULE_C.value}'
-                  - Rule with id '${CUSTOM_RULE_SET_A_RULE_C.value}' should run after rule(s) with id '${STANDARD_RULE_A.value}'
-                """.trimIndent(),
-            )
-        }
-    }
-
-    @Nested
-    inner class `Given some rules that have a cyclic dependency and custom rules sets involved` {
-        @Test
-        fun `Given some rules having only a single RunAfterRule visitor modifier then throw an exception`() {
-            assertThatIllegalStateException().isThrownBy {
-                RuleRunnerSorter()
-                    .getSortedRuleRunners(
-                        ruleRunners = createRuleRunners(
-                            object : R(
-                                ruleId = STANDARD_RULE_C,
-                                visitorModifier = VisitorModifier.RunAfterRule(CUSTOM_RULE_SET_B_RULE_B),
-                            ) {},
-                            object : R(
-                                ruleId = CUSTOM_RULE_SET_B_RULE_B,
-                                visitorModifier = VisitorModifier.RunAfterRule(CUSTOM_RULE_SET_A_RULE_A),
-                            ) {},
-                            object : R(
-                                ruleId = CUSTOM_RULE_SET_A_RULE_A,
-                                visitorModifier = VisitorModifier.RunAfterRule(STANDARD_RULE_C),
-                            ) {},
-                        ),
-                    )
-            }.withMessage(
-                """
-                Found cyclic dependencies between required rules that should run after another rule. Please contact the maintainer(s) of the custom rule set(s) [$CUSTOM_RULE_SET_A, $CUSTOM_RULE_SET_B] before creating an issue in the KtLint project. Dependencies:
-                  - Rule with id '${STANDARD_RULE_C.value}' should run after rule(s) with id '${CUSTOM_RULE_SET_B_RULE_B.value}'
-                  - Rule with id '${CUSTOM_RULE_SET_A_RULE_A.value}' should run after rule(s) with id '${STANDARD_RULE_C.value}'
-                  - Rule with id '${CUSTOM_RULE_SET_B_RULE_B.value}' should run after rule(s) with id '${CUSTOM_RULE_SET_A_RULE_A.value}'
-                """.trimIndent(),
-            )
-        }
-
-        @Test
-        fun `Given a rule with multiple RunAfterRule visitor modifier is part of a cyclic dependency then throw an exception`() {
-            assertThatIllegalStateException().isThrownBy {
-                RuleRunnerSorter()
-                    .getSortedRuleRunners(
-                        ruleRunners = createRuleRunners(
-                            object : R(
-                                ruleId = STANDARD_RULE_C,
-                                visitorModifiers = setOf(
-                                    VisitorModifier.RunAfterRule(CUSTOM_RULE_SET_B_RULE_B),
-                                    VisitorModifier.RunAfterRule(STANDARD_RULE_B),
-                                ),
-                            ) {},
-                            object : R(
-                                ruleId = CUSTOM_RULE_SET_B_RULE_B,
-                                visitorModifiers = setOf(
-                                    VisitorModifier.RunAfterRule(STANDARD_RULE_A),
-                                    VisitorModifier.RunAfterRule(CUSTOM_RULE_SET_A_RULE_A),
-                                ),
-                            ) {},
-                            object : R(
-                                ruleId = CUSTOM_RULE_SET_A_RULE_A,
-                                visitorModifier = VisitorModifier.RunAfterRule(STANDARD_RULE_C),
-                            ) {},
-                        ),
-                    )
-            }.withMessage(
-                """
-                Found cyclic dependencies between required rules that should run after another rule. Please contact the maintainer(s) of the custom rule set(s) [$CUSTOM_RULE_SET_A, $CUSTOM_RULE_SET_B] before creating an issue in the KtLint project. Dependencies:
-                  - Rule with id '${STANDARD_RULE_C.value}' should run after rule(s) with id '${CUSTOM_RULE_SET_B_RULE_B.value}'
-                  - Rule with id '${CUSTOM_RULE_SET_A_RULE_A.value}' should run after rule(s) with id '${STANDARD_RULE_C.value}'
-                  - Rule with id '${CUSTOM_RULE_SET_B_RULE_B.value}' should run after rule(s) with id '${CUSTOM_RULE_SET_A_RULE_A.value}'
-                """.trimIndent(),
             )
         }
     }
@@ -597,12 +339,8 @@ class RuleRunnerSorterTest {
         val STANDARD_RULE_B = RuleId("$STANDARD:rule-b")
         val STANDARD_RULE_C = RuleId("$STANDARD:rule-c")
         val STANDARD_RULE_D = RuleId("$STANDARD:rule-d")
-        val EXPERIMENTAL_RULE_A = RuleId("$STANDARD:rule-a")
-        val EXPERIMENTAL_RULE_B = RuleId("$STANDARD:rule-b")
-        val EXPERIMENTAL_RULE_C = RuleId("$STANDARD:rule-c")
         val CUSTOM_RULE_SET_A_RULE_A = RuleId("$CUSTOM_RULE_SET_A:rule-a")
         val CUSTOM_RULE_SET_A_RULE_B = RuleId("$CUSTOM_RULE_SET_A:rule-b")
-        val CUSTOM_RULE_SET_A_RULE_C = RuleId("$CUSTOM_RULE_SET_A:rule-c")
         val CUSTOM_RULE_SET_B_RULE_A = RuleId("$CUSTOM_RULE_SET_B:rule-a")
         val CUSTOM_RULE_SET_B_RULE_B = RuleId("$CUSTOM_RULE_SET_B:rule-b")
     }

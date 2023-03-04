@@ -1,8 +1,7 @@
 package com.pinterest.ktlint.rule.engine.core.api.editorconfig
 
+import com.pinterest.ktlint.rule.engine.internal.toPropertyWithValue
 import org.assertj.core.api.Assertions.assertThat
-import org.ec4j.core.model.Property
-import org.ec4j.core.model.PropertyType
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 
@@ -20,7 +19,7 @@ class IndentSizeEditorConfigPropertyTest {
     @ParameterizedTest(name = "Code style: {0}, default value: {1}")
     @EnumSource(CodeStyleValue::class)
     fun `Given a property which is unset then the property mapper returns -1 as default value`(codeStyleValue: CodeStyleValue) {
-        val property = indentSizeProperty("unset")
+        val property = INDENT_SIZE_PROPERTY.toPropertyWithValue("unset")
 
         val actual = indentSizePropertyMapper(property, codeStyleValue)
 
@@ -31,7 +30,7 @@ class IndentSizeEditorConfigPropertyTest {
     @EnumSource(CodeStyleValue::class)
     fun `Given a valid string value then the property mapper returns the integer value`(codeStyleValue: CodeStyleValue) {
         val someValue = 123
-        val property = indentSizeProperty(someValue.toString())
+        val property = INDENT_SIZE_PROPERTY.toPropertyWithValue(someValue.toString())
 
         val actual = indentSizePropertyMapper(property, codeStyleValue)
 
@@ -41,18 +40,10 @@ class IndentSizeEditorConfigPropertyTest {
     @ParameterizedTest(name = "Code style: {0}")
     @EnumSource(CodeStyleValue::class)
     fun `Given value 'tab' then the property mapper returns 4 which is set as the default value`(codeStyleValue: CodeStyleValue) {
-        val property = indentSizeProperty("tab")
+        val property = INDENT_SIZE_PROPERTY.toPropertyWithValue("tab")
 
         val actual = indentSizePropertyMapper(property, codeStyleValue)
 
         assertThat(actual).isEqualTo(4)
     }
-
-    private fun indentSizeProperty(value: String?): Property? =
-        Property
-            .builder()
-            .name("indent_size")
-            .type(PropertyType.indent_size)
-            .value(value)
-            .build()
 }

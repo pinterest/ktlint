@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.EditorConfigProperties
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONTEXT_RECEIVER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONTEXT_RECEIVER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.GT
@@ -11,11 +10,10 @@ import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.children
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.UsesEditorConfigProperties
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
@@ -35,28 +33,25 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  * whenever the max line length is exceeded.
  */
 public class ContextReceiverWrappingRule :
-    StandardRule("context-receiver-wrapping"),
-    Rule.Experimental,
-    UsesEditorConfigProperties {
-    override val editorConfigProperties: List<EditorConfigProperty<*>> =
-        listOf(
+    StandardRule(
+        id = "context-receiver-wrapping",
+        usesEditorConfigProperties = setOf(
             INDENT_SIZE_PROPERTY,
             INDENT_STYLE_PROPERTY,
             MAX_LINE_LENGTH_PROPERTY,
-        )
-
+        ),
+    ),
+    Rule.Experimental {
     private lateinit var indent: String
     private var maxLineLength = -1
 
-    override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
-        with(editorConfigProperties) {
-            val indentConfig = IndentConfig(
-                indentStyle = getEditorConfigValue(INDENT_STYLE_PROPERTY),
-                tabWidth = getEditorConfigValue(INDENT_SIZE_PROPERTY),
-            )
-            indent = indentConfig.indent
-            maxLineLength = getEditorConfigValue(MAX_LINE_LENGTH_PROPERTY)
-        }
+    override fun beforeFirstNode(editorConfig: EditorConfig) {
+        val indentConfig = IndentConfig(
+            indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
+            tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
+        )
+        indent = indentConfig.indent
+        maxLineLength = editorConfig[MAX_LINE_LENGTH_PROPERTY]
     }
 
     override fun beforeVisitChildNodes(

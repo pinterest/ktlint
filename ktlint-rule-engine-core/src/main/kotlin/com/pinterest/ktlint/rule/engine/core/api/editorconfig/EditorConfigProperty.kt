@@ -4,7 +4,15 @@ import org.ec4j.core.model.Property
 import org.ec4j.core.model.PropertyType
 
 /**
- * Definition of '.editorconfig' property enriched with KtLint specific fields.
+ * Definition of '.editorconfig' property enriched with fields required by the [com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine].
+ *
+ * Properties can be:
+ * - universal `.editorconfig` properties defined
+ *   [here](https://github.com/editorconfig/editorconfig/wiki/EditorConfig-Properties#current-universal-properties)
+ * - universal IntelliJ IDEA properties defined
+ *   [here](https://github.com/JetBrains/intellij-community/blob/master/platform/lang-api/src/com/intellij/psi/codeStyle/CommonCodeStyleSettings.java)
+ * - Kotlin specific properties defined
+ *   [here](https://github.com/JetBrains/kotlin/blob/master/idea/formatter/src/org/jetbrains/kotlin/idea/core/formatter/KotlinCodeStyleSettings.java)
  */
 public data class EditorConfigProperty<T>(
     /**

@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
-import com.pinterest.ktlint.rule.engine.core.api.EditorConfigProperties
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATED_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
@@ -78,14 +77,14 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.IndentStyle.SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.IndentStyle.TAB
+import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.UsesEditorConfigProperties
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isRoot
@@ -121,29 +120,23 @@ public class IndentationRule :
             VisitorModifier.RunAsLateAsPossible,
             VisitorModifier.RunAfterRule(
                 ruleId = FUNCTION_SIGNATURE_RULE_ID,
-                loadOnlyWhenOtherRuleIsLoaded = false,
-                runOnlyWhenOtherRuleIsEnabled = false,
+                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
             ),
             VisitorModifier.RunAfterRule(
                 ruleId = TRAILING_COMMA_ON_CALL_SITE_RULE_ID,
-                loadOnlyWhenOtherRuleIsLoaded = false,
-                runOnlyWhenOtherRuleIsEnabled = false,
+                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
             ),
             VisitorModifier.RunAfterRule(
                 ruleId = TRAILING_COMMA_ON_DECLARATION_SITE_RULE_ID,
-                loadOnlyWhenOtherRuleIsLoaded = false,
-                runOnlyWhenOtherRuleIsEnabled = false,
+                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
             ),
         ),
-    ),
-    UsesEditorConfigProperties {
-    override val editorConfigProperties: List<EditorConfigProperty<*>> =
-        listOf(
+        usesEditorConfigProperties = setOf(
             CODE_STYLE_PROPERTY,
             INDENT_SIZE_PROPERTY,
             INDENT_STYLE_PROPERTY,
-        )
-
+        ),
+    ) {
     private var codeStyle = CODE_STYLE_PROPERTY.defaultValue
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 
@@ -153,11 +146,11 @@ public class IndentationRule :
 
     private lateinit var stringTemplateIndenter: StringTemplateIndenter
 
-    override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
-        codeStyle = editorConfigProperties.getEditorConfigValue(CODE_STYLE_PROPERTY)
+    override fun beforeFirstNode(editorConfig: EditorConfig) {
+        codeStyle = editorConfig[CODE_STYLE_PROPERTY]
         indentConfig = IndentConfig(
-            indentStyle = editorConfigProperties.getEditorConfigValue(INDENT_STYLE_PROPERTY),
-            tabWidth = editorConfigProperties.getEditorConfigValue(INDENT_SIZE_PROPERTY),
+            indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
+            tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
         )
         if (indentConfig.disabled) {
             stopTraversalOfAST()

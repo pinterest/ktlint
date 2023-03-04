@@ -39,7 +39,6 @@ dependencies {
     runtimeOnly(projects.ktlintCliReporterSarif)
 
     testImplementation(projects.ktlintTest)
-    testImplementation(libs.jimfs)
 }
 
 // Implements https://github.com/brianm/really-executable-jars-maven-plugin maven plugin behaviour.

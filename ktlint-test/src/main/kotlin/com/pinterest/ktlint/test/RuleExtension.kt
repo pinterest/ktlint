@@ -14,7 +14,6 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleSetExecu
 import com.pinterest.ruleset.testtooling.DumpASTRule
 import mu.KotlinLogging
 import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
-import java.nio.file.Paths
 
 private val LOGGER =
     KotlinLogging
@@ -112,12 +111,10 @@ public fun Set<RuleProvider>.lint(
         editorConfigOverride = editorConfigOverride
             .enableExperimentalRules()
             .extendWithRuleSetRuleExecutionsFor(ruleProviders),
-        // The unit test itself has to obey with the ktlint configuration in the '.editorconfig' file. The code snippets
-        // inside the unit may not be affected by the '.editorconfig' configuration of the ktlint project itself.
-        ignoreEditorConfigOnFileSystem = true,
+        fileSystem = KTLINT_TEST_FILE_SYSTEM.fileSystem,
     ).lint(
         code = text,
-        filePath = filePath?.let { Paths.get(filePath) },
+        filePath = filePath?.let { KTLINT_TEST_FILE_SYSTEM.resolve(filePath) },
     ) { lintError -> lintErrors.add(lintError) }
     return lintErrors
 }
@@ -129,8 +126,13 @@ public fun Set<RuleProvider>.lint(
 private fun EditorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProviders: Set<RuleProvider>): EditorConfigOverride {
     val ruleSetRuleExecutions = ruleProviders
         .asSequence()
-        .map { it.createNewRuleInstance().ruleId.ruleSetId.createRuleSetExecutionEditorConfigProperty() }
-        .distinct()
+        .map { ruleProvider ->
+            ruleProvider
+                .createNewRuleInstance()
+                .ruleId
+                .ruleSetId
+                .createRuleSetExecutionEditorConfigProperty()
+        }.distinct()
         .filter { editorConfigProperty -> this.properties[editorConfigProperty] == null }
         .map { it to RuleExecution.enabled }
         .toList()
@@ -192,12 +194,16 @@ public fun Set<RuleProvider>.format(
             editorConfigOverride = editorConfigOverride
                 .enableExperimentalRules()
                 .extendWithRuleSetRuleExecutionsFor(ruleProviders),
-            // The unit test itself has to obey with the ktlint configuration in the '.editorconfig' file. The code snippets
-            // inside the unit may not be affected by the '.editorconfig' configuration of the ktlint project itself.
-            ignoreEditorConfigOnFileSystem = true,
+            fileSystem = KTLINT_TEST_FILE_SYSTEM.fileSystem,
         ).format(
             code = text,
-            filePath = filePath?.let { Paths.get(filePath) },
+            filePath = filePath?.let { KTLINT_TEST_FILE_SYSTEM.resolve(filePath) },
         ) { lintError, _ -> lintErrors.add(lintError) }
     return Pair(formattedCode, lintErrors)
 }
+
+// The execution of the unit tests may not be affected by the ".editorconfig" configuration of the Ktlint project itself. So each unit test
+// is to be run on a KtlintTestFileSystem not having any ".editorconfig" files. This variable should not be exposed, as unit tests should
+// not be allowed to write any content on the file system.
+// As this FileSystem is not modified it is not considered to be a problem that the file system is not closed after each unit test.
+private val KTLINT_TEST_FILE_SYSTEM = KtlintTestFileSystem()

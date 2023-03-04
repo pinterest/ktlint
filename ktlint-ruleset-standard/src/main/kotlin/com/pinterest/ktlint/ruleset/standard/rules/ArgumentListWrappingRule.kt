@@ -1,17 +1,16 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.EditorConfigProperties
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ELSE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
+import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.column
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.UsesEditorConfigProperties
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
@@ -46,29 +45,25 @@ public class ArgumentListWrappingRule :
                 // ArgumentListWrapping should only be used in case after normal wrapping the max_line_length is still
                 // violated
                 ruleId = WRAPPING_RULE_ID,
-                loadOnlyWhenOtherRuleIsLoaded = false,
-                runOnlyWhenOtherRuleIsEnabled = false,
+                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
             ),
         ),
-    ),
-    UsesEditorConfigProperties {
-    override val editorConfigProperties: List<EditorConfigProperty<*>> =
-        listOf(
+        usesEditorConfigProperties = setOf(
             INDENT_SIZE_PROPERTY,
             INDENT_STYLE_PROPERTY,
             MAX_LINE_LENGTH_PROPERTY,
-        )
-
+        ),
+    ) {
     private var editorConfigIndent = IndentConfig.DEFAULT_INDENT_CONFIG
 
     private var maxLineLength = -1
 
-    override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
+    override fun beforeFirstNode(editorConfig: EditorConfig) {
         editorConfigIndent = IndentConfig(
-            indentStyle = editorConfigProperties.getEditorConfigValue(INDENT_STYLE_PROPERTY),
-            tabWidth = editorConfigProperties.getEditorConfigValue(INDENT_SIZE_PROPERTY),
+            indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
+            tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
         )
-        maxLineLength = editorConfigProperties.getEditorConfigValue(MAX_LINE_LENGTH_PROPERTY)
+        maxLineLength = editorConfig[MAX_LINE_LENGTH_PROPERTY]
     }
 
     override fun beforeVisitChildNodes(

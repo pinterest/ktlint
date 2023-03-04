@@ -1,13 +1,13 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import com.google.common.jimfs.Configuration
-import com.google.common.jimfs.Jimfs
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
+import com.pinterest.ktlint.test.KtlintTestFileSystem
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.model.EditorConfig
 import org.ec4j.core.model.Glob
 import org.ec4j.core.model.Property
+import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.Section
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -15,18 +15,16 @@ import org.junit.jupiter.api.condition.DisabledOnOs
 import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
-import java.nio.file.FileSystem
-import java.nio.file.Files
-import java.nio.file.Path
-import kotlin.io.path.isDirectory
 
 class EditorConfigDefaultsLoaderTest {
-    private val fileSystemMock = Jimfs.newFileSystem(Configuration.forCurrentPlatform())
-    private val editorConfigDefaultsLoader = EditorConfigDefaultsLoader()
+    private val ktlintTestFileSystem = KtlintTestFileSystem()
+    private val editorConfigDefaultsLoader = EditorConfigDefaultsLoader(
+        EditorConfigLoaderEc4j(EC4J_PROPERTY_TYPES_USED_BY_KTLINT),
+    )
 
     @AfterEach
     internal fun tearDown() {
-        fileSystemMock.close()
+        ktlintTestFileSystem.close()
     }
 
     @Test
@@ -39,7 +37,7 @@ class EditorConfigDefaultsLoaderTest {
     @Test
     fun `Given an empty path then return empty editor config default`() {
         val actual = editorConfigDefaultsLoader.load(
-            fileSystemMock.normalizedPath(""),
+            ktlintTestFileSystem.resolve(""),
         )
 
         assertThat(actual).isEqualTo(EMPTY_EDITOR_CONFIG_DEFAULTS)
@@ -49,7 +47,7 @@ class EditorConfigDefaultsLoaderTest {
     @DisabledOnOs(OS.WINDOWS) // Filename can not start or end with space
     fun `Given a blank path then return empty editor config default`() {
         val actual = editorConfigDefaultsLoader.load(
-            fileSystemMock.normalizedPath("  "),
+            ktlintTestFileSystem.resolve("  "),
         )
 
         assertThat(actual).isEqualTo(EMPTY_EDITOR_CONFIG_DEFAULTS)
@@ -58,7 +56,7 @@ class EditorConfigDefaultsLoaderTest {
     @Test
     fun `Given an non existing path then return empty editor config default`() {
         val actual = editorConfigDefaultsLoader.load(
-            fileSystemMock.normalizedPath("/path/to/non/existing/file.kt"),
+            ktlintTestFileSystem.resolve("/path/to/non/existing/file.kt"),
         )
 
         assertThat(actual).isEqualTo(EMPTY_EDITOR_CONFIG_DEFAULTS)
@@ -72,14 +70,17 @@ class EditorConfigDefaultsLoaderTest {
         ],
     )
     fun `Given an existing editor config file then load all settings from it`(fileName: String) {
-        val existingEditorConfigFileName = "/some/path/to/existing/$fileName"
-        fileSystemMock.writeEditorConfigFile(
-            existingEditorConfigFileName,
-            SOME_EDITOR_CONFIG.toString(),
-        )
+        val somePathToDirectory = "some/path/to/directory"
+        ktlintTestFileSystem.apply {
+            writeEditorConfigFile(
+                relativeDirectoryToRoot = somePathToDirectory,
+                editorConfigFileName = fileName,
+                content = SOME_EDITOR_CONFIG.toString(),
+            )
+        }
 
         val actual = editorConfigDefaultsLoader.load(
-            fileSystemMock.normalizedPath(existingEditorConfigFileName),
+            ktlintTestFileSystem.resolve("$somePathToDirectory/$fileName"),
         )
 
         assertThat(actual).isEqualTo(
@@ -89,35 +90,18 @@ class EditorConfigDefaultsLoaderTest {
 
     @Test
     fun `Given an existing directory containing an editor config file then load all settings from it`() {
-        val existingDirectory = "/some/path/to/existing/directory"
-        fileSystemMock.writeEditorConfigFile(
-            existingDirectory.plus("/.editorconfig"),
-            SOME_EDITOR_CONFIG.toString(),
-        )
+        val somePathToDirectory = "some/path/to/directory"
+        ktlintTestFileSystem.apply {
+            writeEditorConfigFile(somePathToDirectory, SOME_EDITOR_CONFIG.toString())
+        }
 
         val actual = editorConfigDefaultsLoader.load(
-            fileSystemMock.normalizedPath(existingDirectory),
+            ktlintTestFileSystem.resolve(somePathToDirectory),
         )
 
         assertThat(actual).isEqualTo(
             EditorConfigDefaults(SOME_EDITOR_CONFIG),
         )
-    }
-
-    private fun FileSystem.writeEditorConfigFile(
-        filePath: String,
-        content: String,
-    ) {
-        val path = normalizedPath(filePath)
-        require(!path.isDirectory())
-
-        Files.createDirectories(path.parent)
-        Files.write(path, content.toByteArray())
-    }
-
-    private fun FileSystem.normalizedPath(path: String): Path {
-        val root = rootDirectories.joinToString(separator = "/")
-        return getPath("$root$path")
     }
 
     private companion object {
@@ -135,5 +119,13 @@ class EditorConfigDefaultsLoaderTest {
                     ),
             )
             .build()
+        val EC4J_PROPERTY_TYPES_USED_BY_KTLINT = setOf(
+            PropertyType.end_of_line,
+            PropertyType.indent_size,
+            PropertyType.indent_style,
+            PropertyType.insert_final_newline,
+            PropertyType.max_line_length,
+            PropertyType.tab_width,
+        )
     }
 }

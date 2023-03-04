@@ -1,16 +1,23 @@
 package com.pinterest.ktlint.rule.engine.api
 
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigDefaultsLoader
+import com.pinterest.ktlint.rule.engine.internal.EditorConfigLoaderEc4j
 import org.ec4j.core.model.EditorConfig
+import org.ec4j.core.model.PropertyType
 import java.nio.file.Path
 
 /**
- * Wrapper around the [EditorConfig]. Only to be used only for the default value of properties.
+ * Wrapper around the ec4j [EditorConfig]. Only to be used to specify the default value of ec4j properties. Those default values will only
+ * be used whenever a property is retrieved from the ec4j [EditorConfig] and the property has not been defined in the ".editorconfig" file.
  */
-public data class EditorConfigDefaults(public val value: EditorConfig) {
+public data class EditorConfigDefaults(
+    /**
+     * The ec4j [EditorConfig] containing the default value of the ec4j properties. Those default values will only be used whenever a
+     * property is retrieved from the ec4j [EditorConfig] and the property has not been defined in the ".editorconfig" file.
+     */
+    public val value: EditorConfig,
+) {
     public companion object {
-        private val EDITOR_CONFIG_DEFAULTS_LOADER = EditorConfigDefaultsLoader()
-
         /**
          * Loads properties from [path]. [path] may either locate a file (also allows specifying a file with a name other
          * than ".editorconfig") or a directory in which a file with name ".editorconfig" is expected to exist. Properties
@@ -21,23 +28,47 @@ public data class EditorConfigDefaults(public val value: EditorConfig) {
          * The property "root" which denotes whether the parent directory is to be checked for the existence of a fallback
          * ".editorconfig" is ignored entirely.
          */
+        @Deprecated(
+            message = "Marked for removal in Ktlint 0.50. This method causes class cast exceptions in case the '.editorconfig' file " +
+                "contains properties having an EditorConfigProperty with a custom type (e.g. a type not defined in the ec4j library)",
+            replaceWith = ReplaceWith("load(path, propertyTypes)"),
+        )
         public fun load(path: Path?): EditorConfigDefaults =
             if (path == null) {
                 EMPTY_EDITOR_CONFIG_DEFAULTS
             } else {
-                EDITOR_CONFIG_DEFAULTS_LOADER.load(path)
+                EditorConfigDefaultsLoader(
+                    EditorConfigLoaderEc4j(emptySet()),
+                ).load(path)
+            }
+
+        /**
+         * Loads properties from [path]. [path] may either locate a file (also allows specifying a file with a name other than
+         * ".editorconfig") or a directory in which a file with name ".editorconfig" is expected to exist. Properties from all globs are
+         * returned. If [path] is not valid then the [EMPTY_EDITOR_CONFIG_DEFAULTS] is returned.
+         *
+         * Properties having a custom [PropertyType] (e.g. a type not defined in the ec4j library) can not be parsed to the correct type
+         * when the property type is missing and will by default be converted to type [String]. [PropertyType]'s can be easily extracted
+         * with extension function `Collection<RuleProvider>.propertyTypes()`.
+         *
+         * The property "root" which denotes whether the parent directory is to be checked for the existence of a fallback
+         * ".editorconfig" is ignored entirely.
+         */
+        public fun load(
+            path: Path?,
+            propertyTypes: Set<PropertyType<*>>,
+        ): EditorConfigDefaults =
+            if (path == null) {
+                EMPTY_EDITOR_CONFIG_DEFAULTS
+            } else {
+                EditorConfigDefaultsLoader(
+                    EditorConfigLoaderEc4j(propertyTypes),
+                ).load(path)
             }
 
         /**
          * Empty representation of [EditorConfigDefaults].
          */
         public val EMPTY_EDITOR_CONFIG_DEFAULTS: EditorConfigDefaults = EditorConfigDefaults(EditorConfig.builder().build())
-
-        @Deprecated(
-            message = "Marked for removal in KtLint 0.49",
-            replaceWith = ReplaceWith("EMPTY_EDITOR_CONFIG_DEFAULTS"),
-        )
-        @Suppress("ktlint:property-naming")
-        public val emptyEditorConfigDefaults: EditorConfigDefaults = EMPTY_EDITOR_CONFIG_DEFAULTS
     }
 }

@@ -1,55 +1,53 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import com.google.common.jimfs.Configuration
-import com.google.common.jimfs.Jimfs
+import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
-import com.pinterest.ktlint.rule.engine.core.api.EditorConfigProperties
-import com.pinterest.ktlint.rule.engine.core.api.Rule
-import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.UsesEditorConfigProperties
+import com.pinterest.ktlint.test.KtlintTestFileSystem
 import org.assertj.core.api.Assertions.assertThat
-import org.intellij.lang.annotations.Language
-import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.ec4j.core.model.PropertyType
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
-import java.nio.file.FileSystem
-import java.nio.file.Files
-import java.nio.file.Path
 
 @Suppress("EditorConfigKeyCorrectness")
 internal class EditorConfigLoaderTest {
-    private val fileSystemMock = Jimfs.newFileSystem(Configuration.forCurrentPlatform())
-    private val editorConfigLoader = EditorConfigLoader(fileSystemMock)
-    private val rules = setOf(TestRule())
+    private val ktlintTestFileSystem = KtlintTestFileSystem()
 
     @AfterEach
     fun tearDown() {
-        fileSystemMock.close()
+        ktlintTestFileSystem.close()
     }
 
     @ParameterizedTest
     @ValueSource(
         strings = [
+            //language=EditorConfig
             """
             [*]
             indent_size = 2
             """,
+            //language=EditorConfig
             """
             root = true
             [*]
             indent_size = 2
             """,
+            // Note, when multiple globs matches with the file being scanned then the value from the last glob wins
+            //language=EditorConfig
             """
             [*]
             indent_size = 4
             [*.{kt,kts}]
             indent_size = 2
             """,
+            // Note, when multiple globs matches with the file being scanned then the value from the last glob wins
+            //language=EditorConfig
             """
             [*.{kt,kts}]
             indent_size = 4
@@ -58,412 +56,519 @@ internal class EditorConfigLoaderTest {
             """,
         ],
     )
-    fun testParentDirectoryFallback(editorConfigFileContent: String) {
-        val projectDir = "/projects/project-1"
-        val projectSubDirectory = "$projectDir/project-1-subdirectory"
-        Files.createDirectories(fileSystemMock.normalizedPath(projectSubDirectory))
+    fun `Given an editorconfig file in the project root and the file to be linted is in a subdirectory not containing an editorconfig file`(
+        editorconfigContent: String,
+    ) {
+        ktlintTestFileSystem.apply {
+            writeRootEditorConfigFile(editorconfigContent.trimIndent())
+        }
 
-        fileSystemMock.writeEditorConfigFile(projectDir, editorConfigFileContent.trimIndent())
+        createEditorConfigLoader()
+            .load(ktlintTestFileSystem.resolve("some-subdirectory/test.kt"))
+            .run {
+                assertThat(convertToPropertyValues()).contains("indent_size = 2")
+            }
+    }
 
-        val lintFile = fileSystemMock.normalizedPath(projectDir).resolve("test.kt")
-        val editorConfig = editorConfigLoader.load(lintFile, rules = rules)
+    @Test
+    fun `Given editorconfig files at different levels in the project hierarchy and an intermediate editorconfig file contains the root is true property then stop reading the parent editorconfig`() {
+        val someRelativeProjectDirectory = "some-project-directory"
+        val someRelativeProjectSubDirectory = "$someRelativeProjectDirectory/some-project-sub-directory"
 
-        assertThat(editorConfig.convertToPropertyValues())
-            .containsExactlyInAnyOrder(
-                "indent_size = 2",
-                "tab_width = 2",
+        ktlintTestFileSystem.apply {
+            writeRootEditorConfigFile(
+                //language=EditorConfig
+                """
+                root = true
+                [*]
+                some_property_1 = some_value_1
+                """.trimIndent(),
             )
-    }
 
-    //language=
-    @Test
-    fun testRootTermination() {
-        val rootDir = "/projects"
-        val project1Dir = "$rootDir/project-1"
-        val project1Subdirectory = "$project1Dir/project-1-subdirectory"
+            writeEditorConfigFile(
+                someRelativeProjectDirectory,
+                //language=EditorConfig
+                """
+                root = true
+                [*.{kt,kts}]
+                some_property_2 = some_value_2
+                """.trimIndent(),
+            )
 
-        //language=EditorConfig
-        fileSystemMock.writeEditorConfigFile(
-            rootDir,
-            """
-            root = true
-            [*]
-            end_of_line = lf
-            """.trimIndent(),
-        )
+            writeEditorConfigFile(
+                someRelativeProjectSubDirectory,
+                //language=EditorConfig
+                """
+                [*]
+                indent_size = 2
+                some_property_3 = some_value_3
+                """.trimIndent(),
+            )
+        }
 
-        //language=EditorConfig
-        fileSystemMock.writeEditorConfigFile(
-            project1Dir,
-            """
-            root = true
-            [*.{kt,kts}]
-            indent_size = 4
-            indent_style = space
-            """.trimIndent(),
-        )
+        createEditorConfigLoader()
+            .load(ktlintTestFileSystem.resolve("$someRelativeProjectSubDirectory/test.kt"))
+            .run {
+                assertThat(convertToPropertyValues())
+                    .contains(
+                        "some_property_2 = some_value_2",
+                        "some_property_3 = some_value_3",
+                    ).doesNotContain(
+                        // The '.editorconfig' file in the root directory is skipped because the property "root = true" is
+                        // found
+                        "some_property_1 = some_value_1",
+                    )
+            }
 
-        //language=EditorConfig
-        fileSystemMock.writeEditorConfigFile(
-            project1Subdirectory,
-            """
-            [*]
-            indent_size = 2
-            """.trimIndent(),
-        )
+        createEditorConfigLoader()
+            .load(ktlintTestFileSystem.resolve("$someRelativeProjectDirectory/test.kt"))
+            .run {
+                assertThat(convertToPropertyValues())
+                    .contains("some_property_2 = some_value_2")
+                    .doesNotContain(
+                        // The '.editorconfig' file in the root directory is skipped because the property "root = true" is
+                        // found
+                        "some_property_1 = some_value_1",
+                    )
+            }
 
-        val lintFileSubdirectory = fileSystemMock.normalizedPath(project1Subdirectory).resolve("test.kt")
-        var editorConfigProperties = editorConfigLoader.load(lintFileSubdirectory, rules = rules)
-
-        assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
-            "indent_size = 2",
-            "tab_width = 2",
-            "indent_style = space",
-        )
-
-        val lintFileMainDir = fileSystemMock.normalizedPath(project1Dir).resolve("test.kts")
-        editorConfigProperties = editorConfigLoader.load(lintFileMainDir, rules = rules)
-
-        assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
-            "indent_size = 4",
-            "tab_width = 4",
-            "indent_style = space",
-        )
-
-        val lintFileRoot = fileSystemMock.normalizedPath(rootDir).resolve("test.kt")
-        editorConfigProperties = editorConfigLoader.load(lintFileRoot, rules = rules)
-
-        assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
-            "end_of_line = lf",
-        )
+        createEditorConfigLoader()
+            .load(ktlintTestFileSystem.resolve("test.kt"))
+            .run {
+                assertThat(convertToPropertyValues())
+                    .contains("some_property_1 = some_value_1")
+            }
     }
 
     @Test
-    fun `Should parse assignment with spaces`() {
-        val projectDir = "/project"
+    fun `Should parse properties with and without spaces before or after the =`() {
+        ktlintTestFileSystem.apply {
+            writeRootEditorConfigFile(
+                //language=EditorConfig
+                """
+                [*.{kt,kts}]
+                some_property_1 = some_value_1
+                some_property_2= some_value_2
+                some_property_3 =some_value_3
+                some_property_4=some_value_4
+                """.trimIndent(),
+            )
+        }
 
-        @Language("EditorConfig")
-        val editorconfigFile =
-            """
-            [*.{kt,kts}]
-            insert_final_newline = true
-            disabled_rules = import-ordering
-            ktlint_disabled_rules = import-ordering
-            ktlint_standard_import-ordering = disabled
-            """.trimIndent()
-        fileSystemMock.writeEditorConfigFile(projectDir, editorconfigFile)
-
-        val lintFile = fileSystemMock.normalizedPath(projectDir).resolve("test.kt")
-        val editorConfigProperties = editorConfigLoader.load(lintFile, rules = rules)
-
-        assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
-            "insert_final_newline = true",
-            "disabled_rules = import-ordering",
-            "ktlint_disabled_rules = import-ordering",
-            "ktlint_standard_import-ordering = disabled",
-        )
+        createEditorConfigLoader()
+            .load(ktlintTestFileSystem.resolve("test.kt"))
+            .run {
+                assertThat(convertToPropertyValues())
+                    .contains(
+                        "some_property_1 = some_value_1",
+                        "some_property_2 = some_value_2",
+                        "some_property_3 = some_value_3",
+                        "some_property_4 = some_value_4",
+                    )
+            }
     }
 
     @Test
     fun `Should parse unset values`() {
-        val projectDir = "/project"
-
-        @Language("EditorConfig")
-        val editorconfigFile =
-            """
-            [*.{kt,kts}]
-            indent_size = unset
-            """.trimIndent()
-        fileSystemMock.writeEditorConfigFile(projectDir, editorconfigFile)
-
-        val lintFile = fileSystemMock.normalizedPath(projectDir).resolve("test.kt")
-        val editorConfigProperties = editorConfigLoader.load(lintFile, rules = rules)
-
-        assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
-            "indent_size = unset",
-            "tab_width = unset",
-        )
-    }
-
-    @Test
-    fun `Should parse list with spaces after comma`() {
-        val projectDir = "/project"
-
-        @Language("EditorConfig")
-        val editorconfigFile =
-            """
-            [*.{kt,kts}]
-            disabled_rules=import-ordering, no-wildcard-imports
-            ktlint_disabled_rules=import-ordering, no-wildcard-imports
-            """.trimIndent()
-        fileSystemMock.writeEditorConfigFile(projectDir, editorconfigFile)
-        val lintFile = fileSystemMock.normalizedPath(projectDir).resolve("test.kts")
-
-        val editorConfigProperties = editorConfigLoader.load(lintFile, rules = rules)
-
-        assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
-            "disabled_rules = import-ordering, no-wildcard-imports",
-            "ktlint_disabled_rules = import-ordering, no-wildcard-imports",
-        )
-    }
-
-    @Test
-    fun `Should return the override properties only on null file path`() {
-        val parsedEditorConfig = editorConfigLoader.load(
-            filePath = null,
-            rules = rules,
-            editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to "true"),
-        )
-
-        assertThat(parsedEditorConfig.convertToPropertyValues()).containsExactlyInAnyOrder(
-            "insert_final_newline = true",
-        )
-    }
-
-    @Test
-    fun `Should return the override properties only non supported file`() {
-        val parsedEditorConfig = editorConfigLoader.load(
-            filePath = null,
-            rules = rules,
-            editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to "true"),
-        )
-
-        assertThat(parsedEditorConfig.convertToPropertyValues()).containsExactlyInAnyOrder(
-            "insert_final_newline = true",
-        )
-    }
-
-    @Test
-    fun `Should return properties for stdin from editorconfig file in current directory and override properties`() {
-        @Language("EditorConfig")
-        val editorconfigFile =
-            """
-            [*.{kt,kts}]
-            insert_final_newline = false
-            disabled_rules = import-ordering
-            ktlint_disabled_rules = import-ordering
-            ktlint_standard_import-ordering = disabled
-            """.trimIndent()
-        fileSystemMock.writeEditorConfigFile(".", editorconfigFile)
-
-        val editorConfigProperties = editorConfigLoader.load(
-            filePath = null,
-            rules = rules,
-            editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to true),
-        )
-
-        assertThat(editorConfigProperties.convertToPropertyValues())
-            .containsExactlyInAnyOrder(
-                "insert_final_newline = true",
-                "disabled_rules = import-ordering",
-                "ktlint_disabled_rules = import-ordering",
-                "ktlint_standard_import-ordering = disabled",
+        ktlintTestFileSystem.apply {
+            writeRootEditorConfigFile(
+                //language=EditorConfig
+                """
+                [*.{kt,kts}]
+                some_property_1 = unset
+                """.trimIndent(),
             )
+        }
+
+        createEditorConfigLoader()
+            .load(ktlintTestFileSystem.resolve("test.kt"))
+            .run {
+                assertThat(convertToPropertyValues())
+                    .contains("some_property_1 = unset")
+            }
+    }
+
+    @Test
+    fun `Given a property with a comma separated list of values, with or without spaces around the comma the return the value inclusive those spaces`() {
+        ktlintTestFileSystem.apply {
+            writeRootEditorConfigFile(
+                //language=EditorConfig
+                """
+                [*.{kt,kts}]
+                some_property_1=some_value_1,some_value_2
+                some_property_2=some_value_1 ,some_value_2
+                some_property_3=some_value_1, some_value_2
+                some_property_4=some_value_1 , some_value_2
+                """.trimIndent(),
+            )
+        }
+
+        createEditorConfigLoader()
+            .load(ktlintTestFileSystem.resolve("test.kt"))
+            .run {
+                assertThat(convertToPropertyValues())
+                    .contains(
+                        "some_property_1 = some_value_1,some_value_2",
+                        "some_property_2 = some_value_1 ,some_value_2",
+                        "some_property_3 = some_value_1, some_value_2",
+                        "some_property_4 = some_value_1 , some_value_2",
+                    )
+            }
+    }
+
+    @Nested
+    inner class `Given a null file path` {
+        @Test
+        fun `Given no default and no override properties then return only the properties required for internal processing by KtLint`() {
+            createEditorConfigLoader()
+                .load(null)
+                .run {
+                    assertThat(convertToPropertyValues())
+                        .containsExactlyInAnyOrder(
+                            "end_of_line = lf",
+                            "ktlint_code_style = intellij_idea",
+                            "ktlint_experimental = disabled",
+                        )
+                }
+        }
+
+        @Test
+        fun `Given some override properties then return the override properties`() {
+            val editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to "true")
+            createEditorConfigLoader(editorConfigOverride = editorConfigOverride)
+                .load(null)
+                .run {
+                    assertThat(convertToPropertyValues())
+                        .contains("insert_final_newline = true")
+                }
+        }
+
+        @Test
+        fun `Given some properties in an editorconfig file then return the properties from this file`() {
+            ktlintTestFileSystem.apply {
+                writeRootEditorConfigFile(
+                    //language=EditorConfig
+                    """
+                [*.{kt,kts}]
+                some_property = some_value
+                    """.trimIndent(),
+                )
+            }
+
+            createEditorConfigLoader()
+                .load(ktlintTestFileSystem.resolve(".kt"))
+                .run {
+                    assertThat(convertToPropertyValues())
+                        .contains("some_property = some_value")
+                }
+        }
+    }
+
+    @Nested
+    inner class `Given a file path with a non kotlin extension` {
+        @Test
+        fun `Given no default and no override properties then return only the properties required for internal processing by KtLint`() {
+            createEditorConfigLoader()
+                .load(ktlintTestFileSystem.resolve("test.java"))
+                .run {
+                    assertThat(convertToPropertyValues())
+                        .containsExactlyInAnyOrder(
+                            "end_of_line = lf",
+                            "ktlint_code_style = intellij_idea",
+                            "ktlint_experimental = disabled",
+                        )
+                }
+        }
+
+        @Test
+        fun `Given some override properties then return the override properties`() {
+            val editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to "true")
+            createEditorConfigLoader(editorConfigOverride = editorConfigOverride)
+                .load(ktlintTestFileSystem.resolve("test.java"))
+                .run {
+                    assertThat(convertToPropertyValues())
+                        .contains("insert_final_newline = true")
+                }
+        }
+
+        @Test
+        fun `Given some kotlin properties in an editorconfig file then do not return the properties from this file`() {
+            ktlintTestFileSystem.apply {
+                writeRootEditorConfigFile(
+                    //language=EditorConfig
+                    """
+                [*.{kt,kts}]
+                some_property = some_value
+                    """.trimIndent(),
+                )
+            }
+
+            createEditorConfigLoader()
+                .load(ktlintTestFileSystem.resolve("test.java"))
+                .run {
+                    assertThat(convertToPropertyValues())
+                        .doesNotContain("some_property = some_value")
+                }
+        }
+    }
+
+    @Nested
+    inner class `Given input from stdin` {
+        @Test
+        fun `Given no default and no override properties then return only the properties required for internal processing by KtLint`() {
+            createEditorConfigLoader()
+                .load(ktlintTestFileSystem.resolve(".kt"))
+                .run {
+                    assertThat(convertToPropertyValues())
+                        .containsExactlyInAnyOrder(
+                            "end_of_line = lf",
+                            "ktlint_code_style = intellij_idea",
+                            "ktlint_experimental = disabled",
+                        )
+                }
+        }
+
+        @Test
+        fun `Given some override properties then return the override properties`() {
+            ktlintTestFileSystem.apply {
+                writeRootEditorConfigFile(
+                    //language=EditorConfig
+                    """
+                [*.{kt,kts}]
+                some_property_1 = some_value_1
+                    """.trimIndent(),
+                )
+            }
+
+            val editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to true)
+            createEditorConfigLoader(editorConfigOverride = editorConfigOverride)
+                .load(ktlintTestFileSystem.resolve(".kt"))
+                .run {
+                    assertThat(convertToPropertyValues())
+                        .contains("insert_final_newline = true")
+                }
+        }
+
+        @Test
+        fun `Given some properties in an editorconfig file then return the properties from this file`() {
+            ktlintTestFileSystem.apply {
+                writeRootEditorConfigFile(
+                    //language=EditorConfig
+                    """
+                [*.{kt,kts}]
+                some_property = some_value
+                    """.trimIndent(),
+                )
+            }
+
+            createEditorConfigLoader()
+                .load(ktlintTestFileSystem.resolve(".kt"))
+                .run {
+                    assertThat(convertToPropertyValues())
+                        .contains("some_property = some_value")
+                }
+        }
     }
 
     @Test
     fun `Given a project with editorconfig properties (root=true) and override properties then ignore properties from root dir but apply the override properties`() {
-        //language=
-        val rootDir = "/projects"
-        //language=
-        val mainProjectDir = "$rootDir/project-1"
+        val someRelativeProjectDirectory = "some-project-directory"
 
-        // Ignore the properties from the rootDir as "root = true" for project-1
-        //language=EditorConfig
-        fileSystemMock.writeEditorConfigFile(
-            rootDir,
-            """
-            root = true
-            [*]
-            end_of_line = lf
-            """.trimIndent(),
-        )
-
-        //language=EditorConfig
-        fileSystemMock.writeEditorConfigFile(
-            mainProjectDir,
-            """
-            root = true
-            [*.{kt,kts}]
-            indent_size = 4
-            indent_style = space
-            """.trimIndent(),
-        )
-
-        val lintFile = fileSystemMock.normalizedPath(mainProjectDir).resolve("test.kt")
-        val editorConfigProperties =
-            editorConfigLoader
-                .load(
-                    filePath = lintFile,
-                    rules = rules,
-                    editorConfigOverride = EditorConfigOverride.from(INDENT_SIZE_PROPERTY to 2),
-                )
-
-        assertThat(editorConfigProperties.convertToPropertyValues())
-            .containsExactlyInAnyOrder(
-                "indent_style = space",
-                "indent_size = 2",
-                "tab_width = 2",
+        ktlintTestFileSystem.apply {
+            writeRootEditorConfigFile(
+                //language=EditorConfig
+                """
+                root = true
+                [*]
+                some_property_1 = some_value_1
+                """.trimIndent(),
             )
+
+            writeEditorConfigFile(
+                someRelativeProjectDirectory,
+                //language=EditorConfig
+                """
+                root = true
+                [*.{kt,kts}]
+                some_property_1 = some_value_2
+                some_property_2 = some_value_2
+                indent_size = 4
+                """.trimIndent(),
+            )
+        }
+
+        val editorConfigOverride = EditorConfigOverride.from(INDENT_SIZE_PROPERTY to 2)
+        createEditorConfigLoader(editorConfigOverride = editorConfigOverride)
+            .load(ktlintTestFileSystem.resolve("$someRelativeProjectDirectory/test.kt"))
+            .run {
+                assertThat(convertToPropertyValues())
+                    .contains(
+                        "some_property_1 = some_value_2",
+                        "some_property_2 = some_value_2",
+                        "indent_size = 2",
+                    )
+            }
     }
 
-    //language=
     @Test
-    fun `Should load properties from override on stdin input`() {
-        fileSystemMock.writeEditorConfigFile(
-            ".",
-            //language=EditorConfig
-            """
-            root = true
-            [*]
-            end_of_line = lf
-            """.trimIndent(),
-        )
+    fun `Given that code is loaded via stdin then load properties from override and properties required for internal processing of KtLint`() {
+        ktlintTestFileSystem.apply {
+            writeRootEditorConfigFile(
+                //language=EditorConfig
+                """
+                root = true
+                [*]
+                ${SOME_EDITOR_CONFIG_PROPERTY.name} = $SOME_PROPERTY_VALUE_1
+                """.trimIndent(),
+            )
+        }
 
-        val editorConfigProperties = editorConfigLoader.load(
-            filePath = null,
-            rules = rules,
-            editorConfigOverride = EditorConfigOverride.from(INDENT_SIZE_PROPERTY to 2),
-        )
+        val editorConfigOverride = EditorConfigOverride.from(SOME_EDITOR_CONFIG_PROPERTY to SOME_PROPERTY_VALUE_2)
+        createEditorConfigLoader(editorConfigOverride = editorConfigOverride)
+            .load(null)
+            .run {
+                assertThat(convertToPropertyValues())
+                    .contains("${SOME_EDITOR_CONFIG_PROPERTY.name} = $SOME_PROPERTY_VALUE_2")
+            }
+    }
 
-        assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
-            "end_of_line = lf",
-            "indent_size = 2",
-            "tab_width = 2",
-        )
+    @Test
+    fun `Given that the indent_size and tab_width property have same value and the indent_size is changed in the override properties then also keep the tab_width property in sync with the indent_size`() {
+        ktlintTestFileSystem.apply {
+            writeRootEditorConfigFile(
+                //language=EditorConfig
+                """
+                root = true
+                [*]
+                indent_size = 5
+                tab_width = 5
+                """.trimIndent(),
+            )
+        }
+
+        val editorConfigOverride = EditorConfigOverride.from(INDENT_SIZE_PROPERTY to 3)
+        createEditorConfigLoader(editorConfigOverride = editorConfigOverride)
+            .load(ktlintTestFileSystem.resolve("test.kt"))
+            .run {
+                assertThat(convertToPropertyValues())
+                    .contains(
+                        "indent_size = 3",
+                        "tab_width = 3",
+                    )
+            }
     }
 
     @Test
     fun `Should support editorconfig globs when loading properties for file specified under such glob`() {
-        val projectDir = "/project"
+        ktlintTestFileSystem.apply {
+            writeRootEditorConfigFile(
+                //language=EditorConfig
+                """
+                [*.{kt,kts}]
+                some_property_1 = some_value_1
+                some_property_2 = some_value_2
 
-        @Language("EditorConfig")
-        val editorconfigFile =
-            """
-            [*.{kt,kts}]
-            insert_final_newline = true
-            disabled_rules = import-ordering
-            ktlint_disabled_rules = import-ordering
-            ktlint_standard_import-ordering = disabled
+                [api/*.{kt,kts}]
+                some_property_1 = some_value_2
+                some_property_3 = some_value_3
+                """.trimIndent(),
+            )
+        }
 
-            [api/*.{kt,kts}]
-            disabled_rules = class-must-be-internal
-            ktlint_disabled_rules = class-must-be-internal
-            """.trimIndent()
-        fileSystemMock.writeEditorConfigFile(projectDir, editorconfigFile)
-
-        val lintFile = fileSystemMock.normalizedPath(projectDir).resolve("api").resolve("test.kt")
-        Files.createDirectories(lintFile)
-
-        val editorConfigProperties = editorConfigLoader.load(lintFile, rules = rules)
-
-        assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
-            "insert_final_newline = true",
-            "disabled_rules = class-must-be-internal",
-            "ktlint_disabled_rules = class-must-be-internal",
-            "ktlint_standard_import-ordering = disabled",
-        )
+        createEditorConfigLoader()
+            .load(ktlintTestFileSystem.resolve("api/test.kt"))
+            .run {
+                assertThat(convertToPropertyValues())
+                    .contains(
+                        "some_property_1 = some_value_2",
+                        "some_property_2 = some_value_2",
+                        "some_property_3 = some_value_3",
+                    )
+            }
     }
 
     @Test
     fun `Should add property from override`() {
-        val projectDir = "/project"
+        ktlintTestFileSystem.apply {
+            writeRootEditorConfigFile(
+                //language=EditorConfig
+                """
+                [*.{kt,kts}]
+                some_property_1 = some_value_1
+                """.trimIndent(),
+            )
+        }
 
-        @Language("EditorConfig")
-        val editorconfigFile =
-            """
-            [*.{kt,kts}]
-            disabled_rules=import-ordering, no-wildcard-imports
-            ktlint_disabled_rules=import-ordering, no-wildcard-imports
-            ktlint_standard_import-ordering=disabled
-            ktlint_standard_no-wildcard-imports=disabled
-            """.trimIndent()
-        fileSystemMock.writeEditorConfigFile(projectDir, editorconfigFile)
-
-        val lintFile = fileSystemMock.normalizedPath(projectDir).resolve("test.kts")
-
-        val editorConfigProperties = editorConfigLoader.load(
-            lintFile,
-            rules = rules, // For the test it is not relevant that the FinalNewLineRule is not in the list of rules
-            editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to "true"),
-        )
-
-        assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
-            "disabled_rules = import-ordering, no-wildcard-imports",
-            "ktlint_standard_import-ordering = disabled",
-            "ktlint_standard_no-wildcard-imports = disabled",
-            "ktlint_disabled_rules = import-ordering, no-wildcard-imports",
-            "insert_final_newline = true",
-        )
+        val editorConfigDefaults = EditorConfigDefaults.EMPTY_EDITOR_CONFIG_DEFAULTS
+        val editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to "true")
+        createEditorConfigLoader(editorConfigDefaults, editorConfigOverride)
+            .load(ktlintTestFileSystem.resolve("test.kt"))
+            .run {
+                assertThat(convertToPropertyValues())
+                    .contains(
+                        "some_property_1 = some_value_1",
+                        "insert_final_newline = true",
+                    )
+            }
     }
 
     @Test
     fun `Should replace property from override`() {
-        val projectDir = "/project"
+        ktlintTestFileSystem.apply {
+            writeRootEditorConfigFile(
+                //language=EditorConfig
+                """
+                [*.{kt,kts}]
+                insert_final_newline = true
+                """.trimIndent(),
+            )
+        }
 
-        @Language("EditorConfig")
-        val editorconfigFile =
-            """
-            [*.{kt,kts}]
-            insert_final_newline = true
-            """.trimIndent()
-        fileSystemMock.writeEditorConfigFile(projectDir, editorconfigFile)
-
-        val lintFile = fileSystemMock.normalizedPath(projectDir).resolve("test.kts")
-
-        val editorConfigProperties = editorConfigLoader.load(
-            lintFile,
-            rules = rules, // For the test it is not relevant that the FinalNewLineRule is not in the list of rules
-            editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to "false"),
-        )
-
-        assertThat(editorConfigProperties.convertToPropertyValues()).containsExactlyInAnyOrder(
-            "insert_final_newline = false",
-        )
-    }
-
-    private fun FileSystem.normalizedPath(path: String): Path {
-        val root = rootDirectories.joinToString(separator = "/")
-        return getPath("$root$path")
-    }
-
-    private fun FileSystem.writeEditorConfigFile(
-        filePath: String,
-        content: String,
-    ) {
-        Files.createDirectories(normalizedPath(filePath))
-        Files.write(normalizedPath("$filePath/.editorconfig"), content.toByteArray())
-    }
-
-    private fun EditorConfigProperties.convertToPropertyValues(): List<String> {
-        return if (isEmpty()) {
-            emptyList()
-        } else {
-            map {
-                val value = if (it.value.isUnset) {
-                    "unset"
-                } else {
-                    it.value.sourceValue
-                }
-                "${it.key} = $value"
+        val editorConfigDefaults = EditorConfigDefaults.EMPTY_EDITOR_CONFIG_DEFAULTS
+        val editorConfigOverride = EditorConfigOverride.from(INSERT_FINAL_NEWLINE_PROPERTY to "false")
+        createEditorConfigLoader(editorConfigDefaults, editorConfigOverride)
+            .load(ktlintTestFileSystem.resolve("test.kt"))
+            .run {
+                assertThat(convertToPropertyValues())
+                    .contains("insert_final_newline = false")
             }
-        }
     }
 
-    private class TestRule :
-        Rule(
-            ruleId = RuleId("test:editorconfig"),
-            about = About(),
-        ),
-        UsesEditorConfigProperties {
-        override val editorConfigProperties: List<EditorConfigProperty<*>> = emptyList()
+    private fun createEditorConfigLoader(
+        editorConfigDefaults: EditorConfigDefaults = EditorConfigDefaults.EMPTY_EDITOR_CONFIG_DEFAULTS,
+        editorConfigOverride: EditorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
+    ) = EditorConfigLoader(
+        fileSystem = ktlintTestFileSystem.fileSystem,
+        editorConfigLoaderEc4j = EditorConfigLoaderEc4j(emptySet()),
+        editorConfigDefaults = editorConfigDefaults,
+        editorConfigOverride = editorConfigOverride,
+    )
 
-        override fun beforeVisitChildNodes(
-            node: ASTNode,
-            autoCorrect: Boolean,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        ) {
-            throw NotImplementedError()
-        }
+    private fun EditorConfig.convertToPropertyValues(): List<String> =
+        map {
+            val value = if (it.isUnset) {
+                "unset"
+            } else {
+                it.sourceValue
+            }
+            "${it.name} = $value"
+        }.toList()
+
+    private companion object {
+        const val SOME_PROPERTY_NAME = "some-property-name"
+
+        //language=
+        const val SOME_PROPERTY_VALUE_1 = "some-property-value-1"
+        const val SOME_PROPERTY_VALUE_2 = "some-property-value-2"
+        val SOME_EDITOR_CONFIG_PROPERTY = EditorConfigProperty(
+            name = SOME_PROPERTY_NAME,
+            type = PropertyType(
+                SOME_PROPERTY_NAME,
+                "",
+                PropertyType.PropertyValueParser.IDENTITY_VALUE_PARSER,
+                setOf(SOME_PROPERTY_VALUE_1, SOME_PROPERTY_VALUE_2),
+            ),
+            defaultValue = SOME_PROPERTY_VALUE_1,
+        )
     }
 }

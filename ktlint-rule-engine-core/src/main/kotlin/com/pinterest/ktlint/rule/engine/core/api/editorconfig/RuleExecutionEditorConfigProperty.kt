@@ -28,27 +28,32 @@ public val EXPERIMENTAL_RULES_EXECUTION_PROPERTY: EditorConfigProperty<RuleExecu
         name = "ktlint_experimental",
         type = RULE_EXECUTION_PROPERTY_TYPE,
         defaultValue = RuleExecution.disabled,
+        // TODO: Enable by default in official code style?
     )
 
 /**
  * Generates the rule execution '.editorconfig' property for the given [RuleSetId].
  */
-public fun RuleSetId.createRuleSetExecutionEditorConfigProperty(): EditorConfigProperty<RuleExecution> =
+public fun RuleSetId.createRuleSetExecutionEditorConfigProperty(
+    ruleExecution: RuleExecution = RuleExecution.enabled,
+): EditorConfigProperty<RuleExecution> =
     EditorConfigProperty(
         // Explicitly name the rule as multiple properties exists for this property type
         name = ktLintRuleSetExecutionPropertyName(),
         type = RULE_EXECUTION_PROPERTY_TYPE,
-        defaultValue = RuleExecution.enabled,
+        defaultValue = ruleExecution,
     )
 
 /**
  * Generates the rule execution '.editorconfig' property for the given [RuleId].
  */
-public fun RuleId.createRuleExecutionEditorConfigProperty(): EditorConfigProperty<RuleExecution> =
+public fun RuleId.createRuleExecutionEditorConfigProperty(
+    ruleExecution: RuleExecution = RuleExecution.enabled,
+): EditorConfigProperty<RuleExecution> =
     EditorConfigProperty(
         name = ktLintRuleExecutionPropertyName(),
         type = RULE_EXECUTION_PROPERTY_TYPE,
-        defaultValue = RuleExecution.enabled,
+        defaultValue = ruleExecution,
     )
 
 /**

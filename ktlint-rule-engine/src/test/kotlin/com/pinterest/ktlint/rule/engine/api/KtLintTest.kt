@@ -8,7 +8,6 @@ import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.RuleMethod.BEFORE_
 import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.RuleMethod.BEFORE_FIRST
 import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.VisitNodeType.CHILD
 import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.VisitNodeType.ROOT
-import com.pinterest.ktlint.rule.engine.core.api.EditorConfigProperties
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
@@ -19,8 +18,8 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAsLateAsPossible
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.UsesEditorConfigProperties
 import com.pinterest.ktlint.rule.engine.core.api.isRoot
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -1095,12 +1094,9 @@ class KtLintLegacyTest {
 private class DummyRuleWithCustomEditorConfigProperty :
     Rule(
         ruleId = RuleId("test:dummy-rule-with-custom-editor-config-property"),
+        usesEditorConfigProperties = setOf(SOME_CUSTOM_RULE_PROPERTY),
         about = About(),
-    ),
-    UsesEditorConfigProperties {
-    override val editorConfigProperties: List<EditorConfigProperty<*>> =
-        listOf(SOME_CUSTOM_RULE_PROPERTY)
-
+    ) {
     companion object {
         const val SOME_CUSTOM_RULE_PROPERTY_NAME = "some-custom-rule-property"
 
@@ -1191,7 +1187,7 @@ private class SimpleTestRule(
     about = About(),
     visitorModifiers,
 ) {
-    override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
+    override fun beforeFirstNode(editorConfig: EditorConfig) {
         ruleExecutionCalls.add(RuleExecutionCall(ruleId, BEFORE_FIRST))
         if (stopTraversalInBeforeFirstNode) {
             stopTraversalOfAST()
@@ -1293,7 +1289,7 @@ private class WithStateRule : Rule(
 ) {
     private var hasNotBeenVisitedYet = true
 
-    override fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {
+    override fun beforeFirstNode(editorConfig: EditorConfig) {
         check(hasNotBeenVisitedYet) {
             "Rule has been visited before"
         }

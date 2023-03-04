@@ -12,11 +12,13 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.UsesEditorConfigProperties
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.END_OF_LINE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
 import com.pinterest.ktlint.rule.engine.internal.DEFAULT_EDITOR_CONFIG_PROPERTIES
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigFinder
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigGenerator
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigLoader
+import com.pinterest.ktlint.rule.engine.internal.EditorConfigLoaderEc4j
 import com.pinterest.ktlint.rule.engine.internal.RuleExecutionContext
 import com.pinterest.ktlint.rule.engine.internal.RuleExecutionContext.Companion.createRuleExecutionContext
 import com.pinterest.ktlint.rule.engine.internal.RuleRunner
@@ -25,11 +27,14 @@ import com.pinterest.ktlint.rule.engine.internal.VisitorProvider
 import mu.KotlinLogging
 import org.ec4j.core.Resource
 import org.ec4j.core.model.PropertyType
+import org.ec4j.core.model.PropertyType.EndOfLineValue.crlf
+import org.ec4j.core.model.PropertyType.EndOfLineValue.lf
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.openapi.util.Key
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.io.File
 import java.nio.charset.StandardCharsets
+import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -118,8 +123,7 @@ public object KtLint {
             val editorConfigProperties =
                 getRules()
                     .asSequence()
-                    .filterIsInstance<UsesEditorConfigProperties>()
-                    .map { it.editorConfigProperties }
+                    .map { it.usesEditorConfigProperties }
                     .flatten()
                     .plus(DEFAULT_EDITOR_CONFIG_PROPERTIES)
                     .map { it.name }
@@ -225,19 +229,6 @@ public object KtLint {
     public fun trimMemory() {
         THREAD_SAFE_EDITOR_CONFIG_CACHE.clear()
     }
-
-    /**
-     * Get the list of files which will be accessed by KtLint when linting or formatting the given file or directory.
-     * The API consumer can use this list to observe changes in '.editorconfig' files. Whenever such a change is
-     * observed, the API consumer should call [reloadEditorConfigFile].
-     * To avoid unnecessary access to the file system, it is best to call this method only once for the root of the
-     * project which is to be [lint] or [format].
-     */
-    @Deprecated(
-        message = "Marked for removal in KtLint 0.49",
-        replaceWith = ReplaceWith("ktLintRuleEngine.editorConfigFilePaths"),
-    )
-    public fun editorConfigFilePaths(path: Path): List<Path> = EditorConfigFinder().findEditorConfigs(path)
 
     /**
      * Reloads an '.editorconfig' file given that it is currently loaded into the KtLint cache. This method is intended
@@ -366,11 +357,12 @@ public class KtLintRuleEngine(
     public val isInvokedFromCli: Boolean = false,
 
     /**
-     * **For internal use only**: indicates that the '.editorconfig' on the file system has to be ignored. This primarily is used to prevent
-     * that code snippets in unit test are linted/formatted based on values in the '.editorconfig' which might interfere with the actual
-     * set up of the test. This property can be removed in any of next versions without further notice and without providing a fallback.
+     * The [FileSystem] to be used. This property is primarily intended to be used in unit tests. By specifying an alternative [FileSystem]
+     * the unit test gains control on whether the [EditorConfigLoader] should or should not read specific ".editorconfig" files. For
+     * example, it is considered unwanted that a unit test is influenced by the ".editorconfig" file of the project in which the unit test
+     * is included.
      */
-    internal val ignoreEditorConfigOnFileSystem: Boolean = false,
+    public val fileSystem: FileSystem = FileSystems.getDefault(),
 ) {
     init {
         require(ruleProviders.any()) {
@@ -378,7 +370,14 @@ public class KtLintRuleEngine(
         }
     }
 
-    internal val editorConfigLoader = EditorConfigLoader(FileSystems.getDefault())
+    internal val editorConfigLoaderEc4j = EditorConfigLoaderEc4j(ruleProviders.propertyTypes())
+
+    internal val editorConfigLoader = EditorConfigLoader(
+        fileSystem,
+        editorConfigLoaderEc4j,
+        editorConfigDefaults,
+        editorConfigOverride,
+    )
 
     /**
      * Check [code] for lint errors. When [filePath] is provided, the '.editorconfig' files on the path are taken into
@@ -437,7 +436,7 @@ public class KtLintRuleEngine(
         val errors = mutableListOf<LintError>()
 
         VisitorProvider(ruleExecutionContext.ruleRunners)
-            .visitor(ruleExecutionContext.editorConfigProperties)
+            .visitor()
             .invoke { rule, fqRuleId ->
                 ruleExecutionContext.executeRule(rule, fqRuleId, false) { offset, errorMessage, canBeAutoCorrected ->
                     val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
@@ -508,14 +507,9 @@ public class KtLintRuleEngine(
         var tripped = false
         var mutated = false
         val errors = mutableSetOf<Pair<LintError, Boolean>>()
-        val ruleRunners =
-            ruleProviders
-                .map { RuleRunner(it) }
-                .distinctBy { it.ruleId }
-                .toSet()
-        val visitorProvider = VisitorProvider(ruleRunners)
+        val visitorProvider = VisitorProvider(ruleExecutionContext.ruleRunners)
         visitorProvider
-            .visitor(ruleExecutionContext.editorConfigProperties)
+            .visitor()
             .invoke { rule, fqRuleId ->
                 ruleExecutionContext.executeRule(rule, fqRuleId, true) { offset, errorMessage, canBeAutoCorrected ->
                     tripped = true
@@ -540,7 +534,7 @@ public class KtLintRuleEngine(
             }
         if (tripped) {
             visitorProvider
-                .visitor(ruleExecutionContext.editorConfigProperties)
+                .visitor()
                 .invoke { rule, fqRuleId ->
                     ruleExecutionContext.executeRule(
                         rule,
@@ -582,12 +576,9 @@ public class KtLintRuleEngine(
     }
 
     private fun RuleExecutionContext.determineLineSeparator(fileContent: String): String {
-        val eol =
-            editorConfigProperties["end_of_line"]
-                ?.sourceValue
+        val eol = editorConfig[END_OF_LINE_PROPERTY]
         return when {
-            eol == "native" -> System.lineSeparator()
-            eol == "crlf" || eol != "lf" && fileContent.lastIndexOf('\r') != -1 -> "\r\n"
+            eol == crlf || eol != lf && fileContent.lastIndexOf('\r') != -1 -> "\r\n"
             else -> "\n"
         }
     }
@@ -619,11 +610,12 @@ public class KtLintRuleEngine(
                 .toSet()
                 .map { it.getRule() }
                 .toSet()
-        return EditorConfigGenerator(this.editorConfigLoader).generateEditorconfig(
-            filePath,
-            rules,
-            codeStyle,
-        )
+        return EditorConfigGenerator(fileSystem, editorConfigLoaderEc4j)
+            .generateEditorconfig(
+                rules,
+                codeStyle,
+                filePath,
+            )
     }
 
     /**
@@ -640,7 +632,7 @@ public class KtLintRuleEngine(
      * To avoid unnecessary access to the file system, it is best to call this method only once for the root of the
      * project which is to be [lint] or [format].
      */
-    public fun editorConfigFilePaths(path: Path): List<Path> = EditorConfigFinder().findEditorConfigs(path)
+    public fun editorConfigFilePaths(path: Path): List<Path> = EditorConfigFinder(editorConfigLoaderEc4j).findEditorConfigs(path)
 
     /**
      * Reloads an '.editorconfig' file given that it is currently loaded into the KtLint cache. This method is intended

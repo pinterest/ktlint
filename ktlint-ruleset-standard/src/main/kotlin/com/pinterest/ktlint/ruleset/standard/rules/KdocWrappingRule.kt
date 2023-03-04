@@ -6,10 +6,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC_START
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.UsesEditorConfigProperties
 import com.pinterest.ktlint.rule.engine.core.api.lineIndent
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.noNewLineInClosedRange
@@ -22,15 +20,14 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  * Checks external wrapping of KDoc comment. Wrapping inside the KDoc comment is not altered.
  */
 public class KdocWrappingRule :
-    StandardRule("kdoc-wrapping"),
-    Rule.Experimental,
-    UsesEditorConfigProperties {
-    override val editorConfigProperties: List<EditorConfigProperty<*>> =
-        listOf(
+    StandardRule(
+        id = "kdoc-wrapping",
+        usesEditorConfigProperties = setOf(
             INDENT_SIZE_PROPERTY,
             INDENT_STYLE_PROPERTY,
-        )
-
+        ),
+    ),
+    Rule.Experimental {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,

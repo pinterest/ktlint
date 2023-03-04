@@ -11,4 +11,5 @@ dependencies {
     api(libs.junit5)
     api(libs.logback)
     api(libs.janino)
+    api(libs.jimfs)
 }

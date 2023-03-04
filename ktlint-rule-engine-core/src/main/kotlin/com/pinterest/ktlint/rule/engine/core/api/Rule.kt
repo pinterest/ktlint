@@ -1,5 +1,7 @@
 package com.pinterest.ktlint.rule.engine.core.api
 
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.internal.IdNamingPolicy
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
@@ -63,6 +65,11 @@ public open class Rule(
      * independent of all other rules.
      */
     public open val visitorModifiers: Set<VisitorModifier> = emptySet(),
+
+    /**
+     * Set of [EditorConfigProperty]'s that are to provided to the rule. Only specify the properties that are actually used by the rule.
+     */
+    public open val usesEditorConfigProperties: Set<EditorConfigProperty<*>> = emptySet(),
 ) {
     private var traversalState = TraversalState.NOT_STARTED
 
@@ -70,7 +77,7 @@ public open class Rule(
      * This method is called once before the first node is visited. It can be used to initialize the state of the rule
      * before processing of nodes starts.
      */
-    public open fun beforeFirstNode(editorConfigProperties: EditorConfigProperties) {}
+    public open fun beforeFirstNode(editorConfig: EditorConfig) {}
 
     /**
      * This method is called on a node in AST before visiting the child nodes. This is repeated recursively for the
@@ -184,17 +191,39 @@ public open class Rule(
     )
 
     public sealed class VisitorModifier {
+        /**
+         * Defines that the [Rule] that declares this [VisitorModifier] will be run after the [Rule] with rule id
+         * [VisitorModifier.RunAfterRule.ruleId].
+         */
         public data class RunAfterRule(
+            /**
+             * The [RuleId] of the [Rule] which should run before the [Rule] that declares the [VisitorModifier.RunAfterRule].
+             */
             val ruleId: RuleId,
+
             /**
-             * The annotated rule will only be loaded in case the other rule is loaded as well.
+             * The [Mode] determines whether the [Rule] that declares this [VisitorModifier] can be run in case the [Rule] with rule id
+             * [VisitorModifier.RunAfterRule.ruleId] is not loaded or enabled.
              */
-            val loadOnlyWhenOtherRuleIsLoaded: Boolean = false,
-            /**
-             * The annotated rule will only be run in case the other rule is enabled.
-             */
-            val runOnlyWhenOtherRuleIsEnabled: Boolean = false,
-        ) : VisitorModifier()
+            val mode: Mode,
+
+        ) : VisitorModifier() {
+            public enum class Mode {
+                /**
+                 * Run the [Rule] that declares the [VisitorModifier.RunAfterRule] regardless whether the [Rule] with ruleId
+                 * [VisitorModifier.RunAfterRule.ruleId] is loaded or disabled. However, if that other rule is loaded and enabled, it runs
+                 * before the [Rule] that declares the [VisitorModifier.RunAfterRule].
+                 */
+                REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+
+                /**
+                 * Run the [Rule] that declares the [VisitorModifier.RunAfterRule] only in case the [Rule] with ruleId
+                 * [VisitorModifier.RunAfterRule.ruleId] is loaded *and* enabled. That other rule runs before the [Rule] that declares the
+                 * [VisitorModifier.RunAfterRule].
+                 */
+                ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED,
+            }
+        }
 
         public object RunAsLateAsPossible : VisitorModifier()
     }

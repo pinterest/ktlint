@@ -28,6 +28,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
+import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
 import com.pinterest.ktlint.ruleset.standard.rules.FILENAME_RULE_ID
 import mu.KLogger
 import mu.KotlinLogging
@@ -41,7 +42,7 @@ import java.io.File
 import java.nio.file.FileSystems
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.util.Locale
+import java.util.*
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.Callable
 import java.util.concurrent.Executors
@@ -261,13 +262,6 @@ internal class KtlintCommandLine {
         get() = Level.DEBUG.isGreaterOrEqual(minLogLevel)
         private set
 
-    private val editorConfigDefaults: EditorConfigDefaults
-        get() = EditorConfigDefaults.load(
-            editorConfigPath
-                ?.expandTildeToFullPath()
-                ?.let { path -> Paths.get(path) },
-        )
-
     private fun disabledRulesEditorConfigOverrides() =
         disabledRules
             .split(",")
@@ -321,9 +315,10 @@ internal class KtlintCommandLine {
 
         val start = System.currentTimeMillis()
 
+        val ruleProviders = ruleProviders()
         val ktLintRuleEngine = KtLintRuleEngine(
-            ruleProviders = ruleProviders(),
-            editorConfigDefaults = editorConfigDefaults,
+            ruleProviders = ruleProviders,
+            editorConfigDefaults = editorConfigDefaults(ruleProviders),
             editorConfigOverride = editorConfigOverride,
             isInvokedFromCli = true,
         )
@@ -372,6 +367,14 @@ internal class KtlintCommandLine {
         } else {
             exitKtLintProcess(0)
         }
+    }
+
+    private fun editorConfigDefaults(ruleProviders: Set<RuleProvider>): EditorConfigDefaults {
+        val fullyExpandedEditorConfigPath =
+            editorConfigPath
+                ?.expandTildeToFullPath()
+                ?.let { path -> Paths.get(path) }
+        return EditorConfigDefaults.load(fullyExpandedEditorConfigPath, ruleProviders.propertyTypes())
     }
 
     private fun List<String>.replaceWithPatternsFromStdinOrDefaultPatternsWhenEmpty(): List<String> {
@@ -426,7 +429,8 @@ internal class KtlintCommandLine {
         lintErrorsPerFile: Map<String, List<KtlintCliError>>,
         reporter: ReporterV2,
     ) {
-        FileSystems.getDefault()
+        FileSystems
+            .getDefault()
             .fileSequence(patterns)
             .map { it.toFile() }
             .takeWhile { errorNumber.get() < limit }
