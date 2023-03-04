@@ -9,6 +9,9 @@ import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine.Companion.UTF8_BOM
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
+import com.pinterest.ktlint.rule.engine.internal.rulefilter.RuleExecutionRuleFilter
+import com.pinterest.ktlint.rule.engine.internal.rulefilter.RunAfterRuleFilter
+import com.pinterest.ktlint.rule.engine.internal.rulefilter.ruleRunners
 import mu.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
@@ -161,7 +164,7 @@ internal class RuleExecutionContext private constructor(
 
             val rootNode = psiFile.node
 
-            val editorConfigProperties = with(ktLintRuleEngine) {
+            val editorConfig =
                 ktLintRuleEngine
                     .editorConfigLoader
                     .load(code.filePath)
@@ -171,18 +174,23 @@ internal class RuleExecutionContext private constructor(
                         // TODO: Remove warning below in KtLint 0.52 or later as some users skips multiple versions
                         it.warnIfPropertyIsObsolete("ktlint_disabled_rules", "0.49")
                     }
-            }
 
             if (!code.isStdIn) {
                 // TODO: Remove in KtLint 0.49
                 rootNode.putUserData(KtLint.FILE_PATH_USER_DATA_KEY, code.filePath.toString())
             }
 
+            val ruleRunners =
+                ktLintRuleEngine.ruleRunners(
+                    RuleExecutionRuleFilter(editorConfig),
+                    RunAfterRuleFilter(),
+                )
+
             return RuleExecutionContext(
                 code,
                 rootNode,
-                RuleRunnerFilter(ktLintRuleEngine, editorConfigProperties).filter(),
-                editorConfigProperties,
+                ruleRunners,
+                editorConfig,
                 positionInTextLocator,
             )
         }
