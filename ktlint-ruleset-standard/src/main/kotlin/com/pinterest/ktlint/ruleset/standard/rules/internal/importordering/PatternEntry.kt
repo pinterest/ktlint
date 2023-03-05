@@ -2,7 +2,6 @@ package com.pinterest.ktlint.ruleset.standard.rules.internal.importordering
 
 import org.jetbrains.kotlin.resolve.ImportPath
 
-@Deprecated("Marked for removal from public API in KtLint 0.49. Please raise when using this.")
 /**
  * Represents an entry in the imports layout pattern. Contains matching logic for imports.
  *
@@ -78,25 +77,22 @@ public class PatternEntry(
         return result
     }
 
-    public companion object {
-        @Deprecated("Marked for removal from public API in KtLint 0.49. Please raise when using this.")
-        public val BLANK_LINE_ENTRY: PatternEntry =
+    internal companion object {
+        val BLANK_LINE_ENTRY: PatternEntry =
             PatternEntry(
                 BLANK_LINE_CHAR,
                 withSubpackages = true,
                 hasAlias = false,
             )
 
-        @Deprecated("Marked for removal from public API in KtLint 0.49. Please raise when using this.")
-        public val ALL_OTHER_IMPORTS_ENTRY: PatternEntry =
+        val ALL_OTHER_IMPORTS_ENTRY: PatternEntry =
             PatternEntry(
                 WILDCARD_CHAR,
                 withSubpackages = true,
                 hasAlias = false,
             )
 
-        @Deprecated("Marked for removal from public API in KtLint 0.49. Please raise when using this.")
-        public val ALL_OTHER_ALIAS_IMPORTS_ENTRY: PatternEntry =
+        val ALL_OTHER_ALIAS_IMPORTS_ENTRY: PatternEntry =
             PatternEntry(
                 ALIAS_CHAR,
                 withSubpackages = true,

@@ -1,16 +1,70 @@
 package com.pinterest.ktlint.test
 
+import com.pinterest.ktlint.logger.api.initKtLintKLogger
+import com.pinterest.ktlint.logger.api.setDefaultLoggerModifier
+import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
+import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.plus
+import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.LintError
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleSetExecutionEditorConfigProperty
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
+import com.pinterest.ruleset.testtooling.DumpASTRule
+import mu.KotlinLogging
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions.assertThat
+import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 import org.junit.jupiter.api.assertAll
+import kotlin.io.path.pathString
+
+// When system and/or environment variables below are enabled, the unit tests provide additional logging information.
+private const val KTLINT_UNIT_TEST_DUMP_AST = "KTLINT_UNIT_TEST_DUMP_AST"
+private const val KTLINT_UNIT_TEST_TRACE = "KTLINT_UNIT_TEST_TRACE" // Keep value in sync with value in 'logback-test.xml'
+private const val KTLINT_UNIT_TEST_ON_PROPERTY = "ON"
+
+private val LOGGER =
+    KotlinLogging
+        .logger {}
+        .setDefaultLoggerModifier { logger ->
+            if (!logger.isTraceEnabled || !logger.isDebugEnabled) {
+                logger.info {
+                    """
+                    Additional information can be printed during running of unit tests, by setting one or more of environment variables below:
+                        $KTLINT_UNIT_TEST_TRACE=[on|off]
+                        $KTLINT_UNIT_TEST_DUMP_AST=[on|off]
+                    """.trimIndent()
+                }
+            }
+        }.initKtLintKLogger()
+
+private val DUMP_AST_RULE_PROVIDER =
+    System
+        .getenv(KTLINT_UNIT_TEST_DUMP_AST)
+        .orEmpty()
+        .equals(KTLINT_UNIT_TEST_ON_PROPERTY, ignoreCase = true)
+        .ifTrue {
+            LOGGER.info { "Dump AST of code before processing as System environment variable $KTLINT_UNIT_TEST_DUMP_AST is set to 'on'" }
+            RuleProvider {
+                DumpASTRule(
+                    // Write to STDOUT. The focus in a failed unit test should first go to the error in the rule that is
+                    // to be tested and not to the AST,
+                    out = System.out,
+                )
+            }
+        }.let { setOfNotNull(it) }
+
+// The execution of the unit tests may not be affected by the ".editorconfig" configuration of the Ktlint project itself. So each unit test
+// is to be run on a KtlintTestFileSystem not having any ".editorconfig" files. This variable should not be exposed, as unit tests should
+// not be allowed to write any content on the file system.
+// As this FileSystem is not modified it is not considered to be a problem that the file system is not closed after each unit test.
+private val KTLINT_TEST_FILE_SYSTEM = KtlintTestFileSystem()
 
 /**
  * AssertJ style assertion for verifying KtLint rules. This class is intended to be used as follows:
@@ -91,7 +145,8 @@ public class KtLintAssertThat(
     }
 
     /**
-     * Handle the code as if it was specified in file on the given path.
+     * Handle the code as if it was specified in file on the given path. Only to be used when the [filePath] is absolutely needed. It
+     * results in creating a file cause a slight performance decrease of the test.
      */
     public fun asFileWithPath(filePath: String): KtLintAssertThat {
         this.filePath = filePath
@@ -230,21 +285,28 @@ public class KtLintAssertThat(
         if (editorConfigProperties.isEmpty()) {
             KtLintAssertThatAssertable(
                 ruleProvider = ruleProvider,
-                code = code,
-                filePath = filePath,
-                kotlinScript = kotlinScript,
+                code = code(),
                 editorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
                 additionalRuleProviders = additionalRuleProviders.toSet(),
             )
         } else {
             KtLintAssertThatAssertable(
                 ruleProvider = ruleProvider,
-                code = code,
-                filePath = filePath,
-                kotlinScript = kotlinScript,
+                code = code(),
                 editorConfigOverride = EditorConfigOverride.from(*editorConfigProperties.toTypedArray()),
                 additionalRuleProviders = additionalRuleProviders.toSet(),
             )
+        }
+
+    private fun code() =
+        if (filePath != null) {
+            // Create a file containing the code and the given filepath. CodeFile can not be used here as it can not read successfully from
+            // the Ktlint test file system.
+            val path = KTLINT_TEST_FILE_SYSTEM.resolve(filePath)
+            KTLINT_TEST_FILE_SYSTEM.writeFile(path.pathString, code)
+            Code.fromPath(path)
+        } else {
+            Code.fromSnippet(code, kotlinScript)
         }
 
     public companion object {
@@ -312,16 +374,14 @@ public class KtLintAssertThat(
 public class KtLintAssertThatAssertable(
     /** The provider of the rule which is the subject of the test, e.g. the rule for which the AssertThat is created. */
     private val ruleProvider: RuleProvider,
-    private val code: String,
-    private val filePath: String?,
-    private val kotlinScript: Boolean,
+    private val code: Code,
     private val editorConfigOverride: EditorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
     /**
      *  The rules which have to be executed in addition to the main rule when linting/formatting the code. Note that
      *  lint errors for those rules are suppressed.
      */
     private val additionalRuleProviders: Set<RuleProvider>,
-) : AbstractAssert<KtLintAssertThatAssertable, String>(code, KtLintAssertThatAssertable::class.java) {
+) : AbstractAssert<KtLintAssertThatAssertable, String>(code.content, KtLintAssertThatAssertable::class.java) {
     private val ruleId = ruleProvider.createNewRuleInstance().ruleId
 
     /**
@@ -361,7 +421,7 @@ public class KtLintAssertThatAssertable(
                                     "is always executed before the rule under test."
                             },
                     )
-                    .isEqualTo(code)
+                    .isEqualTo(code.content)
             },
         )
     }
@@ -473,7 +533,7 @@ public class KtLintAssertThatAssertable(
      * Asserts that the code is formatted as given.
      */
     public fun isFormattedAs(formattedCode: String): KtLintAssertThatAssertable {
-        check(formattedCode != code) {
+        check(formattedCode != code.content) {
             "Use '.hasNoLintViolations()' instead of '.isFormattedAs(<original code>)'"
         }
 
@@ -545,34 +605,34 @@ public class KtLintAssertThatAssertable(
             )
         }.toTypedArray()
 
-    private val filePathOrSnippetName: String
-        get() =
-            when {
-                filePath != null -> filePath
-                kotlinScript -> "snippet.kts"
-                else -> "snippet.kt"
-            }
-
-    private fun lint(): List<LintError> {
-        return setOf(ruleProvider)
-            // Also run the additional rules as the main rule might have a VisitorModifier which requires one or more of
-            // the additional rules to be loaded and enabled as well.
-            .plus(additionalRuleProviders)
-            .lint(
-                filePath = filePathOrSnippetName,
-                text = code,
-                editorConfigOverride = editorConfigOverride,
-            )
+    private fun createKtLintRuleEngine(): KtLintRuleEngine {
+        val ruleProviders =
+            setOf(ruleProvider)
+                // Also run the additional rules as the main rule might have a VisitorModifier which requires one or more of
+                // the additional rules to be loaded and enabled as well.
+                .plus(additionalRuleProviders)
+                .plus(DUMP_AST_RULE_PROVIDER)
+        val editorConfigOverride = editorConfigOverride
+            .enableExperimentalRules()
+            .extendWithRuleSetRuleExecutionsFor(ruleProviders)
+        return KtLintRuleEngine(
+            ruleProviders = ruleProviders,
+            editorConfigOverride = editorConfigOverride,
+            fileSystem = KTLINT_TEST_FILE_SYSTEM.fileSystem,
+        )
     }
 
-    private fun format(): Pair<String, List<LintError>> =
-        setOf(ruleProvider)
-            .plus(additionalRuleProviders)
-            .format(
-                filePath = filePathOrSnippetName,
-                text = code,
-                editorConfigOverride = editorConfigOverride,
-            )
+    private fun lint(): List<LintError> {
+        val lintErrors = ArrayList<LintError>()
+        createKtLintRuleEngine().lint(code) { lintError -> lintErrors.add(lintError) }
+        return lintErrors
+    }
+
+    private fun format(): Pair<String, List<LintError>> {
+        val lintErrors = ArrayList<LintError>()
+        val formattedCode = createKtLintRuleEngine().format(code) { lintError, _ -> lintErrors.add(lintError) }
+        return Pair(formattedCode, lintErrors)
+    }
 
     /* Representation of the field of the [LintError] that should be identical. Note that no comparison can be made
      * against the original [LintError] as the [canBeAutoCorrected] flag is excluded from the hashcode.
@@ -602,3 +662,27 @@ public data class LintViolation(
     val col: Int,
     val detail: String,
 )
+
+/**
+ * Enables the rule sets for the given set of [ruleProviders] unless the rule execution of that rule set was already
+ * provided.
+ */
+private fun EditorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProviders: Set<RuleProvider>): EditorConfigOverride {
+    val ruleSetRuleExecutions = ruleProviders
+        .asSequence()
+        .map { ruleProvider ->
+            ruleProvider
+                .createNewRuleInstance()
+                .ruleId
+                .ruleSetId
+                .createRuleSetExecutionEditorConfigProperty()
+        }.distinct()
+        .filter { editorConfigProperty -> this.properties[editorConfigProperty] == null }
+        .map { it to RuleExecution.enabled }
+        .toList()
+        .toTypedArray()
+    return this.plus(*ruleSetRuleExecutions)
+}
+
+private fun EditorConfigOverride.enableExperimentalRules(): EditorConfigOverride =
+    plus(EXPERIMENTAL_RULES_EXECUTION_PROPERTY to RuleExecution.enabled)

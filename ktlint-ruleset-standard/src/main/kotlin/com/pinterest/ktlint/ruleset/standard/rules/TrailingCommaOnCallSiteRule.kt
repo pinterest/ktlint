@@ -252,14 +252,6 @@ public class TrailingCommaOnCallSiteRule :
                 androidStudioCodeStyleDefaultValue = false,
             )
 
-        @Deprecated(
-            message = "Marked for removal in KtLint 0.49",
-            replaceWith = ReplaceWith("TRAILING_COMMA_ON_CALL_SITE_PROPERTY"),
-        )
-        @Suppress("ktlint:property-naming")
-        public val allowTrailingCommaOnCallSiteProperty: EditorConfigProperty<Boolean> =
-            TRAILING_COMMA_ON_CALL_SITE_PROPERTY
-
         private val TYPES_ON_CALL_SITE = TokenSet.create(
             COLLECTION_LITERAL_EXPRESSION,
             INDICES,

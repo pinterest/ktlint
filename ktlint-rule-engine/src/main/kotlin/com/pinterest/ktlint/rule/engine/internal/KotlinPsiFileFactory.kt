@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import com.pinterest.ktlint.rule.engine.api.KtLint
+import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
@@ -77,7 +77,7 @@ internal fun initPsiFileFactory(isFromCli: Boolean): PsiFileFactory {
  * Note: this only works in CLI shadowed jar! 'extensions/compiler.xml' is absent in non-shadowed jar.
  */
 private fun extractCompilerExtension(): Path {
-    KtLint::class.java.getResourceAsStream("/META-INF/extensions/compiler.xml").use { input ->
+    KtLintRuleEngine::class.java.getResourceAsStream("/META-INF/extensions/compiler.xml").use { input ->
         val tempDir = Files.createTempDirectory("ktlint")
         tempDir.toFile().deleteOnExit()
 

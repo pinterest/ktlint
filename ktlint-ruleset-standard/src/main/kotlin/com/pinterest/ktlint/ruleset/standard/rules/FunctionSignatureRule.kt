@@ -712,14 +712,6 @@ public class FunctionSignatureRule :
                 ktlintOfficialCodeStyleDefaultValue = 2,
             )
 
-        @Deprecated(
-            message = "Marked for removal in KtLint 0.49",
-            replaceWith = ReplaceWith("FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY"),
-        )
-        @Suppress("ktlint:property-naming")
-        public val forceMultilineWhenParameterCountGreaterOrEqualThanProperty: EditorConfigProperty<Int> =
-            FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY
-
         public val FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY: EditorConfigProperty<FunctionBodyExpressionWrapping> =
             EditorConfigProperty(
                 type = PropertyType.LowerCasingPropertyType(
@@ -734,14 +726,6 @@ public class FunctionSignatureRule :
                 defaultValue = default,
                 ktlintOfficialCodeStyleDefaultValue = multiline,
             )
-
-        @Deprecated(
-            message = "Marked for removal in KtLint 0.49",
-            replaceWith = ReplaceWith("FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY"),
-        )
-        @Suppress("ktlint:property-naming")
-        public val functionBodyExpressionWrappingProperty: EditorConfigProperty<FunctionBodyExpressionWrapping> =
-            FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY
 
         private val INDENT_WITH_CLOSING_PARENTHESIS = Regex("\\s*\\) =")
     }

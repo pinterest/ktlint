@@ -2,9 +2,9 @@ package com.pinterest.ktlint.test
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.logger.api.setDefaultLoggerModifier
+import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.plus
-import com.pinterest.ktlint.rule.engine.api.KtLint
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.LintError
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
@@ -14,6 +14,8 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleSetExecu
 import com.pinterest.ruleset.testtooling.DumpASTRule
 import mu.KotlinLogging
 import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
+
+// TODO: Remove entire file in KtLint 0.50. Code has already been duplicated and refactored into KtLintAssertThat.
 
 private val LOGGER =
     KotlinLogging
@@ -62,35 +64,6 @@ private fun Set<RuleProvider>.toRuleProviders(): Set<RuleProvider> {
     return this.plus(setOfNotNull(dumpAstRuleProvider))
 }
 
-@Deprecated(
-    message = "Marked for removal in KtLint 0.49",
-    replaceWith = ReplaceWith("lint(filePath,text,editorConfigOverride)"),
-)
-public fun Set<RuleProvider>.lint(
-    lintedFilePath: String? = null,
-    text: String,
-    editorConfigOverride: EditorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
-    userData: Map<String, String> = emptyMap(),
-    script: Boolean = false,
-): List<LintError> {
-    val lintErrors = ArrayList<LintError>()
-    val ruleProviders = toRuleProviders()
-    val experimentalParams = KtLint.ExperimentalParams(
-        fileName = lintedFilePath,
-        text = text,
-        ruleProviders = this.toRuleProviders(),
-        editorConfigOverride = editorConfigOverride
-            .enableExperimentalRules()
-            .extendWithRuleSetRuleExecutionsFor(ruleProviders),
-        userData = userData,
-        script = script,
-        cb = { lintError, _ -> lintErrors.add(lintError) },
-        debug = true,
-    )
-    KtLint.lint(experimentalParams)
-    return lintErrors
-}
-
 /**
  * Execute [KtLintRuleEngine.lint] on given code snippet. To test a kotlin script file, provide a filepath ending with
  * ".kts". For each invocation of this method, a fresh instance of the [KtLintRuleEngine] is instantiated for the given
@@ -99,6 +72,7 @@ public fun Set<RuleProvider>.lint(
  * test contains an '.editorconfig' file, then it will be ignored entirely. Provide '.editorconfig' properties that have
  * to be applied on the code snippet via [editorConfigOverride].
  */
+@Deprecated("Marked for removal in Ktlint 0.50. Raise an issue if you actually are using this function.")
 public fun Set<RuleProvider>.lint(
     text: String,
     filePath: String? = null,
@@ -106,16 +80,18 @@ public fun Set<RuleProvider>.lint(
 ): List<LintError> {
     val lintErrors = ArrayList<LintError>()
     val ruleProviders = toRuleProviders()
+    val code = if (filePath != null) {
+        Code.fromFile(KTLINT_TEST_FILE_SYSTEM.resolve(filePath).toFile())
+    } else {
+        Code.fromSnippet(text)
+    }
     KtLintRuleEngine(
         ruleProviders = ruleProviders,
         editorConfigOverride = editorConfigOverride
             .enableExperimentalRules()
             .extendWithRuleSetRuleExecutionsFor(ruleProviders),
         fileSystem = KTLINT_TEST_FILE_SYSTEM.fileSystem,
-    ).lint(
-        code = text,
-        filePath = filePath?.let { KTLINT_TEST_FILE_SYSTEM.resolve(filePath) },
-    ) { lintError -> lintErrors.add(lintError) }
+    ).lint(code) { lintError -> lintErrors.add(lintError) }
     return lintErrors
 }
 
@@ -143,36 +119,6 @@ private fun EditorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProvider
 private fun EditorConfigOverride.enableExperimentalRules(): EditorConfigOverride =
     plus(EXPERIMENTAL_RULES_EXECUTION_PROPERTY to RuleExecution.enabled)
 
-@Deprecated(
-    message = "Marked for removal in KtLint 0.49",
-    replaceWith = ReplaceWith("format(filePath,text,editorConfigOverride)"),
-)
-public fun Set<RuleProvider>.format(
-    lintedFilePath: String?,
-    text: String,
-    editorConfigOverride: EditorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
-    userData: Map<String, String> = emptyMap(),
-    cb: (e: LintError, corrected: Boolean) -> Unit = { _, _ -> },
-    script: Boolean = false,
-): Pair<String, List<LintError>> {
-    val lintErrors = ArrayList<LintError>()
-    val ruleProviders = toRuleProviders()
-    val experimentalParams = KtLint.ExperimentalParams(
-        fileName = lintedFilePath,
-        text = text,
-        ruleProviders = ruleProviders,
-        editorConfigOverride = editorConfigOverride
-            .enableExperimentalRules()
-            .extendWithRuleSetRuleExecutionsFor(ruleProviders),
-        userData = userData,
-        script = script,
-        cb = { lintError, _ -> lintErrors.add(lintError) },
-        debug = true,
-    )
-    val formattedCode = KtLint.format(experimentalParams)
-    return Pair(formattedCode, lintErrors)
-}
-
 /**
  * Execute [KtLintRuleEngine.format] on given code snippet. To test a kotlin script file, provide a filepath ending with
  * ".kts". For each invocation of this method, a fresh instance of the [KtLintRuleEngine] is instantiated for the given
@@ -181,6 +127,7 @@ public fun Set<RuleProvider>.format(
  * test contains an '.editorconfig' file, then it will be ignored entirely. Provide '.editorconfig' properties that have
  * to be applied on the code snippet via [editorConfigOverride].
  */
+@Deprecated("Marked for removal in Ktlint 0.50. Raise an issue if you actually are using this function.")
 public fun Set<RuleProvider>.format(
     text: String,
     filePath: String?,
@@ -188,6 +135,11 @@ public fun Set<RuleProvider>.format(
 ): Pair<String, List<LintError>> {
     val lintErrors = ArrayList<LintError>()
     val ruleProviders = toRuleProviders()
+    val code = if (filePath != null) {
+        Code.fromFile(KTLINT_TEST_FILE_SYSTEM.resolve(filePath).toFile())
+    } else {
+        Code.fromSnippet(text)
+    }
     val formattedCode =
         KtLintRuleEngine(
             ruleProviders = ruleProviders,
@@ -195,10 +147,7 @@ public fun Set<RuleProvider>.format(
                 .enableExperimentalRules()
                 .extendWithRuleSetRuleExecutionsFor(ruleProviders),
             fileSystem = KTLINT_TEST_FILE_SYSTEM.fileSystem,
-        ).format(
-            code = text,
-            filePath = filePath?.let { KTLINT_TEST_FILE_SYSTEM.resolve(filePath) },
-        ) { lintError, _ -> lintErrors.add(lintError) }
+        ).format(code) { lintError, _ -> lintErrors.add(lintError) }
     return Pair(formattedCode, lintErrors)
 }
 

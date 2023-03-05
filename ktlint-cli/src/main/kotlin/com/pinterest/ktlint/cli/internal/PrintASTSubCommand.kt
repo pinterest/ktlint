@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.cli.internal
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
+import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.KtLintParseException
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
@@ -9,7 +10,6 @@ import mu.KotlinLogging
 import picocli.CommandLine
 import java.io.File
 import java.nio.file.FileSystems
-import java.nio.file.Paths
 import java.util.Locale
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
@@ -45,27 +45,21 @@ internal class PrintASTSubCommand : Runnable {
         commandSpec.commandLine().printCommandLineHelpOrVersionUsage()
 
         if (stdin) {
-            printAST(fileContent = String(System.`in`.readBytes()))
+            printAST(Code.fromStdin())
         } else {
             FileSystems
                 .getDefault()
                 .fileSequence(patterns.ifEmpty { DEFAULT_PATTERNS })
                 .map { it.toFile() }
                 .forEach {
-                    printAST(
-                        fileName = it.path,
-                        fileContent = it.readText(),
-                    )
+                    printAST(Code.fromFile(it))
                 }
         }
     }
 
-    private fun printAST(
-        fileContent: String,
-        fileName: String? = null,
-    ) {
-        if (fileName != null) {
-            LOGGER.debug { "Analyzing ${File(fileName).location(ktlintCommand.relative)}" }
+    private fun printAST(code: Code) {
+        if (code.fileName != null) {
+            LOGGER.debug { "Analyzing ${File(code.fileName!!).location(ktlintCommand.relative)}" }
         }
 
         try {
@@ -73,10 +67,7 @@ internal class PrintASTSubCommand : Runnable {
                 ruleProviders = setOf(
                     RuleProvider { DumpASTRule(System.out, ktlintCommand.color) },
                 ),
-            ).lint(
-                code = fileContent,
-                filePath = fileName?.let { Paths.get(it) },
-            )
+            ).lint(code)
         } catch (e: Exception) {
             if (e is KtLintParseException) {
                 throw KtLintParseException(

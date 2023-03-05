@@ -15,6 +15,7 @@ import com.pinterest.ktlint.cli.reporter.core.api.ReporterV2
 import com.pinterest.ktlint.cli.reporter.plain.Color
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.logger.api.setDefaultLoggerModifier
+import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.plus
@@ -135,20 +136,6 @@ internal class KtlintCommandLine {
     var colorName: String = Color.DARK_GRAY.name
 
     @Option(
-        names = ["--debug"],
-        description = ["Turn on debug output. Deprecated, use '--log-level=debug' instead."],
-    )
-    @Deprecated(message = "Replaced with minLogLevel")
-    var debugOld: Boolean? = null
-
-    @Option(
-        names = ["--trace"],
-        description = ["Turn on trace output. Deprecated, use '--log-level=trace' instead."],
-    )
-    @Deprecated(message = "Replaced with minLogLevel")
-    var trace: Boolean? = null
-
-    @Option(
         names = ["--disabled_rules"],
         description = [
             "Comma-separated list of rules to globally disable." +
@@ -215,13 +202,6 @@ internal class KtlintCommandLine {
     private var stdinDelimiter: String? = null
 
     @Option(
-        names = ["--verbose", "-v"],
-        description = ["Show error codes. Deprecated, use '--log-level=info' instead."],
-    )
-    @Deprecated(message = "Replaced with minLogLevel")
-    private var verbose: Boolean? = null
-
-    @Option(
         names = ["--editorconfig"],
         description = [
             "Path to the default '.editorconfig'. A property value from this file is used only when no " +
@@ -273,18 +253,6 @@ internal class KtlintCommandLine {
             .toTypedArray()
 
     fun run() {
-        // TODO: Remove in KtLint 0.49
-        if (debugOld != null || trace != null || verbose != null) {
-            if (minLogLevel == Level.OFF) {
-                minLogLevel = Level.ERROR
-            }
-            logger.error {
-                "Options '--debug', '--trace', '--verbose' and '-v' are deprecated and replaced with option '--log-level=<level>' or " +
-                    "'-l=<level>'."
-            }
-            exitKtLintProcess(1)
-        }
-
         val editorConfigOverride = EditorConfigOverride
             .EMPTY_EDITOR_CONFIG_OVERRIDE
             .applyIf(experimental) {
@@ -439,8 +407,7 @@ internal class KtlintCommandLine {
                 Callable {
                     fileName to process(
                         ktLintRuleEngine = ktLintRuleEngine,
-                        code = file.readText(),
-                        fileName = fileName,
+                        code = Code.fromFile(file),
                         baselineLintErrors = lintErrorsPerFile.getOrDefault(fileName, emptyList()),
                     )
                 }
@@ -455,7 +422,7 @@ internal class KtlintCommandLine {
             KtLintRuleEngine.STDIN_FILE,
             process(
                 ktLintRuleEngine = ktLintRuleEngine,
-                code = String(System.`in`.readBytes()),
+                code = Code.fromStdin(),
                 baselineLintErrors = emptyList(),
             ),
             reporter,
@@ -481,18 +448,16 @@ internal class KtlintCommandLine {
 
     private fun process(
         ktLintRuleEngine: KtLintRuleEngine,
-        code: String,
-        fileName: String? = null,
+        code: Code,
         baselineLintErrors: List<KtlintCliError>,
     ): List<KtlintCliError> {
-        if (fileName != null) {
-            logger.trace { "Checking ${File(fileName).location(relative)}" }
+        if (code.fileName != null) {
+            logger.trace { "Checking ${File(code.fileName!!).location(relative)}" }
         }
-        val filePath = fileName?.let { Paths.get(it) }
         val result = ArrayList<KtlintCliError>()
         if (format) {
             val formattedFileContent = try {
-                ktLintRuleEngine.format(code, filePath) { lintError, corrected ->
+                ktLintRuleEngine.format(code) { lintError, corrected ->
                     val ktlintCliError = KtlintCliError(
                         line = lintError.line,
                         col = lintError.col,
@@ -514,20 +479,21 @@ internal class KtlintCommandLine {
                     }
                 }
             } catch (e: Exception) {
-                result.add(e.toKtlintCliError(fileName))
+                result.add(e.toKtlintCliError(code))
                 tripped.set(true)
-                code // making sure `cat file | ktlint --stdin > file` is (relatively) safe
+                code.content // making sure `cat file | ktlint --stdin > file` is (relatively) safe
             }
-            if (stdin) {
-                print(formattedFileContent)
-            } else {
-                if (code !== formattedFileContent) {
-                    File(fileName).writeText(formattedFileContent, charset("UTF-8"))
-                }
+            when {
+                code.isStdIn -> print(formattedFileContent)
+                code.content != formattedFileContent ->
+                    code
+                        .filePath
+                        ?.toFile()
+                        ?.writeText(formattedFileContent, charset("UTF-8"))
             }
         } else {
             try {
-                ktLintRuleEngine.lint(code, filePath) { lintError ->
+                ktLintRuleEngine.lint(code) { lintError ->
                     val ktlintCliError = KtlintCliError(
                         line = lintError.line,
                         col = lintError.col,
@@ -545,14 +511,14 @@ internal class KtlintCommandLine {
                     }
                 }
             } catch (e: Exception) {
-                result.add(e.toKtlintCliError(fileName))
+                result.add(e.toKtlintCliError(code))
                 tripped.set(true)
             }
         }
         return result
     }
 
-    private fun Exception.toKtlintCliError(filename: Any?): KtlintCliError =
+    private fun Exception.toKtlintCliError(code: Code): KtlintCliError =
         this.let { e ->
             when (e) {
                 is KtLintParseException ->
@@ -564,12 +530,17 @@ internal class KtlintCommandLine {
                         status = KOTLIN_PARSE_EXCEPTION,
                     )
                 is KtLintRuleException -> {
-                    logger.debug("Internal Error (${e.ruleId}) in file '$filename' at position '${e.line}:${e.col}", e)
+                    val codeSource = if (code.isStdIn) {
+                        "code"
+                    } else {
+                        "file '${code.fileName}'"
+                    }
+                    logger.debug("Internal Error (${e.ruleId}) in $codeSource at position '${e.line}:${e.col}", e)
                     KtlintCliError(
                         line = e.line,
                         col = e.col,
                         ruleId = "",
-                        detail = "Internal Error (rule '${e.ruleId}') in file '$filename' at position '${e.line}:${e.col}. " +
+                        detail = "Internal Error (rule '${e.ruleId}') in $codeSource at position '${e.line}:${e.col}. " +
                             "Please create a ticket at https://github.com/pinterest/ktlint/issues " +
                             "and provide the source code that triggered an error.\n" +
                             e.stackTraceToString(),

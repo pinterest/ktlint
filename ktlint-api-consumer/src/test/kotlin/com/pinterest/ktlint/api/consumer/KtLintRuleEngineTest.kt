@@ -59,7 +59,7 @@ class KtLintRuleEngineTest {
 
             val lintErrors = mutableListOf<LintError>()
             ktLintRuleEngine.lint(
-                code = Code.CodeFile(File("$dir/Main.kt")),
+                code = Code.fromFile(File("$dir/Main.kt")),
                 callback = { lintErrors.add(it) },
             )
 
@@ -77,7 +77,7 @@ class KtLintRuleEngineTest {
 
             val lintErrors = mutableListOf<LintError>()
             ktLintRuleEngine.lint(
-                code = Code.CodeSnippet(
+                code = Code.fromSnippet(
                     """
                     fun main() {
                         println("Hello world!")
@@ -101,7 +101,7 @@ class KtLintRuleEngineTest {
 
             val lintErrors = mutableListOf<LintError>()
             ktLintRuleEngine.lint(
-                code = Code.CodeSnippet(
+                code = Code.fromSnippet(
                     """
                     plugins {
                         id("foo")
@@ -130,7 +130,7 @@ class KtLintRuleEngineTest {
 
             val lintErrors = mutableListOf<LintError>()
             ktLintRuleEngine.lint(
-                code = Code.CodeSnippet(
+                code = Code.fromSnippet(
                     """
                     var foo = "foo"
                     """.trimIndent(),
@@ -151,7 +151,7 @@ class KtLintRuleEngineTest {
             )
             val lintErrors = mutableListOf<LintError>()
             ktLintRuleEngine.lint(
-                code = Code.CodeSnippet(
+                code = Code.fromSnippet(
                     """
                     var foo = "foo"
                     """.trimIndent(),
@@ -182,7 +182,7 @@ class KtLintRuleEngineTest {
             val original = File("$dir/Main.kt").readText()
 
             val actual = ktLintRuleEngine.format(
-                code = Code.CodeFile(File("$dir/Main.kt")),
+                code = Code.fromFile(File("$dir/Main.kt")),
             )
 
             assertThat(actual).isEqualTo(original)
@@ -198,7 +198,7 @@ class KtLintRuleEngineTest {
             )
 
             val actual = ktLintRuleEngine.format(
-                code = Code.CodeSnippet(
+                code = Code.fromSnippet(
                     """
                     fun main() {
                     println("Hello world!")
@@ -226,7 +226,7 @@ class KtLintRuleEngineTest {
             )
 
             val actual = ktLintRuleEngine.format(
-                code = Code.CodeSnippet(
+                code = Code.fromSnippet(
                     """
                     plugins {
                     id("foo")
@@ -271,7 +271,7 @@ class KtLintRuleEngineTest {
         )
         val errors = mutableListOf<LintError>()
         ktLintEngine.lint(
-            code = Code.CodeSnippet(
+            code = Code.fromSnippet(
                 """
                 var foo = "foo"
                 """.trimIndent(),

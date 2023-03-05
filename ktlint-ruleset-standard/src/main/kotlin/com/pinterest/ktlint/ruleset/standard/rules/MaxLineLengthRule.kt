@@ -123,14 +123,6 @@ public class MaxLineLengthRule :
                 ),
                 defaultValue = false,
             )
-
-        @Deprecated(
-            message = "Marked for removal in KtLint 0.49",
-            replaceWith = ReplaceWith("IGNORE_BACKTICKED_IDENTIFIER_PROPERTY"),
-        )
-        @Suppress("ktlint:property-naming")
-        public val ignoreBackTickedIdentifierProperty: EditorConfigProperty<Boolean> =
-            IGNORE_BACKTICKED_IDENTIFIER_PROPERTY
     }
 }
 
