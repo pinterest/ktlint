@@ -19,7 +19,7 @@ public class KtlintApiConsumer {
         command: String,
         fileName: String,
     ) {
-        val codeFile = Code.CodeFile(
+        val codeFile = Code.fromFile(
             File(fileName),
         )
 

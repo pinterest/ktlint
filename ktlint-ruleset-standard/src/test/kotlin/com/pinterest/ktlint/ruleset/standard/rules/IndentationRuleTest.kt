@@ -23,7 +23,7 @@ internal class IndentationRuleTest {
     internal fun setUp() {
         // The system property below can be set to "on" to enable extensive trace logging. Do not commit/push such
         // change to any branch as it pollutes the build output too much!
-        System.setProperty("KTLINT_UNIT_TEST_TRACE", "on") // DO _NOT_ COMMIT
+        System.setProperty("KTLINT_UNIT_TEST_TRACE", "off")
     }
 
     private val indentationRuleAssertThat = assertThatRule { IndentationRule() }

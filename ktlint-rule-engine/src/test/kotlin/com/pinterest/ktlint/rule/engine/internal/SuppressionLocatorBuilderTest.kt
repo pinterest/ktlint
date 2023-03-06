@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.rule.engine.internal
 
+import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.LintError
@@ -224,7 +225,8 @@ class SuppressionLocatorBuilderTest {
 
     private fun lint(code: String) =
         ArrayList<LintError>().apply {
-            KTLINT_RULE_ENGINE.lint(code) { e -> add(e) }
+            KTLINT_RULE_ENGINE
+                .lint(Code.fromSnippet(code)) { e -> add(e) }
         }
 
     private fun lintError(

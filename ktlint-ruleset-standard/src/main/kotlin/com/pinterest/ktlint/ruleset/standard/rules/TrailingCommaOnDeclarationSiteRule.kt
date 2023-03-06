@@ -450,14 +450,6 @@ public class TrailingCommaOnDeclarationSiteRule :
                 androidStudioCodeStyleDefaultValue = false,
             )
 
-        @Deprecated(
-            message = "Marked for removal in KtLint 0.49",
-            replaceWith = ReplaceWith("TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY"),
-        )
-        @Suppress("ktlint:property-naming")
-        public val allowTrailingCommaProperty: EditorConfigProperty<Boolean> =
-            TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY
-
         private val TYPES_ON_DECLARATION_SITE = TokenSet.create(
             CLASS,
             DESTRUCTURING_DECLARATION,

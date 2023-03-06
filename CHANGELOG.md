@@ -73,6 +73,8 @@ Classes below have been moved to the new module `ktlint-rule-engine`:
 | com.pinterest.ktlint.core.KtLint                         | com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine                        |
 | com.pinterest.ktlint.core.LintError                      | com.pinterest.ktlint.rule.engine.api.LintError                               |
 
+Class `com.pinterest.ktlint.core.KtLint.Code.CodeFile` has been replaced with factory method `com.pinterest.ktlint.rule.engine.api.Code.fromFile`. Likewise, class `com.pinterest.ktlint.core.KtLint.Code.CodeSnippet` has been replaced with factory method `com.pinterest.ktlint.rule.engine.api.Code.fromSnippet`.
+
 Classes below have been moved to the new module `ktlint-cli-ruleset-core`:
 
 | Old class/package name in `ktlint-core`                  | New class/package name in `ktlint-cli-ruleset-core`                           |

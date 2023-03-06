@@ -3,7 +3,6 @@ package com.pinterest.ktlint.ruleset.standard.rules.internal.importordering
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.resolve.ImportPath
 
-@Deprecated("Marked for removal from public API in KtLint 0.49. Please raise when using this.")
 /**
  * Sorts the imports according to the order specified in [patterns] + alphabetically.
  *

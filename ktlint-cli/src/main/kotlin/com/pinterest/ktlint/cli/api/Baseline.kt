@@ -3,7 +3,6 @@ package com.pinterest.ktlint.cli.api
 import com.pinterest.ktlint.cli.api.Baseline.Status.INVALID
 import com.pinterest.ktlint.cli.api.Baseline.Status.NOT_FOUND
 import com.pinterest.ktlint.cli.api.Baseline.Status.VALID
-import com.pinterest.ktlint.cli.internal.relativeRoute
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.BASELINE_IGNORED
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
@@ -192,16 +191,6 @@ private fun KtlintCliError.isSameAs(lintError: KtlintCliError) =
  * is not available in the baseline file and a normal equality check on the [KtlintCliError] fails.
  */
 public fun List<KtlintCliError>.doesNotContain(ktlintCliError: KtlintCliError): Boolean = none { it.isSameAs(ktlintCliError) }
-
-/**
- * Gets the relative route of the file for baselines. Also adjusts the slashes for uniformity between file systems
- */
-@Deprecated(
-    message = "Marked for removal in KtLint 0.49",
-    replaceWith = ReplaceWith("toPath().relativeRoute"),
-)
-public val File.relativeRoute: String
-    get() = this.toPath().relativeRoute
 
 /**
  * Gets the relative route of the path. Also adjusts the slashes for uniformity between file systems.

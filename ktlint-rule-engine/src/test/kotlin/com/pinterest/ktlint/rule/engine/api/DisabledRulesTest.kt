@@ -20,7 +20,7 @@ class DisabledRulesTest {
                     ruleProviders = setOf(
                         RuleProvider { NoVarRule("test:no-var") },
                     ),
-                ).lint("var foo") { e -> add(e) }
+                ).lint(Code.fromSnippet("var foo")) { e -> add(e) }
             },
         ).contains(
             LintError(1, 1, "test:no-var", NoVarRule.SOME_NO_VAR_RULE_VIOLATION, false),
@@ -47,7 +47,7 @@ class DisabledRulesTest {
                     editorConfigOverride = EditorConfigOverride.from(
                         RuleId(disabledRuleId).createRuleExecutionEditorConfigProperty() to RuleExecution.disabled,
                     ),
-                ).lint("var foo") { e -> add(e) }
+                ).lint(Code.fromSnippet("var foo")) { e -> add(e) }
             },
         ).isEmpty()
     }

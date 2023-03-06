@@ -2,7 +2,6 @@ package com.pinterest.ktlint.rule.engine.internal
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.Code
-import com.pinterest.ktlint.rule.engine.api.KtLint
 import com.pinterest.ktlint.rule.engine.api.KtLintParseException
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine.Companion.UTF8_BOM
@@ -81,8 +80,8 @@ internal class RuleExecutionContext private constructor(
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         /**
-         * The [suppressionLocator] can be changed during each visit of node when running [KtLint.format]. So a new handler is to be built
-         * before visiting the nodes.
+         * The [suppressionLocator] can be changed during each visit of node when running [KtLintRuleEngine.format]. So a new handler is to
+         * be built before visiting the nodes.
          */
         val suppressHandler = SuppressHandler(suppressionLocator, autoCorrect, emit)
         if (rule.shouldContinueTraversalOfAST()) {
@@ -174,11 +173,6 @@ internal class RuleExecutionContext private constructor(
                         // TODO: Remove warning below in KtLint 0.52 or later as some users skips multiple versions
                         it.warnIfPropertyIsObsolete("ktlint_disabled_rules", "0.49")
                     }
-
-            if (!code.isStdIn) {
-                // TODO: Remove in KtLint 0.49
-                rootNode.putUserData(KtLint.FILE_PATH_USER_DATA_KEY, code.filePath.toString())
-            }
 
             val ruleRunners =
                 ktLintRuleEngine.ruleRunners(

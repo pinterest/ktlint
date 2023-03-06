@@ -221,56 +221,6 @@ public fun ASTNode.isPartOfComment(): Boolean = parent({ it.psi is PsiComment },
 
 public fun ASTNode.children(): Sequence<ASTNode> = generateSequence(firstChildNode) { node -> node.treeNext }
 
-@Deprecated(message = """Marked for removal in KtLint 0.49. See KDOC""")
-/**
- * Marked for removal in KtLint 0.49.
- *
- * Use [ASTNode.upsertWhitespaceBeforeMe] which operates on the [ASTNode] instead of the [LeafElement]. The new method
- * handles more edge case and as of that a lot of code can be simplified.
- *
- * *Code using [LeafElement.upsertWhitespaceBeforeMe]*
- * ```
- * if (elementType == WHITE_SPACE) {
- *     (this as LeafPsiElement).rawReplaceWithText("\n${blockCommentNode.lineIndent()}")
- * } else {
- *     (this as LeafPsiElement).upsertWhitespaceBeforeMe("\n${blockCommentNode.lineIndent()}")
- * }
- *  ```
- * *Code using [ASTNode.upsertWhitespaceBeforeMe]*
- * ```
- * this.upsertWhitespaceBeforeMe(text)
- *  ```
- */
-public fun LeafElement.upsertWhitespaceBeforeMe(text: String): LeafElement {
-    val s = treePrev
-    return if (s != null && s.elementType == WHITE_SPACE) {
-        (s.psi as LeafElement).rawReplaceWithText(text)
-    } else {
-        PsiWhiteSpaceImpl(text).also { w ->
-            (psi as LeafElement).rawInsertBeforeMe(w)
-        }
-    }
-}
-
-@Deprecated(
-    message =
-    "Marked for removal in KtLint 0.49. The new insertOrReplaceWhitespaceAfterMe is more versatile as it " +
-        "operates on an AstNode instead of a LeafElement. In a lot of cases the code can be simplified as it is " +
-        "no longer needed to check whether the current node is already a whitespace or a leaf element before " +
-        "calling this method or the rawReplaceWithText.",
-    ReplaceWith("insertOrReplaceWhitespaceBeforeMe"),
-)
-public fun LeafElement.upsertWhitespaceAfterMe(text: String): LeafElement {
-    val s = treeNext
-    return if (s != null && s.elementType == WHITE_SPACE) {
-        (s.psi as LeafElement).rawReplaceWithText(text)
-    } else {
-        PsiWhiteSpaceImpl(text).also { w ->
-            (psi as LeafElement).rawInsertAfterMe(w)
-        }
-    }
-}
-
 /**
  * Updates or inserts a new whitespace element with [text] before the given node. If the node itself is a whitespace
  * then its contents is replaced with [text]. If the node is a (nested) composite element, the whitespace element is
@@ -372,22 +322,6 @@ public fun ASTNode.logStructure(): ASTNode =
 private fun String.replaceTabAndNewline(): String = replace("\t", "\\t").replace("\n", "\\n")
 
 /**
- * Verifies that a whitespace leaf containing a newline exist in the closed range [from] - [to]. Also, returns true in
- * case any of the boundary nodes [from] or [to] is a whitespace leaf containing a newline.
- */
-@Deprecated(
-    message = "Marked for removal in KtLint 0.49",
-    replaceWith = ReplaceWith("hasNewLineInClosedRange(from, to)"),
-)
-public fun hasWhiteSpaceWithNewLineInClosedRange(
-    from: ASTNode,
-    to: ASTNode,
-): Boolean =
-    from.isWhiteSpaceWithNewline() ||
-        leavesInOpenRange(from, to).any { it.isWhiteSpaceWithNewline() } ||
-        to.isWhiteSpaceWithNewline()
-
-/**
  * Verifies that a leaf containing a newline exist in the closed range [from] - [to]. Also, returns true in case any of
  * the boundary nodes [from] or [to] contains a newline.
  */
@@ -398,22 +332,6 @@ public fun hasNewLineInClosedRange(
     from.isWhiteSpaceWithNewline() ||
         leavesInOpenRange(from, to).any { it.textContains('\n') } ||
         to.isWhiteSpaceWithNewline()
-
-/**
- * Verifies that no whitespace leaf contains a newline in the closed range [from] - [to]. Also, the boundary nodes
- * [from] and [to] should not be a whitespace leaf containing a newline.
- */
-@Deprecated(
-    message = "Marked for removal in KtLint 0.49",
-    replaceWith = ReplaceWith("noNewLineInClosedRange(from, to)"),
-)
-public fun noWhiteSpaceWithNewLineInClosedRange(
-    from: ASTNode,
-    to: ASTNode,
-): Boolean =
-    !from.isWhiteSpaceWithNewline() &&
-        leavesInOpenRange(from, to).none { it.isWhiteSpaceWithNewline() } &&
-        !to.isWhiteSpaceWithNewline()
 
 /**
  * Verifies that no leaf contains a newline in the closed range [from] - [to]. Also, the boundary nodes [from] and [to]

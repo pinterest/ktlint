@@ -95,14 +95,6 @@ public class NoWildcardImportsRule :
                 defaultValue = parseAllowedWildcardImports("java.util.*,kotlinx.android.synthetic.**"),
                 propertyWriter = { it.joinToString(separator = ",") },
             )
-
-        @Deprecated(
-            message = "Marked for removal in KtLint 0.49",
-            replaceWith = ReplaceWith("IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND"),
-        )
-        @Suppress("ktlint:property-naming")
-        public val packagesToUseImportOnDemandProperty: EditorConfigProperty<List<PatternEntry>> =
-            IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND
     }
 }
 
