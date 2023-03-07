@@ -43,7 +43,7 @@ public class ContextReceiverWrappingRule :
     ),
     Rule.Experimental {
     private lateinit var indent: String
-    private var maxLineLength = -1
+    private var maxLineLength = MAX_LINE_LENGTH_PROPERTY.defaultValue
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         val indentConfig = IndentConfig(
@@ -88,8 +88,7 @@ public class ContextReceiverWrappingRule :
 
         // Check line length assuming that the context receiver is indented correctly. Wrapping rule must however run
         // before indenting.
-        if (isMaxLineLengthSet() &&
-            !node.textContains('\n') &&
+        if (!node.textContains('\n') &&
             node.lineIndent().length + node.textLength > maxLineLength
         ) {
             node
@@ -130,8 +129,7 @@ public class ContextReceiverWrappingRule :
         val contextReceiver = node.treeParent.text
         // Check line length assuming that the context receiver is indented correctly. Wrapping rule must however run
         // before indenting.
-        if (isMaxLineLengthSet() &&
-            !contextReceiver.contains('\n') &&
+        if (!contextReceiver.contains('\n') &&
             node.lineIndent().length + contextReceiver.length > maxLineLength
         ) {
             node
@@ -165,8 +163,6 @@ public class ContextReceiverWrappingRule :
                 }
         }
     }
-
-    private fun isMaxLineLengthSet() = maxLineLength > -1
 }
 
 public val CONTEXT_RECEIVER_WRAPPING_RULE_ID: RuleId = ContextReceiverWrappingRule().ruleId

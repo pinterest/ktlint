@@ -6,6 +6,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY_OFF
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isRoot
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -20,7 +21,6 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPackageDirective
-import kotlin.properties.Delegates
 
 public class MaxLineLengthRule :
     StandardRule(
@@ -49,11 +49,14 @@ public class MaxLineLengthRule :
     ) {
     private var maxLineLength: Int = MAX_LINE_LENGTH_PROPERTY.defaultValue
     private var rangeTree = RangeTree()
-    private var ignoreBackTickedIdentifier by Delegates.notNull<Boolean>()
+    private var ignoreBackTickedIdentifier = IGNORE_BACKTICKED_IDENTIFIER_PROPERTY.defaultValue
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         ignoreBackTickedIdentifier = editorConfig[IGNORE_BACKTICKED_IDENTIFIER_PROPERTY]
         maxLineLength = editorConfig[MAX_LINE_LENGTH_PROPERTY]
+        if (maxLineLength == MAX_LINE_LENGTH_PROPERTY_OFF) {
+            stopTraversalOfAST()
+        }
     }
 
     override fun beforeVisitChildNodes(
@@ -61,9 +64,6 @@ public class MaxLineLengthRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        if (maxLineLength <= 0) {
-            return
-        }
         if (node.isRoot()) {
             val errorOffset = arrayListOf<Int>()
             node

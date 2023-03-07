@@ -6,8 +6,12 @@ import org.ec4j.core.model.PropertyType
 
 private const val MAX_LINE_LENGTH_PROPERTY_ANDROID_STUDIO_CODE_STYLE = 100 // https://developer.android.com/kotlin/style-guide#line_wrapping
 private const val MAX_LINE_LENGTH_PROPERTY_KTLINT_OFFICIAL_CODE_STYLE = 140
-private const val MAX_LINE_LENGTH_PROPERTY_OFF = "off"
-private const val MAX_LINE_LENGTH_PROPERTY_OFF_INTERNALLY = -1
+private const val MAX_LINE_LENGTH_PROPERTY_OFF_EDITOR_CONFIG = "off"
+
+/**
+ * Integer value that denotes that the property is to be considered as disabled.
+ */
+public const val MAX_LINE_LENGTH_PROPERTY_OFF: Int = Int.MAX_VALUE
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 private var isInvalidValueLoggedBefore = false
@@ -16,33 +20,21 @@ public val MAX_LINE_LENGTH_PROPERTY: EditorConfigProperty<Int> =
     EditorConfigProperty(
         name = PropertyType.max_line_length.name,
         type = PropertyType.max_line_length,
-        defaultValue = MAX_LINE_LENGTH_PROPERTY_OFF_INTERNALLY,
+        defaultValue = MAX_LINE_LENGTH_PROPERTY_OFF,
         androidStudioCodeStyleDefaultValue = MAX_LINE_LENGTH_PROPERTY_ANDROID_STUDIO_CODE_STYLE,
-        intellijIdeaCodeStyleDefaultValue = MAX_LINE_LENGTH_PROPERTY_OFF_INTERNALLY,
+        intellijIdeaCodeStyleDefaultValue = MAX_LINE_LENGTH_PROPERTY_OFF,
         ktlintOfficialCodeStyleDefaultValue = MAX_LINE_LENGTH_PROPERTY_KTLINT_OFFICIAL_CODE_STYLE,
         propertyMapper = { property, codeStyleValue ->
             when {
                 property == null || property.isUnset -> {
-                    when (codeStyleValue) {
-                        CodeStyleValue.android,
-                        CodeStyleValue.android_studio,
-                        -> {
-                            MAX_LINE_LENGTH_PROPERTY_ANDROID_STUDIO_CODE_STYLE
-                        }
-                        CodeStyleValue.ktlint_official -> {
-                            MAX_LINE_LENGTH_PROPERTY_KTLINT_OFFICIAL_CODE_STYLE
-                        }
-                        else -> {
-                            MAX_LINE_LENGTH_PROPERTY_OFF_INTERNALLY
-                        }
-                    }
+                    codeStyleValue.defaultValue()
                 }
 
                 /**
-                 * Internally, Ktlint uses value '-1' to indicate that the max line length has to be ignored as this is easier in
-                 * comparisons to check whether the maximum length of a line is exceeded.
+                 * Internally, Ktlint uses integer 'Int.MAX_VALUE' to indicate that the max line length has to be ignored as this is easier
+                 * in comparisons to check whether the maximum length of a line is exceeded.
                  */
-                property.sourceValue == MAX_LINE_LENGTH_PROPERTY_OFF -> MAX_LINE_LENGTH_PROPERTY_OFF_INTERNALLY
+                property.sourceValue == MAX_LINE_LENGTH_PROPERTY_OFF_EDITOR_CONFIG -> MAX_LINE_LENGTH_PROPERTY_OFF
 
                 else ->
                     PropertyType
@@ -54,7 +46,11 @@ public val MAX_LINE_LENGTH_PROPERTY: EditorConfigProperty<Int> =
                                     isInvalidValueLoggedBefore = true
                                     LOGGER.warn { "Found invalid '.editorconfig' property value: ${it.errorMessage}" }
                                 }
-                                MAX_LINE_LENGTH_PROPERTY_OFF_INTERNALLY
+                                if (it.source == "-1") {
+                                    MAX_LINE_LENGTH_PROPERTY_OFF
+                                } else {
+                                    codeStyleValue.defaultValue()
+                                }
                             } else {
                                 it.parsed
                             }
@@ -62,10 +58,19 @@ public val MAX_LINE_LENGTH_PROPERTY: EditorConfigProperty<Int> =
             }
         },
         propertyWriter = { property ->
-            if (property <= 0) {
-                MAX_LINE_LENGTH_PROPERTY_OFF
+            if (property <= 0 || property == MAX_LINE_LENGTH_PROPERTY_OFF) {
+                MAX_LINE_LENGTH_PROPERTY_OFF_EDITOR_CONFIG
             } else {
                 property.toString()
             }
         },
     )
+
+private fun CodeStyleValue.defaultValue() =
+    when (this) {
+        CodeStyleValue.android -> MAX_LINE_LENGTH_PROPERTY_ANDROID_STUDIO_CODE_STYLE
+        CodeStyleValue.android_studio -> MAX_LINE_LENGTH_PROPERTY_ANDROID_STUDIO_CODE_STYLE
+        CodeStyleValue.official -> MAX_LINE_LENGTH_PROPERTY_OFF
+        CodeStyleValue.intellij_idea -> MAX_LINE_LENGTH_PROPERTY_OFF
+        CodeStyleValue.ktlint_official -> MAX_LINE_LENGTH_PROPERTY_KTLINT_OFFICIAL_CODE_STYLE
+    }

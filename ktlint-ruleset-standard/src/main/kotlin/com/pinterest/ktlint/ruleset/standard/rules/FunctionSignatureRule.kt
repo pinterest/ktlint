@@ -23,6 +23,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProper
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY_OFF
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.lineIndent
@@ -63,9 +64,10 @@ public class FunctionSignatureRule :
     ),
     Rule.Experimental {
     private var indent: String? = null
-    private var maxLineLength = -1
-    private var functionSignatureWrappingMinimumParameters = -1
-    private var functionBodyExpressionWrapping = default
+    private var maxLineLength = MAX_LINE_LENGTH_PROPERTY.defaultValue
+    private var functionSignatureWrappingMinimumParameters =
+        FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY.defaultValue
+    private var functionBodyExpressionWrapping = FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY.defaultValue
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         functionSignatureWrappingMinimumParameters = editorConfig[
@@ -636,9 +638,7 @@ public class FunctionSignatureRule :
             .firstOrNull()
             ?.takeIf { first -> first.isWhiteSpace() }
 
-    private fun List<ASTNode>.getBody() = this.dropWhile { it.isWhiteSpace() }
-
-    private fun isMaxLineLengthSet() = maxLineLength > -1
+    private fun isMaxLineLengthSet() = maxLineLength != MAX_LINE_LENGTH_PROPERTY_OFF
 
     private fun List<ASTNode>.collectLeavesRecursively(): List<ASTNode> = flatMap { it.collectLeavesRecursively() }
 
@@ -681,8 +681,7 @@ public class FunctionSignatureRule :
     private fun List<ASTNode>.joinTextToString(block: (ASTNode) -> String = { it.text }): String =
         collectLeavesRecursively().joinToString(separator = "") { block(it) }
 
-    private fun ASTNode.hasMinimumNumberOfParameters(): Boolean =
-        functionSignatureWrappingMinimumParameters > 0 && countParameters() >= functionSignatureWrappingMinimumParameters
+    private fun ASTNode.hasMinimumNumberOfParameters(): Boolean = countParameters() >= functionSignatureWrappingMinimumParameters
 
     private fun ASTNode.countParameters(): Int {
         val valueParameterList = requireNotNull(findChildByType(VALUE_PARAMETER_LIST))

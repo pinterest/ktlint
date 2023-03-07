@@ -56,7 +56,7 @@ public class ArgumentListWrappingRule :
     ) {
     private var editorConfigIndent = IndentConfig.DEFAULT_INDENT_CONFIG
 
-    private var maxLineLength = -1
+    private var maxLineLength = MAX_LINE_LENGTH_PROPERTY.defaultValue
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         editorConfigIndent = IndentConfig(
@@ -102,7 +102,7 @@ public class ArgumentListWrappingRule :
             false
         }
 
-    private fun ASTNode.exceedsMaxLineLength() = maxLineLength > -1 && (column - 1 + textLength) > maxLineLength && !textContains('\n')
+    private fun ASTNode.exceedsMaxLineLength() = (column - 1 + textLength) > maxLineLength && !textContains('\n')
 
     private fun ASTNode.getNewIndentLevel(): Int {
         val currentIndentLevel = editorConfigIndent.indentLevelFrom(lineIndent())
