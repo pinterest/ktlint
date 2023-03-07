@@ -23,7 +23,6 @@ import org.ec4j.core.model.PropertyType.PropertyValueParser
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.KtPsiFactory
-import kotlin.properties.Delegates
 
 /**
  * Linting trailing comma for call site.
@@ -42,9 +41,7 @@ public class TrailingCommaOnCallSiteRule :
         ),
         usesEditorConfigProperties = setOf(TRAILING_COMMA_ON_CALL_SITE_PROPERTY),
     ) {
-    private var allowTrailingCommaOnCallSite by Delegates.notNull<Boolean>()
-
-    private fun ASTNode.isTrailingCommaAllowed() = elementType in TYPES_ON_CALL_SITE && allowTrailingCommaOnCallSite
+    private var allowTrailingCommaOnCallSite = TRAILING_COMMA_ON_CALL_SITE_PROPERTY.defaultValue
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         allowTrailingCommaOnCallSite = editorConfig[TRAILING_COMMA_ON_CALL_SITE_PROPERTY]
@@ -81,6 +78,8 @@ public class TrailingCommaOnCallSiteRule :
             autoCorrect = autoCorrect,
         )
     }
+
+    private fun ASTNode.isTrailingCommaAllowed() = elementType in TYPES_ON_CALL_SITE && allowTrailingCommaOnCallSite
 
     private fun visitIndices(
         node: ASTNode,

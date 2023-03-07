@@ -21,7 +21,6 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPackageDirective
-import kotlin.properties.Delegates
 
 public class MaxLineLengthRule :
     StandardRule(
@@ -50,7 +49,7 @@ public class MaxLineLengthRule :
     ) {
     private var maxLineLength: Int = MAX_LINE_LENGTH_PROPERTY.defaultValue
     private var rangeTree = RangeTree()
-    private var ignoreBackTickedIdentifier by Delegates.notNull<Boolean>()
+    private var ignoreBackTickedIdentifier = IGNORE_BACKTICKED_IDENTIFIER_PROPERTY.defaultValue
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         ignoreBackTickedIdentifier = editorConfig[IGNORE_BACKTICKED_IDENTIFIER_PROPERTY]

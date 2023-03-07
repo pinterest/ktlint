@@ -44,7 +44,6 @@ import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
 import org.jetbrains.kotlin.psi.psiUtil.parents
 import org.jetbrains.kotlin.psi.psiUtil.prevLeaf
 import org.jetbrains.kotlin.utils.addToStdlib.cast
-import kotlin.properties.Delegates
 
 /**
  * Linting trailing comma for declaration site.
@@ -63,9 +62,7 @@ public class TrailingCommaOnDeclarationSiteRule :
         ),
         usesEditorConfigProperties = setOf(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY),
     ) {
-    private var allowTrailingComma by Delegates.notNull<Boolean>()
-
-    private fun ASTNode.isTrailingCommaAllowed() = elementType in TYPES_ON_DECLARATION_SITE && allowTrailingComma
+    private var allowTrailingComma = TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY.defaultValue
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         allowTrailingComma = editorConfig[TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY]
@@ -104,6 +101,8 @@ public class TrailingCommaOnDeclarationSiteRule :
             emit = emit,
         )
     }
+
+    private fun ASTNode.isTrailingCommaAllowed() = elementType in TYPES_ON_DECLARATION_SITE && allowTrailingComma
 
     private fun visitFunctionLiteral(
         node: ASTNode,

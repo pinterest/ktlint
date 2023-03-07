@@ -65,8 +65,9 @@ public class FunctionSignatureRule :
     Rule.Experimental {
     private var indent: String? = null
     private var maxLineLength = MAX_LINE_LENGTH_PROPERTY.defaultValue
-    private var functionSignatureWrappingMinimumParameters = -1
-    private var functionBodyExpressionWrapping = default
+    private var functionSignatureWrappingMinimumParameters =
+        FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY.defaultValue
+    private var functionBodyExpressionWrapping = FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY.defaultValue
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         functionSignatureWrappingMinimumParameters = editorConfig[
@@ -680,8 +681,7 @@ public class FunctionSignatureRule :
     private fun List<ASTNode>.joinTextToString(block: (ASTNode) -> String = { it.text }): String =
         collectLeavesRecursively().joinToString(separator = "") { block(it) }
 
-    private fun ASTNode.hasMinimumNumberOfParameters(): Boolean =
-        functionSignatureWrappingMinimumParameters > 0 && countParameters() >= functionSignatureWrappingMinimumParameters
+    private fun ASTNode.hasMinimumNumberOfParameters(): Boolean = countParameters() >= functionSignatureWrappingMinimumParameters
 
     private fun ASTNode.countParameters(): Int {
         val valueParameterList = requireNotNull(findChildByType(VALUE_PARAMETER_LIST))

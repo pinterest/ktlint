@@ -8,14 +8,13 @@ import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
-import kotlin.properties.Delegates
 
 public class FinalNewlineRule :
     StandardRule(
         id = "final-newline",
         usesEditorConfigProperties = setOf(INSERT_FINAL_NEWLINE_PROPERTY),
     ) {
-    private var insertFinalNewline by Delegates.notNull<Boolean>()
+    private var insertFinalNewline = INSERT_FINAL_NEWLINE_PROPERTY.defaultValue
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         insertFinalNewline = editorConfig[INSERT_FINAL_NEWLINE_PROPERTY]
