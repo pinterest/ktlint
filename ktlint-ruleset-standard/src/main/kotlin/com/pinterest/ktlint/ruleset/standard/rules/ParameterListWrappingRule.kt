@@ -45,7 +45,7 @@ public class ParameterListWrappingRule :
     ) {
     private var codeStyle = CODE_STYLE_PROPERTY.defaultValue
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
-    private var maxLineLength = -1
+    private var maxLineLength = MAX_LINE_LENGTH_PROPERTY.defaultValue
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         codeStyle = editorConfig[CODE_STYLE_PROPERTY]
@@ -82,8 +82,8 @@ public class ParameterListWrappingRule :
         require(node.elementType == NULLABLE_TYPE)
         node
             .takeUnless {
-                // skip when max line length not set or does not exceed max line length
-                maxLineLength <= 0 || (node.column - 1 + node.textLength) <= maxLineLength
+                // skip when max line length is not exceedd
+                (node.column - 1 + node.textLength) <= maxLineLength
             }?.findChildByType(FUNCTION_TYPE)
             ?.findChildByType(VALUE_PARAMETER_LIST)
             ?.takeIf { it.findChildByType(VALUE_PARAMETER) != null }
@@ -236,7 +236,7 @@ public class ParameterListWrappingRule :
         }
     }
 
-    private fun ASTNode.exceedsMaxLineLength() = maxLineLength > -1 && (column - 1 + textLength) > maxLineLength && !textContains('\n')
+    private fun ASTNode.exceedsMaxLineLength() = (column - 1 + textLength) > maxLineLength && !textContains('\n')
 
     private fun errorMessage(node: ASTNode) =
         when (node.elementType) {

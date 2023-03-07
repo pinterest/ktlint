@@ -218,6 +218,10 @@ Fields `loadOnlyWhenOtherRuleIsLoaded` and `runOnlyWhenOtherRuleIsEnabled` have 
 
 Like before, the API Consumer can still offer a mix of rules originating from `ktlint-ruleset-standard` as well as custom rules.
 
+#### `.editorconfig` property `max_line_length` default value
+
+Previously the default value for `.editorconfig` property `max_line_length` was set to `-1` in ktlint unless the property was defined explicitly in the `.editorconfig` or when `ktlint_code_style` was set to Android. As a result of that rules have to check that max_line_length contains a positive value before checking that the actual line length is exceeding the maximum. Now the value `Int.MAX_VALUE` (use constant `MAX_LINE_LENGTH_PROPERTY_OFF` to refer to that value) is used instead. 
+
 ### Added
 
 * Add new experimental rule for `ktlint_official` code style that disallows a class to start with a blank line `no-empty-first-line-in-class-body`.

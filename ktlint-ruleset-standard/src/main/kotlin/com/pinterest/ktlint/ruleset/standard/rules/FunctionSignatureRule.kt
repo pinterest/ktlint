@@ -23,6 +23,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProper
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY_OFF
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.lineIndent
@@ -63,7 +64,7 @@ public class FunctionSignatureRule :
     ),
     Rule.Experimental {
     private var indent: String? = null
-    private var maxLineLength = -1
+    private var maxLineLength = MAX_LINE_LENGTH_PROPERTY.defaultValue
     private var functionSignatureWrappingMinimumParameters = -1
     private var functionBodyExpressionWrapping = default
 
@@ -636,9 +637,7 @@ public class FunctionSignatureRule :
             .firstOrNull()
             ?.takeIf { first -> first.isWhiteSpace() }
 
-    private fun List<ASTNode>.getBody() = this.dropWhile { it.isWhiteSpace() }
-
-    private fun isMaxLineLengthSet() = maxLineLength > -1
+    private fun isMaxLineLengthSet() = maxLineLength != MAX_LINE_LENGTH_PROPERTY_OFF
 
     private fun List<ASTNode>.collectLeavesRecursively(): List<ASTNode> = flatMap { it.collectLeavesRecursively() }
 

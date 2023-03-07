@@ -43,6 +43,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY_OFF
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
@@ -92,7 +93,7 @@ public class WrappingRule :
     ) {
     private var line = 1
     private lateinit var indentConfig: IndentConfig
-    private var maxLineLength: Int = -1
+    private var maxLineLength: Int = MAX_LINE_LENGTH_PROPERTY.defaultValue
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         line = 1
@@ -140,7 +141,7 @@ public class WrappingRule :
                     // A multiline block should always be wrapped unless it starts with an EOL comment
                     node.firstChildLeafOrSelf().elementType != EOL_COMMENT
                 }
-                maxLineLength > 0 -> {
+                maxLineLength != MAX_LINE_LENGTH_PROPERTY_OFF -> {
                     val startOfLine = node.prevLeaf {
                         it.isWhiteSpaceWithNewline() || (it.elementType == REGULAR_STRING_PART && it.text == "\n")
                     }

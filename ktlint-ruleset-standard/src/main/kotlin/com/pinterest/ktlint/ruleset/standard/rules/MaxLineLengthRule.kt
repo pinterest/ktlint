@@ -6,6 +6,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY_OFF
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isRoot
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -54,6 +55,9 @@ public class MaxLineLengthRule :
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         ignoreBackTickedIdentifier = editorConfig[IGNORE_BACKTICKED_IDENTIFIER_PROPERTY]
         maxLineLength = editorConfig[MAX_LINE_LENGTH_PROPERTY]
+        if (maxLineLength == MAX_LINE_LENGTH_PROPERTY_OFF) {
+            stopTraversalOfAST()
+        }
     }
 
     override fun beforeVisitChildNodes(
@@ -61,9 +65,6 @@ public class MaxLineLengthRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        if (maxLineLength <= 0) {
-            return
-        }
         if (node.isRoot()) {
             val errorOffset = arrayListOf<Int>()
             node

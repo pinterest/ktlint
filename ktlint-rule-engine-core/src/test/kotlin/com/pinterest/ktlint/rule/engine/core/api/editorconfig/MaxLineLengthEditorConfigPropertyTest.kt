@@ -17,8 +17,8 @@ class MaxLineLengthEditorConfigPropertyTest {
             value = [
                 "android, 100",
                 "android_studio, 100",
-                "intellij_idea, -1",
-                "official, -1",
+                "intellij_idea, ${Int.MAX_VALUE}",
+                "official, ${Int.MAX_VALUE}",
                 "ktlint_official, 140",
             ],
         )
@@ -36,8 +36,8 @@ class MaxLineLengthEditorConfigPropertyTest {
             value = [
                 "android, 100",
                 "android_studio, 100",
-                "intellij_idea, -1",
-                "official, -1",
+                "intellij_idea, ${Int.MAX_VALUE}",
+                "official, ${Int.MAX_VALUE}",
                 "ktlint_official, 140",
             ],
         )
@@ -65,26 +65,47 @@ class MaxLineLengthEditorConfigPropertyTest {
 
         @ParameterizedTest(name = "Code style: {0}")
         @EnumSource(CodeStyleValue::class)
-        fun `Given the value 'off' then the property mapper returns -1 which is internally used to disable the max line length`(
+        fun `Given the value 'off' then the property mapper returns integer MAX_VALUE which denotes that no maximum line length is set`(
             codeStyleValue: CodeStyleValue,
         ) {
             val property = MAX_LINE_LENGTH_PROPERTY.toPropertyWithValue("off")
 
             val actual = maxLineLengthPropertyMapper(property, codeStyleValue)
 
-            assertThat(actual).isEqualTo(-1)
+            assertThat(actual).isEqualTo(Int.MAX_VALUE)
         }
 
         @ParameterizedTest(name = "Code style: {0}")
         @EnumSource(CodeStyleValue::class)
-        fun `Given an invalid value then the property mapper returns -1 which is internally used to disable the max line length`(
+        fun `Given the value '-1' then the property mapper returns integer MAX_VALUE which denotes that no maximum line length is set`(
             codeStyleValue: CodeStyleValue,
+        ) {
+            val property = MAX_LINE_LENGTH_PROPERTY.toPropertyWithValue("-1")
+
+            val actual = maxLineLengthPropertyMapper(property, codeStyleValue)
+
+            assertThat(actual).isEqualTo(Int.MAX_VALUE)
+        }
+
+        @ParameterizedTest(name = "Code style: {0}, default value: {1}")
+        @CsvSource(
+            value = [
+                "android, 100",
+                "android_studio, 100",
+                "intellij_idea, ${Int.MAX_VALUE}",
+                "official, ${Int.MAX_VALUE}",
+                "ktlint_official, 140",
+            ],
+        )
+        fun `Given an invalid value then the property mapper returns the default value of the code style`(
+            codeStyleValue: CodeStyleValue,
+            expectedDefaultValue: Int,
         ) {
             val property = MAX_LINE_LENGTH_PROPERTY.toPropertyWithValue("some-invalid-value")
 
             val actual = maxLineLengthPropertyMapper(property, codeStyleValue)
 
-            assertThat(actual).isEqualTo(-1)
+            assertThat(actual).isEqualTo(expectedDefaultValue)
         }
     }
 
@@ -94,6 +115,7 @@ class MaxLineLengthEditorConfigPropertyTest {
             "-1, off",
             "0, off",
             "1, 1",
+            "${Int.MAX_VALUE}, off",
         ],
     )
     fun `Given a property with an integer value than write that property`(
