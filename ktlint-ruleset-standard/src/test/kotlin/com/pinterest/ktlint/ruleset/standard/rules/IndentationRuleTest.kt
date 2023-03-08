@@ -1,9 +1,12 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.intellij_idea
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
@@ -2803,33 +2806,65 @@ internal class IndentationRuleTest {
             .isFormattedAs(formattedCode)
     }
 
-    @Test
-    fun `Given a variable declaration with type incorrectly indented on a new line`() {
-        val code =
-            """
-            val s:
+    @Nested
+    inner class `Given a variable declaration with type incorrectly indented on a new line` {
+        @Test
+        fun `Given a code style other than ktlint_official`() {
+            val code =
+                """
+                val s:
+                        String = ""
+
+                fun process(
+                    fileName:
+                        String
+                ): List<Output>
+                """.trimIndent()
+            val formattedCode =
+                """
+                val s:
                     String = ""
 
-            fun process(
-                fileName:
+                fun process(
+                    fileName:
                     String
-            ): List<Output>
-            """.trimIndent()
-        val formattedCode =
-            """
-            val s:
-                String = ""
+                ): List<Output>
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to intellij_idea)
+                .hasLintViolations(
+                    LintViolation(2, 1, "Unexpected indentation (8) (should be 4)"),
+                    LintViolation(6, 1, "Unexpected indentation (8) (should be 4)"),
+                ).isFormattedAs(formattedCode)
+        }
 
-            fun process(
-                fileName:
-                String
-            ): List<Output>
-            """.trimIndent()
-        indentationRuleAssertThat(code)
-            .hasLintViolations(
-                LintViolation(2, 1, "Unexpected indentation (8) (should be 4)"),
-                LintViolation(6, 1, "Unexpected indentation (8) (should be 4)"),
-            ).isFormattedAs(formattedCode)
+        @Test
+        fun `Given the code style ktlint_official`() {
+            val code =
+                """
+                val s:
+                        String = ""
+
+                fun process(
+                    fileName:
+                        String
+                ): List<Output>
+                """.trimIndent()
+            val formattedCode =
+                """
+                val s:
+                    String = ""
+
+                fun process(
+                    fileName:
+                        String
+                ): List<Output>
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasLintViolation(2, 1, "Unexpected indentation (8) (should be 4)")
+                .isFormattedAs(formattedCode)
+        }
     }
 
     @Test
@@ -4812,6 +4847,32 @@ internal class IndentationRuleTest {
             indentationRuleAssertThat(code)
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
                 .hasNoLintViolations()
+        }
+
+        @Test
+        fun `Given ktlint_official code style then indent the type when it does not fit on the same line as the variable name`() {
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER           $EOL_CHAR
+                class Bar(
+                    val foooooooooooooooooTooLong: Foo,
+                    val foooooooooooooNotTooLong: Foo,
+                )
+                """.trimIndent()
+            val formattedCode =
+                """
+                // $MAX_LINE_LENGTH_MARKER           $EOL_CHAR
+                class Bar(
+                    val foooooooooooooooooTooLong:
+                        Foo,
+                    val foooooooooooooNotTooLong: Foo,
+                )
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .addAdditionalRuleProvider { ParameterWrappingRule() }
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .setMaxLineLength()
+                .isFormattedAs(formattedCode)
         }
     }
 
