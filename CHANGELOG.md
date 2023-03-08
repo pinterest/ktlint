@@ -227,6 +227,8 @@ Previously the default value for `.editorconfig` property `max_line_length` was 
 * Add new experimental rule for `ktlint_official` code style that disallows a class to start with a blank line `no-empty-first-line-in-class-body`.
 * Add new experimental rule for `ktlint_official` code style that enforces consistent usage of braces in all branches of a singe if or if-else-if statement `if-else-bracing`.
 * Add new experimental rule for `ktlint_official` code style that disallows consecutive comments except EOL comments `no-consecutive-comments`
+* Wrap the type or value of a function or class parameter in case the maximum line length is exceeded `parameter-wrapping` ([#xxxx](https://github.com/pinterest/ktlint/pull/xxxx))
+* Wrap the type or value of a property in case the maximum line length is exceeded `property-wrapping` ([#xxxx](https://github.com/pinterest/ktlint/pull/xxxx))
 
 ### Removed
 
@@ -243,6 +245,7 @@ Previously the default value for `.editorconfig` property `max_line_length` was 
 * Fix continuation indent for a dot qualified array access expression in `ktlint_official` code style only `indent` ([#1540](https://github.com/pinterest/ktlint/issues/1540)).
 * When generating the `.editorconfig` use value `off` for the `max_line_length` property instead of value `-1` to denote that lines are not restricted to a maximum length ([#1824](https://github.com/pinterest/ktlint/issues/1824)).
 * Do not report an "unnecessary semicolon" after adding a trailing comma to an enum class containing a code element after the last enum entry `trailing-comma-on-declaration-site` ([#1786](https://github.com/pinterest/ktlint/issues/1786))
+* A newline before a function return type should not be removed in case that leads to exceeding the maximum line length `function-return-type-spacing` ([#1764](https://github.com/pinterest/ktlint/issues/1764))
 
 ### Changed
 * Wrap the parameters of a function literal containing a multiline parameter list (only in `ktlint_official` code style) `parameter-list-wrapping` ([#1681](https://github.com/pinterest/ktlint/issues/1681)).
