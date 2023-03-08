@@ -15,6 +15,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLOSING_QUOTE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONDITION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONSTRUCTOR_DELEGATION_CALL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONTEXT_RECEIVER_LIST
@@ -458,6 +459,22 @@ public class IndentationRule :
                     toAstNode = nextToAstNode,
                 ).prevCodeLeaf()
             }
+
+        if (codeStyle == ktlint_official) {
+            // Deviate from standard IntelliJ IDEA formatting to allow formatting below:
+            //     fun process(
+            //         aVariableWithAVeryLongName:
+            //             TypeWithAVeryLongNameThatDoesNotFitOnSameLineAsTheVariableName
+            //     ): List<Output>
+            node
+                .findChildByType(COLON)
+                ?.let { fromAstNode ->
+                    nextToAstNode = startIndentContext(
+                        fromAstNode = fromAstNode,
+                        toAstNode = nextToAstNode,
+                    ).prevCodeLeaf()
+                }
+        }
 
         // Leading annotations and comments should be indented at same level as constructor itself
         val fromAstNode = node.skipLeadingWhitespaceCommentsAndAnnotations()

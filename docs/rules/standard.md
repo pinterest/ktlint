@@ -170,6 +170,18 @@ When class/function signature doesn't fit on a single line, each parameter must 
 
 Rule id: `parameter-list-wrapping`
 
+## Parameter wrapping
+
+When a function or class parameter doesn't fit on a single line, wrap the type or value to a separate line
+
+Rule id: `parameter-wrapping`
+
+## Property wrapping
+
+When a property doesn't fit on a single line, wrap the type or value to a separate line
+
+Rule id: `property-wrapping`
+
 ## String template
 
 Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`)

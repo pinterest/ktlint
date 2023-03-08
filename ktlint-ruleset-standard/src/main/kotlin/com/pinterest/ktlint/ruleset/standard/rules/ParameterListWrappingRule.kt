@@ -151,7 +151,7 @@ public class ParameterListWrappingRule :
         val newIndentLevel = getNewIndentLevel(node)
         node
             .children()
-            .forEach { child -> wrapParemeterInList(newIndentLevel, child, emit, autoCorrect) }
+            .forEach { child -> wrapParameterInList(newIndentLevel, child, emit, autoCorrect) }
     }
 
     private fun getNewIndentLevel(node: ASTNode): Int {
@@ -177,7 +177,7 @@ public class ParameterListWrappingRule :
         }
     }
 
-    private fun wrapParemeterInList(
+    private fun wrapParameterInList(
         newIndentLevel: Int,
         child: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,

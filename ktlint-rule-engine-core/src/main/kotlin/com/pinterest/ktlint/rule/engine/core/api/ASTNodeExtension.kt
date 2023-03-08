@@ -2,6 +2,9 @@ package com.pinterest.ktlint.rule.engine.core.api
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VAL_KEYWORD
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VARARG_KEYWORD
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VAR_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
@@ -358,3 +361,19 @@ public fun leavesInOpenRange(
     from
         .leaves()
         .takeWhile { it != to && it != to.firstChildNode }
+
+public fun ASTNode.isValOrVarKeyword(): Boolean = elementType == VAL_KEYWORD || elementType == VAR_KEYWORD || elementType == VARARG_KEYWORD
+
+/**
+ * Creates a sequences of leaves including the [ASTNode] in case it is a [LeafElement] itself. By default, the leaves are traversed in
+ * forward order. Setting [forward] to `false` changes this to traversal in backward direction.
+ */
+public fun ASTNode.leavesIncludingSelf(forward: Boolean = true): Sequence<ASTNode> {
+    val sequence =
+        if (isLeaf()) {
+            sequenceOf(this)
+        } else {
+            emptySequence()
+        }
+    return sequence.plus(leaves(forward))
+}

@@ -49,7 +49,9 @@ import com.pinterest.ktlint.ruleset.standard.rules.NullableTypeSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.PackageNameRule
 import com.pinterest.ktlint.ruleset.standard.rules.ParameterListSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ParameterListWrappingRule
+import com.pinterest.ktlint.ruleset.standard.rules.ParameterWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.PropertyNamingRule
+import com.pinterest.ktlint.ruleset.standard.rules.PropertyWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundAngleBracketsRule
 import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundColonRule
 import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundCommaRule
@@ -124,7 +126,9 @@ public class StandardRuleSetProvider :
             RuleProvider { PackageNameRule() },
             RuleProvider { ParameterListSpacingRule() },
             RuleProvider { ParameterListWrappingRule() },
+            RuleProvider { ParameterWrappingRule() },
             RuleProvider { PropertyNamingRule() },
+            RuleProvider { PropertyWrappingRule() },
             RuleProvider { SpacingAroundAngleBracketsRule() },
             RuleProvider { SpacingAroundColonRule() },
             RuleProvider { SpacingAroundCommaRule() },
