@@ -1,5 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import org.junit.jupiter.api.Test
 
@@ -90,5 +92,42 @@ class FunctionReturnTypeSpacingRuleTest {
         functionReturnTypeSpacingRuleAssertThat(code)
             .hasLintViolation(1, 10, "Single space expected between colon and return type")
             .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a function signature with a new line between the colon and the return type which when concatenated does not exceed the maximum line length then do reformat`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER      $EOL_CHAR
+            fun foo():
+                String = "some-result"
+            """.trimIndent()
+        val formattedCode =
+            """
+            // $MAX_LINE_LENGTH_MARKER      $EOL_CHAR
+            fun foo(): String = "some-result"
+            """.trimIndent()
+        functionReturnTypeSpacingRuleAssertThat(code)
+            .setMaxLineLength()
+            .hasLintViolation(2, 10, "Single space expected between colon and return type")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a function signature with a new line between the colon and the return type which when concatenated does exceed the maximum line length then do not reformat`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER     $EOL_CHAR
+            fun foo():
+                String = "some-result"
+            """.trimIndent()
+        val formattedCode =
+            """
+            // $MAX_LINE_LENGTH_MARKER     $EOL_CHAR
+            fun foo(): String = "some-result"
+            """.trimIndent()
+        functionReturnTypeSpacingRuleAssertThat(code)
+            .setMaxLineLength()
+            .hasNoLintViolations()
     }
 }
