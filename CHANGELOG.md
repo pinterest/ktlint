@@ -227,8 +227,8 @@ Previously the default value for `.editorconfig` property `max_line_length` was 
 * Add new experimental rule for `ktlint_official` code style that disallows a class to start with a blank line `no-empty-first-line-in-class-body`.
 * Add new experimental rule for `ktlint_official` code style that enforces consistent usage of braces in all branches of a singe if or if-else-if statement `if-else-bracing`.
 * Add new experimental rule for `ktlint_official` code style that disallows consecutive comments except EOL comments `no-consecutive-comments`
-* Wrap the type or value of a function or class parameter in case the maximum line length is exceeded `parameter-wrapping` ([#xxxx](https://github.com/pinterest/ktlint/pull/xxxx))
-* Wrap the type or value of a property in case the maximum line length is exceeded `property-wrapping` ([#xxxx](https://github.com/pinterest/ktlint/pull/xxxx))
+* Wrap the type or value of a function or class parameter in case the maximum line length is exceeded `parameter-wrapping` ([#1846](https://github.com/pinterest/ktlint/pull/1846))
+* Wrap the type or value of a property in case the maximum line length is exceeded `property-wrapping` ([#1846](https://github.com/pinterest/ktlint/pull/1846))
 
 ### Removed
 
