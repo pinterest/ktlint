@@ -13,11 +13,11 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
@@ -34,12 +34,34 @@ import org.jetbrains.kotlin.psi.psiUtil.siblings
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 /**
- * Ensures multiple annotations are not on the same line as the annotated declaration. Also ensures that annotations
- * with parameters are placed on separate lines.
+ * Ensures that annotation are wrapped to separate lines.
  *
  * https://kotlinlang.org/docs/reference/coding-conventions.html#annotation-formatting
  *
- * @see [AnnotationSpacingRule] for white space rules. Moved since
+ * 1) Place annotations on separate lines before the declaration to which they are attached, and with the same indentation:
+ *
+ *    ```
+ *    @Target(AnnotationTarget.PROPERTY)
+ *    annotation class JsonExclude
+ *    ```
+ *
+ * 2) Annotations without arguments may be placed on the same line:
+ *
+ *    ```
+ *    @JsonExclude @JvmField
+ *    var x: String
+ *    ```
+ *
+ * 3) A single annotation without arguments may be placed on the same line as the corresponding declaration:
+ *
+ *    ```
+ *    @Test fun foo() { /*...*/ }
+ *    ```
+ *
+ * 4) File annotations are placed after the file comment (if any), before the package statement, and are separated from package with a blank
+ *    line (to emphasize the fact that they target the file and not the package).
+ *
+ * @see [AnnotationSpacingRule] for white space rules.
  */
 public class AnnotationRule : StandardRule("annotation") {
     override fun beforeVisitChildNodes(
@@ -52,10 +74,13 @@ public class AnnotationRule : StandardRule("annotation") {
                 visitFileAnnotationList(node, emit, autoCorrect)
             }
             ANNOTATION -> {
+                // Annotation array
+                //     @[...]
                 visitAnnotation(node, emit, autoCorrect)
             }
-            ANNOTATION_ENTRY ->
+            ANNOTATION_ENTRY -> {
                 visitAnnotationEntry(node, emit, autoCorrect)
+            }
         }
     }
 
@@ -75,18 +100,69 @@ public class AnnotationRule : StandardRule("annotation") {
             checkForAnnotationWithParameterToBePlacedOnSeparateLine(node, emit, autoCorrect)
         }
 
-        if ((node.isFollowedByOtherAnnotationEntry() && node.isOnSameLineAsNextAnnotationEntry()) ||
-            (node.isPrecededByOtherAnnotationEntry() && node.isOnSameLineAsAnnotatedConstruct())
-        ) {
-            checkForAnnotationToBePlacedOnSeparateLine(node, emit, autoCorrect)
+        if (node.isOnSameLineAsAnnotatedConstruct()) {
+            if (node.isPrecededByAnnotationOnAnotherLine()) {
+                // Code below is disallowed
+                //   @Foo1
+                //   @Foo2 fun foo() {}
+                emit(
+                    node.startOffset,
+                    "Annotation must be placed on a separate line when it is preceded by another annotation on a separate line",
+                    true,
+                )
+                if (autoCorrect) {
+                    node
+                        .lastChildLeafOrSelf()
+                        .nextLeaf()
+                        ?.upsertWhitespaceBeforeMe(getNewlineWithIndent(node.treeParent))
+                }
+            }
+
+            if (node.treeParent.elementType != ANNOTATION &&
+                node.isPrecededByOtherAnnotationEntryOnTheSameLine() &&
+                node.isLastAnnotationEntry()
+            ) {
+                // Code below is disallowed
+                //   @Foo1 @Foo2 fun foo() {}
+                // But following is allowed:
+                //   @[Foo1 Foo2] fun foo() {}
+                emit(
+                    node.treeParent.startOffset,
+                    "Multiple annotations should not be placed on the same line as the annotated construct",
+                    true,
+                )
+                if (autoCorrect) {
+                    node
+                        .lastChildLeafOrSelf()
+                        .nextCodeLeaf()
+                        ?.upsertWhitespaceBeforeMe(getNewlineWithIndent(node.treeParent))
+                }
+            }
         }
 
-        if (node.treeParent.elementType != ANNOTATION &&
-            node.isPrecededByOtherAnnotationEntry() &&
-            node.isOnSameLineAsAnnotatedConstruct()
-        ) {
-            checkForMultipleAnnotationsOnSameLineAsAnnotatedConstruct(node, emit, autoCorrect)
+        if (node.isPrecededByOtherAnnotationEntryOnTheSameLine() && node.isPrecededByAnnotationOnAnotherLine()) {
+            // Code below is disallowed
+            //   @Foo1
+            //   @Foo2 @Foo3
+            //   fun foo() {}
+            emit(
+                node.startOffset,
+                "All annotations should either be on a single line or all annotations should be on a separate line",
+                true,
+            )
+            if (autoCorrect) {
+                node
+                    .firstChildLeafOrSelf()
+                    .upsertWhitespaceBeforeMe(getNewlineWithIndent(node.treeParent))
+            }
         }
+    }
+
+    private fun ASTNode.isPrecededByAnnotationOnAnotherLine(): Boolean {
+        val firstAnnotation = treeParent.findChildByType(ANNOTATION_ENTRY)
+        return siblings(forward = false)
+            .takeWhile { it != firstAnnotation }
+            .any { it.isWhiteSpaceWithNewline() }
     }
 
     private fun checkForAnnotationWithParameterToBePlacedOnSeparateLine(
@@ -135,60 +211,6 @@ public class AnnotationRule : StandardRule("annotation") {
         }
     }
 
-    private fun checkForMultipleAnnotationsOnSameLineAsAnnotatedConstruct(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
-    ) {
-        if (node.isLastAnnotationEntry()) {
-            val noAnnotationWithParameters =
-                node
-                    .siblings(forward = false)
-                    .none { it.isAnnotationEntryWithValueArgumentList() }
-            if (noAnnotationWithParameters) {
-                emit(
-                    node.treeParent.startOffset,
-                    "Multiple annotations should not be placed on the same line as the annotated construct",
-                    true,
-                )
-                if (autoCorrect) {
-                    node
-                        .lastChildLeafOrSelf()
-                        .nextCodeLeaf()
-                        ?.upsertWhitespaceBeforeMe(getNewlineWithIndent(node.treeParent))
-                }
-            }
-        }
-    }
-
-    private fun checkForAnnotationToBePlacedOnSeparateLine(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
-    ) {
-        val isFollowedWithAnnotationHavingValueArgumentList =
-            node
-                .siblings(forward = true)
-                .any { it.isAnnotationEntryWithValueArgumentList() }
-        val isPrecededWithAnnotationOnOtherLine =
-            node
-                .siblings(forward = false)
-                .any { it.isWhiteSpaceWithNewline() }
-        if (isFollowedWithAnnotationHavingValueArgumentList || isPrecededWithAnnotationOnOtherLine) {
-            emit(
-                node.startOffset,
-                "Annotation must be placed on separate line",
-                true,
-            )
-            if (autoCorrect) {
-                node
-                    .lastChildLeafOrSelf()
-                    .nextLeaf()
-                    ?.upsertWhitespaceBeforeMe(getNewlineWithIndent(node.treeParent))
-            }
-        }
-    }
-
     private fun ASTNode.isNotReceiverTargetAnnotation() = getAnnotationUseSiteTarget() != AnnotationUseSiteTarget.RECEIVER
 
     private fun ASTNode.getAnnotationUseSiteTarget() =
@@ -209,7 +231,14 @@ public class AnnotationRule : StandardRule("annotation") {
             .lastOrNull { it.elementType == ANNOTATION_ENTRY }
             .let { it == this }
 
-    private fun ASTNode.isPrecededByOtherAnnotationEntry() = siblings(forward = false).any { it.elementType == ANNOTATION_ENTRY }
+    private fun ASTNode.isPrecededByOtherAnnotationEntryOnTheSameLine() =
+        siblings(forward = false)
+            .takeWhile { !it.isWhiteSpaceWithNewline() }
+            .any { it.elementType == ANNOTATION_ENTRY }
+
+    private fun ASTNode.isPrecededByOtherAnnotationEntry() =
+        siblings(forward = false)
+            .any { it.elementType == ANNOTATION_ENTRY }
 
     private fun ASTNode.isOnSameLineAsPreviousAnnotationEntry() =
         siblings(forward = false)
@@ -223,11 +252,13 @@ public class AnnotationRule : StandardRule("annotation") {
             .takeWhile { it.elementType != ANNOTATION_ENTRY }
             .none { it.isWhiteSpaceWithNewline() }
 
-    private fun ASTNode.isOnSameLineAsAnnotatedConstruct() =
-        lastChildLeafOrSelf()
+    private fun ASTNode.isOnSameLineAsAnnotatedConstruct(): Boolean {
+        val stopAt = treeParent.nextCodeSibling()?.firstChildLeafOrSelf()
+        return lastChildLeafOrSelf()
             .leaves(forward = true)
-            .takeWhile { it.isWhiteSpace() || it.isPartOfComment() }
+            .takeWhile { it != stopAt }
             .none { it.isWhiteSpaceWithNewline() }
+    }
 
     private fun ASTNode.isOnSameLineAsNextAnnotationEntryOrAnnotatedConstruct() =
         if (isFollowedByOtherAnnotationEntry()) {
