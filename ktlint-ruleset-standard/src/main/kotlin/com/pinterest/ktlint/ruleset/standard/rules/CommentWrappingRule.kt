@@ -8,7 +8,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.hasNewLineInClosedRange
-import com.pinterest.ktlint.rule.engine.core.api.lineIndent
+import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -118,7 +118,7 @@ public class CommentWrappingRule :
     ) {
         emit(startOffset, "A block comment may not be followed by any other element on that same line", true)
         if (autoCorrect) {
-            this.upsertWhitespaceBeforeMe("\n${blockCommentNode.lineIndent()}")
+            this.upsertWhitespaceBeforeMe(blockCommentNode.indent())
         }
     }
 

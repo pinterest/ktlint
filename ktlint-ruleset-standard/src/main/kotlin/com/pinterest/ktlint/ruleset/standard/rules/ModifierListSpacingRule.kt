@@ -7,8 +7,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.lineIndent
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -57,7 +57,7 @@ public class ModifierListSpacingRule :
                     (node.elementType == MODIFIER_LIST && node.lastChildNode.isAnnotationElement())
                 ) {
                     val expectedWhiteSpace = if (whitespace.textContains('\n')) {
-                        "\n" + node.lineIndent()
+                        node.indent()
                     } else {
                         " "
                     }

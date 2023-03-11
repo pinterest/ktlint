@@ -15,6 +15,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
+import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.Companion.DEFAULT_INDENT_CONFIG
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.children
@@ -24,9 +25,9 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY_OFF
+import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.rule.engine.core.api.lineIndent
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -63,7 +64,7 @@ public class FunctionSignatureRule :
         ),
     ),
     Rule.Experimental {
-    private var indent: String? = null
+    private var indentConfig = DEFAULT_INDENT_CONFIG
     private var maxLineLength = MAX_LINE_LENGTH_PROPERTY.defaultValue
     private var functionSignatureWrappingMinimumParameters =
         FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY.defaultValue
@@ -74,11 +75,10 @@ public class FunctionSignatureRule :
             FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY,
         ]
         functionBodyExpressionWrapping = editorConfig[FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY]
-        val indentConfig = IndentConfig(
+        indentConfig = IndentConfig(
             indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
             tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
         )
-        indent = indentConfig.indent
         maxLineLength = editorConfig[MAX_LINE_LENGTH_PROPERTY]
     }
 
@@ -206,7 +206,7 @@ public class FunctionSignatureRule :
                 endASTNodePredicate = { false },
             )
 
-        return node.lineIndent().length +
+        return node.indent(false).length +
             tailNodesOfFunctionSignature.sumOf { it.text.length }
     }
 
@@ -234,7 +234,7 @@ public class FunctionSignatureRule :
             fixWhiteSpacesInValueParameterList(node, emit, autoCorrect, multiline = false, dryRun = true)
     }
 
-    private fun ASTNode.getFunctionSignatureLength() = lineIndent().length + getFunctionSignatureNodesLength()
+    private fun ASTNode.getFunctionSignatureLength() = indent(false).length + getFunctionSignatureNodesLength()
 
     private fun ASTNode.getFunctionSignatureNodesLength() =
         functionSignatureNodes()
@@ -326,7 +326,7 @@ public class FunctionSignatureRule :
             ?.takeIf { it.elementType == WHITE_SPACE }
             .let { whiteSpaceBeforeIdentifier ->
                 if (multiline) {
-                    val expectedParameterIndent = "\n" + node.lineIndent() + indent
+                    val expectedParameterIndent = node.indent().plus(indentConfig.indent)
                     if (whiteSpaceBeforeIdentifier == null ||
                         whiteSpaceBeforeIdentifier.text != expectedParameterIndent
                     ) {
@@ -390,7 +390,7 @@ public class FunctionSignatureRule :
                     ?.takeIf { it.elementType == WHITE_SPACE }
                     .let { whiteSpaceBeforeIdentifier ->
                         if (multiline) {
-                            val expectedParameterIndent = "\n" + node.lineIndent() + indent
+                            val expectedParameterIndent = node.indent().plus(indentConfig.indent)
                             if (whiteSpaceBeforeIdentifier == null ||
                                 whiteSpaceBeforeIdentifier.text != expectedParameterIndent
                             ) {
@@ -438,7 +438,7 @@ public class FunctionSignatureRule :
     ): Int {
         var whiteSpaceCorrection = 0
 
-        val newlineAndIndent = "\n" + node.lineIndent()
+        val newlineAndIndent = node.indent()
         val valueParameterList = requireNotNull(node.findChildByType(VALUE_PARAMETER_LIST))
 
         val closingParenthesis = valueParameterList.findChildByType(RPAR)
@@ -572,7 +572,7 @@ public class FunctionSignatureRule :
                         if (autoCorrect) {
                             functionBodyExpressionNodes
                                 .first()
-                                .upsertWhitespaceBeforeMe("\n" + node.lineIndent() + indent)
+                                .upsertWhitespaceBeforeMe(node.indent().plus(indentConfig.indent))
                         }
                     }
                 }

@@ -17,14 +17,15 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.PREFIX_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SAFE_ACCESS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
+import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.Companion.DEFAULT_INDENT_CONFIG
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
-import com.pinterest.ktlint.rule.engine.core.api.lineIndent
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
@@ -48,18 +49,17 @@ public class ChainWrappingRule :
             INDENT_STYLE_PROPERTY,
         ),
     ) {
-    private var indent: String? = null
     private val sameLineTokens = TokenSet.create(MUL, DIV, PERC, ANDAND, OROR)
     private val prefixTokens = TokenSet.create(PLUS, MINUS)
     private val nextLineTokens = TokenSet.create(DOT, SAFE_ACCESS, ELVIS)
     private val noSpaceAroundTokens = TokenSet.create(DOT, SAFE_ACCESS)
+    private var indentConfig = DEFAULT_INDENT_CONFIG
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
-        val indentConfig = IndentConfig(
+        indentConfig = IndentConfig(
             indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
             tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
         )
-        indent = indentConfig.indent
     }
 
     override fun beforeVisitChildNodes(
@@ -88,7 +88,7 @@ public class ChainWrappingRule :
                     // <prevLeaf><node="."><spaceBeforeComment><comment><nextLeaf="\n"> to
                     // <prevLeaf><delete space if any><spaceBeforeComment><comment><nextLeaf="\n"><node="."><space if needed>
                     if (node.elementType == ELVIS) {
-                        node.upsertWhitespaceBeforeMe("\n" + node.lineIndent() + indent)
+                        node.upsertWhitespaceBeforeMe(node.indent().plus(indentConfig.indent))
                         node.upsertWhitespaceAfterMe(" ")
                     } else {
                         node.treeParent.removeChild(node)

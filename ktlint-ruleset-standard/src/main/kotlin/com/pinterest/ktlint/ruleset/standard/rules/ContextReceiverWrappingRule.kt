@@ -7,6 +7,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PROJECTION
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
+import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.Companion.DEFAULT_INDENT_CONFIG
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.children
@@ -15,12 +16,12 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
-import com.pinterest.ktlint.rule.engine.core.api.lineIndent
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
@@ -42,15 +43,14 @@ public class ContextReceiverWrappingRule :
         ),
     ),
     Rule.Experimental {
-    private lateinit var indent: String
+    private var indentConfig = DEFAULT_INDENT_CONFIG
     private var maxLineLength = MAX_LINE_LENGTH_PROPERTY.defaultValue
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
-        val indentConfig = IndentConfig(
+        indentConfig = IndentConfig(
             indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
             tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
         )
-        indent = indentConfig.indent
         maxLineLength = editorConfig[MAX_LINE_LENGTH_PROPERTY]
     }
 
@@ -82,14 +82,13 @@ public class ContextReceiverWrappingRule :
                 if (autoCorrect) {
                     nodeAfterContextReceiver
                         .firstChildLeafOrSelf()
-                        .upsertWhitespaceBeforeMe("\n" + node.treeParent.lineIndent())
+                        .upsertWhitespaceBeforeMe(node.treeParent.indent())
                 }
             }
 
-        // Check line length assuming that the context receiver is indented correctly. Wrapping rule must however run
-        // before indenting.
+        // Check line length assuming that the context receiver is indented correctly. Wrapping rule must however run before indenting.
         if (!node.textContains('\n') &&
-            node.lineIndent().length + node.textLength > maxLineLength
+            node.indent(false).length + node.textLength > maxLineLength
         ) {
             node
                 .children()
@@ -103,7 +102,7 @@ public class ContextReceiverWrappingRule :
                     if (autoCorrect) {
                         it
                             .prevLeaf(includeEmpty = true)
-                            ?.upsertWhitespaceAfterMe("\n" + node.lineIndent() + indent)
+                            ?.upsertWhitespaceAfterMe(node.indent().plus(indentConfig.indent))
                     }
                 }
             node
@@ -115,7 +114,7 @@ public class ContextReceiverWrappingRule :
                         true,
                     )
                     if (autoCorrect) {
-                        rpar.upsertWhitespaceBeforeMe("\n" + node.lineIndent())
+                        rpar.upsertWhitespaceBeforeMe(node.indent())
                     }
                 }
         }
@@ -130,7 +129,7 @@ public class ContextReceiverWrappingRule :
         // Check line length assuming that the context receiver is indented correctly. Wrapping rule must however run
         // before indenting.
         if (!contextReceiver.contains('\n') &&
-            node.lineIndent().length + contextReceiver.length > maxLineLength
+            node.indent(false).length + contextReceiver.length > maxLineLength
         ) {
             node
                 .children()
@@ -143,7 +142,7 @@ public class ContextReceiverWrappingRule :
                     )
                     if (autoCorrect) {
                         it
-                            .upsertWhitespaceBeforeMe("\n" + node.lineIndent() + indent)
+                            .upsertWhitespaceBeforeMe(node.indent().plus(indentConfig.indent))
                     }
                 }
             node
@@ -158,7 +157,7 @@ public class ContextReceiverWrappingRule :
                         // Ideally, the closing angle bracket should be de-indented to make it consistent with
                         // de-intentation of closing ")", "}" and "]". This however would be inconsistent with how the
                         // type argument lists are formatted by IntelliJ IDEA default formatter.
-                        gt.upsertWhitespaceBeforeMe("\n" + node.lineIndent() + indent)
+                        gt.upsertWhitespaceBeforeMe(node.indent().plus(indentConfig.indent))
                     }
                 }
         }

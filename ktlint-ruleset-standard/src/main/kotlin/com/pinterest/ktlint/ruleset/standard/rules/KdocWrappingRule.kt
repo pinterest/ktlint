@@ -8,7 +8,7 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.lineIndent
+import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.noNewLineInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -93,7 +93,7 @@ public class KdocWrappingRule :
     ) {
         emit(startOffset, "A KDoc comment may not be followed by any other element on that same line", true)
         if (autoCorrect) {
-            this.upsertWhitespaceBeforeMe("\n${kdocCommentNode.lineIndent()}")
+            this.upsertWhitespaceBeforeMe(kdocCommentNode.indent())
         }
     }
 

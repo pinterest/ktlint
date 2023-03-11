@@ -14,6 +14,8 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.psi.psiUtil.leaves
+import org.jetbrains.kotlin.util.prefixIfNot
+import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 import kotlin.reflect.KClass
 
 public fun ASTNode.nextLeaf(
@@ -296,6 +298,11 @@ public val ASTNode.column: Int
         return offsetToTheLeft + 1
     }
 
+@Deprecated(
+    message = "Marked for removal in Ktlint 0.50. Replace with 'indent' but do note that it automatically includes a newline character " +
+        "as prefix.",
+    replaceWith = ReplaceWith("indent"),
+)
 public fun ASTNode.lineIndent(): String {
     var leaf = this.prevLeaf()
     while (leaf != null) {
@@ -306,6 +313,17 @@ public fun ASTNode.lineIndent(): String {
     }
     return ""
 }
+
+/**
+ * Get the current indentation of the line containing the [ASTNode]. By default, this indentation starts with a newline (\n) character.
+ */
+public fun ASTNode.indent(includeNewline: Boolean = true): String =
+    leaves(forward = false)
+        .firstOrNull { it.isWhiteSpaceWithNewline() }
+        ?.text
+        ?.substringAfterLast('\n')
+        .orEmpty() // Fallback if node is not preceded by any newline character
+        .applyIf(includeNewline) { prefixIfNot("\n") }
 
 /**
  *  Print content of a node and the element type of the node, its parent and its direct children. Utility is meant to
