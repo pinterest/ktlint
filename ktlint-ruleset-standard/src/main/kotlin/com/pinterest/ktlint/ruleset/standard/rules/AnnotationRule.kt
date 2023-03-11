@@ -1,23 +1,31 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATED_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE_ANNOTATION_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PROJECTION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.isCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
@@ -31,6 +39,7 @@ import org.jetbrains.kotlin.descriptors.annotations.AnnotationUseSiteTarget
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 import org.jetbrains.kotlin.psi.psiUtil.siblings
+import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 /**
@@ -63,7 +72,24 @@ import org.jetbrains.kotlin.utils.addToStdlib.safeAs
  *
  * @see [AnnotationSpacingRule] for white space rules.
  */
-public class AnnotationRule : StandardRule("annotation") {
+public class AnnotationRule :
+    StandardRule(
+        id = "annotation",
+        usesEditorConfigProperties = setOf(
+            INDENT_SIZE_PROPERTY,
+            INDENT_STYLE_PROPERTY,
+        ),
+    ) {
+    private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
+
+    override fun beforeFirstNode(editorConfig: EditorConfig) {
+        indentConfig = IndentConfig(
+            indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
+            tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
+        )
+        Unit
+    }
+
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -127,7 +153,7 @@ public class AnnotationRule : StandardRule("annotation") {
                 // But following is allowed:
                 //   @[Foo1 Foo2] fun foo() {}
                 emit(
-                    node.treeParent.startOffset,
+                    node.findAnnotatedConstruct().startOffset,
                     "Multiple annotations should not be placed on the same line as the annotated construct",
                     true,
                 )
@@ -135,9 +161,54 @@ public class AnnotationRule : StandardRule("annotation") {
                     node
                         .lastChildLeafOrSelf()
                         .nextCodeLeaf()
-                        ?.upsertWhitespaceBeforeMe(getNewlineWithIndent(node.treeParent))
+                        ?.upsertWhitespaceBeforeMe(
+                            getNewlineWithIndent(node.treeParent)
+                                .applyIf(node.typeProjectionOrNull() != null) {
+                                    plus(indentConfig.indent)
+                                },
+                        )
                 }
             }
+
+            node
+                .typeProjectionOrNull()
+                ?.let { typeProjection ->
+                    // Code below is disallowed
+                    //   var foo: List<@Foo1 @Foo2 String>
+                    // But following is allowed:
+                    //   var foo: List<@[Foo1 Foo2] String>
+                    if (node.isFollowedByOtherAnnotationEntryOnTheSameLine() &&
+                        node.isFirstAnnotationEntry()
+                    ) {
+                        emit(
+                            typeProjection.startOffset,
+                            "Annotations on a type reference should be placed on a separate line",
+                            true,
+                        )
+                        if (autoCorrect) {
+                            typeProjection
+                                .upsertWhitespaceBeforeMe(
+                                    getNewlineWithIndent(node.treeParent).plus(indentConfig.indent),
+                                )
+                        }
+                    }
+                    if (node.isPrecededByOtherAnnotationEntryOnTheSameLine() &&
+                        node.isLastAnnotationEntry()
+                    ) {
+                        val annotatedConstruct = node.findAnnotatedConstruct()
+                        emit(
+                            annotatedConstruct.startOffset,
+                            "Annotations on a type reference should be placed on a separate line",
+                            true,
+                        )
+                        if (autoCorrect) {
+                            annotatedConstruct
+                                .nextLeaf { it.isCodeLeaf() && it.elementType != ElementType.COMMA }!!
+                                .firstChildLeafOrSelf()
+                                .upsertWhitespaceBeforeMe(getNewlineWithIndent(node.treeParent))
+                        }
+                    }
+                }
         }
 
         if (node.isPrecededByOtherAnnotationEntryOnTheSameLine() && node.isPrecededByAnnotationOnAnotherLine()) {
@@ -157,6 +228,15 @@ public class AnnotationRule : StandardRule("annotation") {
             }
         }
     }
+
+    private fun ASTNode.typeProjectionOrNull() =
+        takeIf { elementType == ANNOTATION_ENTRY }
+            ?.takeIf { it.treeParent.elementType == MODIFIER_LIST }
+            ?.treeParent
+            ?.takeIf { it.treeParent.elementType == TYPE_REFERENCE }
+            ?.treeParent
+            ?.takeIf { it.treeParent.elementType == TYPE_PROJECTION }
+            ?.treeParent
 
     private fun ASTNode.isPrecededByAnnotationOnAnotherLine(): Boolean {
         val firstAnnotation = treeParent.findChildByType(ANNOTATION_ENTRY)
@@ -225,14 +305,25 @@ public class AnnotationRule : StandardRule("annotation") {
         takeIf { it.elementType == ANNOTATION_ENTRY }
             ?.findChildByType(VALUE_ARGUMENT_LIST)
 
+    private fun ASTNode.isFirstAnnotationEntry() =
+        this ==
+            treeParent
+                .children()
+                .firstOrNull { it.elementType == ANNOTATION_ENTRY }
+
     private fun ASTNode.isLastAnnotationEntry() =
-        treeParent
-            .children()
-            .lastOrNull { it.elementType == ANNOTATION_ENTRY }
-            .let { it == this }
+        this ==
+            treeParent
+                .children()
+                .lastOrNull { it.elementType == ANNOTATION_ENTRY }
 
     private fun ASTNode.isPrecededByOtherAnnotationEntryOnTheSameLine() =
         siblings(forward = false)
+            .takeWhile { !it.isWhiteSpaceWithNewline() }
+            .any { it.elementType == ANNOTATION_ENTRY }
+
+    private fun ASTNode.isFollowedByOtherAnnotationEntryOnTheSameLine() =
+        siblings()
             .takeWhile { !it.isWhiteSpaceWithNewline() }
             .any { it.elementType == ANNOTATION_ENTRY }
 
@@ -253,11 +344,23 @@ public class AnnotationRule : StandardRule("annotation") {
             .none { it.isWhiteSpaceWithNewline() }
 
     private fun ASTNode.isOnSameLineAsAnnotatedConstruct(): Boolean {
-        val stopAt = treeParent.nextCodeSibling()?.firstChildLeafOrSelf()
+        val annotatedConstruct = findAnnotatedConstruct()
         return lastChildLeafOrSelf()
             .leaves(forward = true)
-            .takeWhile { it != stopAt }
+            .takeWhile { it != annotatedConstruct }
             .none { it.isWhiteSpaceWithNewline() }
+    }
+
+    private fun ASTNode.findAnnotatedConstruct(): ASTNode {
+        val astNode = if (treeParent.elementType == MODIFIER_LIST) {
+            treeParent
+        } else {
+            this
+        }
+
+        return checkNotNull(
+            astNode.lastChildLeafOrSelf().nextCodeLeaf(),
+        )
     }
 
     private fun ASTNode.isOnSameLineAsNextAnnotationEntryOrAnnotatedConstruct() =
