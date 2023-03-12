@@ -133,7 +133,7 @@ class SpacingBetweenDeclarationsWithAnnotationsRuleTest {
             }
             """.trimIndent()
         spacingBetweenDeclarationsWithAnnotationsRuleAssertThat(code)
-            .hasLintViolation(5, 5, "Declarations and declarations with annotations should have an empty space between.")
+            .hasLintViolation(5, 1, "Declarations and declarations with annotations should have an empty space between.")
             .isFormattedAs(formattedCode)
     }
 
@@ -201,6 +201,22 @@ class SpacingBetweenDeclarationsWithAnnotationsRuleTest {
                 }
                 // end::testQuery[]
             }
+            """.trimIndent()
+        spacingBetweenDeclarationsWithAnnotationsRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 1802 - Given a declaration followed by multiple kdocs and an annotated declaration`() {
+        val code =
+            """
+            public var foo = "foo"
+
+            /**
+             * Kdoc1
+             */
+            /** Kdoc2 */
+            @Bar
+            public var bar = "bar"
             """.trimIndent()
         spacingBetweenDeclarationsWithAnnotationsRuleAssertThat(code).hasNoLintViolations()
     }
