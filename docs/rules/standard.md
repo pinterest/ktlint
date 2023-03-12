@@ -153,7 +153,7 @@ No wildcard imports except imports listed in `.editorconfig` property `ij_kotlin
     In case property `ij_kotlin_packages_to_use_import_on_demand` is not explicitly set, it allows wildcards imports like `java.util.*` by default to keep in sync with IntelliJ IDEA behavior. To disallow *all* wildcard imports, add property below to your `.editorconfig`:
     ```editorconfig
     [*.{kt,kts}]
-    ij_kotlin_packages_to_use_import_on_demand = nothing
+    ij_kotlin_packages_to_use_import_on_demand = unset
     ```
 
 Rule id: `no-wildcard-imports`

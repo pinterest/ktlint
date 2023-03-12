@@ -259,6 +259,7 @@ Previously the default value for `.editorconfig` property `max_line_length` was 
 * Disable the default patterns if the option `--patterns-from-stdin` is specified ([#1793](https://github.com/pinterest/ktlint/issues/1793))
 * Update Kotlin development version to `1.8.20-Beta` and Kotlin version to `1.8.10`.
 * Revert to matrix build to speed up build, especially for the Windows related build ([#1787](https://github.com/pinterest/ktlint/pull/1787))
+* For the new code style `ktlint_official`, do not allow wildcard imports `java.util` and `kotlinx.android.synthetic` by default. Important: `.editorconfig` property `ij_kotlin_packages_to_use_import_on_demand` needs to be set to value `unset` in order to enforce IntelliJ IDEA default formatter to not generate wildcard imports. `no-wildcard-imports` ([#1797](https://github.com/pinterest/ktlint/issues/1797))
 
 ## [0.48.2] - 2023-01-21
 
