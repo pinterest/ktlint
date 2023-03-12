@@ -6,14 +6,17 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.entry
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
+import org.jetbrains.kotlin.psi.psiUtil.leaves
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KFunction1
@@ -34,7 +37,7 @@ class ASTNodeExtensionTest {
                 .map { it.text }
                 .toList()
 
-        Assertions.assertThat(actual).containsExactly(
+        assertThat(actual).containsExactly(
             // LBRACE is omitted from class body as it is an open range
             "\n    ",
             "FOO",
@@ -66,7 +69,7 @@ class ASTNodeExtensionTest {
 
             val actual = hasNewLineInClosedRange(enumEntries.first(), enumEntries.last())
 
-            Assertions.assertThat(actual).isFalse
+            assertThat(actual).isFalse
         }
 
         @Test
@@ -80,7 +83,7 @@ class ASTNodeExtensionTest {
 
             val actual = hasNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
 
-            Assertions.assertThat(actual).isTrue
+            assertThat(actual).isTrue
         }
 
         @Test
@@ -96,7 +99,7 @@ class ASTNodeExtensionTest {
 
             val actual = hasNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
 
-            Assertions.assertThat(actual).isTrue
+            assertThat(actual).isTrue
         }
 
         @Test
@@ -110,7 +113,7 @@ class ASTNodeExtensionTest {
 
             val actual = hasNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
 
-            Assertions.assertThat(actual).isTrue
+            assertThat(actual).isTrue
         }
 
         @Test
@@ -125,7 +128,7 @@ class ASTNodeExtensionTest {
 
             val actual = hasNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
 
-            Assertions.assertThat(actual).isTrue
+            assertThat(actual).isTrue
         }
     }
 
@@ -146,7 +149,7 @@ class ASTNodeExtensionTest {
 
             val actual = noNewLineInClosedRange(enumEntries.first(), enumEntries.last())
 
-            Assertions.assertThat(actual).isTrue
+            assertThat(actual).isTrue
         }
 
         @Test
@@ -160,7 +163,7 @@ class ASTNodeExtensionTest {
 
             val actual = noNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
 
-            Assertions.assertThat(actual).isFalse
+            assertThat(actual).isFalse
         }
 
         @Test
@@ -177,7 +180,7 @@ class ASTNodeExtensionTest {
 
             val actual = noNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
 
-            Assertions.assertThat(actual).isFalse
+            assertThat(actual).isFalse
         }
 
         @Test
@@ -191,7 +194,7 @@ class ASTNodeExtensionTest {
 
             val actual = noNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
 
-            Assertions.assertThat(actual).isFalse
+            assertThat(actual).isFalse
         }
 
         @Test
@@ -206,7 +209,7 @@ class ASTNodeExtensionTest {
 
             val actual = noNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
 
-            Assertions.assertThat(actual).isFalse
+            assertThat(actual).isFalse
         }
     }
 
@@ -233,7 +236,7 @@ class ASTNodeExtensionTest {
                             ?.upsertWhitespaceBeforeMe("\n")
                     }.text
 
-            Assertions.assertThat(actual).isEqualTo(formattedCode)
+            assertThat(actual).isEqualTo(formattedCode)
         }
 
         @Test
@@ -256,7 +259,7 @@ class ASTNodeExtensionTest {
                             ?.upsertWhitespaceBeforeMe("\n\n")
                     }.text
 
-            Assertions.assertThat(actual).isEqualTo(formattedCode)
+            assertThat(actual).isEqualTo(formattedCode)
         }
 
         @Test
@@ -279,7 +282,7 @@ class ASTNodeExtensionTest {
                             ?.upsertWhitespaceBeforeMe("\n\n")
                     }.text
 
-            Assertions.assertThat(actual).isEqualTo(formattedCode)
+            assertThat(actual).isEqualTo(formattedCode)
         }
 
         @Test
@@ -303,7 +306,7 @@ class ASTNodeExtensionTest {
                             ?.upsertWhitespaceBeforeMe("\n    ")
                     }.text
 
-            Assertions.assertThat(actual).isEqualTo(formattedCode)
+            assertThat(actual).isEqualTo(formattedCode)
         }
 
         @Test
@@ -328,7 +331,7 @@ class ASTNodeExtensionTest {
                             .upsertWhitespaceBeforeMe("\n\n")
                     }.text
 
-            Assertions.assertThat(actual).isEqualTo(formattedCode)
+            assertThat(actual).isEqualTo(formattedCode)
         }
     }
 
@@ -354,7 +357,7 @@ class ASTNodeExtensionTest {
                             ?.upsertWhitespaceAfterMe("\n\n")
                     }.text
 
-            Assertions.assertThat(actual).isEqualTo(formattedCode)
+            assertThat(actual).isEqualTo(formattedCode)
         }
 
         @Test
@@ -377,7 +380,7 @@ class ASTNodeExtensionTest {
                             ?.upsertWhitespaceAfterMe("\n\n")
                     }.text
 
-            Assertions.assertThat(actual).isEqualTo(formattedCode)
+            assertThat(actual).isEqualTo(formattedCode)
         }
 
         @Test
@@ -401,7 +404,7 @@ class ASTNodeExtensionTest {
                             ?.upsertWhitespaceAfterMe("\n")
                     }.text
 
-            Assertions.assertThat(actual).isEqualTo(formattedCode)
+            assertThat(actual).isEqualTo(formattedCode)
         }
 
         @Test
@@ -426,8 +429,37 @@ class ASTNodeExtensionTest {
                             .upsertWhitespaceAfterMe("\n\n")
                     }.text
 
-            Assertions.assertThat(actual).isEqualTo(formattedCode)
+            assertThat(actual).isEqualTo(formattedCode)
         }
+    }
+
+    @Test
+    fun `Given some identifiers at different indentation levels`() {
+        val code =
+            """
+                class Foo1 {
+                    val foo2 = "foo2"
+
+                    fun foo3() {
+                        val foo4 = "foo4"
+                    }
+                }
+            """.trimIndent()
+
+        val actual =
+            transformCodeToAST(code)
+                .firstChildLeafOrSelf()
+                .leaves()
+                .filter { it.elementType == IDENTIFIER }
+                .map { it.text to it.indent() }
+                .toMap()
+
+        assertThat(actual).contains(
+            entry("Foo1", "\n"),
+            entry("foo2", "\n    "),
+            entry("foo3", "\n    "),
+            entry("foo4", "\n        "),
+        )
     }
 
     private inline fun String.transformAst(block: FileASTNode.() -> Unit): FileASTNode =

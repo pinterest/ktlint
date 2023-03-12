@@ -4,7 +4,7 @@ import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
-class BlockCommentInitialStarTest {
+class BlockCommentInitialStarAlignmentRuleTest {
     private val blockCommentInitialStarAlignmentRuleAssertThat = assertThatRule { BlockCommentInitialStarAlignmentRule() }
 
     @Test

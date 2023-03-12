@@ -15,8 +15,8 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.lineIndent
 import com.pinterest.ktlint.rule.engine.core.api.noNewLineInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -41,7 +41,6 @@ import org.jetbrains.kotlin.psi.KtWhenExpression
 import org.jetbrains.kotlin.psi.psiUtil.anyDescendantOfType
 import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
-import org.jetbrains.kotlin.psi.psiUtil.parents
 import org.jetbrains.kotlin.psi.psiUtil.prevLeaf
 import org.jetbrains.kotlin.utils.addToStdlib.cast
 
@@ -260,8 +259,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                                     true,
                                 )
                                 if (autoCorrect) {
-                                    val parentIndent = "\n" + inspectNode.getWhenEntryIndent()
-                                    lastNodeBeforeArrow.upsertWhitespaceAfterMe(parentIndent)
+                                    lastNodeBeforeArrow.upsertWhitespaceAfterMe(inspectNode.treeParent.indent())
                                 }
                             }
                         }
@@ -294,13 +292,15 @@ public class TrailingCommaOnDeclarationSiteRule :
                     }
                     if (autoCorrect) {
                         if (addNewLineBeforeArrowInWhenEntry) {
-                            val parentIndent = "\n" + prevNode.getWhenEntryIndent()
+                            val newLine = KtPsiFactory(prevNode.psi).createWhiteSpace(
+                                prevNode
+                                    .treeParent
+                                    .indent(),
+                            )
                             val leafBeforeArrow = (psi as KtWhenEntry).arrow?.prevLeaf()
                             if (leafBeforeArrow != null && leafBeforeArrow is PsiWhiteSpace) {
-                                val newLine = KtPsiFactory(prevNode.psi).createWhiteSpace(parentIndent)
                                 leafBeforeArrow.replace(newLine)
                             } else {
-                                val newLine = KtPsiFactory(prevNode.psi).createWhiteSpace(parentIndent)
                                 prevNode.psi.parent.addAfter(newLine, prevNode.psi)
                             }
                         }
@@ -310,7 +310,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                             with(KtPsiFactory(prevNode.psi)) {
                                 val parentIndent =
                                     (prevNode.psi.parent.prevLeaf() as? PsiWhiteSpace)?.text
-                                        ?: "\n${prevNode.lineIndent()}"
+                                        ?: prevNode.indent()
                                 val newline = createWhiteSpace(parentIndent)
                                 val enumEntry = inspectNode.treeParent.psi
                                 enumEntry.apply {
@@ -338,12 +338,6 @@ public class TrailingCommaOnDeclarationSiteRule :
             TrailingCommaState.NOT_EXISTS -> Unit
         }
     }
-
-    private fun ASTNode.getWhenEntryIndent() =
-        // The when entry can be a simple value but might also be a complex expression.
-        parents()
-            .last { it.elementType == WHEN_ENTRY }
-            .lineIndent()
 
     private fun isMultiline(element: PsiElement): Boolean =
         when {

@@ -30,6 +30,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_TYPE_CALL_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_TYPE_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_TYPE_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PROJECTION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
@@ -37,6 +39,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
+import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.Companion.DEFAULT_INDENT_CONFIG
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
@@ -45,12 +48,12 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY_OFF
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
-import com.pinterest.ktlint.rule.engine.core.api.lineIndent
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -92,7 +95,7 @@ public class WrappingRule :
         ),
     ) {
     private var line = 1
-    private lateinit var indentConfig: IndentConfig
+    private var indentConfig = DEFAULT_INDENT_CONFIG
     private var maxLineLength: Int = MAX_LINE_LENGTH_PROPERTY.defaultValue
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
@@ -114,6 +117,7 @@ public class WrappingRule :
             LPAR, LBRACKET -> rearrangeBlock(node, autoCorrect, emit) // TODO: LT
             SUPER_TYPE_LIST -> rearrangeSuperTypeList(node, autoCorrect, emit)
             VALUE_PARAMETER_LIST, VALUE_ARGUMENT_LIST -> rearrangeValueList(node, autoCorrect, emit)
+            TYPE_ARGUMENT_LIST -> rearrangeTypeArgumentList(node, autoCorrect, emit)
             ARROW -> rearrangeArrow(node, autoCorrect, emit)
             WHITE_SPACE -> line += node.text.count { it == '\n' }
             CLOSING_QUOTE -> rearrangeClosingQuote(node, autoCorrect, emit)
@@ -246,7 +250,7 @@ public class WrappingRule :
             requireNewlineAfterLeaf(node, autoCorrect, emit)
         }
         if (!r.prevLeaf().isWhiteSpaceWithNewline()) {
-            requireNewlineBeforeLeaf(r, autoCorrect, emit, node.treeParent.lineIndent())
+            requireNewlineBeforeLeaf(r, autoCorrect, emit, node.treeParent.indent())
         }
     }
 
@@ -283,7 +287,7 @@ public class WrappingRule :
                     !colon.prevLeaf().isWhiteSpaceWithNewline() &&
                     colon.prevCodeLeaf().let { it?.elementType != RPAR || !it.prevLeaf().isWhiteSpaceWithNewline() }
                 ) {
-                    requireNewlineAfterLeaf(colon, autoCorrect, emit, node.lineIndent() + indentConfig.indent)
+                    requireNewlineAfterLeaf(colon, autoCorrect, emit)
                 }
             }
             // put entries on separate lines
@@ -297,7 +301,7 @@ public class WrappingRule :
                         nodeAfterWhichNewlineIsRequired = c,
                         autoCorrect = autoCorrect,
                         emit = emit,
-                        indent = node.lineIndent(),
+                        indent = node.indent(),
                     )
                 }
             }
@@ -362,6 +366,50 @@ public class WrappingRule :
     private fun ASTNode.isLastValueParameter() =
         elementType == VALUE_PARAMETER &&
             siblings().none { it.elementType == VALUE_PARAMETER }
+
+    private fun rearrangeTypeArgumentList(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+    ) {
+        if (node.textContains('\n')) {
+            // Each type projection must be preceded with a whitespace containing a newline
+            node
+                .children()
+                .filter { it.elementType == TYPE_PROJECTION }
+                .forEach { typeProjection ->
+                    typeProjection
+                        .prevSibling { !it.isPartOfComment() }
+                        .let { prevSibling ->
+                            if (prevSibling?.elementType == LT || prevSibling.isWhiteSpaceWithoutNewline()) {
+                                emit(typeProjection.startOffset, "A newline was expected before '${typeProjection.text}'", true)
+                                if (autoCorrect) {
+                                    typeProjection.upsertWhitespaceBeforeMe(
+                                        node.treeParent.indent().plus(indentConfig.indent),
+                                    )
+                                }
+                            }
+                        }
+                }
+
+            // After the last type projection a whitespace containing a newline must exist
+            node
+                .findChildByType(GT)
+                ?.let { closingAngle ->
+                    val prevSibling = closingAngle.prevSibling { !it.isPartOfComment() }
+                    if (prevSibling?.elementType != WHITE_SPACE || prevSibling.isWhiteSpaceWithoutNewline()) {
+                        emit(closingAngle.startOffset, "A newline was expected before '${closingAngle.text}'", true)
+                        if (autoCorrect) {
+                            closingAngle.upsertWhitespaceBeforeMe(
+                                node.treeParent.indent().plus(indentConfig.indent),
+                            )
+                        }
+                    }
+                }
+
+            Unit
+        }
+    }
 
     private fun rearrangeClosingQuote(
         node: ASTNode,
@@ -461,7 +509,7 @@ public class WrappingRule :
         }
         val r = node.nextSibling { it.elementType == RBRACE } ?: return
         if (!r.prevLeaf().isWhiteSpaceWithNewline()) {
-            requireNewlineBeforeLeaf(r, autoCorrect, emit, node.lineIndent())
+            requireNewlineBeforeLeaf(r, autoCorrect, emit, node.indent())
         }
     }
 
@@ -478,7 +526,7 @@ public class WrappingRule :
         )
         LOGGER.trace { "$line: " + ((if (!autoCorrect) "would have " else "") + "inserted newline before ${node.text}") }
         if (autoCorrect) {
-            node.upsertWhitespaceBeforeMe("\n" + indent)
+            node.upsertWhitespaceBeforeMe(indent)
         }
     }
 
@@ -498,8 +546,8 @@ public class WrappingRule :
             "$line: " + (if (!autoCorrect) "would have " else "") + "inserted newline after ${nodeAfterWhichNewlineIsRequired.text}"
         }
         if (autoCorrect) {
-            val tempIndent = indent ?: (nodeToFix.lineIndent() + indentConfig.indent)
-            nodeToFix.upsertWhitespaceAfterMe("\n" + tempIndent)
+            val tempIndent = indent ?: (nodeToFix.indent().plus(indentConfig.indent))
+            nodeToFix.upsertWhitespaceAfterMe(tempIndent)
         }
     }
 
@@ -590,7 +638,7 @@ public class WrappingRule :
                     endOfBlock,
                     autoCorrect,
                     emit,
-                    node.treeParent.lineIndent(),
+                    node.treeParent.indent(),
                 )
             }
         }

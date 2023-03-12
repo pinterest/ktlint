@@ -8,16 +8,17 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.EQ
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
+import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.Companion.DEFAULT_INDENT_CONFIG
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
-import com.pinterest.ktlint.rule.engine.core.api.lineIndent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -46,7 +47,7 @@ public class PropertyWrappingRule :
         ),
     ) {
     private var line = 1
-    private lateinit var indentConfig: IndentConfig
+    private var indentConfig = DEFAULT_INDENT_CONFIG
     private var maxLineLength: Int = MAX_LINE_LENGTH_PROPERTY.defaultValue
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
@@ -75,7 +76,7 @@ public class PropertyWrappingRule :
     ) {
         require(node.elementType == PROPERTY)
 
-        val baseIndent = node.lineIndent()
+        val baseIndentLength = node.indent(false).length
 
         // Find the first node after the indenting whitespace on the same line as the identifier
         val nodeFirstChildLeafOrSelf = node.firstChildLeafOrSelf()
@@ -89,9 +90,9 @@ public class PropertyWrappingRule :
         node
             .findChildByType(COLON)
             ?.let { colon ->
-                if (baseIndent.length + fromNode.sumOfTextLengthUntil(colon) > maxLineLength) {
+                if (baseIndentLength + fromNode.sumOfTextLengthUntil(colon) > maxLineLength) {
                     fromNode.sumOfTextLengthUntil(colon)
-                    requireNewlineAfterLeaf(colon, autoCorrect, emit, baseIndent)
+                    requireNewlineAfterLeaf(colon, autoCorrect, emit)
                     return
                 }
             }
@@ -99,8 +100,8 @@ public class PropertyWrappingRule :
         node
             .findChildByType(TYPE_REFERENCE)
             ?.let { typeReference ->
-                if (baseIndent.length + fromNode.sumOfTextLengthUntil(typeReference) > maxLineLength) {
-                    requireNewlineBeforeLeaf(typeReference, autoCorrect, emit, baseIndent)
+                if (baseIndentLength + fromNode.sumOfTextLengthUntil(typeReference) > maxLineLength) {
+                    requireNewlineBeforeLeaf(typeReference, autoCorrect, emit)
                     return
                 }
             }
@@ -108,8 +109,8 @@ public class PropertyWrappingRule :
         node
             .findChildByType(EQ)
             ?.let { equal ->
-                if (baseIndent.length + fromNode.sumOfTextLengthUntil(equal) > maxLineLength) {
-                    requireNewlineAfterLeaf(equal, autoCorrect, emit, baseIndent)
+                if (baseIndentLength + fromNode.sumOfTextLengthUntil(equal) > maxLineLength) {
+                    requireNewlineAfterLeaf(equal, autoCorrect, emit)
                     return
                 }
             }
@@ -117,8 +118,8 @@ public class PropertyWrappingRule :
         node
             .findChildByType(CALL_EXPRESSION)
             ?.let { callExpression ->
-                if (baseIndent.length + fromNode.sumOfTextLengthUntil(callExpression) > maxLineLength) {
-                    requireNewlineBeforeLeaf(callExpression, autoCorrect, emit, baseIndent)
+                if (baseIndentLength + fromNode.sumOfTextLengthUntil(callExpression) > maxLineLength) {
+                    requireNewlineBeforeLeaf(callExpression, autoCorrect, emit)
                     return
                 }
             }
@@ -135,7 +136,6 @@ public class PropertyWrappingRule :
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        indent: String,
     ) {
         emit(
             node.startOffset - 1,
@@ -144,7 +144,7 @@ public class PropertyWrappingRule :
         )
         LOGGER.trace { "$line: " + ((if (!autoCorrect) "would have " else "") + "inserted newline before ${node.text}") }
         if (autoCorrect) {
-            node.upsertWhitespaceBeforeMe("\n" + indent)
+            node.upsertWhitespaceBeforeMe(node.indent())
         }
     }
 
@@ -152,7 +152,6 @@ public class PropertyWrappingRule :
         nodeAfterWhichNewlineIsRequired: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        indent: String? = null,
         nodeToFix: ASTNode = nodeAfterWhichNewlineIsRequired,
     ) {
         emit(
@@ -164,8 +163,7 @@ public class PropertyWrappingRule :
             "$line: " + (if (!autoCorrect) "would have " else "") + "inserted newline after ${nodeAfterWhichNewlineIsRequired.text}"
         }
         if (autoCorrect) {
-            val tempIndent = indent ?: (nodeToFix.lineIndent() + indentConfig.indent)
-            nodeToFix.upsertWhitespaceAfterMe("\n" + tempIndent)
+            nodeToFix.upsertWhitespaceAfterMe(nodeToFix.indent().plus(indentConfig.indent))
         }
     }
 }

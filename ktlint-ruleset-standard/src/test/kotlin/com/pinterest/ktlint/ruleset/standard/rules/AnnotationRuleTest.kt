@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class AnnotationRuleTest {
-    private val annotationRuleAssertThat = assertThatRule { com.pinterest.ktlint.ruleset.standard.rules.AnnotationRule() }
+    private val annotationRuleAssertThat = assertThatRule { AnnotationRule() }
 
     @Test
     fun `Given a single annotation on same line before the annotated construct`() {
@@ -126,10 +126,30 @@ class AnnotationRuleTest {
             """.trimIndent()
         annotationRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(1, 1, "Multiple annotations should not be placed on the same line as the annotated construct"),
-                LintViolation(2, 5, "Multiple annotations should not be placed on the same line as the annotated construct"),
-                LintViolation(3, 5, "Multiple annotations should not be placed on the same line as the annotated construct"),
+                LintViolation(1, 11, "Multiple annotations should not be placed on the same line as the annotated construct"),
+                LintViolation(2, 15, "Multiple annotations should not be placed on the same line as the annotated construct"),
+                LintViolation(3, 15, "Multiple annotations should not be placed on the same line as the annotated construct"),
             ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given an array of annotations on the same line as the annotated construct then do not report a violation`() {
+        val code =
+            """
+            @[Foo Bar] class FooBar2 {
+                @[Foo Bar] var foo: String
+                @[Foo Bar] fun bar() {}
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            @[Foo Bar] class FooBar2 {
+                @[Foo Bar] var foo: String
+                @[Foo Bar] fun bar() {}
+            }
+            """.trimIndent()
+        annotationRuleAssertThat(code)
+            .hasNoLintViolations()
     }
 
     @Test
@@ -144,7 +164,7 @@ class AnnotationRuleTest {
             var foo: String
             """.trimIndent()
         annotationRuleAssertThat(code)
-            .hasLintViolation(1, 1, "Multiple annotations should not be placed on the same line as the annotated construct")
+            .hasLintViolation(1, 21, "Multiple annotations should not be placed on the same line as the annotated construct")
             .isFormattedAs(formattedCode)
     }
 
@@ -160,7 +180,7 @@ class AnnotationRuleTest {
             var foo: String
             """.trimIndent()
         annotationRuleAssertThat(code)
-            .hasLintViolation(1, 1, "Multiple annotations should not be placed on the same line as the annotated construct")
+            .hasLintViolation(1, 21, "Multiple annotations should not be placed on the same line as the annotated construct")
             .isFormattedAs(formattedCode)
     }
 
@@ -238,8 +258,9 @@ class AnnotationRuleTest {
                 val bar: Any
             }
             """.trimIndent()
+        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
         annotationRuleAssertThat(code)
-            .hasLintViolation(3, 5, "Annotation must be placed on separate line")
+            .hasLintViolation(3, 5, "Annotation must be placed on a separate line when it is preceded by another annotation on a separate line")
             .isFormattedAs(formattedCode)
     }
 
@@ -510,6 +531,17 @@ class AnnotationRuleTest {
     }
 
     @Test
+    fun `Given multiple annotations on the same line without parameter but above the annotated construct`() {
+        val code =
+            """
+            @Foo1 @Foo2
+            fun foo() {}
+            """.trimIndent()
+        annotationRuleAssertThat(code)
+            .hasNoLintViolations()
+    }
+
+    @Test
     fun `Given a line containing multiple annotations without parameters and another line with another annotation`() {
         val code =
             """
@@ -526,7 +558,7 @@ class AnnotationRuleTest {
             """.trimIndent()
         annotationRuleAssertThat(code)
             .asKotlinScript()
-            .hasLintViolation(2, 1, "Annotation must be placed on separate line")
+            .hasLintViolation(2, 7, "All annotations should either be on a single line or all annotations should be on a separate line")
             .isFormattedAs(formattedCode)
     }
 
@@ -593,6 +625,85 @@ class AnnotationRuleTest {
             annotationRuleAssertThat(code)
                 .hasLintViolation(1, 7, "@[...] style annotations should be on a separate line from other annotations.")
                 .isFormattedAs(formattedCode)
+        }
+    }
+
+    @Test
+    fun `Given a single annotation on same line as a type parameter then do not report a violation`() {
+        val code =
+            """
+            @Target(AnnotationTarget.TYPE)
+            annotation class Foo
+            val foo1: List<@Foo String> = emptyList()
+            val foo2 = emptyList<@Foo String>()
+            val foo3: Map<@Foo String, @Foo String> = emptyMap()
+            val foo4 = emptyMap<@Foo String, @Foo String>()
+            """.trimIndent()
+        annotationRuleAssertThat(code)
+            .hasNoLintViolations()
+    }
+
+    @Nested
+    inner class `Issue 1725 - Given multiple annotations on same line as a type parameter` {
+        @Test
+        fun `Given a list with multiple annotations on its type`() {
+            val code =
+                """
+                val fooBar: List<@Foo @Bar String> = emptyList()
+                """.trimIndent()
+            val formattedCode =
+                """
+                val fooBar: List<
+                    @Foo @Bar
+                    String
+                > = emptyList()
+                """.trimIndent()
+            annotationRuleAssertThat(code)
+                .addAdditionalRuleProvider { TrailingCommaOnDeclarationSiteRule() }
+                .addAdditionalRuleProvider { WrappingRule() }
+                .hasLintViolations(
+                    LintViolation(1, 18, "Annotations on a type reference should be placed on a separate line"),
+                    LintViolation(1, 28, "Multiple annotations should not be placed on the same line as the annotated construct"),
+                    LintViolation(1, 28, "Annotations on a type reference should be placed on a separate line"),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given a custom type with multiple annotations on it type parameter(s)`() {
+            val code =
+                """
+                val fooBar: FooBar<String, @Foo @Bar String, String> = emptyList()
+                """.trimIndent()
+            val formattedCode =
+                """
+                val fooBar: FooBar<
+                    String,
+                    @Foo @Bar
+                    String,
+                    String
+                    > = emptyList()
+                """.trimIndent()
+            annotationRuleAssertThat(code)
+                .addAdditionalRuleProvider { IndentationRule() }
+                .addAdditionalRuleProvider { WrappingRule() }
+                .hasLintViolations(
+                    LintViolation(1, 28, "Annotations on a type reference should be placed on a separate line"),
+                    LintViolation(1, 38, "Multiple annotations should not be placed on the same line as the annotated construct"),
+                    LintViolation(1, 38, "Annotations on a type reference should be placed on a separate line"),
+                ).isFormattedAs(formattedCode)
+        }
+    }
+
+    @Nested
+    inner class `Given an array of annotations on same line as a type parameter` {
+        @Test
+        fun `Given a list with an array of annotations on its type`() {
+            val code =
+                """
+                val fooBar: List<@[Foo Bar] String> = emptyList()
+                """.trimIndent()
+            annotationRuleAssertThat(code)
+                .hasNoLintViolations()
         }
     }
 }

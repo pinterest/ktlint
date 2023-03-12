@@ -13,10 +13,10 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
-import com.pinterest.ktlint.rule.engine.core.api.lineIndent
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -101,13 +101,13 @@ public class MultiLineIfElseRule :
             val previousChild = node.firstChildNode
             node.replaceChild(node.firstChildNode, this)
             addChild(LeafPsiElement(LBRACE, "{"))
-            addChild(PsiWhiteSpaceImpl("\n" + node.lineIndent() + indentConfig.indent))
+            addChild(PsiWhiteSpaceImpl(node.indent().plus(indentConfig.indent)))
             prevLeaves
                 .dropWhile { it.isWhiteSpace() }
                 .forEach(::addChild)
             addChild(previousChild)
             nextLeaves.forEach(::addChild)
-            addChild(PsiWhiteSpaceImpl("\n" + node.lineIndent()))
+            addChild(PsiWhiteSpaceImpl(node.indent()))
             addChild(LeafPsiElement(RBRACE, "}"))
         }
 

@@ -105,7 +105,9 @@ val foo = "some really looooooooooooooooong string exceeding the max line length
 Like with other `@Suppress` annotations, it can be placed on targets supported by the annotation. As of this it is possible to disable rules in the entire file with:
 ```kotlin
 @file:Suppress("ktlint") // Suppressing all rules for the entire file
-// or
+```
+or
+```
 @file:Suppress("ktlint:max-line-length", "ktlint:some-custom-rule-set-id:some-custom-rule-id") // Suppressing specific rules for the entire file
 ```
 

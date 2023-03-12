@@ -1779,6 +1779,62 @@ internal class WrappingRuleTest {
                 .hasNoLintViolations()
         }
     }
+
+    @Nested
+    inner class `Given a multiline type argument list` {
+        @Test
+        fun `Given a single line type argument list then do not report a violation`() {
+            val code =
+                """
+                val fooBar: FooBar<String, String> = emptyList()
+                """.trimIndent()
+            wrappingRuleAssertThat(code)
+                .hasNoLintViolations()
+        }
+
+        @Test
+        fun `Given that newline is missing before some type projections`() {
+            val code =
+                """
+                val fooBar: FooBar<Foo1, Foo2,
+                    Bar1, Bar2,
+                    > = emptyList()
+                """.trimIndent()
+            val formattedCode =
+                """
+                val fooBar: FooBar<
+                    Foo1,
+                    Foo2,
+                    Bar1,
+                    Bar2,
+                    > = emptyList()
+                """.trimIndent()
+            wrappingRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(1, 20, "A newline was expected before 'Foo1'"),
+                    LintViolation(1, 26, "A newline was expected before 'Foo2'"),
+                    LintViolation(2, 11, "A newline was expected before 'Bar2'"),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given that newline is missing before the closing angle bracket`() {
+            val code =
+                """
+                val fooBar: List<
+                    Bar> = emptyList()
+                """.trimIndent()
+            val formattedCode =
+                """
+                val fooBar: List<
+                    Bar
+                    > = emptyList()
+                """.trimIndent()
+            wrappingRuleAssertThat(code)
+                .hasLintViolation(2, 8, "A newline was expected before '>'")
+                .isFormattedAs(formattedCode)
+        }
+    }
 }
 
 // Replace the "$." placeholder with an actual "$" so that string "$.{expression}" is transformed to a String template
