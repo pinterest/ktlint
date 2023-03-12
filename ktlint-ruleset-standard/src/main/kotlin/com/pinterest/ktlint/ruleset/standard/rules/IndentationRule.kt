@@ -113,7 +113,8 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 import org.jetbrains.kotlin.psi.psiUtil.parents
-import java.util.*
+import java.util.Deque
+import java.util.LinkedList
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
