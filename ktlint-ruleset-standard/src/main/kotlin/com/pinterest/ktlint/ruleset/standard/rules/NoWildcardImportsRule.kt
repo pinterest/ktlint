@@ -93,7 +93,14 @@ public class NoWildcardImportsRule :
                  * https://github.com/JetBrains/kotlin/blob/ffdab473e28d0d872136b910eb2e0f4beea2e19c/idea/formatter/src/org/jetbrains/kotlin/idea/core/formatter/KotlinCodeStyleSettings.java#L81-L82
                  */
                 defaultValue = parseAllowedWildcardImports("java.util.*,kotlinx.android.synthetic.**"),
-                propertyWriter = { it.joinToString(separator = ",") },
+                propertyWriter = {
+                    if (it.isEmpty()) {
+                        "unset"
+                    } else {
+                        it.joinToString(separator = ",")
+                    }
+                },
+                ktlintOfficialCodeStyleDefaultValue = emptyList(),
             )
     }
 }

@@ -23,6 +23,9 @@ ktlint_standard = enabled
 # we are not pleased ourselves with the results on the ktlint code base.
 ktlint_experimental = enabled
 
+# Don't allow any wildcard imports
+ij_kotlin_packages_to_use_import_on_demand = unset
+
 [*.md]
 trim_trailing_whitespace = false
 

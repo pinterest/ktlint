@@ -1,5 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.ruleset.standard.rules.NoWildcardImportsRule.Companion.IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
@@ -97,5 +99,20 @@ class NoWildcardImportsRuleTest {
                 .withEditorConfigOverride(IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND to "")
                 .hasLintViolationWithoutAutoCorrect(2, 1, "Wildcard import")
         }
+    }
+
+    @Test
+    fun `Given the ktlint_official codestyle then the default wildcard imports allowed in other code styles are no longer allowed`() {
+        val code =
+            """
+            import java.util.*
+            import kotlinx.android.synthetic.*
+            """.trimIndent()
+        noWildcardImportsRuleAssertThat(code)
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
+            .hasLintViolationsWithoutAutoCorrect(
+                LintViolation(1, 1, "Wildcard import"),
+                LintViolation(2, 1, "Wildcard import"),
+            )
     }
 }

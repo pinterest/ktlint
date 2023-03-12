@@ -7,6 +7,7 @@ import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine.Companion.UTF8_BOM
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
 import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.internal.rulefilter.RuleExecutionRuleFilter
 import com.pinterest.ktlint.rule.engine.internal.rulefilter.RunAfterRuleFilter
@@ -52,7 +53,9 @@ internal class RuleExecutionContext private constructor(
                 // The rule get access to an EditConfig which is filtered by the properties which are actually registered as being used by
                 // the rule. In this way it can be forced that the rule actually registers the properties that it uses and the field becomes
                 // reliable to be used by for example the ".editorconfig" file generator.
-                editorConfig.filterBy(rule.usesEditorConfigProperties),
+                // Note that also the CODE_STYLE_PROPERTY is provided because that property is needed to determine the default value of an
+                // EditorConfigProperty that is not explicitly defined.
+                editorConfig.filterBy(rule.usesEditorConfigProperties.plus(CODE_STYLE_PROPERTY)),
             )
             this.executeRuleOnNodeRecursively(rootNode, rule, fqRuleId, autoCorrect, emit)
             rule.afterLastNode()
