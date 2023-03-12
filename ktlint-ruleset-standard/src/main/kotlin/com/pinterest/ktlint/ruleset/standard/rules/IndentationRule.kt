@@ -64,6 +64,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_TYPE_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_TYPE_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.THEN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TRY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPEALIAS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_CONSTRAINT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_CONSTRAINT_LIST
@@ -112,8 +113,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 import org.jetbrains.kotlin.psi.psiUtil.parents
-import java.util.Deque
-import java.util.LinkedList
+import java.util.*
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -299,7 +299,8 @@ public class IndentationRule :
             node.elementType == KDOC ->
                 visitKdoc(node)
 
-            node.elementType == PROPERTY_ACCESSOR ->
+            node.elementType == PROPERTY_ACCESSOR ||
+                node.elementType == TYPEALIAS ->
                 visitPropertyAccessor(node)
 
             node.elementType == FOR ||

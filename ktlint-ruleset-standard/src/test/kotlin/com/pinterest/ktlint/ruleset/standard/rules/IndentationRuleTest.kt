@@ -4911,6 +4911,16 @@ internal class IndentationRuleTest {
         }
     }
 
+    @Test
+    fun `Given a type alias with the value on a separate line`() {
+        val code =
+            """
+            typealias FooBar =
+                HashMap<Foo, Bar>
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
     private companion object {
         val INDENT_STYLE_TAB =
             INDENT_STYLE_PROPERTY to PropertyType.IndentStyleValue.tab
