@@ -34,7 +34,6 @@ public class NoSemicolonsRule : StandardRule("no-semi") {
             return
         }
         val nextLeaf = node.nextLeaf()
-        val prevCodeLeaf = node.prevCodeLeaf()
         if (nextLeaf.doesNotRequirePreSemi() && isNoSemicolonRequiredAfter(node)) {
             emit(node.startOffset, "Unnecessary semicolon", true)
             if (autoCorrect) {

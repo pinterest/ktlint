@@ -19,12 +19,12 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.LAMBDA_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACKET
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LITERAL_STRING_TEMPLATE_ENTRY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.LONG_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACKET
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_TYPE_CALL_ENTRY
@@ -49,11 +49,13 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PR
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY_OFF
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -140,25 +142,28 @@ public class WrappingRule :
         val blockIsFollowedByWhitespaceContainingNewline = endOfBlock?.prevLeaf().isWhiteSpaceWithNewline()
         val wrapBlock =
             when {
+                startOfBlock.isPartOf(LONG_STRING_TEMPLATE_ENTRY) -> {
+                    // String template inside raw string literal may exceed the maximum line length
+                    false
+                }
                 blockIsPrecededByWhitespaceContainingNewline -> false
                 node.textContains('\n') || blockIsFollowedByWhitespaceContainingNewline -> {
                     // A multiline block should always be wrapped unless it starts with an EOL comment
                     node.firstChildLeafOrSelf().elementType != EOL_COMMENT
                 }
                 maxLineLength != MAX_LINE_LENGTH_PROPERTY_OFF -> {
-                    val startOfLine = node.prevLeaf {
-                        it.isWhiteSpaceWithNewline() || (it.elementType == REGULAR_STRING_PART && it.text == "\n")
-                    }
-                    val endOfLine = node.nextLeaf {
-                        it.isWhiteSpaceWithNewline() || (it.elementType == REGULAR_STRING_PART && it.text == "\n")
-                    }
-                    val line =
-                        startOfLine
-                            ?.leaves()
-                            ?.takeWhile { it != endOfLine }
-                            ?.joinToString(separator = "", prefix = startOfLine.text.removePrefix("\n")) { it.text }
-                            .orEmpty()
-                    line.length > maxLineLength
+                    val lengthUntilBeginOfLine =
+                        node
+                            .leaves(false)
+                            .takeWhile { !it.isWhiteSpaceWithNewline() }
+                            .sumOf { it.textLength }
+                    val lengthUntilEndOfLine =
+                        node
+                            .firstChildLeafOrSelf()
+                            .leavesIncludingSelf()
+                            .takeWhile { !it.isWhiteSpaceWithNewline() }
+                            .sumOf { it.textLength }
+                    lengthUntilBeginOfLine + lengthUntilEndOfLine > maxLineLength
                 }
                 else -> false
             }
