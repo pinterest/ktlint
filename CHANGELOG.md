@@ -224,9 +224,10 @@ Previously the default value for `.editorconfig` property `max_line_length` was 
 
 ### Added
 
-* Add new experimental rule for `ktlint_official` code style that disallows a class to start with a blank line `no-empty-first-line-in-class-body`.
-* Add new experimental rule for `ktlint_official` code style that enforces consistent usage of braces in all branches of a singe if or if-else-if statement `if-else-bracing`.
-* Add new experimental rule for `ktlint_official` code style that disallows consecutive comments except EOL comments `no-consecutive-comments`
+* Add new experimental rule `no-empty-first-line-in-class-body` for `ktlint_official` code style. This rule disallows a class to start with a blank line. This rule can also be run for other code styles but then its needs to be explicitly enabled.
+* Add new experimental rule `if-else-bracing` for `ktlint_official` code style. This rules enforces consistent usage of braces in all branches of a singe if or if-else-if statement. This rule can also be run for other code styles but then its needs to be explicitly enabled.
+* Add new experimental rule `no-consecutive-comments` for `ktlint_official` code style. This rule disallows consecutive comments except EOL comments. This rule can also be run for other code styles but then its needs to be explicitly enabled.
+* Add new experimental rule `try-catch-finally-spacing` for `ktlint_official` code style. This rule enforces consistent spacing in try-catch, try-finally and try-catch-finally statement. This rule can also be run for other code styles but then its needs to be explicitly enabled.
 * Wrap the type or value of a function or class parameter in case the maximum line length is exceeded `parameter-wrapping` ([#1846](https://github.com/pinterest/ktlint/pull/1846))
 * Wrap the type or value of a property in case the maximum line length is exceeded `property-wrapping` ([#1846](https://github.com/pinterest/ktlint/pull/1846))
 

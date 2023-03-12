@@ -19,7 +19,7 @@ Detect blank lines at start of a class body.
 Rule id: `no-empty-first-line-in-class-body`
 
 !!! Note
-    This rule is only run when `ktlint_code_style` is set to `ktlint_official`. 
+    This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
 
 ## Disallow consecutive comments
 
@@ -55,7 +55,7 @@ Disallow consecutive comments (EOL comments, block comments or KDoc) except EOL 
 Rule id: `no-consecutive-comments`
 
 !!! Note
-    This rule is only run when `ktlint_code_style` is set to `ktlint_official`. 
+    This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
 
 ## Unnecessary parenthesis before trailing lambda
 
@@ -210,6 +210,43 @@ Rule id: `parameter-list-spacing`
 Consistent spacing between function name and opening parenthesis.
 
 Rule id: `spacing-between-function-name-and-opening-parenthesis`
+
+### Try catch finally spacing
+
+Enforce consistent spacing in `try { .. } catch { .. } finally { .. }`.
+
+=== "[:material-heart:](#) Ktlint (ktlint_official code style)"
+
+    ```kotlin
+    fun foo() =
+        try {
+            // do something
+        } catch (exception: Exception) {
+            // handle exception
+        } finally {
+            // clean up
+        }
+    ```
+=== "[:material-heart:](#) Ktlint (non ktlint_official code style)"
+
+    ```kotlin
+    fun foo1() = try { /* ... */ } catch (exception: Exception) { /* ... */ } finally { /* ... */ }
+    fun foo2() = 
+        try {
+            // do something
+        }
+        catch (exception: Exception) {
+            // handle exception
+        }
+        finally {
+            // clean up
+        }
+    ```
+
+Rule id: `try-catch-finally-spacing`
+
+!!! Note
+    This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
 
 ### Type argument list spacing
 

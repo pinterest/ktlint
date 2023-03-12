@@ -69,6 +69,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.SpacingBetweenFunctionNameAnd
 import com.pinterest.ktlint.ruleset.standard.rules.StringTemplateRule
 import com.pinterest.ktlint.ruleset.standard.rules.TrailingCommaOnCallSiteRule
 import com.pinterest.ktlint.ruleset.standard.rules.TrailingCommaOnDeclarationSiteRule
+import com.pinterest.ktlint.ruleset.standard.rules.TryCatchFinallySpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.TypeArgumentListSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.TypeParameterListSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.UnnecessaryParenthesesBeforeTrailingLambdaRule
@@ -146,6 +147,7 @@ public class StandardRuleSetProvider :
             RuleProvider { StringTemplateRule() },
             RuleProvider { TrailingCommaOnCallSiteRule() },
             RuleProvider { TrailingCommaOnDeclarationSiteRule() },
+            RuleProvider { TryCatchFinallySpacingRule() },
             RuleProvider { TypeArgumentListSpacingRule() },
             RuleProvider { TypeParameterListSpacingRule() },
             RuleProvider { UnnecessaryParenthesesBeforeTrailingLambdaRule() },
