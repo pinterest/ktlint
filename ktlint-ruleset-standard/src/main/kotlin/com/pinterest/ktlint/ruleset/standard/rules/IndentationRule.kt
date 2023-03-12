@@ -12,6 +12,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CATCH
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLOSING_QUOTE
@@ -26,6 +27,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ELSE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ELVIS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EQ
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FINALLY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
@@ -61,6 +63,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_TYPE_CALL_ENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_TYPE_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_TYPE_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.THEN
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_CONSTRAINT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_CONSTRAINT_LIST
@@ -309,7 +312,11 @@ public class IndentationRule :
             node.elementType == NULLABLE_TYPE ->
                 visitNullableType(node)
 
-            node.elementType == DESTRUCTURING_DECLARATION -> visitDestructuringDeclaration(node)
+            node.elementType == DESTRUCTURING_DECLARATION ->
+                visitDestructuringDeclaration(node)
+
+            node.elementType == TRY ->
+                visitTryCatchFinally(node)
 
             else -> {
                 LOGGER.trace { "No processing for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}" }
@@ -763,6 +770,36 @@ public class IndentationRule :
                     lastChildIndent = "",
                 )
             }
+    }
+
+    private fun visitTryCatchFinally(node: ASTNode) {
+        // Inner indent contexts in reversed order
+        var nextToAstNode = node.lastChildLeafOrSelf()
+        node
+            .findChildByType(FINALLY)
+            ?.let { finally ->
+                nextToAstNode = startIndentContext(
+                    fromAstNode = finally,
+                    toAstNode = nextToAstNode,
+                    childIndent = "",
+                ).prevCodeLeaf()
+            }
+
+        node
+            .findChildByType(CATCH)
+            ?.let { catch ->
+                nextToAstNode = startIndentContext(
+                    fromAstNode = catch,
+                    toAstNode = nextToAstNode,
+                    childIndent = "",
+                ).prevCodeLeaf()
+            }
+
+        startIndentContext(
+            fromAstNode = node,
+            toAstNode = nextToAstNode,
+            lastChildIndent = "",
+        )
     }
 
     private fun ASTNode.skipLeadingWhitespaceCommentsAndAnnotations(): ASTNode {

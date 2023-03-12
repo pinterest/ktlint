@@ -4876,6 +4876,41 @@ internal class IndentationRuleTest {
         }
     }
 
+    @Nested
+    inner class `Given a try-catch-finally` {
+        @Test
+        fun `Given a try catch finally which if properly formatted`() {
+            val code =
+                """
+                fun foo() = try {
+                    1
+                } catch(_: Throwable) {
+                    2
+                } finally {
+                    3
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `Issue 1788 - Given a try catch finally where catch and finally starts on a new line`() {
+            val code =
+                """
+                fun foo() = try {
+                    1
+                }
+                catch(_: Throwable) {
+                    2
+                }
+                finally {
+                    3
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+    }
+
     private companion object {
         val INDENT_STYLE_TAB =
             INDENT_STYLE_PROPERTY to PropertyType.IndentStyleValue.tab
