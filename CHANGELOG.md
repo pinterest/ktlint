@@ -248,6 +248,8 @@ Previously the default value for `.editorconfig` property `max_line_length` was 
 * Do not report an "unnecessary semicolon" after adding a trailing comma to an enum class containing a code element after the last enum entry `trailing-comma-on-declaration-site` ([#1786](https://github.com/pinterest/ktlint/issues/1786))
 * A newline before a function return type should not be removed in case that leads to exceeding the maximum line length `function-return-type-spacing` ([#1764](https://github.com/pinterest/ktlint/issues/1764))
 * Wrap annotations on type arguments in same way as with other constructs `annotation`, `wrapping` ([#1725](https://github.com/pinterest/ktlint/issues/1725))
+* Fix indentation of try-catch-finally when catch or finally starts on a newline `indent` ([#1788](https://github.com/pinterest/ktlint/issues/1788))
+* Fix indentation of a multiline typealias `indent` ([#1788](https://github.com/pinterest/ktlint/issues/1788))
 
 ### Changed
 * Wrap the parameters of a function literal containing a multiline parameter list (only in `ktlint_official` code style) `parameter-list-wrapping` ([#1681](https://github.com/pinterest/ktlint/issues/1681)).
