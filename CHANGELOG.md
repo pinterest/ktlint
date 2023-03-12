@@ -250,6 +250,7 @@ Previously the default value for `.editorconfig` property `max_line_length` was 
 * Wrap annotations on type arguments in same way as with other constructs `annotation`, `wrapping` ([#1725](https://github.com/pinterest/ktlint/issues/1725))
 * Fix indentation of try-catch-finally when catch or finally starts on a newline `indent` ([#1788](https://github.com/pinterest/ktlint/issues/1788))
 * Fix indentation of a multiline typealias `indent` ([#1788](https://github.com/pinterest/ktlint/issues/1788))
+* Fix false positive when multiple KDOCs exists between a declaration and another annotated declaration `spacing-between-declarations-with-annotations` ([#1802](https://github.com/pinterest/ktlint/issues/1802))
 
 ### Changed
 * Wrap the parameters of a function literal containing a multiline parameter list (only in `ktlint_official` code style) `parameter-list-wrapping` ([#1681](https://github.com/pinterest/ktlint/issues/1681)).

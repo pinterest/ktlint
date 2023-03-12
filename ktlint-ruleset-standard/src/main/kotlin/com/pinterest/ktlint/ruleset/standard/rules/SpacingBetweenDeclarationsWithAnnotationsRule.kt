@@ -3,17 +3,18 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
-import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.psiUtil.getPrevSiblingIgnoringWhitespaceAndComments
-import org.jetbrains.kotlin.psi.psiUtil.prevLeaf
-import org.jetbrains.kotlin.psi.psiUtil.prevLeafs
+import org.jetbrains.kotlin.psi.psiUtil.leaves
 
 /**
  * @see https://youtrack.jetbrains.com/issue/KT-35106
@@ -24,47 +25,50 @@ public class SpacingBetweenDeclarationsWithAnnotationsRule : StandardRule("spaci
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        if (node.elementType == MODIFIER_LIST && node.hasAnnotationsAsChildren()) {
-            val declaration = node.psi.parent as? KtDeclaration
-            val prevDeclaration =
-                declaration?.getPrevSiblingIgnoringWhitespaceAndComments(withItself = false) as? KtDeclaration
-            val whiteSpaceAfterPreviousDeclaration = prevDeclaration?.nextSibling as? PsiWhiteSpace
-            val startOfDeclarationIncludingLeadingComment = node.psi.parent.getPrevLeafIgnoringCommentAndWhitespaceExceptBlankLines()
-            if (whiteSpaceAfterPreviousDeclaration?.text != null &&
-                startOfDeclarationIncludingLeadingComment?.text?.count { it == '\n' } == 1
-            ) {
+        if (node.psi is KtDeclaration && node.isAnnotated()) {
+            visitDeclaration(node, emit, autoCorrect)
+        }
+    }
+
+    private fun visitDeclaration(
+        node: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        autoCorrect: Boolean,
+    ) {
+        node
+            .psi
+            ?.getPrevSiblingIgnoringWhitespaceAndComments(withItself = false)
+            ?.takeIf { it is KtDeclaration }
+            ?.takeIf { prevDeclaration -> hasNoBlankLineBetweenDeclarations(node, prevDeclaration) }
+            ?.let {
+                val prevLeaf = node.prevLeaf { it.isWhiteSpace() || it.isPartOfComment() }!!
                 emit(
-                    node.startOffset,
+                    prevLeaf.startOffset + 1,
                     "Declarations and declarations with annotations should have an empty space between.",
                     true,
                 )
                 if (autoCorrect) {
-                    val indent = whiteSpaceAfterPreviousDeclaration.text.substringAfter('\n')
-                    (whiteSpaceAfterPreviousDeclaration.node as LeafPsiElement).rawReplaceWithText("\n\n$indent")
+                    prevLeaf.upsertWhitespaceBeforeMe("\n".plus(node.indent()))
                 }
             }
-        }
     }
 
-    /**
-     * Gets the previous element but ignores white whitespaces (excluding blank lines) and comments. Note the difference
-     * with method [PsiElement.getPrevSiblingIgnoringWhitespaceAndComments] which excludes blank lines as well.
-     */
-    private fun PsiElement.getPrevLeafIgnoringCommentAndWhitespaceExceptBlankLines(): PsiElement? {
-        var prevLeaf: PsiElement? = this.prevLeaf()
-        val iterator = prevLeafs.iterator()
-        while (iterator.hasNext()) {
-            val psiElement = iterator.next()
-            if (psiElement is PsiComment || (psiElement is PsiWhiteSpace && psiElement.text?.count { it == '\n' } == 1)) {
-                prevLeaf = psiElement
-            } else {
-                break
-            }
-        }
-        return prevLeaf
-    }
+    private fun ASTNode.isAnnotated(): Boolean =
+        findChildByType(MODIFIER_LIST)
+            ?.children()
+            ?.any { it.psi is KtAnnotationEntry }
+            ?: false
 
-    private fun ASTNode.hasAnnotationsAsChildren(): Boolean = children().find { it.psi is KtAnnotationEntry } != null
+    private fun hasNoBlankLineBetweenDeclarations(
+        node: ASTNode,
+        prevDeclaration: PsiElement,
+    ) = node
+        .leaves(false)
+        .takeWhile { it.isWhiteSpace() || it.isPartOfComment() }
+        .takeWhile { it.psi != prevDeclaration }
+        .none { it.isBlankLine() }
+
+    private fun ASTNode.isBlankLine() = isWhiteSpace() && text.count { it == '\n' } > 1
 }
 
 public val SPACING_BETWEEN_DECLARATIONS_WITH_ANNOTATIONS_RULE_ID: RuleId = SpacingBetweenDeclarationsWithAnnotationsRule().ruleId
