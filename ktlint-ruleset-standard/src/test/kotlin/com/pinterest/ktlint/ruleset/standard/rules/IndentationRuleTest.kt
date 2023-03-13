@@ -3974,7 +3974,7 @@ internal class IndentationRuleTest {
             ).isFormattedAs(formattedCode)
     }
 
-    @Test
+    @Test // user_type
     fun `Issue 1210 - Given a supertype delegate`() {
         val code =
             """
@@ -4917,6 +4917,19 @@ internal class IndentationRuleTest {
             """
             typealias FooBar =
                 HashMap<Foo, Bar>
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 1830 - Given a dot qualified expression followed by an safe access expression on the same line`() {
+        val code =
+            """
+            private fun test(): Boolean? =
+                runCatching { true }
+                    .getOrNull()?.let { result ->
+                        !result
+                    }
             """.trimIndent()
         indentationRuleAssertThat(code).hasNoLintViolations()
     }
