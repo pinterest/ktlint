@@ -84,7 +84,7 @@ public class ImportOrderingRule :
                             break
                         }
                     }
-                    if (hasBlankLines) {
+                    if (hasBlankLines && prev != null) {
                         sortedImportsWithSpaces += PsiWhiteSpaceImpl("\n\n")
                     }
                     sortedImportsWithSpaces += current
