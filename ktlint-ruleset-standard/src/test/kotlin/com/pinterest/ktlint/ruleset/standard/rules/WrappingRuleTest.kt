@@ -1834,6 +1834,20 @@ internal class WrappingRuleTest {
                 .hasLintViolation(2, 8, "A newline was expected before '>'")
                 .isFormattedAs(formattedCode)
         }
+
+        @Test
+        fun `Issue 1808 - Given a line including a block with exact length of line maximum`() {
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER               $EOL_CHAR
+                val foo = "fooooooooooooooo".map { "bar" }
+
+                // Keep blank line above
+                """.trimIndent()
+            wrappingRuleAssertThat(code)
+                .setMaxLineLength()
+                .hasNoLintViolations()
+        }
     }
 }
 
