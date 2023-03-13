@@ -214,7 +214,8 @@ public class IndentationRule :
             node.elementType == BINARY_WITH_TYPE ||
                 node.elementType == SUPER_TYPE_ENTRY ||
                 node.elementType == TYPE_ARGUMENT_LIST ||
-                node.elementType == TYPE_PARAMETER_LIST ->
+                node.elementType == TYPE_PARAMETER_LIST ||
+                node.elementType == USER_TYPE ->
                 startIndentContext(node)
 
             node.elementType == DELEGATED_SUPER_TYPE_ENTRY ||
@@ -257,9 +258,7 @@ public class IndentationRule :
             node.elementType == BINARY_EXPRESSION ->
                 visitBinaryExpression(node)
 
-            node.elementType == DOT_QUALIFIED_EXPRESSION ||
-                node.elementType == SAFE_ACCESS_EXPRESSION ||
-                node.elementType == USER_TYPE -> {
+            node.elementType in CHAINABLE_EXPRESSION -> {
                 if (codeStyle == ktlint_official &&
                     node.elementType == DOT_QUALIFIED_EXPRESSION &&
                     node.treeParent?.elementType == ARRAY_ACCESS_EXPRESSION &&
@@ -274,7 +273,9 @@ public class IndentationRule :
                         fromAstNode = node.treeParent,
                         toAstNode = node.treeParent.treeParent.lastChildLeafOrSelf(),
                     )
-                } else if (node.treeParent?.elementType != node.elementType) {
+                } else if (node.treeParent.elementType in CHAINABLE_EXPRESSION) {
+                    // Multiple dot qualified expressions and/or safe expression on the same line should not increase the indent level
+                } else {
                     startIndentContext(node)
                 }
             }
@@ -1068,6 +1069,7 @@ public class IndentationRule :
     private companion object {
         const val KDOC_CONTINUATION_INDENT = " "
         const val TYPE_CONSTRAINT_CONTINUATION_INDENT = "      " // Length of keyword "where" plus separating space
+        val CHAINABLE_EXPRESSION = setOf(DOT_QUALIFIED_EXPRESSION, SAFE_ACCESS_EXPRESSION)
     }
 
     private data class IndentContext(
