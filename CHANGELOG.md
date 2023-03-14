@@ -253,6 +253,7 @@ Previously the default value for `.editorconfig` property `max_line_length` was 
 * Fix false positive when multiple KDOCs exists between a declaration and another annotated declaration `spacing-between-declarations-with-annotations` ([#1802](https://github.com/pinterest/ktlint/issues/1802))
 * Fix false positive when a single line statement containing a block having exactly the maximum line length is preceded by a blank line `wrapping` ([#1808](https://github.com/pinterest/ktlint/issues/1808))
 * Fix false positive when a single line contains multiple dot qualified expressions and/or safe expressions `indent` ([#1830](https://github.com/pinterest/ktlint/issues/1830))
+* When `.editorconfig` property `ij_kotlin_imports_layout` contains a `|` but no import exists that match any pattern before the first `|` then do not report a violation nor insert a blank line `import-ordering` ([#1845](https://github.com/pinterest/ktlint/issues/1845))
 
 ### Changed
 * Wrap the parameters of a function literal containing a multiline parameter list (only in `ktlint_official` code style) `parameter-list-wrapping` ([#1681](https://github.com/pinterest/ktlint/issues/1681)).
