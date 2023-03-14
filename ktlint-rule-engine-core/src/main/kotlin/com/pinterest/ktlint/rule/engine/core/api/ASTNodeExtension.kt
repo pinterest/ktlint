@@ -168,7 +168,10 @@ public fun ASTNode.parent(
     return null
 }
 
-// TODO in ktlint 0.49 deprecate and replace with "ASTNode.parent(strict: Boolean = true, p: (ASTNode) -> Boolean): ASTNode?"
+@Deprecated(
+    message = "Marked for removal in KtLint 0.50",
+    replaceWith = ReplaceWith("parent(strict, p)")
+)
 public fun ASTNode.parent(
     p: (ASTNode) -> Boolean,
     strict: Boolean = true,
@@ -176,6 +179,20 @@ public fun ASTNode.parent(
     var n: ASTNode? = if (strict) this.treeParent else this
     while (n != null) {
         if (p(n)) {
+            return n
+        }
+        n = n.treeParent
+    }
+    return null
+}
+
+public fun ASTNode.parent(
+    strict: Boolean = true,
+    predicate: (ASTNode) -> Boolean,
+): ASTNode? {
+    var n: ASTNode? = if (strict) this.treeParent else this
+    while (n != null) {
+        if (predicate(n)) {
             return n
         }
         n = n.treeParent
@@ -200,8 +217,12 @@ public fun ASTNode.isPartOf(klass: KClass<out PsiElement>): Boolean {
 }
 
 public fun ASTNode.isPartOfCompositeElementOfType(iElementType: IElementType): Boolean =
-    parent(findCompositeElementOfType(iElementType))?.elementType == iElementType
+    iElementType == findCompositeParentElementOfType(iElementType)?.elementType
 
+public fun ASTNode.findCompositeParentElementOfType(iElementType: IElementType): ASTNode? =
+    parent { it.elementType == iElementType || it !is CompositeElement }
+
+@Deprecated("Marked for removal in KtLint 0.50")
 public fun findCompositeElementOfType(iElementType: IElementType): (ASTNode) -> Boolean =
     { it.elementType == iElementType || it !is CompositeElement }
 
@@ -222,7 +243,8 @@ public fun ASTNode.isLeaf(): Boolean = firstChildNode == null
  */
 public fun ASTNode.isCodeLeaf(): Boolean = isLeaf() && !isWhiteSpace() && !isPartOfComment()
 
-public fun ASTNode.isPartOfComment(): Boolean = parent({ it.psi is PsiComment }, strict = false) != null
+public fun ASTNode.isPartOfComment(): Boolean =
+    parent(strict = false) { it.psi is PsiComment } != null
 
 public fun ASTNode.children(): Sequence<ASTNode> = generateSequence(firstChildNode) { node -> node.treeNext }
 

@@ -62,7 +62,7 @@ public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
         }
     }
 
-    private fun ASTNode.isPartOfKDoc() = parent({ it.psi is KDoc }, strict = false) != null
+    private fun ASTNode.isPartOfKDoc() = parent(strict = false) { it.psi is KDoc } != null
 
     private fun ASTNode.hasTrailingSpacesBeforeNewline() = text.contains(SPACE_OR_TAB_BEFORE_NEWLINE_REGEX)
 

@@ -3,11 +3,10 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.findCompositeElementOfType
+import com.pinterest.ktlint.rule.engine.core.api.findCompositeParentElementOfType
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfCompositeElementOfType
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
-import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -107,7 +106,7 @@ public class TypeArgumentListSpacingRule :
 }
 
 private fun ASTNode.isPartOfCallExpressionFollowedByLambda(): Boolean =
-    parent(findCompositeElementOfType(ElementType.CALL_EXPRESSION))
+    findCompositeParentElementOfType(ElementType.CALL_EXPRESSION)
         ?.takeIf { it.elementType == ElementType.CALL_EXPRESSION }
         ?.findChildByType(ElementType.LAMBDA_ARGUMENT)
         .let { it != null }
