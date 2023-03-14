@@ -6,7 +6,6 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRu
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
-import com.pinterest.ktlint.rule.engine.internal.RuleRunner
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalStateException
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -21,7 +20,7 @@ class RunAfterRuleFilterTest {
             assertThatIllegalStateException().isThrownBy {
                 RunAfterRuleFilter()
                     .filter(
-                        createRuleRunners(
+                        createRuleProviders(
                             createRule(STANDARD_RULE_A, ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED, STANDARD_RULE_B),
                             createRule(EXPERIMENTAL_RULE_C, ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED, EXPERIMENTAL_RULE_B),
                         ),
@@ -40,7 +39,7 @@ class RunAfterRuleFilterTest {
             assertThatIllegalStateException().isThrownBy {
                 RunAfterRuleFilter()
                     .filter(
-                        createRuleRunners(
+                        createRuleProviders(
                             object : R(
                                 ruleId = STANDARD_RULE_A,
                                 visitorModifiers = setOf(
@@ -83,7 +82,7 @@ class RunAfterRuleFilterTest {
         fun `Given a rule with a single RunAfterRule visitor modifier`() {
             val actual =
                 RunAfterRuleFilter().filter(
-                    createRuleRunners(
+                    createRuleProviders(
                         object : R(
                             ruleId = STANDARD_RULE_A,
                             visitorModifier = VisitorModifier.RunAfterRule(
@@ -103,7 +102,7 @@ class RunAfterRuleFilterTest {
         fun `Given a rule with a multiple RunAfterRule visitor modifiers`() {
             val actual =
                 RunAfterRuleFilter().filter(
-                    createRuleRunners(
+                    createRuleProviders(
                         object : R(STANDARD_RULE_A) {},
                         object : R(
                             ruleId = STANDARD_RULE_B,
@@ -134,7 +133,7 @@ class RunAfterRuleFilterTest {
         fun `Given some rules, including an experimental rule, having only a single RunAfterRule visitor modifier then throw an exception`() {
             assertThatIllegalStateException().isThrownBy {
                 RunAfterRuleFilter().filter(
-                    createRuleRunners(
+                    createRuleProviders(
                         object : R(
                             ruleId = STANDARD_RULE_A,
                             visitorModifier = VisitorModifier.RunAfterRule(
@@ -174,7 +173,7 @@ class RunAfterRuleFilterTest {
         fun `Given a rule with multiple RunAfterRule visitor modifier is part of a cyclic dependency then throw an exception`() {
             assertThatIllegalStateException().isThrownBy {
                 RunAfterRuleFilter().filter(
-                    createRuleRunners(
+                    createRuleProviders(
                         object : R(
                             ruleId = STANDARD_RULE_A,
                             visitorModifiers = setOf(
@@ -229,7 +228,7 @@ class RunAfterRuleFilterTest {
         fun `Given some rules having only a single RunAfterRule visitor modifier then throw an exception`() {
             assertThatIllegalStateException().isThrownBy {
                 RunAfterRuleFilter().filter(
-                    createRuleRunners(
+                    createRuleProviders(
                         object : R(
                             ruleId = STANDARD_RULE_C,
                             visitorModifier = VisitorModifier.RunAfterRule(
@@ -267,7 +266,7 @@ class RunAfterRuleFilterTest {
         fun `Given a rule with multiple RunAfterRule visitor modifier is part of a cyclic dependency then throw an exception`() {
             assertThatIllegalStateException().isThrownBy {
                 RunAfterRuleFilter().filter(
-                    createRuleRunners(
+                    createRuleProviders(
                         object : R(
                             ruleId = STANDARD_RULE_C,
                             visitorModifiers = setOf(
@@ -364,13 +363,11 @@ class RunAfterRuleFilterTest {
         }
     }
 
-    private fun createRuleRunners(vararg rules: Rule) =
+    private fun createRuleProviders(vararg rules: Rule) =
         rules
             .map {
-                RuleRunner(
-                    RuleProvider { it },
-                )
+                RuleProvider { it }
             }.toSet()
 
-    private fun Set<RuleRunner>.toRuleId() = map { it.ruleId }
+    private fun Set<RuleProvider>.toRuleId() = map { it.ruleId }
 }

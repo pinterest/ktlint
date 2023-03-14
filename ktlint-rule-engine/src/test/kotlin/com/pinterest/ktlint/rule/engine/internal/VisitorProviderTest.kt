@@ -10,12 +10,12 @@ class VisitorProviderTest {
         assertThatNoException()
             .isThrownBy {
                 VisitorProvider(
-                    ruleRunners = emptySet(),
+                    ruleProviders = emptySet(),
                     recreateRuleSorter = true,
                 ).visitor()
                     .invoke { _, _ ->
                         assertThat(false)
-                            .withFailMessage("The visitor provider should not have called this lambda in case it has no rule runners")
+                            .withFailMessage("The visitor provider should not have called this lambda in case it has no rule providers")
                             .isTrue
                     }
             }

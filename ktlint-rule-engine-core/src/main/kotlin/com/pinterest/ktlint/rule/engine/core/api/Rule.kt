@@ -47,8 +47,7 @@ public value class RuleSetId(public val value: String) {
  * The [Rule] contains the life cycle hooks which are called by the KtLint rule engine to execute the rule.
  *
  * The implementation of a [Rule] **doesn't** have to be thread-safe or stateless provided that the [RuleProvider] creates a new instance of
- * [Rule] on each call to [RuleProvider.createNewRuleInstance]. The KtLint Rule Engine never re-uses a [Rule] instance once is has been used
- * for traversal of the AST of a file.
+ * [Rule] on each call to [RuleProvider.provider].
  *
  * When wrapping a rule from the ktlint project and modifying its behavior, please change the [ruleId] and [about] fields, so that it is
  * clear to users whenever they used the original rule provided by KtLint versus a modified version which is not maintained by the KtLint

@@ -17,7 +17,6 @@ import com.pinterest.ktlint.rule.engine.internal.EditorConfigLoader
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigLoaderEc4j
 import com.pinterest.ktlint.rule.engine.internal.RuleExecutionContext
 import com.pinterest.ktlint.rule.engine.internal.RuleExecutionContext.Companion.createRuleExecutionContext
-import com.pinterest.ktlint.rule.engine.internal.RuleRunner
 import com.pinterest.ktlint.rule.engine.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFE_EDITOR_CONFIG_CACHE
 import com.pinterest.ktlint.rule.engine.internal.VisitorProvider
 import mu.KotlinLogging
@@ -98,7 +97,7 @@ public class KtLintRuleEngine(
         val ruleExecutionContext = createRuleExecutionContext(this, code)
         val errors = mutableListOf<LintError>()
 
-        VisitorProvider(ruleExecutionContext.ruleRunners)
+        VisitorProvider(ruleExecutionContext.ruleProviders)
             .visitor()
             .invoke { rule, fqRuleId ->
                 ruleExecutionContext.executeRule(rule, fqRuleId, false) { offset, errorMessage, canBeAutoCorrected ->
@@ -133,7 +132,7 @@ public class KtLintRuleEngine(
         var tripped = false
         var mutated = false
         val errors = mutableSetOf<Pair<LintError, Boolean>>()
-        val visitorProvider = VisitorProvider(ruleExecutionContext.ruleRunners)
+        val visitorProvider = VisitorProvider(ruleExecutionContext.ruleProviders)
         visitorProvider
             .visitor()
             .invoke { rule, fqRuleId ->
@@ -228,10 +227,8 @@ public class KtLintRuleEngine(
                 ?: CODE_STYLE_PROPERTY.defaultValue
         val rules =
             ruleProviders
-                .map { RuleRunner(it) }
+                .map { it.createNewRuleInstance() }
                 .distinctBy { it.ruleId }
-                .toSet()
-                .map { it.getRule() }
                 .toSet()
         return EditorConfigGenerator(fileSystem, editorConfigLoaderEc4j)
             .generateEditorconfig(

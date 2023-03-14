@@ -7,11 +7,12 @@ import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine.Companion.UTF8_BOM
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
 import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.internal.rulefilter.RuleExecutionRuleFilter
 import com.pinterest.ktlint.rule.engine.internal.rulefilter.RunAfterRuleFilter
-import com.pinterest.ktlint.rule.engine.internal.rulefilter.ruleRunners
+import com.pinterest.ktlint.rule.engine.internal.rulefilter.ruleProviders
 import mu.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
@@ -27,7 +28,7 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 internal class RuleExecutionContext private constructor(
     val code: Code,
     val rootNode: FileASTNode,
-    val ruleRunners: Set<RuleRunner>,
+    val ruleProviders: Set<RuleProvider>,
     val editorConfig: EditorConfig,
     val positionInTextLocator: (offset: Int) -> LineAndColumn,
 ) {
@@ -177,8 +178,9 @@ internal class RuleExecutionContext private constructor(
                         it.warnIfPropertyIsObsolete("ktlint_disabled_rules", "0.49")
                     }
 
-            val ruleRunners =
-                ktLintRuleEngine.ruleRunners(
+            val ruleProviders =
+                ktLintRuleEngine
+                    .ruleProviders(
                     RuleExecutionRuleFilter(editorConfig),
                     RunAfterRuleFilter(),
                 )
@@ -186,7 +188,7 @@ internal class RuleExecutionContext private constructor(
             return RuleExecutionContext(
                 code,
                 rootNode,
-                ruleRunners,
+                ruleProviders,
                 editorConfig,
                 positionInTextLocator,
             )

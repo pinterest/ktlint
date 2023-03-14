@@ -2,6 +2,7 @@ package com.pinterest.ktlint.rule.engine.internal.rulefilter
 
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
@@ -11,29 +12,28 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RULE_EXECUTION_PRO
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.ktLintRuleExecutionPropertyName
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.ktLintRuleSetExecutionPropertyName
-import com.pinterest.ktlint.rule.engine.internal.RuleRunner
 
 /**
- * Filters the [RuleRunner]s defined in the [KtLintRuleEngine] which are enabled for the given [EditorConfig].
+ * Filters the [RuleProvider]s defined in the [KtLintRuleEngine] for [Rule]s which are enabled for the given [EditorConfig].
  */
 internal class RuleExecutionRuleFilter(
     private val editorConfig: EditorConfig,
 ) : RuleFilter {
-    override fun filter(ruleRunners: Set<RuleRunner>): Set<RuleRunner> {
+    override fun filter(ruleProviders: Set<RuleProvider>): Set<RuleProvider> {
         val ruleExecutionFilter =
             RuleExecutionFilter(
-                editorConfig.ruleExecutionProperties(ruleRunners),
+                editorConfig.ruleExecutionProperties(ruleProviders),
                 editorConfig[CODE_STYLE_PROPERTY],
             )
-        return ruleRunners
+        return ruleProviders
             .filter { ruleExecutionFilter.isEnabled(it) }
             .toSet()
     }
 
-    private fun EditorConfig.ruleExecutionProperties(ruleRunners: Set<RuleRunner>): Map<String, RuleExecution> {
+    private fun EditorConfig.ruleExecutionProperties(ruleProviders: Set<RuleProvider>): Map<String, RuleExecution> {
         val ruleExecutionPropertyNames =
-            ruleExecutionPropertyNames(ruleRunners)
-                .plus(ruleSetExecutionPropertyNames(ruleRunners))
+            ruleExecutionPropertyNames(ruleProviders)
+                .plus(ruleSetExecutionPropertyNames(ruleProviders))
                 .plus(EXPERIMENTAL_RULES_EXECUTION_PROPERTY.name)
         return map { it.name to RULE_EXECUTION_PROPERTY_TYPE.parse(it.sourceValue).parsed }
             .toMap()
@@ -41,13 +41,13 @@ internal class RuleExecutionRuleFilter(
             .filterKeys { it in ruleExecutionPropertyNames }
     }
 
-    private fun ruleExecutionPropertyNames(ruleRunners: Set<RuleRunner>) =
-        ruleRunners
+    private fun ruleExecutionPropertyNames(ruleProviders: Set<RuleProvider>) =
+        ruleProviders
             .map { it.ruleId.ktLintRuleExecutionPropertyName() }
             .distinct()
 
-    private fun ruleSetExecutionPropertyNames(ruleRunners: Set<RuleRunner>) =
-        ruleRunners
+    private fun ruleSetExecutionPropertyNames(ruleProviders: Set<RuleProvider>) =
+        ruleProviders
             .map { it.ruleId.ruleSetId.ktLintRuleSetExecutionPropertyName() }
             .distinct()
 }
@@ -61,7 +61,7 @@ private class RuleExecutionFilter(
     val ruleExecutionProperties: Map<String, RuleExecution>,
     val codeStyleValue: CodeStyleValue,
 ) {
-    fun isEnabled(ruleRunner: RuleRunner) = isRuleEnabled(ruleRunner.getRule())
+    fun isEnabled(ruleProvider: RuleProvider) = isRuleEnabled(ruleProvider.createNewRuleInstance())
 
     private fun isRuleEnabled(rule: Rule) =
         /*
