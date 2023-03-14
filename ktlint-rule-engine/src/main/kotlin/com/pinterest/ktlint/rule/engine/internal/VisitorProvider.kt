@@ -12,9 +12,6 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
  * The VisitorProvider is created for each file being scanned. As the [RuleProviderSorter] logs the order in which the
  * rules are executed, a singleton instance of the class is used to prevent that the logs are flooded with duplicate
  * log lines.
- *
- * TODO: Investigate whether the [VisitorProvider] and [RULE_PROVIDER_SORTER] can be moved to class [KtLintRuleEngine]. The set of
- * RuleProviders and the [EditorConfig] will not change during the lifetime of the instance of the [KtLintRuleEngine].
  */
 private val RULE_PROVIDER_SORTER = RuleProviderSorter()
 
