@@ -1,6 +1,11 @@
 package com.pinterest.ktlint.rule.engine.api
 
+import com.pinterest.ktlint.rule.engine.api.AutoCorrectErrorRule.Companion.AUTOCORRECT_ERROR_RULE_ID
+import com.pinterest.ktlint.rule.engine.api.AutoCorrectErrorRule.Companion.ERROR_MESSAGE_CAN_BE_AUTOCORRECTED
+import com.pinterest.ktlint.rule.engine.api.AutoCorrectErrorRule.Companion.ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED
 import com.pinterest.ktlint.rule.engine.api.AutoCorrectErrorRule.Companion.STRING_VALUE_AFTER_AUTOCORRECT
+import com.pinterest.ktlint.rule.engine.api.AutoCorrectErrorRule.Companion.STRING_VALUE_NOT_TO_BE_CORRECTED
+import com.pinterest.ktlint.rule.engine.api.AutoCorrectErrorRule.Companion.STRING_VALUE_TO_BE_AUTOCORRECTED
 import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.RuleMethod.AFTER_CHILDREN
 import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.RuleMethod.AFTER_LAST
 import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.RuleMethod.BEFORE_CHILDREN
@@ -18,10 +23,8 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAsLateA
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.isRoot
 import org.assertj.core.api.Assertions.assertThat
-import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
@@ -58,8 +61,8 @@ class KtLintTest {
             fun `Given a rule returning errors which can and can not be autocorrected than that state of the error can be retrieved in the callback`() {
                 val code =
                     """
-                    val foo = "${AutoCorrectErrorRule.STRING_VALUE_NOT_TO_BE_CORRECTED}"
-                    val bar = "${AutoCorrectErrorRule.STRING_VALUE_TO_BE_AUTOCORRECTED}"
+                    val foo = "$STRING_VALUE_NOT_TO_BE_CORRECTED"
+                    val bar = "$STRING_VALUE_TO_BE_AUTOCORRECTED"
                     """.trimIndent()
                 val callbacks = mutableListOf<CallbackResult>()
                 KtLintRuleEngine(
@@ -82,16 +85,16 @@ class KtLintTest {
                     CallbackResult(
                         line = 1,
                         col = 12,
-                        ruleId = AutoCorrectErrorRule.RULE_ID,
-                        detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED,
+                        ruleId = AUTOCORRECT_ERROR_RULE_ID,
+                        detail = ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED,
                         canBeAutoCorrected = false,
                         corrected = false,
                     ),
                     CallbackResult(
                         line = 2,
                         col = 12,
-                        ruleId = AutoCorrectErrorRule.RULE_ID,
-                        detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_BE_AUTOCORRECTED,
+                        ruleId = AUTOCORRECT_ERROR_RULE_ID,
+                        detail = ERROR_MESSAGE_CAN_BE_AUTOCORRECTED,
                         canBeAutoCorrected = true,
                         corrected = false,
                     ),
@@ -122,12 +125,12 @@ class KtLintTest {
             fun `Given a rule returning errors which can and can not be autocorrected than that state of the error can be retrieved in the callback`() {
                 val code =
                     """
-                    val foo = "${AutoCorrectErrorRule.STRING_VALUE_NOT_TO_BE_CORRECTED}"
-                    val bar = "${AutoCorrectErrorRule.STRING_VALUE_TO_BE_AUTOCORRECTED}"
+                    val foo = "$STRING_VALUE_NOT_TO_BE_CORRECTED"
+                    val bar = "$STRING_VALUE_TO_BE_AUTOCORRECTED"
                     """.trimIndent()
                 val formattedCode =
                     """
-                    val foo = "${AutoCorrectErrorRule.STRING_VALUE_NOT_TO_BE_CORRECTED}"
+                    val foo = "$STRING_VALUE_NOT_TO_BE_CORRECTED"
                     val bar = "$STRING_VALUE_AFTER_AUTOCORRECT"
                     """.trimIndent()
                 val callbacks = mutableListOf<CallbackResult>()
@@ -152,16 +155,16 @@ class KtLintTest {
                     CallbackResult(
                         line = 1,
                         col = 12,
-                        ruleId = AutoCorrectErrorRule.RULE_ID,
-                        detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED,
+                        ruleId = AUTOCORRECT_ERROR_RULE_ID,
+                        detail = ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED,
                         canBeAutoCorrected = false,
                         corrected = false,
                     ),
                     CallbackResult(
                         line = 2,
                         col = 12,
-                        ruleId = AutoCorrectErrorRule.RULE_ID,
-                        detail = AutoCorrectErrorRule.ERROR_MESSAGE_CAN_BE_AUTOCORRECTED,
+                        ruleId = AUTOCORRECT_ERROR_RULE_ID,
+                        detail = ERROR_MESSAGE_CAN_BE_AUTOCORRECTED,
                         canBeAutoCorrected = true,
                         corrected = true,
                     ),
@@ -428,9 +431,9 @@ class KtLintTest {
     fun `Issue 1623 - Given a file with multiple top-level declarations then a file suppression annotation should be applied on each top level declaration`() {
         val code =
             """
-            @file:Suppress("ktlint:${AutoCorrectErrorRule.RULE_ID}")
-            val foo = "${AutoCorrectErrorRule.STRING_VALUE_TO_BE_AUTOCORRECTED}" // Won't be auto corrected due to suppress annotation
-            val bar = "${AutoCorrectErrorRule.STRING_VALUE_TO_BE_AUTOCORRECTED}" // Won't be auto corrected due to suppress annotation
+            @file:Suppress("ktlint:${AUTOCORRECT_ERROR_RULE_ID.value}")
+            val foo = "$STRING_VALUE_TO_BE_AUTOCORRECTED" // Won't be auto corrected due to suppress annotation
+            val bar = "$STRING_VALUE_TO_BE_AUTOCORRECTED" // Won't be auto corrected due to suppress annotation
             """.trimIndent()
         val actualFormattedCode =
             KtLintRuleEngine(
@@ -446,29 +449,6 @@ class KtLintTest {
             Code.fromSnippet(
                 // An empty file results in nodes with elementTypes FILE, PACKAGE_DIRECTIVE and IMPORT_LIST respectively
                 "",
-            )
-    }
-}
-
-private class DummyRuleWithCustomEditorConfigProperty :
-    Rule(
-        ruleId = RuleId("test:dummy-rule-with-custom-editor-config-property"),
-        usesEditorConfigProperties = setOf(SOME_CUSTOM_RULE_PROPERTY),
-        about = About(),
-    ) {
-    companion object {
-        const val SOME_CUSTOM_RULE_PROPERTY_NAME = "some-custom-rule-property"
-
-        val SOME_CUSTOM_RULE_PROPERTY: EditorConfigProperty<Boolean> =
-            EditorConfigProperty(
-                name = SOME_CUSTOM_RULE_PROPERTY_NAME,
-                type = PropertyType.LowerCasingPropertyType(
-                    SOME_CUSTOM_RULE_PROPERTY_NAME,
-                    "some-custom-rule-property-description",
-                    PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
-                    setOf(true.toString(), false.toString()),
-                ),
-                defaultValue = false,
             )
     }
 }
@@ -495,7 +475,7 @@ private open class DummyRule(
  * A dummy rule for testing
  */
 private class AutoCorrectErrorRule : Rule(
-    ruleId = RuleId("test:auto-correct"),
+    ruleId = AUTOCORRECT_ERROR_RULE_ID,
     about = About(),
 ) {
     override fun beforeVisitChildNodes(
@@ -518,7 +498,7 @@ private class AutoCorrectErrorRule : Rule(
     }
 
     companion object {
-        const val RULE_ID = "test:auto-correct"
+        val AUTOCORRECT_ERROR_RULE_ID = RuleId("test:auto-correct")
         const val STRING_VALUE_TO_BE_AUTOCORRECTED = "string-value-to-be-autocorrected"
         const val STRING_VALUE_NOT_TO_BE_CORRECTED = "string-value-not-to-be-corrected"
         const val STRING_VALUE_AFTER_AUTOCORRECT = "string-value-after-autocorrect"
@@ -633,7 +613,7 @@ private fun getResourceAsText(path: String) =
 private data class CallbackResult(
     val line: Int,
     val col: Int,
-    val ruleId: String,
+    val ruleId: RuleId,
     val detail: String,
     val canBeAutoCorrected: Boolean,
     val corrected: Boolean,

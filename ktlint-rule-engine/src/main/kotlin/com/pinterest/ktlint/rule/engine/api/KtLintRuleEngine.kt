@@ -102,7 +102,7 @@ public class KtLintRuleEngine(
             .invoke { rule, fqRuleId ->
                 ruleExecutionContext.executeRule(rule, fqRuleId, false) { offset, errorMessage, canBeAutoCorrected ->
                     val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
-                    errors.add(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected))
+                    errors.add(LintError(line, col, rule.ruleId, errorMessage, canBeAutoCorrected))
                 }
             }
 
@@ -149,7 +149,7 @@ public class KtLintRuleEngine(
                     val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
                     errors.add(
                         Pair(
-                            LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
+                            LintError(line, col, rule.ruleId, errorMessage, canBeAutoCorrected),
                             // It is assumed that a rule that emits that an error can be autocorrected, also
                             // does correct the error.
                             canBeAutoCorrected,
@@ -169,7 +169,7 @@ public class KtLintRuleEngine(
                         val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
                         errors.add(
                             Pair(
-                                LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
+                                LintError(line, col, rule.ruleId, errorMessage, canBeAutoCorrected),
                                 // It is assumed that a rule only corrects an error after it has emitted an
                                 // error and indicating that it actually can be autocorrected.
                                 false,

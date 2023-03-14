@@ -280,7 +280,7 @@ class KtLintRuleEngineTest {
         )
 
         val failedRules = errors.map { it.ruleId }
-        check(failedRules.contains(NoVarRule.NO_VAR_RULE_ID.value))
+        check(failedRules.contains(NoVarRule.NO_VAR_RULE_ID))
     }
 
     private class NoVarRule :

@@ -8,6 +8,7 @@ import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.plus
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.LintError
 import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
@@ -213,7 +214,7 @@ public class KtLintAssertThat(
     /**
      * Asserts that the code does not contain any [LintViolation]s for a given rule id.
      */
-    public fun hasNoLintViolationsForRuleId(ruleId: String): KtLintAssertThatAssertable =
+    public fun hasNoLintViolationsForRuleId(ruleId: RuleId): KtLintAssertThatAssertable =
         ktLintAssertThatAssertable().hasNoLintViolationsForRuleId(ruleId)
 
     /**
@@ -429,11 +430,11 @@ public class KtLintAssertThatAssertable(
     /**
      * Asserts that the code does not contain any [LintViolation]s for the given rule id.
      */
-    public fun hasNoLintViolationsForRuleId(ruleId: String): KtLintAssertThatAssertable {
+    public fun hasNoLintViolationsForRuleId(ruleId: RuleId): KtLintAssertThatAssertable {
         val (_, lintErrorsWhenFormatting) = format()
 
         assertThat(lintErrorsWhenFormatting.filter { it.ruleId == ruleId })
-            .describedAs("At least 1 lint violation was found for rule id '$ruleId' while none were expected")
+            .describedAs("At least 1 lint violation was found for rule id '${ruleId.value}' while none were expected")
             .isEmpty()
 
         return this
@@ -591,9 +592,9 @@ public class KtLintAssertThatAssertable(
         }.toTypedArray()
     }
 
-    private fun List<LintError>.filterAdditionalRulesOnly() = filter { it.ruleId != ruleId.value }
+    private fun List<LintError>.filterAdditionalRulesOnly() = filter { it.ruleId != ruleId }
 
-    private fun List<LintError>.filterCurrentRuleOnly() = filter { it.ruleId == ruleId.value }
+    private fun List<LintError>.filterCurrentRuleOnly() = filter { it.ruleId == ruleId }
 
     private fun List<LintError>.toLintViolationsFields(): Array<LintViolationFields> =
         map {

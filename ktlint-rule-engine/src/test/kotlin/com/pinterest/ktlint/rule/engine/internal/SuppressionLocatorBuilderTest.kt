@@ -234,7 +234,7 @@ class SuppressionLocatorBuilderTest {
         line: Int,
         col: Int,
         ruleId: String,
-    ) = LintError(line, col, ruleId, "Line should not contain a foo identifier", false)
+    ) = LintError(line, col, RuleId(ruleId), "Line should not contain a foo identifier", false)
 
     private companion object {
         val NON_STANDARD_RULE_SET_ID = "custom".also { require(it != RuleSetId.STANDARD.value) }

@@ -1030,7 +1030,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             )
         noSemicolonsRuleAssertThat(code)
             .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
-            .hasNoLintViolationsForRuleId("no-semi")
+            .hasNoLintViolationsForRuleId(NO_SEMICOLONS_RULE_ID)
             .isFormattedAs(formattedCode)
     }
 
