@@ -44,7 +44,6 @@ internal class RuleExecutionContext private constructor(
 
     fun executeRule(
         rule: Rule,
-        fqRuleId: String,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
@@ -58,7 +57,7 @@ internal class RuleExecutionContext private constructor(
                 // EditorConfigProperty that is not explicitly defined.
                 editorConfig.filterBy(rule.usesEditorConfigProperties.plus(CODE_STYLE_PROPERTY)),
             )
-            this.executeRuleOnNodeRecursively(rootNode, rule, fqRuleId, autoCorrect, emit)
+            this.executeRuleOnNodeRecursively(rootNode, rule, autoCorrect, emit)
             rule.afterLastNode()
         } catch (e: RuleExecutionException) {
             throw KtLintRuleException(
@@ -79,7 +78,6 @@ internal class RuleExecutionContext private constructor(
     private fun executeRuleOnNodeRecursively(
         node: ASTNode,
         rule: Rule,
-        fqRuleId: String,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
@@ -101,7 +99,6 @@ internal class RuleExecutionContext private constructor(
                                 this.executeRuleOnNodeRecursively(
                                     childNode,
                                     rule,
-                                    fqRuleId,
                                     autoCorrect,
                                     emit,
                                 )
@@ -181,9 +178,9 @@ internal class RuleExecutionContext private constructor(
             val ruleProviders =
                 ktLintRuleEngine
                     .ruleProviders(
-                    RuleExecutionRuleFilter(editorConfig),
-                    RunAfterRuleFilter(),
-                )
+                        RuleExecutionRuleFilter(editorConfig),
+                        RunAfterRuleFilter(),
+                    )
 
             return RuleExecutionContext(
                 code,

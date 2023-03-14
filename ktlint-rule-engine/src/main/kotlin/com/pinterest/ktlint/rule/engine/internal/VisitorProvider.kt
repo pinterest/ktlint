@@ -39,15 +39,14 @@ internal class VisitorProvider(
             RULE_PROVIDER_SORTER
         }.getSortedRuleProviders(ruleProviders)
 
-    internal fun visitor(): ((rule: Rule, fqRuleId: String) -> Unit) -> Unit {
+    internal fun visitor(): ((rule: Rule) -> Unit) -> Unit {
         if (ruleProvidersSorted.isEmpty()) {
             LOGGER.debug { "Skipping file as no enabled rules are found to be executed" }
             return { _ -> }
         }
         return { visit ->
             ruleProvidersSorted.forEach {
-                // TODO: Remove it.ruleId.value parameter as it can be deducted from it.getRule().ruleId
-                visit(it.createNewRuleInstance(), it.ruleId.value)
+                visit(it.createNewRuleInstance())
             }
         }
     }
