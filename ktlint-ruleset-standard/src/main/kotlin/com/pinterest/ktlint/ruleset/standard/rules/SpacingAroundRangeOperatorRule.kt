@@ -8,10 +8,7 @@ import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
-import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.lexer.KtSingleValueToken
-import org.jetbrains.kotlin.lexer.KtToken
-import org.jetbrains.kotlin.lexer.KtTokens
 
 public class SpacingAroundRangeOperatorRule : StandardRule("range-spacing") {
     override fun beforeVisitChildNodes(
