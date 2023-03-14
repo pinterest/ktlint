@@ -213,6 +213,7 @@ public object ElementType {
     public val SEMICOLON: IElementType = KtTokens.SEMICOLON
     public val DOUBLE_SEMICOLON: IElementType = KtTokens.DOUBLE_SEMICOLON
     public val RANGE: IElementType = KtTokens.RANGE
+    public val RANGE_UNTIL: IElementType = KtTokens.RANGE_UNTIL
     public val EQ: IElementType = KtTokens.EQ
     public val MULTEQ: IElementType = KtTokens.MULTEQ
     public val DIVEQ: IElementType = KtTokens.DIVEQ
