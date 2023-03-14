@@ -3,6 +3,7 @@ package com.pinterest.ktlint.rule.engine.internal
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import mu.KotlinLogging
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
@@ -94,7 +95,7 @@ internal class RuleRunnerSorter {
                 0
             }
         }.thenBy {
-            if (it.ruleSetId == "standard") {
+            if (it.ruleId.ruleSetId == RuleSetId.STANDARD) {
                 0
             } else {
                 1

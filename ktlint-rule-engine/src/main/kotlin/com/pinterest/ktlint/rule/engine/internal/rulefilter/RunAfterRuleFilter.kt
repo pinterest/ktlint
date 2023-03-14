@@ -5,6 +5,7 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import com.pinterest.ktlint.rule.engine.internal.RuleRunner
 import com.pinterest.ktlint.rule.engine.internal.rulefilter.RunAfterRuleFilter.RunAfterRuleOrderModifier.ADD
 import com.pinterest.ktlint.rule.engine.internal.rulefilter.RunAfterRuleFilter.RunAfterRuleOrderModifier.BLOCK_UNTIL_RUN_AFTER_RULE_IS_LOADED
@@ -189,8 +190,9 @@ internal class RunAfterRuleFilter : RuleFilter {
     private fun createCyclicDependencyMessage(): String {
         val customRuleSetIds =
             blockedRuleRunners
-                .map { it.ruleSetId }
-                .filterNot { it == "standard" }
+                .map { it.ruleId.ruleSetId }
+                .filterNot { it == RuleSetId.STANDARD }
+                .map { it.value }
                 .distinct()
                 .sorted()
         val prefix =

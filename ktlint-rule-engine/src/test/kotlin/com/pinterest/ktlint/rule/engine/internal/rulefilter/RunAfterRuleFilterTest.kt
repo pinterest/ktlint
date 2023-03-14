@@ -5,6 +5,7 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRu
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import com.pinterest.ktlint.rule.engine.internal.RuleRunner
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalStateException
@@ -315,7 +316,7 @@ class RunAfterRuleFilterTest {
 
     private companion object {
         const val RULE_A = "rule-a"
-        const val STANDARD = "standard"
+        val STANDARD = RuleSetId.STANDARD.value
         const val CUSTOM_RULE_SET_A = "custom-rule-set-a"
         const val CUSTOM_RULE_SET_B = "custom-rule-set-b"
         val STANDARD_RULE_A = RuleId("$STANDARD:$RULE_A")

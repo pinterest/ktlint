@@ -13,10 +13,6 @@ internal class RuleRunner(
     private var rule = provider.createNewRuleInstance().let(initialize)
 
     val ruleId = rule.ruleId
-
-    // TODO: refactor
-    val ruleSetId = rule.ruleId.ruleSetId.value
-
     val runAsLateAsPossible = rule.visitorModifiers.contains(RunAsLateAsPossible)
     var runAfterRules = setRunAfterRules()
 

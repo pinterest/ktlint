@@ -3,6 +3,7 @@ package com.pinterest.ktlint.rule.engine.internal.rulefilter
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RULE_EXECUTION_PROPERTY_TYPE
@@ -184,7 +185,7 @@ class RuleExecutionRuleFilterTest {
     ) = ktLintRuleExecutionEditorConfigProperty(ruleId.createRuleExecutionEditorConfigProperty().name, ruleExecution)
 
     private companion object {
-        const val STANDARD = "standard"
+        val STANDARD = RuleSetId.STANDARD.value
         const val CUSTOM = "custom"
         val STANDARD_RULE_A = RuleId("$STANDARD:rule-a")
         val STANDARD_RULE_B = RuleId("$STANDARD:rule-b")

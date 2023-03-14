@@ -8,6 +8,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import org.assertj.core.api.Assertions.assertThat
@@ -236,7 +237,8 @@ class SuppressionLocatorBuilderTest {
     ) = LintError(line, col, ruleId, "Line should not contain a foo identifier", false)
 
     private companion object {
-        const val NON_STANDARD_RULE_SET_ID = "custom" // Can be any value other than "standard"
+        val NON_STANDARD_RULE_SET_ID = "custom".also { require(it != RuleSetId.STANDARD.value) }
+
         val STANDARD_NO_FOO_IDENTIFIER_RULE_ID = RuleId("standard:no-foo-identifier-standard")
         val NON_STANDARD_NO_FOO_IDENTIFIER_RULE_ID = RuleId("$NON_STANDARD_RULE_SET_ID:no-foo-identifier")
         val KTLINT_RULE_ENGINE = KtLintRuleEngine(

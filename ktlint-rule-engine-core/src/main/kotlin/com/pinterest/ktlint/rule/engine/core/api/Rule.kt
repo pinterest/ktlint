@@ -15,7 +15,6 @@ public value class RuleId(public val value: String) {
         get() = RuleSetId(value.substringBefore(DELIMITER, ""))
 
     public companion object {
-        private const val STANDARD_RULE_SET_ID = "standard"
         private const val DELIMITER = ":"
 
         // TODO: Remove in future version when backward compatibility of rule id references can be dropped.
@@ -23,7 +22,7 @@ public value class RuleId(public val value: String) {
             if (id.contains(DELIMITER)) {
                 id
             } else {
-                "$STANDARD_RULE_SET_ID$DELIMITER$id"
+                "${RuleSetId.STANDARD.value}$DELIMITER$id"
             }
     }
 }
@@ -32,6 +31,15 @@ public value class RuleId(public val value: String) {
 public value class RuleSetId(public val value: String) {
     init {
         IdNamingPolicy.enforceRuleSetIdNaming(value)
+    }
+
+    public companion object {
+        /**
+         * The `standard` rule set is reserved for rules published by the KtLint project only. Custom rules should be provided via a rule
+         * set using a custom id so that in case of problems, it can be more clearly communicated to users which project is responsible for
+         * maintenance of the rule (set).
+         */
+        public val STANDARD: RuleSetId = RuleSetId("standard")
     }
 }
 

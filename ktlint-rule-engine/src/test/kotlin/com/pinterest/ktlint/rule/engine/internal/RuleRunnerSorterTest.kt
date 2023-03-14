@@ -4,6 +4,7 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import com.pinterest.ktlint.ruleset.standard.rules.FUNCTION_SIGNATURE_RULE_ID
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule
 import com.pinterest.ktlint.ruleset.standard.rules.INDENTATION_RULE_ID
@@ -332,7 +333,7 @@ class RuleRunnerSorterTest {
 
     private companion object {
         const val RULE_A = "rule-a"
-        const val STANDARD = "standard"
+        val STANDARD = RuleSetId.STANDARD.value
         const val CUSTOM_RULE_SET_A = "custom-rule-set-a"
         const val CUSTOM_RULE_SET_B = "custom-rule-set-b"
         val STANDARD_RULE_A = RuleId("$STANDARD:$RULE_A")
