@@ -247,4 +247,24 @@ class ImportOrderingRuleCustomTest {
             .withEditorConfigOverride(IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY to "kotlin.io.Closeable.*,kotlin.**,*")
             .isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Issue 1845 - Given a list of pattern entries including a '|' pattern but no import exists that match any pattern before the first '|'`() {
+        val code =
+            """
+            import java.nio.file.Files
+            import java.nio.file.Paths
+            import java.util.Objects
+
+            object TestData {
+                fun loadString(dataset: String): String {
+                    val path = Paths.get(Objects.requireNonNull(TestData::class.java.getResource(dataset)).toURI())
+                    return String(Files.readAllBytes(path))
+                }
+            }
+            """.trimIndent()
+        importOrderingRuleAssertThat(code)
+            .withEditorConfigOverride(IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY to "*, |, javax.**, java.**, |, kotlinx.**, kotlin.**")
+            .hasNoLintViolations()
+    }
 }
