@@ -17,7 +17,7 @@ public value class RuleId(public val value: String) {
     public companion object {
         private const val DELIMITER = ":"
 
-        // TODO: Remove in future version when backward compatibility of rule id references can be dropped.
+        // TODO: Remove in 1.0 version when backward compatibility of rule id references can be dropped.
         public fun prefixWithStandardRuleSetIdWhenMissing(id: String): String =
             if (id.contains(DELIMITER)) {
                 id
