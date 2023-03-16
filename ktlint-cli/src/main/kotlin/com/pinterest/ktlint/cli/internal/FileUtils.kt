@@ -75,7 +75,7 @@ internal fun FileSystem.fileSequence(
                             "are used."
                     }
                     includeMatchers.plus(
-                        expand(DEFAULT_PATTERNS, rootDir)
+                        expand(DEFAULT_PATTERNS, rootDir),
                     )
                 } else {
                     includeMatchers
