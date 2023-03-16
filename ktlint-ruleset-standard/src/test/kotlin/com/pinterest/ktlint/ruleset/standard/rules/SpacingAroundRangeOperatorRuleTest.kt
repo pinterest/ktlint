@@ -64,4 +64,38 @@ class SpacingAroundRangeOperatorRuleTest {
                 LintViolation(5, 16, "Unexpected spacing before \"..\""),
             ).isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Given a rangeUntil operator`() {
+        val code =
+            """
+            @OptIn(ExperimentalStdlibApi::class)
+            fun foo(int: Int): String =
+                when (int) {
+                    in 10..<20 -> "A"
+                    in 20..< 30 -> "B"
+                    in 30 ..< 40 -> "C"
+                    in 40 ..<50 -> "D"
+                    else -> "unknown"
+                }
+            """.trimIndent()
+        val formattedCode =
+            """
+            @OptIn(ExperimentalStdlibApi::class)
+            fun foo(int: Int): String =
+                when (int) {
+                    in 10..<20 -> "A"
+                    in 20..<30 -> "B"
+                    in 30..<40 -> "C"
+                    in 40..<50 -> "D"
+                    else -> "unknown"
+                }
+            """.trimIndent()
+        spacingAroundRangeOperatorRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(5, 17, "Unexpected spacing after \"..<\""),
+                LintViolation(6, 15, "Unexpected spacing around \"..<\""),
+                LintViolation(7, 14, "Unexpected spacing before \"..<\""),
+            ).isFormattedAs(formattedCode)
+    }
 }
