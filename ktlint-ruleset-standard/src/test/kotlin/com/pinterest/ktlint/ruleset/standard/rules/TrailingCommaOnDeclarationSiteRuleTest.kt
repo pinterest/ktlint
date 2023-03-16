@@ -21,7 +21,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
         )
 
     @Test
-    fun `Given property allow trailing comma on declaration site is not set then remove trailing comma's`() {
+    fun `Given property allow trailing comma on declaration site is not set then remove trailing commas`() {
         val code =
             """
             data class Foo1(val bar: Int,)

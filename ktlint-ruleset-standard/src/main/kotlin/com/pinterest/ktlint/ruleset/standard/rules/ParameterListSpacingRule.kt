@@ -24,7 +24,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 /**
  * Ensures consistent spacing inside the parameter list. This rule partly overlaps with other rules like spacing around
- * comma's and colons. However, it does have a more complete view on the higher concept of the parameter-list without
+ * commas and colons. However, it does have a more complete view on the higher concept of the parameter-list without
  * interfering of the parameter-list-wrapping rule.
  */
 public class ParameterListSpacingRule :

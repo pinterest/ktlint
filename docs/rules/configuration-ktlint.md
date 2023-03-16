@@ -203,7 +203,7 @@ KtLint uses the IntelliJ IDEA `.editorconfig` property `ij_kotlin_allow_trailing
 !!! note
     In KtLint 0.48.x the default value for using the trailing comma on call site has been changed to `true` except when codestyle `android` is used.
 
-    Although the [Kotlin coding conventions](https://kotlinlang.org/docs/reference/coding-conventions.html#names-for-test-methods) leaves it to the developer's discretion to use trailing comma's on the call site, it also states that usage of trailing commas has several benefits:
+    Although the [Kotlin coding conventions](https://kotlinlang.org/docs/reference/coding-conventions.html#trailing-commas) leaves it to the developer's discretion to use trailing commas on the call site, it also states that usage of trailing commas has several benefits:
     
      * It makes version-control diffs cleaner – as all the focus is on the changed value.
      * It makes it easy to add and reorder elements – there is no need to add or delete the comma if you manipulate elements.
@@ -224,7 +224,7 @@ KtLint uses the IntelliJ IDEA `.editorconfig` property `ij_kotlin_allow_trailing
 !!! note
     In KtLint 0.48.x the default value for using the trailing comma on declaration site has been changed to `true` except when codestyle `android` is used.
 
-    The [Kotlin coding conventions](https://kotlinlang.org/docs/reference/coding-conventions.html#names-for-test-methods) encourages the usage of trailing comma's on the declaration site, but leaves it to the developer's discretion to use trailing comma's on the call site. But next to this, it also states that usage of trailing commas has several benefits:
+    The [Kotlin coding conventions](https://kotlinlang.org/docs/reference/coding-conventions.html#trailing-commas) encourages the usage of trailing commas on the declaration site, but leaves it to the developer's discretion to use trailing commas on the call site. But next to this, it also states that usage of trailing commas has several benefits:
     
      * It makes version-control diffs cleaner – as all the focus is on the changed value.
      * It makes it easy to add and reorder elements – there is no need to add or delete the comma if you manipulate elements.
