@@ -412,4 +412,66 @@ class SimpleCLITest {
                 assertThat(normalOutput).containsLineMatching(Regex(".*ktlint_standard_filename: disabled.*"))
             }
     }
+
+    @Test
+    fun `Issue 1832 - Given stdin input containing Kotlin Script resulting in a KtLintParseException when linted as Kotlin code then process the input as Kotlin Script`(
+        @TempDir
+        tempDir: Path,
+    ) {
+        CommandLineTestRunner(tempDir)
+            .run(
+                testProjectName = "too-many-empty-lines",
+                arguments = listOf("--stdin"),
+                stdin = ByteArrayInputStream(
+                    """
+                    pluginManagement {
+                        repositories {
+                            mavenCentral()
+                            gradlePluginPortal()
+                        }
+
+
+                        includeBuild("build-logic")
+                    }
+                    """.trimIndent().toByteArray(),
+                ),
+            ) {
+                assertThat(normalOutput)
+                    .containsLineMatching(Regex(".*Not a valid Kotlin file.*"))
+                    .containsLineMatching(Regex(".*Now, trying to read the input as Kotlin Script.*"))
+                assertThat(errorOutput)
+                    .containsLineMatching(Regex(".*Needless blank line.*"))
+            }
+    }
+
+    @Test
+    fun `Issue 1832 - Given stdin input containing Kotlin Script resulting in a KtLintParseException when formatted as Kotlin code then process the input as Kotlin Script`(
+        @TempDir
+        tempDir: Path,
+    ) {
+        CommandLineTestRunner(tempDir)
+            .run(
+                testProjectName = "too-many-empty-lines",
+                arguments = listOf("--stdin", "--format"),
+                stdin = ByteArrayInputStream(
+                    """
+                    pluginManagement {
+                        repositories {
+                            mavenCentral()
+                            gradlePluginPortal()
+                        }
+
+
+                        includeBuild("build-logic")
+                    }
+                    """.trimIndent().toByteArray(),
+                ),
+            ) {
+                assertThat(normalOutput)
+                    .containsLineMatching(Regex(".*Not a valid Kotlin file.*"))
+                    .containsLineMatching(Regex(".*Now, trying to read the input as Kotlin Script.*"))
+                assertThat(errorOutput)
+                    .doesNotContainLineMatching(Regex(".*Needless blank line.*"))
+            }
+    }
 }
