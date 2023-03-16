@@ -3,7 +3,6 @@ package com.pinterest.ktlint.cli.api
 import com.pinterest.ktlint.cli.CommandLineTestRunner
 import com.pinterest.ktlint.cli.containsLineMatching
 import com.pinterest.ktlint.cli.doesNotContainLineMatching
-import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir

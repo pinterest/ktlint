@@ -2,6 +2,7 @@ package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 
 internal val STANDARD_RULE_ABOUT = Rule.About(
@@ -19,7 +20,7 @@ public open class StandardRule internal constructor(
     override val visitorModifiers: Set<VisitorModifier> = emptySet(),
     override val usesEditorConfigProperties: Set<EditorConfigProperty<*>> = emptySet(),
 ) : Rule(
-    ruleId = RuleId("$STANDARD_RULE_SET_ID:$id"),
+    ruleId = RuleId("${RuleSetId.STANDARD.value}:$id"),
     visitorModifiers = visitorModifiers,
     usesEditorConfigProperties = usesEditorConfigProperties,
     about = STANDARD_RULE_ABOUT,

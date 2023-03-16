@@ -80,22 +80,20 @@ Pre-requisites:
 
 Formatting projects in which ktlint is not used may result in a huge amount of fixes. The main focus of this test is to see what the effects are when upgrading ktlint in a project already formatted with latest released ktlint version.
 
-TODO: After release 0.48, update procedure below as the parameter "--experimental" does not need to be specified anymore when it is stored correctly in the `.editorconfig` file(s).
-
 1. Format the sample projects with the *latest released* ktlint version:
    ```shell
-   ktlint-prev -F --experimental --relative # Do not call this command via the "./exec-in-each-project.sh" script.
+   ktlint-prev -F --relative # Do not call this command via the "./exec-in-each-project.sh" script.
    ```
    Note: Ignore all output as this is the old version!
 2. Commit changes:
    ```shell
-   ./exec-in-each-project.sh "git add --all && git commit -m \"Format with ktlint (xx.yy.zz) -F --experimental\""
+   ./exec-in-each-project.sh "git add --all && git commit -m \"Format with ktlint (xx.yy.zz) -F\""
    ```
    Repeat step 1 and 2 until no files are changed anymore.
 3. Create a new baseline file with the *latest released* ktlint version to ignore all lint violations that could not be autocorrected using the latest ktlint version:
    ```shell
    rm baseline.xml
-   ktlint-prev --experimental --baseline=baseline.xml --relative # Do not call this command via the "./exec-in-each-project.sh" script as we want one combined baseline.xml file for all projects.
+   ktlint-prev --baseline=baseline.xml --relative # Do not call this command via the "./exec-in-each-project.sh" script as we want one combined baseline.xml file for all projects.
    ```
 4. Check that besides the `baseline.xml` no files are changed (in step 1 and 2 all violations which could be autocorrected have already been committed). Remaining violations which could not be autocorrected are saved in the `baseline.xml` which is stored outside the project directories.
    ```shell
@@ -152,7 +150,7 @@ TODO: After release 0.48, update procedure below as the parameter "--experimenta
    ```
 10. Rerun lint with *latest development* version:
     ```shell
-    ktlint-dev --experimental --baseline=baseline.xml --relative # Do not call this command via the "./exec-in-each-project.sh" script as we want to use the one combined baseline.xml file for all projects.
+    ktlint-dev --baseline=baseline.xml --relative # Do not call this command via the "./exec-in-each-project.sh" script as we want to use the one combined baseline.xml file for all projects.
     ```
     No violations, except error that can not be autocorrected, should be expected.
 

@@ -8,7 +8,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  * The [Rule] contains the life cycle hooks which are needed for the KtLint rule engine.
  *
  * Implementation **doesn't** have to be thread-safe or stateless, provided that [RuleSetProviderV2] creates a new
- * instance of the [Rule] on each call to [RuleProvider.createNewRuleInstance]. The KtLint engine never re-uses a [Rule]
+ * instance of the [Rule] on each call to [RuleProvider.getRuleInstance]. The KtLint engine never re-uses a [Rule]
  * instance once is has been used for traversal of the AST of a file.
  */
 @Deprecated("Deprecated since ktlint 0.49.0. Custom rulesets have to be migrated to RuleSetProviderV3. See changelog 0.49.")

@@ -945,7 +945,7 @@ public class IndentationRule :
         }
 
         nextLeaf
-            ?.parent({ it.psi is PsiComment }, strict = false)
+            ?.parent(strict = false) { it.psi is PsiComment }
             ?.let { comment ->
                 if (text.endsWith("\n")) {
                     processedButNoIndentationChangedNeeded()

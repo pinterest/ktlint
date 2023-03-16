@@ -18,12 +18,12 @@ class DisabledRulesTest {
             ArrayList<LintError>().apply {
                 KtLintRuleEngine(
                     ruleProviders = setOf(
-                        RuleProvider { NoVarRule("test:no-var") },
+                        RuleProvider { NoVarRule(SOME_RULE_ID) },
                     ),
                 ).lint(Code.fromSnippet("var foo")) { e -> add(e) }
             },
         ).contains(
-            LintError(1, 1, "test:no-var", NoVarRule.SOME_NO_VAR_RULE_VIOLATION, false),
+            LintError(1, 1, SOME_RULE_ID, NoVarRule.SOME_NO_VAR_RULE_VIOLATION, false),
         )
     }
 
@@ -38,11 +38,12 @@ class DisabledRulesTest {
         ruleId: String,
         disabledRuleId: String,
     ) {
+        val someRuleId = RuleId(ruleId)
         assertThat(
             ArrayList<LintError>().apply {
                 KtLintRuleEngine(
                     ruleProviders = setOf(
-                        RuleProvider { NoVarRule(ruleId) },
+                        RuleProvider { NoVarRule(someRuleId) },
                     ),
                     editorConfigOverride = EditorConfigOverride.from(
                         RuleId(disabledRuleId).createRuleExecutionEditorConfigProperty() to RuleExecution.disabled,
@@ -52,8 +53,8 @@ class DisabledRulesTest {
         ).isEmpty()
     }
 
-    class NoVarRule(id: String) : Rule(
-        ruleId = RuleId(id),
+    class NoVarRule(ruleId: RuleId) : Rule(
+        ruleId = ruleId,
         about = About(),
     ) {
         override fun beforeVisitChildNodes(
@@ -67,5 +68,9 @@ class DisabledRulesTest {
         companion object {
             const val SOME_NO_VAR_RULE_VIOLATION = "some-no-var-rule-violation"
         }
+    }
+
+    companion object {
+        val SOME_RULE_ID = RuleId("test:some-rule-id")
     }
 }

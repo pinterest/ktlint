@@ -15,15 +15,14 @@ public value class RuleId(public val value: String) {
         get() = RuleSetId(value.substringBefore(DELIMITER, ""))
 
     public companion object {
-        private const val STANDARD_RULE_SET_ID = "standard"
         private const val DELIMITER = ":"
 
-        // TODO: Remove in future version when backward compatibility of rule id references can be dropped.
+        // TODO: Remove in 1.0 version when backward compatibility of rule id references can be dropped.
         public fun prefixWithStandardRuleSetIdWhenMissing(id: String): String =
             if (id.contains(DELIMITER)) {
                 id
             } else {
-                "$STANDARD_RULE_SET_ID$DELIMITER$id"
+                "${RuleSetId.STANDARD.value}$DELIMITER$id"
             }
     }
 }
@@ -33,14 +32,22 @@ public value class RuleSetId(public val value: String) {
     init {
         IdNamingPolicy.enforceRuleSetIdNaming(value)
     }
+
+    public companion object {
+        /**
+         * The `standard` rule set is reserved for rules published by the KtLint project only. Custom rules should be provided via a rule
+         * set using a custom id so that in case of problems, it can be more clearly communicated to users which project is responsible for
+         * maintenance of the rule (set).
+         */
+        public val STANDARD: RuleSetId = RuleSetId("standard")
+    }
 }
 
 /**
  * The [Rule] contains the life cycle hooks which are called by the KtLint rule engine to execute the rule.
  *
  * The implementation of a [Rule] **doesn't** have to be thread-safe or stateless provided that the [RuleProvider] creates a new instance of
- * [Rule] on each call to [RuleProvider.createNewRuleInstance]. The KtLint Rule Engine never re-uses a [Rule] instance once is has been used
- * for traversal of the AST of a file.
+ * [Rule] on each call to [RuleProvider.provider].
  *
  * When wrapping a rule from the ktlint project and modifying its behavior, please change the [ruleId] and [about] fields, so that it is
  * clear to users whenever they used the original rule provided by KtLint versus a modified version which is not maintained by the KtLint
