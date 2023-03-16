@@ -170,7 +170,7 @@ public fun ASTNode.parent(
 
 @Deprecated(
     message = "Marked for removal in KtLint 0.50",
-    replaceWith = ReplaceWith("parent(strict, p)")
+    replaceWith = ReplaceWith("parent(strict, p)"),
 )
 public fun ASTNode.parent(
     p: (ASTNode) -> Boolean,
@@ -243,8 +243,7 @@ public fun ASTNode.isLeaf(): Boolean = firstChildNode == null
  */
 public fun ASTNode.isCodeLeaf(): Boolean = isLeaf() && !isWhiteSpace() && !isPartOfComment()
 
-public fun ASTNode.isPartOfComment(): Boolean =
-    parent(strict = false) { it.psi is PsiComment } != null
+public fun ASTNode.isPartOfComment(): Boolean = parent(strict = false) { it.psi is PsiComment } != null
 
 public fun ASTNode.children(): Sequence<ASTNode> = generateSequence(firstChildNode) { node -> node.treeNext }
 
