@@ -21,7 +21,7 @@ class TrailingCommaOnCallSiteRuleTest {
         )
 
     @Test
-    fun `Given property allow trailing comma on call site is not set then remove trailing comma's`() {
+    fun `Given property allow trailing comma on call site is not set then remove trailing commas`() {
         val code =
             """
             val foo1 = listOf("a", "b",)
