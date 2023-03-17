@@ -366,6 +366,28 @@ internal class FileUtilsTest {
         assertThat(foundFiles).isEmpty()
     }
 
+    @Test
+    fun `Issue 1847 - Given a negate pattern only then include the default patters and select all files except files in the negate pattern`() {
+        val foundFiles = getFiles(
+            patterns = listOf(
+                "!project1/**/*.kt",
+            ),
+        )
+
+        assertThat(foundFiles)
+            .containsExactlyInAnyOrder(
+                ktFileRootDirectory,
+                ktsFileRootDirectory,
+                ktsFileInProjectRootDirectory,
+                ktsFileInProjectSubDirectory,
+            )
+            .doesNotContain(
+                ktFileInProjectRootDirectory,
+                ktFile1InProjectSubDirectory,
+                ktFile2InProjectSubDirectory,
+            )
+    }
+
     private fun KtlintTestFileSystem.createFile(fileName: String) =
         writeFile(
             relativeDirectoryToRoot = fileName.substringBeforeLast("/", ""),
