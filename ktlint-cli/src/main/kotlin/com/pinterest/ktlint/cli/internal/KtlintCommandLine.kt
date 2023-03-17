@@ -432,7 +432,7 @@ internal class KtlintCommandLine {
     }
 
     private fun report(
-        fileName: String,
+        relativeRoute: String,
         ktlintCliErrors: List<KtlintCliError>,
         reporter: ReporterV2,
     ) {
@@ -440,7 +440,6 @@ internal class KtlintCommandLine {
         val errListLimit = minOf(ktlintCliErrors.size, maxOf(limit - errorNumber.get(), 0))
         errorNumber.addAndGet(errListLimit)
 
-        val relativeRoute = Paths.get(fileName).relativeRoute
         reporter.before(relativeRoute)
         ktlintCliErrors
             .take(errListLimit)
