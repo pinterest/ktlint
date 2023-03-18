@@ -230,6 +230,7 @@ Previously the default value for `.editorconfig` property `max_line_length` was 
 * Add new experimental rule `try-catch-finally-spacing` for `ktlint_official` code style. This rule enforces consistent spacing in try-catch, try-finally and try-catch-finally statement. This rule can also be run for other code styles but then its needs to be explicitly enabled.
 * Wrap the type or value of a function or class parameter in case the maximum line length is exceeded `parameter-wrapping` ([#1846](https://github.com/pinterest/ktlint/pull/1846))
 * Wrap the type or value of a property in case the maximum line length is exceeded `property-wrapping` ([#1846](https://github.com/pinterest/ktlint/pull/1846))
+* Recognize Kotlin Script when linting and formatting code from `stdin` with KtLint CLI ([#1832](https://github.com/pinterest/ktlint/issues/1832))
 
 ### Removed
 

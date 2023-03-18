@@ -432,7 +432,7 @@ internal class KtlintCommandLine {
     }
 
     private fun report(
-        fileName: String,
+        relativeRoute: String,
         ktlintCliErrors: List<KtlintCliError>,
         reporter: ReporterV2,
     ) {
@@ -440,7 +440,6 @@ internal class KtlintCommandLine {
         val errListLimit = minOf(ktlintCliErrors.size, maxOf(limit - errorNumber.get(), 0))
         errorNumber.addAndGet(errListLimit)
 
-        val relativeRoute = Paths.get(fileName).relativeRoute
         reporter.before(relativeRoute)
         ktlintCliErrors
             .take(errListLimit)
@@ -456,10 +455,22 @@ internal class KtlintCommandLine {
         if (code.fileName != null) {
             logger.trace { "Checking ${File(code.fileName!!).location(relative)}" }
         }
-        val result = ArrayList<KtlintCliError>()
-        if (format) {
-            val formattedFileContent = try {
-                ktLintRuleEngine.format(code) { lintError, corrected ->
+        return if (format) {
+            format(ktLintRuleEngine, code, baselineLintErrors)
+        } else {
+            lint(ktLintRuleEngine, code, baselineLintErrors)
+        }
+    }
+
+    private fun format(
+        ktLintRuleEngine: KtLintRuleEngine,
+        code: Code,
+        baselineLintErrors: List<KtlintCliError>,
+    ): List<KtlintCliError> {
+        val ktlintCliErrors = mutableListOf<KtlintCliError>()
+        try {
+            ktLintRuleEngine
+                .format(code) { lintError, corrected ->
                     val ktlintCliError = KtlintCliError(
                         line = lintError.line,
                         col = lintError.col,
@@ -474,50 +485,88 @@ internal class KtlintCommandLine {
                         },
                     )
                     if (baselineLintErrors.doesNotContain(ktlintCliError)) {
-                        result.add(ktlintCliError)
+                        ktlintCliErrors.add(ktlintCliError)
                         if (!corrected) {
                             tripped.set(true)
                         }
                     }
+                }.also { formattedFileContent ->
+                    when {
+                        code.isStdIn -> print(formattedFileContent)
+                        code.content != formattedFileContent ->
+                            code
+                                .filePath
+                                ?.toFile()
+                                ?.writeText(formattedFileContent, charset("UTF-8"))
+                    }
                 }
-            } catch (e: Exception) {
-                result.add(e.toKtlintCliError(code))
+        } catch (e: Exception) {
+            if (code.isStdIn && e is KtLintParseException) {
+                logger.warn {
+                    """
+                    Can not parse input from <stdin> as Kotlin, due to error below:
+                        ${e.toKtlintCliError(code).detail}
+                    Now, trying to read the input as Kotlin Script.
+                    """.trimIndent()
+                }
+                return format(
+                    ktLintRuleEngine = ktLintRuleEngine,
+                    code = Code.fromSnippet(code.content, script = true),
+                    baselineLintErrors = baselineLintErrors,
+                )
+            } else {
+                ktlintCliErrors.add(e.toKtlintCliError(code))
                 tripped.set(true)
                 code.content // making sure `cat file | ktlint --stdin > file` is (relatively) safe
             }
-            when {
-                code.isStdIn -> print(formattedFileContent)
-                code.content != formattedFileContent ->
-                    code
-                        .filePath
-                        ?.toFile()
-                        ?.writeText(formattedFileContent, charset("UTF-8"))
-            }
-        } else {
-            try {
-                ktLintRuleEngine.lint(code) { lintError ->
-                    val ktlintCliError = KtlintCliError(
-                        line = lintError.line,
-                        col = lintError.col,
-                        ruleId = lintError.ruleId.value,
-                        detail = lintError.detail,
-                        status = if (lintError.canBeAutoCorrected) {
-                            LINT_CAN_BE_AUTOCORRECTED
-                        } else {
-                            LINT_CAN_NOT_BE_AUTOCORRECTED
-                        },
-                    )
-                    if (baselineLintErrors.doesNotContain(ktlintCliError)) {
-                        result.add(ktlintCliError)
-                        tripped.set(true)
-                    }
+        }
+        return ktlintCliErrors.toList()
+    }
+
+    private fun lint(
+        ktLintRuleEngine: KtLintRuleEngine,
+        code: Code,
+        baselineLintErrors: List<KtlintCliError>,
+    ): List<KtlintCliError> {
+        val ktlintCliErrors = mutableListOf<KtlintCliError>()
+        try {
+            ktLintRuleEngine.lint(code) { lintError ->
+                val ktlintCliError = KtlintCliError(
+                    line = lintError.line,
+                    col = lintError.col,
+                    ruleId = lintError.ruleId.value,
+                    detail = lintError.detail,
+                    status = if (lintError.canBeAutoCorrected) {
+                        LINT_CAN_BE_AUTOCORRECTED
+                    } else {
+                        LINT_CAN_NOT_BE_AUTOCORRECTED
+                    },
+                )
+                if (baselineLintErrors.doesNotContain(ktlintCliError)) {
+                    ktlintCliErrors.add(ktlintCliError)
+                    tripped.set(true)
                 }
-            } catch (e: Exception) {
-                result.add(e.toKtlintCliError(code))
+            }
+        } catch (e: Exception) {
+            if (code.isStdIn && e is KtLintParseException) {
+                logger.warn {
+                    """
+                    Can not parse input from <stdin> as Kotlin, due to error below:
+                        ${e.toKtlintCliError(code).detail}
+                    Now, trying to read the input as Kotlin Script.
+                    """.trimIndent()
+                }
+                return lint(
+                    ktLintRuleEngine = ktLintRuleEngine,
+                    code = Code.fromSnippet(code.content, script = true),
+                    baselineLintErrors = baselineLintErrors,
+                )
+            } else {
+                ktlintCliErrors.add(e.toKtlintCliError(code))
                 tripped.set(true)
             }
         }
-        return result
+        return ktlintCliErrors.toList()
     }
 
     private fun Exception.toKtlintCliError(code: Code): KtlintCliError =
