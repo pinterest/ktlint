@@ -8,7 +8,6 @@ import org.ec4j.core.model.PropertyType
 
 public data class IndentConfig(
     val indentStyle: IndentStyle,
-
     /**
      * The number of spaces that is equivalent to one tab
      */
@@ -32,7 +31,6 @@ public data class IndentConfig(
      */
     public constructor(
         indentStyle: PropertyType.IndentStyleValue,
-
         /**
          * The number of spaces that is equivalent to one tab
          */

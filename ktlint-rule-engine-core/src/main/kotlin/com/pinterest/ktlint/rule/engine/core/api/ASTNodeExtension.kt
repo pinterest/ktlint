@@ -127,10 +127,10 @@ public fun ASTNode.nextCodeLeaf(
 
 public fun ASTNode.prevCodeSibling(): ASTNode? = prevSibling { it.elementType != WHITE_SPACE && !it.isPartOfComment() }
 
-public inline fun ASTNode.prevSibling(p: (ASTNode) -> Boolean): ASTNode? {
+public inline fun ASTNode.prevSibling(predicate: (ASTNode) -> Boolean = { true }): ASTNode? {
     var n = this.treePrev
     while (n != null) {
-        if (p(n)) {
+        if (predicate(n)) {
             return n
         }
         n = n.treePrev
@@ -140,10 +140,10 @@ public inline fun ASTNode.prevSibling(p: (ASTNode) -> Boolean): ASTNode? {
 
 public fun ASTNode.nextCodeSibling(): ASTNode? = nextSibling { it.elementType != WHITE_SPACE && !it.isPartOfComment() }
 
-public inline fun ASTNode.nextSibling(p: (ASTNode) -> Boolean): ASTNode? {
+public inline fun ASTNode.nextSibling(predicate: (ASTNode) -> Boolean = { true }): ASTNode? {
     var n = this.treeNext
     while (n != null) {
-        if (p(n)) {
+        if (predicate(n)) {
             return n
         }
         n = n.treeNext

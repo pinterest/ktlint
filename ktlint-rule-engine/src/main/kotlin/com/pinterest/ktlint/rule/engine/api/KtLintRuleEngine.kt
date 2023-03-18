@@ -38,26 +38,22 @@ public class KtLintRuleEngine(
      * that it can keep internal state and be called thread-safe manner
      */
     public val ruleProviders: Set<RuleProvider> = emptySet(),
-
     /**
      * The default values for `.editorconfig` properties which are not set explicitly in any '.editorconfig' file located on the path of the
      * file which is processed with the [KtLintRuleEngine]. If a property is set in [editorConfigDefaults] this takes precedence above the
      * default values defined in the KtLint project.
      */
     public val editorConfigDefaults: EditorConfigDefaults = EMPTY_EDITOR_CONFIG_DEFAULTS,
-
     /**
      * Override values for `.editorconfig` properties. If a property is set in [editorConfigOverride] it takes precedence above the same
      * property being set in any other way.
      */
     public val editorConfigOverride: EditorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
-
     /**
      * **For internal use only**: indicates that linting was invoked from KtLint CLI tool. It enables some internals workarounds for Kotlin
      * Compiler initialization. This property is likely to be removed in any of next versions without further notice.
      */
     public val isInvokedFromCli: Boolean = false,
-
     /**
      * The [FileSystem] to be used. This property is primarily intended to be used in unit tests. By specifying an alternative [FileSystem]
      * the unit test gains control on whether the [EditorConfigLoader] should or should not read specific ".editorconfig" files. For

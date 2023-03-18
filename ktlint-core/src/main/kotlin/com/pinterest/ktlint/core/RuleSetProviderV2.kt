@@ -48,7 +48,6 @@ public abstract class RuleSetProviderV2(
          * Name of person, organisation or group maintaining the rule set.
          */
         val maintainer: String?,
-
         /**
          * Short description of the rule set.
          */

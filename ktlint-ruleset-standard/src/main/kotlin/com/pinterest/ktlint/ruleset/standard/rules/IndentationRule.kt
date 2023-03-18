@@ -1077,40 +1077,34 @@ public class IndentationRule :
          * The node on which the indent context starts.
          */
         val fromASTNode: ASTNode,
-
         /**
          * The node at which the indent context ends. If null, then the context ends at the last child leaf of the node
          * on which the indent context starts.
          */
         val toASTNode: ASTNode = fromASTNode.lastChildLeafOrSelf(),
-
         /**
          * Cumulative indentation for the node. Normally this should be equal to a multiple of the
          * 'indentConfig.indentStyle' to ensure a consistent indentation style.
          */
         val nodeIndent: String,
-
         /**
          * Additional indentation for first child node. Normally this should be equal to the 'indentConfig.indent' to
          * ensure a consistent indentation style. In very limited cases when the default indentation is set to 'tab' it
          * is still needed to adjust the last indentation using spaces.
          */
         val firstChildIndent: String,
-
         /**
          * Additional indentation for child nodes. Normally this should be equal to the 'indentConfig.indent' to ensure
          * a consistent indentation style. In very limited cases when the default indentation is set to 'tab' it is
          * still needed to adjust the last indentation using spaces.
          */
         val childIndent: String,
-
         /**
          * Additional indentation for last child node. Normally this should be equal to the 'indentConfig.indent' to
          * ensure a consistent indentation style. In very limited cases when the default indentation is set to 'tab' it
          * is still needed to adjust the last indentation using spaces.
          */
         val lastChildIndent: String,
-
         /**
          * True when the indentation level of this context is activated
          */

@@ -26,7 +26,6 @@ public open class Rule(
      *   - qualifiedRuleId: the guaranteed fully qualified rule id containing the rule set id as prefix.
      */
     public val id: String,
-
     /**
      * Set of modifiers of the visitor. Preferably a rule has no modifiers at all, meaning that it is completely
      * independent of all other rules.

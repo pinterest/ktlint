@@ -12,17 +12,14 @@ public class RuleProvider private constructor(
      * Lambda which creates a new instance of the rule.
      */
     private val provider: () -> Rule,
-
     /**
      * The rule id of the [Rule] created by the provider.
      */
     public val ruleId: RuleId,
-
     /**
      * Flag whether the [Rule] created by the provider has to run as late as possible.
      */
     public val runAsLateAsPossible: Boolean,
-
     /**
      * The list of rules which have to run before the [Rule] created by the provider can be run.
      */
