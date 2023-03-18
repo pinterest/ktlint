@@ -11,8 +11,13 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.PRIMARY_CONSTRUCTOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPEALIAS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
@@ -27,8 +32,23 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
  * Lints and formats the spacing before and after the angle brackets of a type parameter list.
  */
 public class TypeParameterListSpacingRule :
-    StandardRule("type-parameter-list-spacing"),
+    StandardRule(
+        id = "type-parameter-list-spacing",
+        usesEditorConfigProperties = setOf(
+            INDENT_SIZE_PROPERTY,
+            INDENT_STYLE_PROPERTY,
+        ),
+    ),
     Rule.Experimental {
+    private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
+
+    override fun beforeFirstNode(editorConfig: EditorConfig) {
+        indentConfig = IndentConfig(
+            indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
+            tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
+        )
+    }
+
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -56,7 +76,7 @@ public class TypeParameterListSpacingRule :
         node
             .prevSibling { true }
             ?.takeIf { it.elementType == WHITE_SPACE }
-            ?.let { noWhitespaceExpected(it, autoCorrect, emit) }
+            ?.let { visitWhitespace(it, autoCorrect, emit) }
 
         // No white space expected between parameter type list and the constructor except when followed by compound
         // constructor
@@ -72,7 +92,7 @@ public class TypeParameterListSpacingRule :
                     //    class Bar<T> @SomeAnnotation constructor(...)
                     singleSpaceExpected(whiteSpace, autoCorrect, emit)
                 } else {
-                    noWhitespaceExpected(whiteSpace, autoCorrect, emit)
+                    visitWhitespace(whiteSpace, autoCorrect, emit)
                 }
             }
 
@@ -94,7 +114,7 @@ public class TypeParameterListSpacingRule :
         node
             .prevSibling { true }
             ?.takeIf { it.elementType == WHITE_SPACE }
-            ?.let { noWhitespaceExpected(it, autoCorrect, emit) }
+            ?.let { visitWhitespace(it, autoCorrect, emit) }
 
         // No white space expected between parameter type list and equals sign
         //    typealias Bar<T> = ...
@@ -141,28 +161,73 @@ public class TypeParameterListSpacingRule :
             .findChildByType(LT)
             ?.nextSibling { true }
             ?.takeIf { it.elementType == WHITE_SPACE }
-            ?.let { noWhitespaceExpected(it, autoCorrect, emit) }
+            ?.let {
+                val expectedWhitespace =
+                    if (node.textContains('\n')) {
+                        node.indent().plus(indentConfig.indent)
+                    } else {
+                        ""
+                    }
+                visitWhitespace(it, autoCorrect, emit, expectedWhitespace)
+            }
 
         node
             .findChildByType(GT)
             ?.prevSibling { true }
             ?.takeIf { it.elementType == WHITE_SPACE }
-            ?.let { noWhitespaceExpected(it, autoCorrect, emit) }
+            ?.let {
+                val expectedWhitespace =
+                    if (node.textContains('\n')) {
+                        node.indent().plus(indentConfig.indent)
+                    } else {
+                        ""
+                    }
+                visitWhitespace(it, autoCorrect, emit, expectedWhitespace)
+            }
     }
 
-    private fun noWhitespaceExpected(
+    private fun visitWhitespace(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        expectedWhitespace: String = "",
     ) {
-        if (node.text != "") {
-            emit(
-                node.startOffset,
-                "No whitespace expected at this position",
-                true,
-            )
-            if (autoCorrect) {
-                node.treeParent.removeChild(node)
+        if (node.text == expectedWhitespace) {
+            return
+        }
+
+        when {
+            expectedWhitespace.isEmpty() -> {
+                emit(
+                    node.startOffset,
+                    "No whitespace expected",
+                    true,
+                )
+                if (autoCorrect) {
+                    node.treeParent.removeChild(node)
+                }
+            }
+
+            expectedWhitespace.startsWith("\n") -> {
+                emit(
+                    node.startOffset,
+                    "Expected a newline",
+                    true,
+                )
+                if (autoCorrect) {
+                    (node as LeafPsiElement).rawReplaceWithText(expectedWhitespace)
+                }
+            }
+
+            expectedWhitespace == " " -> {
+                emit(
+                    node.startOffset,
+                    "Expected a single space",
+                    true,
+                )
+                if (autoCorrect) {
+                    (node as LeafPsiElement).rawReplaceWithText(expectedWhitespace)
+                }
             }
         }
     }
