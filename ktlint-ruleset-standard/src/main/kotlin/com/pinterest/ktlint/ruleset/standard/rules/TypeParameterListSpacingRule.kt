@@ -54,7 +54,7 @@ public class TypeParameterListSpacingRule :
         // No white space expected between class name and parameter list
         //     class Bar <T>
         node
-            .prevSibling { true }
+            .prevSibling()
             ?.takeIf { it.elementType == WHITE_SPACE }
             ?.let { noWhitespaceExpected(it, autoCorrect, emit) }
 
@@ -62,7 +62,7 @@ public class TypeParameterListSpacingRule :
         // constructor
         //     class Bar<T> (...)
         node
-            .nextSibling { true }
+            .nextSibling()
             ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling()?.elementType == PRIMARY_CONSTRUCTOR }
             ?.let { whiteSpace ->
                 if (whiteSpace.nextCodeSibling()?.findChildByType(CONSTRUCTOR_KEYWORD) != null) {
@@ -79,7 +79,7 @@ public class TypeParameterListSpacingRule :
         // No white space expected between parameter type list and class body when constructor is missing
         //    class Bar<T> {
         node
-            .nextSibling { true }
+            .nextSibling()
             ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling()?.elementType == CLASS_BODY }
             ?.let { singleSpaceExpected(it, autoCorrect, emit) }
     }
@@ -92,14 +92,14 @@ public class TypeParameterListSpacingRule :
         // No white space expected between typealias keyword name and parameter list
         //     typealias Bar <T>
         node
-            .prevSibling { true }
+            .prevSibling()
             ?.takeIf { it.elementType == WHITE_SPACE }
             ?.let { noWhitespaceExpected(it, autoCorrect, emit) }
 
         // No white space expected between parameter type list and equals sign
         //    typealias Bar<T> = ...
         node
-            .nextSibling { true }
+            .nextSibling()
             ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling()?.elementType == EQ }
             ?.let { singleSpaceExpected(it, autoCorrect, emit) }
     }
@@ -139,13 +139,13 @@ public class TypeParameterListSpacingRule :
     ) {
         node
             .findChildByType(LT)
-            ?.nextSibling { true }
+            ?.nextSibling()
             ?.takeIf { it.elementType == WHITE_SPACE }
             ?.let { noWhitespaceExpected(it, autoCorrect, emit) }
 
         node
             .findChildByType(GT)
-            ?.prevSibling { true }
+            ?.prevSibling()
             ?.takeIf { it.elementType == WHITE_SPACE }
             ?.let { noWhitespaceExpected(it, autoCorrect, emit) }
     }

@@ -145,7 +145,7 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
                 ) {
                     emit(node.startOffset, "Unused import", true)
                     if (autoCorrect) {
-                        val nextSibling = node.nextSibling { true }
+                        val nextSibling = node.nextSibling()
                         if (nextSibling == null) {
                             // Last import
                             node
@@ -192,12 +192,12 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
         require(this.elementType == IMPORT_DIRECTIVE)
         when {
             treeParent.firstChildNode == this -> {
-                nextSibling { true }
+                nextSibling()
                     ?.takeIf { it.isWhiteSpaceWithNewline() }
                     ?.let { it.treeParent.removeChild(it) }
             }
             treeParent.lastChildNode == this -> {
-                prevSibling { true }
+                prevSibling()
                     ?.takeIf { it.isWhiteSpaceWithNewline() }
                     ?.let { it.treeParent.removeChild(it) }
             }

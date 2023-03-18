@@ -44,7 +44,7 @@ public class FunctionTypeReferenceSpacingRule :
             if (currentNode.elementType == TYPE_REFERENCE) {
                 return currentNode
             }
-            currentNode = currentNode.nextSibling { true }
+            currentNode = currentNode.nextSibling()
         }
         return null
     }
@@ -56,7 +56,7 @@ public class FunctionTypeReferenceSpacingRule :
     ) {
         var currentNode: ASTNode? = node
         while (currentNode != null && currentNode.elementType != VALUE_PARAMETER_LIST) {
-            val nextNode = currentNode.nextSibling { true }
+            val nextNode = currentNode.nextSibling()
             removeIfNonEmptyWhiteSpace(currentNode, emit, autoCorrect)
             currentNode = nextNode
         }

@@ -616,7 +616,7 @@ public class WrappingRule :
             if (node.isWhiteSpaceWithNewline()) {
                 return false
             }
-            node = node.nextSibling { true }
+            node = node.nextSibling()
         }
         return true
     }

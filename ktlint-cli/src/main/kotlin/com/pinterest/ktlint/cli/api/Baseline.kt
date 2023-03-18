@@ -31,12 +31,10 @@ public class Baseline(
      * Path to the baseline file.
      */
     public val path: String? = null,
-
     /**
      * Status of the baseline file.
      */
     public val status: Status,
-
     /**
      * Lint errors grouped by (relative) file path.
      */

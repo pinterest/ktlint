@@ -75,7 +75,6 @@ internal class ReporterAggregator(
                             "format" to format.toString(),
                         ),
                     ),
-
                 )
             }
 

@@ -74,7 +74,7 @@ public class TypeArgumentListSpacingRule :
         //    val list = listOf< String>()
         node
             .findChildByType(ElementType.LT)
-            ?.nextSibling { true }
+            ?.nextSibling()
             ?.takeIf { it.elementType == ElementType.WHITE_SPACE }
             ?.let { noWhitespaceExpected(it, autoCorrect, emit) }
 
@@ -82,7 +82,7 @@ public class TypeArgumentListSpacingRule :
         //    val list = listOf<String >()
         node
             .findChildByType(ElementType.GT)
-            ?.prevSibling { true }
+            ?.prevSibling()
             ?.takeIf { it.elementType == ElementType.WHITE_SPACE }
             ?.let { noWhitespaceExpected(it, autoCorrect, emit) }
     }

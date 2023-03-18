@@ -193,6 +193,161 @@ Consistent spacing between modifiers in and after the last modifier in a modifie
 
 Rule id: `modifier-list-spacing`
 
+### No blank lines in list
+
+Disallow blank lines to be used in lists before the first element, between elements, and after the last element.
+
+*Super type*
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    class FooBar:
+        Foo,
+        Bar {
+        // body
+    }
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    class FooBar:
+
+        Foo,
+
+        Bar
+
+    {
+        // body
+    }
+    ```
+
+*Type argument list*
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val foobar: FooBar<
+        Foo,
+        Bar,
+        > = FooBar(Foo(), Bar())
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val foobar: FooBar<
+
+        Foo,
+
+        Bar,
+
+        > = FooBar(Foo(), Bar())
+    ```
+
+*Type constraint list*
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    class BiAdapter<C : RecyclerView.ViewHolder, V1 : C, V2 : C, out A1, out A2>(
+        val adapter1: A1,
+        val adapter2: A2
+    ) : RecyclerView.Adapter<C>()
+        where A1 : RecyclerView.Adapter<V1>, A1 : ComposableAdapter.ViewTypeProvider,
+              A2 : RecyclerView.Adapter<V2>, A2 : ComposableAdapter.ViewTypeProvider {
+        // body
+    }
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    class BiAdapter<C : RecyclerView.ViewHolder, V1 : C, V2 : C, out A1, out A2>(
+        val adapter1: A1,
+        val adapter2: A2
+    ) : RecyclerView.Adapter<C>()
+        where
+              A1 : RecyclerView.Adapter<V1>, A1 : ComposableAdapter.ViewTypeProvider,
+
+              A2 : RecyclerView.Adapter<V2>, A2 : ComposableAdapter.ViewTypeProvider
+    {
+        // body
+    }
+    ```
+
+*Type parameter list*
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun <
+        Foo,
+        Bar,
+        > foobar()
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun <
+
+        Foo,
+
+        Bar,
+
+        > foobar()
+    ```
+
+*Value argument list*
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val foobar = foobar(
+        "foo",
+        "bar",
+    )
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val foobar = foobar(
+
+        "foo",
+
+        "bar",
+
+    )
+    ```
+
+*Value parameter list*
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun foobar(
+        foo: String,
+        bar: String,
+    )
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun foobar(
+
+        foo: String,
+
+        bar: String,
+
+    )
+    ```
+
+Rule id: `no-blank-line-in-list`
+
 ### Nullable type spacing
 
 No spaces in a nullable type.

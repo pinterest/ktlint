@@ -19,7 +19,7 @@ public class SpacingBetweenFunctionNameAndOpeningParenthesisRule :
         node
             .takeIf { node.elementType == ElementType.FUN }
             ?.findChildByType(ElementType.IDENTIFIER)
-            ?.nextSibling { true }
+            ?.nextSibling()
             ?.takeIf { it.elementType == WHITE_SPACE }
             ?.let { whiteSpace ->
                 emit(whiteSpace.startOffset, "Unexpected whitespace", true)

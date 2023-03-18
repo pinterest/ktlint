@@ -60,19 +60,16 @@ public open class Rule(
      * Consumers should use a prefix other than 'standard' to mark the origin of rules which are not maintained by the KtLint project.
      */
     public open val ruleId: RuleId,
-
     /**
      * About the rule. Background information about the rule and its maintainer. About information is meant to be used in stack traces or
      * API consumers to provide more detailed information about the rule.
      */
     public open val about: About,
-
     /**
      * Set of modifiers of the visitor. Preferably a rule has no modifiers at all, meaning that it is completely
      * independent of all other rules.
      */
     public open val visitorModifiers: Set<VisitorModifier> = emptySet(),
-
     /**
      * Set of [EditorConfigProperty]'s that are to provided to the rule. Only specify the properties that are actually used by the rule.
      */
@@ -185,12 +182,10 @@ public open class Rule(
          * Name of person, organisation or group maintaining the rule.
          */
         val maintainer: String = "Not specified (and not maintained by the Ktlint project)",
-
         /**
          * Url to the repository containing the rule.
          */
         val repositoryUrl: String = "Not specified",
-
         /**
          * Url to the issue tracker of the project which provides the rule.
          */
@@ -207,13 +202,11 @@ public open class Rule(
              * The [RuleId] of the [Rule] which should run before the [Rule] that declares the [VisitorModifier.RunAfterRule].
              */
             val ruleId: RuleId,
-
             /**
              * The [Mode] determines whether the [Rule] that declares this [VisitorModifier] can be run in case the [Rule] with rule id
              * [VisitorModifier.RunAfterRule.ruleId] is not loaded or enabled.
              */
             val mode: Mode,
-
         ) : VisitorModifier() {
             public enum class Mode {
                 /**
