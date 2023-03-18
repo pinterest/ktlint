@@ -550,8 +550,7 @@ class ArgumentListWrappingRuleTest {
             )
             """.trimIndent()
         argumentListWrappingRuleAssertThat(code)
-            // TODO: It is not clear how the length 65 is related to the lint errors below. Starting from length 66 the
-            //  lint errors are not reported anymore.
+            // TODO: to be fixed with https://github.com/pinterest/ktlint/issues/1861
             .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 65)
             .hasLintViolations(
                 LintViolation(4, 15, "Argument should be on a separate line (unless all arguments can fit a single line)"),
@@ -576,8 +575,7 @@ class ArgumentListWrappingRuleTest {
             }
             """.trimIndent()
         argumentListWrappingRuleAssertThat(code)
-            // TODO: With max line length of 43 or below, lint errors occur. It is not clear how that is related to
-            //  example above
+            // TODO:to be fixed by https://github.com/pinterest/ktlint/issues/1861
             .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 44)
             .hasNoLintViolations()
     }

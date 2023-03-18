@@ -12,13 +12,16 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isRoot
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.CompositeElement
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.kdoc.lexer.KDocTokens.MARKDOWN_LINK
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocLink
 import org.jetbrains.kotlin.psi.KtCallExpression
@@ -142,6 +145,34 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
                 ) {
                     emit(node.startOffset, "Unused import", true)
                     if (autoCorrect) {
+                        val nextSibling = node.nextSibling { true }
+                        if (nextSibling == null) {
+                            // Last import
+                            node
+                                .lastChildLeafOrSelf()
+                                .nextLeaf()
+                                ?.takeIf { it.isWhiteSpaceWithNewline() }
+                                ?.let { whitespace ->
+                                    if (node.prevLeaf() == null) {
+                                        // Also it was the first import, and it is not preceded by any other node containing some text. So
+                                        // all whitespace until the next is redundant
+                                        whitespace.treeParent.removeChild(whitespace)
+                                    } else {
+                                        val textAfterFirstNewline =
+                                            whitespace.text
+                                                .substringAfter("\n")
+                                        if (textAfterFirstNewline.isNotBlank()) {
+                                            (whitespace as LeafElement).rawReplaceWithText(textAfterFirstNewline)
+                                        }
+                                    }
+                                }
+                        } else {
+                            nextSibling
+                                .takeIf { it.isWhiteSpaceWithNewline() }
+                                ?.let { whitespace ->
+                                    whitespace.treeParent.removeChild(whitespace)
+                                }
+                        }
                         importDirective.delete()
                     }
                 }

@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test
 class NoUnusedImportsRuleTest {
     private val noUnusedImportsRuleAssertThat = assertThatRule { NoUnusedImportsRule() }
 
-    @Disabled("To be fixed")
     @Test
     fun `Given that the first import is unused than the file should not start with a linebreak`() {
         val code =
@@ -415,7 +414,6 @@ class NoUnusedImportsRuleTest {
                     }
                 """.trimIndent()
             noUnusedImportsRuleAssertThat(code)
-//                .hasLintViolation(4, 1, "Unused import")
                 .hasLintViolations(
                     LintViolation(4, 1, "Unused import"),
                     LintViolation(5, 1, "Unused import"),
@@ -535,13 +533,10 @@ class NoUnusedImportsRuleTest {
                 }
                 """.trimIndent()
             val formattedCode =
-                // TODO: replace trimMargin with trimImdent when bug with removal of first import is resolved
                 """
-                |
-                |
-                |fun main() {
-                |}
-                """.trimMargin()
+                fun main() {
+                }
+                """.trimIndent()
             noUnusedImportsRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(1, 1, "Unused import"),

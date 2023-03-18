@@ -256,6 +256,7 @@ Previously the default value for `.editorconfig` property `max_line_length` was 
 * Fix false positive when a single line contains multiple dot qualified expressions and/or safe expressions `indent` ([#1830](https://github.com/pinterest/ktlint/issues/1830))
 * Enforce spacing around rangeUntil operator `..<` similar to the range operator `..` in `range-spacing`  ([#1858](https://github.com/pinterest/ktlint/issues/1858))
 * When `.editorconfig` property `ij_kotlin_imports_layout` contains a `|` but no import exists that match any pattern before the first `|` then do not report a violation nor insert a blank line `import-ordering` ([#1845](https://github.com/pinterest/ktlint/issues/1845))
+* When negate-patterns only are specified in Ktlint CLI then automatically add the default include patterns (`**/*.kt` and `**/*.kts`) so that all Kotlin files excluding the files matching the negate-patterns will be processed ([#1847](https://github.com/pinterest/ktlint/issues/1847))
 
 ### Changed
 * Wrap the parameters of a function literal containing a multiline parameter list (only in `ktlint_official` code style) `parameter-list-wrapping` ([#1681](https://github.com/pinterest/ktlint/issues/1681)).

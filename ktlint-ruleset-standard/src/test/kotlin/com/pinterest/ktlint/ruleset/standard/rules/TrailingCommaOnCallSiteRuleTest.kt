@@ -508,7 +508,7 @@ class TrailingCommaOnCallSiteRuleTest {
                     bar(
                         object : Foo {
                             override fun foo() {
-                                TODO("Not yet implemented")
+                                "foo"
                             }
                         },
                     )

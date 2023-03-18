@@ -1,28 +1,27 @@
 package com.pinterest.ktlint.rule.engine.internal.rulefilter
 
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
-import com.pinterest.ktlint.rule.engine.internal.RuleRunner
+import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 
 /**
- * Gets the rule runners for the [KtLintRuleEngine] by applying the [ruleFilters] in the given order on the set of [RuleRunner]s provided
- * by the previous (or the initial list of [RuleRunner]s).
+ * Gets the rule provider for the [KtLintRuleEngine] by applying the [ruleFilters] in the given order on the set of [RuleProvider]s provided
+ * by the previous (or the initial list of [RuleProvider]s).
  */
-internal fun KtLintRuleEngine.ruleRunners(vararg ruleFilters: RuleFilter): Set<RuleRunner> {
-    var ruleRunners = initialRuleRunners()
+internal fun KtLintRuleEngine.ruleProviders(vararg ruleFilters: RuleFilter): Set<RuleProvider> {
+    var ruleProviders = initialRuleProviders()
     val ruleFilterIterator = ruleFilters.iterator()
     while (ruleFilterIterator.hasNext()) {
         val ruleFilter = ruleFilterIterator.next()
-        ruleRunners = ruleFilter.filter(ruleRunners)
+        ruleProviders = ruleFilter.filter(ruleProviders)
     }
-    return ruleRunners
+    return ruleProviders
 }
 
-private fun KtLintRuleEngine.initialRuleRunners() =
+private fun KtLintRuleEngine.initialRuleProviders() =
     ruleProviders
-        .map { RuleRunner(it) }
         .distinctBy { it.ruleId }
         .toSet()
 
 internal interface RuleFilter {
-    fun filter(ruleRunners: Set<RuleRunner>): Set<RuleRunner>
+    fun filter(ruleProviders: Set<RuleProvider>): Set<RuleProvider>
 }

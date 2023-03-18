@@ -60,15 +60,27 @@ internal fun FileSystem.fileSequence(
 
     val globs = expand(patternsExclusiveExistingFiles, rootDir)
 
-    val pathMatchers =
-        globs
-            .filterNot { it.startsWith(NEGATION_PREFIX) }
-            .map { getPathMatcher(it) }
-
     val negatedPathMatchers =
         globs
             .filter { it.startsWith(NEGATION_PREFIX) }
             .map { getPathMatcher(it.removePrefix(NEGATION_PREFIX)) }
+
+    val pathMatchers =
+        globs
+            .filterNot { it.startsWith(NEGATION_PREFIX) }
+            .let { includeMatchers ->
+                if (negatedPathMatchers.isNotEmpty() && includeMatchers.isEmpty()) {
+                    LOGGER.info {
+                        "A negate pattern is specified without an include pattern. As default, the include patterns '$DEFAULT_PATTERNS' " +
+                            "are used."
+                    }
+                    includeMatchers.plus(
+                        expand(DEFAULT_PATTERNS, rootDir),
+                    )
+                } else {
+                    includeMatchers
+                }
+            }.map { getPathMatcher(it) }
 
     LOGGER.debug {
         """

@@ -17,7 +17,6 @@ import com.pinterest.ktlint.rule.engine.internal.EditorConfigLoader
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigLoaderEc4j
 import com.pinterest.ktlint.rule.engine.internal.RuleExecutionContext
 import com.pinterest.ktlint.rule.engine.internal.RuleExecutionContext.Companion.createRuleExecutionContext
-import com.pinterest.ktlint.rule.engine.internal.RuleRunner
 import com.pinterest.ktlint.rule.engine.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFE_EDITOR_CONFIG_CACHE
 import com.pinterest.ktlint.rule.engine.internal.VisitorProvider
 import mu.KotlinLogging
@@ -98,12 +97,12 @@ public class KtLintRuleEngine(
         val ruleExecutionContext = createRuleExecutionContext(this, code)
         val errors = mutableListOf<LintError>()
 
-        VisitorProvider(ruleExecutionContext.ruleRunners)
+        VisitorProvider(ruleExecutionContext.ruleProviders)
             .visitor()
-            .invoke { rule, fqRuleId ->
-                ruleExecutionContext.executeRule(rule, fqRuleId, false) { offset, errorMessage, canBeAutoCorrected ->
+            .invoke { rule ->
+                ruleExecutionContext.executeRule(rule, false) { offset, errorMessage, canBeAutoCorrected ->
                     val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
-                    errors.add(LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected))
+                    errors.add(LintError(line, col, rule.ruleId, errorMessage, canBeAutoCorrected))
                 }
             }
 
@@ -133,11 +132,11 @@ public class KtLintRuleEngine(
         var tripped = false
         var mutated = false
         val errors = mutableSetOf<Pair<LintError, Boolean>>()
-        val visitorProvider = VisitorProvider(ruleExecutionContext.ruleRunners)
+        val visitorProvider = VisitorProvider(ruleExecutionContext.ruleProviders)
         visitorProvider
             .visitor()
-            .invoke { rule, fqRuleId ->
-                ruleExecutionContext.executeRule(rule, fqRuleId, true) { offset, errorMessage, canBeAutoCorrected ->
+            .invoke { rule ->
+                ruleExecutionContext.executeRule(rule, true) { offset, errorMessage, canBeAutoCorrected ->
                     tripped = true
                     if (canBeAutoCorrected) {
                         mutated = true
@@ -150,7 +149,7 @@ public class KtLintRuleEngine(
                     val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
                     errors.add(
                         Pair(
-                            LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
+                            LintError(line, col, rule.ruleId, errorMessage, canBeAutoCorrected),
                             // It is assumed that a rule that emits that an error can be autocorrected, also
                             // does correct the error.
                             canBeAutoCorrected,
@@ -161,16 +160,15 @@ public class KtLintRuleEngine(
         if (tripped) {
             visitorProvider
                 .visitor()
-                .invoke { rule, fqRuleId ->
+                .invoke { rule ->
                     ruleExecutionContext.executeRule(
                         rule,
-                        fqRuleId,
                         false,
                     ) { offset, errorMessage, canBeAutoCorrected ->
                         val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
                         errors.add(
                             Pair(
-                                LintError(line, col, fqRuleId, errorMessage, canBeAutoCorrected),
+                                LintError(line, col, rule.ruleId, errorMessage, canBeAutoCorrected),
                                 // It is assumed that a rule only corrects an error after it has emitted an
                                 // error and indicating that it actually can be autocorrected.
                                 false,
@@ -228,10 +226,8 @@ public class KtLintRuleEngine(
                 ?: CODE_STYLE_PROPERTY.defaultValue
         val rules =
             ruleProviders
-                .map { RuleRunner(it) }
+                .map { it.createNewRuleInstance() }
                 .distinctBy { it.ruleId }
-                .toSet()
-                .map { it.getRule() }
                 .toSet()
         return EditorConfigGenerator(fileSystem, editorConfigLoaderEc4j)
             .generateEditorconfig(

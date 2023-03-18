@@ -1,9 +1,11 @@
 package com.pinterest.ktlint.rule.engine.internal
 
 import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import com.pinterest.ktlint.ruleset.standard.rules.FUNCTION_SIGNATURE_RULE_ID
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule
 import com.pinterest.ktlint.ruleset.standard.rules.INDENTATION_RULE_ID
@@ -13,17 +15,18 @@ import com.pinterest.ktlint.ruleset.standard.rules.TrailingCommaOnCallSiteRule
 import com.pinterest.ktlint.ruleset.standard.rules.WRAPPING_RULE_ID
 import com.pinterest.ktlint.ruleset.standard.rules.WrappingRule
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatIllegalStateException
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
-class RuleRunnerSorterTest {
+class RuleProviderSorterTest {
     @Test
     fun `Multiple normal rules in the same rule set are run in alphabetical order`() {
         val actual =
-            RuleRunnerSorter()
-                .getSortedRuleRunners(
-                    ruleRunners = createRuleRunners(
+            RuleProviderSorter()
+                .getSortedRuleProviders(
+                    ruleProviders = createRuleProviders(
                         NormalRule(STANDARD_RULE_B),
                         NormalRule(STANDARD_RULE_A),
                     ),
@@ -39,9 +42,9 @@ class RuleRunnerSorterTest {
     @Test
     fun `Multiple normal rules in different rule sets are run in alphabetical order but grouped in order standard, experimental and custom`() {
         val actual =
-            RuleRunnerSorter()
-                .getSortedRuleRunners(
-                    ruleRunners = createRuleRunners(
+            RuleProviderSorter()
+                .getSortedRuleProviders(
+                    ruleProviders = createRuleProviders(
                         ExperimentalRule(STANDARD_RULE_B),
                         ExperimentalRule(STANDARD_RULE_A),
                         NormalRule(CUSTOM_RULE_SET_A_RULE_B),
@@ -69,9 +72,9 @@ class RuleRunnerSorterTest {
     @Test
     fun `A run as late as possible rule runs after the rules not marked to run as late as possible`() {
         val actual =
-            RuleRunnerSorter()
-                .getSortedRuleRunners(
-                    ruleRunners = createRuleRunners(
+            RuleProviderSorter()
+                .getSortedRuleProviders(
+                    ruleProviders = createRuleProviders(
                         NormalRule(STANDARD_RULE_C),
                         RunAsLateAsPossibleRule(STANDARD_RULE_A),
                         NormalRule(STANDARD_RULE_B),
@@ -89,9 +92,9 @@ class RuleRunnerSorterTest {
     @Test
     fun `Multiple run as late as possible rules in the same rule set are sorted alphabetically`() {
         val actual =
-            RuleRunnerSorter()
-                .getSortedRuleRunners(
-                    ruleRunners = createRuleRunners(
+            RuleProviderSorter()
+                .getSortedRuleProviders(
+                    ruleProviders = createRuleProviders(
                         RunAsLateAsPossibleExperimentalRule(STANDARD_RULE_B),
                         RunAsLateAsPossibleExperimentalRule(STANDARD_RULE_A),
                         RunAsLateAsPossibleRule(CUSTOM_RULE_SET_A_RULE_B),
@@ -119,9 +122,9 @@ class RuleRunnerSorterTest {
     @Test
     fun `Multiple run as late as possible on root node only rules in the same rule set are sorted alphabetically`() {
         val actual =
-            RuleRunnerSorter()
-                .getSortedRuleRunners(
-                    ruleRunners = createRuleRunners(
+            RuleProviderSorter()
+                .getSortedRuleProviders(
+                    ruleProviders = createRuleProviders(
                         RunAsLateAsPossibleExperimentalRule(STANDARD_RULE_B),
                         RunAsLateAsPossibleExperimentalRule(STANDARD_RULE_A),
                         RunAsLateAsPossibleRule(CUSTOM_RULE_SET_A_RULE_B),
@@ -149,9 +152,9 @@ class RuleRunnerSorterTest {
     @Test
     fun `A rule annotated with run after rule for a rule in the same rule set runs after that rule and override the alphabetical sort order`() {
         val actual =
-            RuleRunnerSorter()
-                .getSortedRuleRunners(
-                    ruleRunners = createRuleRunners(
+            RuleProviderSorter()
+                .getSortedRuleProviders(
+                    ruleProviders = createRuleProviders(
                         object : R(
                             ruleId = STANDARD_RULE_A,
                             visitorModifier = VisitorModifier.RunAfterRule(
@@ -188,9 +191,9 @@ class RuleRunnerSorterTest {
     @Test
     fun `A rule annotated with run after rule for a rule in the different rule set runs after that rule and override the alphabetical sort order`() {
         val actual =
-            RuleRunnerSorter()
-                .getSortedRuleRunners(
-                    ruleRunners = createRuleRunners(
+            RuleProviderSorter()
+                .getSortedRuleProviders(
+                    ruleProviders = createRuleProviders(
                         NormalRule(STANDARD_RULE_B),
                         object : R(
                             ruleId = STANDARD_RULE_D,
@@ -231,9 +234,9 @@ class RuleRunnerSorterTest {
         @Test
         fun `Given that the experimental FunctionSignatureRule is not included in the rules to be sorted`() {
             val actual =
-                RuleRunnerSorter()
-                    .getSortedRuleRunners(
-                        ruleRunners = createRuleRunners(
+                RuleProviderSorter()
+                    .getSortedRuleProviders(
+                        ruleProviders = createRuleProviders(
                             IndentationRule(),
                             TrailingCommaOnCallSiteRule(),
                             WrappingRule(),
@@ -250,9 +253,9 @@ class RuleRunnerSorterTest {
         @Test
         fun `Given that the experimental FunctionSignatureRule is included in the rules to be sorted`() {
             val actual =
-                RuleRunnerSorter()
-                    .getSortedRuleRunners(
-                        ruleRunners = createRuleRunners(
+                RuleProviderSorter()
+                    .getSortedRuleProviders(
+                        ruleProviders = createRuleProviders(
                             IndentationRule(),
                             TrailingCommaOnCallSiteRule(),
                             WrappingRule(),
@@ -274,9 +277,9 @@ class RuleRunnerSorterTest {
         @Test
         fun `Given a rule with a single RunAfterRule visitor modifier`() {
             val actual =
-                RuleRunnerSorter()
-                    .getSortedRuleRunners(
-                        ruleRunners = createRuleRunners(
+                RuleProviderSorter()
+                    .getSortedRuleProviders(
+                        ruleProviders = createRuleProviders(
                             object : R(
                                 ruleId = STANDARD_RULE_A,
                                 visitorModifier = VisitorModifier.RunAfterRule(
@@ -295,9 +298,9 @@ class RuleRunnerSorterTest {
         @Test
         fun `Given a rule with a multiple RunAfterRule visitor modifiers`() {
             val actual =
-                RuleRunnerSorter()
-                    .getSortedRuleRunners(
-                        ruleRunners = createRuleRunners(
+                RuleProviderSorter()
+                    .getSortedRuleProviders(
+                        ruleProviders = createRuleProviders(
                             object : R(STANDARD_RULE_A) {},
                             object : R(
                                 ruleId = STANDARD_RULE_B,
@@ -322,17 +325,70 @@ class RuleRunnerSorterTest {
         }
     }
 
-    private fun createRuleRunners(vararg rules: Rule): Set<RuleRunner> =
+    @Nested
+    inner class `Rule has no visitor modifier referring to self` {
+        @Test
+        fun `Given a rule having a single RunAfterRule visitor modifier which refers to the rule itself then throw an exception`() {
+            assertThatIllegalStateException()
+                .isThrownBy {
+                    RuleProviderSorter()
+                        .getSortedRuleProviders(
+                            ruleProviders = createRuleProviders(
+                                object : R(
+                                    ruleId = STANDARD_RULE_A,
+                                    visitorModifiers = setOf(
+                                        VisitorModifier.RunAfterRule(
+                                            ruleId = STANDARD_RULE_A,
+                                            mode = ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED,
+                                        ),
+                                    ),
+                                ) {},
+                            ),
+                        ).map { it.ruleId }
+                }.withMessage(
+                    "Rule with id '${STANDARD_RULE_A.value}' has a visitor modifier of type 'RunAfterRule' which may not refer to the " +
+                        "rule itself.",
+                )
+        }
+
+        @Test
+        fun `Given a rule having multiple RunAfterRule visitor modifiers of which one refers to the rule itself then throw an exception`() {
+            assertThatIllegalStateException()
+                .isThrownBy {
+                    RuleProviderSorter()
+                        .getSortedRuleProviders(
+                            ruleProviders = createRuleProviders(
+                                object : R(
+                                    ruleId = STANDARD_RULE_A,
+                                    visitorModifiers = setOf(
+                                        VisitorModifier.RunAfterRule(
+                                            ruleId = STANDARD_RULE_A,
+                                            mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                        ),
+                                        VisitorModifier.RunAfterRule(
+                                            ruleId = STANDARD_RULE_B,
+                                            mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                        ),
+                                    ),
+                                ) {},
+                            ),
+                        ).map { it.ruleId }
+                }.withMessage(
+                    "Rule with id '${STANDARD_RULE_A.value}' has a visitor modifier of type 'RunAfterRule' which may not refer to the " +
+                        "rule itself.",
+                )
+        }
+    }
+
+    private fun createRuleProviders(vararg rules: Rule): Set<RuleProvider> =
         rules
             .map {
-                RuleRunner(
-                    RuleProvider { it },
-                )
+                RuleProvider { it }
             }.toSet()
 
     private companion object {
         const val RULE_A = "rule-a"
-        const val STANDARD = "standard"
+        val STANDARD = RuleSetId.STANDARD.value
         const val CUSTOM_RULE_SET_A = "custom-rule-set-a"
         const val CUSTOM_RULE_SET_B = "custom-rule-set-b"
         val STANDARD_RULE_A = RuleId("$STANDARD:$RULE_A")

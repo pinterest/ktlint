@@ -474,7 +474,7 @@ internal class KtlintCommandLine {
                     val ktlintCliError = KtlintCliError(
                         line = lintError.line,
                         col = lintError.col,
-                        ruleId = lintError.ruleId,
+                        ruleId = lintError.ruleId.value,
                         detail = lintError
                             .detail
                             .applyIf(corrected) { "$this (cannot be auto-corrected)" },
@@ -534,7 +534,7 @@ internal class KtlintCommandLine {
                 val ktlintCliError = KtlintCliError(
                     line = lintError.line,
                     col = lintError.col,
-                    ruleId = lintError.ruleId,
+                    ruleId = lintError.ruleId.value,
                     detail = lintError.detail,
                     status = if (lintError.canBeAutoCorrected) {
                         LINT_CAN_BE_AUTOCORRECTED
