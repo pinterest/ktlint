@@ -217,7 +217,7 @@ public class FunctionSignatureRule :
             .filter { it.elementType == VALUE_PARAMETER }
             .mapNotNull {
                 // If the value parameter contains a modifier then this list is followed by a white space
-                it.findChildByType(MODIFIER_LIST)?.nextSibling { true }
+                it.findChildByType(MODIFIER_LIST)?.nextSibling()
             }.any { it.textContains('\n') }
 
     private fun calculateFunctionSignatureLengthAsSingleLineSignature(
@@ -443,7 +443,7 @@ public class FunctionSignatureRule :
 
         val closingParenthesis = valueParameterList.findChildByType(RPAR)
         closingParenthesis
-            ?.prevSibling { true }
+            ?.prevSibling()
             ?.takeIf { it.elementType == WHITE_SPACE }
             .let { whiteSpaceBeforeClosingParenthesis ->
                 if (multiline) {

@@ -91,7 +91,7 @@ public class ParameterListSpacingRule :
                     // Comma must be followed by whitespace
                     val nextSibling =
                         el
-                            .nextSibling { true }
+                            .nextSibling()
                             ?.elementType
                     if (nextSibling != WHITE_SPACE) {
                         addMissingWhiteSpaceAfterMe(el, emit, autoCorrect)
@@ -162,7 +162,7 @@ public class ParameterListSpacingRule :
     ) {
         require(node.elementType == MODIFIER_LIST)
         node
-            .nextSibling { true }
+            .nextSibling()
             ?.takeIf { it.elementType == WHITE_SPACE }
             ?.let { visitWhiteSpaceAfterModifier(it, emit, autoCorrect) }
     }
