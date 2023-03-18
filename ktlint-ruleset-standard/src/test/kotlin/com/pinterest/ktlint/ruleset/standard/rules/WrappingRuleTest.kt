@@ -1849,6 +1849,28 @@ internal class WrappingRuleTest {
                 .hasNoLintViolations()
         }
     }
+
+    @Test
+    fun `Issue 1867 - Given a multiline type parameter list then wrap each type parameter to a new line`() {
+        val code =
+            """
+            fun <
+                Foo, Bar,
+                FooBar,
+                > foobar()
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun <
+                Foo,
+                Bar,
+                FooBar,
+                > foobar()
+            """.trimIndent()
+        wrappingRuleAssertThat(code)
+            .hasLintViolation(2, 10, "A newline was expected before 'Bar'")
+            .isFormattedAs(formattedCode)
+    }
 }
 
 // Replace the "$." placeholder with an actual "$" so that string "$.{expression}" is transformed to a String template
