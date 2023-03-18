@@ -63,7 +63,7 @@ private lateinit var logger: KLogger
 
 @Command(
     headerHeading =
-    """
+        """
 An anti-bikeshedding Kotlin linter with built-in formatter.
 (https://github.com/pinterest/ktlint).
 

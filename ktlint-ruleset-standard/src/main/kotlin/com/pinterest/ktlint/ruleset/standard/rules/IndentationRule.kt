@@ -71,6 +71,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_CONSTRAINT_LIS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.USER_TYPE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
@@ -204,6 +205,9 @@ public class IndentationRule :
                     lastChildIndent = "",
                 )
 
+            node.elementType == VALUE_ARGUMENT ->
+                visitValueArgument(node)
+
             node.elementType == SECONDARY_CONSTRUCTOR ->
                 visitSecondaryConstructor(node)
 
@@ -324,6 +328,22 @@ public class IndentationRule :
             else -> {
                 LOGGER.trace { "No processing for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}" }
             }
+        }
+    }
+
+    private fun visitValueArgument(node: ASTNode) {
+        if (codeStyle == ktlint_official) {
+            // Deviate from standard IntelliJ IDEA formatting to allow formatting below:
+            //     val foo = foo(
+            //         parameterName =
+            //             "The quick brown fox "
+            //                .plus("jumps ")
+            //                .plus("over the lazy dog"),
+            //     )
+            startIndentContext(
+                fromAstNode = node,
+                lastChildIndent = "",
+            )
         }
     }
 
