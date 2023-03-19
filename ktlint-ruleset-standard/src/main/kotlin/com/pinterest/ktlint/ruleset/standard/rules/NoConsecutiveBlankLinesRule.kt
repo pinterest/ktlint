@@ -42,12 +42,15 @@ public class NoConsecutiveBlankLinesRule : StandardRule("no-consecutive-blank-li
                         }
                 emit(offset, "Needless blank line(s)", true)
                 if (autoCorrect) {
-                    val newText = buildString {
-                        append(split.first())
-                        append("\n")
-                        if (!eof && !betweenClassAndPrimaryConstructor) append("\n")
-                        append(split.last())
-                    }
+                    val newText =
+                        buildString {
+                            append(split.first())
+                            append("\n")
+                            if (!eof && !betweenClassAndPrimaryConstructor) {
+                                append("\n")
+                            }
+                            append(split.last())
+                        }
                     (node as LeafPsiElement).rawReplaceWithText(newText)
                 }
             }

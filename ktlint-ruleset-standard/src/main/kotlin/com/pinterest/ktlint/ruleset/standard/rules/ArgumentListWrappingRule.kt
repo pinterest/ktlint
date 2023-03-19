@@ -40,19 +40,21 @@ import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
 public class ArgumentListWrappingRule :
     StandardRule(
         id = "argument-list-wrapping",
-        visitorModifiers = setOf(
-            VisitorModifier.RunAfterRule(
-                // ArgumentListWrapping should only be used in case after normal wrapping the max_line_length is still
-                // violated
-                ruleId = WRAPPING_RULE_ID,
-                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+        visitorModifiers =
+            setOf(
+                VisitorModifier.RunAfterRule(
+                    // ArgumentListWrapping should only be used in case after normal wrapping the max_line_length is still
+                    // violated
+                    ruleId = WRAPPING_RULE_ID,
+                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                ),
             ),
-        ),
-        usesEditorConfigProperties = setOf(
-            INDENT_SIZE_PROPERTY,
-            INDENT_STYLE_PROPERTY,
-            MAX_LINE_LENGTH_PROPERTY,
-        ),
+        usesEditorConfigProperties =
+            setOf(
+                INDENT_SIZE_PROPERTY,
+                INDENT_STYLE_PROPERTY,
+                MAX_LINE_LENGTH_PROPERTY,
+            ),
     ) {
     private var editorConfigIndent = IndentConfig.DEFAULT_INDENT_CONFIG
 
@@ -248,12 +250,13 @@ public class ArgumentListWrappingRule :
     private fun ASTNode.isOnSameLineAsControlFlowKeyword(): Boolean {
         val containerNode = psi.getStrictParentOfType<KtContainerNode>() ?: return false
         if (containerNode.node.elementType == ELSE) return false
-        val controlFlowKeyword = when (val parent = containerNode.parent) {
-            is KtIfExpression -> parent.ifKeyword.node
-            is KtWhileExpression -> parent.firstChild.node
-            is KtDoWhileExpression -> parent.whileKeyword?.node
-            else -> null
-        } ?: return false
+        val controlFlowKeyword =
+            when (val parent = containerNode.parent) {
+                is KtIfExpression -> parent.ifKeyword.node
+                is KtWhileExpression -> parent.firstChild.node
+                is KtDoWhileExpression -> parent.whileKeyword?.node
+                else -> null
+            } ?: return false
 
         var prevLeaf = prevLeaf() ?: return false
         while (prevLeaf != controlFlowKeyword) {

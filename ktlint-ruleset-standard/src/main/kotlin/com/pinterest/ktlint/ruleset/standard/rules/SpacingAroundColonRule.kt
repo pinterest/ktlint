@@ -48,18 +48,24 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                 emit(prevLeaf.startOffset, "Unexpected newline before \":\"", true)
                 if (autoCorrect) {
                     val parent = node.parent
-                    val prevNonCodeElements = node.siblings(forward = false, withItself = false)
-                        .takeWhile { it.node.isWhiteSpace() || it.node.isPartOfComment() }.toList()
+                    val prevNonCodeElements =
+                        node
+                            .siblings(forward = false, withItself = false)
+                            .takeWhile { it.node.isWhiteSpace() || it.node.isPartOfComment() }.toList()
                     when {
                         parent is KtProperty || parent is KtNamedFunction -> {
-                            val equalsSignElement = node.siblings(forward = true, withItself = false)
-                                .firstOrNull { it.node.elementType == EQ }
+                            val equalsSignElement =
+                                node
+                                    .siblings(forward = true, withItself = false)
+                                    .firstOrNull { it.node.elementType == EQ }
                             if (equalsSignElement != null) {
                                 equalsSignElement.nextSibling?.takeIf { it.node.isWhiteSpace() }?.delete()
                                 prevNonCodeElements.forEach { parent.addAfter(it, equalsSignElement) }
                             }
-                            val blockElement = node.siblings(forward = true, withItself = false)
-                                .firstIsInstanceOrNull<KtBlockExpression>()
+                            val blockElement =
+                                node
+                                    .siblings(forward = true, withItself = false)
+                                    .firstIsInstanceOrNull<KtBlockExpression>()
                             if (blockElement != null) {
                                 prevNonCodeElements
                                     .let { if (it.first().node.isWhiteSpace()) it.drop(1) else it }

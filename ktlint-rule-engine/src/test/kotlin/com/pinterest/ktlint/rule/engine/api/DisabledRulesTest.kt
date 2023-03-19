@@ -17,9 +17,10 @@ class DisabledRulesTest {
         assertThat(
             ArrayList<LintError>().apply {
                 KtLintRuleEngine(
-                    ruleProviders = setOf(
-                        RuleProvider { NoVarRule(SOME_RULE_ID) },
-                    ),
+                    ruleProviders =
+                        setOf(
+                            RuleProvider { NoVarRule(SOME_RULE_ID) },
+                        ),
                 ).lint(Code.fromSnippet("var foo")) { e -> add(e) }
             },
         ).contains(
@@ -42,12 +43,14 @@ class DisabledRulesTest {
         assertThat(
             ArrayList<LintError>().apply {
                 KtLintRuleEngine(
-                    ruleProviders = setOf(
-                        RuleProvider { NoVarRule(someRuleId) },
-                    ),
-                    editorConfigOverride = EditorConfigOverride.from(
-                        RuleId(disabledRuleId).createRuleExecutionEditorConfigProperty() to RuleExecution.disabled,
-                    ),
+                    ruleProviders =
+                        setOf(
+                            RuleProvider { NoVarRule(someRuleId) },
+                        ),
+                    editorConfigOverride =
+                        EditorConfigOverride.from(
+                            RuleId(disabledRuleId).createRuleExecutionEditorConfigProperty() to RuleExecution.disabled,
+                        ),
                 ).lint(Code.fromSnippet("var foo")) { e -> add(e) }
             },
         ).isEmpty()

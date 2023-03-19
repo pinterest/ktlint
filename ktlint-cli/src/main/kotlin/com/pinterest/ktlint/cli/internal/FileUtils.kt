@@ -43,14 +43,15 @@ internal fun FileSystem.fileSequence(
 ): Sequence<Path> {
     val result = mutableListOf<Path>()
 
-    val (existingFiles, patternsExclusiveExistingFiles) = patterns.partition {
-        try {
-            Files.isRegularFile(rootDir.resolve(it))
-        } catch (e: InvalidPathException) {
-            // Windows throws an exception when you pass a glob to Path#resolve.
-            false
+    val (existingFiles, patternsExclusiveExistingFiles) =
+        patterns.partition {
+            try {
+                Files.isRegularFile(rootDir.resolve(it))
+            } catch (e: InvalidPathException) {
+                // Windows throws an exception when you pass a glob to Path#resolve.
+                false
+            }
         }
-    }
     existingFiles.mapTo(result) { rootDir.resolve(it) }
 
     // Return early and don't traverse the file system if all the input globs are absolute paths
@@ -93,54 +94,55 @@ internal fun FileSystem.fileSequence(
         ${negatedPathMatchers.map { "      - $it" }}
         """.trimIndent()
     }
-    val duration = measureTimeMillis {
-        Files.walkFileTree(
-            rootDir,
-            object : SimpleFileVisitor<Path>() {
-                override fun visitFile(
-                    filePath: Path,
-                    fileAttrs: BasicFileAttributes,
-                ): FileVisitResult {
-                    val path =
-                        if (onWindowsOS) {
-                            Paths.get(
-                                filePath
-                                    .absolutePathString()
-                                    .replace(File.separatorChar, '/'),
-                            ).also {
-                                if (it != filePath) {
-                                    LOGGER.trace { "On WindowsOS transform '$filePath' to '$it'" }
+    val duration =
+        measureTimeMillis {
+            Files.walkFileTree(
+                rootDir,
+                object : SimpleFileVisitor<Path>() {
+                    override fun visitFile(
+                        filePath: Path,
+                        fileAttrs: BasicFileAttributes,
+                    ): FileVisitResult {
+                        val path =
+                            if (onWindowsOS) {
+                                Paths.get(
+                                    filePath
+                                        .absolutePathString()
+                                        .replace(File.separatorChar, '/'),
+                                ).also {
+                                    if (it != filePath) {
+                                        LOGGER.trace { "On WindowsOS transform '$filePath' to '$it'" }
+                                    }
                                 }
+                            } else {
+                                filePath
                             }
+                        if (negatedPathMatchers.none { it.matches(path) } &&
+                            pathMatchers.any { it.matches(path) }
+                        ) {
+                            LOGGER.trace { "- File: $path: Include" }
+                            result.add(path)
                         } else {
-                            filePath
+                            LOGGER.trace { "- File: $path: Ignore" }
                         }
-                    if (negatedPathMatchers.none { it.matches(path) } &&
-                        pathMatchers.any { it.matches(path) }
-                    ) {
-                        LOGGER.trace { "- File: $path: Include" }
-                        result.add(path)
-                    } else {
-                        LOGGER.trace { "- File: $path: Ignore" }
+                        return FileVisitResult.CONTINUE
                     }
-                    return FileVisitResult.CONTINUE
-                }
 
-                override fun preVisitDirectory(
-                    dirPath: Path,
-                    dirAttr: BasicFileAttributes,
-                ): FileVisitResult {
-                    return if (Files.isHidden(dirPath)) {
-                        LOGGER.trace { "- Dir: $dirPath: Ignore" }
-                        FileVisitResult.SKIP_SUBTREE
-                    } else {
-                        LOGGER.trace { "- Dir: $dirPath: Traverse" }
-                        FileVisitResult.CONTINUE
+                    override fun preVisitDirectory(
+                        dirPath: Path,
+                        dirAttr: BasicFileAttributes,
+                    ): FileVisitResult {
+                        return if (Files.isHidden(dirPath)) {
+                            LOGGER.trace { "- Dir: $dirPath: Ignore" }
+                            FileVisitResult.SKIP_SUBTREE
+                        } else {
+                            LOGGER.trace { "- Dir: $dirPath: Traverse" }
+                            FileVisitResult.CONTINUE
+                        }
                     }
-                }
-            },
-        )
-    }
+                },
+            )
+        }
     LOGGER.debug { "Discovered ${result.count()} files to be processed in $duration ms" }
 
     return result.asSequence()

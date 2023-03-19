@@ -32,11 +32,12 @@ class ThreadSafeEditorConfigCacheTest {
         val threadSafeEditorConfigCache = ThreadSafeEditorConfigCache()
 
         val editorConfigLoader = EditorConfigLoaderMock(EDIT_CONFIG_1)
-        val actual = listOf(
-            threadSafeEditorConfigCache.get(FILE_1, editorConfigLoader),
-            threadSafeEditorConfigCache.get(FILE_1, editorConfigLoader),
-            threadSafeEditorConfigCache.get(FILE_1, editorConfigLoader),
-        )
+        val actual =
+            listOf(
+                threadSafeEditorConfigCache.get(FILE_1, editorConfigLoader),
+                threadSafeEditorConfigCache.get(FILE_1, editorConfigLoader),
+                threadSafeEditorConfigCache.get(FILE_1, editorConfigLoader),
+            )
 
         // In logs, it can also be seen that the EditConfig entry is created only once and retrieved multiple times
         assertThat(editorConfigLoader.loadCount).isEqualTo(1)
@@ -53,11 +54,12 @@ class ThreadSafeEditorConfigCacheTest {
         val editorConfigLoaderFile1 = EditorConfigLoaderMock(EDIT_CONFIG_1)
         val editorConfigLoaderFile2 = EditorConfigLoaderMock(EDIT_CONFIG_2)
 
-        val actual = listOf(
-            threadSafeEditorConfigCache.get(FILE_1, editorConfigLoaderFile1),
-            threadSafeEditorConfigCache.get(FILE_2, editorConfigLoaderFile2),
-            threadSafeEditorConfigCache.get(FILE_1, editorConfigLoaderFile1),
-        )
+        val actual =
+            listOf(
+                threadSafeEditorConfigCache.get(FILE_1, editorConfigLoaderFile1),
+                threadSafeEditorConfigCache.get(FILE_2, editorConfigLoaderFile2),
+                threadSafeEditorConfigCache.get(FILE_1, editorConfigLoaderFile1),
+            )
 
         // In logs, it can also be seen that the EditConfig entry for FILE_1 and FILE_2 are created only once and
         // retrieved once more for FILE_1

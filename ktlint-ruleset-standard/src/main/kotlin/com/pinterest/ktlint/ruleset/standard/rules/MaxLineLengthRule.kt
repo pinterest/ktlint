@@ -25,27 +25,29 @@ import org.jetbrains.kotlin.psi.KtPackageDirective
 public class MaxLineLengthRule :
     StandardRule(
         id = "max-line-length",
-        visitorModifiers = setOf(
-            VisitorModifier.RunAfterRule(
-                // This rule should run after all other rules. Each time a rule visitor is modified with
-                // RunAsLateAsPossible, it needs to be checked that this rule still runs after that new rule or that it
-                // won't be affected by that rule.
-                ruleId = TRAILING_COMMA_ON_CALL_SITE_RULE_ID,
-                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+        visitorModifiers =
+            setOf(
+                VisitorModifier.RunAfterRule(
+                    // This rule should run after all other rules. Each time a rule visitor is modified with
+                    // RunAsLateAsPossible, it needs to be checked that this rule still runs after that new rule or that it
+                    // won't be affected by that rule.
+                    ruleId = TRAILING_COMMA_ON_CALL_SITE_RULE_ID,
+                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                ),
+                VisitorModifier.RunAfterRule(
+                    // This rule should run after all other rules. Each time a rule visitor is modified with
+                    // RunAsLateAsPossible, it needs to be checked that this rule still runs after that new rule or that it
+                    // won't be affected by that rule.
+                    ruleId = TRAILING_COMMA_ON_DECLARATION_SITE_RULE_ID,
+                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                ),
+                VisitorModifier.RunAsLateAsPossible,
             ),
-            VisitorModifier.RunAfterRule(
-                // This rule should run after all other rules. Each time a rule visitor is modified with
-                // RunAsLateAsPossible, it needs to be checked that this rule still runs after that new rule or that it
-                // won't be affected by that rule.
-                ruleId = TRAILING_COMMA_ON_DECLARATION_SITE_RULE_ID,
-                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+        usesEditorConfigProperties =
+            setOf(
+                MAX_LINE_LENGTH_PROPERTY,
+                IGNORE_BACKTICKED_IDENTIFIER_PROPERTY,
             ),
-            VisitorModifier.RunAsLateAsPossible,
-        ),
-        usesEditorConfigProperties = setOf(
-            MAX_LINE_LENGTH_PROPERTY,
-            IGNORE_BACKTICKED_IDENTIFIER_PROPERTY,
-        ),
     ) {
     private var maxLineLength: Int = MAX_LINE_LENGTH_PROPERTY.defaultValue
     private var rangeTree = RangeTree()
@@ -115,12 +117,13 @@ public class MaxLineLengthRule :
     public companion object {
         public val IGNORE_BACKTICKED_IDENTIFIER_PROPERTY: EditorConfigProperty<Boolean> =
             EditorConfigProperty(
-                type = PropertyType.LowerCasingPropertyType(
-                    "ktlint_ignore_back_ticked_identifier",
-                    "Defines whether the backticked identifier (``) should be ignored",
-                    PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
-                    setOf(true.toString(), false.toString()),
-                ),
+                type =
+                    PropertyType.LowerCasingPropertyType(
+                        "ktlint_ignore_back_ticked_identifier",
+                        "Defines whether the backticked identifier (``) should be ignored",
+                        PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
+                        setOf(true.toString(), false.toString()),
+                    ),
                 defaultValue = false,
             )
     }

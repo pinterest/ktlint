@@ -13,10 +13,11 @@ internal class SuppressHandler(
         ruleId: RuleId,
         function: (Boolean, (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) -> Unit,
     ) {
-        val suppress = suppressionLocator(
-            node.startOffset,
-            ruleId,
-        )
+        val suppress =
+            suppressionLocator(
+                node.startOffset,
+                ruleId,
+            )
         val autoCorrect = this.autoCorrect && !suppress
         val emit = if (suppress) {
             SUPPRESS_EMIT

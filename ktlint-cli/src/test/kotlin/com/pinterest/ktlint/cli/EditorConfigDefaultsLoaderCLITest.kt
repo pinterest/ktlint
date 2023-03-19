@@ -48,10 +48,11 @@ class EditorConfigDefaultsLoaderCLITest {
         CommandLineTestRunner(tempDir)
             .run(
                 testProjectName = "editorconfig-path",
-                arguments = listOf(
-                    "**/*.test",
-                    "--editorconfig=$tempDir/editorconfig-path/project/$editorconfigPath",
-                ),
+                arguments =
+                    listOf(
+                        "**/*.test",
+                        "--editorconfig=$tempDir/editorconfig-path/project/$editorconfigPath",
+                    ),
             ) {
                 SoftAssertions().apply {
                     assertErrorExitCode()
@@ -73,10 +74,11 @@ class EditorConfigDefaultsLoaderCLITest {
         CommandLineTestRunner(tempDir)
             .run(
                 testProjectName = "editorconfig-path",
-                arguments = listOf(
-                    "**/*.test",
-                    "--editorconfig=$tempDir/editorconfig-path/project/.editorconfig-default-max-line-length-on-tests-only",
-                ),
+                arguments =
+                    listOf(
+                        "**/*.test",
+                        "--editorconfig=$tempDir/editorconfig-path/project/.editorconfig-default-max-line-length-on-tests-only",
+                    ),
             ) {
                 SoftAssertions().apply {
                     assertErrorExitCode()
@@ -97,10 +99,11 @@ class EditorConfigDefaultsLoaderCLITest {
         CommandLineTestRunner(tempDir)
             .run(
                 testProjectName = "editorconfig-path",
-                arguments = listOf(
-                    "**/*.test",
-                    "--editorconfig=$tempDir/editorconfig-path/project/.editorconfig-disable-no-wildcard-imports-rule",
-                ),
+                arguments =
+                    listOf(
+                        "**/*.test",
+                        "--editorconfig=$tempDir/editorconfig-path/project/.editorconfig-disable-no-wildcard-imports-rule",
+                    ),
             ) {
                 SoftAssertions().apply {
                     assertErrorExitCode()
@@ -119,10 +122,11 @@ class EditorConfigDefaultsLoaderCLITest {
         CommandLineTestRunner(tempDir)
             .run(
                 testProjectName = "editorconfig-path",
-                arguments = listOf(
-                    "**/*.test",
-                    "--editorconfig=$tempDir/editorconfig-path/project/editorconfig-boolean-setting",
-                ),
+                arguments =
+                    listOf(
+                        "**/*.test",
+                        "--editorconfig=$tempDir/editorconfig-path/project/editorconfig-boolean-setting",
+                    ),
             ) {
                 SoftAssertions().apply {
                     assertErrorExitCode()

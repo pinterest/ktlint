@@ -21,13 +21,15 @@ class FormatReporterProviderTest {
 
     @Test
     fun `Given that the format configuration and a valid color name is provided then the format reporter provider is created without exception`() {
-        val formatReporter = FormatReporterProvider().get(
-            out = PrintStream(out, true),
-            opt = mapOf(
-                "format" to "true",
-                "color_name" to "RED",
-            ),
-        )
+        val formatReporter =
+            FormatReporterProvider().get(
+                out = PrintStream(out, true),
+                opt =
+                    mapOf(
+                        "format" to "true",
+                        "color_name" to "RED",
+                    ),
+            )
 
         assertThat(formatReporter).isNotNull
     }
@@ -39,10 +41,11 @@ class FormatReporterProviderTest {
                 FormatReporterProvider()
                     .get(
                         out = PrintStream(out, true),
-                        opt = mapOf(
-                            "format" to "invalid",
-                            "color_name" to "RED",
-                        ),
+                        opt =
+                            mapOf(
+                                "format" to "invalid",
+                                "color_name" to "RED",
+                            ),
                     )
             }.withMessage("The string doesn't represent a boolean value: invalid")
     }
@@ -66,10 +69,11 @@ class FormatReporterProviderTest {
                 FormatReporterProvider()
                     .get(
                         out = PrintStream(out, true),
-                        opt = mapOf(
-                            "format" to "true",
-                            "color_name" to "",
-                        ),
+                        opt =
+                            mapOf(
+                                "format" to "true",
+                                "color_name" to "",
+                            ),
                     )
             }.withMessage("Invalid color parameter.")
     }
@@ -81,10 +85,11 @@ class FormatReporterProviderTest {
                 FormatReporterProvider()
                     .get(
                         out = PrintStream(out, true),
-                        opt = mapOf(
-                            "format" to "true",
-                            "color_name" to "GARBAGE_INPUT",
-                        ),
+                        opt =
+                            mapOf(
+                                "format" to "true",
+                                "color_name" to "GARBAGE_INPUT",
+                            ),
                     )
             }.withMessage("Invalid color parameter.")
     }

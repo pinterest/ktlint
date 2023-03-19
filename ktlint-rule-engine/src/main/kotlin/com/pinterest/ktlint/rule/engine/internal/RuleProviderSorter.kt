@@ -73,16 +73,17 @@ internal class RuleProviderSorter {
             }
         unprocessedRuleProviders.removeAll(sortedRuleProviders)
         while (unprocessedRuleProviders.isNotEmpty()) {
-            val ruleProvider = unprocessedRuleProviders
-                .firstOrNull { ruleProvider ->
-                    ruleProvider
-                        .runAfterRules
-                        .filter { it.ruleId in ruleIdsToBeSorted }
-                        .all { it.ruleId in ruleIdsSortedRuleProviders }
-                }
-                ?: throw IllegalStateException(
-                    "Can not complete sorting of rule providers as next item can not be determined.",
-                )
+            val ruleProvider =
+                unprocessedRuleProviders
+                    .firstOrNull { ruleProvider ->
+                        ruleProvider
+                            .runAfterRules
+                            .filter { it.ruleId in ruleIdsToBeSorted }
+                            .all { it.ruleId in ruleIdsSortedRuleProviders }
+                    }
+                    ?: throw IllegalStateException(
+                        "Can not complete sorting of rule providers as next item can not be determined.",
+                    )
             sortedRuleProviders.add(ruleProvider)
             ruleIdsSortedRuleProviders.add(ruleProvider.ruleId)
             unprocessedRuleProviders.remove(ruleProvider)

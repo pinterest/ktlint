@@ -61,11 +61,14 @@ public class NoSemicolonsRule : StandardRule("no-semi") {
             return true
         }
         if (this is PsiWhiteSpace) {
-            val nextLeaf = nextLeaf {
-                val psi = it.psi
-                it !is PsiWhiteSpace && it !is PsiComment && psi.getStrictParentOfType<KDoc>() == null &&
-                    psi.getStrictParentOfType<KtAnnotationEntry>() == null
-            }
+            val nextLeaf =
+                nextLeaf {
+                    val psi = it.psi
+                    it !is PsiWhiteSpace &&
+                        it !is PsiComment &&
+                        psi.getStrictParentOfType<KDoc>() == null &&
+                        psi.getStrictParentOfType<KtAnnotationEntry>() == null
+                }
             return (
                 nextLeaf == null || // \s+ and then eof
                     textContains('\n') && nextLeaf.elementType != KtTokens.LBRACE

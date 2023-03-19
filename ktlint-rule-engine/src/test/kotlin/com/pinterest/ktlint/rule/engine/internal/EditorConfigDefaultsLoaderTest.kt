@@ -18,9 +18,10 @@ import org.junit.jupiter.params.provider.ValueSource
 
 class EditorConfigDefaultsLoaderTest {
     private val ktlintTestFileSystem = KtlintTestFileSystem()
-    private val editorConfigDefaultsLoader = EditorConfigDefaultsLoader(
-        EditorConfigLoaderEc4j(EC4J_PROPERTY_TYPES_USED_BY_KTLINT),
-    )
+    private val editorConfigDefaultsLoader =
+        EditorConfigDefaultsLoader(
+            EditorConfigLoaderEc4j(EC4J_PROPERTY_TYPES_USED_BY_KTLINT),
+        )
 
     @AfterEach
     internal fun tearDown() {
@@ -36,9 +37,10 @@ class EditorConfigDefaultsLoaderTest {
 
     @Test
     fun `Given an empty path then return empty editor config default`() {
-        val actual = editorConfigDefaultsLoader.load(
-            ktlintTestFileSystem.resolve(""),
-        )
+        val actual =
+            editorConfigDefaultsLoader.load(
+                ktlintTestFileSystem.resolve(""),
+            )
 
         assertThat(actual).isEqualTo(EMPTY_EDITOR_CONFIG_DEFAULTS)
     }
@@ -46,18 +48,20 @@ class EditorConfigDefaultsLoaderTest {
     @Test
     @DisabledOnOs(OS.WINDOWS) // Filename can not start or end with space
     fun `Given a blank path then return empty editor config default`() {
-        val actual = editorConfigDefaultsLoader.load(
-            ktlintTestFileSystem.resolve("  "),
-        )
+        val actual =
+            editorConfigDefaultsLoader.load(
+                ktlintTestFileSystem.resolve("  "),
+            )
 
         assertThat(actual).isEqualTo(EMPTY_EDITOR_CONFIG_DEFAULTS)
     }
 
     @Test
     fun `Given an non existing path then return empty editor config default`() {
-        val actual = editorConfigDefaultsLoader.load(
-            ktlintTestFileSystem.resolve("/path/to/non/existing/file.kt"),
-        )
+        val actual =
+            editorConfigDefaultsLoader.load(
+                ktlintTestFileSystem.resolve("/path/to/non/existing/file.kt"),
+            )
 
         assertThat(actual).isEqualTo(EMPTY_EDITOR_CONFIG_DEFAULTS)
     }
@@ -79,9 +83,10 @@ class EditorConfigDefaultsLoaderTest {
             )
         }
 
-        val actual = editorConfigDefaultsLoader.load(
-            ktlintTestFileSystem.resolve("$somePathToDirectory/$fileName"),
-        )
+        val actual =
+            editorConfigDefaultsLoader.load(
+                ktlintTestFileSystem.resolve("$somePathToDirectory/$fileName"),
+            )
 
         assertThat(actual).isEqualTo(
             EditorConfigDefaults(SOME_EDITOR_CONFIG),
@@ -95,9 +100,10 @@ class EditorConfigDefaultsLoaderTest {
             writeEditorConfigFile(somePathToDirectory, SOME_EDITOR_CONFIG.toString())
         }
 
-        val actual = editorConfigDefaultsLoader.load(
-            ktlintTestFileSystem.resolve(somePathToDirectory),
-        )
+        val actual =
+            editorConfigDefaultsLoader.load(
+                ktlintTestFileSystem.resolve(somePathToDirectory),
+            )
 
         assertThat(actual).isEqualTo(
             EditorConfigDefaults(SOME_EDITOR_CONFIG),
@@ -105,27 +111,29 @@ class EditorConfigDefaultsLoaderTest {
     }
 
     private companion object {
-        val SOME_EDITOR_CONFIG: EditorConfig = EditorConfig
-            .builder()
-            .section(
-                Section
-                    .builder()
-                    .glob(Glob("*.kt"))
-                    .properties(
-                        Property
-                            .builder()
-                            .name("some-property")
-                            .value("some-property-value"),
-                    ),
+        val SOME_EDITOR_CONFIG: EditorConfig =
+            EditorConfig
+                .builder()
+                .section(
+                    Section
+                        .builder()
+                        .glob(Glob("*.kt"))
+                        .properties(
+                            Property
+                                .builder()
+                                .name("some-property")
+                                .value("some-property-value"),
+                        ),
+                )
+                .build()
+        val EC4J_PROPERTY_TYPES_USED_BY_KTLINT =
+            setOf(
+                PropertyType.end_of_line,
+                PropertyType.indent_size,
+                PropertyType.indent_style,
+                PropertyType.insert_final_newline,
+                PropertyType.max_line_length,
+                PropertyType.tab_width,
             )
-            .build()
-        val EC4J_PROPERTY_TYPES_USED_BY_KTLINT = setOf(
-            PropertyType.end_of_line,
-            PropertyType.indent_size,
-            PropertyType.indent_style,
-            PropertyType.insert_final_newline,
-            PropertyType.max_line_length,
-            PropertyType.tab_width,
-        )
     }
 }

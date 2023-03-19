@@ -8,13 +8,14 @@ import org.junit.jupiter.api.Test
 class ImportOrderingRuleTest {
     @Test
     fun `Given a list of pattern entries then write the patters as comma separated string`() {
-        val actual = ImportOrderingRule.IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY.propertyWriter(
-            listOf(
-                PatternEntry.ALL_OTHER_IMPORTS_ENTRY,
-                PatternEntry(packageName = "java", withSubpackages = true, hasAlias = false),
-                PatternEntry.ALL_OTHER_ALIAS_IMPORTS_ENTRY,
-            ),
-        )
+        val actual =
+            ImportOrderingRule.IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY.propertyWriter(
+                listOf(
+                    PatternEntry.ALL_OTHER_IMPORTS_ENTRY,
+                    PatternEntry(packageName = "java", withSubpackages = true, hasAlias = false),
+                    PatternEntry.ALL_OTHER_ALIAS_IMPORTS_ENTRY,
+                ),
+            )
         assertThat(actual).isEqualTo("*,java.**,^")
     }
 }

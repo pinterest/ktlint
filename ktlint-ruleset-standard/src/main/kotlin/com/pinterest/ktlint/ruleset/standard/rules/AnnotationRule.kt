@@ -75,10 +75,11 @@ import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 public class AnnotationRule :
     StandardRule(
         id = "annotation",
-        usesEditorConfigProperties = setOf(
-            INDENT_SIZE_PROPERTY,
-            INDENT_STYLE_PROPERTY,
-        ),
+        usesEditorConfigProperties =
+            setOf(
+                INDENT_SIZE_PROPERTY,
+                INDENT_STYLE_PROPERTY,
+            ),
     ) {
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 

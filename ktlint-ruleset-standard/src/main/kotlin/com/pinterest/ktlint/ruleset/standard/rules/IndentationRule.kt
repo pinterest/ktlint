@@ -122,26 +122,28 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 public class IndentationRule :
     StandardRule(
         id = "indent",
-        visitorModifiers = setOf(
-            VisitorModifier.RunAsLateAsPossible,
-            VisitorModifier.RunAfterRule(
-                ruleId = FUNCTION_SIGNATURE_RULE_ID,
-                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+        visitorModifiers =
+            setOf(
+                VisitorModifier.RunAsLateAsPossible,
+                VisitorModifier.RunAfterRule(
+                    ruleId = FUNCTION_SIGNATURE_RULE_ID,
+                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                ),
+                VisitorModifier.RunAfterRule(
+                    ruleId = TRAILING_COMMA_ON_CALL_SITE_RULE_ID,
+                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                ),
+                VisitorModifier.RunAfterRule(
+                    ruleId = TRAILING_COMMA_ON_DECLARATION_SITE_RULE_ID,
+                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                ),
             ),
-            VisitorModifier.RunAfterRule(
-                ruleId = TRAILING_COMMA_ON_CALL_SITE_RULE_ID,
-                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+        usesEditorConfigProperties =
+            setOf(
+                CODE_STYLE_PROPERTY,
+                INDENT_SIZE_PROPERTY,
+                INDENT_STYLE_PROPERTY,
             ),
-            VisitorModifier.RunAfterRule(
-                ruleId = TRAILING_COMMA_ON_DECLARATION_SITE_RULE_ID,
-                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
-            ),
-        ),
-        usesEditorConfigProperties = setOf(
-            CODE_STYLE_PROPERTY,
-            INDENT_SIZE_PROPERTY,
-            INDENT_STYLE_PROPERTY,
-        ),
     ) {
     private var codeStyle = CODE_STYLE_PROPERTY.defaultValue
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
@@ -352,9 +354,10 @@ public class IndentationRule :
             .findChildByType(CONSTRUCTOR_DELEGATION_CALL)
             ?.let { constructorDelegationCall ->
                 val fromAstNode = node.skipLeadingWhitespaceCommentsAndAnnotations()
-                val nextToAstNode = startIndentContext(
-                    fromAstNode = constructorDelegationCall,
-                ).prevCodeLeaf()
+                val nextToAstNode =
+                    startIndentContext(
+                        fromAstNode = constructorDelegationCall,
+                    ).prevCodeLeaf()
 
                 // Leading annotations and comments should be indented at same level as constructor itself
                 if (fromAstNode != node.nextLeaf()) {
@@ -407,9 +410,10 @@ public class IndentationRule :
 
     private fun visitLbrace(node: ASTNode) {
         // Outer indent context
-        val rbrace = requireNotNull(
-            node.nextSibling { it.elementType == RBRACE },
-        ) { "Can not find matching rbrace" }
+        val rbrace =
+            requireNotNull(
+                node.nextSibling { it.elementType == RBRACE },
+            ) { "Can not find matching rbrace" }
         startIndentContext(
             fromAstNode = node,
             toAstNode = rbrace,
@@ -1271,8 +1275,9 @@ private class StringTemplateIndenter(private val indentConfig: IndentConfig) {
             .filter { it.prevLeaf()?.text == "\n" }
             .filterNot { it.text == "\n" }
             .let { indents ->
-                val indentsExceptBlankIndentBeforeClosingQuote = indents
-                    .filterNot { it.isIndentBeforeClosingQuote() }
+                val indentsExceptBlankIndentBeforeClosingQuote =
+                    indents
+                        .filterNot { it.isIndentBeforeClosingQuote() }
                 if (indentsExceptBlankIndentBeforeClosingQuote.count() > 0) {
                     indentsExceptBlankIndentBeforeClosingQuote
                 } else {
@@ -1305,20 +1310,22 @@ private class StringTemplateIndenter(private val indentConfig: IndentConfig) {
 
     private fun ASTNode.containsMixedIndentationCharacters(): Boolean {
         assert((this.psi as KtStringTemplateExpression).isMultiLine())
-        val nonBlankLines = this
-            .text
-            .split("\n")
-            .filterNot { it.startsWith("\"\"\"") }
-            .filterNot { it.endsWith("\"\"\"") }
-            .filterNot { it.isBlank() }
+        val nonBlankLines =
+            this
+                .text
+                .split("\n")
+                .filterNot { it.startsWith("\"\"\"") }
+                .filterNot { it.endsWith("\"\"\"") }
+                .filterNot { it.isBlank() }
         val prefixLength = nonBlankLines.minOfOrNull { it.indentLength() } ?: 0
-        val distinctIndentCharacters = nonBlankLines
-            .joinToString(separator = "") {
-                it.splitIndentAt(prefixLength).first
-            }
-            .toCharArray()
-            .distinct()
-            .count()
+        val distinctIndentCharacters =
+            nonBlankLines
+                .joinToString(separator = "") {
+                    it.splitIndentAt(prefixLength).first
+                }
+                .toCharArray()
+                .distinct()
+                .count()
         return distinctIndentCharacters > 1
     }
 
@@ -1342,13 +1349,14 @@ private class StringTemplateIndenter(private val indentConfig: IndentConfig) {
      */
     private fun String.splitIndentAt(index: Int): Pair<String, String> {
         assert(index >= 0)
-        val firstNonWhitespaceIndex = indexOfFirst { !it.isWhitespace() }.let {
-            if (it == -1) {
-                this.length
-            } else {
-                it
+        val firstNonWhitespaceIndex =
+            indexOfFirst { !it.isWhitespace() }.let {
+                if (it == -1) {
+                    this.length
+                } else {
+                    it
+                }
             }
-        }
         val safeIndex = kotlin.math.min(firstNonWhitespaceIndex, index)
         return Pair(
             first = this.take(safeIndex),

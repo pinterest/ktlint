@@ -32,13 +32,14 @@ import org.jetbrains.kotlin.psi.KtPsiFactory
 public class TrailingCommaOnCallSiteRule :
     StandardRule(
         id = "trailing-comma-on-call-site",
-        visitorModifiers = setOf(
-            VisitorModifier.RunAfterRule(
-                ruleId = WRAPPING_RULE_ID,
-                mode = ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED,
+        visitorModifiers =
+            setOf(
+                VisitorModifier.RunAfterRule(
+                    ruleId = WRAPPING_RULE_ID,
+                    mode = ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED,
+                ),
+                VisitorModifier.RunAsLateAsPossible,
             ),
-            VisitorModifier.RunAsLateAsPossible,
-        ),
         usesEditorConfigProperties = setOf(TRAILING_COMMA_ON_CALL_SITE_PROPERTY),
     ) {
     private var allowTrailingCommaOnCallSite = TRAILING_COMMA_ON_CALL_SITE_PROPERTY.defaultValue
@@ -68,9 +69,10 @@ public class TrailingCommaOnCallSiteRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        val inspectNode = node
-            .children()
-            .last { it.elementType == ElementType.RBRACKET }
+        val inspectNode =
+            node
+                .children()
+                .last { it.elementType == ElementType.RBRACKET }
         node.reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
             emit = emit,
@@ -86,9 +88,10 @@ public class TrailingCommaOnCallSiteRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        val inspectNode = node
-            .children()
-            .last { it.elementType == ElementType.RBRACKET }
+        val inspectNode =
+            node
+                .children()
+                .last { it.elementType == ElementType.RBRACKET }
         node.reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
             emit = emit,
@@ -122,9 +125,10 @@ public class TrailingCommaOnCallSiteRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        val inspectNode = node
-            .children()
-            .first { it.elementType == ElementType.GT }
+        val inspectNode =
+            node
+                .children()
+                .first { it.elementType == ElementType.GT }
         node.reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
             emit = emit,
@@ -237,26 +241,28 @@ public class TrailingCommaOnCallSiteRule :
 
         public val TRAILING_COMMA_ON_CALL_SITE_PROPERTY: EditorConfigProperty<Boolean> =
             EditorConfigProperty(
-                type = PropertyType.LowerCasingPropertyType(
-                    "ij_kotlin_allow_trailing_comma_on_call_site",
-                    "Defines whether a trailing comma (or no trailing comma) should be enforced on the calling side," +
-                        "e.g. argument-list, when-entries, lambda-arguments, indices, etc." +
-                        "When set, IntelliJ IDEA uses this property to allow usage of a trailing comma by discretion " +
-                        "of the developer. KtLint however uses this setting to enforce consistent usage of the " +
-                        "trailing comma when set.",
-                    PropertyValueParser.BOOLEAN_VALUE_PARSER,
-                    BOOLEAN_VALUES_SET,
-                ),
+                type =
+                    PropertyType.LowerCasingPropertyType(
+                        "ij_kotlin_allow_trailing_comma_on_call_site",
+                        "Defines whether a trailing comma (or no trailing comma) should be enforced on the calling side," +
+                            "e.g. argument-list, when-entries, lambda-arguments, indices, etc." +
+                            "When set, IntelliJ IDEA uses this property to allow usage of a trailing comma by discretion " +
+                            "of the developer. KtLint however uses this setting to enforce consistent usage of the " +
+                            "trailing comma when set.",
+                        PropertyValueParser.BOOLEAN_VALUE_PARSER,
+                        BOOLEAN_VALUES_SET,
+                    ),
                 defaultValue = true,
                 androidStudioCodeStyleDefaultValue = false,
             )
 
-        private val TYPES_ON_CALL_SITE = TokenSet.create(
-            COLLECTION_LITERAL_EXPRESSION,
-            INDICES,
-            TYPE_ARGUMENT_LIST,
-            VALUE_ARGUMENT_LIST,
-        )
+        private val TYPES_ON_CALL_SITE =
+            TokenSet.create(
+                COLLECTION_LITERAL_EXPRESSION,
+                INDICES,
+                TYPE_ARGUMENT_LIST,
+                VALUE_ARGUMENT_LIST,
+            )
     }
 }
 

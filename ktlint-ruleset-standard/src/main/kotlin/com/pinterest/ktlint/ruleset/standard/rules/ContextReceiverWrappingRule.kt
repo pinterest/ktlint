@@ -36,11 +36,12 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 public class ContextReceiverWrappingRule :
     StandardRule(
         id = "context-receiver-wrapping",
-        usesEditorConfigProperties = setOf(
-            INDENT_SIZE_PROPERTY,
-            INDENT_STYLE_PROPERTY,
-            MAX_LINE_LENGTH_PROPERTY,
-        ),
+        usesEditorConfigProperties =
+            setOf(
+                INDENT_SIZE_PROPERTY,
+                INDENT_STYLE_PROPERTY,
+                MAX_LINE_LENGTH_PROPERTY,
+            ),
     ),
     Rule.Experimental {
     private var indentConfig = DEFAULT_INDENT_CONFIG

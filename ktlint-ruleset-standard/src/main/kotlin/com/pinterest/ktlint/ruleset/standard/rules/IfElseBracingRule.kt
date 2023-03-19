@@ -33,10 +33,11 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
 public class IfElseBracingRule :
     StandardRule(
         id = "if-else-bracing",
-        usesEditorConfigProperties = setOf(
-            INDENT_SIZE_PROPERTY,
-            INDENT_STYLE_PROPERTY,
-        ),
+        usesEditorConfigProperties =
+            setOf(
+                INDENT_SIZE_PROPERTY,
+                INDENT_STYLE_PROPERTY,
+            ),
     ),
     Rule.Experimental,
     Rule.OfficialCodeStyle {
@@ -64,9 +65,10 @@ public class IfElseBracingRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        val thenNode = requireNotNull(node.findChildByType(THEN)) {
-            "Can not find THEN branch in IF"
-        }
+        val thenNode =
+            requireNotNull(node.findChildByType(THEN)) {
+                "Can not find THEN branch in IF"
+            }
         val elseNode = node.findChildByType(ELSE) ?: return
         val parentIfBracing =
             node

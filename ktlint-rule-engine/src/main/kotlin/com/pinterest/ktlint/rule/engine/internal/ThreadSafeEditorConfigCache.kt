@@ -29,10 +29,11 @@ internal class ThreadSafeEditorConfigCache : Cache {
         editorConfigLoader: EditorConfigLoader,
     ): EditorConfig {
         readWriteLock.read {
-            val cachedEditConfig = inMemoryMap[resource]
-                ?.also {
-                    LOGGER.trace { "Retrieving EditorConfig cache entry for path ${resource.path}" }
-                }?.editConfig
+            val cachedEditConfig =
+                inMemoryMap[resource]
+                    ?.also {
+                        LOGGER.trace { "Retrieving EditorConfig cache entry for path ${resource.path}" }
+                    }?.editConfig
             return cachedEditConfig
                 ?: readWriteLock.write {
                     CacheValue(resource, editorConfigLoader)

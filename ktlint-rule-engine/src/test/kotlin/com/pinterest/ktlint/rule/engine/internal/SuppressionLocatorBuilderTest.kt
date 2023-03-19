@@ -241,17 +241,20 @@ class SuppressionLocatorBuilderTest {
 
         val STANDARD_NO_FOO_IDENTIFIER_RULE_ID = RuleId("standard:no-foo-identifier-standard")
         val NON_STANDARD_NO_FOO_IDENTIFIER_RULE_ID = RuleId("$NON_STANDARD_RULE_SET_ID:no-foo-identifier")
-        val KTLINT_RULE_ENGINE = KtLintRuleEngine(
-            ruleProviders = setOf(
-                // The same rule is supplied once a standard rule and once as non-standard rule. Note that the
-                // ruleIds are different.
-                RuleProvider { NoFooIdentifierRule(STANDARD_NO_FOO_IDENTIFIER_RULE_ID) },
-                RuleProvider { NoFooIdentifierRule(NON_STANDARD_NO_FOO_IDENTIFIER_RULE_ID) },
-            ),
-            editorConfigOverride = EditorConfigOverride.from(
-                STANDARD_NO_FOO_IDENTIFIER_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled,
-                NON_STANDARD_NO_FOO_IDENTIFIER_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled,
-            ),
-        )
+        val KTLINT_RULE_ENGINE =
+            KtLintRuleEngine(
+                ruleProviders =
+                    setOf(
+                        // The same rule is supplied once a standard rule and once as non-standard rule. Note that the
+                        // ruleIds are different.
+                        RuleProvider { NoFooIdentifierRule(STANDARD_NO_FOO_IDENTIFIER_RULE_ID) },
+                        RuleProvider { NoFooIdentifierRule(NON_STANDARD_NO_FOO_IDENTIFIER_RULE_ID) },
+                    ),
+                editorConfigOverride =
+                    EditorConfigOverride.from(
+                        STANDARD_NO_FOO_IDENTIFIER_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled,
+                        NON_STANDARD_NO_FOO_IDENTIFIER_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled,
+                    ),
+            )
     }
 }

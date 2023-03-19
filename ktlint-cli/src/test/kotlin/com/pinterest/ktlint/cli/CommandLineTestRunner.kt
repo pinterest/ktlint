@@ -168,14 +168,16 @@ class CommandLineTestRunner(private val tempDir: Path) {
             return null
         }
 
-        val matchResult = JAVA_VERSION_REGEX.matchEntire(this)
-        /*
-         * Java 9+: no more leading `1.`.
-         */
-            ?: return toIntOrNull()
+        val matchResult =
+            JAVA_VERSION_REGEX
+                .matchEntire(this)
+                ?: // Java 9+ has no leading `1.` as prefix in the version number
+                return toIntOrNull()
 
-        val matchGroup = matchResult.groups["version"]
-            ?: return null
+        val matchGroup =
+            matchResult
+                .groups["version"]
+                ?: return null
 
         return matchGroup.value.toIntOrNull()
     }

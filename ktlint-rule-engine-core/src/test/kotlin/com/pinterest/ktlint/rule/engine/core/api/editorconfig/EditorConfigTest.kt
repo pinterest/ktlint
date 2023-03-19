@@ -215,9 +215,10 @@ class EditorConfigTest {
 
     @Test
     fun `Given an editorconfig containing a property for which the value is unset then return its default value`() {
-        val editorConfig = EditorConfig(
-            SOME_EDITOR_CONFIG_PROPERTY.toPropertyWithValue("unset"),
-        )
+        val editorConfig =
+            EditorConfig(
+                SOME_EDITOR_CONFIG_PROPERTY.toPropertyWithValue("unset"),
+            )
 
         val actual = editorConfig[SOME_EDITOR_CONFIG_PROPERTY]
 
@@ -227,9 +228,10 @@ class EditorConfigTest {
     @Test
     fun `Given an editorconfig containing a property with an invalid source value then return its default value`() {
         val someEditorConfigProperty = editorConfigProperty("some-editor-config-property")
-        val editorConfig = EditorConfig(
-            someEditorConfigProperty.toPropertyWithValue("some-invalid-value"),
-        )
+        val editorConfig =
+            EditorConfig(
+                someEditorConfigProperty.toPropertyWithValue("some-invalid-value"),
+            )
 
         val actual = editorConfig[someEditorConfigProperty]
 
@@ -255,25 +257,27 @@ class EditorConfigTest {
         val ktlintTestRuleExecutionProperty2 = "ktlint_test_rule-2"
         val ktlintTestRuleExecutionPropertyType2 = editorConfigProperty(ktlintTestRuleExecutionProperty2)
 
-        val ktlintTestFileSystem = KtlintTestFileSystem().apply {
-            writeRootEditorConfigFile(
-                //language=EditorConfig
-                """
+        val ktlintTestFileSystem =
+            KtlintTestFileSystem().apply {
+                writeRootEditorConfigFile(
+                    //language=EditorConfig
+                    """
                 [*.{kt,kts}]
                 $ktlintTestRuleExecutionProperty1 = disabled
                 $ktlintTestRuleExecutionProperty2 = disabled
-                """.trimIndent(),
-            )
-        }
+                    """.trimIndent(),
+                )
+            }
 
         val ktlintTestRuleProperties =
             EditorConfigDefaults
                 .load(
                     path = ktlintTestFileSystem.resolve(""),
-                    propertyTypes = setOf(
-                        // Note that ktlintTestRuleEditorConfigPropertyType1 has been left out on purpose
-                        ktlintTestRuleExecutionPropertyType2.type,
-                    ),
+                    propertyTypes =
+                        setOf(
+                            // Note that ktlintTestRuleEditorConfigPropertyType1 has been left out on purpose
+                            ktlintTestRuleExecutionPropertyType2.type,
+                        ),
                 ).value
                 .sections
                 .flatMap { it.properties.values }
@@ -306,12 +310,13 @@ class EditorConfigTest {
     private fun editorConfigProperty(name: String) =
         EditorConfigProperty(
             name = name,
-            type = PropertyType.LowerCasingPropertyType(
-                name,
-                "",
-                SafeEnumValueParser(RuleExecution::class.java),
-                RuleExecution.values().map { it.name }.toSet(),
-            ),
+            type =
+                PropertyType.LowerCasingPropertyType(
+                    name,
+                    "",
+                    SafeEnumValueParser(RuleExecution::class.java),
+                    RuleExecution.values().map { it.name }.toSet(),
+                ),
             defaultValue = RuleExecution.enabled,
         )
 
@@ -322,18 +327,20 @@ class EditorConfigTest {
         const val SOME_PROPERTY_VALUE_DEFAULT = "some-property-value-default"
         const val SOME_PROPERTY_VALUE_INTELLIJ_IDEA = "some-property-value-intellij-idea"
         const val SOME_PROPERTY_VALUE_OFFICIAL = "some-property-value-official"
-        val SOME_EDITOR_CONFIG_PROPERTY = EditorConfigProperty(
-            name = SOME_PROPERTY_NAME,
-            type = PropertyType(
-                SOME_PROPERTY_NAME,
-                "",
-                PropertyType.PropertyValueParser.IDENTITY_VALUE_PARSER,
-                setOf(SOME_PROPERTY_VALUE_ANDROID, SOME_PROPERTY_VALUE_INTELLIJ_IDEA),
-            ),
-            defaultValue = SOME_PROPERTY_VALUE_DEFAULT,
-            androidStudioCodeStyleDefaultValue = SOME_PROPERTY_VALUE_ANDROID,
-            ktlintOfficialCodeStyleDefaultValue = SOME_PROPERTY_VALUE_OFFICIAL,
-            intellijIdeaCodeStyleDefaultValue = SOME_PROPERTY_VALUE_INTELLIJ_IDEA,
-        )
+        val SOME_EDITOR_CONFIG_PROPERTY =
+            EditorConfigProperty(
+                name = SOME_PROPERTY_NAME,
+                type =
+                    PropertyType(
+                        SOME_PROPERTY_NAME,
+                        "",
+                        PropertyType.PropertyValueParser.IDENTITY_VALUE_PARSER,
+                        setOf(SOME_PROPERTY_VALUE_ANDROID, SOME_PROPERTY_VALUE_INTELLIJ_IDEA),
+                    ),
+                defaultValue = SOME_PROPERTY_VALUE_DEFAULT,
+                androidStudioCodeStyleDefaultValue = SOME_PROPERTY_VALUE_ANDROID,
+                ktlintOfficialCodeStyleDefaultValue = SOME_PROPERTY_VALUE_OFFICIAL,
+                intellijIdeaCodeStyleDefaultValue = SOME_PROPERTY_VALUE_INTELLIJ_IDEA,
+            )
     }
 }

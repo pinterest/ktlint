@@ -34,10 +34,11 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 public class MultilineExpressionWrapping :
     StandardRule(
         id = "multiline-expression-wrapping",
-        usesEditorConfigProperties = setOf(
-            INDENT_SIZE_PROPERTY,
-            INDENT_STYLE_PROPERTY,
-        ),
+        usesEditorConfigProperties =
+            setOf(
+                INDENT_SIZE_PROPERTY,
+                INDENT_STYLE_PROPERTY,
+            ),
     ),
     Rule.Experimental,
     Rule.OfficialCodeStyle {
@@ -115,12 +116,13 @@ public class MultilineExpressionWrapping :
             ?.takeIf { it.elementType == RPAR }
 
     private companion object {
-        val CHAINABLE_EXPRESSION = setOf(
-            CALL_EXPRESSION,
-            DOT_QUALIFIED_EXPRESSION,
-            REFERENCE_EXPRESSION,
-            SAFE_ACCESS_EXPRESSION,
-        )
+        val CHAINABLE_EXPRESSION =
+            setOf(
+                CALL_EXPRESSION,
+                DOT_QUALIFIED_EXPRESSION,
+                REFERENCE_EXPRESSION,
+                SAFE_ACCESS_EXPRESSION,
+            )
     }
 }
 

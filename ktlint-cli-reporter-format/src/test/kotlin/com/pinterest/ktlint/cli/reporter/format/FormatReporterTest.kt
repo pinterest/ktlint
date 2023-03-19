@@ -14,10 +14,11 @@ class FormatReporterTest {
     @Test
     fun `Given some lint violations from which at least one is autocorrected and format is running`() {
         val out = ByteArrayOutputStream()
-        val reporter = FormatReporter(
-            out = PrintStream(out, true),
-            format = true,
-        )
+        val reporter =
+            FormatReporter(
+                out = PrintStream(out, true),
+                format = true,
+            )
 
         // File 1: 1 violation not autocorrected
         reporter.onLintError(
@@ -62,10 +63,11 @@ class FormatReporterTest {
     @Test
     fun `Given some lint violations from which none is autocorrected and lint is running`() {
         val out = ByteArrayOutputStream()
-        val reporter = FormatReporter(
-            out = PrintStream(out, true),
-            format = false,
-        )
+        val reporter =
+            FormatReporter(
+                out = PrintStream(out, true),
+                format = false,
+            )
 
         // File 1: At least 1 violation can be autocorrected but is not (e.g. lint is running)
         reporter.onLintError(
@@ -91,12 +93,13 @@ class FormatReporterTest {
     fun `Given that the output has to be colored`() {
         val out = ByteArrayOutputStream()
         val outputColor = Color.DARK_GRAY
-        val reporter = FormatReporter(
-            PrintStream(out, true),
-            format = true,
-            shouldColorOutput = true,
-            outputColor = outputColor,
-        )
+        val reporter =
+            FormatReporter(
+                PrintStream(out, true),
+                format = true,
+                shouldColorOutput = true,
+                outputColor = outputColor,
+            )
 
         reporter.onLintError(
             File.separator.plus(SOME_FILE_NAME),

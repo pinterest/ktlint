@@ -320,8 +320,9 @@ public val ASTNode.column: Int
     }
 
 @Deprecated(
-    message = "Marked for removal in Ktlint 0.50. Replace with 'indent' but do note that it automatically includes a newline character " +
-        "as prefix.",
+    message =
+        "Marked for removal in Ktlint 0.50. Replace with 'indent' but do note that it automatically includes a newline character as " +
+            "prefix.",
     replaceWith = ReplaceWith("indent"),
 )
 public fun ASTNode.lineIndent(): String {

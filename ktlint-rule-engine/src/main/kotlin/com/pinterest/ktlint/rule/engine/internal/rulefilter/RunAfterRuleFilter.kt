@@ -179,8 +179,9 @@ internal class RunAfterRuleFilter : RuleFilter {
         val separator = "\n  - "
         return requiredButMissingRuleIds
             .joinToString(
-                prefix = "Skipping rule(s) which are depending on a rule which is not loaded. Please check if " +
-                    "you need to add additional rule sets before creating an issue.$separator",
+                prefix =
+                    "Skipping rule(s) which are depending on a rule which is not loaded. Please check if you need to add additional " +
+                        "rule sets before creating an issue.$separator",
                 separator = separator,
             ) {
                 "Rule with id '${it.ruleId}' requires rule with id '${it.runAfterRuleId}' to be loaded"

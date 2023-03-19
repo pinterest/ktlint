@@ -613,9 +613,10 @@ public class KtLintAssertThatAssertable(
                 // the additional rules to be loaded and enabled as well.
                 .plus(additionalRuleProviders)
                 .plus(DUMP_AST_RULE_PROVIDER)
-        val editorConfigOverride = editorConfigOverride
-            .enableExperimentalRules()
-            .extendWithRuleSetRuleExecutionsFor(ruleProviders)
+        val editorConfigOverride =
+            editorConfigOverride
+                .enableExperimentalRules()
+                .extendWithRuleSetRuleExecutionsFor(ruleProviders)
         return KtLintRuleEngine(
             ruleProviders = ruleProviders,
             editorConfigOverride = editorConfigOverride,
@@ -669,19 +670,20 @@ public data class LintViolation(
  * provided.
  */
 private fun EditorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProviders: Set<RuleProvider>): EditorConfigOverride {
-    val ruleSetRuleExecutions = ruleProviders
-        .asSequence()
-        .map { ruleProvider ->
-            ruleProvider
-                .createNewRuleInstance()
-                .ruleId
-                .ruleSetId
-                .createRuleSetExecutionEditorConfigProperty()
-        }.distinct()
-        .filter { editorConfigProperty -> this.properties[editorConfigProperty] == null }
-        .map { it to RuleExecution.enabled }
-        .toList()
-        .toTypedArray()
+    val ruleSetRuleExecutions =
+        ruleProviders
+            .asSequence()
+            .map { ruleProvider ->
+                ruleProvider
+                    .createNewRuleInstance()
+                    .ruleId
+                    .ruleSetId
+                    .createRuleSetExecutionEditorConfigProperty()
+            }.distinct()
+            .filter { editorConfigProperty -> this.properties[editorConfigProperty] == null }
+            .map { it to RuleExecution.enabled }
+            .toList()
+            .toTypedArray()
     return this.plus(*ruleSetRuleExecutions)
 }
 

@@ -55,11 +55,12 @@ internal object GitHookInstaller {
     // Try to find the .git directory automatically, falling back to `./.git`
     private fun getGitDir(): File {
         val gitDir = try {
-            val root = Runtime.getRuntime().exec("git rev-parse --show-toplevel")
-                .inputStream
-                .bufferedReader()
-                .readText()
-                .trim()
+            val root =
+                Runtime.getRuntime().exec("git rev-parse --show-toplevel")
+                    .inputStream
+                    .bufferedReader()
+                    .readText()
+                    .trim()
 
             File(root).resolve(".git")
         } catch (_: IOException) {

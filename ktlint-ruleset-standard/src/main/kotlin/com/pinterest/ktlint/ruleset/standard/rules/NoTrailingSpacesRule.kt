@@ -67,10 +67,11 @@ public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
     private fun ASTNode.hasTrailingSpacesBeforeNewline() = text.contains(SPACE_OR_TAB_BEFORE_NEWLINE_REGEX)
 
     private fun ASTNode.removeTrailingSpacesBeforeNewline() {
-        val newText = text.replace(
-            regex = SPACE_OR_TAB_BEFORE_NEWLINE_REGEX,
-            replacement = "\n",
-        )
+        val newText =
+            text.replace(
+                regex = SPACE_OR_TAB_BEFORE_NEWLINE_REGEX,
+                replacement = "\n",
+            )
         (this as LeafPsiElement).replaceWithText(newText)
     }
 

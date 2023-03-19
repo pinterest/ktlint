@@ -11,13 +11,14 @@ class TrailingCommaOnDeclarationSiteRuleTest {
     private val trailingCommaOnDeclarationSiteRuleAssertThat =
         KtLintAssertThat.assertThatRule(
             provider = { TrailingCommaOnDeclarationSiteRule() },
-            additionalRuleProviders = setOf(
-                // WrappingRule must be loaded in order to run TrailingCommaOnCallSiteRule
-                RuleProvider { WrappingRule() },
-                // Apply the IndentationRule always as additional rule, so that the formattedCode in the unit test looks
-                // correct.
-                RuleProvider { IndentationRule() },
-            ),
+            additionalRuleProviders =
+                setOf(
+                    // WrappingRule must be loaded in order to run TrailingCommaOnCallSiteRule
+                    RuleProvider { WrappingRule() },
+                    // Apply the IndentationRule always as additional rule, so that the formattedCode in the unit test looks
+                    // correct.
+                    RuleProvider { IndentationRule() },
+                ),
         )
 
     @Test
@@ -930,10 +931,11 @@ class TrailingCommaOnDeclarationSiteRuleTest {
         val multiLineIfElseRuleAssertThat =
             KtLintAssertThat.assertThatRule(
                 provider = { MultiLineIfElseRule() },
-                additionalRuleProviders = setOf(
-                    RuleProvider { TrailingCommaOnDeclarationSiteRule() },
-                    RuleProvider { WrappingRule() }, // Required for TrailingCommaOnDeclarationSiteRule
-                ),
+                additionalRuleProviders =
+                    setOf(
+                        RuleProvider { TrailingCommaOnDeclarationSiteRule() },
+                        RuleProvider { WrappingRule() }, // Required for TrailingCommaOnDeclarationSiteRule
+                    ),
             )
 
         multiLineIfElseRuleAssertThat(code)
@@ -1019,14 +1021,15 @@ class TrailingCommaOnDeclarationSiteRuleTest {
         val noSemicolonsRuleAssertThat =
             KtLintAssertThat.assertThatRule(
                 provider = { NoSemicolonsRule() },
-                additionalRuleProviders = setOf(
-                    // WrappingRule must be loaded in order to run TrailingCommaOnCallSiteRule
-                    RuleProvider { WrappingRule() },
-                    // Apply the IndentationRule always as additional rule, so that the formattedCode in the unit test looks
-                    // correct.
-                    RuleProvider { IndentationRule() },
-                    RuleProvider { TrailingCommaOnDeclarationSiteRule() },
-                ),
+                additionalRuleProviders =
+                    setOf(
+                        // WrappingRule must be loaded in order to run TrailingCommaOnCallSiteRule
+                        RuleProvider { WrappingRule() },
+                        // Apply the IndentationRule always as additional rule, so that the formattedCode in the unit test looks
+                        // correct.
+                        RuleProvider { IndentationRule() },
+                        RuleProvider { TrailingCommaOnDeclarationSiteRule() },
+                    ),
             )
         noSemicolonsRuleAssertThat(code)
             .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)

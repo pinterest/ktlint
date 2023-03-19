@@ -422,19 +422,20 @@ class SimpleCLITest {
             .run(
                 testProjectName = "too-many-empty-lines",
                 arguments = listOf("--stdin"),
-                stdin = ByteArrayInputStream(
-                    """
-                    pluginManagement {
-                        repositories {
-                            mavenCentral()
-                            gradlePluginPortal()
+                stdin =
+                    ByteArrayInputStream(
+                        """
+                        pluginManagement {
+                            repositories {
+                                mavenCentral()
+                                gradlePluginPortal()
+                            }
+
+
+                            includeBuild("build-logic")
                         }
-
-
-                        includeBuild("build-logic")
-                    }
-                    """.trimIndent().toByteArray(),
-                ),
+                        """.trimIndent().toByteArray(),
+                    ),
             ) {
                 assertThat(normalOutput)
                     .containsLineMatching(Regex(".*Not a valid Kotlin file.*"))
@@ -453,19 +454,20 @@ class SimpleCLITest {
             .run(
                 testProjectName = "too-many-empty-lines",
                 arguments = listOf("--stdin", "--format"),
-                stdin = ByteArrayInputStream(
-                    """
-                    pluginManagement {
-                        repositories {
-                            mavenCentral()
-                            gradlePluginPortal()
+                stdin =
+                    ByteArrayInputStream(
+                        """
+                        pluginManagement {
+                            repositories {
+                                mavenCentral()
+                                gradlePluginPortal()
+                            }
+
+
+                            includeBuild("build-logic")
                         }
-
-
-                        includeBuild("build-logic")
-                    }
-                    """.trimIndent().toByteArray(),
-                ),
+                        """.trimIndent().toByteArray(),
+                    ),
             ) {
                 assertThat(normalOutput)
                     .containsLineMatching(Regex(".*Not a valid Kotlin file.*"))

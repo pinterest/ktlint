@@ -63,11 +63,12 @@ public class ImportOrderingRule :
                     getUniqueImportsAndBlankLines(children, emit)
 
                 val hasComments = children.any { it.elementType == ElementType.BLOCK_COMMENT || it.elementType == ElementType.EOL_COMMENT }
-                val sortedImports = imports
-                    .asSequence()
-                    .mapNotNull { it.psi as? KtImportDirective } // sorter expects KtImportDirective, whitespaces are inserted afterwards
-                    .sortedWith(importSorter)
-                    .map { it.node } // transform back to ASTNode in order to operate over its method (addChild)
+                val sortedImports =
+                    imports
+                        .asSequence()
+                        .mapNotNull { it.psi as? KtImportDirective } // sorter expects KtImportDirective, whitespaces are inserted afterwards
+                        .sortedWith(importSorter)
+                        .map { it.node } // transform back to ASTNode in order to operate over its method (addChild)
 
                 // insert blank lines wherever needed
                 // traverse the list using fold to have previous and current element and decide if the blank line is needed in between
@@ -196,15 +197,17 @@ public class ImportOrderingRule :
          */
         private val IDEA_PATTERN = parseImportsLayout("*,java.**,javax.**,kotlin.**,^")
 
-        private const val IDEA_ERROR_MESSAGE = "Imports must be ordered in lexicographic order without any empty lines in-between " +
-            "with \"java\", \"javax\", \"kotlin\" and aliases in the end"
+        private const val IDEA_ERROR_MESSAGE =
+            "Imports must be ordered in lexicographic order without any empty lines in-between with \"java\", \"javax\", \"kotlin\" and " +
+                "aliases in the end"
         private const val ASCII_ERROR_MESSAGE = "Imports must be ordered in lexicographic order without any empty lines in-between"
         private const val CUSTOM_ERROR_MESSAGE = "Imports must be ordered according to the pattern specified in .editorconfig"
 
-        private val ERROR_MESSAGES = mapOf(
-            IDEA_PATTERN to IDEA_ERROR_MESSAGE,
-            ASCII_PATTERN to ASCII_ERROR_MESSAGE,
-        )
+        private val ERROR_MESSAGES =
+            mapOf(
+                IDEA_PATTERN to IDEA_ERROR_MESSAGE,
+                ASCII_PATTERN to ASCII_ERROR_MESSAGE,
+            )
 
         private val EDITOR_CONFIG_PROPERTY_PARSER: (String, String?) -> PropertyType.PropertyValue<List<PatternEntry>> =
             { _, value ->
@@ -248,11 +251,12 @@ public class ImportOrderingRule :
 
         public val IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY: EditorConfigProperty<List<PatternEntry>> =
             EditorConfigProperty<List<PatternEntry>>(
-                type = PropertyType(
-                    "ij_kotlin_imports_layout",
-                    "Defines imports order layout for Kotlin files",
-                    EDITOR_CONFIG_PROPERTY_PARSER,
-                ),
+                type =
+                    PropertyType(
+                        "ij_kotlin_imports_layout",
+                        "Defines imports order layout for Kotlin files",
+                        EDITOR_CONFIG_PROPERTY_PARSER,
+                    ),
                 defaultValue = IDEA_PATTERN,
                 androidStudioCodeStyleDefaultValue = ASCII_PATTERN,
                 propertyWriter = { it.joinToString(separator = ",") },

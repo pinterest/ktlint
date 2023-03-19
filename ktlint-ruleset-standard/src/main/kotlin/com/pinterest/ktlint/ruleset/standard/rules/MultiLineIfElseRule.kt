@@ -32,10 +32,11 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
 public class MultiLineIfElseRule :
     StandardRule(
         id = "multiline-if-else",
-        usesEditorConfigProperties = setOf(
-            INDENT_SIZE_PROPERTY,
-            INDENT_STYLE_PROPERTY,
-        ),
+        usesEditorConfigProperties =
+            setOf(
+                INDENT_SIZE_PROPERTY,
+                INDENT_STYLE_PROPERTY,
+            ),
     ) {
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 

@@ -15,13 +15,14 @@ import picocli.CommandLine
 // issues. So the class is to be kept at the old location.
 public fun main(args: Array<String>) {
     val ktlintCommand = KtlintCommandLine()
-    val commandLine = CommandLine(ktlintCommand)
-        .addSubcommand(GitPreCommitHookSubCommand.COMMAND_NAME, GitPreCommitHookSubCommand())
-        .addSubcommand(GitPrePushHookSubCommand.COMMAND_NAME, GitPrePushHookSubCommand())
-        .addSubcommand(PrintASTSubCommand.COMMAND_NAME, PrintASTSubCommand())
-        .addSubcommand(GenerateEditorConfigSubCommand.COMMAND_NAME, GenerateEditorConfigSubCommand())
-        // Keep setUsageHelpAutoWidth after all addSubcommands
-        .setUsageHelpAutoWidth(true)
+    val commandLine =
+        CommandLine(ktlintCommand)
+            .addSubcommand(GitPreCommitHookSubCommand.COMMAND_NAME, GitPreCommitHookSubCommand())
+            .addSubcommand(GitPrePushHookSubCommand.COMMAND_NAME, GitPrePushHookSubCommand())
+            .addSubcommand(PrintASTSubCommand.COMMAND_NAME, PrintASTSubCommand())
+            .addSubcommand(GenerateEditorConfigSubCommand.COMMAND_NAME, GenerateEditorConfigSubCommand())
+            // Keep setUsageHelpAutoWidth after all addSubcommands
+            .setUsageHelpAutoWidth(true)
     val parseResult = commandLine.parseArgs(*args)
 
     // The logger needs to be configured for the ktlintCommand and all subcommands. The logger can however not be configured before the

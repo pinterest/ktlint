@@ -73,9 +73,11 @@ public class SpacingAroundCurlyRule : StandardRule("curly-spacing") {
                 ) {
                     emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
                     if (autoCorrect) {
-                        val eolCommentExists = prevLeaf.prevLeaf()?.let {
-                            it is PsiComment && it.elementType == EOL_COMMENT
-                        } ?: false
+                        val eolCommentExists =
+                            prevLeaf
+                                .prevLeaf()
+                                ?.let { it is PsiComment && it.elementType == EOL_COMMENT }
+                                ?: false
                         if (eolCommentExists) {
                             val commentLeaf = prevLeaf.prevLeaf()!!
                             if (commentLeaf.prevLeaf() is PsiWhiteSpace) {

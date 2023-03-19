@@ -44,13 +44,14 @@ public data class EditorConfig(
             editorConfigProperty.deprecationWarning != null ->
                 LOGGER.warn { "Property '${editorConfigProperty.name}' is deprecated: ${editorConfigProperty.deprecationWarning}" }
         }
-        val property = properties.getOrElse(editorConfigProperty.name) {
-            throw IllegalStateException(
-                "Property '${editorConfigProperty.name}' can not be retrieved from this EditorConfig. Note that the EditorConfig which " +
-                    "is provided to class '${Rule::class.qualifiedName}' only contains the properties which are defined in the property " +
-                    "'${Rule::usesEditorConfigProperties.name}'.",
-            )
-        }
+        val property =
+            properties.getOrElse(editorConfigProperty.name) {
+                throw IllegalStateException(
+                    "Property '${editorConfigProperty.name}' can not be retrieved from this EditorConfig. Note that the EditorConfig " +
+                        "which is provided to class '${Rule::class.qualifiedName}' only contains the properties which are defined in the " +
+                        "property '${Rule::usesEditorConfigProperties.name}'.",
+                )
+            }
 
         editorConfigProperty
             .propertyMapper

@@ -11,17 +11,19 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 public class KtlintApiConsumer {
     // The KtLint RuleEngine only needs to be instantiated once and can be reused in multiple invocations
-    private val ktLintRuleEngine = KtLintRuleEngine(
-        ruleProviders = KTLINT_API_CONSUMER_RULE_PROVIDERS,
-    )
+    private val ktLintRuleEngine =
+        KtLintRuleEngine(
+            ruleProviders = KTLINT_API_CONSUMER_RULE_PROVIDERS,
+        )
 
     public fun run(
         command: String,
         fileName: String,
     ) {
-        val codeFile = Code.fromFile(
-            File(fileName),
-        )
+        val codeFile =
+            Code.fromFile(
+                File(fileName),
+            )
 
         when (command) {
             "lint" -> {

@@ -81,9 +81,10 @@ private fun extractCompilerExtension(): Path {
         val tempDir = Files.createTempDirectory("ktlint")
         tempDir.toFile().deleteOnExit()
 
-        val extensionsDir = tempDir.resolve("META-INF/extensions").also {
-            Files.createDirectories(it)
-        }
+        val extensionsDir =
+            tempDir.resolve("META-INF/extensions").also {
+                Files.createDirectories(it)
+            }
         extensionsDir.resolve("compiler.xml").toFile().outputStream().buffered().use {
             input!!.copyTo(it)
         }
@@ -135,12 +136,13 @@ private class FormatPomModel : UserDataHolderBase(), PomModel {
             // using approach described in https://git.io/vKQTo due to the magical bytecode of TreeAspect
             // (check constructor signature and compare it to the source)
             // (org.jetbrains.kotlin:kotlin-compiler-embeddable:1.0.3)
-            val constructor = ReflectionFactory
-                .getReflectionFactory()
-                .newConstructorForSerialization(
-                    aspect,
-                    Any::class.java.getDeclaredConstructor(*arrayOfNulls<Class<*>>(0)),
-                )
+            val constructor =
+                ReflectionFactory
+                    .getReflectionFactory()
+                    .newConstructorForSerialization(
+                        aspect,
+                        Any::class.java.getDeclaredConstructor(*arrayOfNulls<Class<*>>(0)),
+                    )
             return constructor.newInstance() as T
         }
         return null

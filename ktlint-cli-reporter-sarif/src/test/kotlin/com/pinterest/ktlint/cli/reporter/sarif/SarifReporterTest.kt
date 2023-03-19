@@ -39,10 +39,11 @@ class SarifReporterTest {
         reporter.afterAll()
 
         val actual = String(out.toByteArray()).replace("\\s".toRegex(), "")
-        val expected = File(javaClass.getResource("/relative-path.sarif").path)
-            .readText()
-            .replace("{WORKINDG_DIR}", workingDirectory)
-            .replace("\\s".toRegex(), "")
+        val expected =
+            File(javaClass.getResource("/relative-path.sarif").path)
+                .readText()
+                .replace("{WORKINDG_DIR}", workingDirectory)
+                .replace("\\s".toRegex(), "")
         assertThat(actual).isEqualTo(expected)
     }
 }

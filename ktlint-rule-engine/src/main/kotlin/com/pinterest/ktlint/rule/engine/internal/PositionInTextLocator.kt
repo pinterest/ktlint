@@ -41,11 +41,12 @@ private class SegmentTree(
         }
     }
 
-    private val segments: List<Segment> = sortedArray
-        .dropLast(1)
-        .mapIndexed { index: Int, element: Int ->
-            Segment(element, sortedArray[index + 1] - 1)
-        }
+    private val segments: List<Segment> =
+        sortedArray
+            .dropLast(1)
+            .mapIndexed { index: Int, element: Int ->
+                Segment(element, sortedArray[index + 1] - 1)
+            }
 
     fun get(i: Int): Segment = segments[i]
     fun indexOf(v: Int): Int = binarySearch(v, 0, segments.size - 1)

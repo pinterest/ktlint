@@ -68,13 +68,14 @@ internal class ReporterAggregator(
         parseReporterConfigurationString(configuration)
             .let { config ->
                 config.copy(
-                    additionalConfig = config.additionalConfig.plus(
-                        mapOf(
-                            "color" to color.toString(),
-                            "color_name" to colorName,
-                            "format" to format.toString(),
+                    additionalConfig =
+                        config.additionalConfig.plus(
+                            mapOf(
+                                "color" to color.toString(),
+                                "color_name" to colorName,
+                                "format" to format.toString(),
+                            ),
                         ),
-                    ),
                 )
             }
 

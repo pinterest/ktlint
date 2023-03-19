@@ -26,10 +26,11 @@ class RuleProviderSorterTest {
         val actual =
             RuleProviderSorter()
                 .getSortedRuleProviders(
-                    ruleProviders = createRuleProviders(
-                        NormalRule(STANDARD_RULE_B),
-                        NormalRule(STANDARD_RULE_A),
-                    ),
+                    ruleProviders =
+                        createRuleProviders(
+                            NormalRule(STANDARD_RULE_B),
+                            NormalRule(STANDARD_RULE_A),
+                        ),
                 )
                 .map { it.ruleId }
 
@@ -44,16 +45,17 @@ class RuleProviderSorterTest {
         val actual =
             RuleProviderSorter()
                 .getSortedRuleProviders(
-                    ruleProviders = createRuleProviders(
-                        ExperimentalRule(STANDARD_RULE_B),
-                        ExperimentalRule(STANDARD_RULE_A),
-                        NormalRule(CUSTOM_RULE_SET_A_RULE_B),
-                        NormalRule(CUSTOM_RULE_SET_A_RULE_A),
-                        NormalRule(STANDARD_RULE_D),
-                        NormalRule(STANDARD_RULE_C),
-                        NormalRule(CUSTOM_RULE_SET_B_RULE_B),
-                        NormalRule(CUSTOM_RULE_SET_B_RULE_A),
-                    ),
+                    ruleProviders =
+                        createRuleProviders(
+                            ExperimentalRule(STANDARD_RULE_B),
+                            ExperimentalRule(STANDARD_RULE_A),
+                            NormalRule(CUSTOM_RULE_SET_A_RULE_B),
+                            NormalRule(CUSTOM_RULE_SET_A_RULE_A),
+                            NormalRule(STANDARD_RULE_D),
+                            NormalRule(STANDARD_RULE_C),
+                            NormalRule(CUSTOM_RULE_SET_B_RULE_B),
+                            NormalRule(CUSTOM_RULE_SET_B_RULE_A),
+                        ),
                 ).map { it.ruleId }
 
         assertThat(actual).containsExactly(
@@ -74,11 +76,12 @@ class RuleProviderSorterTest {
         val actual =
             RuleProviderSorter()
                 .getSortedRuleProviders(
-                    ruleProviders = createRuleProviders(
-                        NormalRule(STANDARD_RULE_C),
-                        RunAsLateAsPossibleRule(STANDARD_RULE_A),
-                        NormalRule(STANDARD_RULE_B),
-                    ),
+                    ruleProviders =
+                        createRuleProviders(
+                            NormalRule(STANDARD_RULE_C),
+                            RunAsLateAsPossibleRule(STANDARD_RULE_A),
+                            NormalRule(STANDARD_RULE_B),
+                        ),
                 )
                 .map { it.ruleId }
 
@@ -94,16 +97,17 @@ class RuleProviderSorterTest {
         val actual =
             RuleProviderSorter()
                 .getSortedRuleProviders(
-                    ruleProviders = createRuleProviders(
-                        RunAsLateAsPossibleExperimentalRule(STANDARD_RULE_B),
-                        RunAsLateAsPossibleExperimentalRule(STANDARD_RULE_A),
-                        RunAsLateAsPossibleRule(CUSTOM_RULE_SET_A_RULE_B),
-                        RunAsLateAsPossibleRule(CUSTOM_RULE_SET_A_RULE_A),
-                        RunAsLateAsPossibleRule(STANDARD_RULE_D),
-                        RunAsLateAsPossibleRule(STANDARD_RULE_C),
-                        RunAsLateAsPossibleRule(CUSTOM_RULE_SET_B_RULE_B),
-                        RunAsLateAsPossibleRule(CUSTOM_RULE_SET_B_RULE_A),
-                    ),
+                    ruleProviders =
+                        createRuleProviders(
+                            RunAsLateAsPossibleExperimentalRule(STANDARD_RULE_B),
+                            RunAsLateAsPossibleExperimentalRule(STANDARD_RULE_A),
+                            RunAsLateAsPossibleRule(CUSTOM_RULE_SET_A_RULE_B),
+                            RunAsLateAsPossibleRule(CUSTOM_RULE_SET_A_RULE_A),
+                            RunAsLateAsPossibleRule(STANDARD_RULE_D),
+                            RunAsLateAsPossibleRule(STANDARD_RULE_C),
+                            RunAsLateAsPossibleRule(CUSTOM_RULE_SET_B_RULE_B),
+                            RunAsLateAsPossibleRule(CUSTOM_RULE_SET_B_RULE_A),
+                        ),
                 ).map { it.ruleId }
 
         assertThat(actual).containsExactly(
@@ -124,16 +128,17 @@ class RuleProviderSorterTest {
         val actual =
             RuleProviderSorter()
                 .getSortedRuleProviders(
-                    ruleProviders = createRuleProviders(
-                        RunAsLateAsPossibleExperimentalRule(STANDARD_RULE_B),
-                        RunAsLateAsPossibleExperimentalRule(STANDARD_RULE_A),
-                        RunAsLateAsPossibleRule(CUSTOM_RULE_SET_A_RULE_B),
-                        RunAsLateAsPossibleRule(CUSTOM_RULE_SET_A_RULE_A),
-                        RunAsLateAsPossibleRule(STANDARD_RULE_D),
-                        RunAsLateAsPossibleRule(STANDARD_RULE_C),
-                        RunAsLateAsPossibleRule(CUSTOM_RULE_SET_B_RULE_B),
-                        RunAsLateAsPossibleRule(CUSTOM_RULE_SET_B_RULE_A),
-                    ),
+                    ruleProviders =
+                        createRuleProviders(
+                            RunAsLateAsPossibleExperimentalRule(STANDARD_RULE_B),
+                            RunAsLateAsPossibleExperimentalRule(STANDARD_RULE_A),
+                            RunAsLateAsPossibleRule(CUSTOM_RULE_SET_A_RULE_B),
+                            RunAsLateAsPossibleRule(CUSTOM_RULE_SET_A_RULE_A),
+                            RunAsLateAsPossibleRule(STANDARD_RULE_D),
+                            RunAsLateAsPossibleRule(STANDARD_RULE_C),
+                            RunAsLateAsPossibleRule(CUSTOM_RULE_SET_B_RULE_B),
+                            RunAsLateAsPossibleRule(CUSTOM_RULE_SET_B_RULE_A),
+                        ),
                 ).map { it.ruleId }
 
         assertThat(actual).containsExactly(
@@ -154,30 +159,34 @@ class RuleProviderSorterTest {
         val actual =
             RuleProviderSorter()
                 .getSortedRuleProviders(
-                    ruleProviders = createRuleProviders(
-                        object : R(
-                            ruleId = STANDARD_RULE_A,
-                            visitorModifier = VisitorModifier.RunAfterRule(
+                    ruleProviders =
+                        createRuleProviders(
+                            object : R(
+                                ruleId = STANDARD_RULE_A,
+                                visitorModifier =
+                                    VisitorModifier.RunAfterRule(
+                                        ruleId = STANDARD_RULE_C,
+                                        mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                    ),
+                            ) {},
+                            NormalRule(STANDARD_RULE_B),
+                            object : R(
+                                ruleId = STANDARD_RULE_D,
+                                visitorModifier =
+                                    VisitorModifier.RunAfterRule(
+                                        ruleId = STANDARD_RULE_B,
+                                        mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                    ),
+                            ) {},
+                            object : R(
                                 ruleId = STANDARD_RULE_C,
-                                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
-                            ),
-                        ) {},
-                        NormalRule(STANDARD_RULE_B),
-                        object : R(
-                            ruleId = STANDARD_RULE_D,
-                            visitorModifier = VisitorModifier.RunAfterRule(
-                                ruleId = STANDARD_RULE_B,
-                                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
-                            ),
-                        ) {},
-                        object : R(
-                            ruleId = STANDARD_RULE_C,
-                            visitorModifier = VisitorModifier.RunAfterRule(
-                                ruleId = STANDARD_RULE_B,
-                                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
-                            ),
-                        ) {},
-                    ),
+                                visitorModifier =
+                                    VisitorModifier.RunAfterRule(
+                                        ruleId = STANDARD_RULE_B,
+                                        mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                    ),
+                            ) {},
+                        ),
                 ).map { it.ruleId }
 
         assertThat(actual).containsExactly(
@@ -193,32 +202,36 @@ class RuleProviderSorterTest {
         val actual =
             RuleProviderSorter()
                 .getSortedRuleProviders(
-                    ruleProviders = createRuleProviders(
-                        NormalRule(STANDARD_RULE_B),
-                        object : R(
-                            ruleId = STANDARD_RULE_D,
-                            visitorModifier = VisitorModifier.RunAfterRule(
-                                ruleId = STANDARD_RULE_B,
-                                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
-                            ),
-                        ) {},
-                        object : R(
-                            ruleId = STANDARD_RULE_C,
-                            visitorModifier = VisitorModifier.RunAfterRule(
-                                ruleId = STANDARD_RULE_B,
-                                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
-                            ),
-                        ) {},
-                        object :
-                            R(
-                                ruleId = CUSTOM_RULE_SET_A_RULE_A,
-                                visitorModifier = VisitorModifier.RunAfterRule(
-                                    ruleId = STANDARD_RULE_C,
-                                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                    ruleProviders =
+                        createRuleProviders(
+                            NormalRule(STANDARD_RULE_B),
+                            object : R(
+                                ruleId = STANDARD_RULE_D,
+                                visitorModifier =
+                                    VisitorModifier.RunAfterRule(
+                                        ruleId = STANDARD_RULE_B,
+                                        mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                    ),
+                            ) {},
+                            object : R(
+                                ruleId = STANDARD_RULE_C,
+                                visitorModifier =
+                                    VisitorModifier.RunAfterRule(
+                                        ruleId = STANDARD_RULE_B,
+                                        mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                    ),
+                            ) {},
+                            object :
+                                R(
+                                    ruleId = CUSTOM_RULE_SET_A_RULE_A,
+                                    visitorModifier =
+                                        VisitorModifier.RunAfterRule(
+                                            ruleId = STANDARD_RULE_C,
+                                            mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                        ),
                                 ),
-                            ),
-                            Rule.Experimental {},
-                    ),
+                                Rule.Experimental {},
+                        ),
                 ).map { it.ruleId }
 
         assertThat(actual).containsExactly(
@@ -236,11 +249,12 @@ class RuleProviderSorterTest {
             val actual =
                 RuleProviderSorter()
                     .getSortedRuleProviders(
-                        ruleProviders = createRuleProviders(
-                            IndentationRule(),
-                            TrailingCommaOnCallSiteRule(),
-                            WrappingRule(),
-                        ),
+                        ruleProviders =
+                            createRuleProviders(
+                                IndentationRule(),
+                                TrailingCommaOnCallSiteRule(),
+                                WrappingRule(),
+                            ),
                     ).map { it.ruleId }
 
             assertThat(actual).containsExactly(
@@ -255,12 +269,13 @@ class RuleProviderSorterTest {
             val actual =
                 RuleProviderSorter()
                     .getSortedRuleProviders(
-                        ruleProviders = createRuleProviders(
-                            IndentationRule(),
-                            TrailingCommaOnCallSiteRule(),
-                            WrappingRule(),
-                            FunctionSignatureRule(),
-                        ),
+                        ruleProviders =
+                            createRuleProviders(
+                                IndentationRule(),
+                                TrailingCommaOnCallSiteRule(),
+                                WrappingRule(),
+                                FunctionSignatureRule(),
+                            ),
                     ).map { it.ruleId }
 
             assertThat(actual).containsExactly(
@@ -279,15 +294,17 @@ class RuleProviderSorterTest {
             val actual =
                 RuleProviderSorter()
                     .getSortedRuleProviders(
-                        ruleProviders = createRuleProviders(
-                            object : R(
-                                ruleId = STANDARD_RULE_A,
-                                visitorModifier = VisitorModifier.RunAfterRule(
-                                    ruleId = RuleId("test:not-loaded-rule"),
-                                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
-                                ),
-                            ) {},
-                        ),
+                        ruleProviders =
+                            createRuleProviders(
+                                object : R(
+                                    ruleId = STANDARD_RULE_A,
+                                    visitorModifier =
+                                        VisitorModifier.RunAfterRule(
+                                            ruleId = RuleId("test:not-loaded-rule"),
+                                            mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                        ),
+                                ) {},
+                            ),
                     ).map { it.ruleId }
 
             assertThat(actual).containsExactly(
@@ -300,22 +317,24 @@ class RuleProviderSorterTest {
             val actual =
                 RuleProviderSorter()
                     .getSortedRuleProviders(
-                        ruleProviders = createRuleProviders(
-                            object : R(STANDARD_RULE_A) {},
-                            object : R(
-                                ruleId = STANDARD_RULE_B,
-                                visitorModifiers = setOf(
-                                    VisitorModifier.RunAfterRule(
-                                        ruleId = STANDARD_RULE_A,
-                                        mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
-                                    ),
-                                    VisitorModifier.RunAfterRule(
-                                        ruleId = RuleId("test:not-loaded-rule"),
-                                        mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
-                                    ),
-                                ),
-                            ) {},
-                        ),
+                        ruleProviders =
+                            createRuleProviders(
+                                object : R(STANDARD_RULE_A) {},
+                                object : R(
+                                    ruleId = STANDARD_RULE_B,
+                                    visitorModifiers =
+                                        setOf(
+                                            VisitorModifier.RunAfterRule(
+                                                ruleId = STANDARD_RULE_A,
+                                                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                            ),
+                                            VisitorModifier.RunAfterRule(
+                                                ruleId = RuleId("test:not-loaded-rule"),
+                                                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                            ),
+                                        ),
+                                ) {},
+                            ),
                     ).map { it.ruleId }
 
             assertThat(actual).containsExactly(
@@ -333,17 +352,19 @@ class RuleProviderSorterTest {
                 .isThrownBy {
                     RuleProviderSorter()
                         .getSortedRuleProviders(
-                            ruleProviders = createRuleProviders(
-                                object : R(
-                                    ruleId = STANDARD_RULE_A,
-                                    visitorModifiers = setOf(
-                                        VisitorModifier.RunAfterRule(
-                                            ruleId = STANDARD_RULE_A,
-                                            mode = ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED,
-                                        ),
-                                    ),
-                                ) {},
-                            ),
+                            ruleProviders =
+                                createRuleProviders(
+                                    object : R(
+                                        ruleId = STANDARD_RULE_A,
+                                        visitorModifiers =
+                                            setOf(
+                                                VisitorModifier.RunAfterRule(
+                                                    ruleId = STANDARD_RULE_A,
+                                                    mode = ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED,
+                                                ),
+                                            ),
+                                    ) {},
+                                ),
                         ).map { it.ruleId }
                 }.withMessage(
                     "Rule with id '${STANDARD_RULE_A.value}' has a visitor modifier of type 'RunAfterRule' which may not refer to the " +
@@ -357,21 +378,23 @@ class RuleProviderSorterTest {
                 .isThrownBy {
                     RuleProviderSorter()
                         .getSortedRuleProviders(
-                            ruleProviders = createRuleProviders(
-                                object : R(
-                                    ruleId = STANDARD_RULE_A,
-                                    visitorModifiers = setOf(
-                                        VisitorModifier.RunAfterRule(
-                                            ruleId = STANDARD_RULE_A,
-                                            mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
-                                        ),
-                                        VisitorModifier.RunAfterRule(
-                                            ruleId = STANDARD_RULE_B,
-                                            mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
-                                        ),
-                                    ),
-                                ) {},
-                            ),
+                            ruleProviders =
+                                createRuleProviders(
+                                    object : R(
+                                        ruleId = STANDARD_RULE_A,
+                                        visitorModifiers =
+                                            setOf(
+                                                VisitorModifier.RunAfterRule(
+                                                    ruleId = STANDARD_RULE_A,
+                                                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                                ),
+                                                VisitorModifier.RunAfterRule(
+                                                    ruleId = STANDARD_RULE_B,
+                                                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                                ),
+                                            ),
+                                    ) {},
+                                ),
                         ).map { it.ruleId }
                 }.withMessage(
                     "Rule with id '${STANDARD_RULE_A.value}' has a visitor modifier of type 'RunAfterRule' which may not refer to the " +
@@ -407,17 +430,19 @@ class RuleProviderSorterTest {
 
     private class RunAsLateAsPossibleRule(ruleId: RuleId) : R(
         ruleId = ruleId,
-        visitorModifiers = setOf(
-            VisitorModifier.RunAsLateAsPossible,
-        ),
+        visitorModifiers =
+            setOf(
+                VisitorModifier.RunAsLateAsPossible,
+            ),
     )
 
     private class RunAsLateAsPossibleExperimentalRule(ruleId: RuleId) :
         R(
             ruleId = ruleId,
-            visitorModifiers = setOf(
-                VisitorModifier.RunAsLateAsPossible,
-            ),
+            visitorModifiers =
+                setOf(
+                    VisitorModifier.RunAsLateAsPossible,
+                ),
         ),
         Rule.Experimental
 

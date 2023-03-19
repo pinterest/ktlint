@@ -255,23 +255,25 @@ internal class KtlintCommandLine {
             .toTypedArray()
 
     fun run() {
-        val editorConfigOverride = EditorConfigOverride
-            .EMPTY_EDITOR_CONFIG_OVERRIDE
-            .applyIf(experimental) {
-                logger.debug { "Add editor config override to allow the experimental rule set" }
-                plus(EXPERIMENTAL_RULES_EXECUTION_PROPERTY to RuleExecution.enabled)
-            }.applyIf(disabledRules.isNotBlank()) {
-                logger.debug { "Add editor config override to disable rules: '$disabledRules'" }
-                plus(*disabledRulesEditorConfigOverrides())
-            }.applyIf(android) {
-                logger.debug { "Add editor config override to set code style to 'android'" }
-                plus(CODE_STYLE_PROPERTY to CodeStyleValue.android)
-            }.applyIf(stdin) {
-                logger.debug {
-                    "Add editor config override to disable 'filename' rule which can not be used in combination with reading from <stdin>"
+        val editorConfigOverride =
+            EditorConfigOverride
+                .EMPTY_EDITOR_CONFIG_OVERRIDE
+                .applyIf(experimental) {
+                    logger.debug { "Add editor config override to allow the experimental rule set" }
+                    plus(EXPERIMENTAL_RULES_EXECUTION_PROPERTY to RuleExecution.enabled)
+                }.applyIf(disabledRules.isNotBlank()) {
+                    logger.debug { "Add editor config override to disable rules: '$disabledRules'" }
+                    plus(*disabledRulesEditorConfigOverrides())
+                }.applyIf(android) {
+                    logger.debug { "Add editor config override to set code style to 'android'" }
+                    plus(CODE_STYLE_PROPERTY to CodeStyleValue.android)
+                }.applyIf(stdin) {
+                    logger.debug {
+                        "Add editor config override to disable 'filename' rule which can not be used in combination with reading from " +
+                            "<stdin>"
+                    }
+                    plus(FILENAME_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.disabled)
                 }
-                plus(FILENAME_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.disabled)
-            }
 
         if (android) {
             logger.error {
@@ -286,12 +288,13 @@ internal class KtlintCommandLine {
         val start = System.currentTimeMillis()
 
         val ruleProviders = ruleProviders()
-        val ktLintRuleEngine = KtLintRuleEngine(
-            ruleProviders = ruleProviders,
-            editorConfigDefaults = editorConfigDefaults(ruleProviders),
-            editorConfigOverride = editorConfigOverride,
-            isInvokedFromCli = true,
-        )
+        val ktLintRuleEngine =
+            KtLintRuleEngine(
+                ruleProviders = ruleProviders,
+                editorConfigDefaults = editorConfigDefaults(ruleProviders),
+                editorConfigOverride = editorConfigOverride,
+                isInvokedFromCli = true,
+            )
 
         val baseline = if (stdin || baselinePath.isBlank()) {
             Baseline(status = Baseline.Status.DISABLED)
@@ -299,15 +302,16 @@ internal class KtlintCommandLine {
             loadBaseline(baselinePath)
         }
 
-        val aggregatedReporter = ReporterAggregator(
-            baseline,
-            reporterConfigurations,
-            color,
-            colorName,
-            stdin,
-            format,
-            relative,
-        ).aggregatedReporter()
+        val aggregatedReporter =
+            ReporterAggregator(
+                baseline,
+                reporterConfigurations,
+                color,
+                colorName,
+                stdin,
+                format,
+                relative,
+            ).aggregatedReporter()
 
         aggregatedReporter.beforeAll()
         if (stdin) {
@@ -471,19 +475,21 @@ internal class KtlintCommandLine {
         try {
             ktLintRuleEngine
                 .format(code) { lintError, corrected ->
-                    val ktlintCliError = KtlintCliError(
-                        line = lintError.line,
-                        col = lintError.col,
-                        ruleId = lintError.ruleId.value,
-                        detail = lintError
-                            .detail
-                            .applyIf(corrected) { "$this (cannot be auto-corrected)" },
-                        status = if (corrected) {
-                            FORMAT_IS_AUTOCORRECTED
-                        } else {
-                            LINT_CAN_NOT_BE_AUTOCORRECTED
-                        },
-                    )
+                    val ktlintCliError =
+                        KtlintCliError(
+                            line = lintError.line,
+                            col = lintError.col,
+                            ruleId = lintError.ruleId.value,
+                            detail =
+                                lintError
+                                    .detail
+                                    .applyIf(corrected) { "$this (cannot be auto-corrected)" },
+                            status = if (corrected) {
+                                FORMAT_IS_AUTOCORRECTED
+                            } else {
+                                LINT_CAN_NOT_BE_AUTOCORRECTED
+                            },
+                        )
                     if (baselineLintErrors.doesNotContain(ktlintCliError)) {
                         ktlintCliErrors.add(ktlintCliError)
                         if (!corrected) {
@@ -531,17 +537,18 @@ internal class KtlintCommandLine {
         val ktlintCliErrors = mutableListOf<KtlintCliError>()
         try {
             ktLintRuleEngine.lint(code) { lintError ->
-                val ktlintCliError = KtlintCliError(
-                    line = lintError.line,
-                    col = lintError.col,
-                    ruleId = lintError.ruleId.value,
-                    detail = lintError.detail,
-                    status = if (lintError.canBeAutoCorrected) {
-                        LINT_CAN_BE_AUTOCORRECTED
-                    } else {
-                        LINT_CAN_NOT_BE_AUTOCORRECTED
-                    },
-                )
+                val ktlintCliError =
+                    KtlintCliError(
+                        line = lintError.line,
+                        col = lintError.col,
+                        ruleId = lintError.ruleId.value,
+                        detail = lintError.detail,
+                        status = if (lintError.canBeAutoCorrected) {
+                            LINT_CAN_BE_AUTOCORRECTED
+                        } else {
+                            LINT_CAN_NOT_BE_AUTOCORRECTED
+                        },
+                    )
                 if (baselineLintErrors.doesNotContain(ktlintCliError)) {
                     ktlintCliErrors.add(ktlintCliError)
                     tripped.set(true)
@@ -591,10 +598,10 @@ internal class KtlintCommandLine {
                         line = e.line,
                         col = e.col,
                         ruleId = "",
-                        detail = "Internal Error (rule '${e.ruleId}') in $codeSource at position '${e.line}:${e.col}. " +
-                            "Please create a ticket at https://github.com/pinterest/ktlint/issues " +
-                            "and provide the source code that triggered an error.\n" +
-                            e.stackTraceToString(),
+                        detail =
+                            "Internal Error (rule '${e.ruleId}') in $codeSource at position '${e.line}:${e.col}. Please create a ticket " +
+                                "at https://github.com/pinterest/ktlint/issues and provide the source code that triggered an error.\n" +
+                                e.stackTraceToString(),
                         status = KTLINT_RULE_ENGINE_EXCEPTION,
                     )
                 }
@@ -664,19 +671,20 @@ internal class KtlintCommandLine {
             }
         }
         val q = ArrayBlockingQueue<Future<T>>(numberOfThreads)
-        val producer = thread(start = true) {
-            val executorService = Executors.newCachedThreadPool()
-            try {
-                for (task in this) {
-                    q.put(executorService.submit(task))
+        val producer =
+            thread(start = true) {
+                val executorService = Executors.newCachedThreadPool()
+                try {
+                    for (task in this) {
+                        q.put(executorService.submit(task))
+                    }
+                    q.put(pill)
+                } catch (e: InterruptedException) {
+                    // we've been asked to stop consuming sequence
+                } finally {
+                    executorService.shutdown()
                 }
-                q.put(pill)
-            } catch (e: InterruptedException) {
-                // we've been asked to stop consuming sequence
-            } finally {
-                executorService.shutdown()
             }
-        }
         try {
             while (true) {
                 val result = q.take()
