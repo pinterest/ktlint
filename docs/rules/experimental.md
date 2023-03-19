@@ -482,3 +482,34 @@ Rule id: `context-receiver-wrapping`
 A KDoc comment should start and end on a line that does not contain any other element.
 
 Rule id: `kdoc-wrapping`
+
+### Multiline expression wrapping
+
+Multiline expression on the right hand side of an expression are forced to start on a separate line. Expressions in return statement are excluded as that would result in a compilation error. 
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val foo =
+        foo(
+            parameterName =
+                "The quick brown fox "
+                    .plus("jumps ")
+                    .plus("over the lazy dog"),
+        )
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val foo = foo(
+        parameterName = "The quick brown fox "
+            .plus("jumps ")
+            .plus("over the lazy dog"),
+    )
+    ```
+
+Rule id: `multiline-expression-wrapping`
+
+!!! Note
+    This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.

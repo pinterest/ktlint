@@ -92,11 +92,12 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 public class WrappingRule :
     StandardRule(
         id = "wrapping",
-        usesEditorConfigProperties = setOf(
-            INDENT_SIZE_PROPERTY,
-            INDENT_STYLE_PROPERTY,
-            MAX_LINE_LENGTH_PROPERTY,
-        ),
+        usesEditorConfigProperties =
+            setOf(
+                INDENT_SIZE_PROPERTY,
+                INDENT_STYLE_PROPERTY,
+                MAX_LINE_LENGTH_PROPERTY,
+            ),
     ) {
     private var line = 1
     private var indentConfig = DEFAULT_INDENT_CONFIG

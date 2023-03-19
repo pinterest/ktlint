@@ -15,15 +15,16 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 public class BlockCommentInitialStarAlignmentRule :
     StandardRule(
         "block-comment-initial-star-alignment",
-        visitorModifiers = setOf(
-            // The block comment is a node which can contain multiple lines. The indent of the second and later line
-            // should be determined based on the indent of the block comment node. This indent is determined by the
-            // indentation rule.
-            VisitorModifier.RunAfterRule(
-                ruleId = INDENTATION_RULE_ID,
-                mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+        visitorModifiers =
+            setOf(
+                // The block comment is a node which can contain multiple lines. The indent of the second and later line
+                // should be determined based on the indent of the block comment node. This indent is determined by the
+                // indentation rule.
+                VisitorModifier.RunAfterRule(
+                    ruleId = INDENTATION_RULE_ID,
+                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                ),
             ),
-        ),
     ),
     Rule.Experimental {
     override fun beforeVisitChildNodes(

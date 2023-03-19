@@ -51,17 +51,19 @@ import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 public class FunctionSignatureRule :
     StandardRule(
         id = "function-signature",
-        visitorModifiers = setOf(
-            // Run after wrapping and spacing rules
-            VisitorModifier.RunAsLateAsPossible,
-        ),
-        usesEditorConfigProperties = setOf(
-            INDENT_SIZE_PROPERTY,
-            INDENT_STYLE_PROPERTY,
-            MAX_LINE_LENGTH_PROPERTY,
-            FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY,
-            FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY,
-        ),
+        visitorModifiers =
+            setOf(
+                // Run after wrapping and spacing rules
+                VisitorModifier.RunAsLateAsPossible,
+            ),
+        usesEditorConfigProperties =
+            setOf(
+                INDENT_SIZE_PROPERTY,
+                INDENT_STYLE_PROPERTY,
+                MAX_LINE_LENGTH_PROPERTY,
+                FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY,
+                FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY,
+            ),
     ),
     Rule.Experimental {
     private var indentConfig = DEFAULT_INDENT_CONFIG
@@ -183,9 +185,10 @@ public class FunctionSignatureRule :
             // When max line length is not set then keep it as single line function signature only when the original
             // signature already was a single line signature. Otherwise, rewrite the entire signature as a multiline
             // signature.
-            val rewriteToSingleLineFunctionSignature = node
-                .functionSignatureNodes()
-                .none { it.textContains('\n') }
+            val rewriteToSingleLineFunctionSignature =
+                node
+                    .functionSignatureNodes()
+                    .none { it.textContains('\n') }
             if (!forceMultilineSignature && rewriteToSingleLineFunctionSignature) {
                 fixWhiteSpacesInValueParameterList(node, emit, autoCorrect, multiline = false, dryRun = false)
             } else {
@@ -199,12 +202,13 @@ public class FunctionSignatureRule :
             node
                 .findChildByType(VALUE_PARAMETER_LIST)
                 ?.findChildByType(RPAR)
-        val tailNodesOfFunctionSignature = node
-            .functionSignatureNodes()
-            .childrenBetween(
-                startASTNodePredicate = { it == closingParenthesis },
-                endASTNodePredicate = { false },
-            )
+        val tailNodesOfFunctionSignature =
+            node
+                .functionSignatureNodes()
+                .childrenBetween(
+                    startASTNodePredicate = { it == closingParenthesis },
+                    endASTNodePredicate = { false },
+                )
 
         return node.indent(false).length +
             tailNodesOfFunctionSignature.sumOf { it.text.length }
@@ -513,9 +517,10 @@ public class FunctionSignatureRule :
         val whiteSpaceBeforeFunctionBodyExpression = bodyNodes.getStartingWhitespaceOrNull()
         val functionBodyExpressionNodes = bodyNodes.dropWhile { it.isWhiteSpace() }
 
-        val functionBodyExpressionLines = functionBodyExpressionNodes
-            .joinTextToString()
-            .split("\n")
+        val functionBodyExpressionLines =
+            functionBodyExpressionNodes
+                .joinTextToString()
+                .split("\n")
         functionBodyExpressionLines
             .firstOrNull()
             ?.also { firstLineOfBodyExpression ->
@@ -699,29 +704,31 @@ public class FunctionSignatureRule :
     public companion object {
         public val FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY: EditorConfigProperty<Int> =
             EditorConfigProperty(
-                type = PropertyType.LowerCasingPropertyType(
-                    "ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than",
-                    "Force wrapping the parameters of the function signature in case it contains at least the specified " +
-                        "number of parameters even in case the entire function signature would fit on a single line. " +
-                        "By default this parameter is not enabled.",
-                    PropertyType.PropertyValueParser.POSITIVE_INT_VALUE_PARSER,
-                    setOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "unset"),
-                ),
+                type =
+                    PropertyType.LowerCasingPropertyType(
+                        "ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than",
+                        "Force wrapping the parameters of the function signature in case it contains at least the specified " +
+                            "number of parameters even in case the entire function signature would fit on a single line. " +
+                            "By default this parameter is not enabled.",
+                        PropertyType.PropertyValueParser.POSITIVE_INT_VALUE_PARSER,
+                        setOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "unset"),
+                    ),
                 defaultValue = Int.MAX_VALUE,
                 ktlintOfficialCodeStyleDefaultValue = 2,
             )
 
         public val FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY: EditorConfigProperty<FunctionBodyExpressionWrapping> =
             EditorConfigProperty(
-                type = PropertyType.LowerCasingPropertyType(
-                    "ktlint_function_signature_body_expression_wrapping",
-                    "Determines how to wrap the body of function in case it is an expression. Use 'default' " +
-                        "to wrap the body expression only when the first line of the expression does not fit on the same " +
-                        "line as the function signature. Use 'multiline' to force wrapping of body expressions that " +
-                        "consists of multiple line. Use 'always' to force wrapping of body expression always.",
-                    EnumValueParser(FunctionBodyExpressionWrapping::class.java),
-                    FunctionBodyExpressionWrapping.values().map { it.name }.toSet(),
-                ),
+                type =
+                    PropertyType.LowerCasingPropertyType(
+                        "ktlint_function_signature_body_expression_wrapping",
+                        "Determines how to wrap the body of function in case it is an expression. Use 'default' " +
+                            "to wrap the body expression only when the first line of the expression does not fit on the same " +
+                            "line as the function signature. Use 'multiline' to force wrapping of body expressions that " +
+                            "consists of multiple line. Use 'always' to force wrapping of body expression always.",
+                        EnumValueParser(FunctionBodyExpressionWrapping::class.java),
+                        FunctionBodyExpressionWrapping.values().map { it.name }.toSet(),
+                    ),
                 defaultValue = default,
                 ktlintOfficialCodeStyleDefaultValue = multiline,
             )

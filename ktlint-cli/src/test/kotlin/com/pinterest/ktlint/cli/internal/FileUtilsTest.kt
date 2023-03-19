@@ -82,12 +82,14 @@ internal class FileUtilsTest {
 
     @Test
     fun `Given some patterns and no workdir then ignore all files in hidden directories`() {
-        val foundFiles = getFiles(
-            patterns = listOf(
-                "project1/**/*.kt",
-                "project1/*.kt",
-            ),
-        )
+        val foundFiles =
+            getFiles(
+                patterns =
+                    listOf(
+                        "project1/**/*.kt",
+                        "project1/*.kt",
+                    ),
+            )
 
         assertThat(foundFiles)
             .containsExactlyInAnyOrder(
@@ -103,12 +105,14 @@ internal class FileUtilsTest {
 
     @Test
     fun `Given some patterns including a negate pattern and no workdir then select all files except files in the negate pattern`() {
-        val foundFiles = getFiles(
-            patterns = listOf(
-                "project1/src/**/*.kt",
-                "!project1/src/**/example/*.kt",
-            ),
-        )
+        val foundFiles =
+            getFiles(
+                patterns =
+                    listOf(
+                        "project1/src/**/*.kt",
+                        "!project1/src/**/example/*.kt",
+                    ),
+            )
 
         assertThat(foundFiles)
             .containsExactlyInAnyOrder(ktFile1InProjectSubDirectory)
@@ -117,12 +121,14 @@ internal class FileUtilsTest {
 
     @Test
     fun `Given a pattern and a workdir then find all files in that workdir and all its sub directories that match the pattern`() {
-        val foundFiles = getFiles(
-            patterns = listOf(
-                "**/main/**/*.kt",
-            ),
-            rootDir = ktlintTestFileSystem.resolve("project1"),
-        )
+        val foundFiles =
+            getFiles(
+                patterns =
+                    listOf(
+                        "**/main/**/*.kt",
+                    ),
+                rootDir = ktlintTestFileSystem.resolve("project1"),
+            )
 
         assertThat(foundFiles).containsExactlyInAnyOrder(
             ktFile1InProjectSubDirectory,
@@ -147,10 +153,11 @@ internal class FileUtilsTest {
     fun `Given a pattern containing redundant elements then find all files in that workdir and all its sub directories that match the pattern without the redundant items`(
         pattern: String,
     ) {
-        val foundFiles = getFiles(
-            patterns = listOf(pattern),
-            rootDir = ktlintTestFileSystem.resolve("project1"),
-        )
+        val foundFiles =
+            getFiles(
+                patterns = listOf(pattern),
+                rootDir = ktlintTestFileSystem.resolve("project1"),
+            )
 
         assertThat(foundFiles).containsExactlyInAnyOrder(
             ktFile1InProjectSubDirectory,
@@ -160,10 +167,11 @@ internal class FileUtilsTest {
 
     @Test
     fun `Given an (relative) file path from the workdir then find all files in that workdir and all its sub directories that match the pattern`() {
-        val foundFiles = getFiles(
-            patterns = listOf("src/main/kotlin/One.kt"),
-            rootDir = ktlintTestFileSystem.resolve("project1"),
-        )
+        val foundFiles =
+            getFiles(
+                patterns = listOf("src/main/kotlin/One.kt"),
+                rootDir = ktlintTestFileSystem.resolve("project1"),
+            )
 
         assertThat(foundFiles).containsExactlyInAnyOrder(
             ktFile1InProjectSubDirectory,
@@ -172,13 +180,15 @@ internal class FileUtilsTest {
 
     @Test
     fun `Given an (absolute) file path and a workdir then find that absolute path and all files in the workdir and all its sub directories that match the pattern`() {
-        val foundFiles = getFiles(
-            patterns = listOf(
-                "src/main/kotlin/One.kt",
-                "${ktlintTestFileSystem.resolve(ktFile2InProjectSubDirectory).toAbsolutePath()}",
-            ),
-            rootDir = ktlintTestFileSystem.resolve("project1"),
-        )
+        val foundFiles =
+            getFiles(
+                patterns =
+                    listOf(
+                        "src/main/kotlin/One.kt",
+                        "${ktlintTestFileSystem.resolve(ktFile2InProjectSubDirectory).toAbsolutePath()}",
+                    ),
+                rootDir = ktlintTestFileSystem.resolve("project1"),
+            )
 
         assertThat(foundFiles).containsExactlyInAnyOrder(
             ktFile1InProjectSubDirectory,
@@ -207,22 +217,25 @@ internal class FileUtilsTest {
             writeFile(filePath, SOME_CONTENT)
         }
 
-        val foundFiles = getFiles(
-            patterns = listOf(pattern),
-            rootDir = ktlintTestFileSystem.fileSystem.rootDirectories.first(),
-        )
+        val foundFiles =
+            getFiles(
+                patterns = listOf(pattern),
+                rootDir = ktlintTestFileSystem.fileSystem.rootDirectories.first(),
+            )
 
         assertThat(foundFiles).containsExactlyInAnyOrder(filePath)
     }
 
     @Test
     fun `Given a pattern containing a double star and a workdir without subdirectories then find all files in that workdir`() {
-        val foundFiles = getFiles(
-            patterns = listOf(
-                "**/*.kt",
-            ),
-            rootDir = ktlintTestFileSystem.resolve("project1/src/main/kotlin/"),
-        )
+        val foundFiles =
+            getFiles(
+                patterns =
+                    listOf(
+                        "**/*.kt",
+                    ),
+                rootDir = ktlintTestFileSystem.resolve("project1/src/main/kotlin/"),
+            )
 
         assertThat(foundFiles).containsExactlyInAnyOrder(
             ktFile1InProjectSubDirectory,
@@ -232,12 +245,14 @@ internal class FileUtilsTest {
 
     @Test
     fun `Given a pattern containing multiple double star patters and a workdir without subdirectories then find all files in that workdir`() {
-        val foundFiles = getFiles(
-            patterns = listOf(
-                "src/**/kotlin/**/*.kt",
-            ),
-            rootDir = ktlintTestFileSystem.resolve("project1"),
-        )
+        val foundFiles =
+            getFiles(
+                patterns =
+                    listOf(
+                        "src/**/kotlin/**/*.kt",
+                    ),
+                rootDir = ktlintTestFileSystem.resolve("project1"),
+            )
 
         assertThat(foundFiles).containsExactlyInAnyOrder(
             ktFile1InProjectSubDirectory,
@@ -254,10 +269,11 @@ internal class FileUtilsTest {
                 "\tpatterns = $patterns\n" +
                 "\trootDir = $dir"
         }
-        val foundFiles = getFiles(
-            patterns = listOf("src/main/kotlin"),
-            rootDir = ktlintTestFileSystem.resolve("project1"),
-        )
+        val foundFiles =
+            getFiles(
+                patterns = listOf("src/main/kotlin"),
+                rootDir = ktlintTestFileSystem.resolve("project1"),
+            )
 
         assertThat(foundFiles).containsExactlyInAnyOrder(
             ktFile1InProjectSubDirectory,
@@ -270,12 +286,14 @@ internal class FileUtilsTest {
     @EnabledOnOs(OS.WINDOWS)
     @Test
     fun `Given the Windows OS and some globs using backslash as file separator the convert the globs to using a forward slash`() {
-        val foundFiles = getFiles(
-            patterns = listOf(
-                "project1\\src\\**\\*.kt",
-                "!project1\\src\\**\\example\\*.kt",
-            ),
-        )
+        val foundFiles =
+            getFiles(
+                patterns =
+                    listOf(
+                        "project1\\src\\**\\*.kt",
+                        "!project1\\src\\**\\example\\*.kt",
+                    ),
+            )
 
         assertThat(foundFiles)
             .containsExactlyInAnyOrder(ktFile1InProjectSubDirectory)
@@ -295,10 +313,11 @@ internal class FileUtilsTest {
     fun `On non-WindowsOS, a pattern containing a double-dot (parent directory) reference may leave the current directory`(
         pattern: String,
     ) {
-        val foundFiles = getFiles(
-            patterns = listOf(pattern),
-            rootDir = ktlintTestFileSystem.resolve("project1"),
-        )
+        val foundFiles =
+            getFiles(
+                patterns = listOf(pattern),
+                rootDir = ktlintTestFileSystem.resolve("project1"),
+            )
 
         assertThat(foundFiles).contains(ktFile1InProjectSubDirectory)
     }
@@ -316,13 +335,15 @@ internal class FileUtilsTest {
     fun `On WindowsOS, a pattern containing a double-dot (parent directory) reference may not leave the current directory`(
         pattern: String,
     ) {
-        val foundFiles = getFiles(
-            patterns = listOf(
-                pattern,
-                "/some/non/existing/file", // This prevents the default patterns to be added
-            ),
-            rootDir = ktlintTestFileSystem.resolve("project1"),
-        )
+        val foundFiles =
+            getFiles(
+                patterns =
+                    listOf(
+                        pattern,
+                        "/some/non/existing/file", // This prevents the default patterns to be added
+                    ),
+                rootDir = ktlintTestFileSystem.resolve("project1"),
+            )
 
         assertThat(foundFiles).isEmpty()
     }
@@ -337,10 +358,11 @@ internal class FileUtilsTest {
         ],
     )
     fun `On non-WindowsOS, a pattern containing a wildcard may followed by a double-dot (parent directory) reference`(pattern: String) {
-        val foundFiles = getFiles(
-            patterns = listOf(pattern),
-            rootDir = ktlintTestFileSystem.resolve("project1"),
-        )
+        val foundFiles =
+            getFiles(
+                patterns = listOf(pattern),
+                rootDir = ktlintTestFileSystem.resolve("project1"),
+            )
 
         assertThat(foundFiles).contains(ktFile1InProjectSubDirectory)
     }
@@ -355,24 +377,28 @@ internal class FileUtilsTest {
         ],
     )
     fun `On WindowsOS, a pattern containing a wildcard may followed by a double-dot (parent directory) reference`(pattern: String) {
-        val foundFiles = getFiles(
-            patterns = listOf(
-                pattern,
-                "/some/non/existing/file", // This prevents the default patterns to be added
-            ),
-            rootDir = ktlintTestFileSystem.resolve("project1"),
-        )
+        val foundFiles =
+            getFiles(
+                patterns =
+                    listOf(
+                        pattern,
+                        "/some/non/existing/file", // This prevents the default patterns to be added
+                    ),
+                rootDir = ktlintTestFileSystem.resolve("project1"),
+            )
 
         assertThat(foundFiles).isEmpty()
     }
 
     @Test
     fun `Issue 1847 - Given a negate pattern only then include the default patters and select all files except files in the negate pattern`() {
-        val foundFiles = getFiles(
-            patterns = listOf(
-                "!project1/**/*.kt",
-            ),
-        )
+        val foundFiles =
+            getFiles(
+                patterns =
+                    listOf(
+                        "!project1/**/*.kt",
+                    ),
+            )
 
         assertThat(foundFiles)
             .containsExactlyInAnyOrder(

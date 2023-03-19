@@ -45,13 +45,15 @@ public class RuleProvider private constructor(
                     RuleProvider(
                         provider = provider,
                         ruleId = rule.ruleId,
-                        runAsLateAsPossible = rule
-                            .visitorModifiers
-                            .filterIsInstance<Rule.VisitorModifier.RunAsLateAsPossible>()
-                            .any(),
-                        runAfterRules = rule
-                            .visitorModifiers
-                            .filterIsInstance<Rule.VisitorModifier.RunAfterRule>(),
+                        runAsLateAsPossible =
+                            rule
+                                .visitorModifiers
+                                .filterIsInstance<Rule.VisitorModifier.RunAsLateAsPossible>()
+                                .any(),
+                        runAfterRules =
+                            rule
+                                .visitorModifiers
+                                .filterIsInstance<Rule.VisitorModifier.RunAfterRule>(),
                     )
                 }
     }

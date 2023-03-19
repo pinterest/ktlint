@@ -9,10 +9,11 @@ import java.lang.System.out
 class PlainReporterProviderTest {
     @Test
     fun `Given that a valid color name is provided then the plain reporter provider is created without exception`() {
-        val plainReporter = PlainReporterProvider().get(
-            out = PrintStream(out, true),
-            opt = mapOf("color_name" to "RED"),
-        )
+        val plainReporter =
+            PlainReporterProvider().get(
+                out = PrintStream(out, true),
+                opt = mapOf("color_name" to "RED"),
+            )
 
         assertThat(plainReporter).isNotNull
     }

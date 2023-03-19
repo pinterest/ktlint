@@ -13,9 +13,10 @@ import org.jetbrains.kotlin.psi.KtImportDirective
 public class NoWildcardImportsRule :
     StandardRule(
         id = "no-wildcard-imports",
-        usesEditorConfigProperties = setOf(
-            IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND,
-        ),
+        usesEditorConfigProperties =
+            setOf(
+                IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND,
+            ),
     ) {
     private lateinit var allowedWildcardImports: List<PatternEntry>
 
@@ -81,11 +82,12 @@ public class NoWildcardImportsRule :
 
         public val IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND: EditorConfigProperty<List<PatternEntry>> =
             EditorConfigProperty(
-                type = PropertyType(
-                    "ij_kotlin_packages_to_use_import_on_demand",
-                    "Defines allowed wildcard imports",
-                    PACKAGES_TO_USE_ON_DEMAND_IMPORT_PROPERTY_PARSER,
-                ),
+                type =
+                    PropertyType(
+                        "ij_kotlin_packages_to_use_import_on_demand",
+                        "Defines allowed wildcard imports",
+                        PACKAGES_TO_USE_ON_DEMAND_IMPORT_PROPERTY_PARSER,
+                    ),
                 /**
                  * Default IntelliJ IDEA style: Use wildcard imports for packages in "java.util", "kotlin.android.synthetic" and
                  * it's subpackages.

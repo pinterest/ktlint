@@ -45,24 +45,28 @@ public class SarifReporter(private val out: PrintStream) : ReporterV2 {
             Result(
                 ruleID = ktlintCliError.ruleId,
                 level = Level.Error,
-                locations = listOf(
-                    Location(
-                        physicalLocation = PhysicalLocation(
-                            region = Region(
-                                startLine = ktlintCliError.line.toLong(),
-                                startColumn = ktlintCliError.col.toLong(),
-                            ),
-                            artifactLocation = workingDirectory?.let { workingDirectory ->
-                                ArtifactLocation(
-                                    uri = Path(file).relativeToOrSelf(workingDirectory.toPath()).pathString,
-                                    uriBaseID = SRCROOT,
-                                )
-                            } ?: ArtifactLocation(
-                                uri = file,
-                            ),
+                locations =
+                    listOf(
+                        Location(
+                            physicalLocation =
+                                PhysicalLocation(
+                                    region =
+                                        Region(
+                                            startLine = ktlintCliError.line.toLong(),
+                                            startColumn = ktlintCliError.col.toLong(),
+                                        ),
+                                    artifactLocation =
+                                        workingDirectory?.let { workingDirectory ->
+                                            ArtifactLocation(
+                                                uri = Path(file).relativeToOrSelf(workingDirectory.toPath()).pathString,
+                                                uriBaseID = SRCROOT,
+                                            )
+                                        } ?: ArtifactLocation(
+                                            uri = file,
+                                        ),
+                                ),
                         ),
                     ),
-                ),
                 message = Message(text = ktlintCliError.detail),
             ),
         )
@@ -70,31 +74,36 @@ public class SarifReporter(private val out: PrintStream) : ReporterV2 {
 
     override fun afterAll() {
         val version = ktlintVersion(SarifReporter::class.java)
-        val sarifSchema210 = SarifSchema210(
-            schema = "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-            version = Version.The210,
-            runs = listOf(
-                Run(
-                    tool = Tool(
-                        driver = ToolComponent(
-                            downloadURI = "https://github.com/pinterest/ktlint/releases/tag/$version",
-                            fullName = "ktlint",
-                            informationURI = "https://github.com/pinterest/ktlint/",
-                            language = "en",
-                            name = "ktlint",
-                            rules = listOf(),
-                            organization = "pinterest",
-                            semanticVersion = version,
-                            version = version,
+        val sarifSchema210 =
+            SarifSchema210(
+                schema = "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+                version = Version.The210,
+                runs =
+                    listOf(
+                        Run(
+                            tool =
+                                Tool(
+                                    driver =
+                                        ToolComponent(
+                                            downloadURI = "https://github.com/pinterest/ktlint/releases/tag/$version",
+                                            fullName = "ktlint",
+                                            informationURI = "https://github.com/pinterest/ktlint/",
+                                            language = "en",
+                                            name = "ktlint",
+                                            rules = listOf(),
+                                            organization = "pinterest",
+                                            semanticVersion = version,
+                                            version = version,
+                                        ),
+                                ),
+                            originalURIBaseIDS =
+                                workingDirectory?.let {
+                                    mapOf(SRCROOT to ArtifactLocation(uri = "file://${it.path.sanitize()}"))
+                                },
+                            results = results,
                         ),
                     ),
-                    originalURIBaseIDS = workingDirectory?.let {
-                        mapOf(SRCROOT to ArtifactLocation(uri = "file://${it.path.sanitize()}"))
-                    },
-                    results = results,
-                ),
-            ),
-        )
+            )
         out.println(SarifSerializer.toJson(sarifSchema210))
     }
 }

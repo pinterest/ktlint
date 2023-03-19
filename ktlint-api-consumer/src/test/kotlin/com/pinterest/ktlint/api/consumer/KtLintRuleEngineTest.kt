@@ -50,12 +50,14 @@ class KtLintRuleEngineTest {
         ) {
             val dir = ApiTestRunner(tempDir).prepareTestProject("no-code-style-error")
 
-            val ktLintRuleEngine = KtLintRuleEngine(
-                ruleProviders = setOf(
-                    RuleProvider { IndentationRule() },
-                ),
-                fileSystem = ktlintTestFileSystem.fileSystem,
-            )
+            val ktLintRuleEngine =
+                KtLintRuleEngine(
+                    ruleProviders =
+                        setOf(
+                            RuleProvider { IndentationRule() },
+                        ),
+                    fileSystem = ktlintTestFileSystem.fileSystem,
+                )
 
             val lintErrors = mutableListOf<LintError>()
             ktLintRuleEngine.lint(
@@ -68,22 +70,25 @@ class KtLintRuleEngineTest {
 
         @Test
         fun `Given a kotlin code snippet that does not contain an error`() {
-            val ktLintRuleEngine = KtLintRuleEngine(
-                ruleProviders = setOf(
-                    RuleProvider { IndentationRule() },
-                ),
-                fileSystem = ktlintTestFileSystem.fileSystem,
-            )
+            val ktLintRuleEngine =
+                KtLintRuleEngine(
+                    ruleProviders =
+                        setOf(
+                            RuleProvider { IndentationRule() },
+                        ),
+                    fileSystem = ktlintTestFileSystem.fileSystem,
+                )
 
             val lintErrors = mutableListOf<LintError>()
             ktLintRuleEngine.lint(
-                code = Code.fromSnippet(
-                    """
-                    fun main() {
-                        println("Hello world!")
-                    }
-                    """.trimIndent(),
-                ),
+                code =
+                    Code.fromSnippet(
+                        """
+                        fun main() {
+                            println("Hello world!")
+                        }
+                        """.trimIndent(),
+                    ),
                 callback = { lintErrors.add(it) },
             )
 
@@ -92,24 +97,27 @@ class KtLintRuleEngineTest {
 
         @Test
         fun `Given a kotlin script code snippet that does not contain an error`() {
-            val ktLintRuleEngine = KtLintRuleEngine(
-                ruleProviders = setOf(
-                    RuleProvider { IndentationRule() },
-                ),
-                fileSystem = ktlintTestFileSystem.fileSystem,
-            )
+            val ktLintRuleEngine =
+                KtLintRuleEngine(
+                    ruleProviders =
+                        setOf(
+                            RuleProvider { IndentationRule() },
+                        ),
+                    fileSystem = ktlintTestFileSystem.fileSystem,
+                )
 
             val lintErrors = mutableListOf<LintError>()
             ktLintRuleEngine.lint(
-                code = Code.fromSnippet(
-                    """
-                    plugins {
-                        id("foo")
-                        id("bar")
-                    }
-                    """.trimIndent(),
-                    script = true,
-                ),
+                code =
+                    Code.fromSnippet(
+                        """
+                        plugins {
+                            id("foo")
+                            id("bar")
+                        }
+                        """.trimIndent(),
+                        script = true,
+                    ),
                 callback = { lintErrors.add(it) },
             )
 
@@ -118,23 +126,27 @@ class KtLintRuleEngineTest {
 
         @Test
         fun `Given a code snippet that violates a custom rule prefixed by a rule set id`() {
-            val ktLintRuleEngine = KtLintRuleEngine(
-                ruleProviders = setOf(
-                    RuleProvider { NoVarRule() },
-                ),
-                editorConfigOverride = EditorConfigOverride.from(
-                    NoVarRule.NO_VAR_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled,
-                ),
-                fileSystem = ktlintTestFileSystem.fileSystem,
-            )
+            val ktLintRuleEngine =
+                KtLintRuleEngine(
+                    ruleProviders =
+                        setOf(
+                            RuleProvider { NoVarRule() },
+                        ),
+                    editorConfigOverride =
+                        EditorConfigOverride.from(
+                            NoVarRule.NO_VAR_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled,
+                        ),
+                    fileSystem = ktlintTestFileSystem.fileSystem,
+                )
 
             val lintErrors = mutableListOf<LintError>()
             ktLintRuleEngine.lint(
-                code = Code.fromSnippet(
-                    """
-                    var foo = "foo"
-                    """.trimIndent(),
-                ),
+                code =
+                    Code.fromSnippet(
+                        """
+                        var foo = "foo"
+                        """.trimIndent(),
+                    ),
                 callback = { lintErrors.add(it) },
             )
 
@@ -143,19 +155,22 @@ class KtLintRuleEngineTest {
 
         @Test
         fun `Given a code snippet then the file name rule may not result in a Lint violation`() {
-            val ktLintRuleEngine = KtLintRuleEngine(
-                ruleProviders = setOf(
-                    RuleProvider { FilenameRule() },
-                ),
-                fileSystem = ktlintTestFileSystem.fileSystem,
-            )
+            val ktLintRuleEngine =
+                KtLintRuleEngine(
+                    ruleProviders =
+                        setOf(
+                            RuleProvider { FilenameRule() },
+                        ),
+                    fileSystem = ktlintTestFileSystem.fileSystem,
+                )
             val lintErrors = mutableListOf<LintError>()
             ktLintRuleEngine.lint(
-                code = Code.fromSnippet(
-                    """
-                    var foo = "foo"
-                    """.trimIndent(),
-                ),
+                code =
+                    Code.fromSnippet(
+                        """
+                        var foo = "foo"
+                        """.trimIndent(),
+                    ),
                 callback = { lintErrors.add(it) },
             )
 
@@ -172,40 +187,47 @@ class KtLintRuleEngineTest {
         ) {
             val dir = ApiTestRunner(tempDir).prepareTestProject("no-code-style-error")
 
-            val ktLintRuleEngine = KtLintRuleEngine(
-                ruleProviders = setOf(
-                    RuleProvider { IndentationRule() },
-                ),
-                fileSystem = ktlintTestFileSystem.fileSystem,
-            )
+            val ktLintRuleEngine =
+                KtLintRuleEngine(
+                    ruleProviders =
+                        setOf(
+                            RuleProvider { IndentationRule() },
+                        ),
+                    fileSystem = ktlintTestFileSystem.fileSystem,
+                )
 
             val original = File("$dir/Main.kt").readText()
 
-            val actual = ktLintRuleEngine.format(
-                code = Code.fromFile(File("$dir/Main.kt")),
-            )
+            val actual =
+                ktLintRuleEngine.format(
+                    code = Code.fromFile(File("$dir/Main.kt")),
+                )
 
             assertThat(actual).isEqualTo(original)
         }
 
         @Test
         fun `Given a kotlin code snippet that does contain an indentation error`() {
-            val ktLintRuleEngine = KtLintRuleEngine(
-                ruleProviders = setOf(
-                    RuleProvider { IndentationRule() },
-                ),
-                fileSystem = ktlintTestFileSystem.fileSystem,
-            )
+            val ktLintRuleEngine =
+                KtLintRuleEngine(
+                    ruleProviders =
+                        setOf(
+                            RuleProvider { IndentationRule() },
+                        ),
+                    fileSystem = ktlintTestFileSystem.fileSystem,
+                )
 
-            val actual = ktLintRuleEngine.format(
-                code = Code.fromSnippet(
-                    """
-                    fun main() {
-                    println("Hello world!")
-                    }
-                    """.trimIndent(),
-                ),
-            )
+            val actual =
+                ktLintRuleEngine.format(
+                    code =
+                        Code.fromSnippet(
+                            """
+                            fun main() {
+                            println("Hello world!")
+                            }
+                            """.trimIndent(),
+                        ),
+                )
 
             assertThat(actual).isEqualTo(
                 """
@@ -218,24 +240,28 @@ class KtLintRuleEngineTest {
 
         @Test
         fun `Given a kotlin script code snippet that does contain an indentation error`() {
-            val ktLintRuleEngine = KtLintRuleEngine(
-                ruleProviders = setOf(
-                    RuleProvider { IndentationRule() },
-                ),
-                fileSystem = ktlintTestFileSystem.fileSystem,
-            )
+            val ktLintRuleEngine =
+                KtLintRuleEngine(
+                    ruleProviders =
+                        setOf(
+                            RuleProvider { IndentationRule() },
+                        ),
+                    fileSystem = ktlintTestFileSystem.fileSystem,
+                )
 
-            val actual = ktLintRuleEngine.format(
-                code = Code.fromSnippet(
-                    """
-                    plugins {
-                    id("foo")
-                    id("bar")
-                    }
-                    """.trimIndent(),
-                    script = true,
-                ),
-            )
+            val actual =
+                ktLintRuleEngine.format(
+                    code =
+                        Code.fromSnippet(
+                            """
+                            plugins {
+                            id("foo")
+                            id("bar")
+                            }
+                            """.trimIndent(),
+                            script = true,
+                        ),
+                )
 
             assertThat(actual).isEqualTo(
                 """
@@ -250,32 +276,36 @@ class KtLintRuleEngineTest {
 
     @Test
     fun `Given that all experimental rules are enabled`() {
-        val ktLintEngine = KtLintRuleEngine(
-            ruleProviders = setOf(
-                RuleProvider { NoVarRule() },
-            ),
-            editorConfigDefaults = EditorConfigDefaults(
-                EditorConfig
-                    .builder()
-                    .section(
-                        Section
+        val ktLintEngine =
+            KtLintRuleEngine(
+                ruleProviders =
+                    setOf(
+                        RuleProvider { NoVarRule() },
+                    ),
+                editorConfigDefaults =
+                    EditorConfigDefaults(
+                        EditorConfig
                             .builder()
-                            .glob(Glob("*.{kt,kts}"))
-                            .properties(
-                                EXPERIMENTAL_RULES_EXECUTION_PROPERTY.toPropertyBuilderWithValue("enabled"),
-                            ),
-                    )
-                    .build(),
-            ),
-            fileSystem = ktlintTestFileSystem.fileSystem,
-        )
+                            .section(
+                                Section
+                                    .builder()
+                                    .glob(Glob("*.{kt,kts}"))
+                                    .properties(
+                                        EXPERIMENTAL_RULES_EXECUTION_PROPERTY.toPropertyBuilderWithValue("enabled"),
+                                    ),
+                            )
+                            .build(),
+                    ),
+                fileSystem = ktlintTestFileSystem.fileSystem,
+            )
         val errors = mutableListOf<LintError>()
         ktLintEngine.lint(
-            code = Code.fromSnippet(
-                """
-                var foo = "foo"
-                """.trimIndent(),
-            ),
+            code =
+                Code.fromSnippet(
+                    """
+                    var foo = "foo"
+                    """.trimIndent(),
+                ),
             callback = errors::add,
         )
 

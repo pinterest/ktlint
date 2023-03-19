@@ -28,16 +28,17 @@ internal object SuppressionLocatorBuilder {
      * when specific non-ktlint annotations are found. The prevents that developers have to specify multiple annotations
      * for the same violation.
      */
-    private val SUPPRESS_ANNOTATION_RULE_MAP = mapOf(
-        // It would have been nice if the official rule id's as defined in the Rules themselves could have been used here. But that would
-        // introduce a circular dependency between the ktlint-rule-engine and the ktlint-ruleset-standard modules.
-        "EnumEntryName" to RuleId("standard:enum-entry-name-case"),
-        "RemoveCurlyBracesFromTemplate" to RuleId("standard:string-template"),
-        "ClassName" to RuleId("standard:class-naming"),
-        "FunctionName" to RuleId("standard:function-naming"),
-        "PackageName" to RuleId("standard:package-name"),
-        "PropertyName" to RuleId("standard:property-naming"),
-    )
+    private val SUPPRESS_ANNOTATION_RULE_MAP =
+        mapOf(
+            // It would have been nice if the official rule id's as defined in the Rules themselves could have been used here. But that would
+            // introduce a circular dependency between the ktlint-rule-engine and the ktlint-ruleset-standard modules.
+            "EnumEntryName" to RuleId("standard:enum-entry-name-case"),
+            "RemoveCurlyBracesFromTemplate" to RuleId("standard:string-template"),
+            "ClassName" to RuleId("standard:class-naming"),
+            "FunctionName" to RuleId("standard:function-naming"),
+            "PackageName" to RuleId("standard:package-name"),
+            "PropertyName" to RuleId("standard:property-naming"),
+        )
     private val SUPPRESS_ANNOTATIONS = setOf("Suppress", "SuppressWarnings")
     private val SUPPRESS_ALL_KTLINT_RULES_RULE_ID = RuleId("ktlint:suppress-all-rules")
 

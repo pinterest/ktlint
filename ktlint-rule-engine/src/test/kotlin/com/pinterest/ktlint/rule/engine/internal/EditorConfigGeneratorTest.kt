@@ -13,18 +13,20 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
 internal class EditorConfigGeneratorTest {
-    private val ruleProviders = setOf(
-        RuleProvider { TestRule() },
-    )
+    private val ruleProviders =
+        setOf(
+            RuleProvider { TestRule() },
+        )
     private val rules =
         ruleProviders
             .map { it.createNewRuleInstance() }
             .toSet()
     private val ktlintTestFileSystem = KtlintTestFileSystem()
-    private val editorConfigGenerator = EditorConfigGenerator(
-        fileSystem = ktlintTestFileSystem.fileSystem,
-        EditorConfigLoaderEc4j(ruleProviders.propertyTypes()),
-    )
+    private val editorConfigGenerator =
+        EditorConfigGenerator(
+            fileSystem = ktlintTestFileSystem.fileSystem,
+            EditorConfigLoaderEc4j(ruleProviders.propertyTypes()),
+        )
 
     @AfterEach
     fun tearDown() {
@@ -42,11 +44,12 @@ internal class EditorConfigGeneratorTest {
             )
         }
 
-        val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
-            rules = rules,
-            codeStyle = CodeStyleValue.intellij_idea,
-            filePath = ktlintTestFileSystem.resolve("test.kt"),
-        )
+        val generatedEditorConfig =
+            editorConfigGenerator.generateEditorconfig(
+                rules = rules,
+                codeStyle = CodeStyleValue.intellij_idea,
+                filePath = ktlintTestFileSystem.resolve("test.kt"),
+            )
 
         assertThat(generatedEditorConfig.lines()).doesNotContainAnyElementsOf(listOf("root = true"))
         assertThat(generatedEditorConfig.lines()).contains(
@@ -57,11 +60,12 @@ internal class EditorConfigGeneratorTest {
 
     @Test
     fun `Should use default Android code style value if value is missing and android code style is active`() {
-        val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
-            rules = rules,
-            codeStyle = CodeStyleValue.android_studio,
-            filePath = ktlintTestFileSystem.resolve("test.kt"),
-        )
+        val generatedEditorConfig =
+            editorConfigGenerator.generateEditorconfig(
+                rules = rules,
+                codeStyle = CodeStyleValue.android_studio,
+                filePath = ktlintTestFileSystem.resolve("test.kt"),
+            )
 
         assertThat(generatedEditorConfig.lines()).contains(
             "$PROPERTY_1_NAME = $PROPERTY_1_DEFAULT_VALUE_ANDROID",
@@ -74,25 +78,28 @@ internal class EditorConfigGeneratorTest {
 
     @Test
     fun `Given distinct rules that use the same property with the same default value then is should be written only once to the editorconfig file`() {
-        val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
-            rules = setOf(
-                object : Rule(
-                    ruleId = RuleId("test:rule-one"),
-                    about = About(),
-                    usesEditorConfigProperties = setOf(
-                        EDITOR_CONFIG_PROPERTY_2,
-                        EDITOR_CONFIG_PROPERTY_1,
+        val generatedEditorConfig =
+            editorConfigGenerator.generateEditorconfig(
+                rules =
+                    setOf(
+                        object : Rule(
+                            ruleId = RuleId("test:rule-one"),
+                            about = About(),
+                            usesEditorConfigProperties =
+                                setOf(
+                                    EDITOR_CONFIG_PROPERTY_2,
+                                    EDITOR_CONFIG_PROPERTY_1,
+                                ),
+                        ) {},
+                        object : Rule(
+                            ruleId = RuleId("test:rule-two"),
+                            about = About(),
+                            usesEditorConfigProperties = setOf(EDITOR_CONFIG_PROPERTY_1),
+                        ) {},
                     ),
-                ) {},
-                object : Rule(
-                    ruleId = RuleId("test:rule-two"),
-                    about = About(),
-                    usesEditorConfigProperties = setOf(EDITOR_CONFIG_PROPERTY_1),
-                ) {},
-            ),
-            codeStyle = CodeStyleValue.intellij_idea,
-            filePath = ktlintTestFileSystem.resolve("test.kt"),
-        )
+                codeStyle = CodeStyleValue.intellij_idea,
+                filePath = ktlintTestFileSystem.resolve("test.kt"),
+            )
 
         assertThat(generatedEditorConfig.lines()).contains(
             "$PROPERTY_1_NAME = $PROPERTY_1_DEFAULT_VALUE",
@@ -115,11 +122,12 @@ internal class EditorConfigGeneratorTest {
             )
         }
 
-        val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
-            rules = rules,
-            codeStyle = CodeStyleValue.intellij_idea,
-            filePath = ktlintTestFileSystem.resolve("test.kt"),
-        )
+        val generatedEditorConfig =
+            editorConfigGenerator.generateEditorconfig(
+                rules = rules,
+                codeStyle = CodeStyleValue.intellij_idea,
+                filePath = ktlintTestFileSystem.resolve("test.kt"),
+            )
 
         assertThat(generatedEditorConfig.lines()).doesNotContainAnyElementsOf(listOf("root = true"))
         assertThat(generatedEditorConfig.lines()).contains(
@@ -144,11 +152,12 @@ internal class EditorConfigGeneratorTest {
             )
         }
 
-        val generatedEditorConfig = editorConfigGenerator.generateEditorconfig(
-            rules = rules,
-            codeStyle = CodeStyleValue.intellij_idea,
-            filePath = ktlintTestFileSystem.resolve("test.kt"),
-        )
+        val generatedEditorConfig =
+            editorConfigGenerator.generateEditorconfig(
+                rules = rules,
+                codeStyle = CodeStyleValue.intellij_idea,
+                filePath = ktlintTestFileSystem.resolve("test.kt"),
+            )
 
         assertThat(generatedEditorConfig.lines()).doesNotContainAnyElementsOf(listOf("root = true"))
         assertThat(generatedEditorConfig.lines()).contains(
@@ -162,10 +171,11 @@ internal class EditorConfigGeneratorTest {
     private class TestRule : Rule(
         ruleId = RuleId("test:test-rule"),
         about = About(),
-        usesEditorConfigProperties = setOf(
-            EDITOR_CONFIG_PROPERTY_2,
-            EDITOR_CONFIG_PROPERTY_1,
-        ),
+        usesEditorConfigProperties =
+            setOf(
+                EDITOR_CONFIG_PROPERTY_2,
+                EDITOR_CONFIG_PROPERTY_1,
+            ),
     )
 
     private companion object {
@@ -176,27 +186,31 @@ internal class EditorConfigGeneratorTest {
         const val PROPERTY_2_NAME = "property-2"
         const val PROPERTY_2_DEFAULT_VALUE = 10
         const val PROPERTY_2_DEFAULT_VALUE_ANDROID = 11
-        val EDITOR_CONFIG_PROPERTY_1 = EditorConfigProperty(
-            name = PROPERTY_1_NAME,
-            type = PropertyType(
-                PROPERTY_1_NAME,
-                "",
-                PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
-                setOf("true", "false"),
-            ),
-            defaultValue = PROPERTY_1_DEFAULT_VALUE,
-            androidStudioCodeStyleDefaultValue = PROPERTY_1_DEFAULT_VALUE_ANDROID,
-        )
-        val EDITOR_CONFIG_PROPERTY_2 = EditorConfigProperty(
-            name = PROPERTY_2_NAME,
-            type = PropertyType(
-                PROPERTY_2_NAME,
-                "",
-                PropertyType.PropertyValueParser.POSITIVE_INT_VALUE_PARSER,
-                setOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0"),
-            ),
-            defaultValue = PROPERTY_2_DEFAULT_VALUE,
-            androidStudioCodeStyleDefaultValue = PROPERTY_2_DEFAULT_VALUE_ANDROID,
-        )
+        val EDITOR_CONFIG_PROPERTY_1 =
+            EditorConfigProperty(
+                name = PROPERTY_1_NAME,
+                type =
+                    PropertyType(
+                        PROPERTY_1_NAME,
+                        "",
+                        PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
+                        setOf("true", "false"),
+                    ),
+                defaultValue = PROPERTY_1_DEFAULT_VALUE,
+                androidStudioCodeStyleDefaultValue = PROPERTY_1_DEFAULT_VALUE_ANDROID,
+            )
+        val EDITOR_CONFIG_PROPERTY_2 =
+            EditorConfigProperty(
+                name = PROPERTY_2_NAME,
+                type =
+                    PropertyType(
+                        PROPERTY_2_NAME,
+                        "",
+                        PropertyType.PropertyValueParser.POSITIVE_INT_VALUE_PARSER,
+                        setOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0"),
+                    ),
+                defaultValue = PROPERTY_2_DEFAULT_VALUE,
+                androidStudioCodeStyleDefaultValue = PROPERTY_2_DEFAULT_VALUE_ANDROID,
+            )
     }
 }

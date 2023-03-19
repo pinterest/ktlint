@@ -12,9 +12,10 @@ public class FormatReporterProvider : ReporterProviderV2<FormatReporter> {
     ): FormatReporter =
         FormatReporter(
             out,
-            format = opt
-                .getOrElse("format") { throw IllegalArgumentException("Format is not specified in config options") }
-                .toBooleanStrict(),
+            format =
+                opt
+                    .getOrElse("format") { throw IllegalArgumentException("Format is not specified in config options") }
+                    .toBooleanStrict(),
             shouldColorOutput = opt["color"]?.emptyOrTrue() ?: false,
             outputColor = getColor(opt["color_name"]),
         )

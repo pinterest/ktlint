@@ -36,12 +36,13 @@ import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 public class ParameterListWrappingRule :
     StandardRule(
         id = "parameter-list-wrapping",
-        usesEditorConfigProperties = setOf(
-            CODE_STYLE_PROPERTY,
-            INDENT_SIZE_PROPERTY,
-            INDENT_STYLE_PROPERTY,
-            MAX_LINE_LENGTH_PROPERTY,
-        ),
+        usesEditorConfigProperties =
+            setOf(
+                CODE_STYLE_PROPERTY,
+                INDENT_SIZE_PROPERTY,
+                INDENT_STYLE_PROPERTY,
+                MAX_LINE_LENGTH_PROPERTY,
+            ),
     ) {
     private var codeStyle = CODE_STYLE_PROPERTY.defaultValue
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
@@ -254,9 +255,10 @@ public class ParameterListWrappingRule :
         } else {
             parent.children().firstOrNull { it.elementType == TYPE_PARAMETER_LIST }
         }
-        val typeListNode = typeParameterList
-            ?: parent.psi.collectDescendantsOfType<KtTypeArgumentList>().firstOrNull()?.node
-            ?: return false
+        val typeListNode =
+            typeParameterList
+                ?: parent.psi.collectDescendantsOfType<KtTypeArgumentList>().firstOrNull()?.node
+                ?: return false
         return typeListNode.children().any { it.isWhiteSpaceWithNewline() }
     }
 }

@@ -162,12 +162,13 @@ private class BaselineLoader(private val path: String) {
         KtlintCliError(
             line = getAttribute("line").toInt(),
             col = getAttribute("column").toInt(),
-            ruleId = getAttribute("source")
-                .let {
-                    // Ensure backwards compatibility with baseline files in which the rule set id for standard rules is not saved
-                    RuleId.prefixWithStandardRuleSetIdWhenMissing(it)
-                        .also { ruleReferenceWithoutRuleSetIdPrefix++ }
-                },
+            ruleId =
+                getAttribute("source")
+                    .let {
+                        // Ensure backwards compatibility with baseline files in which the rule set id for standard rules is not saved
+                        RuleId.prefixWithStandardRuleSetIdWhenMissing(it)
+                            .also { ruleReferenceWithoutRuleSetIdPrefix++ }
+                    },
             detail = "", // Not available in the baseline
             status = BASELINE_IGNORED,
         )

@@ -18,11 +18,12 @@ public class DumpASTRule @JvmOverloads constructor(
     private val color: Boolean = false,
 ) : Rule(
     ruleId = RuleId("$TEST_TOOLING_RULESET_ID:dump-ast"),
-    about = About(
-        maintainer = "Ktlint",
-        repositoryUrl = "https://github.com/pinterest/ktlint",
-        issueTrackerUrl = "https://github.com/pinterest/ktlint/issues",
-    ),
+    about =
+        About(
+            maintainer = "Ktlint",
+            repositoryUrl = "https://github.com/pinterest/ktlint",
+            issueTrackerUrl = "https://github.com/pinterest/ktlint/issues",
+        ),
 ) {
     private companion object {
         val ELEMENT_TYPE_SET = ElementType::class.members.map { it.name }.toSet()

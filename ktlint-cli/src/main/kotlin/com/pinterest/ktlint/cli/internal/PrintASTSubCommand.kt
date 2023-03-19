@@ -64,9 +64,10 @@ internal class PrintASTSubCommand : Runnable {
 
         try {
             KtLintRuleEngine(
-                ruleProviders = setOf(
-                    RuleProvider { DumpASTRule(System.out, ktlintCommand.color) },
-                ),
+                ruleProviders =
+                    setOf(
+                        RuleProvider { DumpASTRule(System.out, ktlintCommand.color) },
+                    ),
             ).lint(code)
         } catch (e: Exception) {
             if (e is KtLintParseException) {

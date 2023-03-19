@@ -47,20 +47,23 @@ private const val KTLINT_UNIT_TEST_DUMP_AST = "KTLINT_UNIT_TEST_DUMP_AST"
 private const val KTLINT_UNIT_TEST_ON_PROPERTY = "ON"
 
 private fun Set<RuleProvider>.toRuleProviders(): Set<RuleProvider> {
-    val dumpAstRuleProvider = System
-        .getenv(KTLINT_UNIT_TEST_DUMP_AST)
-        .orEmpty()
-        .equals(KTLINT_UNIT_TEST_ON_PROPERTY, ignoreCase = true)
-        .ifTrue {
-            LOGGER.info { "Dump AST of code before processing as System environment variable $KTLINT_UNIT_TEST_DUMP_AST is set to 'on'" }
-            RuleProvider {
-                DumpASTRule(
-                    // Write to STDOUT. The focus in a failed unit test should first go to the error in the rule that is
-                    // to be tested and not to the AST,
-                    out = System.out,
-                )
+    val dumpAstRuleProvider =
+        System
+            .getenv(KTLINT_UNIT_TEST_DUMP_AST)
+            .orEmpty()
+            .equals(KTLINT_UNIT_TEST_ON_PROPERTY, ignoreCase = true)
+            .ifTrue {
+                LOGGER.info {
+                    "Dump AST of code before processing as System environment variable $KTLINT_UNIT_TEST_DUMP_AST is set to 'on'"
+                }
+                RuleProvider {
+                    DumpASTRule(
+                        // Write to STDOUT. The focus in a failed unit test should first go to the error in the rule that is
+                        // to be tested and not to the AST,
+                        out = System.out,
+                    )
+                }
             }
-        }
     return this.plus(setOfNotNull(dumpAstRuleProvider))
 }
 
@@ -87,9 +90,10 @@ public fun Set<RuleProvider>.lint(
     }
     KtLintRuleEngine(
         ruleProviders = ruleProviders,
-        editorConfigOverride = editorConfigOverride
-            .enableExperimentalRules()
-            .extendWithRuleSetRuleExecutionsFor(ruleProviders),
+        editorConfigOverride =
+            editorConfigOverride
+                .enableExperimentalRules()
+                .extendWithRuleSetRuleExecutionsFor(ruleProviders),
         fileSystem = KTLINT_TEST_FILE_SYSTEM.fileSystem,
     ).lint(code) { lintError -> lintErrors.add(lintError) }
     return lintErrors
@@ -100,19 +104,20 @@ public fun Set<RuleProvider>.lint(
  * provided.
  */
 private fun EditorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProviders: Set<RuleProvider>): EditorConfigOverride {
-    val ruleSetRuleExecutions = ruleProviders
-        .asSequence()
-        .map { ruleProvider ->
-            ruleProvider
-                .createNewRuleInstance()
-                .ruleId
-                .ruleSetId
-                .createRuleSetExecutionEditorConfigProperty()
-        }.distinct()
-        .filter { editorConfigProperty -> this.properties[editorConfigProperty] == null }
-        .map { it to RuleExecution.enabled }
-        .toList()
-        .toTypedArray()
+    val ruleSetRuleExecutions =
+        ruleProviders
+            .asSequence()
+            .map { ruleProvider ->
+                ruleProvider
+                    .createNewRuleInstance()
+                    .ruleId
+                    .ruleSetId
+                    .createRuleSetExecutionEditorConfigProperty()
+            }.distinct()
+            .filter { editorConfigProperty -> this.properties[editorConfigProperty] == null }
+            .map { it to RuleExecution.enabled }
+            .toList()
+            .toTypedArray()
     return this.plus(*ruleSetRuleExecutions)
 }
 
@@ -143,9 +148,10 @@ public fun Set<RuleProvider>.format(
     val formattedCode =
         KtLintRuleEngine(
             ruleProviders = ruleProviders,
-            editorConfigOverride = editorConfigOverride
-                .enableExperimentalRules()
-                .extendWithRuleSetRuleExecutionsFor(ruleProviders),
+            editorConfigOverride =
+                editorConfigOverride
+                    .enableExperimentalRules()
+                    .extendWithRuleSetRuleExecutionsFor(ruleProviders),
             fileSystem = KTLINT_TEST_FILE_SYSTEM.fileSystem,
         ).format(code) { lintError, _ -> lintErrors.add(lintError) }
     return Pair(formattedCode, lintErrors)

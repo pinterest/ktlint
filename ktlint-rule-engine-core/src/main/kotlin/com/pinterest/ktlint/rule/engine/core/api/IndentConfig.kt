@@ -141,9 +141,10 @@ public data class IndentConfig(
     public companion object {
         private val TABS_AND_SPACES = Regex("[ \t]*")
 
-        public val DEFAULT_INDENT_CONFIG: IndentConfig = IndentConfig(
-            indentStyle = INDENT_STYLE_PROPERTY.defaultValue,
-            tabWidth = INDENT_SIZE_PROPERTY.defaultValue,
-        )
+        public val DEFAULT_INDENT_CONFIG: IndentConfig =
+            IndentConfig(
+                indentStyle = INDENT_STYLE_PROPERTY.defaultValue,
+                tabWidth = INDENT_SIZE_PROPERTY.defaultValue,
+            )
     }
 }

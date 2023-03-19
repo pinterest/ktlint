@@ -33,11 +33,12 @@ internal class GenerateEditorConfigSubCommand : Runnable {
             exitKtLintProcess(1)
         }
 
-        val ktLintRuleEngine = KtLintRuleEngine(
-            ruleProviders = ktlintCommand.ruleProviders(),
-            editorConfigOverride = EditorConfigOverride.from(CODE_STYLE_PROPERTY to ktlintCommand.codeStyle),
-            isInvokedFromCli = true,
-        )
+        val ktLintRuleEngine =
+            KtLintRuleEngine(
+                ruleProviders = ktlintCommand.ruleProviders(),
+                editorConfigOverride = EditorConfigOverride.from(CODE_STYLE_PROPERTY to ktlintCommand.codeStyle),
+                isInvokedFromCli = true,
+            )
         val generatedEditorConfig = ktLintRuleEngine.generateKotlinEditorConfigSection(Paths.get("."))
 
         if (generatedEditorConfig.isNotBlank()) {

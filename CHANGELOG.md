@@ -232,6 +232,7 @@ Previously the default value for `.editorconfig` property `max_line_length` was 
 * Wrap the type or value of a property in case the maximum line length is exceeded `property-wrapping` ([#1846](https://github.com/pinterest/ktlint/pull/1846))
 * Recognize Kotlin Script when linting and formatting code from `stdin` with KtLint CLI ([#1832](https://github.com/pinterest/ktlint/issues/1832))
 * Add new experimental rule `no-blank-line-in-list` for `ktlint_official` code style. This rule disallows blank lines to be used in super type lists, type argument lists, type constraint lists, type parameter lists, value argument lists, and value parameter lists. This rule can also be run for other code styles but then its needs to be explicitly enabled. ([#1224](https://github.com/pinterest/ktlint/issues/1224))
+* Add new experimental rule `multiline-expression-wrapping` for `ktlint_official` code style. This forces a multiline expression as value in an assignment to start on a separate line. This rule can also be run for other code styles but then its needs to be explicitly enabled. ([#1217](https://github.com/pinterest/ktlint/issues/1217))
 
 ### Removed
 
@@ -260,6 +261,7 @@ Previously the default value for `.editorconfig` property `max_line_length` was 
 * When negate-patterns only are specified in Ktlint CLI then automatically add the default include patterns (`**/*.kt` and `**/*.kts`) so that all Kotlin files excluding the files matching the negate-patterns will be processed ([#1847](https://github.com/pinterest/ktlint/issues/1847))
 * Do not remove newlines from multiline type parameter lists `type-parameter-list-spacing` ([#1867](https://github.com/pinterest/ktlint/issues/1867))
 * Wrap each type parameter in a multiline type parameter list `wrapping` ([#1867](https://github.com/pinterest/ktlint/issues/1867))
+* Allow value arguments with a multiline expression to be indented on a separate line `indent` ([#1217](https://github.com/pinterest/ktlint/issues/1217))
 
 ### Changed
 * Wrap the parameters of a function literal containing a multiline parameter list (only in `ktlint_official` code style) `parameter-list-wrapping` ([#1681](https://github.com/pinterest/ktlint/issues/1681)).

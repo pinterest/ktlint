@@ -21,10 +21,11 @@ class RuleExecutionRuleFilterTest {
                 RuleProvider { NormalRule(STANDARD_RULE_A) },
                 RuleProvider { NormalRule(STANDARD_RULE_B) },
                 RuleProvider { NormalRule(STANDARD_RULE_C) },
-                editorConfig = EditorConfig(
-                    ktLintRuleExecutionEditorConfigProperty("ktlint_$STANDARD", RuleExecution.enabled),
-                    ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_C, RuleExecution.disabled),
-                ),
+                editorConfig =
+                    EditorConfig(
+                        ktLintRuleExecutionEditorConfigProperty("ktlint_$STANDARD", RuleExecution.enabled),
+                        ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_C, RuleExecution.disabled),
+                    ),
             ).toRuleIds()
 
         assertThat(actual).containsExactly(
@@ -41,9 +42,10 @@ class RuleExecutionRuleFilterTest {
                 RuleProvider { ExperimentalRule(STANDARD_RULE_B) },
                 RuleProvider { NormalRule(STANDARD_RULE_C) },
                 RuleProvider { NormalRule(STANDARD_RULE_D) },
-                editorConfig = EditorConfig(
-                    ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_C, RuleExecution.disabled),
-                ),
+                editorConfig =
+                    EditorConfig(
+                        ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_C, RuleExecution.disabled),
+                    ),
             ).toRuleIds()
 
         assertThat(actual).containsExactly(
@@ -59,11 +61,12 @@ class RuleExecutionRuleFilterTest {
                 RuleProvider { NormalRule(STANDARD_RULE_A) },
                 RuleProvider { NormalRule(STANDARD_RULE_B) },
                 RuleProvider { NormalRule(STANDARD_RULE_C) },
-                editorConfig = EditorConfig(
-                    ktLintRuleExecutionEditorConfigProperty("ktlint_$STANDARD", RuleExecution.disabled),
-                    ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_A, RuleExecution.enabled),
-                    ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_B, RuleExecution.enabled),
-                ),
+                editorConfig =
+                    EditorConfig(
+                        ktLintRuleExecutionEditorConfigProperty("ktlint_$STANDARD", RuleExecution.disabled),
+                        ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_A, RuleExecution.enabled),
+                        ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_B, RuleExecution.enabled),
+                    ),
             ).toRuleIds()
 
         assertThat(actual).containsExactly(
@@ -80,10 +83,11 @@ class RuleExecutionRuleFilterTest {
                 RuleProvider { ExperimentalRule(STANDARD_RULE_C) },
                 RuleProvider { ExperimentalRule(CUSTOM_RULE_B) },
                 RuleProvider { ExperimentalRule(CUSTOM_RULE_C) },
-                editorConfig = EditorConfig(
-                    ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_B, RuleExecution.enabled),
-                    ktLintRuleExecutionEditorConfigProperty(CUSTOM_RULE_B, RuleExecution.enabled),
-                ),
+                editorConfig =
+                    EditorConfig(
+                        ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_B, RuleExecution.enabled),
+                        ktLintRuleExecutionEditorConfigProperty(CUSTOM_RULE_B, RuleExecution.enabled),
+                    ),
             ).toRuleIds()
 
         assertThat(actual).containsExactly(
@@ -100,12 +104,13 @@ class RuleExecutionRuleFilterTest {
                 RuleProvider { ExperimentalRule(STANDARD_RULE_C) },
                 RuleProvider { ExperimentalRule(CUSTOM_RULE_B) },
                 RuleProvider { ExperimentalRule(CUSTOM_RULE_C) },
-                editorConfig = EditorConfig(
-                    ktLintRuleExecutionEditorConfigProperty("ktlint_experimental", RuleExecution.disabled),
-                    ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_B, RuleExecution.enabled),
-                    ktLintRuleExecutionEditorConfigProperty("ktlint_$CUSTOM", RuleExecution.disabled),
-                    ktLintRuleExecutionEditorConfigProperty(CUSTOM_RULE_B, RuleExecution.enabled),
-                ),
+                editorConfig =
+                    EditorConfig(
+                        ktLintRuleExecutionEditorConfigProperty("ktlint_experimental", RuleExecution.disabled),
+                        ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_B, RuleExecution.enabled),
+                        ktLintRuleExecutionEditorConfigProperty("ktlint_$CUSTOM", RuleExecution.disabled),
+                        ktLintRuleExecutionEditorConfigProperty(CUSTOM_RULE_B, RuleExecution.enabled),
+                    ),
             ).toRuleIds()
 
         assertThat(actual).containsExactly(
@@ -122,12 +127,13 @@ class RuleExecutionRuleFilterTest {
                 RuleProvider { ExperimentalRule(STANDARD_RULE_C) },
                 RuleProvider { ExperimentalRule(CUSTOM_RULE_B) },
                 RuleProvider { ExperimentalRule(CUSTOM_RULE_C) },
-                editorConfig = EditorConfig(
-                    ktLintRuleExecutionEditorConfigProperty("ktlint_experimental", RuleExecution.enabled),
-                    ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_C, RuleExecution.disabled),
-                    ktLintRuleExecutionEditorConfigProperty("ktlint_$CUSTOM", RuleExecution.enabled),
-                    ktLintRuleExecutionEditorConfigProperty(CUSTOM_RULE_C, RuleExecution.disabled),
-                ),
+                editorConfig =
+                    EditorConfig(
+                        ktLintRuleExecutionEditorConfigProperty("ktlint_experimental", RuleExecution.enabled),
+                        ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_C, RuleExecution.disabled),
+                        ktLintRuleExecutionEditorConfigProperty("ktlint_$CUSTOM", RuleExecution.enabled),
+                        ktLintRuleExecutionEditorConfigProperty(CUSTOM_RULE_C, RuleExecution.disabled),
+                    ),
             ).toRuleIds()
 
         assertThat(actual).containsExactly(
@@ -142,10 +148,11 @@ class RuleExecutionRuleFilterTest {
             runWithRuleExecutionRuleFilter(
                 RuleProvider { NormalRule(STANDARD_RULE_A) },
                 RuleProvider { NormalRule(STANDARD_RULE_B) },
-                editorConfig = EditorConfig(
-                    ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_A, RuleExecution.disabled),
-                    ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_B, RuleExecution.disabled),
-                ),
+                editorConfig =
+                    EditorConfig(
+                        ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_A, RuleExecution.disabled),
+                        ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_B, RuleExecution.disabled),
+                    ),
             ).toRuleIds()
 
         assertThat(actual).isEmpty()

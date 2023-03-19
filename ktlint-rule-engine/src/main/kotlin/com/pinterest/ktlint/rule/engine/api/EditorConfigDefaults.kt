@@ -29,8 +29,9 @@ public data class EditorConfigDefaults(
          * ".editorconfig" is ignored entirely.
          */
         @Deprecated(
-            message = "Marked for removal in Ktlint 0.50. This method causes class cast exceptions in case the '.editorconfig' file " +
-                "contains properties having an EditorConfigProperty with a custom type (e.g. a type not defined in the ec4j library)",
+            message =
+                "Marked for removal in Ktlint 0.50. This method causes class cast exceptions in case the '.editorconfig' file contains " +
+                    "properties having an EditorConfigProperty with a custom type (e.g. a type not defined in the ec4j library)",
             replaceWith = ReplaceWith("load(path, propertyTypes)"),
         )
         public fun load(path: Path?): EditorConfigDefaults =

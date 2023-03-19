@@ -36,9 +36,10 @@ internal fun <T> Class<T>.loadFromJarFiles(
             // Remove JAR files which were provided multiple times
             .distinct()
             .map { url ->
-                val providers = this
-                    .loadProvidersFromJars(url)
-                    .filterNot { providerIdsFromKtlintJars.contains(providerId(it)) }
+                val providers =
+                    this
+                        .loadProvidersFromJars(url)
+                        .filterNot { providerIdsFromKtlintJars.contains(providerId(it)) }
                 if (providers.isEmpty()) {
                     if (customJarProviderCheck == ERROR_WHEN_REQUIRED_PROVIDER_IS_MISSING) {
                         if (LOGGER.isDebugEnabled) {

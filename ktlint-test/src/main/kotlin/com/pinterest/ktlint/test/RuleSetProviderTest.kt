@@ -22,10 +22,12 @@ public open class RuleSetProviderTest(
     public fun checkAllRulesInPackageAreProvidedByRuleSetProvider() {
         val srcLocation = rulesetClass.protectionDomain.codeSource.location.path
         val rulesDir = File(srcLocation + packageName.replace(".", "/"))
-        val packageRules = rulesDir.listFiles()
-            ?.map { it.name.removeSuffix(".class") }
-            ?.filter { it.endsWith("Rule") }
-            ?: arrayListOf()
+        val packageRules =
+            rulesDir
+                .listFiles()
+                ?.map { it.name.removeSuffix(".class") }
+                ?.filter { it.endsWith("Rule") }
+                ?: arrayListOf()
         assertThat(packageRules)
             .withFailMessage("No rules were found in package '$rulesDir'. Is the packagname '$packageName' correct?")
             .isNotEmpty

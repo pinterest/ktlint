@@ -32,9 +32,10 @@ import org.jetbrains.kotlin.resolve.ImportPath
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
 public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
-    private val ref = mutableSetOf(
-        Reference("*", false),
-    )
+    private val ref =
+        mutableSetOf(
+            Reference("*", false),
+        )
     private val parentExpressions = mutableSetOf<String>()
     private val imports = mutableMapOf<ImportPath, ASTNode>()
     private var packageName = ""
@@ -215,9 +216,7 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
             return false
         }
 
-        val methodCallExpression = text.substringBeforeLast(
-            "(",
-        )
+        val methodCallExpression = text.substringBeforeLast("(")
 
         // Only check static imports; identified if they start with a capital letter indicating a
         // class name rather than a sub-package
@@ -228,11 +227,12 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
         imports
             .filterKeys { it.pathStr.removeBackticksAndTrim().endsWith(".$methodCallExpression") }
             .forEach { import ->
-                val count = imports.count {
-                    it.key.pathStr.removeBackticksAndTrim().startsWith(
-                        import.key.pathStr.removeBackticksAndTrim().substringBefore(methodCallExpression),
-                    )
-                }
+                val count =
+                    imports.count {
+                        it.key.pathStr.removeBackticksAndTrim().startsWith(
+                            import.key.pathStr.removeBackticksAndTrim().substringBefore(methodCallExpression),
+                        )
+                    }
                 // Parent import and static import both are present
                 if (count > 1) {
                     return true
@@ -263,30 +263,31 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
     private companion object {
         val COMPONENT_N_REGEX = Regex("^component\\d+$")
 
-        val OPERATOR_SET = setOf(
-            // unary
-            "unaryPlus", "unaryMinus", "not",
-            // inc/dec
-            "inc", "dec",
-            // arithmetic
-            "plus", "minus", "times", "div", "rem", "mod", "rangeTo",
-            // in
-            "contains",
-            // indexed access
-            "get", "set",
-            // invoke
-            "invoke",
-            // augmented assignments
-            "plusAssign", "minusAssign", "timesAssign", "divAssign", "modAssign",
-            // (in)equality
-            "equals",
-            // comparison
-            "compareTo",
-            // iteration (https://github.com/shyiko/ktlint/issues/40)
-            "iterator",
-            // by (https://github.com/shyiko/ktlint/issues/54)
-            "getValue", "setValue",
-        )
+        val OPERATOR_SET =
+            setOf(
+                // unary
+                "unaryPlus", "unaryMinus", "not",
+                // inc/dec
+                "inc", "dec",
+                // arithmetic
+                "plus", "minus", "times", "div", "rem", "mod", "rangeTo",
+                // in
+                "contains",
+                // indexed access
+                "get", "set",
+                // invoke
+                "invoke",
+                // augmented assignments
+                "plusAssign", "minusAssign", "timesAssign", "divAssign", "modAssign",
+                // (in)equality
+                "equals",
+                // comparison
+                "compareTo",
+                // iteration (https://github.com/shyiko/ktlint/issues/40)
+                "iterator",
+                // by (https://github.com/shyiko/ktlint/issues/54)
+                "getValue", "setValue",
+            )
     }
 }
 

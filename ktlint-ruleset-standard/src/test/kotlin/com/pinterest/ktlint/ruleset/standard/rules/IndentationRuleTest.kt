@@ -4850,7 +4850,7 @@ internal class IndentationRuleTest {
         }
 
         @Test
-        fun `Given ktlint_official code style then indent the type when it does not fit on the same line as the variable name`() {
+        fun `Given a type which does not fit on the same line as the variable name`() {
             val code =
                 """
                 // $MAX_LINE_LENGTH_MARKER           $EOL_CHAR
@@ -4873,6 +4873,35 @@ internal class IndentationRuleTest {
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
                 .setMaxLineLength()
                 .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Issue 1217 - Given a function parameter with a multiline expression starting on a new line`() {
+            val code =
+                """
+                val foo = foo(
+                    parameterName =
+                    "The quick brown fox "
+                        .plus("jumps ")
+                        .plus("over the lazy dog"),
+                )
+                """.trimIndent()
+            val formattedCode =
+                """
+                val foo = foo(
+                    parameterName =
+                        "The quick brown fox "
+                            .plus("jumps ")
+                            .plus("over the lazy dog"),
+                )
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasLintViolations(
+                    LintViolation(3, 1, "Unexpected indentation (4) (should be 8)"),
+                    LintViolation(4, 1, "Unexpected indentation (8) (should be 12)"),
+                    LintViolation(5, 1, "Unexpected indentation (8) (should be 12)"),
+                ).isFormattedAs(formattedCode)
         }
     }
 

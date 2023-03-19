@@ -70,12 +70,13 @@ public class KtLintRuleEngine(
 
     internal val editorConfigLoaderEc4j = EditorConfigLoaderEc4j(ruleProviders.propertyTypes())
 
-    internal val editorConfigLoader = EditorConfigLoader(
-        fileSystem,
-        editorConfigLoaderEc4j,
-        editorConfigDefaults,
-        editorConfigOverride,
-    )
+    internal val editorConfigLoader =
+        EditorConfigLoader(
+            fileSystem,
+            editorConfigLoaderEc4j,
+            editorConfigDefaults,
+            editorConfigOverride,
+        )
 
     /**
      * Check the [code] for lint errors. If [code] is path as file reference then the '.editorconfig' files on the path to file are taken
@@ -182,10 +183,11 @@ public class KtLintRuleEngine(
             return code.content
         }
 
-        val formattedCode = ruleExecutionContext
-            .rootNode
-            .text
-            .replace("\n", ruleExecutionContext.determineLineSeparator(code.content))
+        val formattedCode =
+            ruleExecutionContext
+                .rootNode
+                .text
+                .replace("\n", ruleExecutionContext.determineLineSeparator(code.content))
         return if (hasUTF8BOM) {
             UTF8_BOM + formattedCode
         } else {

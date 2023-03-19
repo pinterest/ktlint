@@ -112,14 +112,15 @@ public class NoBlankLineInListRule :
 
     private companion object {
         // The MODIFIER_LIST is handled by separate rule ModifierListSpacingRule
-        val LIST_TYPES = listOf(
-            SUPER_TYPE_LIST,
-            TYPE_ARGUMENT_LIST,
-            TYPE_CONSTRAINT_LIST,
-            TYPE_PARAMETER_LIST,
-            VALUE_ARGUMENT_LIST,
-            VALUE_PARAMETER_LIST,
-        )
+        val LIST_TYPES =
+            listOf(
+                SUPER_TYPE_LIST,
+                TYPE_ARGUMENT_LIST,
+                TYPE_CONSTRAINT_LIST,
+                TYPE_PARAMETER_LIST,
+                VALUE_ARGUMENT_LIST,
+                VALUE_PARAMETER_LIST,
+            )
     }
 }
 

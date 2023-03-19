@@ -44,10 +44,11 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
 public class ChainWrappingRule :
     StandardRule(
         id = "chain-wrapping",
-        usesEditorConfigProperties = setOf(
-            INDENT_SIZE_PROPERTY,
-            INDENT_STYLE_PROPERTY,
-        ),
+        usesEditorConfigProperties =
+            setOf(
+                INDENT_SIZE_PROPERTY,
+                INDENT_STYLE_PROPERTY,
+            ),
     ) {
     private val sameLineTokens = TokenSet.create(MUL, DIV, PERC, ANDAND, OROR)
     private val prefixTokens = TokenSet.create(PLUS, MINUS)

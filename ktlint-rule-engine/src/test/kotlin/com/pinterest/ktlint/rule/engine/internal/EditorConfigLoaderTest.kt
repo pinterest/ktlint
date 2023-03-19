@@ -560,15 +560,17 @@ internal class EditorConfigLoaderTest {
         //language=
         const val SOME_PROPERTY_VALUE_1 = "some-property-value-1"
         const val SOME_PROPERTY_VALUE_2 = "some-property-value-2"
-        val SOME_EDITOR_CONFIG_PROPERTY = EditorConfigProperty(
-            name = SOME_PROPERTY_NAME,
-            type = PropertyType(
-                SOME_PROPERTY_NAME,
-                "",
-                PropertyType.PropertyValueParser.IDENTITY_VALUE_PARSER,
-                setOf(SOME_PROPERTY_VALUE_1, SOME_PROPERTY_VALUE_2),
-            ),
-            defaultValue = SOME_PROPERTY_VALUE_1,
-        )
+        val SOME_EDITOR_CONFIG_PROPERTY =
+            EditorConfigProperty(
+                name = SOME_PROPERTY_NAME,
+                type =
+                    PropertyType(
+                        SOME_PROPERTY_NAME,
+                        "",
+                        PropertyType.PropertyValueParser.IDENTITY_VALUE_PARSER,
+                        setOf(SOME_PROPERTY_VALUE_1, SOME_PROPERTY_VALUE_2),
+                    ),
+                defaultValue = SOME_PROPERTY_VALUE_1,
+            )
     }
 }

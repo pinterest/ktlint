@@ -22,10 +22,11 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 public class KdocWrappingRule :
     StandardRule(
         id = "kdoc-wrapping",
-        usesEditorConfigProperties = setOf(
-            INDENT_SIZE_PROPERTY,
-            INDENT_STYLE_PROPERTY,
-        ),
+        usesEditorConfigProperties =
+            setOf(
+                INDENT_SIZE_PROPERTY,
+                INDENT_STYLE_PROPERTY,
+            ),
     ),
     Rule.Experimental {
     override fun beforeVisitChildNodes(

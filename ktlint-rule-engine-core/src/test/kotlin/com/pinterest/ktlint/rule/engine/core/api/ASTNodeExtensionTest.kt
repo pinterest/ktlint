@@ -470,9 +470,10 @@ class ASTNodeExtensionTest {
 
     private fun transformCodeToAST(code: String) =
         KtLintRuleEngine(
-            ruleProviders = setOf(
-                RuleProvider { DummyRule() },
-            ),
+            ruleProviders =
+                setOf(
+                    RuleProvider { DummyRule() },
+                ),
         ).transformToAst(
             Code.fromSnippet(code),
         )

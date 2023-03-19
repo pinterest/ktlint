@@ -24,10 +24,11 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiCommentImpl
 public class CommentWrappingRule :
     StandardRule(
         id = "comment-wrapping",
-        usesEditorConfigProperties = setOf(
-            INDENT_SIZE_PROPERTY,
-            INDENT_STYLE_PROPERTY,
-        ),
+        usesEditorConfigProperties =
+            setOf(
+                INDENT_SIZE_PROPERTY,
+                INDENT_STYLE_PROPERTY,
+            ),
     ),
     Rule.Experimental {
     override fun beforeVisitChildNodes(

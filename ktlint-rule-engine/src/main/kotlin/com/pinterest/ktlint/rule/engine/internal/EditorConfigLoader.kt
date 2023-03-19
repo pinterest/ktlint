@@ -139,10 +139,11 @@ internal class EditorConfigLoader(
         /**
          * List of file extensions, editorconfig lookup will be performed.
          */
-        internal val SUPPORTED_FILES = arrayOf(
-            ".kt",
-            ".kts",
-        )
+        internal val SUPPORTED_FILES =
+            arrayOf(
+                ".kt",
+                ".kts",
+            )
 
         private const val TAB_WIDTH_PROPERTY_NAME = "tab_width"
     }

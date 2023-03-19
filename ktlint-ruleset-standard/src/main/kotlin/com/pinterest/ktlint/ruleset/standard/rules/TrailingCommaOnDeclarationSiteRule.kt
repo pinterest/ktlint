@@ -52,13 +52,14 @@ import org.jetbrains.kotlin.utils.addToStdlib.cast
 public class TrailingCommaOnDeclarationSiteRule :
     StandardRule(
         id = "trailing-comma-on-declaration-site",
-        visitorModifiers = setOf(
-            VisitorModifier.RunAfterRule(
-                ruleId = WRAPPING_RULE_ID,
-                mode = ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED,
+        visitorModifiers =
+            setOf(
+                VisitorModifier.RunAfterRule(
+                    ruleId = WRAPPING_RULE_ID,
+                    mode = ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED,
+                ),
+                VisitorModifier.RunAsLateAsPossible,
             ),
-            VisitorModifier.RunAsLateAsPossible,
-        ),
         usesEditorConfigProperties = setOf(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY),
     ) {
     private var allowTrailingComma = TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY.defaultValue
@@ -90,9 +91,10 @@ public class TrailingCommaOnDeclarationSiteRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        val inspectNode = node
-            .children()
-            .last { it.elementType == ElementType.RPAR }
+        val inspectNode =
+            node
+                .children()
+                .last { it.elementType == ElementType.RPAR }
         node.reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
             isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
@@ -108,11 +110,12 @@ public class TrailingCommaOnDeclarationSiteRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        val inspectNode = node
-            .children()
-            .lastOrNull { it.elementType == ARROW }
-            ?: // lambda w/o an arrow -> no arguments -> no commas
-            return
+        val inspectNode =
+            node
+                .children()
+                .lastOrNull { it.elementType == ARROW }
+                ?: // lambda w/o an arrow -> no arguments -> no commas
+                return
         node.reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
             isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
@@ -146,9 +149,10 @@ public class TrailingCommaOnDeclarationSiteRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        val inspectNode = node
-            .children()
-            .first { it.elementType == ElementType.GT }
+        val inspectNode =
+            node
+                .children()
+                .first { it.elementType == ElementType.GT }
         node.reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
             isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
@@ -169,9 +173,10 @@ public class TrailingCommaOnDeclarationSiteRule :
             return
         }
 
-        val inspectNode = node
-            .children()
-            .first { it.elementType == ARROW }
+        val inspectNode =
+            node
+                .children()
+                .first { it.elementType == ARROW }
         node.reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
             isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
@@ -292,11 +297,12 @@ public class TrailingCommaOnDeclarationSiteRule :
                     }
                     if (autoCorrect) {
                         if (addNewLineBeforeArrowInWhenEntry) {
-                            val newLine = KtPsiFactory(prevNode.psi).createWhiteSpace(
-                                prevNode
-                                    .treeParent
-                                    .indent(),
-                            )
+                            val newLine =
+                                KtPsiFactory(prevNode.psi).createWhiteSpace(
+                                    prevNode
+                                        .treeParent
+                                        .indent(),
+                                )
                             val leafBeforeArrow = (psi as KtWhenEntry).arrow?.prevLeaf()
                             if (leafBeforeArrow != null && leafBeforeArrow is PsiWhiteSpace) {
                                 leafBeforeArrow.replace(newLine)
@@ -429,29 +435,31 @@ public class TrailingCommaOnDeclarationSiteRule :
 
         public val TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY: EditorConfigProperty<Boolean> =
             EditorConfigProperty(
-                type = PropertyType.LowerCasingPropertyType(
-                    "ij_kotlin_allow_trailing_comma",
-                    "Defines whether a trailing comma (or no trailing comma) should be enforced on the defining " +
-                        "side, e.g. parameter-list, type-argument-list, lambda-value-parameters, enum-entries, etc." +
-                        "When set, IntelliJ IDEA uses this property to allow usage of a trailing comma by discretion " +
-                        "of the developer. KtLint however uses this setting to enforce consistent usage of the " +
-                        "trailing comma when set.",
-                    PropertyValueParser.BOOLEAN_VALUE_PARSER,
-                    BOOLEAN_VALUES_SET,
-                ),
+                type =
+                    PropertyType.LowerCasingPropertyType(
+                        "ij_kotlin_allow_trailing_comma",
+                        "Defines whether a trailing comma (or no trailing comma) should be enforced on the defining " +
+                            "side, e.g. parameter-list, type-argument-list, lambda-value-parameters, enum-entries, etc." +
+                            "When set, IntelliJ IDEA uses this property to allow usage of a trailing comma by discretion " +
+                            "of the developer. KtLint however uses this setting to enforce consistent usage of the " +
+                            "trailing comma when set.",
+                        PropertyValueParser.BOOLEAN_VALUE_PARSER,
+                        BOOLEAN_VALUES_SET,
+                    ),
                 defaultValue = true,
                 androidStudioCodeStyleDefaultValue = false,
             )
 
-        private val TYPES_ON_DECLARATION_SITE = TokenSet.create(
-            CLASS,
-            DESTRUCTURING_DECLARATION,
-            FUNCTION_LITERAL,
-            FUNCTION_TYPE,
-            TYPE_PARAMETER_LIST,
-            VALUE_PARAMETER_LIST,
-            WHEN_ENTRY,
-        )
+        private val TYPES_ON_DECLARATION_SITE =
+            TokenSet.create(
+                CLASS,
+                DESTRUCTURING_DECLARATION,
+                FUNCTION_LITERAL,
+                FUNCTION_TYPE,
+                TYPE_PARAMETER_LIST,
+                VALUE_PARAMETER_LIST,
+                WHEN_ENTRY,
+            )
     }
 }
 

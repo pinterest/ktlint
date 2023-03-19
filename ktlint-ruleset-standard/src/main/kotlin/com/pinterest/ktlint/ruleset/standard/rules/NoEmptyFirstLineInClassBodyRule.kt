@@ -17,10 +17,11 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 public class NoEmptyFirstLineInClassBodyRule :
     StandardRule(
         id = "no-empty-first-line-in-class-body",
-        usesEditorConfigProperties = setOf(
-            INDENT_SIZE_PROPERTY,
-            INDENT_STYLE_PROPERTY,
-        ),
+        usesEditorConfigProperties =
+            setOf(
+                INDENT_SIZE_PROPERTY,
+                INDENT_STYLE_PROPERTY,
+            ),
     ),
     Rule.Experimental,
     Rule.OfficialCodeStyle {

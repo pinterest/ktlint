@@ -55,29 +55,31 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
         //      @JvmField
         //      val s: Any
         //
-        val whiteSpaces = (annotations.asSequence().map { it.nextSibling } + node.treeNext)
-            .filterIsInstance<PsiWhiteSpace>()
-            .take(annotations.size)
-            .toList()
+        val whiteSpaces =
+            (annotations.asSequence().map { it.nextSibling } + node.treeNext)
+                .filterIsInstance<PsiWhiteSpace>()
+                .take(annotations.size)
+                .toList()
 
-        val next = node.nextSiblingWithAtLeastOneOf(
-            {
-                !it.isWhiteSpace() &&
-                    it.textLength > 0 &&
-                    !it.isPartOf(ElementType.FILE_ANNOTATION_LIST) &&
-                    !it.isCommentOnSameLineAsPrevLeaf()
-            },
-            {
-                // Disallow multiple white spaces as well as comments
-                if (it.psi is PsiWhiteSpace) {
-                    val s = it.text
-                    // Ensure at least one occurrence of two line breaks
-                    s.indexOf("\n") != s.lastIndexOf("\n")
-                } else {
-                    it.isPartOfComment() && !it.isCommentOnSameLineAsPrevLeaf()
-                }
-            },
-        )
+        val next =
+            node.nextSiblingWithAtLeastOneOf(
+                {
+                    !it.isWhiteSpace() &&
+                        it.textLength > 0 &&
+                        !it.isPartOf(ElementType.FILE_ANNOTATION_LIST) &&
+                        !it.isCommentOnSameLineAsPrevLeaf()
+                },
+                {
+                    // Disallow multiple white spaces as well as comments
+                    if (it.psi is PsiWhiteSpace) {
+                        val s = it.text
+                        // Ensure at least one occurrence of two line breaks
+                        s.indexOf("\n") != s.lastIndexOf("\n")
+                    } else {
+                        it.isPartOfComment() && !it.isCommentOnSameLineAsPrevLeaf()
+                    }
+                },
+            )
         if (next != null) {
             if (node.elementType != ElementType.FILE_ANNOTATION_LIST && next.isPartOfComment()) {
                 val psi = node.psi
@@ -156,8 +158,9 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
         // Replace the extra white space with a single break
         val text = leaf.text
         val firstIndex = text.indexOf("\n") + 1
-        val replacementText = text.substring(0, firstIndex) +
-            text.substringAfter("\n").replace("\n", "")
+        val replacementText =
+            text.substring(0, firstIndex) +
+                text.substringAfter("\n").replace("\n", "")
 
         leaf.rawReplaceWithText(replacementText)
     }

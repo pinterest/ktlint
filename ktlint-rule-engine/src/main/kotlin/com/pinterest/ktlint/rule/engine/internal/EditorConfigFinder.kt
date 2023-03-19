@@ -25,10 +25,11 @@ internal class EditorConfigFinder(private val editorConfigLoaderEc4j: EditorConf
      */
     fun findEditorConfigs(path: Path): List<Path> {
         READ_WRITE_LOCK.read {
-            val cacheValue = IN_MEMORY_CACHE[path]
-                ?.also {
-                    LOGGER.info { "Retrieving EditorConfig cache entry for path $path" }
-                }
+            val cacheValue =
+                IN_MEMORY_CACHE[path]
+                    ?.also {
+                        LOGGER.info { "Retrieving EditorConfig cache entry for path $path" }
+                    }
             return cacheValue
                 ?: READ_WRITE_LOCK.write {
                     cacheEditorConfigs(path)

@@ -76,12 +76,13 @@ public abstract class RuleSetProviderV2(
     }
 
     public companion object {
-        public val NO_ABOUT: About = About(
-            maintainer = "Not specified",
-            description = "Not specified",
-            license = "Not specified",
-            repositoryUrl = "Not specified",
-            issueTrackerUrl = "Not specified",
-        )
+        public val NO_ABOUT: About =
+            About(
+                maintainer = "Not specified",
+                description = "Not specified",
+                license = "Not specified",
+                repositoryUrl = "Not specified",
+                issueTrackerUrl = "Not specified",
+            )
     }
 }

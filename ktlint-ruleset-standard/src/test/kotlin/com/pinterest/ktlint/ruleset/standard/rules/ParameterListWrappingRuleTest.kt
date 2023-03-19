@@ -16,11 +16,12 @@ class ParameterListWrappingRuleTest {
     private val parameterListWrappingRuleAssertThat =
         assertThatRule(
             provider = { ParameterListWrappingRule() },
-            additionalRuleProviders = setOf(
-                // Apply the IndentationRule always as additional rule, so that the formattedCode in the unit test looks
-                // correct.
-                RuleProvider { IndentationRule() },
-            ),
+            additionalRuleProviders =
+                setOf(
+                    // Apply the IndentationRule always as additional rule, so that the formattedCode in the unit test looks
+                    // correct.
+                    RuleProvider { IndentationRule() },
+                ),
         )
 
     @Test

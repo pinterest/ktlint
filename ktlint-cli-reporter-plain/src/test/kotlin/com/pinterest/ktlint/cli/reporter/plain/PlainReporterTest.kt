@@ -98,11 +98,12 @@ class PlainReporterTest {
     fun testColoredOutput() {
         val out = ByteArrayOutputStream()
         val outputColor = Color.DARK_GRAY
-        val reporter = PlainReporter(
-            PrintStream(out, true),
-            shouldColorOutput = true,
-            outputColor = outputColor,
-        )
+        val reporter =
+            PlainReporter(
+                PrintStream(out, true),
+                shouldColorOutput = true,
+                outputColor = outputColor,
+            )
         reporter.onLintError(
             File.separator + "one-fixed-and-one-not.kt",
             @Suppress("ktlint:argument-list-wrapping")

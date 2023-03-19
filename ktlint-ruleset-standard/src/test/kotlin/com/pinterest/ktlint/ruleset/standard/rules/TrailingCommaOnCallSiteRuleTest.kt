@@ -11,13 +11,14 @@ class TrailingCommaOnCallSiteRuleTest {
     private val trailingCommaOnCallSiteRuleAssertThat =
         assertThatRule(
             provider = { TrailingCommaOnCallSiteRule() },
-            additionalRuleProviders = setOf(
-                // WrappingRule must be loaded in order to run TrailingCommaOnCallSiteRule
-                RuleProvider { WrappingRule() },
-                // Apply the IndentationRule always as additional rule, so that the formattedCode in the unit test looks
-                // correct.
-                RuleProvider { IndentationRule() },
-            ),
+            additionalRuleProviders =
+                setOf(
+                    // WrappingRule must be loaded in order to run TrailingCommaOnCallSiteRule
+                    RuleProvider { WrappingRule() },
+                    // Apply the IndentationRule always as additional rule, so that the formattedCode in the unit test looks
+                    // correct.
+                    RuleProvider { IndentationRule() },
+                ),
         )
 
     @Test
