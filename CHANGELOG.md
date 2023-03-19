@@ -232,6 +232,7 @@ Previously the default value for `.editorconfig` property `max_line_length` was 
 * Wrap the type or value of a property in case the maximum line length is exceeded `property-wrapping` ([#1846](https://github.com/pinterest/ktlint/pull/1846))
 * Recognize Kotlin Script when linting and formatting code from `stdin` with KtLint CLI ([#1832](https://github.com/pinterest/ktlint/issues/1832))
 * Add new experimental rule `no-blank-line-in-list` for `ktlint_official` code style. This rule disallows blank lines to be used in super type lists, type argument lists, type constraint lists, type parameter lists, value argument lists, and value parameter lists. This rule can also be run for other code styles but then its needs to be explicitly enabled. ([#1224](https://github.com/pinterest/ktlint/issues/1224))
+* Add new experimental rule `multiline-expression-wrapping` for `ktlint_official` code style. This forces a multiline expression as value in an assignment to start on a separate line. This rule can also be run for other code styles but then its needs to be explicitly enabled. ([#1217](https://github.com/pinterest/ktlint/issues/1217))
 
 ### Removed
 
