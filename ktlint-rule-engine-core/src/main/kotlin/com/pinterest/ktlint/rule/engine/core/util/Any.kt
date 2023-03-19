@@ -1,4 +1,4 @@
-package com.pinterest.ktlint.logger.util
+package com.pinterest.ktlint.rule.engine.core.util
 
 public inline fun <reified T : Any> Any?.safeAs(): T? = this as? T
 
