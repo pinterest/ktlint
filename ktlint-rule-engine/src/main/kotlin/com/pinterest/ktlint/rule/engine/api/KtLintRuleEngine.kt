@@ -3,7 +3,6 @@
 package com.pinterest.ktlint.rule.engine.api
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
-import com.pinterest.ktlint.rule.engine.core.util.safeAs
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
 import com.pinterest.ktlint.rule.engine.core.api.Rule
@@ -12,6 +11,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERT
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.END_OF_LINE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
+import com.pinterest.ktlint.rule.engine.core.util.safeAs
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigFinder
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigGenerator
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigLoader
