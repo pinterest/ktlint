@@ -56,7 +56,7 @@ tasks.register<JavaExec>("ktlint") {
     )
 }
 
-tasks.register<JavaExec>("ktlint format") {
+tasks.register<JavaExec>("ktlintFormat") {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     description = "Check Kotlin code style and format"
     classpath = ktlint
