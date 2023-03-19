@@ -31,6 +31,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_TYPE_CALL_ENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_TYPE_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_TYPE_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PROJECTION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
@@ -120,7 +122,8 @@ public class WrappingRule :
             LPAR, LBRACKET -> rearrangeBlock(node, autoCorrect, emit) // TODO: LT
             SUPER_TYPE_LIST -> rearrangeSuperTypeList(node, autoCorrect, emit)
             VALUE_PARAMETER_LIST, VALUE_ARGUMENT_LIST -> rearrangeValueList(node, autoCorrect, emit)
-            TYPE_ARGUMENT_LIST -> rearrangeTypeArgumentList(node, autoCorrect, emit)
+            TYPE_ARGUMENT_LIST, TYPE_PARAMETER_LIST -> rearrangeTypeArgumentList(node, autoCorrect, emit)
+//            TYPE_PARAMETER_LIST -> rearrangeTypeParameterList(node, autoCorrect, emit)
             ARROW -> rearrangeArrow(node, autoCorrect, emit)
             WHITE_SPACE -> line += node.text.count { it == '\n' }
             CLOSING_QUOTE -> rearrangeClosingQuote(node, autoCorrect, emit)
@@ -382,7 +385,7 @@ public class WrappingRule :
             // Each type projection must be preceded with a whitespace containing a newline
             node
                 .children()
-                .filter { it.elementType == TYPE_PROJECTION }
+                .filter { it.elementType == TYPE_PROJECTION || it.elementType == TYPE_PARAMETER }
                 .forEach { typeProjection ->
                     typeProjection
                         .prevSibling { !it.isPartOfComment() }

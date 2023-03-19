@@ -259,8 +259,8 @@ class TypeParameterListSpacingRuleTest {
             """.trimIndent()
         typeParameterListSpacingRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(1, 10, "No whitespace expected at this position"),
-                LintViolation(1, 14, "No whitespace expected at this position"),
+                LintViolation(1, 10, "No whitespace expected"),
+                LintViolation(1, 14, "No whitespace expected"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -278,8 +278,8 @@ class TypeParameterListSpacingRuleTest {
             """.trimIndent()
         typeParameterListSpacingRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(1, 6, "No whitespace expected at this position"),
-                LintViolation(2, 11, "No whitespace expected at this position"),
+                LintViolation(1, 6, "No whitespace expected"),
+                LintViolation(2, 11, "No whitespace expected"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -297,8 +297,8 @@ class TypeParameterListSpacingRuleTest {
             """.trimIndent()
         typeParameterListSpacingRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(1, 7, "No whitespace expected at this position"),
-                LintViolation(2, 12, "No whitespace expected at this position"),
+                LintViolation(1, 7, "No whitespace expected"),
+                LintViolation(2, 12, "No whitespace expected"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -314,8 +314,21 @@ class TypeParameterListSpacingRuleTest {
             """.trimIndent()
         typeParameterListSpacingRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(1, 14, "No whitespace expected at this position"),
+                LintViolation(1, 14, "No whitespace expected"),
                 LintViolation(1, 19, "Expected a single space"),
             ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 1867 - Given a multiline type parameter list which is correctly formatted then do not report a violation`() {
+        val code =
+            """
+            fun <
+                Foo,
+                Bar,
+                > foobar()
+            """.trimIndent()
+        typeParameterListSpacingRuleAssertThat(code)
+            .hasNoLintViolations()
     }
 }
