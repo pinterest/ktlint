@@ -19,6 +19,8 @@ jobs:
           distribution: 'zulu'
           java-version: 19
       - uses: gradle/gradle-build-action@v2
+        with:
+          gradle-home-cache-cleanup: true
       - name: Build executable and publish to Maven
         run: ./gradlew clean shadowJarExecutable publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel
         env:
@@ -50,7 +52,7 @@ jobs:
         id: get_version
         if: ${{ success() }}
         run: echo "version=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
-      
+
       - name: Bump Homebrew Formula
         if: ${{ success() }}
         uses: mislav/bump-homebrew-formula-action@v2
