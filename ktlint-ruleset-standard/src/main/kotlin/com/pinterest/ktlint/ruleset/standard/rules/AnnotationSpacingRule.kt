@@ -146,9 +146,10 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
     }
 
     private fun removeExtraLineBreaks(node: ASTNode) {
-        val next = node.nextSibling {
-            it.isWhiteSpaceWithNewline()
-        } as? LeafPsiElement
+        val next =
+            node.nextSibling {
+                it.isWhiteSpaceWithNewline()
+            } as? LeafPsiElement
         if (next != null) {
             rawReplaceExtraLineBreaks(next)
         }

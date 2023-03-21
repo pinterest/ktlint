@@ -327,11 +327,12 @@ public class WrappingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         for (c in node.children()) {
-            val hasLineBreak = when (c.elementType) {
-                VALUE_ARGUMENT -> c.hasLineBreak(LAMBDA_EXPRESSION, FUN)
-                VALUE_PARAMETER, ANNOTATION -> c.hasLineBreak()
-                else -> false
-            }
+            val hasLineBreak =
+                when (c.elementType) {
+                    VALUE_ARGUMENT -> c.hasLineBreak(LAMBDA_EXPRESSION, FUN)
+                    VALUE_PARAMETER, ANNOTATION -> c.hasLineBreak()
+                    else -> false
+                }
             if (hasLineBreak) {
                 // rearrange
                 //

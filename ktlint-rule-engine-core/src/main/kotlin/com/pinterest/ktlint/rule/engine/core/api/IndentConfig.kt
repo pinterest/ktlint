@@ -36,10 +36,11 @@ public data class IndentConfig(
          */
         tabWidth: Int,
     ) : this(
-        indentStyle = when (indentStyle) {
-            PropertyType.IndentStyleValue.tab -> TAB
-            PropertyType.IndentStyleValue.space -> SPACE
-        },
+        indentStyle =
+            when (indentStyle) {
+                PropertyType.IndentStyleValue.tab -> TAB
+                PropertyType.IndentStyleValue.space -> SPACE
+            },
         tabWidth = tabWidth,
     )
 
@@ -104,11 +105,12 @@ public data class IndentConfig(
 
     private fun getTextAfterLastNewLine(text: String): String {
         val index = text.indexOfLast { it == '\n' }
-        val indent = if (index == -1) {
-            text
-        } else {
-            text.substring(index + 1, text.length)
-        }
+        val indent =
+            if (index == -1) {
+                text
+            } else {
+                text.substring(index + 1, text.length)
+            }
         return indent
     }
 

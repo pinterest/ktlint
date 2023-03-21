@@ -173,12 +173,12 @@ public class ArgumentListWrappingRule :
                 // ... LPAR
                 // <line indent + indentSize> VALUE_PARAMETER...
                 // <line indent> RPAR
-                val intendedIndent = if (child.elementType == ElementType.VALUE_ARGUMENT) {
-                    indent + editorConfigIndent.indent
-                } else {
-                    indent
-                }
-
+                val intendedIndent =
+                    if (child.elementType == ElementType.VALUE_ARGUMENT) {
+                        indent + editorConfigIndent.indent
+                    } else {
+                        indent
+                    }
                 val prevLeaf = child.prevWhiteSpaceWithNewLine() ?: child.prevLeaf()
                 if (prevLeaf is PsiWhiteSpace) {
                     if (prevLeaf.getText().contains("\n")) {

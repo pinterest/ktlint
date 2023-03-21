@@ -83,11 +83,12 @@ public fun Set<RuleProvider>.lint(
 ): List<LintError> {
     val lintErrors = ArrayList<LintError>()
     val ruleProviders = toRuleProviders()
-    val code = if (filePath != null) {
-        Code.fromFile(KTLINT_TEST_FILE_SYSTEM.resolve(filePath).toFile())
-    } else {
-        Code.fromSnippet(text)
-    }
+    val code =
+        if (filePath != null) {
+            Code.fromFile(KTLINT_TEST_FILE_SYSTEM.resolve(filePath).toFile())
+        } else {
+            Code.fromSnippet(text)
+        }
     KtLintRuleEngine(
         ruleProviders = ruleProviders,
         editorConfigOverride =
@@ -140,11 +141,12 @@ public fun Set<RuleProvider>.format(
 ): Pair<String, List<LintError>> {
     val lintErrors = ArrayList<LintError>()
     val ruleProviders = toRuleProviders()
-    val code = if (filePath != null) {
-        Code.fromFile(KTLINT_TEST_FILE_SYSTEM.resolve(filePath).toFile())
-    } else {
-        Code.fromSnippet(text)
-    }
+    val code =
+        if (filePath != null) {
+            Code.fromFile(KTLINT_TEST_FILE_SYSTEM.resolve(filePath).toFile())
+        } else {
+            Code.fromSnippet(text)
+        }
     val formattedCode =
         KtLintRuleEngine(
             ruleProviders = ruleProviders,

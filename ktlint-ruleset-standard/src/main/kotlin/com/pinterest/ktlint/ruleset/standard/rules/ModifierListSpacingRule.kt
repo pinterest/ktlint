@@ -56,11 +56,12 @@ public class ModifierListSpacingRule :
                 if (node.isAnnotationElement() ||
                     (node.elementType == MODIFIER_LIST && node.lastChildNode.isAnnotationElement())
                 ) {
-                    val expectedWhiteSpace = if (whitespace.textContains('\n')) {
-                        node.indent()
-                    } else {
-                        " "
-                    }
+                    val expectedWhiteSpace =
+                        if (whitespace.textContains('\n')) {
+                            node.indent()
+                        } else {
+                            " "
+                        }
                     if (whitespace.text != expectedWhiteSpace) {
                         emit(
                             whitespace.startOffset,

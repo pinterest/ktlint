@@ -145,35 +145,38 @@ public class TrailingCommaOnCallSiteRule :
     ) {
         val prevLeaf = inspectNode.prevLeaf()
         val trailingCommaNode = prevLeaf?.findPreviousTrailingCommaNodeOrNull()
-        val trailingCommaState = when {
-            this.isMultiline() -> if (trailingCommaNode != null) TrailingCommaState.EXISTS else TrailingCommaState.MISSING
-            else -> if (trailingCommaNode != null) TrailingCommaState.REDUNDANT else TrailingCommaState.NOT_EXISTS
-        }
+        val trailingCommaState =
+            when {
+                this.isMultiline() -> if (trailingCommaNode != null) TrailingCommaState.EXISTS else TrailingCommaState.MISSING
+                else -> if (trailingCommaNode != null) TrailingCommaState.REDUNDANT else TrailingCommaState.NOT_EXISTS
+            }
         when (trailingCommaState) {
-            TrailingCommaState.EXISTS -> if (!isTrailingCommaAllowed) {
-                emit(
-                    trailingCommaNode!!.startOffset,
-                    "Unnecessary trailing comma before \"${inspectNode.text}\"",
-                    true,
-                )
-                if (autoCorrect) {
-                    this.removeChild(trailingCommaNode)
+            TrailingCommaState.EXISTS ->
+                if (!isTrailingCommaAllowed) {
+                    emit(
+                        trailingCommaNode!!.startOffset,
+                        "Unnecessary trailing comma before \"${inspectNode.text}\"",
+                        true,
+                    )
+                    if (autoCorrect) {
+                        this.removeChild(trailingCommaNode)
+                    }
                 }
-            }
-            TrailingCommaState.MISSING -> if (isTrailingCommaAllowed) {
-                val prevNode = inspectNode.prevCodeLeaf()!!
-                emit(
-                    prevNode.startOffset + prevNode.textLength,
-                    "Missing trailing comma before \"${inspectNode.text}\"",
-                    true,
-                )
-                if (autoCorrect) {
-                    val prevPsi = inspectNode.prevCodeSibling()!!.psi
-                    val parentPsi = prevPsi.parent
-                    val psiFactory = KtPsiFactory(prevPsi)
-                    parentPsi.addAfter(psiFactory.createComma(), prevPsi)
+            TrailingCommaState.MISSING ->
+                if (isTrailingCommaAllowed) {
+                    val prevNode = inspectNode.prevCodeLeaf()!!
+                    emit(
+                        prevNode.startOffset + prevNode.textLength,
+                        "Missing trailing comma before \"${inspectNode.text}\"",
+                        true,
+                    )
+                    if (autoCorrect) {
+                        val prevPsi = inspectNode.prevCodeSibling()!!.psi
+                        val parentPsi = prevPsi.parent
+                        val psiFactory = KtPsiFactory(prevPsi)
+                        parentPsi.addAfter(psiFactory.createComma(), prevPsi)
+                    }
                 }
-            }
             TrailingCommaState.REDUNDANT -> {
                 emit(
                     trailingCommaNode!!.startOffset,
@@ -206,11 +209,12 @@ public class TrailingCommaOnCallSiteRule :
     private fun ASTNode.hasAtLeastOneArgument() = children().any { it.elementType == VALUE_ARGUMENT }
 
     private fun ASTNode.findPreviousTrailingCommaNodeOrNull(): ASTNode? {
-        val codeLeaf = if (isCodeLeaf()) {
-            this
-        } else {
-            prevCodeLeaf()
-        }
+        val codeLeaf =
+            if (isCodeLeaf()) {
+                this
+            } else {
+                prevCodeLeaf()
+            }
         return codeLeaf?.takeIf { it.elementType == ElementType.COMMA }
     }
 

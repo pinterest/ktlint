@@ -296,12 +296,12 @@ internal class KtlintCommandLine {
                 isInvokedFromCli = true,
             )
 
-        val baseline = if (stdin || baselinePath.isBlank()) {
-            Baseline(status = Baseline.Status.DISABLED)
-        } else {
-            loadBaseline(baselinePath)
-        }
-
+        val baseline =
+            if (stdin || baselinePath.isBlank()) {
+                Baseline(status = Baseline.Status.DISABLED)
+            } else {
+                loadBaseline(baselinePath)
+            }
         val aggregatedReporter =
             ReporterAggregator(
                 baseline,
@@ -484,11 +484,12 @@ internal class KtlintCommandLine {
                                 lintError
                                     .detail
                                     .applyIf(corrected) { "$this (cannot be auto-corrected)" },
-                            status = if (corrected) {
-                                FORMAT_IS_AUTOCORRECTED
-                            } else {
-                                LINT_CAN_NOT_BE_AUTOCORRECTED
-                            },
+                            status =
+                                if (corrected) {
+                                    FORMAT_IS_AUTOCORRECTED
+                                } else {
+                                    LINT_CAN_NOT_BE_AUTOCORRECTED
+                                },
                         )
                     if (baselineLintErrors.doesNotContain(ktlintCliError)) {
                         ktlintCliErrors.add(ktlintCliError)
@@ -543,11 +544,12 @@ internal class KtlintCommandLine {
                         col = lintError.col,
                         ruleId = lintError.ruleId.value,
                         detail = lintError.detail,
-                        status = if (lintError.canBeAutoCorrected) {
-                            LINT_CAN_BE_AUTOCORRECTED
-                        } else {
-                            LINT_CAN_NOT_BE_AUTOCORRECTED
-                        },
+                        status =
+                            if (lintError.canBeAutoCorrected) {
+                                LINT_CAN_BE_AUTOCORRECTED
+                            } else {
+                                LINT_CAN_NOT_BE_AUTOCORRECTED
+                            },
                     )
                 if (baselineLintErrors.doesNotContain(ktlintCliError)) {
                     ktlintCliErrors.add(ktlintCliError)
@@ -588,11 +590,12 @@ internal class KtlintCommandLine {
                         status = KOTLIN_PARSE_EXCEPTION,
                     )
                 is KtLintRuleException -> {
-                    val codeSource = if (code.isStdIn) {
-                        "code"
-                    } else {
-                        "file '${code.fileName}'"
-                    }
+                    val codeSource =
+                        if (code.isStdIn) {
+                            "code"
+                        } else {
+                            "file '${code.fileName}'"
+                        }
                     logger.debug("Internal Error (${e.ruleId}) in $codeSource at position '${e.line}:${e.col}", e)
                     KtlintCliError(
                         line = e.line,
@@ -646,30 +649,31 @@ internal class KtlintCommandLine {
         cb: (T) -> Unit,
         numberOfThreads: Int = Runtime.getRuntime().availableProcessors(),
     ) {
-        val pill = object : Future<T> {
-            override fun isDone(): Boolean {
-                throw UnsupportedOperationException()
-            }
+        val pill =
+            object : Future<T> {
+                override fun isDone(): Boolean {
+                    throw UnsupportedOperationException()
+                }
 
-            override fun get(
-                timeout: Long,
-                unit: TimeUnit,
-            ): T {
-                throw UnsupportedOperationException()
-            }
+                override fun get(
+                    timeout: Long,
+                    unit: TimeUnit,
+                ): T {
+                    throw UnsupportedOperationException()
+                }
 
-            override fun get(): T {
-                throw UnsupportedOperationException()
-            }
+                override fun get(): T {
+                    throw UnsupportedOperationException()
+                }
 
-            override fun cancel(mayInterruptIfRunning: Boolean): Boolean {
-                throw UnsupportedOperationException()
-            }
+                override fun cancel(mayInterruptIfRunning: Boolean): Boolean {
+                    throw UnsupportedOperationException()
+                }
 
-            override fun isCancelled(): Boolean {
-                throw UnsupportedOperationException()
+                override fun isCancelled(): Boolean {
+                    throw UnsupportedOperationException()
+                }
             }
-        }
         val q = ArrayBlockingQueue<Future<T>>(numberOfThreads)
         val producer =
             thread(start = true) {

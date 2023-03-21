@@ -202,12 +202,12 @@ public class ParameterListWrappingRule :
                 // ... LPAR
                 // <line indent + indentSize> VALUE_PARAMETER...
                 // <line indent> RPAR
-                val intendedIndent = if (child.elementType == VALUE_PARAMETER) {
-                    indent + indentConfig.indent
-                } else {
-                    indent
-                }
-
+                val intendedIndent =
+                    if (child.elementType == VALUE_PARAMETER) {
+                        indent + indentConfig.indent
+                    } else {
+                        indent
+                    }
                 val prevLeaf = child.prevLeaf()
                 if (prevLeaf is PsiWhiteSpace) {
                     if (prevLeaf.getText().contains("\n")) {
@@ -250,11 +250,12 @@ public class ParameterListWrappingRule :
 
     private fun ASTNode.hasTypeParameterListInFront(): Boolean {
         val parent = this.treeParent
-        val typeParameterList = if (parent.elementType == PRIMARY_CONSTRUCTOR) {
-            parent.prevSibling { it.elementType == TYPE_PARAMETER_LIST }
-        } else {
-            parent.children().firstOrNull { it.elementType == TYPE_PARAMETER_LIST }
-        }
+        val typeParameterList =
+            if (parent.elementType == PRIMARY_CONSTRUCTOR) {
+                parent.prevSibling { it.elementType == TYPE_PARAMETER_LIST }
+            } else {
+                parent.children().firstOrNull { it.elementType == TYPE_PARAMETER_LIST }
+            }
         val typeListNode =
             typeParameterList
                 ?: parent.psi.collectDescendantsOfType<KtTypeArgumentList>().firstOrNull()?.node

@@ -23,18 +23,18 @@ public class SpacingAroundDoubleColonRule : StandardRule("double-colon-spacing")
             val nextLeaf = node.nextLeaf()
 
             var removeSingleWhiteSpace = false
-            val spacingBefore = when {
-                node.isPartOf(CLASS_LITERAL_EXPRESSION) && prevLeaf is PsiWhiteSpace -> true // Clazz::class
-                node.isPartOf(CALLABLE_REFERENCE_EXPRESSION) && prevLeaf is PsiWhiteSpace -> // String::length, ::isOdd
-                    if (node.treePrev == null) { // compose(length, ::isOdd), val predicate = ::isOdd
-                        removeSingleWhiteSpace = true
-                        !prevLeaf.textContains('\n') && prevLeaf.psi.textLength > 1
-                    } else { // String::length, List<String>::isEmpty
-                        !prevLeaf.textContains('\n')
-                    }
-                else -> false
-            }
-
+            val spacingBefore =
+                when {
+                    node.isPartOf(CLASS_LITERAL_EXPRESSION) && prevLeaf is PsiWhiteSpace -> true // Clazz::class
+                    node.isPartOf(CALLABLE_REFERENCE_EXPRESSION) && prevLeaf is PsiWhiteSpace -> // String::length, ::isOdd
+                        if (node.treePrev == null) { // compose(length, ::isOdd), val predicate = ::isOdd
+                            removeSingleWhiteSpace = true
+                            !prevLeaf.textContains('\n') && prevLeaf.psi.textLength > 1
+                        } else { // String::length, List<String>::isEmpty
+                            !prevLeaf.textContains('\n')
+                        }
+                    else -> false
+                }
             val spacingAfter = nextLeaf is PsiWhiteSpace
             when {
                 spacingBefore && spacingAfter -> {

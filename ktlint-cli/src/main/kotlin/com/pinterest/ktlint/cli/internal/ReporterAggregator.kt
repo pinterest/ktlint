@@ -136,19 +136,20 @@ internal class ReporterAggregator(
             "Initializing \"${reporterConfiguration.id}\" reporter with ${reporterConfiguration.additionalConfig}" +
                 (reporterConfiguration.output?.let { ", output=$it" } ?: "")
         }
-        val stream = when {
-            reporterConfiguration.output != null -> {
-                File(reporterConfiguration.output).parentFile?.mkdirsOrFail(); PrintStream(reporterConfiguration.output, "UTF-8")
-            }
+        val stream =
+            when {
+                reporterConfiguration.output != null -> {
+                    File(reporterConfiguration.output).parentFile?.mkdirsOrFail(); PrintStream(reporterConfiguration.output, "UTF-8")
+                }
 
-            stdin -> {
-                System.err
-            }
+                stdin -> {
+                    System.err
+                }
 
-            else -> {
-                System.out
+                else -> {
+                    System.out
+                }
             }
-        }
         return get(stream, reporterConfiguration.additionalConfig)
             .let { reporterV2 ->
                 if (reporterConfiguration.output != null) {

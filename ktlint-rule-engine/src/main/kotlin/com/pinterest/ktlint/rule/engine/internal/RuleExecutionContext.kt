@@ -149,12 +149,12 @@ internal class RuleExecutionContext private constructor(
                     } else {
                         "File.kt"
                     }
-            val psiFile = psiFileFactory.createFileFromText(
-                psiFileName,
-                KotlinLanguage.INSTANCE,
-                normalizedText,
-            ) as KtFile
-
+            val psiFile =
+                psiFileFactory.createFileFromText(
+                    psiFileName,
+                    KotlinLanguage.INSTANCE,
+                    normalizedText,
+                ) as KtFile
             psiFile
                 .findErrorElement()
                 ?.let { errorElement ->

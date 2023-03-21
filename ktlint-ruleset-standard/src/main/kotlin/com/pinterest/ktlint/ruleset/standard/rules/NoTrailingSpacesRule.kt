@@ -39,20 +39,21 @@ public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
             val modifiedLines =
                 lines
                     .mapIndexed { index, line ->
-                        val modifiedLine = when {
-                            node.elementType != EOL_COMMENT && index == lines.size - 1 && node.nextLeaf() != null ->
-                                // Do not change the last line as it contains the indentation of the next element except
-                                // when it is an EOL comment which may also not contain trailing spaces
-                                line
-                            line.hasTrailingSpace() -> {
-                                val modifiedLine = line.trimEnd()
-                                val firstTrailingSpaceOffset = violationOffset + modifiedLine.length
-                                emit(firstTrailingSpaceOffset, "Trailing space(s)", true)
-                                violated = true
-                                modifiedLine
+                        val modifiedLine =
+                            when {
+                                node.elementType != EOL_COMMENT && index == lines.size - 1 && node.nextLeaf() != null ->
+                                    // Do not change the last line as it contains the indentation of the next element except
+                                    // when it is an EOL comment which may also not contain trailing spaces
+                                    line
+                                line.hasTrailingSpace() -> {
+                                    val modifiedLine = line.trimEnd()
+                                    val firstTrailingSpaceOffset = violationOffset + modifiedLine.length
+                                    emit(firstTrailingSpaceOffset, "Trailing space(s)", true)
+                                    violated = true
+                                    modifiedLine
+                                }
+                                else -> line
                             }
-                            else -> line
-                        }
                         violationOffset += line.length + 1
                         modifiedLine
                     }

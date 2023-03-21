@@ -32,32 +32,34 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
         if (node.elementType == LPAR || node.elementType == RPAR) {
             val prevLeaf = node.prevLeaf()
             val nextLeaf = node.nextLeaf()
-            val spacingBefore = if (node.elementType == LPAR) {
-                prevLeaf is PsiWhiteSpace && !prevLeaf.textContains('\n') &&
-                    (
-                        prevLeaf.prevLeaf()?.elementType == IDENTIFIER &&
-                            // val foo: @Composable () -> Unit
-                            node.treeParent?.treeParent?.elementType != FUNCTION_TYPE ||
-                            // Super keyword needs special-casing
-                            prevLeaf.prevLeaf()?.elementType == SUPER_KEYWORD ||
-                            prevLeaf.prevLeaf()?.treeParent?.elementType == PRIMARY_CONSTRUCTOR
-                        ) &&
-                    (
-                        node.treeParent?.elementType == VALUE_PARAMETER_LIST ||
-                            node.treeParent?.elementType == VALUE_ARGUMENT_LIST
-                        )
-            } else {
-                prevLeaf is PsiWhiteSpace && !prevLeaf.textContains('\n') &&
-                    prevLeaf.prevLeaf()?.elementType != LPAR
-            }
-            val spacingAfter = if (node.elementType == LPAR) {
-                nextLeaf is PsiWhiteSpace &&
-                    (!nextLeaf.textContains('\n') || nextLeaf.nextLeaf()?.elementType == RPAR) &&
-                    !nextLeaf.isNextLeafAComment()
-            } else {
-                nextLeaf is PsiWhiteSpace && !nextLeaf.textContains('\n') &&
-                    nextLeaf.nextLeaf()?.elementType == RPAR
-            }
+            val spacingBefore =
+                if (node.elementType == LPAR) {
+                    prevLeaf is PsiWhiteSpace && !prevLeaf.textContains('\n') &&
+                        (
+                            prevLeaf.prevLeaf()?.elementType == IDENTIFIER &&
+                                // val foo: @Composable () -> Unit
+                                node.treeParent?.treeParent?.elementType != FUNCTION_TYPE ||
+                                // Super keyword needs special-casing
+                                prevLeaf.prevLeaf()?.elementType == SUPER_KEYWORD ||
+                                prevLeaf.prevLeaf()?.treeParent?.elementType == PRIMARY_CONSTRUCTOR
+                            ) &&
+                        (
+                            node.treeParent?.elementType == VALUE_PARAMETER_LIST ||
+                                node.treeParent?.elementType == VALUE_ARGUMENT_LIST
+                            )
+                } else {
+                    prevLeaf is PsiWhiteSpace && !prevLeaf.textContains('\n') &&
+                        prevLeaf.prevLeaf()?.elementType != LPAR
+                }
+            val spacingAfter =
+                if (node.elementType == LPAR) {
+                    nextLeaf is PsiWhiteSpace &&
+                        (!nextLeaf.textContains('\n') || nextLeaf.nextLeaf()?.elementType == RPAR) &&
+                        !nextLeaf.isNextLeafAComment()
+                } else {
+                    nextLeaf is PsiWhiteSpace && !nextLeaf.textContains('\n') &&
+                        nextLeaf.nextLeaf()?.elementType == RPAR
+                }
             when {
                 spacingBefore && spacingAfter -> {
                     emit(node.startOffset, "Unexpected spacing around \"${node.text}\"", true)

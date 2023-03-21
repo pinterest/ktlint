@@ -99,7 +99,7 @@ public class MultilineExpressionWrapping :
                                 node
                                     .treeParent
                                     .indent()
-                                    .plus(indentConfig.indent)
+                                    .plus(indentConfig.indent),
                             )
                             node
                                 .lastChildLeafOrSelf()

@@ -244,10 +244,11 @@ public class TrailingCommaOnDeclarationSiteRule :
     ) {
         val prevLeaf = inspectNode.prevLeaf()
         val trailingCommaNode = prevLeaf?.findPreviousTrailingCommaNodeOrNull()
-        val trailingCommaState = when {
-            isMultiline(psi) -> if (trailingCommaNode != null) TrailingCommaState.EXISTS else TrailingCommaState.MISSING
-            else -> if (trailingCommaNode != null) TrailingCommaState.REDUNDANT else TrailingCommaState.NOT_EXISTS
-        }
+        val trailingCommaState =
+            when {
+                isMultiline(psi) -> if (trailingCommaNode != null) TrailingCommaState.EXISTS else TrailingCommaState.MISSING
+                else -> if (trailingCommaNode != null) TrailingCommaState.REDUNDANT else TrailingCommaState.NOT_EXISTS
+            }
         when (trailingCommaState) {
             TrailingCommaState.EXISTS ->
                 if (isTrailingCommaAllowed) {
@@ -386,11 +387,12 @@ public class TrailingCommaOnDeclarationSiteRule :
         }
 
     private fun ASTNode.findPreviousTrailingCommaNodeOrNull(): ASTNode? {
-        val codeLeaf = if (isCodeLeaf()) {
-            this
-        } else {
-            prevCodeLeaf()
-        }
+        val codeLeaf =
+            if (isCodeLeaf()) {
+                this
+            } else {
+                prevCodeLeaf()
+            }
         return codeLeaf?.takeIf { it.elementType == ElementType.COMMA }
     }
 
