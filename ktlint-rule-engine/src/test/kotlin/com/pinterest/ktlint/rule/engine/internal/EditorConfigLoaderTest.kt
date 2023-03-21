@@ -546,11 +546,12 @@ internal class EditorConfigLoaderTest {
 
     private fun EditorConfig.convertToPropertyValues(): List<String> =
         map {
-            val value = if (it.isUnset) {
-                "unset"
-            } else {
-                it.sourceValue
-            }
+            val value =
+                if (it.isUnset) {
+                    "unset"
+                } else {
+                    it.sourceValue
+                }
             "${it.name} = $value"
         }.toList()
 

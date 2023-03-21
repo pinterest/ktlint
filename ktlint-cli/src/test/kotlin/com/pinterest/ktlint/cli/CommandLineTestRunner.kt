@@ -184,17 +184,16 @@ class CommandLineTestRunner(private val tempDir: Path) {
 
     private fun ProcessBuilder.prependPathWithJavaBinHome() {
         val environment = environment()
-        val pathKey = when {
-            /*
-             * On Windows, environment keys are case-insensitive, which is not
-             * handled by the JVM.
-             */
-            isWindows() -> environment.keys.firstOrNull { key ->
-                key.equals(PATH, ignoreCase = true)
-            } ?: PATH
-
-            else -> PATH
-        }
+        val pathKey =
+            when {
+                isWindows() -> {
+                    // On Windows, environment keys are case-insensitive, which is not handled by the JVM
+                    environment.keys.firstOrNull { key ->
+                        key.equals(PATH, ignoreCase = true)
+                    } ?: PATH
+                }
+                else -> PATH
+            }
         environment[pathKey] = "$JAVA_HOME_BIN_DIR${File.pathSeparator}${OsEnvironment()[PATH]}"
     }
 

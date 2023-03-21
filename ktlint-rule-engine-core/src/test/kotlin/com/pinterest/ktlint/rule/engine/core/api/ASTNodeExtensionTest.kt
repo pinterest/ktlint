@@ -88,13 +88,14 @@ class ASTNodeExtensionTest {
 
         @Test
         fun `Given a range of nodes not starting or ending with a whitespace leaf containing a newline but containing another whitespace leaf containing a newline`() {
-            val code = """
+            val code =
+                """
                 enum class Shape {
                     FOO,
                     FOOBAR,
                     BAR
                 }
-            """.trimIndent()
+                """.trimIndent()
             val enumClassBody = code.transformAst(::toEnumClassBodySequence)
 
             val actual = hasNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())

@@ -84,11 +84,12 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
             }
             REFERENCE_EXPRESSION, OPERATION_REFERENCE -> {
                 if (!node.isPartOf(IMPORT_DIRECTIVE)) {
-                    val identifier = if (node is CompositeElement) {
-                        node.findChildByType(IDENTIFIER)
-                    } else {
-                        node
-                    }
+                    val identifier =
+                        if (node is CompositeElement) {
+                            node.findChildByType(IDENTIFIER)
+                        } else {
+                            node
+                        }
                     identifier
                         ?.let { identifier.text }
                         ?.takeIf { it.isNotBlank() }

@@ -68,11 +68,12 @@ public class StringTemplateRule : StandardRule("string-template") {
                         node.removeChild(leftCurlyBraceNode)
                         node.removeChild(rightCurlyBraceNode)
                         val remainingNode = node.firstChildNode
-                        val newNode = if (remainingNode.elementType == DOT_QUALIFIED_EXPRESSION) {
-                            LeafPsiElement(REGULAR_STRING_PART, "\$${remainingNode.text}")
-                        } else {
-                            LeafPsiElement(remainingNode.elementType, "\$${remainingNode.text}")
-                        }
+                        val newNode =
+                            if (remainingNode.elementType == DOT_QUALIFIED_EXPRESSION) {
+                                LeafPsiElement(REGULAR_STRING_PART, "\$${remainingNode.text}")
+                            } else {
+                                LeafPsiElement(remainingNode.elementType, "\$${remainingNode.text}")
+                            }
                         node.replaceChild(node.firstChildNode, newNode)
                     }
                 }

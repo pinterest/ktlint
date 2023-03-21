@@ -56,12 +56,12 @@ internal fun initPsiFileFactory(isFromCli: Boolean): PsiFileFactory {
 
     val disposable = Disposer.newDisposable()
     try {
-        val project = KotlinCoreEnvironment.createForProduction(
-            disposable,
-            compilerConfiguration,
-            EnvironmentConfigFiles.JVM_CONFIG_FILES,
-        ).project as MockProject
-
+        val project =
+            KotlinCoreEnvironment.createForProduction(
+                disposable,
+                compilerConfiguration,
+                EnvironmentConfigFiles.JVM_CONFIG_FILES,
+            ).project as MockProject
         project.enableASTMutations()
 
         return PsiFileFactory.getInstance(project)

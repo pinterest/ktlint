@@ -178,46 +178,47 @@ private fun FileSystem.toGlob(
     path: String,
     rootDir: Path,
 ): List<String> {
-    val negation = if (path.startsWith(NEGATION_PREFIX)) {
-        NEGATION_PREFIX
-    } else {
-        ""
-    }
+    val negation =
+        if (path.startsWith(NEGATION_PREFIX)) {
+            NEGATION_PREFIX
+        } else {
+            ""
+        }
     val pathWithoutNegationPrefix =
         path
             .removePrefix(NEGATION_PREFIX)
-    val expandedPatterns = try {
-        val resolvedPath =
-            rootDir
-                .resolve(pathWithoutNegationPrefix)
-                .normalize()
-        if (resolvedPath.isDirectory()) {
-            resolvedPath
-                .expandPathToDefaultPatterns()
-                .also {
-                    LOGGER.trace { "Expanding resolved directory path '$resolvedPath' to patterns: [$it]" }
-                }
-        } else {
-            resolvedPath
-                .pathString
-                .expandDoubleStarPatterns()
-                .also {
-                    LOGGER.trace { "Expanding resolved path '$resolvedPath` to patterns: [$it]" }
-                }
+    val expandedPatterns =
+        try {
+            val resolvedPath =
+                rootDir
+                    .resolve(pathWithoutNegationPrefix)
+                    .normalize()
+            if (resolvedPath.isDirectory()) {
+                resolvedPath
+                    .expandPathToDefaultPatterns()
+                    .also {
+                        LOGGER.trace { "Expanding resolved directory path '$resolvedPath' to patterns: [$it]" }
+                    }
+            } else {
+                resolvedPath
+                    .pathString
+                    .expandDoubleStarPatterns()
+                    .also {
+                        LOGGER.trace { "Expanding resolved path '$resolvedPath` to patterns: [$it]" }
+                    }
+            }
+        } catch (e: InvalidPathException) {
+            if (onWindowsOS) {
+                //  Windows throws an exception when passing a wildcard (*) to Path#resolve.
+                pathWithoutNegationPrefix
+                    .expandDoubleStarPatterns()
+                    .also {
+                        LOGGER.trace { "On WindowsOS: expanding unresolved path '$pathWithoutNegationPrefix` to patterns: [$it]" }
+                    }
+            } else {
+                emptyList()
+            }
         }
-    } catch (e: InvalidPathException) {
-        if (onWindowsOS) {
-            //  Windows throws an exception when passing a wildcard (*) to Path#resolve.
-            pathWithoutNegationPrefix
-                .expandDoubleStarPatterns()
-                .also {
-                    LOGGER.trace { "On WindowsOS: expanding unresolved path '$pathWithoutNegationPrefix` to patterns: [$it]" }
-                }
-        } else {
-            emptyList()
-        }
-    }
-
     return expandedPatterns
         .map { originalPattern ->
             if (onWindowsOS) {

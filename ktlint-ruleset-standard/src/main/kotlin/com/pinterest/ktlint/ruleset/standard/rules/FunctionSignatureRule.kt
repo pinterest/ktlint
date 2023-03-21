@@ -125,11 +125,12 @@ public class FunctionSignatureRule :
     }
 
     private fun ASTNode.getFirstCodeChild(): ASTNode? {
-        val funNode = if (elementType == FUN_KEYWORD) {
-            this.treeParent
-        } else {
-            this
-        }
+        val funNode =
+            if (elementType == FUN_KEYWORD) {
+                this.treeParent
+            } else {
+                this
+            }
         funNode
             ?.findChildByType(MODIFIER_LIST)
             ?.let { modifierList ->

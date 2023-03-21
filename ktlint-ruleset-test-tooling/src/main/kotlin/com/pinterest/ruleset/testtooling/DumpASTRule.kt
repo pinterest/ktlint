@@ -83,19 +83,20 @@ public class DumpASTRule @JvmOverloads constructor(
     }
 
     private fun ASTNode.lineNumberOrUnknown(): String {
-        val lineNumber = try {
-            psi
-                .containingFile
-                ?.viewProvider
-                ?.document
-                ?.getLineNumber(this.startOffset)
-                ?.let { it + 1 }
-                ?.toString()
-        } catch (e: IndexOutOfBoundsException) {
-            // Due to autocorrect mutations in the AST it can happen that the node's offset becomes invalid. As a result
-            // the line number can not be determined.
-            null
-        }
+        val lineNumber =
+            try {
+                psi
+                    .containingFile
+                    ?.viewProvider
+                    ?.document
+                    ?.getLineNumber(this.startOffset)
+                    ?.let { it + 1 }
+                    ?.toString()
+            } catch (e: IndexOutOfBoundsException) {
+                // Due to autocorrect mutations in the AST it can happen that the node's offset becomes invalid. As a result
+                // the line number can not be determined.
+                null
+            }
         return lineNumber ?: "Unknown"
     }
 

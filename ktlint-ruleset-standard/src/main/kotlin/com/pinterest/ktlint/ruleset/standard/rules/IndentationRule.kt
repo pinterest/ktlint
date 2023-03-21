@@ -1056,22 +1056,23 @@ public class IndentationRule :
 
     private fun ASTNode.acceptableTrailingSpaces(): String {
         require(elementType == WHITE_SPACE)
-        val acceptableTrailingSpaces = when (nextLeaf()?.elementType) {
-            KDOC_LEADING_ASTERISK, KDOC_END -> {
-                // The indentation of a KDoc comment contains a space as the last character regardless of the indentation
-                // style (tabs or spaces) except for the starting line of the KDoc comment
-                KDOC_CONTINUATION_INDENT
-            }
+        val acceptableTrailingSpaces =
+            when (nextLeaf()?.elementType) {
+                KDOC_LEADING_ASTERISK, KDOC_END -> {
+                    // The indentation of a KDoc comment contains a space as the last character regardless of the indentation
+                    // style (tabs or spaces) except for the starting line of the KDoc comment
+                    KDOC_CONTINUATION_INDENT
+                }
 
-            TYPE_CONSTRAINT -> {
-                // 6 spaces (length of "where" keyword plus a separator space) to indent type constraints as below:
-                //    where A1 : RecyclerView.Adapter<V1>,
-                //               A1 : ComposableAdapter.ViewTypeProvider,
-                TYPE_CONSTRAINT_CONTINUATION_INDENT
-            }
+                TYPE_CONSTRAINT -> {
+                    // 6 spaces (length of "where" keyword plus a separator space) to indent type constraints as below:
+                    //    where A1 : RecyclerView.Adapter<V1>,
+                    //               A1 : ComposableAdapter.ViewTypeProvider,
+                    TYPE_CONSTRAINT_CONTINUATION_INDENT
+                }
 
-            else -> ""
-        }
+                else -> ""
+            }
         val nodeIndent = text.substringAfterLast("\n")
         return if (nodeIndent.endsWith(acceptableTrailingSpaces)) {
             return acceptableTrailingSpaces
@@ -1161,11 +1162,12 @@ public class IndentationRule :
 private fun ASTNode.textWithEscapedTabAndNewline() = text.textWithEscapedTabAndNewline()
 
 private fun String.textWithEscapedTabAndNewline(): String {
-    val (prefix, suffix) = if (this.all { it.isWhitespace() }) {
-        Pair("[", "]")
-    } else {
-        Pair("", "")
-    }
+    val (prefix, suffix) =
+        if (this.all { it.isWhitespace() }) {
+            Pair("[", "]")
+        } else {
+            Pair("", "")
+        }
     return prefix
         .plus(
             this

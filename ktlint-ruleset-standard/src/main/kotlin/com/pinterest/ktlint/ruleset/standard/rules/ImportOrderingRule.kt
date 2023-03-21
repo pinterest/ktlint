@@ -212,10 +212,11 @@ public class ImportOrderingRule :
         private val EDITOR_CONFIG_PROPERTY_PARSER: (String, String?) -> PropertyType.PropertyValue<List<PatternEntry>> =
             { _, value ->
                 when {
-                    value.isNullOrBlank() -> PropertyType.PropertyValue.invalid(
-                        value,
-                        "Import layout must contain at least one entry of a wildcard symbol (*)",
-                    )
+                    value.isNullOrBlank() ->
+                        PropertyType.PropertyValue.invalid(
+                            value,
+                            "Import layout must contain at least one entry of a wildcard symbol (*)",
+                        )
                     value == "idea" -> {
                         LOGGER.warn {
                             "`idea` is deprecated! Please use `*,java.**,javax.**,kotlin.**,^` instead to ensure that the Kotlin IDE " +
@@ -235,17 +236,18 @@ public class ImportOrderingRule :
                             ASCII_PATTERN,
                         )
                     }
-                    else -> try {
-                        PropertyType.PropertyValue.valid(
-                            value,
-                            parseImportsLayout(value),
-                        )
-                    } catch (e: IllegalArgumentException) {
-                        PropertyType.PropertyValue.invalid(
-                            value,
-                            "Unexpected imports layout: $value",
-                        )
-                    }
+                    else ->
+                        try {
+                            PropertyType.PropertyValue.valid(
+                                value,
+                                parseImportsLayout(value),
+                            )
+                        } catch (e: IllegalArgumentException) {
+                            PropertyType.PropertyValue.invalid(
+                                value,
+                                "Unexpected imports layout: $value",
+                            )
+                        }
                 }
             }
 

@@ -16,13 +16,13 @@ internal object GitHookInstaller {
         gitHookName: String,
         hookContentProvider: () -> ByteArray,
     ) {
-        val gitHooksDir = try {
-            resolveGitHooksDir()
-        } catch (e: IOException) {
-            System.err.println(e.message)
-            exitKtLintProcess(1)
-        }
-
+        val gitHooksDir =
+            try {
+                resolveGitHooksDir()
+            } catch (e: IOException) {
+                System.err.println(e.message)
+                exitKtLintProcess(1)
+            }
         val gitHookFile = gitHooksDir.resolve(gitHookName)
         val hookContent = hookContentProvider()
 
@@ -54,19 +54,19 @@ internal object GitHookInstaller {
 
     // Try to find the .git directory automatically, falling back to `./.git`
     private fun getGitDir(): File {
-        val gitDir = try {
-            val root =
-                Runtime.getRuntime().exec("git rev-parse --show-toplevel")
-                    .inputStream
-                    .bufferedReader()
-                    .readText()
-                    .trim()
+        val gitDir =
+            try {
+                val root =
+                    Runtime.getRuntime().exec("git rev-parse --show-toplevel")
+                        .inputStream
+                        .bufferedReader()
+                        .readText()
+                        .trim()
 
-            File(root).resolve(".git")
-        } catch (_: IOException) {
-            File(".git")
-        }
-
+                File(root).resolve(".git")
+            } catch (_: IOException) {
+                File(".git")
+            }
         if (!gitDir.isDirectory) {
             throw IOException(".git directory not found. Are you sure you are inside project directory?")
         }

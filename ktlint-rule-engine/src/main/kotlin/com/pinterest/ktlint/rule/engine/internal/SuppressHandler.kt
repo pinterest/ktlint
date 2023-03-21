@@ -19,11 +19,12 @@ internal class SuppressHandler(
                 ruleId,
             )
         val autoCorrect = this.autoCorrect && !suppress
-        val emit = if (suppress) {
-            SUPPRESS_EMIT
-        } else {
-            this.emit
-        }
+        val emit =
+            if (suppress) {
+                SUPPRESS_EMIT
+            } else {
+                this.emit
+            }
         function(autoCorrect, emit)
     }
 

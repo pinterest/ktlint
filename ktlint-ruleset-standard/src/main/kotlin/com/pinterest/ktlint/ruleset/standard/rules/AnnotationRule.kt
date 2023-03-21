@@ -353,12 +353,12 @@ public class AnnotationRule :
     }
 
     private fun ASTNode.findAnnotatedConstruct(): ASTNode {
-        val astNode = if (treeParent.elementType == MODIFIER_LIST) {
-            treeParent
-        } else {
-            this
-        }
-
+        val astNode =
+            if (treeParent.elementType == MODIFIER_LIST) {
+                treeParent
+            } else {
+                this
+            }
         return checkNotNull(
             astNode.lastChildLeafOrSelf().nextCodeLeaf(),
         )

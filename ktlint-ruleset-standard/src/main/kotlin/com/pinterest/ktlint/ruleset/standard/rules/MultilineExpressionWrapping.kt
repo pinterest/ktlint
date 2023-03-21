@@ -1,13 +1,26 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ARRAY_ACCESS_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ARROW
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BINARY_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.BINARY_WITH_TYPE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EQ
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.IF
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.IS_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_LITERAL
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.PREFIX_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REFERENCE_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SAFE_ACCESS_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TRY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.Companion.DEFAULT_INDENT_CONFIG
 import com.pinterest.ktlint.rule.engine.core.api.Rule
@@ -18,9 +31,11 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
+import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -73,19 +88,23 @@ public class MultilineExpressionWrapping :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
     ) {
-        if (node.containsWhitespaceWithNewline() && node.isValueInAnAssignment()) {
+        if (node.containsWhitespaceWithNewline() && node.needToWrapMultilineExpression()) {
             node
                 .prevLeaf { !it.isPartOfComment() }
                 .let { prevLeaf ->
-                    val expectedIndent =
-                        node
-                            .treeParent
-                            .indent()
-                            .plus(indentConfig.indent)
-                    if (prevLeaf != null && prevLeaf.text != expectedIndent) {
+                    if (prevLeaf != null && !prevLeaf.textContains('\n')) {
                         emit(node.startOffset, "A multiline expression should start on a new line", true)
                         if (autoCorrect) {
-                            node.upsertWhitespaceBeforeMe(expectedIndent)
+                            node.upsertWhitespaceBeforeMe(
+                                node
+                                    .treeParent
+                                    .indent()
+                                    .plus(indentConfig.indent),
+                            )
+                            node
+                                .lastChildLeafOrSelf()
+                                .nextLeaf { !it.isWhiteSpace() && it.elementType != COMMA }
+                                ?.upsertWhitespaceBeforeMe(node.treeParent.indent())
                         }
                     }
                 }
@@ -97,8 +116,18 @@ public class MultilineExpressionWrapping :
         return firstChildLeafOrSelf()
             .leavesIncludingSelf()
             .takeWhile { it != lastLeaf }
-            .any { it.isWhiteSpaceWithNewline() }
+            .any { it.isWhiteSpaceWithNewline() || it.isRegularStringPartWithNewline() }
     }
+
+    private fun ASTNode.isRegularStringPartWithNewline() =
+        elementType == ElementType.REGULAR_STRING_PART &&
+            text.startsWith("\n")
+
+    private fun ASTNode.needToWrapMultilineExpression() =
+        isValueInAnAssignment() ||
+            isLambdaExpression() ||
+            isValueArgument() ||
+            isAfterArrow()
 
     private fun ASTNode.isValueInAnAssignment() =
         null !=
@@ -115,13 +144,38 @@ public class MultilineExpressionWrapping :
             ?.prevCodeLeaf()
             ?.takeIf { it.elementType == RPAR }
 
+    private fun ASTNode.isLambdaExpression() =
+        null !=
+            treeParent
+                .takeIf {
+                    // Function literals in lambda expression have an implicit block (no LBRACE and RBRACE). So only wrap when the node is
+                    // the first node in the block
+                    it.elementType == BLOCK && it.firstChildNode == this
+                }?.treeParent
+                ?.takeIf { it.elementType == ElementType.FUNCTION_LITERAL }
+                ?.treeParent
+                ?.takeIf { it.elementType == ElementType.LAMBDA_EXPRESSION }
+
+    private fun ASTNode.isValueArgument() = treeParent.elementType == VALUE_ARGUMENT
+
+    private fun ASTNode.isAfterArrow() = prevCodeLeaf()?.elementType == ARROW
+
     private companion object {
+        // Based  on https://kotlinlang.org/spec/expressions.html#expressions
         val CHAINABLE_EXPRESSION =
             setOf(
+                ARRAY_ACCESS_EXPRESSION,
+                BINARY_WITH_TYPE,
                 CALL_EXPRESSION,
                 DOT_QUALIFIED_EXPRESSION,
+                IF,
+                IS_EXPRESSION,
+                OBJECT_LITERAL,
+                PREFIX_EXPRESSION,
                 REFERENCE_EXPRESSION,
                 SAFE_ACCESS_EXPRESSION,
+                TRY,
+                WHEN,
             )
     }
 }

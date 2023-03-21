@@ -53,11 +53,12 @@ public class PlainReporter(
             val errList = acc[file] ?: return
             out.println(colorFileName(file))
             for ((line, col, ruleId, detail) in errList) {
-                val column = if (pad) {
-                    String.format("%-3s", col)
-                } else {
-                    col
-                }
+                val column =
+                    if (pad) {
+                        String.format("%-3s", col)
+                    } else {
+                        col
+                    }
                 out.println(
                     "  $line${":$column".colored()} $detail ${"($ruleId)".colored()}",
                 )
