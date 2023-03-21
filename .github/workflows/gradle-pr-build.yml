@@ -1,6 +1,9 @@
 name: PR Build
 
 on:
+  push:
+    branches:
+      - master
   pull_request:
   workflow_dispatch:
 
@@ -26,10 +29,12 @@ jobs:
           distribution: 'zulu'
           java-version: ${{ matrix.jdk }}
       - uses: gradle/gradle-build-action@v2
+        with:
+          gradle-home-cache-cleanup: true
       - name: Build with release Kotlin version
-        run: ./gradlew clean build ktlint --no-daemon
+        run: ./gradlew build ktlint --no-daemon
       - name: Build with dev Kotlin version
-        run: ./gradlew -PkotlinDev clean build ktlint --no-daemon
+        run: ./gradlew -PkotlinDev build ktlint --no-daemon
       - name: Upload test results
         uses: actions/upload-artifact@v3
         if: failure()
