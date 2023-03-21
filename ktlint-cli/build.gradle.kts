@@ -47,7 +47,7 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
     description = "Creates self-executable file, that runs generated shadow jar"
     group = "Distribution"
 
-    inputs.files(tasks.shadowJar)
+    inputs.files(tasks.shadowJar.map { it.outputs.files })
     outputs.files("$buildDir/run/ktlint")
     if (!version.toString().endsWith("SNAPSHOT")) {
         outputs.files("$buildDir/run/ktlint.asc")
