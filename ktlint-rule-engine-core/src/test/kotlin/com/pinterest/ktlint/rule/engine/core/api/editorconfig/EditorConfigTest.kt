@@ -262,9 +262,9 @@ class EditorConfigTest {
                 writeRootEditorConfigFile(
                     //language=EditorConfig
                     """
-                [*.{kt,kts}]
-                $ktlintTestRuleExecutionProperty1 = disabled
-                $ktlintTestRuleExecutionProperty2 = disabled
+                    [*.{kt,kts}]
+                    $ktlintTestRuleExecutionProperty1 = disabled
+                    $ktlintTestRuleExecutionProperty2 = disabled
                     """.trimIndent(),
                 )
             }

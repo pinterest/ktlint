@@ -366,6 +366,46 @@ Consistent spacing between function name and opening parenthesis.
 
 Rule id: `spacing-between-function-name-and-opening-parenthesis`
 
+### String template indent
+
+Enforce consistent string template indentation for multiline string templates which are post-fixed with `.trimIndent()`. The opening and closing `"""` are placed on separate lines and the indentation of the content of the template is aligned with the `"""`.
+
+=== "[:material-heart:](#) Ktlint (ktlint_official code style)"
+
+    ```kotlin
+    val foo =
+        """
+        line1
+        line2
+        """.trimIndent()
+    fun foo() {
+        // The opening """ can not be wrapped to next line as that would result in a compilation error
+        return """
+            line1
+            line2
+            """.trimIndent()
+    }
+    ```
+=== "[:material-heart:](#) Ktlint (non ktlint_official code style)"
+
+    ```kotlin
+    val foo = """
+              line1
+              line2
+              """.trimIndent()
+    fun foo() {
+        return """
+            line1
+            line2
+        """.trimIndent()
+    }
+    ```
+
+Rule id: `string-template-indent`
+
+!!! Note
+    This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
+
 ### Try catch finally spacing
 
 Enforce consistent spacing in `try { .. } catch { .. } finally { .. }`.
