@@ -163,3 +163,30 @@ ktlint_custom-rule-set_custom-rule = disabled # Disables the `custom-rule` rule 
 ## Why is wildcard import `java.util.*` not reported by the `no-wildcard-imports` rule?
 
 The `no-wildcard-imports` rule forbids wildcard imports, except for imports defined in `.editorconfig` property `ij_kotlin_packages_to_use_import_on_demand`. If ths property is not set explicitly set, it allows wildcards imports like `java.util.*` by default to keep in sync with IntelliJ IDEA behavior.
+
+## Can I use KtLint to directly format the code I'm generating with KotlinPoet?
+
+Yes, it is possible to use KtLint to directly format the code generated with KotlinPoet. 
+To do so, you must include the dependencies `"com.pinterest.ktlint:ktlint-core"` and `"com.pinterest.ktlint:ktlint-ruleset-standard"` in your Gradle/Maven project. 
+However, you should avoid including the dependency `"com.pinterest:ktlint"`, since it is not necessary, and it may cause issues with logging libraries.
+
+To format the output of KotlinPoet with KtLint, you can use the following snippet:
+
+```kotlin
+val ruleProviders = buildSet {
+  ServiceLoader.load(RuleSetProviderV2::class.java).flatMapTo(this) { it.getRuleProviders() }
+}
+val ktLintRuleEngine = KtLintRuleEngine(
+  ruleProviders = ruleProviders,
+  editorConfigDefaults = EditorConfigDefaults.load(EDITORCONFIG_PATH),
+)
+
+ktLintRuleEngine.format(outputDir.toPath())
+```
+Here, outputDir refers to the directory of the generated files by KotlinPoet, ktLintRuleEngine is an instance of KtLint rule engine.
+
+It is also possible to format file-by-file the output of KotlinPoet if you write your `FileSpec` to a `StringBuilder()`, instead of a `File`, 
+and send the generated code as `String` to KtLint inside a `CodeSnippet`:
+```kotlin
+kotlinFile.writeText(ktLintRuleEngine.format(Code.CodeSnippet(stringBuilder.toString())))
+```
