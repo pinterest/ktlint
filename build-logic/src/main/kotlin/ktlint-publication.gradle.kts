@@ -13,6 +13,7 @@ java {
 }
 
 tasks.dokkaJavadoc.configure {
+    notCompatibleWithConfigurationCache("https://github.com/Kotlin/dokka/issues/1217")
     outputDirectory.set(buildDir.resolve("javadoc"))
 }
 
@@ -101,4 +102,8 @@ signing {
     val enableSigning = project.findProperty("ktlint.publication.signing.enable") != "false"
     sign(publishing.publications["maven"])
     isRequired = enableSigning && !version.toString().endsWith("SNAPSHOT")
+}
+
+tasks.withType<Sign>().configureEach {
+    notCompatibleWithConfigurationCache("https://github.com/gradle/gradle/issues/13470")
 }
