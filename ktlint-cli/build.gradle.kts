@@ -54,7 +54,7 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
     }
 
     doLast {
-        val execFile = outputs.files.files.first()
+        val execFile = outputs.files.first()
         execFile.appendText(
             """#!/bin/sh
 
@@ -104,6 +104,7 @@ tasks.withType<Test>().configureEach {
         logger.warn("Skipping tests for task '$name' as system property 'skipTests=$skipTests'")
     }
 
+    notCompatibleWithConfigurationCache("https://github.com/gradle/gradle/issues/12247")
     doFirst {
         systemProperty(
             "ktlint-cli",
