@@ -4,6 +4,7 @@ import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.logger.api.setDefaultLoggerModifier
 import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
+import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.plus
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.LintError
@@ -99,17 +100,20 @@ public class KtLintAssertThat(
      * that lint errors for those rules are suppressed.
      */
     private val additionalRuleProviders: MutableSet<RuleProvider>,
+    /**
+     * EditorConfig properties to be applied by default when linting/formatting the code.
+     */
+    private val editorConfigProperties: MutableSet<Pair<EditorConfigProperty<*>, *>>,
 ) {
     private var filePath: String? = null
     private var kotlinScript = false
-    private var editorConfigProperties = emptySet<Pair<EditorConfigProperty<*>, *>>()
 
     /**
      * Set the [EditorConfigOverride] properties to be used by the rule. This function can be called multiple times.
      * Properties which have been set before, are silently overwritten with the new vale.
      */
     public fun withEditorConfigOverride(vararg properties: Pair<EditorConfigProperty<*>, *>): KtLintAssertThat {
-        editorConfigProperties = editorConfigProperties + properties.toSet()
+        editorConfigProperties.addAll(properties)
 
         return this
     }
@@ -137,10 +141,8 @@ public class KtLintAssertThat(
             .split("\n")
             .firstOrNull { it.contains(MAX_LINE_LENGTH_MARKER) && it.endsWith(EOL_CHAR) }
             ?.indexOf(EOL_CHAR)
-            ?.let { index ->
-                editorConfigProperties =
-                    editorConfigProperties + setOf(MAX_LINE_LENGTH_PROPERTY to (index + 1).toString())
-            } ?: throw MissingEolMarker()
+            ?.let { index -> editorConfigProperties.add(MAX_LINE_LENGTH_PROPERTY to (index + 1).toString()) }
+            ?: throw MissingEolMarker()
 
         return this
     }
@@ -283,20 +285,18 @@ public class KtLintAssertThat(
         ktLintAssertThatAssertable().hasLintViolationsWithoutAutocorrect(*expectedErrors)
 
     private fun ktLintAssertThatAssertable(): KtLintAssertThatAssertable =
-        if (editorConfigProperties.isEmpty()) {
-            KtLintAssertThatAssertable(
-                ruleProvider = ruleProvider,
-                code = code(),
-                editorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
-                additionalRuleProviders = additionalRuleProviders.toSet(),
-            )
+        KtLintAssertThatAssertable(
+            ruleProvider = ruleProvider,
+            code = code(),
+            editorConfigOverride = editorConfigProperties.toEditorConfigOverride(),
+            additionalRuleProviders = additionalRuleProviders.toSet(),
+        )
+
+    private fun MutableSet<Pair<EditorConfigProperty<*>, *>>.toEditorConfigOverride() =
+        if (isEmpty()) {
+            EMPTY_EDITOR_CONFIG_OVERRIDE
         } else {
-            KtLintAssertThatAssertable(
-                ruleProvider = ruleProvider,
-                code = code(),
-                editorConfigOverride = EditorConfigOverride.from(*editorConfigProperties.toTypedArray()),
-                additionalRuleProviders = additionalRuleProviders.toSet(),
-            )
+            EditorConfigOverride.from(*toTypedArray())
         }
 
     private fun code() =
@@ -327,15 +327,20 @@ public class KtLintAssertThat(
 
         public fun assertThatRule(
             provider: () -> Rule,
-            additionalRuleProviders: Set<RuleProvider>,
-        ): (String) -> KtLintAssertThat = RuleProvider { provider() }.assertThat(additionalRuleProviders)
+            additionalRuleProviders: Set<RuleProvider> = emptySet(),
+            editorConfigProperties: Set<Pair<EditorConfigProperty<*>, *>> = emptySet(),
+        ): (String) -> KtLintAssertThat = RuleProvider { provider() }.assertThat(additionalRuleProviders, editorConfigProperties)
 
-        private fun RuleProvider.assertThat(additionalRuleProviders: Set<RuleProvider> = emptySet()): (String) -> KtLintAssertThat =
+        private fun RuleProvider.assertThat(
+            additionalRuleProviders: Set<RuleProvider> = emptySet(),
+            editorConfigProperties: Set<Pair<EditorConfigProperty<*>, *>> = emptySet(),
+        ): (String) -> KtLintAssertThat =
             { code ->
                 KtLintAssertThat(
                     ruleProvider = this,
                     code = code,
                     additionalRuleProviders = additionalRuleProviders.toMutableSet(),
+                    editorConfigProperties = editorConfigProperties.toMutableSet(),
                 )
             }
 
@@ -376,7 +381,7 @@ public class KtLintAssertThatAssertable(
     /** The provider of the rule which is the subject of the test, e.g. the rule for which the AssertThat is created. */
     private val ruleProvider: RuleProvider,
     private val code: Code,
-    private val editorConfigOverride: EditorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
+    private val editorConfigOverride: EditorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
     /**
      *  The rules which have to be executed in addition to the main rule when linting/formatting the code. Note that
      *  lint errors for those rules are suppressed.

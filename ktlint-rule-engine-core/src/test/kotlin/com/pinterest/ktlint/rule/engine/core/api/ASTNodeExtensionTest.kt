@@ -438,13 +438,13 @@ class ASTNodeExtensionTest {
     fun `Given some identifiers at different indentation levels`() {
         val code =
             """
-                class Foo1 {
-                    val foo2 = "foo2"
+            class Foo1 {
+                val foo2 = "foo2"
 
-                    fun foo3() {
-                        val foo4 = "foo4"
-                    }
+                fun foo3() {
+                    val foo4 = "foo4"
                 }
+            }
             """.trimIndent()
 
         val actual =

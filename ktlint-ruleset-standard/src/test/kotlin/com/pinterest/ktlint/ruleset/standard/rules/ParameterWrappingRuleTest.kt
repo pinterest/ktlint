@@ -13,27 +13,27 @@ internal class ParameterWrappingRuleTest {
     fun `Given that the variable name and the following colon do not fit on the same line as val or var keyword then wrap after the colon`() {
         val code =
             """
-                // $MAX_LINE_LENGTH_MARKER      $EOL_CHAR
-                class Bar(
-                    val foooooooooooooooooTooLong: Foo,
-                )
-                fun bar(
-                    foooooooooooooooooooooTooLong: Foo,
-                )
+            // $MAX_LINE_LENGTH_MARKER      $EOL_CHAR
+            class Bar(
+                val foooooooooooooooooTooLong: Foo,
+            )
+            fun bar(
+                foooooooooooooooooooooTooLong: Foo,
+            )
             """.trimIndent()
         val formattedCode =
             // TODO: fix test when changing the default code style to 'ktlint_official'. The variable type is not indented for the
             //  current default code style.
             """
-                // $MAX_LINE_LENGTH_MARKER      $EOL_CHAR
-                class Bar(
-                    val foooooooooooooooooTooLong:
-                    Foo,
-                )
-                fun bar(
-                    foooooooooooooooooooooTooLong:
-                    Foo,
-                )
+            // $MAX_LINE_LENGTH_MARKER      $EOL_CHAR
+            class Bar(
+                val foooooooooooooooooTooLong:
+                Foo,
+            )
+            fun bar(
+                foooooooooooooooooooooTooLong:
+                Foo,
+            )
             """.trimIndent()
         parameterWrappingRuleAssertThat(code)
             .setMaxLineLength()
@@ -48,31 +48,31 @@ internal class ParameterWrappingRuleTest {
     fun `Given that the type does not fit on the same line as the variable name`() {
         val code =
             """
-                // $MAX_LINE_LENGTH_MARKER           $EOL_CHAR
-                class Bar(
-                    val foooooooooooooooooTooLong: Foo,
-                    val foooooooooooooNotTooLong: Foo,
-                )
-                fun bar(
-                    foooooooooooooooooooooTooLong: Foo,
-                    foooooooooooooooooNotTooLong: Foo,
-                )
+            // $MAX_LINE_LENGTH_MARKER           $EOL_CHAR
+            class Bar(
+                val foooooooooooooooooTooLong: Foo,
+                val foooooooooooooNotTooLong: Foo,
+            )
+            fun bar(
+                foooooooooooooooooooooTooLong: Foo,
+                foooooooooooooooooNotTooLong: Foo,
+            )
             """.trimIndent()
         val formattedCode =
             // TODO: fix test when changing the default code style to 'ktlint_official'. The variable type is not indented for the
             //  current default code style.
             """
-                // $MAX_LINE_LENGTH_MARKER           $EOL_CHAR
-                class Bar(
-                    val foooooooooooooooooTooLong:
-                    Foo,
-                    val foooooooooooooNotTooLong: Foo,
-                )
-                fun bar(
-                    foooooooooooooooooooooTooLong:
-                    Foo,
-                    foooooooooooooooooNotTooLong: Foo,
-                )
+            // $MAX_LINE_LENGTH_MARKER           $EOL_CHAR
+            class Bar(
+                val foooooooooooooooooTooLong:
+                Foo,
+                val foooooooooooooNotTooLong: Foo,
+            )
+            fun bar(
+                foooooooooooooooooooooTooLong:
+                Foo,
+                foooooooooooooooooNotTooLong: Foo,
+            )
             """.trimIndent()
         parameterWrappingRuleAssertThat(code)
             .setMaxLineLength()
@@ -87,31 +87,31 @@ internal class ParameterWrappingRuleTest {
     fun `Given that equals sign before the value does not fit on the same line as the type and variable name then wrap after the equals sign`() {
         val code =
             """
-                // $MAX_LINE_LENGTH_MARKER            $EOL_CHAR
-                class Bar(
-                    val foooooooooooooooooTooLong: Foo = Foo(),
-                    val foooooooooooooNotTooLong: Foo = Foo(),
-                )
-                fun bar(
-                    foooooooooooooooooooooTooLong: Foo = Foo(),
-                    foooooooooooooooooNotTooLong: Foo = Foo(),
-                )
+            // $MAX_LINE_LENGTH_MARKER            $EOL_CHAR
+            class Bar(
+                val foooooooooooooooooTooLong: Foo = Foo(),
+                val foooooooooooooNotTooLong: Foo = Foo(),
+            )
+            fun bar(
+                foooooooooooooooooooooTooLong: Foo = Foo(),
+                foooooooooooooooooNotTooLong: Foo = Foo(),
+            )
             """.trimIndent()
         val formattedCode =
             """
-                // $MAX_LINE_LENGTH_MARKER            $EOL_CHAR
-                class Bar(
-                    val foooooooooooooooooTooLong: Foo =
-                        Foo(),
-                    val foooooooooooooNotTooLong: Foo =
-                        Foo(),
-                )
-                fun bar(
-                    foooooooooooooooooooooTooLong: Foo =
-                        Foo(),
-                    foooooooooooooooooNotTooLong: Foo =
-                        Foo(),
-                )
+            // $MAX_LINE_LENGTH_MARKER            $EOL_CHAR
+            class Bar(
+                val foooooooooooooooooTooLong: Foo =
+                    Foo(),
+                val foooooooooooooNotTooLong: Foo =
+                    Foo(),
+            )
+            fun bar(
+                foooooooooooooooooooooTooLong: Foo =
+                    Foo(),
+                foooooooooooooooooNotTooLong: Foo =
+                    Foo(),
+            )
             """.trimIndent()
         parameterWrappingRuleAssertThat(code)
             .setMaxLineLength()
@@ -128,29 +128,29 @@ internal class ParameterWrappingRuleTest {
     fun `Given that the value does not fit on the same line as the type and variable name then wrap after the equals sign`() {
         val code =
             """
-                // $MAX_LINE_LENGTH_MARKER                   $EOL_CHAR
-                class Bar(
-                    val foooooooooooooooooTooLong: Foo = Foo(),
-                    val foooooooooooooNotTooLong: Foo = Foo(),
-                )
-                fun bar(
-                    foooooooooooooooooooooTooLong: Foo = Foo(),
-                    foooooooooooooooooNotTooLong: Foo = Foo(),
-                )
+            // $MAX_LINE_LENGTH_MARKER                   $EOL_CHAR
+            class Bar(
+                val foooooooooooooooooTooLong: Foo = Foo(),
+                val foooooooooooooNotTooLong: Foo = Foo(),
+            )
+            fun bar(
+                foooooooooooooooooooooTooLong: Foo = Foo(),
+                foooooooooooooooooNotTooLong: Foo = Foo(),
+            )
             """.trimIndent()
         val formattedCode =
             """
-                // $MAX_LINE_LENGTH_MARKER                   $EOL_CHAR
-                class Bar(
-                    val foooooooooooooooooTooLong: Foo =
-                        Foo(),
-                    val foooooooooooooNotTooLong: Foo = Foo(),
-                )
-                fun bar(
-                    foooooooooooooooooooooTooLong: Foo =
-                        Foo(),
-                    foooooooooooooooooNotTooLong: Foo = Foo(),
-                )
+            // $MAX_LINE_LENGTH_MARKER                   $EOL_CHAR
+            class Bar(
+                val foooooooooooooooooTooLong: Foo =
+                    Foo(),
+                val foooooooooooooNotTooLong: Foo = Foo(),
+            )
+            fun bar(
+                foooooooooooooooooooooTooLong: Foo =
+                    Foo(),
+                foooooooooooooooooNotTooLong: Foo = Foo(),
+            )
             """.trimIndent()
         parameterWrappingRuleAssertThat(code)
             .setMaxLineLength()

@@ -24,11 +24,11 @@ class IfElseBracingRuleTest {
     fun `Given another code style then ktlint_official and IF with inconsistent bracing of the branches`(codeStyle: CodeStyleValue) {
         val code =
             """
-                fun foo() {
-                    if (true) {
-                        doSomething()
-                    } else doSomethingElse()
-                }
+            fun foo() {
+                if (true) {
+                    doSomething()
+                } else doSomethingElse()
+            }
             """.trimIndent()
         multiLineIfElseRuleAssertThat(code)
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyle)
@@ -46,21 +46,21 @@ class IfElseBracingRuleTest {
     ) {
         val code =
             """
-                fun foo() {
-                    if (true) {
-                        doSomething()
-                    } else doSomethingElse()
-                }
+            fun foo() {
+                if (true) {
+                    doSomething()
+                } else doSomethingElse()
+            }
             """.trimIndent()
         val formattedCode =
             """
-                fun foo() {
-                    if (true) {
-                        doSomething()
-                    } else {
-                        doSomethingElse()
-                    }
+            fun foo() {
+                if (true) {
+                    doSomething()
+                } else {
+                    doSomethingElse()
                 }
+            }
             """.trimIndent()
         @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
         multiLineIfElseRuleAssertThat(code)

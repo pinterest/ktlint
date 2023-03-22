@@ -56,7 +56,8 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
     doLast {
         val execFile = outputs.files.files.first()
         execFile.appendText(
-            """#!/bin/sh
+            """
+            #!/bin/sh
 
             # From this SO answer: https://stackoverflow.com/a/56243046
 
