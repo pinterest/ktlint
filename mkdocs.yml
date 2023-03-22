@@ -45,6 +45,7 @@ nav:
     - IntelliJ IDEA configuration: rules/configuration-intellij-idea.md
   - API:
       - Overview: api/overview.md
+      - Custom integration: api/custom-integration.md
       - Custom rule set: api/custom-rule-set.md
       - Custom reporter: api/custom-reporter.md
       - Badge: api/badge.md
