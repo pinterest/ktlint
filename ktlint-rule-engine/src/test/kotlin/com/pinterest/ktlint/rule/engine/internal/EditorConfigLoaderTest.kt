@@ -262,6 +262,31 @@ internal class EditorConfigLoaderTest {
                         .contains("some_property = some_value")
                 }
         }
+
+        @Test
+        fun `Given some properties in an editorconfig file which is passed in as default editorconfig then return the properties from this file`() {
+            ktlintTestFileSystem.apply {
+                writeEditorConfigFile(
+                    "some/dir",
+                    //language=EditorConfig
+                    """
+                    [*.{kt,kts}]
+                    some_property = some_value
+                    """.trimIndent(),
+                )
+            }
+
+            val editorConfigDefaults = EditorConfigDefaults.load(
+                path = ktlintTestFileSystem.resolve("some/dir/.editorconfig"),
+                propertyTypes = setOf(SOME_EDITOR_CONFIG_PROPERTY.type)
+            )
+            createEditorConfigLoader(editorConfigDefaults)
+                .load(ktlintTestFileSystem.resolve(".kt"))
+                .run {
+                    assertThat(convertToPropertyValues())
+                        .contains("some_property = some_value")
+                }
+        }
     }
 
     @Nested
