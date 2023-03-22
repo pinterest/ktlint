@@ -27,6 +27,7 @@
          <trusted-key id="314fe82e5a4c5377bca2edec5208812e1e4a6db0" group="com.gradle" name="gradle-enterprise-gradle-plugin" version="3.12.3"/>
          <trusted-key id="34441e504a937f43eb0daef96a65176a0fb1cd0b" group="org.codehaus.groovy" name="^groovy($|.*)" version="3.0.13" regex="true"/>
          <trusted-key id="475f3b8e59e6e63aa78067482c7b12f2a511e325" group="org.slf4j"/>
+         <trusted-key id="e2acb037933cdeaab7bf77d49a2c7a98e457c53d" group="org.springframework" name="spring-framework-bom" version="5.3.24"/>
          <trusted-key id="47eb6836245d2d40e89dfb4136d4e9618f3adab5" group="io.github.microutils" name="kotlin-logging-jvm" version="3.0.5"/>
          <trusted-key id="53c935821aa6a755bd337db53595395eb3d8e1ba" group="org.apache.logging.log4j"/>
          <trusted-key id="5897253bea3046aeea95a067e93671c7272b7b3f" group="org.jdom" name="jdom2" version="2.0.6"/>
@@ -221,11 +222,6 @@
       <component group="org.sonatype.oss" name="oss-parent" version="9">
          <artifact name="oss-parent-9.pom">
             <pgp value="44fbdbbc1a00fe414f1c1873586654072ead6677"/>
-         </artifact>
-      </component>
-      <component group="org.springframework" name="spring-framework-bom" version="5.3.24">
-         <artifact name="spring-framework-bom-5.3.24.pom">
-            <pgp value="e2acb037933cdeaab7bf77d49a2c7a98e457c53d"/>
          </artifact>
       </component>
    </components>
