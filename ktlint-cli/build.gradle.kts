@@ -74,11 +74,15 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
 
         execFile.appendBytes(inputs.files.singleFile.readBytes())
         execFile.setExecutable(true, false)
-        if (!version.toString().endsWith("SNAPSHOT")) {
-            signing.sign(execFile)
-        }
     }
     finalizedBy(tasks.named("shadowJarExecutableChecksum"))
+}
+
+tasks.signMavenPublication {
+    dependsOn(shadowJarExecutable)
+    if (!version.toString().endsWith("SNAPSHOT")) {
+        sign(*shadowJarExecutable.map { it.outputs.files.files }.get().toTypedArray())
+    }
 }
 
 tasks.register<Checksum>("shadowJarExecutableChecksum") {
