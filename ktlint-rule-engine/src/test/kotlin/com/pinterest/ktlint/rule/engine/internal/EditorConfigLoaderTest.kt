@@ -276,10 +276,11 @@ internal class EditorConfigLoaderTest {
                 )
             }
 
-            val editorConfigDefaults = EditorConfigDefaults.load(
-                path = ktlintTestFileSystem.resolve("some/dir/.editorconfig"),
-                propertyTypes = setOf(SOME_EDITOR_CONFIG_PROPERTY.type)
-            )
+            val editorConfigDefaults =
+                EditorConfigDefaults.load(
+                    path = ktlintTestFileSystem.resolve("some/dir/.editorconfig"),
+                    propertyTypes = setOf(SOME_EDITOR_CONFIG_PROPERTY.type),
+                )
             createEditorConfigLoader(editorConfigDefaults)
                 .load(ktlintTestFileSystem.resolve(".kt"))
                 .run {
