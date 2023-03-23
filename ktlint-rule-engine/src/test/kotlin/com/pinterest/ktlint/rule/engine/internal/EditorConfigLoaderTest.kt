@@ -249,8 +249,8 @@ internal class EditorConfigLoaderTest {
                 writeRootEditorConfigFile(
                     //language=EditorConfig
                     """
-                [*.{kt,kts}]
-                some_property = some_value
+                    [*.{kt,kts}]
+                    some_property = some_value
                     """.trimIndent(),
                 )
             }
@@ -297,8 +297,8 @@ internal class EditorConfigLoaderTest {
                 writeRootEditorConfigFile(
                     //language=EditorConfig
                     """
-                [*.{kt,kts}]
-                some_property = some_value
+                    [*.{kt,kts}]
+                    some_property = some_value
                     """.trimIndent(),
                 )
             }
@@ -334,8 +334,8 @@ internal class EditorConfigLoaderTest {
                 writeRootEditorConfigFile(
                     //language=EditorConfig
                     """
-                [*.{kt,kts}]
-                some_property_1 = some_value_1
+                    [*.{kt,kts}]
+                    some_property_1 = some_value_1
                     """.trimIndent(),
                 )
             }
@@ -355,8 +355,8 @@ internal class EditorConfigLoaderTest {
                 writeRootEditorConfigFile(
                     //language=EditorConfig
                     """
-                [*.{kt,kts}]
-                some_property = some_value
+                    [*.{kt,kts}]
+                    some_property = some_value
                     """.trimIndent(),
                 )
             }

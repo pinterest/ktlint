@@ -105,13 +105,14 @@ internal class EditorConfigLoader(
     private fun MutableMap<String, Property>.prettyPrint(normalizedFilePath: Path?) =
         map { entry -> "${entry.key}: ${entry.value.sourceValue}" }
             .joinToString(
-                prefix = "Effective editorconfig properties${
-                    if (normalizedFilePath == null) {
-                        ""
-                    } else {
-                        " for file '$normalizedFilePath'"
-                    }
-                }:\n\t",
+                prefix =
+                    "Effective editorconfig properties${
+                        if (normalizedFilePath == null) {
+                            ""
+                        } else {
+                            " for file '$normalizedFilePath'"
+                        }
+                    }:\n\t",
                 separator = "\n\t",
             )
 

@@ -68,6 +68,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundUnaryOperatorRul
 import com.pinterest.ktlint.ruleset.standard.rules.SpacingBetweenDeclarationsWithAnnotationsRule
 import com.pinterest.ktlint.ruleset.standard.rules.SpacingBetweenDeclarationsWithCommentsRule
 import com.pinterest.ktlint.ruleset.standard.rules.SpacingBetweenFunctionNameAndOpeningParenthesisRule
+import com.pinterest.ktlint.ruleset.standard.rules.StringTemplateIndentRule
 import com.pinterest.ktlint.ruleset.standard.rules.StringTemplateRule
 import com.pinterest.ktlint.ruleset.standard.rules.TrailingCommaOnCallSiteRule
 import com.pinterest.ktlint.ruleset.standard.rules.TrailingCommaOnDeclarationSiteRule
@@ -147,6 +148,7 @@ public class StandardRuleSetProvider :
             RuleProvider { SpacingBetweenDeclarationsWithCommentsRule() },
             RuleProvider { SpacingBetweenFunctionNameAndOpeningParenthesisRule() },
             RuleProvider { StringTemplateRule() },
+            RuleProvider { StringTemplateIndentRule() },
             RuleProvider { TrailingCommaOnCallSiteRule() },
             RuleProvider { TrailingCommaOnDeclarationSiteRule() },
             RuleProvider { TryCatchFinallySpacingRule() },

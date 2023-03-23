@@ -47,16 +47,17 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
     description = "Creates self-executable file, that runs generated shadow jar"
     group = "Distribution"
 
-    inputs.files(tasks.shadowJar)
+    inputs.files(tasks.shadowJar.map { it.outputs.files })
     outputs.files("$buildDir/run/ktlint")
     if (!version.toString().endsWith("SNAPSHOT")) {
         outputs.files("$buildDir/run/ktlint.asc")
     }
 
     doLast {
-        val execFile = outputs.files.files.first()
+        val execFile = outputs.files.first()
         execFile.appendText(
-            """#!/bin/sh
+            """
+            #!/bin/sh
 
             # From this SO answer: https://stackoverflow.com/a/56243046
 
@@ -74,11 +75,15 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
 
         execFile.appendBytes(inputs.files.singleFile.readBytes())
         execFile.setExecutable(true, false)
-        if (!version.toString().endsWith("SNAPSHOT")) {
-            signing.sign(execFile)
-        }
     }
     finalizedBy(tasks.named("shadowJarExecutableChecksum"))
+}
+
+tasks.signMavenPublication {
+    dependsOn(shadowJarExecutable)
+    if (!version.toString().endsWith("SNAPSHOT")) {
+        sign(*shadowJarExecutable.map { it.outputs.files.files }.get().toTypedArray())
+    }
 }
 
 tasks.register<Checksum>("shadowJarExecutableChecksum") {
@@ -100,6 +105,7 @@ tasks.withType<Test>().configureEach {
         logger.warn("Skipping tests for task '$name' as system property 'skipTests=$skipTests'")
     }
 
+    notCompatibleWithConfigurationCache("https://github.com/gradle/gradle/issues/12247")
     doFirst {
         systemProperty(
             "ktlint-cli",
