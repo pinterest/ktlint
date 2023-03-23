@@ -60,6 +60,7 @@ val ktLintRuleEngine =
         )
   )
 ```
+If you want to include all RuleProviders of the Ktlint project than you can easily retrieve the collection using `StandardRuleSetProvider().getRuleProviders()`.
 
 The `EditorConfigDefaults` property can also be specified programmatically as is shown below:
 
