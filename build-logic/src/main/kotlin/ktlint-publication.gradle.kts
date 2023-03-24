@@ -1,26 +1,8 @@
 import java.net.URI
 
 plugins {
-    `java-library`
     `maven-publish`
     signing
-    id("org.jetbrains.dokka")
-}
-
-java {
-    withSourcesJar()
-    withJavadocJar()
-}
-
-tasks.dokkaJavadoc.configure {
-    notCompatibleWithConfigurationCache("https://github.com/Kotlin/dokka/issues/1217")
-    outputDirectory.set(buildDir.resolve("javadoc"))
-}
-
-tasks.named<Jar>("javadocJar") {
-    dependsOn(tasks.dokkaJavadoc)
-    archiveClassifier.set("javadoc")
-    from(tasks.dokkaJavadoc)
 }
 
 project.version = project.property("VERSION_NAME")
@@ -58,8 +40,6 @@ publishing {
                     developerConnection.set(project.property("POM_SCM_DEV_CONNECTION").toString())
                 }
             }
-
-            from(components["java"])
         }
     }
 
