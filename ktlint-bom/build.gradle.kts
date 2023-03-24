@@ -1,12 +1,18 @@
 plugins {
     `java-platform`
+    id("ktlint-publication")
 }
 
-val excludeList = listOf(
-    "ktlint-bom",
-    "ktlint-ruleset-template",
-    "ktlint-test-ruleset-provider-v2-deprecated",
-)
+publishing.publications.named<MavenPublication>("maven") {
+    from(components["javaPlatform"])
+}
+
+val excludeList =
+    listOf(
+        "ktlint-bom",
+        "ktlint-ruleset-template",
+        "ktlint-test-ruleset-provider-v2-deprecated",
+    )
 
 dependencies {
     constraints {
