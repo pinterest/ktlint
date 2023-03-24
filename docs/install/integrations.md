@@ -146,7 +146,8 @@ tasks.register("ktlintFormat", JavaExec) {
     group = "formatting"
     description = "Fix Kotlin code style deviations."
     classpath = configurations.ktlint
-    mainClass = "com.pinterest.ktlint.Main" 
+    mainClass = "com.pinterest.ktlint.Main"
+    jvmArgs "--add-opens=java.base/java.lang=ALL-UNNAMED"
     args "-F", "src/**/*.kt", "!**/build/**"
     // see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information
 }
@@ -196,8 +197,8 @@ tasks.register<JavaExec>("ktlintFormat") {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     description = "Check Kotlin code style and format"
     classpath = ktlint
-    jvmArgs = listOf("--add-opens=java.base/java.lang=ALL-UNNAMED")
     mainClass.set("com.pinterest.ktlint.Main")
+    jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
     args(
         "-F",
         "**/src/**/*.kt",

@@ -60,13 +60,13 @@ tasks.register<JavaExec>("ktlintFormat") {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     description = "Check Kotlin code style and format"
     classpath = ktlint
-    jvmArgs = listOf("--add-opens=java.base/java.lang=ALL-UNNAMED")
     mainClass.set("com.pinterest.ktlint.Main")
+    jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
     args(
+        "-F",
         "**/src/**/*.kt",
         "**.kts",
         "!**/build/**",
-        "--format",
         // Do not run with option "--log-level=debug" or "--log-level=trace" as the lint violations will be difficult
         // to spot between the amount of output lines.
     )
