@@ -182,6 +182,7 @@ val ktlintCheck by tasks.registering(JavaExec::class) {
     description = "Check Kotlin code style"
     classpath = ktlint
     mainClass.set("com.pinterest.ktlint.Main")
+    // see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information
     args(
         "**/src/**/*.kt",
         "**.kts",
@@ -199,6 +200,7 @@ tasks.register<JavaExec>("ktlintFormat") {
     classpath = ktlint
     mainClass.set("com.pinterest.ktlint.Main")
     jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
+    // see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information
     args(
         "-F",
         "**/src/**/*.kt",
