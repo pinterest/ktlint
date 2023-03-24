@@ -3,14 +3,16 @@ package com.pinterest.ktlint.logger.api
 import mu.KLogger
 
 /**
- * Default modifier for the KLogger. It can be set only once via [setDefaultLoggerModifier] but it should be set before
- * the first invocation of [initKtLintKLogger].
+ * Default modifier for the KLogger. It can be set only once via [setDefaultLoggerModifier] but it should be set before the first invocation
+ * of [initKtLintKLogger].
  */
 private var defaultLoggerModifier: ((KLogger) -> Unit)? = null
 
 /**
- * Set the [defaultLoggerModifier]. Note that it can only be set once. It should be set before the first invocation to
- * [initKtLintKLogger].
+ * Set the [defaultLoggerModifier]. Note that it can only be set once. It should be set before the first invocation to [initKtLintKLogger].
+ * Also note that it depends on the actual logging framework what capabilities can be set at runtime. The Ktlint CLI uses
+ * 'ch.qos.logback:logback-classic' as it allows the log level to be changed at run time. See the 'ktlint-api-consumer' module for an
+ * example that uses 'org.slf4j:slf4j-simple' that is configured via a properties file.
  */
 public fun KLogger.setDefaultLoggerModifier(loggerModifier: (KLogger) -> Unit): KLogger {
     if (defaultLoggerModifier != null) {
