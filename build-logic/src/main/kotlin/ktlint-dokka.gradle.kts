@@ -8,7 +8,7 @@ java {
     withJavadocJar()
 }
 
-tasks.dokkaJavadoc.configure {
+tasks.dokkaJavadoc {
     notCompatibleWithConfigurationCache("https://github.com/Kotlin/dokka/issues/1217")
     outputDirectory.set(buildDir.resolve("javadoc"))
 }

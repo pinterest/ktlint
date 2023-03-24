@@ -1,7 +1,7 @@
 plugins {
     id("ktlint-kotlin-common")
+    id("ktlint-dokka")
     id("ktlint-publication")
-    id("ktlint-publication-dokka")
 }
 
 publishing.publications.named<MavenPublication>("maven") {
