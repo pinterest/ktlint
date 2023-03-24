@@ -9,6 +9,7 @@ publishing.publications.named<MavenPublication>("maven") {
 
 val excludeList =
     listOf(
+        "ktlint-api-consumer",
         "ktlint-bom",
         "ktlint-ruleset-template",
         "ktlint-ruleset-test-tooling",

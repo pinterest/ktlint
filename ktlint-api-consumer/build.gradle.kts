@@ -1,5 +1,5 @@
 plugins {
-    id("ktlint-publication-library")
+    id("ktlint-kotlin-common")
 }
 
 dependencies {
