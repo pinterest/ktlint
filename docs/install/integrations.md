@@ -129,7 +129,7 @@ dependencies {
     // ktlint will pick them up
 }
 
-tasks.register("ktlint", JavaExec) {
+tasks.register("ktlintCheck", JavaExec) {
     group = "verification"
     description = "Check Kotlin code style."
     classpath = configurations.ktlint
@@ -139,7 +139,7 @@ tasks.register("ktlint", JavaExec) {
 }
 
 tasks.named("check") {
-    dependsOn tasks.named("ktlint")
+    dependsOn tasks.named("ktlintCheck")
 }
 
 tasks.register("ktlintFormat", JavaExec) {
@@ -176,7 +176,7 @@ dependencies {
     // ktlint(project(":custom-ktlint-ruleset")) // in case of custom ruleset
 }
 
-tasks.register<JavaExec>("ktlint") {
+val ktlintCheck by tasks.registering(JavaExec::class) {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     description = "Check Kotlin code style"
     classpath = ktlint
@@ -186,6 +186,10 @@ tasks.register<JavaExec>("ktlint") {
         "**.kts",
         "!**/build/**",
     )
+}
+
+tasks.check {
+    dependsOn(ktlintCheck)
 }
 
 tasks.register<JavaExec>("ktlintFormat") {

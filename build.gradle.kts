@@ -42,7 +42,7 @@ dependencies {
     ktlint(projects.ktlintCli)
 }
 
-tasks.register<JavaExec>("ktlint") {
+tasks.register<JavaExec>("ktlintCheck") {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     description = "Check Kotlin code style"
     classpath = ktlint
