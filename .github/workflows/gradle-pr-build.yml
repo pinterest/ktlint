@@ -32,9 +32,9 @@ jobs:
         with:
           gradle-home-cache-cleanup: true
       - name: Build with release Kotlin version
-        run: ./gradlew build ktlint --no-daemon
+        run: ./gradlew build ktlint
       - name: Build with dev Kotlin version
-        run: ./gradlew -PkotlinDev build ktlint --no-daemon
+        run: ./gradlew -PkotlinDev build ktlint
       - name: Upload test results
         uses: actions/upload-artifact@v3
         if: failure()
