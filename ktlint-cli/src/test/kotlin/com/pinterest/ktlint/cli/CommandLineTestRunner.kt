@@ -141,7 +141,6 @@ class CommandLineTestRunner(private val tempDir: Path) {
                         // https://docs.gradle.org/7.5/userguide/upgrading_version_7.html#removes_implicit_add_opens_for_test_workers
                         if (javaVersion >= 16) {
                             add("--add-opens=java.base/java.lang=ALL-UNNAMED")
-                            add("--add-opens=java.base/java.util=ALL-UNNAMED")
                         }
 
                         if (javaVersion >= 18) {
