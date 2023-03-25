@@ -21,12 +21,11 @@ See [cli usage](../cli) for arguments that can be supplied to `ktlint`.
             <target name="ktlint">
                 <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
                     classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
-                  <!-- Note: the JVM args below are only required when running ktlint with Java 16+ in format mode.
+                  <!-- Note: the JVM arg below is only required when running ktlint with Java 16+ in format mode.
                   <jvmarg value="--add-opens=java.base/java.lang=ALL-UNNAMED"/>
-                  <jvmarg value="--add-opens=java.base/java.util=ALL-UNNAMED"/>
                   -->
+                  <!-- see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information -->
                   <arg value="src/**/*.kt"/>
-                    <!-- see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information -->
                 </java>
             </target>
             </configuration>
@@ -40,12 +39,11 @@ See [cli usage](../cli) for arguments that can be supplied to `ktlint`.
             <target name="ktlint">
                 <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
                     classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
-                    <!-- Note: the JVM args below are only required when running ktlint with Java 16+ in format mode -->
+                    <!-- Note: the JVM args below is only required when running ktlint with Java 16+ in format mode -->
                     <jvmarg value="--add-opens=java.base/java.lang=ALL-UNNAMED"/>
-                    <jvmarg value="--add-opens=java.base/java.util=ALL-UNNAMED"/>
+                    <!-- see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information -->
                     <arg value="-F"/>
                     <arg value="src/**/*.kt"/>
-                    <!-- see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information -->
                 </java>
             </target>
             </configuration>
