@@ -1,4 +1,3 @@
 plugins {
-    id("ktlint-kotlin-common")
-    id("ktlint-publication")
+    id("ktlint-publication-library")
 }

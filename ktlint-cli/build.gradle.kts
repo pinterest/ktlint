@@ -1,8 +1,7 @@
 import org.gradle.crypto.checksum.Checksum
 
 plugins {
-    id("ktlint-publication")
-    id("ktlint-kotlin-common")
+    id("ktlint-publication-library")
     alias(libs.plugins.shadow)
     alias(libs.plugins.checksum)
     signing
