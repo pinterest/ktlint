@@ -9,6 +9,7 @@
 <a href="https://github.com/pinterest/ktlint/actions/workflows/gradle-snapshot-build.yml"><img src="https://github.com/pinterest/ktlint/actions/workflows/gradle-snapshot-build.yml/badge.svg" alt="Build status"></a>
 <a href="https://search.maven.org/artifact/com.pinterest/ktlint"><img src="https://img.shields.io/maven-central/v/com.pinterest/ktlint.svg" alt="Maven Central"></a>
 <a href="https://jitpack.io/#pinterest/ktlint"><img src="https://jitpack.io/v/pinterest/ktlint.svg" alt="JitPack"></a>
+<a href="LICENSE"><img src="https://img.shields.io/github/license/pinterest/ktlint.svg" alt="License"></a>
 <a href="https://pinterest.github.io/ktlint/"><img src="https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg" alt="ktlint"></a>
 </p>
 
