@@ -142,11 +142,6 @@ class CommandLineTestRunner(private val tempDir: Path) {
                         if (javaVersion >= 16) {
                             add("--add-opens=java.base/java.lang=ALL-UNNAMED")
                         }
-
-                        if (javaVersion >= 18) {
-                            // https://openjdk.org/jeps/411
-                            add("-Djava.security.manager=allow")
-                        }
                     }
                     add("-jar")
                 }
