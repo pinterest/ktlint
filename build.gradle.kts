@@ -1,3 +1,4 @@
+import com.gradle.enterprise.gradleplugin.testretry.retry
 import java.net.URL
 
 plugins {
@@ -18,6 +19,13 @@ allprojects {
             useJUnitPlatform()
         } else {
             logger.warn("Skipping tests for task '$name' as system property 'skipTests=$skipTests'")
+        }
+
+        retry {
+            if (System.getenv().containsKey("CI")) {
+                maxRetries.set(3)
+                maxFailures.set(20)
+            }
         }
 
         val args = mutableSetOf<String>()
