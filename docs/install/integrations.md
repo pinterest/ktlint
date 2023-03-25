@@ -134,8 +134,8 @@ tasks.register("ktlintCheck", JavaExec) {
     description = "Check Kotlin code style."
     classpath = configurations.ktlint
     mainClass = "com.pinterest.ktlint.Main"
-    args "src/**/*.kt", "**.kts", "!**/build/**"
     // see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information
+    args "src/**/*.kt", "**.kts", "!**/build/**"
 }
 
 tasks.named("check") {
@@ -148,8 +148,8 @@ tasks.register("ktlintFormat", JavaExec) {
     classpath = configurations.ktlint
     mainClass = "com.pinterest.ktlint.Main"
     jvmArgs "--add-opens=java.base/java.lang=ALL-UNNAMED"
-    args "-F", "src/**/*.kt", "**.kts", "!**/build/**"
     // see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information
+    args "-F", "src/**/*.kt", "**.kts", "!**/build/**"
 }
 ```
 
