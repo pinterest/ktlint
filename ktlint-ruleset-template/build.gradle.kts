@@ -34,15 +34,6 @@ dependencies {
     testImplementation(projects.ktlintTest)
 }
 
-val skipTests: String = System.getProperty("skipTests", "false")
-tasks.test {
-    if (skipTests == "false") {
-        useJUnitPlatform()
-    } else {
-        logger.warn("Skipping tests for task '$name' as system property 'skipTests=$skipTests'")
-    }
-}
-
 val ktlintCheck by tasks.registering(JavaExec::class) {
     dependsOn(tasks.classes)
     group = LifecycleBasePlugin.VERIFICATION_GROUP

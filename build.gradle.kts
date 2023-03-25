@@ -11,20 +11,6 @@ allprojects {
         val definedVersion = ext["VERSION_NAME"].toString().removeSuffix("-SNAPSHOT")
         ext["VERSION_NAME"] = "$definedVersion-kotlin-dev-SNAPSHOT"
     }
-
-    val skipTests: String = System.getProperty("skipTests", "false")
-    tasks.withType<Test>().configureEach {
-        if (skipTests == "false") {
-            useJUnitPlatform()
-        } else {
-            logger.warn("Skipping tests for task '$name' as system property 'skipTests=$skipTests'")
-        }
-
-        if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_16)) {
-            // https://docs.gradle.org/7.5/userguide/upgrading_version_7.html#removes_implicit_add_opens_for_test_workers
-            jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
-        }
-    }
 }
 
 val ktlint: Configuration by configurations.creating
