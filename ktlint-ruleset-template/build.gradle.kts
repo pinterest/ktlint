@@ -43,17 +43,17 @@ tasks.test {
     }
 }
 
-tasks.register<JavaExec>("ktlint") {
+val ktlintCheck by tasks.registering(JavaExec::class) {
     dependsOn(tasks.classes)
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     mainClass.set("com.pinterest.ktlint.Main")
     // Adding compiled classes of this ruleset to the classpath so that ktlint validates the ruleset using its own ruleset
     classpath(ktlint, sourceSets.main.map { it.output })
     args("--log-level=debug", "src/**/*.kt")
-}.let {
-    tasks.check.configure {
-        dependsOn(it)
-    }
+}
+
+tasks.check {
+    dependsOn(ktlintCheck)
 }
 
 publishing {

@@ -106,7 +106,9 @@ The configuration below, defines following task:
 // kotlin-gradle-plugin must be applied for configuration below to work
 // (see https://kotlinlang.org/docs/reference/using-gradle.html)
 
-apply plugin: 'java'
+plugins {
+    id 'java'
+}
 
 repositories {
     mavenCentral()
@@ -127,21 +129,27 @@ dependencies {
     // ktlint will pick them up
 }
 
-task ktlint(type: JavaExec, group: "verification") {
+tasks.register("ktlintCheck", JavaExec) {
+    group = "verification"
     description = "Check Kotlin code style."
     classpath = configurations.ktlint
-    mainClass.set("com.pinterest.ktlint.Main")
-    args "src/**/*.kt"
+    mainClass = "com.pinterest.ktlint.Main"
     // see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information
+    args "src/**/*.kt", "**.kts", "!**/build/**"
 }
-check.dependsOn ktlint
 
-task ktlintFormat(type: JavaExec, group: "formatting") {
+tasks.named("check") {
+    dependsOn tasks.named("ktlintCheck")
+}
+
+tasks.register("ktlintFormat", JavaExec) {
+    group = "formatting"
     description = "Fix Kotlin code style deviations."
     classpath = configurations.ktlint
-    mainClass.set("com.pinterest.ktlint.Main")
-    args "-F", "src/**/*.kt"
+    mainClass = "com.pinterest.ktlint.Main"
+    jvmArgs "--add-opens=java.base/java.lang=ALL-UNNAMED"
     // see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information
+    args "-F", "src/**/*.kt", "**.kts", "!**/build/**"
 }
 ```
 
@@ -169,29 +177,36 @@ dependencies {
     // ktlint(project(":custom-ktlint-ruleset")) // in case of custom ruleset
 }
 
-val outputDir = "${project.buildDir}/reports/ktlint/"
-val inputFiles = project.fileTree(mapOf("dir" to "src", "include" to "**/*.kt"))
-
-val ktlintCheck by tasks.creating(JavaExec::class) {
-    inputs.files(inputFiles)
-    outputs.dir(outputDir)
-
-    description = "Check Kotlin code style."
+val ktlintCheck by tasks.registering(JavaExec::class) {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Check Kotlin code style"
     classpath = ktlint
     mainClass.set("com.pinterest.ktlint.Main")
     // see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information
-    args = listOf("src/**/*.kt")
+    args(
+        "**/src/**/*.kt",
+        "**.kts",
+        "!**/build/**",
+    )
 }
 
-val ktlintFormat by tasks.creating(JavaExec::class) {
-    inputs.files(inputFiles)
-    outputs.dir(outputDir)
+tasks.check {
+    dependsOn(ktlintCheck)
+}
 
-    description = "Fix Kotlin code style deviations."
+tasks.register<JavaExec>("ktlintFormat") {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Check Kotlin code style and format"
     classpath = ktlint
     mainClass.set("com.pinterest.ktlint.Main")
+    jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
     // see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information
-    args = listOf("-F", "src/**/*.kt")
+    args(
+        "-F",
+        "**/src/**/*.kt",
+        "**.kts",
+        "!**/build/**",
+    )
 }
 ```
 
