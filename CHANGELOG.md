@@ -238,8 +238,8 @@ Previously the default value for `.editorconfig` property `max_line_length` was 
 ```kotlin
 dependencies {
     implementation(platform("com.pinterest:ktlint-bom:0.49.0"))
-    implementation("com.pinterest:ktlint")
     implementation("com.pinterest:ktlint-core")
+    implementation("com.pinterest:ktlint-reporter-html")
     implementation("com.pinterest:ktlint-ruleset-standard")
     ...
 }
