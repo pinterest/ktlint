@@ -235,15 +235,16 @@ Previously the default value for `.editorconfig` property `max_line_length` was 
 * Add new experimental rule `multiline-expression-wrapping` for `ktlint_official` code style. This forces a multiline expression as value in an assignment to start on a separate line. This rule can also be run for other code styles but then its needs to be explicitly enabled. ([#1217](https://github.com/pinterest/ktlint/issues/1217))
 * Add new experimental rule `string-template-indent` for `ktlint_official` code style. This forces multiline string templates which are post-fixed with `.trimIndent()` to be formatted consistently. The opening and closing `"""` are placed on separate lines and the indentation of the content of the template is aligned with the `"""`. This rule can also be run for other code styles but then its needs to be explicitly enabled. ([#925](https://github.com/pinterest/ktlint/issues/925))
 * Support Bill of Materials (BOM), now you can integrate Ktlint in your `build.gradle` like:
-```kotlin
-dependencies {
-    implementation(platform("com.pinterest:ktlint-bom:0.49.0"))
-    implementation("com.pinterest:ktlint-core")
-    implementation("com.pinterest:ktlint-reporter-html")
-    implementation("com.pinterest:ktlint-ruleset-standard")
-    ...
-}
-```
+  ```kotlin
+  dependencies {
+      implementation(platform("com.pinterest:ktlint-bom:0.49.0"))
+      implementation("com.pinterest:ktlint-core")
+      implementation("com.pinterest:ktlint-reporter-html")
+      implementation("com.pinterest:ktlint-ruleset-standard")
+      ...
+  }
+  ```
+* Add new experimental rule `if-else-wrapping` for `ktlint_official` code style. This enforces that a single line if-statement is kept simple. A single line if-statement may contain no more than one else-branch. The branches a single line if-statement may not be wrapped in a block. ([#812](https://github.com/pinterest/ktlint/issues/812))
 
 ### Removed
 

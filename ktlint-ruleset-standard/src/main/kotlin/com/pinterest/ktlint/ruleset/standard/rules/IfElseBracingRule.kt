@@ -28,7 +28,8 @@ import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 
 /**
- * https://kotlinlang.org/docs/reference/coding-conventions.html#formatting-control-flow-statements
+ * All branches of the if-statement should be wrapped between braces if at least one branch is wrapped between braces. Consistent bracing
+ * makes statements easier to read.
  */
 public class IfElseBracingRule :
     StandardRule(
