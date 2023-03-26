@@ -45,7 +45,7 @@ public class NoSemicolonsRule : StandardRule("no-semi") {
             }
         } else if (nextLeaf !is PsiWhiteSpace) {
             val prevLeaf = node.prevLeaf()
-            if (prevLeaf is PsiWhiteSpace && prevLeaf.textContains('\n')) { // \n;{
+            if (prevLeaf is PsiWhiteSpace && prevLeaf.textContains('\n')) {
                 return
             }
             // todo: move to a separate rule

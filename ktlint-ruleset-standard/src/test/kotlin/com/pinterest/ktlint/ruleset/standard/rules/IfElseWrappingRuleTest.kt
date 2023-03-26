@@ -45,7 +45,7 @@ class IfElseWrappingRuleTest {
     }
 
     @Test
-    fun `Given an if with THEN on the same line as the multiline CONDITION`() {
+    fun `Given an if with THEN, which not wrapped in a block, on the same line as the multiline CONDITION`() {
         val code =
             """
             fun foobar() {
@@ -66,6 +66,59 @@ class IfElseWrappingRuleTest {
         ifElseWrappingRuleAssertThat(code)
             .hasLintViolation(4, 7, "Expected a newline")
             .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a multiline if which is properly formatted, then do not report a violation`() {
+        val code =
+            """
+            fun foobar() {
+                if (true) {
+                    foo()
+                } else if (false) {
+                    bar()
+                } else {
+                    foo()
+                    bar()
+                }
+            }
+            """.trimIndent()
+        ifElseWrappingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a multiline if which is properly formatted but contains a branch without code leaf then do not report a violation`() {
+        val code =
+            """
+            fun foobar() {
+                if (true) {
+                    // some-comment
+                } else if (false) {
+                    // some-comment
+                } else {
+                    // some-comment
+                }
+            }
+            """.trimIndent()
+        ifElseWrappingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a multiline if which is properly formatted but contains a branch starting with EOL-comment then do not report a violation`() {
+        val code =
+            """
+            fun foobar() {
+                if (true) { // some-comment
+                    foo()
+                } else if (false) { // some-comment
+                    bar()
+                } else { // some-comment
+                    foo()
+                    bar()
+                }
+            }
+            """.trimIndent()
+        ifElseWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Nested
