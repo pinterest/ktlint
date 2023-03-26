@@ -35,10 +35,3 @@ jobs:
         run: ./gradlew build ktlintCheck
       - name: Build with dev Kotlin version
         run: ./gradlew -PkotlinDev build ktlintCheck
-      - name: Upload test results
-        uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: Test artifacts
-          path: '**/build/reports/tests/**'
-          if-no-files-found: warn
