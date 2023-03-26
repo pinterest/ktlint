@@ -16,6 +16,23 @@ Rule id: `discouraged-comment-location`
 
 Detect blank lines at start of a class body.
 
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    class Foo {
+        val foo = "foo"
+    }
+    ```
+
+=== "[:material-heart:](#) Disallowed"
+
+    ```kotlin
+    class Foo {
+
+        val foo = "foo"
+    }
+    ```
+
 Rule id: `no-empty-first-line-in-class-body`
 
 !!! Note
@@ -25,7 +42,7 @@ Rule id: `no-empty-first-line-in-class-body`
 
 Disallow consecutive comments (EOL comments, block comments or KDoc) except EOL comments. Comments need to be separated by at least one code element.
 
-=== "[:material-heart:](#) Ktlint (ktlint_official code style)"
+=== "[:material-heart:](#) Ktlint"
 
     ```kotlin
     // An EOL comment
@@ -40,7 +57,7 @@ Disallow consecutive comments (EOL comments, block comments or KDoc) except EOL 
     val bar = "bar" 
     ```
 
-=== "[:material-heart:](#) Ktlint (non ktlint_official code style)"
+=== "[:material-heart:](#) Disallowed"
 
     ```kotlin
     // An EOL comment
@@ -50,7 +67,6 @@ Disallow consecutive comments (EOL comments, block comments or KDoc) except EOL 
      */
     val bar = "bar" 
     ```
-
 
 Rule id: `no-consecutive-comments`
 
@@ -99,7 +115,7 @@ If at least one branch of an if-else statement or an if-else-if statement is wra
     }
     ```
 
-=== "[:material-heart-off-outline:](#) Disallowed"
+=== "[:material-heart:](#) Disallowed"
 
     ```kotlin
     fun foo(value: int) {
@@ -111,6 +127,40 @@ If at least one branch of an if-else statement or an if-else-if statement is wra
             doSomethingElse2()
     }
     ```
+
+Rule id: `if-else-bracing`
+
+!!! Note
+    This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
+
+### If else wrapping
+
+A single line if-statement should be kept simple. It may contain no more than one else-branch. The branches may not be wrapped in a block.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun foobar() {
+        if (true) foo()
+        if (true) foo() else bar()
+    }
+    ```
+
+=== "[:material-heart:](#) Disallowed"
+
+    ```kotlin
+    fun foobar() {
+        if (true) if (false) foo() else bar()
+        if (true) bar() else if (false) foo() else bar()
+        if (true) { foo() } else bar()
+        if (true) bar() else { if (false) foo() else bar() }
+    }
+    ```
+
+Rule id: `if-else-wrapping`
+
+!!! Note
+    This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
 
 ## Naming
 
@@ -209,7 +259,7 @@ Disallow blank lines to be used in lists before the first element, between eleme
     }
     ```
 
-=== "[:material-heart-off-outline:](#) Disallowed"
+=== "[:material-heart:](#) Disallowed"
 
     ```kotlin
     class FooBar:
@@ -234,7 +284,7 @@ Disallow blank lines to be used in lists before the first element, between eleme
         > = FooBar(Foo(), Bar())
     ```
 
-=== "[:material-heart-off-outline:](#) Disallowed"
+=== "[:material-heart:](#) Disallowed"
 
     ```kotlin
     val foobar: FooBar<
@@ -261,7 +311,7 @@ Disallow blank lines to be used in lists before the first element, between eleme
     }
     ```
 
-=== "[:material-heart-off-outline:](#) Disallowed"
+=== "[:material-heart:](#) Disallowed"
 
     ```kotlin
     class BiAdapter<C : RecyclerView.ViewHolder, V1 : C, V2 : C, out A1, out A2>(
@@ -288,7 +338,7 @@ Disallow blank lines to be used in lists before the first element, between eleme
         > foobar()
     ```
 
-=== "[:material-heart-off-outline:](#) Disallowed"
+=== "[:material-heart:](#) Disallowed"
 
     ```kotlin
     fun <
@@ -348,6 +398,9 @@ Disallow blank lines to be used in lists before the first element, between eleme
 
 Rule id: `no-blank-line-in-list`
 
+!!! Note
+    This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
+
 ### Nullable type spacing
 
 No spaces in a nullable type.
@@ -370,7 +423,7 @@ Rule id: `spacing-between-function-name-and-opening-parenthesis`
 
 Enforce consistent string template indentation for multiline string templates which are post-fixed with `.trimIndent()`. The opening and closing `"""` are placed on separate lines and the indentation of the content of the template is aligned with the `"""`.
 
-=== "[:material-heart:](#) Ktlint (ktlint_official code style)"
+=== "[:material-heart:](#) Ktlint"
 
     ```kotlin
     val foo =
@@ -386,7 +439,7 @@ Enforce consistent string template indentation for multiline string templates wh
             """.trimIndent()
     }
     ```
-=== "[:material-heart:](#) Ktlint (non ktlint_official code style)"
+=== "[:material-heart:](#) Disallowed"
 
     ```kotlin
     val foo = """
@@ -410,7 +463,7 @@ Rule id: `string-template-indent`
 
 Enforce consistent spacing in `try { .. } catch { .. } finally { .. }`.
 
-=== "[:material-heart:](#) Ktlint (ktlint_official code style)"
+=== "[:material-heart:](#) Ktlint"
 
     ```kotlin
     fun foo() =
@@ -422,7 +475,7 @@ Enforce consistent spacing in `try { .. } catch { .. } finally { .. }`.
             // clean up
         }
     ```
-=== "[:material-heart:](#) Ktlint (non ktlint_official code style)"
+=== "[:material-heart:](#) Disallowed"
 
     ```kotlin
     fun foo1() = try { /* ... */ } catch (exception: Exception) { /* ... */ } finally { /* ... */ }

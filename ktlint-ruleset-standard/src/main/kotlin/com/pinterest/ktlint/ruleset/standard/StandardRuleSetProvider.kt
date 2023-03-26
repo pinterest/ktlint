@@ -23,6 +23,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionStartOfBodySpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionTypeReferenceSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.IfElseBracingRule
+import com.pinterest.ktlint.ruleset.standard.rules.IfElseWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ImportOrderingRule
 import com.pinterest.ktlint.ruleset.standard.rules.IndentationRule
 import com.pinterest.ktlint.ruleset.standard.rules.KdocWrappingRule
@@ -102,6 +103,7 @@ public class StandardRuleSetProvider :
             RuleProvider { FunctionTypeReferenceSpacingRule() },
             RuleProvider { FunKeywordSpacingRule() },
             RuleProvider { IfElseBracingRule() },
+            RuleProvider { IfElseWrappingRule() },
             RuleProvider { ImportOrderingRule() },
             RuleProvider { IndentationRule() },
             RuleProvider { KdocWrappingRule() },
