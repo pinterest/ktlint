@@ -6,13 +6,6 @@ plugins {
     alias(libs.plugins.shadow) apply false
 }
 
-allprojects {
-    if (project.hasProperty("isKotlinDev")) {
-        val definedVersion = ext["VERSION_NAME"].toString().removeSuffix("-SNAPSHOT")
-        ext["VERSION_NAME"] = "$definedVersion-kotlin-dev-SNAPSHOT"
-    }
-}
-
 val ktlint: Configuration by configurations.creating
 
 dependencies {

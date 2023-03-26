@@ -5,6 +5,11 @@ plugins {
     signing
 }
 
+if (project.hasProperty("isKotlinDev")) {
+    val definedVersion = ext["VERSION_NAME"].toString().removeSuffix("-SNAPSHOT")
+    ext["VERSION_NAME"] = "$definedVersion-kotlin-dev-SNAPSHOT"
+}
+
 project.version = project.property("VERSION_NAME")
     ?: throw GradleException("Project version property is missing")
 project.group = project.property("GROUP")
