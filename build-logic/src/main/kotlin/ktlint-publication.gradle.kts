@@ -18,9 +18,9 @@ project.group = providers.gradleProperty("GROUP").orNull
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            groupId = providers.gradleProperty("GROUP").orNull
-            artifactId = providers.gradleProperty("POM_ARTIFACT_ID").orNull
-            version = providers.gradleProperty("VERSION_NAME").orNull
+            groupId = group.toString()
+            version = version.toString()
+            artifactId = providers.gradleProperty("POM_ARTIFACT_ID").get()
 
             pom {
                 name.set(providers.gradleProperty("POM_NAME"))
