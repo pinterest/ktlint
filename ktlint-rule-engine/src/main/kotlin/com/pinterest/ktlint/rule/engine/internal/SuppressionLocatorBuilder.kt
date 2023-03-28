@@ -50,7 +50,10 @@ internal object SuppressionLocatorBuilder {
     /**
      * Builds [SuppressionLocator] for given [rootNode] of AST tree.
      */
-    fun buildSuppressedRegionsLocator(rootNode: ASTNode, editorConfig: EditorConfig): SuppressionLocator {
+    fun buildSuppressedRegionsLocator(
+        rootNode: ASTNode,
+        editorConfig: EditorConfig,
+    ): SuppressionLocator {
         val hintsList = collect(rootNode, FormatterTags.from(editorConfig))
         return if (hintsList.isEmpty()) {
             NO_SUPPRESSION
@@ -66,7 +69,10 @@ internal object SuppressionLocatorBuilder {
                 .any { hint -> hint.disabledRuleIds.isEmpty() || hint.disabledRuleIds.contains(ruleId) }
         }
 
-    private fun collect(rootNode: ASTNode, formatterTags: FormatterTags): List<SuppressionHint> {
+    private fun collect(
+        rootNode: ASTNode,
+        formatterTags: FormatterTags,
+    ): List<SuppressionHint> {
         val suppressionHints = ArrayList<SuppressionHint>()
         val commentSuppressionsHints = mutableListOf<CommentSuppressionHint>()
         rootNode.collect { node ->
@@ -84,7 +90,7 @@ internal object SuppressionLocatorBuilder {
         }
 
         return suppressionHints.plus(
-            commentSuppressionsHints.toSuppressionHints(rootNode)
+            commentSuppressionsHints.toSuppressionHints(rootNode),
         )
     }
 
@@ -113,7 +119,7 @@ internal object SuppressionLocatorBuilder {
                 CommentSuppressionHint(
                     this,
                     HashSet(parts.tailToRuleIds()),
-                    EOL
+                    EOL,
                 )
             }
 
@@ -142,9 +148,7 @@ internal object SuppressionLocatorBuilder {
                 }
             }
 
-    private fun MutableList<CommentSuppressionHint>.toSuppressionHints(
-        rootNode: ASTNode
-    ): MutableList<SuppressionHint> {
+    private fun MutableList<CommentSuppressionHint>.toSuppressionHints(rootNode: ASTNode): MutableList<SuppressionHint> {
         val suppressionHints = mutableListOf<SuppressionHint>()
         val blockCommentSuppressionHints = mutableListOf<CommentSuppressionHint>()
         forEach { commentSuppressionHint ->
@@ -154,8 +158,8 @@ internal object SuppressionLocatorBuilder {
                     suppressionHints.add(
                         SuppressionHint(
                             IntRange(commentNode.prevNewLineOffset(), commentNode.startOffset),
-                            commentSuppressionHint.disabledRuleIds
-                        )
+                            commentSuppressionHint.disabledRuleIds,
+                        ),
                     )
                 }
 
@@ -173,8 +177,8 @@ internal object SuppressionLocatorBuilder {
                             suppressionHints.add(
                                 SuppressionHint(
                                     IntRange(openHint.node.startOffset, commentSuppressionHint.node.startOffset - 1),
-                                    commentSuppressionHint.disabledRuleIds
-                                )
+                                    commentSuppressionHint.disabledRuleIds,
+                                ),
                             )
                         }
                 }
@@ -184,7 +188,7 @@ internal object SuppressionLocatorBuilder {
             blockCommentSuppressionHints.map {
                 SuppressionHint(
                     IntRange(it.node.startOffset, rootNode.textLength),
-                    it.disabledRuleIds
+                    it.disabledRuleIds,
                 )
             },
         )
@@ -274,7 +278,7 @@ internal object SuppressionLocatorBuilder {
     private data class CommentSuppressionHint(
         val node: ASTNode,
         val disabledRuleIds: Set<RuleId> = emptySet(),
-        val type: Type
+        val type: Type,
     ) {
         enum class Type {
             EOL,

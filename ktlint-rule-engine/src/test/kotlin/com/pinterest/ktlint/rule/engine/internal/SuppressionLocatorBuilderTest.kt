@@ -220,17 +220,17 @@ class SuppressionLocatorBuilderTest {
         fun `Given that a NoFooIdentifierRule violation is suppressed with the default formatter tags in a block comment then do not find a violation in that block`() {
             val code =
                 """
-            /* @formatter:off */
-            val fooNotReported = "foo"
-            /* @formatter:on */
-            val fooReported = "foo"
-            """.trimIndent()
+                /* @formatter:off */
+                val fooNotReported = "foo"
+                /* @formatter:on */
+                val fooReported = "foo"
+                """.trimIndent()
 
-            val actual = lint(
-                code,
-                editorConfigOverride = EditorConfigOverride.from(FORMATTER_TAGS_ENABLED_PROPERTY to true)
-            )
-
+            val actual =
+                lint(
+                    code,
+                    editorConfigOverride = EditorConfigOverride.from(FORMATTER_TAGS_ENABLED_PROPERTY to true),
+                )
             assertThat(actual).containsExactly(
                 lintError(4, 5, "standard:no-foo-identifier-standard"),
                 lintError(4, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
@@ -241,17 +241,17 @@ class SuppressionLocatorBuilderTest {
         fun `Given that a NoFooIdentifierRule violation is suppressed with the default formatter tags in EOL comments then do not find a violation in that block`() {
             val code =
                 """
-            // @formatter:off
-            val fooNotReported = "foo"
-            // @formatter:on
-            val fooReported = "foo"
-            """.trimIndent()
+                // @formatter:off
+                val fooNotReported = "foo"
+                // @formatter:on
+                val fooReported = "foo"
+                """.trimIndent()
 
-            val actual = lint(
-                code,
-                editorConfigOverride = EditorConfigOverride.from(FORMATTER_TAGS_ENABLED_PROPERTY to true)
-            )
-
+            val actual =
+                lint(
+                    code,
+                    editorConfigOverride = EditorConfigOverride.from(FORMATTER_TAGS_ENABLED_PROPERTY to true),
+                )
             assertThat(actual).containsExactly(
                 lintError(4, 5, "standard:no-foo-identifier-standard"),
                 lintError(4, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
@@ -262,21 +262,22 @@ class SuppressionLocatorBuilderTest {
         fun `Given that a NoFooIdentifierRule violation is suppressed with custom formatter tags in block comments then do not find a violation in that block`() {
             val code =
                 """
-            /* custom-formatter-tag-off */
-            val fooNotReported = "foo"
-            /* custom-formatter-tag-on */
-            val fooReported = "foo"
-            """.trimIndent()
+                /* custom-formatter-tag-off */
+                val fooNotReported = "foo"
+                /* custom-formatter-tag-on */
+                val fooReported = "foo"
+                """.trimIndent()
 
-            val actual = lint(
-                code,
-                editorConfigOverride = EditorConfigOverride.from(
-                    FORMATTER_TAGS_ENABLED_PROPERTY to true,
-                    FORMATTER_TAG_OFF_ENABLED_PROPERTY to "custom-formatter-tag-off",
-                    FORMATTER_TAG_ON_ENABLED_PROPERTY to "custom-formatter-tag-on",
+            val actual =
+                lint(
+                    code,
+                    editorConfigOverride =
+                        EditorConfigOverride.from(
+                            FORMATTER_TAGS_ENABLED_PROPERTY to true,
+                            FORMATTER_TAG_OFF_ENABLED_PROPERTY to "custom-formatter-tag-off",
+                            FORMATTER_TAG_ON_ENABLED_PROPERTY to "custom-formatter-tag-on",
+                        ),
                 )
-            )
-
             assertThat(actual).containsExactly(
                 lintError(4, 5, "standard:no-foo-identifier-standard"),
                 lintError(4, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
@@ -287,21 +288,22 @@ class SuppressionLocatorBuilderTest {
         fun `Given that a NoFooIdentifierRule violation is suppressed with custom formatter tags in EOL comments then do not find a violation in that block`() {
             val code =
                 """
-            // custom-formatter-tag-off
-            val fooNotReported = "foo"
-            // custom-formatter-tag-on
-            val fooReported = "foo"
-            """.trimIndent()
+                // custom-formatter-tag-off
+                val fooNotReported = "foo"
+                // custom-formatter-tag-on
+                val fooReported = "foo"
+                """.trimIndent()
 
-            val actual = lint(
-                code,
-                editorConfigOverride = EditorConfigOverride.from(
-                    FORMATTER_TAGS_ENABLED_PROPERTY to true,
-                    FORMATTER_TAG_OFF_ENABLED_PROPERTY to "custom-formatter-tag-off",
-                    FORMATTER_TAG_ON_ENABLED_PROPERTY to "custom-formatter-tag-on",
+            val actual =
+                lint(
+                    code,
+                    editorConfigOverride =
+                        EditorConfigOverride.from(
+                            FORMATTER_TAGS_ENABLED_PROPERTY to true,
+                            FORMATTER_TAG_OFF_ENABLED_PROPERTY to "custom-formatter-tag-off",
+                            FORMATTER_TAG_ON_ENABLED_PROPERTY to "custom-formatter-tag-on",
+                        ),
                 )
-            )
-
             assertThat(actual).containsExactly(
                 lintError(4, 5, "standard:no-foo-identifier-standard"),
                 lintError(4, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
@@ -327,24 +329,23 @@ class SuppressionLocatorBuilderTest {
     private fun lint(
         code: String,
         editorConfigOverride: EditorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
-    ) =
-        ArrayList<LintError>().apply {
-            KtLintRuleEngine(
-                ruleProviders =
-                    setOf(
-                        // The same rule is supplied once a standard rule and once as non-standard rule. Note that the
-                        // ruleIds are different.
-                        RuleProvider { NoFooIdentifierRule(STANDARD_NO_FOO_IDENTIFIER_RULE_ID) },
-                        RuleProvider { NoFooIdentifierRule(NON_STANDARD_NO_FOO_IDENTIFIER_RULE_ID) },
+    ) = ArrayList<LintError>().apply {
+        KtLintRuleEngine(
+            ruleProviders =
+                setOf(
+                    // The same rule is supplied once a standard rule and once as non-standard rule. Note that the
+                    // ruleIds are different.
+                    RuleProvider { NoFooIdentifierRule(STANDARD_NO_FOO_IDENTIFIER_RULE_ID) },
+                    RuleProvider { NoFooIdentifierRule(NON_STANDARD_NO_FOO_IDENTIFIER_RULE_ID) },
+                ),
+            editorConfigOverride =
+                editorConfigOverride
+                    .plus(
+                        STANDARD_NO_FOO_IDENTIFIER_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled,
+                        NON_STANDARD_NO_FOO_IDENTIFIER_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled,
                     ),
-                editorConfigOverride =
-                    editorConfigOverride
-                        .plus(
-                            STANDARD_NO_FOO_IDENTIFIER_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled,
-                            NON_STANDARD_NO_FOO_IDENTIFIER_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled,
-                        ),
-            ).lint(Code.fromSnippet(code)) { e -> add(e) }
-        }
+        ).lint(Code.fromSnippet(code)) { e -> add(e) }
+    }
 
     private fun lintError(
         line: Int,

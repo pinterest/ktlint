@@ -24,35 +24,35 @@ internal data class FormatterTags(
         val FORMATTER_TAGS_ENABLED_PROPERTY: EditorConfigProperty<Boolean> =
             EditorConfigProperty(
                 type =
-                PropertyType.LowerCasingPropertyType(
-                    "ij_formatter_tags_enabled",
-                    "When enabled, IntelliJ IDEA Formatter tags will be respected (e.g. disable and enable all ktlint rules for the " +
+                    PropertyType.LowerCasingPropertyType(
+                        "ij_formatter_tags_enabled",
+                        "When enabled, IntelliJ IDEA Formatter tags will be respected (e.g. disable and enable all ktlint rules for the " +
                             "code enclosed between the formatter tags.",
-                    PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
-                    setOf(true.toString(), false.toString()),
-                ),
+                        PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
+                        setOf(true.toString(), false.toString()),
+                    ),
                 defaultValue = false,
             )
 
         val FORMATTER_TAG_OFF_ENABLED_PROPERTY: EditorConfigProperty<String> =
             EditorConfigProperty(
                 type =
-                PropertyType.LowerCasingPropertyType(
-                    "ij_formatter_off_tag",
-                    "The IntelliJ IDEA formatter tag to disable formatting. This also disables the ktlint rules.",
-                    PropertyType.PropertyValueParser.IDENTITY_VALUE_PARSER,
-                ),
+                    PropertyType.LowerCasingPropertyType(
+                        "ij_formatter_off_tag",
+                        "The IntelliJ IDEA formatter tag to disable formatting. This also disables the ktlint rules.",
+                        PropertyType.PropertyValueParser.IDENTITY_VALUE_PARSER,
+                    ),
                 defaultValue = "@formatter:off",
             )
 
         val FORMATTER_TAG_ON_ENABLED_PROPERTY: EditorConfigProperty<String> =
             EditorConfigProperty(
                 type =
-                PropertyType.LowerCasingPropertyType(
-                    "ij_formatter_on_tag",
-                    "The IntelliJ IDEA formatter tag to enable formatting. This also enables the ktlint rules.",
-                    PropertyType.PropertyValueParser.IDENTITY_VALUE_PARSER,
-                ),
+                    PropertyType.LowerCasingPropertyType(
+                        "ij_formatter_on_tag",
+                        "The IntelliJ IDEA formatter tag to enable formatting. This also enables the ktlint rules.",
+                        PropertyType.PropertyValueParser.IDENTITY_VALUE_PARSER,
+                    ),
                 defaultValue = "@formatter:on",
             )
     }
