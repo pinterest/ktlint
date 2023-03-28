@@ -98,6 +98,7 @@ tasks.register<Checksum>("shadowJarExecutableChecksum") {
 tasks.withType<Test>().configureEach {
     dependsOn(shadowJarExecutable)
 
+    // TODO: Use providers directly after https://github.com/gradle/gradle/issues/12247 is fixed.
     val executableFilePath =
         providers.provider { shadowJarExecutable.get().outputs.files.first { it.name == "ktlint" }.absolutePath }.get()
     val ktlintVersion = providers.provider { version }.get()
