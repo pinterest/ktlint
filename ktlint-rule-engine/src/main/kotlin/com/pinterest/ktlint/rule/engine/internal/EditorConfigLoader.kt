@@ -13,6 +13,9 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.rule.engine.internal.FormatterTags.Companion.FORMATTER_TAGS_ENABLED_PROPERTY
+import com.pinterest.ktlint.rule.engine.internal.FormatterTags.Companion.FORMATTER_TAG_OFF_ENABLED_PROPERTY
+import com.pinterest.ktlint.rule.engine.internal.FormatterTags.Companion.FORMATTER_TAG_ON_ENABLED_PROPERTY
 import com.pinterest.ktlint.rule.engine.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFE_EDITOR_CONFIG_CACHE
 import mu.KotlinLogging
 import org.ec4j.core.EditorConfigLoader
@@ -98,6 +101,18 @@ internal class EditorConfigLoader(
                          * Used by [VisitorProvider] to determine whether experimental rules have to be executed.
                          */
                         EXPERIMENTAL_RULES_EXECUTION_PROPERTY,
+                        /**
+                         * Used by [FormatterTags] to determine whether formatter tags should be respected.
+                         */
+                        FORMATTER_TAGS_ENABLED_PROPERTY,
+                        /**
+                         * Used by [FormatterTags] to get the tag to disable the formatter.
+                         */
+                        FORMATTER_TAG_OFF_ENABLED_PROPERTY,
+                        /**
+                         * Used by [FormatterTags] to get the tag to enable the formatter.
+                         */
+                        FORMATTER_TAG_ON_ENABLED_PROPERTY,
                     )
             }
     }

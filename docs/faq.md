@@ -112,9 +112,9 @@ or
 ```
 
 ## How do I globally disable a rule?
-With [`.editorConfig` property `disabled_rules`](../rules/configuration-ktlint#disabled-rules) a rule can be disabled globally.
+Rules can be disabled globally by setting a [`.editorConfig` property](../rules/configuration-ktlint#disabled-rules).
 
-You may also pass a list of disabled rules via the `--disabled_rules` command line flag. It has the same syntax as the EditorConfig property.
+You may also pass a list of disabled rules via the `--disabled_rules` command line flag of Ktlint CLI. The value is a comma separated list of rule id's that have to be disabled. The rule id must be fully qualified (e.g. must be prefixed with the rule set id). 
 
 
 ## Why is `.editorconfig` property `disabled_rules` deprecated and how do I resolve this?
@@ -199,3 +199,14 @@ kotlinFile.writeText(
   )
 )
 ```
+
+# Are formatter tags respected?
+
+As of version `0.49.x` the formatter tags of IntelliJ IDEA are respected. By default, those formatter tags are disabled. The formatter tags can be enabled with `.editorconfig` properties below:
+```editorconfig
+ij_formatter_tags_enabled = true # Defaults to 'false'
+ij_formatter_off_tag = some-custom-off-tag # Defaults to '@formatter:off'
+ij_formatter_on_tag = some-custom-on-tag # Defaults to '@formatter:on'
+```
+
+When enabled, the ktlint rule checking is disabled for all code surrounded by the formatter tags.
