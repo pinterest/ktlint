@@ -57,9 +57,9 @@ publishing {
 
             credentials {
                 username = providers.gradleProperty("SONATYPE_NEXUS_USERNAME").orNull
-                    ?: System.getenv("SONATYPE_NEXUS_USERNAME")
+                    ?: providers.systemProperty("SONATYPE_NEXUS_USERNAME").orNull
                 password = providers.gradleProperty("SONATYPE_NEXUS_PASSWORD").orNull
-                    ?: System.getenv("SONATYPE_NEXUS_PASSWORD")
+                    ?: providers.systemProperty("SONATYPE_NEXUS_PASSWORD").orNull
             }
         }
     }
@@ -78,9 +78,9 @@ signing {
     // See https://docs.gradle.org/current/userguide/signing_plugin.html#sec:using_gpg_agent how to configure it
     // useGpgCmd()
 
-    val signingKeyId = System.getenv("ORG_GRADLE_PROJECT_signingKeyId")
-    val signingKey = System.getenv("ORG_GRADLE_PROJECT_signingKey")
-    val signingPassword = System.getenv("ORG_GRADLE_PROJECT_signingKeyPassword")
+    val signingKeyId = providers.systemProperty("ORG_GRADLE_PROJECT_signingKeyId").orNull
+    val signingKey = providers.systemProperty("ORG_GRADLE_PROJECT_signingKey").orNull
+    val signingPassword = providers.systemProperty("ORG_GRADLE_PROJECT_signingKeyPassword").orNull
     useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
 
     // This property allows OS package maintainers to disable signing
