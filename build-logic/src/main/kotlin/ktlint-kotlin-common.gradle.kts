@@ -23,9 +23,9 @@ tasks.withType<JavaCompile>().configureEach {
     targetCompatibility = JavaVersion.VERSION_1_8.toString()
 }
 
-val skipTests: Boolean = providers.systemProperty("skipTests").orNull == "false"
+val skipTests: String = providers.systemProperty("skipTests").getOrElse("false")
 tasks.withType<Test>().configureEach {
-    if (skipTests) {
+    if (skipTests == "false") {
         useJUnitPlatform()
     } else {
         logger.warn("Skipping tests for task '$name' as system property 'skipTests=$skipTests'")
