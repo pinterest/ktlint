@@ -1,15 +1,20 @@
 package com.pinterest.ktlint.rule.engine.internal
 
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.util.safeAs
+import com.pinterest.ktlint.rule.engine.internal.SuppressionLocatorBuilder.CommentSuppressionHint.Type.BLOCK_END
+import com.pinterest.ktlint.rule.engine.internal.SuppressionLocatorBuilder.CommentSuppressionHint.Type.BLOCK_START
+import com.pinterest.ktlint.rule.engine.internal.SuppressionLocatorBuilder.CommentSuppressionHint.Type.EOL
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
-import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.psi.KtAnnotated
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.ValueArgument
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
-import org.jetbrains.kotlin.psi.psiUtil.prevLeaf
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
 
 /**
@@ -42,13 +47,11 @@ internal object SuppressionLocatorBuilder {
     private val SUPPRESS_ANNOTATIONS = setOf("Suppress", "SuppressWarnings")
     private val SUPPRESS_ALL_KTLINT_RULES_RULE_ID = RuleId("ktlint:suppress-all-rules")
 
-    private val COMMENT_REGEX = Regex("\\s")
-
     /**
      * Builds [SuppressionLocator] for given [rootNode] of AST tree.
      */
-    fun buildSuppressedRegionsLocator(rootNode: ASTNode): SuppressionLocator {
-        val hintsList = collect(rootNode)
+    fun buildSuppressedRegionsLocator(rootNode: ASTNode, editorConfig: EditorConfig): SuppressionLocator {
+        val hintsList = collect(rootNode, FormatterTags.from(editorConfig))
         return if (hintsList.isEmpty()) {
             NO_SUPPRESSION
         } else {
@@ -63,66 +66,26 @@ internal object SuppressionLocatorBuilder {
                 .any { hint -> hint.disabledRuleIds.isEmpty() || hint.disabledRuleIds.contains(ruleId) }
         }
 
-    /**
-     * @param range zero-based range of lines where lint errors should be suppressed
-     * @param disabledRuleIds empty set means "all"
-     */
-    private data class SuppressionHint(
-        val range: IntRange,
-        val disabledRuleIds: Set<RuleId> = emptySet(),
-    )
-
-    private fun collect(rootNode: ASTNode): List<SuppressionHint> {
-        val result = ArrayList<SuppressionHint>()
-        val open = ArrayList<SuppressionHint>()
+    private fun collect(rootNode: ASTNode, formatterTags: FormatterTags): List<SuppressionHint> {
+        val suppressionHints = ArrayList<SuppressionHint>()
+        val commentSuppressionsHints = mutableListOf<CommentSuppressionHint>()
         rootNode.collect { node ->
-            if (node is PsiComment) {
-                val text = node.getText()
-                if (text.startsWith("//")) {
-                    val commentText = text.removePrefix("//").trim()
-                    parseHintArgs(commentText, "ktlint-disable")?.let { args ->
-                        val prevPsiWhiteSpace = node.prevLeaf { it is PsiWhiteSpace && it.textContains('\n') } as PsiWhiteSpace?
-                        val lineStart =
-                            prevPsiWhiteSpace
-                                ?.let { it.node.startOffset + it.text.lastIndexOf('\n') + 1 }
-                                ?: 0
-                        result.add(SuppressionHint(IntRange(lineStart, node.startOffset), HashSet(args)))
-                    }
-                } else {
-                    val commentText = text.removePrefix("/*").removeSuffix("*/").trim()
-                    parseHintArgs(commentText, "ktlint-disable")?.apply {
-                        open.add(SuppressionHint(IntRange(node.startOffset, node.startOffset), HashSet(this)))
-                    }
-                        ?: parseHintArgs(commentText, "ktlint-enable")?.apply {
-                            // match open hint
-                            val disabledRules = HashSet(this)
-                            val openHintIndex = open.indexOfLast { it.disabledRuleIds == disabledRules }
-                            if (openHintIndex != -1) {
-                                val openingHint = open.removeAt(openHintIndex)
-                                result.add(
-                                    SuppressionHint(
-                                        IntRange(openingHint.range.first, node.startOffset - 1),
-                                        disabledRules,
-                                    ),
-                                )
-                            }
-                        }
-                }
-            }
+            node
+                .takeIf { it is PsiComment }
+                ?.createSuppressionHintFromComment(formatterTags)
+                ?.let { commentSuppressionsHints.add(it) }
+
             // Extract all Suppress annotations and create SuppressionHints
             node
                 .psi
-                .createSuppressionHintFromAnnotations()
-                ?.let {
-                    result.add(it)
-                }
+                .safeAs<KtAnnotated>()
+                ?.createSuppressionHintFromAnnotations()
+                ?.let { suppressionHints.add(it) }
         }
-        result.addAll(
-            open.map {
-                SuppressionHint(IntRange(it.range.first, rootNode.textLength), it.disabledRuleIds)
-            },
+
+        return suppressionHints.plus(
+            commentSuppressionsHints.toSuppressionHints(rootNode)
         )
-        return result
     }
 
     private fun ASTNode.collect(block: (node: ASTNode) -> Unit) {
@@ -132,32 +95,115 @@ internal object SuppressionLocatorBuilder {
             .forEach { it.collect(block) }
     }
 
-    private fun parseHintArgs(
-        commentText: String,
-        key: String,
-    ): List<RuleId>? {
-        if (commentText.startsWith(key)) {
-            val parsedComment = splitCommentBySpace(commentText)
-            // assert exact match
-            if (parsedComment[0] == key) {
-                return parsedComment
-                    .tail()
-                    .map {
-                        // For backwards compatibility the suppression hints have to be prefixed with the standard rule set id when the rule id
-                        // is not prefixed with any rule set id.
-                        RuleId.prefixWithStandardRuleSetIdWhenMissing(it)
-                    }
-                    .map { RuleId(it) }
+    private fun ASTNode.createSuppressionHintFromComment(formatterTags: FormatterTags): CommentSuppressionHint? =
+        if (text.startsWith("//")) {
+            createSuppressionHintFromEolComment(formatterTags)
+        } else {
+            createSuppressionHintFromBlockComment(formatterTags)
+        }
+
+    private fun ASTNode.createSuppressionHintFromEolComment(formatterTags: FormatterTags): CommentSuppressionHint? =
+        text
+            .removePrefix("//")
+            .trim()
+            .split(" ")
+            .takeIf { it.isNotEmpty() }
+            ?.takeIf { it[0] == KTLINT_DISABLE || it[0] == formatterTags.formatterTagOff }
+            ?.let { parts ->
+                CommentSuppressionHint(
+                    this,
+                    HashSet(parts.tailToRuleIds()),
+                    EOL
+                )
+            }
+
+    private fun ASTNode.createSuppressionHintFromBlockComment(formatterTags: FormatterTags): CommentSuppressionHint? =
+        text
+            .removePrefix("/*")
+            .removeSuffix("*/")
+            .trim()
+            .split(" ")
+            .takeIf { it.isNotEmpty() }
+            ?.let { parts ->
+                if (parts[0] == KTLINT_DISABLE || parts[0] == formatterTags.formatterTagOff) {
+                    CommentSuppressionHint(
+                        this,
+                        HashSet(parts.tailToRuleIds()),
+                        BLOCK_START,
+                    )
+                } else if (parts[0] == KTLINT_ENABLE || parts[0] == formatterTags.formatterTagOn) {
+                    CommentSuppressionHint(
+                        this,
+                        HashSet(parts.tailToRuleIds()),
+                        BLOCK_END,
+                    )
+                } else {
+                    null
+                }
+            }
+
+    private fun MutableList<CommentSuppressionHint>.toSuppressionHints(
+        rootNode: ASTNode
+    ): MutableList<SuppressionHint> {
+        val suppressionHints = mutableListOf<SuppressionHint>()
+        val blockCommentSuppressionHints = mutableListOf<CommentSuppressionHint>()
+        forEach { commentSuppressionHint ->
+            when (commentSuppressionHint.type) {
+                EOL -> {
+                    val commentNode = commentSuppressionHint.node
+                    suppressionHints.add(
+                        SuppressionHint(
+                            IntRange(commentNode.prevNewLineOffset(), commentNode.startOffset),
+                            commentSuppressionHint.disabledRuleIds
+                        )
+                    )
+                }
+
+                BLOCK_START -> {
+                    blockCommentSuppressionHints.add(commentSuppressionHint)
+                }
+
+                BLOCK_END -> {
+                    // match open hint
+                    Unit
+                    blockCommentSuppressionHints
+                        .lastOrNull { it.disabledRuleIds == commentSuppressionHint.disabledRuleIds }
+                        ?.let { openHint ->
+                            blockCommentSuppressionHints.remove(openHint)
+                            suppressionHints.add(
+                                SuppressionHint(
+                                    IntRange(openHint.node.startOffset, commentSuppressionHint.node.startOffset - 1),
+                                    commentSuppressionHint.disabledRuleIds
+                                )
+                            )
+                        }
+                }
             }
         }
-        return null
+        suppressionHints.addAll(
+            blockCommentSuppressionHints.map {
+                SuppressionHint(
+                    IntRange(it.node.startOffset, rootNode.textLength),
+                    it.disabledRuleIds
+                )
+            },
+        )
+        return suppressionHints
     }
 
-    private fun splitCommentBySpace(comment: String) =
-        comment
-            .replace(COMMENT_REGEX, " ")
-            .replace(" {2,}", " ")
-            .split(" ")
+    private fun ASTNode.prevNewLineOffset(): Int =
+        prevLeaf { it.isWhiteSpaceWithNewline() }
+            ?.let { it.startOffset + it.text.lastIndexOf('\n') + 1 }
+            ?: 0
+
+    private fun List<String>.tailToRuleIds() =
+        tail()
+            .map {
+                // For backwards compatibility the suppression hints have to be prefixed with the standard rule set id when the rule id is
+                // not prefixed with any rule set id.
+                RuleId.prefixWithStandardRuleSetIdWhenMissing(it)
+            }
+            .map { RuleId(it) }
 
     private fun <T> List<T>.tail() = this.subList(1, this.size)
 
@@ -215,4 +261,28 @@ internal object SuppressionLocatorBuilder {
                     }
                 }
             }
+
+    /**
+     * @param range zero-based range of lines where lint errors should be suppressed
+     * @param disabledRuleIds empty set means "all"
+     */
+    private data class SuppressionHint(
+        val range: IntRange,
+        val disabledRuleIds: Set<RuleId> = emptySet(),
+    )
+
+    private data class CommentSuppressionHint(
+        val node: ASTNode,
+        val disabledRuleIds: Set<RuleId> = emptySet(),
+        val type: Type
+    ) {
+        enum class Type {
+            EOL,
+            BLOCK_START,
+            BLOCK_END,
+        }
+    }
+
+    private const val KTLINT_DISABLE = "ktlint-disable"
+    private const val KTLINT_ENABLE = "ktlint-enable"
 }

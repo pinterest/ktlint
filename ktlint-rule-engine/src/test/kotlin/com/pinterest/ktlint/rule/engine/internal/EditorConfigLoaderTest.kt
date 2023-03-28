@@ -226,6 +226,9 @@ internal class EditorConfigLoaderTest {
                     assertThat(convertToPropertyValues())
                         .containsExactlyInAnyOrder(
                             "end_of_line = lf",
+                            "ij_formatter_tags_enabled = false",
+                            "ij_formatter_off_tag = @formatter:off",
+                            "ij_formatter_on_tag = @formatter:on",
                             "ktlint_code_style = intellij_idea",
                             "ktlint_experimental = disabled",
                         )
@@ -300,6 +303,9 @@ internal class EditorConfigLoaderTest {
                     assertThat(convertToPropertyValues())
                         .containsExactlyInAnyOrder(
                             "end_of_line = lf",
+                            "ij_formatter_tags_enabled = false",
+                            "ij_formatter_off_tag = @formatter:off",
+                            "ij_formatter_on_tag = @formatter:on",
                             "ktlint_code_style = intellij_idea",
                             "ktlint_experimental = disabled",
                         )
@@ -348,6 +354,9 @@ internal class EditorConfigLoaderTest {
                     assertThat(convertToPropertyValues())
                         .containsExactlyInAnyOrder(
                             "end_of_line = lf",
+                            "ij_formatter_tags_enabled = false",
+                            "ij_formatter_off_tag = @formatter:off",
+                            "ij_formatter_on_tag = @formatter:on",
                             "ktlint_code_style = intellij_idea",
                             "ktlint_experimental = disabled",
                         )

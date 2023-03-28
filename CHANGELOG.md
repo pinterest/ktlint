@@ -274,6 +274,7 @@ Previously the default value for `.editorconfig` property `max_line_length` was 
 * Do not remove newlines from multiline type parameter lists `type-parameter-list-spacing` ([#1867](https://github.com/pinterest/ktlint/issues/1867))
 * Wrap each type parameter in a multiline type parameter list `wrapping` ([#1867](https://github.com/pinterest/ktlint/issues/1867))
 * Allow value arguments with a multiline expression to be indented on a separate line `indent` ([#1217](https://github.com/pinterest/ktlint/issues/1217))
+* When enabled, the ktlint rule checking is disabled for all code surrounded by the formatter tags (see [faq](https://pinterest.github.io/ktlint/faq/#are-formatter-tags-respected)) ([#670](https://github.com/pinterest/ktlint/issues/670)) 
 
 ### Changed
 * Wrap the parameters of a function literal containing a multiline parameter list (only in `ktlint_official` code style) `parameter-list-wrapping` ([#1681](https://github.com/pinterest/ktlint/issues/1681)).

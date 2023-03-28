@@ -39,7 +39,7 @@ internal class RuleExecutionContext private constructor(
     }
 
     fun rebuildSuppressionLocator() {
-        suppressionLocator = SuppressionLocatorBuilder.buildSuppressedRegionsLocator(rootNode)
+        suppressionLocator = SuppressionLocatorBuilder.buildSuppressedRegionsLocator(rootNode, editorConfig)
     }
 
     fun executeRule(
