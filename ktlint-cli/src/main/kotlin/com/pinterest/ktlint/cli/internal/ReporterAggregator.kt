@@ -42,9 +42,10 @@ internal class ReporterAggregator(
                 .ifEmpty { listOf("plain") }
                 .map { parseReporterConfiguration(it) }
                 .distinct()
+                .toMutableList()
                 .apply {
                     if (baseline.status == Baseline.Status.INVALID || baseline.status == Baseline.Status.NOT_FOUND) {
-                        this.plus(
+                        this.add(
                             ReporterConfiguration("baseline", null, emptyMap(), baseline.path),
                         )
                     }
