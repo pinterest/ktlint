@@ -98,12 +98,14 @@ tasks.register<Checksum>("shadowJarExecutableChecksum") {
 tasks.withType<Test>().configureEach {
     dependsOn(shadowJarExecutable)
 
-    notCompatibleWithConfigurationCache("https://github.com/gradle/gradle/issues/12247")
+    val executableFilePath =
+        providers.provider { shadowJarExecutable.get().outputs.files.first { it.name == "ktlint" }.absolutePath }.get()
+    val ktlintVersion = providers.provider { version }.get()
     doFirst {
         systemProperty(
             "ktlint-cli",
-            shadowJarExecutable.get().outputs.files.first { it.name == "ktlint" }.absolutePath,
+            executableFilePath,
         )
-        systemProperty("ktlint-version", version)
+        systemProperty("ktlint-version", ktlintVersion)
     }
 }
