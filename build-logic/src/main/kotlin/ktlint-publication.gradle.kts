@@ -5,44 +5,44 @@ plugins {
     signing
 }
 
-if (project.hasProperty("isKotlinDev")) {
+if (providers.gradleProperty("isKotlinDev").orNull.toBoolean()) {
     val definedVersion = ext["VERSION_NAME"].toString().removeSuffix("-SNAPSHOT")
     ext["VERSION_NAME"] = "$definedVersion-kotlin-dev-SNAPSHOT"
 }
 
-project.version = project.property("VERSION_NAME")
+project.version = providers.gradleProperty("VERSION_NAME").orNull
     ?: throw GradleException("Project version property is missing")
-project.group = project.property("GROUP")
+project.group = providers.gradleProperty("GROUP").orNull
     ?: throw GradleException("Project group property is missing")
 
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            groupId = project.property("GROUP").toString()
-            artifactId = project.property("POM_ARTIFACT_ID").toString()
-            version = project.property("VERSION_NAME").toString()
+            groupId = providers.gradleProperty("GROUP").orNull
+            artifactId = providers.gradleProperty("POM_ARTIFACT_ID").orNull
+            version = providers.gradleProperty("VERSION_NAME").orNull
 
             pom {
-                name.set(project.property("POM_NAME").toString())
-                description.set(project.property("POM_DESCRIPTION").toString())
-                url.set(project.property("POM_URL").toString())
+                name.set(providers.gradleProperty("POM_NAME"))
+                description.set(providers.gradleProperty("POM_DESCRIPTION"))
+                url.set(providers.gradleProperty("POM_URL"))
                 licenses {
                     license {
-                        name.set(project.property("POM_LICENSE_NAME").toString())
-                        url.set(project.property("POM_LICENSE_URL").toString())
+                        name.set(providers.gradleProperty("POM_LICENSE_NAME"))
+                        url.set(providers.gradleProperty("POM_LICENSE_URL"))
                         distribution.set("repo")
                     }
                 }
                 developers {
                     developer {
-                        id.set(project.property("POM_DEVELOPER_ID").toString())
-                        name.set(project.property("POM_DEVELOPER_NAME").toString())
+                        id.set(providers.gradleProperty("POM_DEVELOPER_ID"))
+                        name.set(providers.gradleProperty("POM_DEVELOPER_NAME"))
                     }
                 }
                 scm {
-                    url.set(project.property("POM_SCM_URL").toString())
-                    connection.set(project.property("POM_SCM_CONNECTION").toString())
-                    developerConnection.set(project.property("POM_SCM_DEV_CONNECTION").toString())
+                    url.set(providers.gradleProperty("POM_SCM_URL"))
+                    connection.set(providers.gradleProperty("POM_SCM_CONNECTION"))
+                    developerConnection.set(providers.gradleProperty("POM_SCM_DEV_CONNECTION"))
                 }
             }
         }
@@ -56,9 +56,9 @@ publishing {
             url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
 
             credentials {
-                username = project.findProperty("SONATYPE_NEXUS_USERNAME")?.toString()
+                username = providers.gradleProperty("SONATYPE_NEXUS_USERNAME").orNull
                     ?: System.getenv("SONATYPE_NEXUS_USERNAME")
-                password = project.findProperty("SONATYPE_NEXUS_PASSWORD")?.toString()
+                password = providers.gradleProperty("SONATYPE_NEXUS_PASSWORD").orNull
                     ?: System.getenv("SONATYPE_NEXUS_PASSWORD")
             }
         }
@@ -84,7 +84,7 @@ signing {
     useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
 
     // This property allows OS package maintainers to disable signing
-    val enableSigning = project.findProperty("ktlint.publication.signing.enable") != "false"
+    val enableSigning = providers.gradleProperty("ktlint.publication.signing.enable").orNull != "false"
     sign(publishing.publications["maven"])
     isRequired = enableSigning && !version.toString().endsWith("SNAPSHOT")
 }

@@ -8,7 +8,7 @@ repositories {
 
 dependencies {
     val kotlinPlugin =
-        if (project.hasProperty("kotlinDev")) {
+        if (providers.gradleProperty("kotlinDev").orNull.toBoolean()) {
             // Pass '-PkotlinDev' to command line to enable kotlin-in-development version
             logger.warn("Enabling kotlin dev version!")
             libs.kotlin.plugin.dev
