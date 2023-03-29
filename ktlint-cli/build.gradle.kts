@@ -10,7 +10,7 @@ plugins {
 tasks.jar {
     manifest {
         attributes("Main-Class" to "com.pinterest.ktlint.Main")
-        attributes("Implementation-Version" to project.property("VERSION_NAME"))
+        attributes("Implementation-Version" to version)
     }
 }
 
@@ -98,12 +98,15 @@ tasks.register<Checksum>("shadowJarExecutableChecksum") {
 tasks.withType<Test>().configureEach {
     dependsOn(shadowJarExecutable)
 
-    notCompatibleWithConfigurationCache("https://github.com/gradle/gradle/issues/12247")
+    // TODO: Use providers directly after https://github.com/gradle/gradle/issues/12247 is fixed.
+    val executableFilePath =
+        providers.provider { shadowJarExecutable.get().outputs.files.first { it.name == "ktlint" }.absolutePath }.get()
+    val ktlintVersion = providers.provider { version }.get()
     doFirst {
         systemProperty(
             "ktlint-cli",
-            shadowJarExecutable.get().outputs.files.first { it.name == "ktlint" }.absolutePath,
+            executableFilePath,
         )
-        systemProperty("ktlint-version", version)
+        systemProperty("ktlint-version", ktlintVersion)
     }
 }

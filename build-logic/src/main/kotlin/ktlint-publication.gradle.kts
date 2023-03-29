@@ -1,3 +1,5 @@
+import org.gradle.api.Project
+import org.gradle.api.provider.Provider
 import java.net.URI
 
 plugins {
@@ -5,44 +7,44 @@ plugins {
     signing
 }
 
-if (project.hasProperty("isKotlinDev")) {
+if (providers.gradleProperty("isKotlinDev").orNull.toBoolean()) {
     val definedVersion = ext["VERSION_NAME"].toString().removeSuffix("-SNAPSHOT")
     ext["VERSION_NAME"] = "$definedVersion-kotlin-dev-SNAPSHOT"
 }
 
-project.version = project.property("VERSION_NAME")
+project.version = providers.gradleProperty("VERSION_NAME").orNull
     ?: throw GradleException("Project version property is missing")
-project.group = project.property("GROUP")
+project.group = providers.gradleProperty("GROUP").orNull
     ?: throw GradleException("Project group property is missing")
 
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            groupId = project.property("GROUP").toString()
-            artifactId = project.property("POM_ARTIFACT_ID").toString()
-            version = project.property("VERSION_NAME").toString()
+            groupId = group.toString()
+            version = version.toString()
+            artifactId = localGradleProperty("POM_ARTIFACT_ID").get()
 
             pom {
-                name.set(project.property("POM_NAME").toString())
-                description.set(project.property("POM_DESCRIPTION").toString())
-                url.set(project.property("POM_URL").toString())
+                name.set(localGradleProperty("POM_NAME").get())
+                description.set(providers.gradleProperty("POM_DESCRIPTION"))
+                url.set(providers.gradleProperty("POM_URL"))
                 licenses {
                     license {
-                        name.set(project.property("POM_LICENSE_NAME").toString())
-                        url.set(project.property("POM_LICENSE_URL").toString())
+                        name.set(providers.gradleProperty("POM_LICENSE_NAME"))
+                        url.set(providers.gradleProperty("POM_LICENSE_URL"))
                         distribution.set("repo")
                     }
                 }
                 developers {
                     developer {
-                        id.set(project.property("POM_DEVELOPER_ID").toString())
-                        name.set(project.property("POM_DEVELOPER_NAME").toString())
+                        id.set(providers.gradleProperty("POM_DEVELOPER_ID"))
+                        name.set(providers.gradleProperty("POM_DEVELOPER_NAME"))
                     }
                 }
                 scm {
-                    url.set(project.property("POM_SCM_URL").toString())
-                    connection.set(project.property("POM_SCM_CONNECTION").toString())
-                    developerConnection.set(project.property("POM_SCM_DEV_CONNECTION").toString())
+                    url.set(providers.gradleProperty("POM_SCM_URL"))
+                    connection.set(providers.gradleProperty("POM_SCM_CONNECTION"))
+                    developerConnection.set(providers.gradleProperty("POM_SCM_DEV_CONNECTION"))
                 }
             }
         }
@@ -56,10 +58,10 @@ publishing {
             url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
 
             credentials {
-                username = project.findProperty("SONATYPE_NEXUS_USERNAME")?.toString()
-                    ?: System.getenv("SONATYPE_NEXUS_USERNAME")
-                password = project.findProperty("SONATYPE_NEXUS_PASSWORD")?.toString()
-                    ?: System.getenv("SONATYPE_NEXUS_PASSWORD")
+                username = providers.gradleProperty("SONATYPE_NEXUS_USERNAME").orNull
+                    ?: providers.systemProperty("SONATYPE_NEXUS_USERNAME").orNull
+                password = providers.gradleProperty("SONATYPE_NEXUS_PASSWORD").orNull
+                    ?: providers.systemProperty("SONATYPE_NEXUS_PASSWORD").orNull
             }
         }
     }
@@ -78,13 +80,13 @@ signing {
     // See https://docs.gradle.org/current/userguide/signing_plugin.html#sec:using_gpg_agent how to configure it
     // useGpgCmd()
 
-    val signingKeyId = System.getenv("ORG_GRADLE_PROJECT_signingKeyId")
-    val signingKey = System.getenv("ORG_GRADLE_PROJECT_signingKey")
-    val signingPassword = System.getenv("ORG_GRADLE_PROJECT_signingKeyPassword")
+    val signingKeyId = providers.systemProperty("ORG_GRADLE_PROJECT_signingKeyId").orNull
+    val signingKey = providers.systemProperty("ORG_GRADLE_PROJECT_signingKey").orNull
+    val signingPassword = providers.systemProperty("ORG_GRADLE_PROJECT_signingKeyPassword").orNull
     useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
 
     // This property allows OS package maintainers to disable signing
-    val enableSigning = project.findProperty("ktlint.publication.signing.enable") != "false"
+    val enableSigning = providers.gradleProperty("ktlint.publication.signing.enable").orNull != "false"
     sign(publishing.publications["maven"])
     isRequired = enableSigning && !version.toString().endsWith("SNAPSHOT")
 }
@@ -92,3 +94,9 @@ signing {
 tasks.withType<Sign>().configureEach {
     notCompatibleWithConfigurationCache("https://github.com/gradle/gradle/issues/13470")
 }
+
+// TODO: remove this once https://github.com/gradle/gradle/issues/23572 is fixed
+fun Project.localGradleProperty(name: String): Provider<String> =
+    provider {
+        if (hasProperty(name)) property(name)?.toString() else null
+    }

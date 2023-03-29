@@ -23,7 +23,7 @@ tasks.withType<JavaCompile>().configureEach {
     targetCompatibility = JavaVersion.VERSION_1_8.toString()
 }
 
-val skipTests: String = System.getProperty("skipTests", "false")
+val skipTests: String = providers.systemProperty("skipTests").getOrElse("false")
 tasks.withType<Test>().configureEach {
     if (skipTests == "false") {
         useJUnitPlatform()
