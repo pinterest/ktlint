@@ -1,3 +1,5 @@
+import org.gradle.api.Project
+import org.gradle.api.provider.Provider
 import java.net.URI
 
 plugins {
@@ -20,10 +22,10 @@ publishing {
         create<MavenPublication>("maven") {
             groupId = group.toString()
             version = version.toString()
-            artifactId = providers.gradleProperty("POM_ARTIFACT_ID").get()
+            artifactId = localGradleProperty("POM_ARTIFACT_ID").get()
 
             pom {
-                name.set(providers.gradleProperty("POM_NAME"))
+                name.set(localGradleProperty("POM_NAME").get())
                 description.set(providers.gradleProperty("POM_DESCRIPTION"))
                 url.set(providers.gradleProperty("POM_URL"))
                 licenses {
@@ -92,3 +94,9 @@ signing {
 tasks.withType<Sign>().configureEach {
     notCompatibleWithConfigurationCache("https://github.com/gradle/gradle/issues/13470")
 }
+
+// TODO remove this once https://github.com/gradle/gradle/issues/23572 is fixed
+fun Project.localGradleProperty(name: String): Provider<String> =
+    provider {
+        if (hasProperty(name)) property(name)?.toString() else null
+    }
