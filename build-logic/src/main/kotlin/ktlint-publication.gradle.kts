@@ -95,7 +95,7 @@ tasks.withType<Sign>().configureEach {
     notCompatibleWithConfigurationCache("https://github.com/gradle/gradle/issues/13470")
 }
 
-// TODO remove this once https://github.com/gradle/gradle/issues/23572 is fixed
+// TODO: remove this once https://github.com/gradle/gradle/issues/23572 is fixed
 fun Project.localGradleProperty(name: String): Provider<String> =
     provider {
         if (hasProperty(name)) property(name)?.toString() else null
