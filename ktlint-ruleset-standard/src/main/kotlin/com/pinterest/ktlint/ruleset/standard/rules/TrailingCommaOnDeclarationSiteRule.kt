@@ -6,6 +6,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DESTRUCTURING_DECLARATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_TYPE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN_ENTRY
@@ -184,6 +185,7 @@ public class TrailingCommaOnDeclarationSiteRule :
             emit = emit,
         )
     }
+
     private fun visitClass(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
@@ -195,18 +197,30 @@ public class TrailingCommaOnDeclarationSiteRule :
         node
             .takeIf { psi.isEnum() }
             ?.findChildByType(ElementType.CLASS_BODY)
-            ?.takeUnless {
-                it.noEnumEntries() || it.lastTwoEnumEntriesAreOnSameLine()
-            }?.let { classBody ->
+            ?.takeUnless { it.noEnumEntries() }
+            ?.let { classBody ->
                 classBody
                     .findNodeAfterLastEnumEntry()
                     ?.let { nodeAfterLastEnumEntry ->
-                        node.reportAndCorrectTrailingCommaNodeBefore(
-                            inspectNode = nodeAfterLastEnumEntry,
-                            isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
-                            autoCorrect = autoCorrect,
-                            emit = emit,
-                        )
+                        when {
+                            !node.isTrailingCommaAllowed() && nodeAfterLastEnumEntry.elementType == RBRACE -> {
+                                node.reportAndCorrectTrailingCommaNodeBefore(
+                                    inspectNode = nodeAfterLastEnumEntry,
+                                    isTrailingCommaAllowed = false,
+                                    autoCorrect = autoCorrect,
+                                    emit = emit,
+                                )
+                            }
+
+                            !classBody.lastTwoEnumEntriesAreOnSameLine() -> {
+                                node.reportAndCorrectTrailingCommaNodeBefore(
+                                    inspectNode = nodeAfterLastEnumEntry,
+                                    isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
+                                    autoCorrect = autoCorrect,
+                                    emit = emit,
+                                )
+                            }
+                        }
                     }
             }
     }

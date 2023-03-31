@@ -275,6 +275,7 @@ Previously the default value for `.editorconfig` property `max_line_length` was 
 * Wrap each type parameter in a multiline type parameter list `wrapping` ([#1867](https://github.com/pinterest/ktlint/issues/1867))
 * Allow value arguments with a multiline expression to be indented on a separate line `indent` ([#1217](https://github.com/pinterest/ktlint/issues/1217))
 * When enabled, the ktlint rule checking is disabled for all code surrounded by the formatter tags (see [faq](https://pinterest.github.io/ktlint/faq/#are-formatter-tags-respected)) ([#670](https://github.com/pinterest/ktlint/issues/670)) 
+* Remove trailing comma if last two enum entries are on the same line and trailing commas are not allowed. `trailing-comma-on-declaration-site` ([#1905](https://github.com/pinterest/ktlint/issues/1905))
 
 ### Changed
 * Wrap the parameters of a function literal containing a multiline parameter list (only in `ktlint_official` code style) `parameter-list-wrapping` ([#1681](https://github.com/pinterest/ktlint/issues/1681)).

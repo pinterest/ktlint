@@ -708,16 +708,23 @@ class TrailingCommaOnDeclarationSiteRuleTest {
     }
 
     @Test
-    fun `Given that a trailing comma is not allowed then it is not removed for enums where last two entries are on same line`() {
+    fun `Given that a trailing comma is not allowed then remove it for enums where last two entries are on same line and followed by trailing comma`() {
         val code =
             """
             enum class Shape {
                 SQUARE, TRIANGLE,
             }
             """.trimIndent()
+        val formattedCode =
+            """
+            enum class Shape {
+                SQUARE, TRIANGLE
+            }
+            """.trimIndent()
         trailingCommaOnDeclarationSiteRuleAssertThat(code)
             .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to false)
-            .hasNoLintViolations()
+            .hasLintViolation(2, 21, "Unnecessary trailing comma before \"}\"")
+            .isFormattedAs(formattedCode)
     }
 
     @Nested
