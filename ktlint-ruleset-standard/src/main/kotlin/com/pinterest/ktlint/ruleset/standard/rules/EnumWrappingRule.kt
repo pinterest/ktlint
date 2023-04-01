@@ -80,7 +80,7 @@ public class EnumWrappingRule :
     private fun wrapCommentBeforeFirstEnumEntry(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ): Boolean {
         val firstEnumEntry = node.findChildByType(ENUM_ENTRY)
         if (firstEnumEntry != null) {
@@ -98,7 +98,7 @@ public class EnumWrappingRule :
                         return true
                     }
                 }
-            }
+        }
         return false
     }
 
@@ -122,7 +122,7 @@ public class EnumWrappingRule :
     private fun wrapEnumEntries(
         node: ASTNode,
         autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         node
             .children()
@@ -151,7 +151,7 @@ public class EnumWrappingRule :
     private fun wrapClosingBrace(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         node
             .findChildByType(RBRACE)
@@ -170,7 +170,7 @@ public class EnumWrappingRule :
     private fun addBlankLineBetweenEnumEntriesAndOtherDeclarations(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         node
             .children()
@@ -190,8 +190,6 @@ public class EnumWrappingRule :
                 }
             }
     }
-
-
 }
 
 public val ENUM_WRAPPING_RULE_ID: RuleId = EnumWrappingRule().ruleId

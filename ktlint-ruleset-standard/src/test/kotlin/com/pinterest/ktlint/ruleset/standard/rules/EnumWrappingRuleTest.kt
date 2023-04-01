@@ -127,7 +127,7 @@ class EnumWrappingRuleTest {
             .isFormattedAs(formattedCode)
     }
 
-   @Nested
+    @Nested
     inner class `Given an enum with comments` {
         @Test
         fun `Given a single line enum class containing a block comment but not entries`() {
