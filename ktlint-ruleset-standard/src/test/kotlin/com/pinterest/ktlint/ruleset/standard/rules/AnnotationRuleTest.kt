@@ -706,4 +706,35 @@ class AnnotationRuleTest {
                 .hasNoLintViolations()
         }
     }
+
+    @Test
+    fun `Given property allow trailing comma on declaration site is not set then remove trailing commas`() {
+        val code =
+            """
+            enum class Foo {
+                A,
+                @Bar1 B,
+                @Bar1 @Bar2 C,
+                @Bar3("bar3") @Bar1 D
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            enum class Foo {
+                A,
+                @Bar1 B,
+                @Bar1 @Bar2
+                C,
+                @Bar3("bar3")
+                @Bar1
+                D
+            }
+            """.trimIndent()
+        annotationRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(4, 17, "Multiple annotations should not be placed on the same line as the annotated construct"),
+                LintViolation(5, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
+                LintViolation(5, 25, "Multiple annotations should not be placed on the same line as the annotated construct"),
+            ).isFormattedAs(formattedCode)
+    }
 }

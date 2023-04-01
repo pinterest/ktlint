@@ -42,6 +42,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.Companion.DEFAULT_INDENT_CONFIG
+import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule
+import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
@@ -97,6 +99,13 @@ public class WrappingRule :
                 INDENT_SIZE_PROPERTY,
                 INDENT_STYLE_PROPERTY,
                 MAX_LINE_LENGTH_PROPERTY,
+            ),
+        visitorModifiers =
+            setOf(
+                RunAfterRule(
+                    ruleId = ANNOTATION_RULE_ID,
+                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                ),
             ),
     ) {
     private var line = 1
