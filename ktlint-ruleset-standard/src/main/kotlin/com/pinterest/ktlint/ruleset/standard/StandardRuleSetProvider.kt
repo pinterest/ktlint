@@ -14,6 +14,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.CommentWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ContextReceiverWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.DiscouragedCommentLocationRule
 import com.pinterest.ktlint.ruleset.standard.rules.EnumEntryNameCaseRule
+import com.pinterest.ktlint.ruleset.standard.rules.EnumWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.FilenameRule
 import com.pinterest.ktlint.ruleset.standard.rules.FinalNewlineRule
 import com.pinterest.ktlint.ruleset.standard.rules.FunKeywordSpacingRule
@@ -94,6 +95,7 @@ public class StandardRuleSetProvider :
             RuleProvider { ContextReceiverWrappingRule() },
             RuleProvider { DiscouragedCommentLocationRule() },
             RuleProvider { EnumEntryNameCaseRule() },
+            RuleProvider { EnumWrappingRule() },
             RuleProvider { FilenameRule() },
             RuleProvider { FinalNewlineRule() },
             RuleProvider { FunctionNamingRule() },
