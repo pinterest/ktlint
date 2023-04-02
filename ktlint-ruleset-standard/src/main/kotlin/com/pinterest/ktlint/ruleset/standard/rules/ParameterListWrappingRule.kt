@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_TYPE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LPAR
@@ -116,17 +117,14 @@ public class ParameterListWrappingRule :
     }
 
     private fun ASTNode.needToWrapParameterList() =
-        if (hasNoParameters() ||
-            isPartOfFunctionLiteralInNonKtlintOfficialCodeStyle() ||
-            isFunctionTypeWrappedInNullableType()
-        ) {
-            false
-        } else {
-            // each parameter should be on a separate line if
-            // - at least one of the parameters is
-            // - maxLineLength exceeded (and separating parameters with \n would actually help)
-            // in addition, "(" and ")" must be on separates line if any of the parameters are (otherwise on the same)
-            textContains('\n') || this.exceedsMaxLineLength()
+        when {
+            hasNoParameters() -> false
+            isPartOfFunctionLiteralInNonKtlintOfficialCodeStyle() -> false
+            isFunctionTypeWrappedInNullableType() -> false
+            textContains('\n') -> true
+            codeStyle == ktlint_official && containsAnnotatedParameter() -> true
+            exceedsMaxLineLength() -> true
+            else -> false
         }
 
     private fun ASTNode.hasNoParameters(): Boolean {
@@ -143,6 +141,19 @@ public class ParameterListWrappingRule :
         require(elementType == VALUE_PARAMETER_LIST)
         return treeParent.elementType == FUNCTION_TYPE && treeParent?.treeParent?.elementType == NULLABLE_TYPE
     }
+
+    private fun ASTNode.containsAnnotatedParameter(): Boolean {
+        require(elementType == VALUE_PARAMETER_LIST)
+        return this.children()
+            .filter { it.elementType == VALUE_PARAMETER }
+            .any { it.isAnnotated() }
+    }
+
+    private fun ASTNode.isAnnotated() =
+        findChildByType(ElementType.MODIFIER_LIST)
+            ?.children()
+            .orEmpty()
+            .any { it.elementType == ElementType.ANNOTATION_ENTRY }
 
     private fun wrapParameterList(
         node: ASTNode,
@@ -243,7 +254,7 @@ public class ParameterListWrappingRule :
         when (node.elementType) {
             LPAR -> """Unnecessary newline before "(""""
             VALUE_PARAMETER ->
-                "Parameter should be on a separate line (unless all parameters can fit a single line)"
+                "Parameter should start on a newline"
             RPAR -> """Missing newline before ")""""
             else -> throw UnsupportedOperationException()
         }

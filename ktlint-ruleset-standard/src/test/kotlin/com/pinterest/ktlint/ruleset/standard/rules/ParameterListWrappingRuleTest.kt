@@ -41,8 +41,8 @@ class ParameterListWrappingRuleTest {
             """.trimIndent()
         parameterListWrappingRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(1, 14, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintViolation(1, 30, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintViolation(1, 14, "Parameter should start on a newline"),
+                LintViolation(1, 30, "Parameter should start on a newline"),
                 LintViolation(2, 28, """Missing newline before ")""""),
             ).isFormattedAs(formattedCode)
     }
@@ -64,9 +64,9 @@ class ParameterListWrappingRuleTest {
         parameterListWrappingRuleAssertThat(code)
             .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 10)
             .hasLintViolations(
-                LintViolation(1, 14, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintViolation(1, 30, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintViolation(1, 46, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintViolation(1, 14, "Parameter should start on a newline"),
+                LintViolation(1, 30, "Parameter should start on a newline"),
+                LintViolation(1, 46, "Parameter should start on a newline"),
                 LintViolation(1, 60, """Missing newline before ")""""),
             ).isFormattedAs(formattedCode)
     }
@@ -124,7 +124,7 @@ class ParameterListWrappingRuleTest {
             """.trimIndent()
         parameterListWrappingRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(1, 7, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintViolation(1, 7, "Parameter should start on a newline"),
                 LintViolation(3, 13, """Missing newline before ")""""),
             ).isFormattedAs(formattedCode)
     }
@@ -148,7 +148,7 @@ class ParameterListWrappingRuleTest {
             """.trimIndent()
         @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
         parameterListWrappingRuleAssertThat(code)
-            .hasLintViolation(3, 13, "Parameter should be on a separate line (unless all parameters can fit a single line)")
+            .hasLintViolation(3, 13, "Parameter should start on a newline")
             .isFormattedAs(formattedCode)
     }
 
@@ -171,9 +171,9 @@ class ParameterListWrappingRuleTest {
         parameterListWrappingRuleAssertThat(code)
             .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 10)
             .hasLintViolations(
-                LintViolation(1, 7, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintViolation(1, 15, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintViolation(1, 23, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintViolation(1, 7, "Parameter should start on a newline"),
+                LintViolation(1, 15, "Parameter should start on a newline"),
+                LintViolation(1, 23, "Parameter should start on a newline"),
                 LintViolation(1, 29, """Missing newline before ")""""),
             ).isFormattedAs(formattedCode)
     }
@@ -257,8 +257,8 @@ class ParameterListWrappingRuleTest {
         parameterListWrappingRuleAssertThat(code)
             .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 10)
             .hasLintViolations(
-                LintViolation(2, 11, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintViolation(6, 19, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintViolation(2, 11, "Parameter should start on a newline"),
+                LintViolation(6, 19, "Parameter should start on a newline"),
                 LintViolation(6, 37, """Missing newline before ")""""),
             ).isFormattedAs(formattedCode)
     }
@@ -288,7 +288,7 @@ class ParameterListWrappingRuleTest {
             """.trimIndent()
         @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
         parameterListWrappingRuleAssertThat(code)
-            .hasLintViolation(2, 11, "Parameter should be on a separate line (unless all parameters can fit a single line)")
+            .hasLintViolation(2, 11, "Parameter should start on a newline")
             .isFormattedAs(formattedCode)
     }
 
@@ -316,8 +316,8 @@ class ParameterListWrappingRuleTest {
             """.trimIndent()
         parameterListWrappingRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(4, 12, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintViolation(4, 25, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintViolation(4, 12, "Parameter should start on a newline"),
+                LintViolation(4, 25, "Parameter should start on a newline"),
                 LintViolation(5, 32, """Missing newline before ")""""),
                 LintViolation(5, 41, """Missing newline before ")""""),
             ).isFormattedAs(formattedCode)
@@ -344,12 +344,12 @@ class ParameterListWrappingRuleTest {
         parameterListWrappingRuleAssertThat(code)
             .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 10)
             .hasLintViolations(
-                LintViolation(1, 11, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintViolation(1, 26, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintViolation(1, 48, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintViolation(1, 55, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintViolation(1, 68, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
-                LintViolation(1, 90, "Parameter should be on a separate line (unless all parameters can fit a single line)"),
+                LintViolation(1, 11, "Parameter should start on a newline"),
+                LintViolation(1, 26, "Parameter should start on a newline"),
+                LintViolation(1, 48, "Parameter should start on a newline"),
+                LintViolation(1, 55, "Parameter should start on a newline"),
+                LintViolation(1, 68, "Parameter should start on a newline"),
+                LintViolation(1, 90, "Parameter should start on a newline"),
                 LintViolation(1, 117, "Missing newline before \")\""),
                 LintViolation(1, 126, "Missing newline before \")\""),
             ).isFormattedAs(formattedCode)
@@ -513,5 +513,48 @@ class ParameterListWrappingRuleTest {
                 LintViolation(1, 22, "Parameter of nullable type should be on a separate line (unless the type fits on a single line)"),
                 LintViolation(1, 95, """Missing newline before ")""""),
             ).isFormattedAs(formattedCode)
+    }
+
+    @Nested
+    inner class `Given a single line function signature with an annotated parameter` {
+        @Test
+        fun `Given ktlint_official code style`() {
+            val code =
+                """
+                fun foo(a: Int, @Bar bar: String, b: Int) = "some-result"
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun foo(
+                    a: Int,
+                    @Bar bar: String,
+                    b: Int
+                ) = "some-result"
+                """.trimIndent()
+            parameterListWrappingRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasLintViolations(
+                    LintViolation(1, 9, "Parameter should start on a newline"),
+                    LintViolation(1, 17, "Parameter should start on a newline"),
+                    LintViolation(1, 35, "Parameter should start on a newline"),
+                    LintViolation(1, 41, "Missing newline before \")\""),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @ParameterizedTest(name = "Code style: {0}")
+        @EnumSource(
+            value = CodeStyleValue::class,
+            mode = EnumSource.Mode.EXCLUDE,
+            names = ["ktlint_official"],
+        )
+        fun `Given non-ktlint_official code style`(codeStyle: CodeStyleValue) {
+            val code =
+                """
+                fun foo(a: Int, @Bar bar: String, b: Int) = "some-result"
+                """.trimIndent()
+            parameterListWrappingRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyle)
+                .hasNoLintViolations()
+        }
     }
 }
