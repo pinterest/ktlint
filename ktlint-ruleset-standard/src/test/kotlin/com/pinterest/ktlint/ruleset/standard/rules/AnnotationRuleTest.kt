@@ -141,13 +141,6 @@ class AnnotationRuleTest {
                 @[Foo Bar] fun bar() {}
             }
             """.trimIndent()
-        val formattedCode =
-            """
-            @[Foo Bar] class FooBar2 {
-                @[Foo Bar] var foo: String
-                @[Foo Bar] fun bar() {}
-            }
-            """.trimIndent()
         annotationRuleAssertThat(code)
             .hasNoLintViolations()
     }
@@ -347,19 +340,15 @@ class AnnotationRuleTest {
     }
 
     @Test
-    fun `Issue 642 - Given annotations on type arguments on same line as argument`() {
+    fun `Given a function signature having annotated parameters, then allow the annotation to be on the same line as the annotated construct`() {
         val code =
             """
-            val aProperty: Map<@Ann("test") Int, @JvmSuppressWildcards(true) (String) -> Int?>
-            val bProperty: Map<
-                @Ann String,
-                @Ann("test") Int,
-                @JvmSuppressWildcards(true) (String) -> Int?
-                >
-
-            fun doSomething() {
-                funWithGenericsCall<@JvmSuppressWildcards(true) Int>()
-            }
+            fun foo(
+                a: int,
+                @Bar1 b: int,
+                @Bar1 @Bar2 c: int,
+                @Bar3("bar3") @Bar1 d: int
+            ) {}
             """.trimIndent()
         annotationRuleAssertThat(code).hasNoLintViolations()
     }
@@ -662,9 +651,9 @@ class AnnotationRuleTest {
                 .addAdditionalRuleProvider { TrailingCommaOnDeclarationSiteRule() }
                 .addAdditionalRuleProvider { WrappingRule() }
                 .hasLintViolations(
-                    LintViolation(1, 18, "Annotations on a type reference should be placed on a separate line"),
+                    LintViolation(1, 17, "Expected newline after '<'"),
                     LintViolation(1, 28, "Multiple annotations should not be placed on the same line as the annotated construct"),
-                    LintViolation(1, 28, "Annotations on a type reference should be placed on a separate line"),
+                    LintViolation(1, 34, "Expected newline before '>'"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -672,24 +661,32 @@ class AnnotationRuleTest {
         fun `Given a custom type with multiple annotations on it type parameter(s)`() {
             val code =
                 """
-                val fooBar: FooBar<String, @Foo @Bar String, String> = emptyList()
+                val fooBar: FooBar<String, @Foo String, @Foo @Bar String, @Bar("bar") @Foo String> = FooBar()
                 """.trimIndent()
             val formattedCode =
                 """
                 val fooBar: FooBar<
                     String,
+                    @Foo String,
                     @Foo @Bar
                     String,
+                    @Bar("bar")
+                    @Foo
                     String
-                    > = emptyList()
+                    > = FooBar()
                 """.trimIndent()
+            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
             annotationRuleAssertThat(code)
                 .addAdditionalRuleProvider { IndentationRule() }
                 .addAdditionalRuleProvider { WrappingRule() }
                 .hasLintViolations(
-                    LintViolation(1, 28, "Annotations on a type reference should be placed on a separate line"),
-                    LintViolation(1, 38, "Multiple annotations should not be placed on the same line as the annotated construct"),
-                    LintViolation(1, 38, "Annotations on a type reference should be placed on a separate line"),
+                    LintViolation(1, 39, "Expected newline after ','"),
+                    LintViolation(1, 51, "Multiple annotations should not be placed on the same line as the annotated construct"),
+                    LintViolation(1, 57, "Expected newline after ','"),
+                    LintViolation(1, 59, "Expected newline before '@'"),
+                    LintViolation(1, 59, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
+                    LintViolation(1, 76, "Multiple annotations should not be placed on the same line as the annotated construct"),
+                    LintViolation(1, 82, "Expected newline before '>'"),
                 ).isFormattedAs(formattedCode)
         }
     }
@@ -705,5 +702,36 @@ class AnnotationRuleTest {
             annotationRuleAssertThat(code)
                 .hasNoLintViolations()
         }
+    }
+
+    @Test
+    fun `Given property allow trailing comma on declaration site is not set then remove trailing commas`() {
+        val code =
+            """
+            enum class Foo {
+                A,
+                @Bar1 B,
+                @Bar1 @Bar2 C,
+                @Bar3("bar3") @Bar1 D
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            enum class Foo {
+                A,
+                @Bar1 B,
+                @Bar1 @Bar2
+                C,
+                @Bar3("bar3")
+                @Bar1
+                D
+            }
+            """.trimIndent()
+        annotationRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(4, 17, "Multiple annotations should not be placed on the same line as the annotated construct"),
+                LintViolation(5, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
+                LintViolation(5, 25, "Multiple annotations should not be placed on the same line as the annotated construct"),
+            ).isFormattedAs(formattedCode)
     }
 }

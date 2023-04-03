@@ -570,6 +570,43 @@ Wraps the content receiver list to a separate line regardless of maximum line le
 
 Rule id: `context-receiver-wrapping`
 
+## Enum wrapping
+
+An enum should be a single line, or each enum entry has to be placed on a separate line. In case the enumeration contains enum entries and declarations those are to be separated by a blank line.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    enum class Foo { A, B, C, D }
+
+    enum class Foo {
+        A,
+        B,
+        C,
+        D,
+        ;
+
+        fun foo() = "foo"
+    }
+    ```
+
+=== "[:material-heart:](#) Disallowed"
+
+    ```kotlin
+    enum class Foo {
+        A,
+        B, C,
+        D
+    }
+
+    enum class Foo {
+        A;
+        fun foo() = "foo"
+    }
+    ```
+
+Rule id: `enum-wrapping`
+
 ### Kdoc wrapping
 
 A KDoc comment should start and end on a line that does not contain any other element.
