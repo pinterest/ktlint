@@ -68,4 +68,18 @@ class TypeArgumentListSpacingRuleTest {
             """.trimIndent()
         typeArgumentListSpacingRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Given an multiline type argument list then do not report a violation`() {
+        val code =
+            """
+            class Foo {
+                val list1: List<
+                    @Serializable(MultiplyingIntSerializer::class)
+                    Int,
+                    >
+            }
+            """.trimIndent()
+        typeArgumentListSpacingRuleAssertThat(code).hasNoLintViolations()
+    }
 }

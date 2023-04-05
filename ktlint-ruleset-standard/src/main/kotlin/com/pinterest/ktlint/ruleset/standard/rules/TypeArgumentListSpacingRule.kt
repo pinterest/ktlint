@@ -1,23 +1,48 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.findCompositeParentElementOfType
+import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfCompositeElementOfType
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
+import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 
 /**
  * Lints and formats the spacing before and after the angle brackets of a type argument list.
  */
 public class TypeArgumentListSpacingRule :
-    StandardRule("type-argument-list-spacing"),
+    StandardRule(
+        id = "type-argument-list-spacing",
+        usesEditorConfigProperties =
+            setOf(
+                INDENT_SIZE_PROPERTY,
+                INDENT_STYLE_PROPERTY,
+            ),
+    ),
     Rule.Experimental {
+    private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
+
+    override fun beforeFirstNode(editorConfig: EditorConfig) {
+        indentConfig = IndentConfig(
+            indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
+            tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
+        )
+    }
+
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -70,21 +95,53 @@ public class TypeArgumentListSpacingRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        // No whitespace expected after opening angle bracket of type argument list
-        //    val list = listOf< String>()
+        val multiline = node.textContains('\n')
+        val expectedIndent =
+            node
+                .indent()
+                .applyIf(multiline) {
+                    plus(indentConfig.indent)
+                }
+
         node
             .findChildByType(ElementType.LT)
             ?.nextSibling()
-            ?.takeIf { it.elementType == ElementType.WHITE_SPACE }
-            ?.let { noWhitespaceExpected(it, autoCorrect, emit) }
+            ?.let { nextSibling ->
+                if (multiline) {
+                    if (nextSibling.text != expectedIndent) {
+                        emit(nextSibling.startOffset, "Expected newline", true)
+                        if (autoCorrect) {
+                            nextSibling.upsertWhitespaceAfterMe(expectedIndent)
+                        }
+                    }
+                } else {
+                    if (nextSibling.isWhiteSpace()) {
+                        // Disallow
+                        //    val list = listOf< String>()
+                        noWhitespaceExpected(nextSibling, autoCorrect, emit)
+                    }
+                }
+            }
 
-        // No whitespace expected before closing angle bracket of type argument list
-        //    val list = listOf<String >()
         node
             .findChildByType(ElementType.GT)
             ?.prevSibling()
-            ?.takeIf { it.elementType == ElementType.WHITE_SPACE }
-            ?.let { noWhitespaceExpected(it, autoCorrect, emit) }
+            ?.let { prevSibling ->
+                if (multiline) {
+                    if (prevSibling.text != expectedIndent) {
+                        emit(prevSibling.startOffset, "Expected newline", true)
+                        if (autoCorrect) {
+                            prevSibling.upsertWhitespaceBeforeMe(expectedIndent)
+                        }
+                    }
+                } else {
+                    if (prevSibling.isWhiteSpace()) {
+                        // Disallow
+                        //    val list = listOf<String >()
+                        noWhitespaceExpected(prevSibling, autoCorrect, emit)
+                    }
+                }
+            }
     }
 
     private fun noWhitespaceExpected(
