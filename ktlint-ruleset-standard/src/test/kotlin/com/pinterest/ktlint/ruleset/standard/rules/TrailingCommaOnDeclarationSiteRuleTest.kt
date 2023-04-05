@@ -1056,4 +1056,29 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
             .hasNoLintViolations()
     }
+
+    @Test
+    fun `Given a function literal with a trailing comma in the parameter list and arrow on the next line then do not report a violation`() {
+        val code =
+            """
+            val foo = {
+                    string: String,
+                    int: Int ->
+                // do something
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo = {
+                    string: String,
+                    int: Int,
+                ->
+                // do something
+            }
+            """.trimIndent()
+        trailingCommaOnDeclarationSiteRuleAssertThat(code)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
+            .hasLintViolation(3, 17, "Missing trailing comma and newline before \"->\"")
+            .isFormattedAs(formattedCode)
+    }
 }

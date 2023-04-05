@@ -295,9 +295,13 @@ public class TrailingCommaOnDeclarationSiteRule :
                 }
             TrailingCommaState.MISSING ->
                 if (isTrailingCommaAllowed) {
-                    val addNewLineBeforeArrowInWhenEntry = addNewLineBeforeArrowInWhen()
+                    val leafBeforeArrowOrNull = leafBeforeArrowOrNull()
+                    val addNewLine =
+                        leafBeforeArrowOrNull
+                            ?.let { !(leafBeforeArrowOrNull is PsiWhiteSpace && leafBeforeArrowOrNull.textContains('\n')) }
+                            ?: false
                     val prevNode = inspectNode.prevCodeLeaf()!!
-                    if (addNewLineBeforeArrowInWhenEntry) {
+                    if (addNewLine) {
                         emit(
                             prevNode.startOffset + prevNode.textLength,
                             "Missing trailing comma and newline before \"${inspectNode.text}\"",
@@ -311,16 +315,15 @@ public class TrailingCommaOnDeclarationSiteRule :
                         )
                     }
                     if (autoCorrect) {
-                        if (addNewLineBeforeArrowInWhenEntry) {
+                        if (addNewLine) {
                             val newLine =
                                 KtPsiFactory(prevNode.psi).createWhiteSpace(
                                     prevNode
                                         .treeParent
                                         .indent(),
                                 )
-                            val leafBeforeArrow = (psi as KtWhenEntry).arrow?.prevLeaf()
-                            if (leafBeforeArrow != null && leafBeforeArrow is PsiWhiteSpace) {
-                                leafBeforeArrow.replace(newLine)
+                            if (leafBeforeArrowOrNull != null && leafBeforeArrowOrNull is PsiWhiteSpace) {
+                                leafBeforeArrowOrNull.replace(newLine)
                             } else {
                                 prevNode.psi.parent.addAfter(newLine, prevNode.psi)
                             }
@@ -392,12 +395,19 @@ public class TrailingCommaOnDeclarationSiteRule :
             }
         }
 
-    private fun ASTNode.addNewLineBeforeArrowInWhen() =
-        if (psi is KtWhenEntry) {
-            val leafBeforeArrow = (psi as KtWhenEntry).arrow?.prevLeaf()
-            !(leafBeforeArrow is PsiWhiteSpace && leafBeforeArrow.textContains('\n'))
-        } else {
-            false
+    private fun ASTNode.leafBeforeArrowOrNull() =
+        when (psi) {
+            is KtWhenEntry ->
+                (psi as KtWhenEntry)
+                    .arrow
+                    ?.prevLeaf()
+
+            is KtFunctionLiteral ->
+                (psi as KtFunctionLiteral)
+                    .arrow
+                    ?.prevLeaf()
+
+            else -> null
         }
 
     private fun ASTNode.findPreviousTrailingCommaNodeOrNull(): ASTNode? {
