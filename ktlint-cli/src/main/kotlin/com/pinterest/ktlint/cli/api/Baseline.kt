@@ -164,10 +164,14 @@ private class BaselineLoader(private val path: String) {
             col = getAttribute("column").toInt(),
             ruleId =
                 getAttribute("source")
-                    .let {
+                    .let { ruleId ->
                         // Ensure backwards compatibility with baseline files in which the rule set id for standard rules is not saved
-                        RuleId.prefixWithStandardRuleSetIdWhenMissing(it)
-                            .also { ruleReferenceWithoutRuleSetIdPrefix++ }
+                        RuleId.prefixWithStandardRuleSetIdWhenMissing(ruleId)
+                            .also { prefixedRuleId ->
+                                if (prefixedRuleId != ruleId) {
+                                    ruleReferenceWithoutRuleSetIdPrefix++
+                                }
+                            }
                     },
             detail = "", // Not available in the baseline
             status = BASELINE_IGNORED,
