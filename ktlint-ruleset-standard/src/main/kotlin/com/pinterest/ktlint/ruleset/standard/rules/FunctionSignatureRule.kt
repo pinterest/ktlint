@@ -19,6 +19,8 @@ import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.Companion.DEFAULT_
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
@@ -31,7 +33,6 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
@@ -66,6 +67,7 @@ public class FunctionSignatureRule :
             ),
     ),
     Rule.Experimental {
+    private var codeStyle = CODE_STYLE_PROPERTY.defaultValue
     private var indentConfig = DEFAULT_INDENT_CONFIG
     private var maxLineLength = MAX_LINE_LENGTH_PROPERTY.defaultValue
     private var functionSignatureWrappingMinimumParameters =
@@ -73,6 +75,7 @@ public class FunctionSignatureRule :
     private var functionBodyExpressionWrapping = FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY.defaultValue
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
+        codeStyle = editorConfig[CODE_STYLE_PROPERTY]
         functionSignatureWrappingMinimumParameters = editorConfig[
             FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY,
         ]
@@ -159,7 +162,8 @@ public class FunctionSignatureRule :
 
         val forceMultilineSignature =
             node.hasMinimumNumberOfParameters() ||
-                node.containsParameterPrecededByAnnotationOnSeparateLine()
+                node.containsMultilineParameter() ||
+                (codeStyle == ktlint_official && node.containsAnnotatedParameter())
         if (isMaxLineLengthSet()) {
             val singleLineFunctionSignatureLength = calculateFunctionSignatureLengthAsSingleLineSignature(node, emit, autoCorrect)
             // Function signatures not having parameters, should not be reformatted automatically. It would result in function signatures
@@ -215,15 +219,25 @@ public class FunctionSignatureRule :
             tailNodesOfFunctionSignature.sumOf { it.text.length }
     }
 
-    private fun ASTNode.containsParameterPrecededByAnnotationOnSeparateLine(): Boolean =
+    private fun ASTNode.containsMultilineParameter(): Boolean =
         findChildByType(VALUE_PARAMETER_LIST)
             ?.children()
             .orEmpty()
             .filter { it.elementType == VALUE_PARAMETER }
-            .mapNotNull {
-                // If the value parameter contains a modifier then this list is followed by a white space
-                it.findChildByType(MODIFIER_LIST)?.nextSibling()
-            }.any { it.textContains('\n') }
+            .any { it.textContains('\n') }
+
+    private fun ASTNode.containsAnnotatedParameter(): Boolean =
+        findChildByType(VALUE_PARAMETER_LIST)
+            ?.children()
+            .orEmpty()
+            .filter { it.elementType == VALUE_PARAMETER }
+            .any { it.isAnnotated() }
+
+    private fun ASTNode.isAnnotated() =
+        findChildByType(MODIFIER_LIST)
+            ?.children()
+            .orEmpty()
+            .any { it.elementType == ANNOTATION_ENTRY }
 
     private fun calculateFunctionSignatureLengthAsSingleLineSignature(
         node: ASTNode,

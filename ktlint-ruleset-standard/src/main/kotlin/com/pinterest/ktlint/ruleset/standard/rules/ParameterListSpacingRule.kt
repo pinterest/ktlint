@@ -89,13 +89,10 @@ public class ParameterListSpacingRule :
                 }
                 COMMA -> {
                     // Comma must be followed by whitespace
-                    val nextSibling =
-                        el
-                            .nextSibling()
-                            ?.elementType
-                    if (nextSibling != WHITE_SPACE) {
-                        addMissingWhiteSpaceAfterMe(el, emit, autoCorrect)
-                    }
+                    el
+                        .nextLeaf()
+                        ?.takeIf { it.elementType != WHITE_SPACE }
+                        ?.let { addMissingWhiteSpaceAfterMe(el, emit, autoCorrect) }
                 }
                 VALUE_PARAMETER -> {
                     valueParameterCount += 1

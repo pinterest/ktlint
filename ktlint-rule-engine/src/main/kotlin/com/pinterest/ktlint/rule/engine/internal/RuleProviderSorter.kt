@@ -64,9 +64,9 @@ internal class RuleProviderSorter {
         val sortedRuleProviders = mutableListOf<RuleProvider>()
         val ruleIdsSortedRuleProviders = mutableSetOf<RuleId>()
 
-        // Initially the list only contains the rules which have no RunAfterRules (e.g. are not depending on another rule).
+        // Initially the list only contains the rules not depending on another rule.
         unprocessedRuleProviders
-            .filter { it.hasNoRunAfterRules() }
+            .filter { !it.runAsLateAsPossible && it.hasNoRunAfterRules() }
             .forEach { ruleProvider ->
                 sortedRuleProviders.add(ruleProvider)
                 ruleIdsSortedRuleProviders.add(ruleProvider.ruleId)

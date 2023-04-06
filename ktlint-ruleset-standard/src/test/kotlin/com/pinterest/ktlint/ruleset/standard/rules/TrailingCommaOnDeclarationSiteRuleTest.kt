@@ -708,16 +708,23 @@ class TrailingCommaOnDeclarationSiteRuleTest {
     }
 
     @Test
-    fun `Given that a trailing comma is not allowed then it is not removed for enums where last two entries are on same line`() {
+    fun `Given that a trailing comma is not allowed then remove it for enums where last two entries are on same line and followed by trailing comma`() {
         val code =
             """
             enum class Shape {
                 SQUARE, TRIANGLE,
             }
             """.trimIndent()
+        val formattedCode =
+            """
+            enum class Shape {
+                SQUARE, TRIANGLE
+            }
+            """.trimIndent()
         trailingCommaOnDeclarationSiteRuleAssertThat(code)
             .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to false)
-            .hasNoLintViolations()
+            .hasLintViolation(2, 21, "Unnecessary trailing comma before \"}\"")
+            .isFormattedAs(formattedCode)
     }
 
     @Nested
@@ -1048,5 +1055,30 @@ class TrailingCommaOnDeclarationSiteRuleTest {
         trailingCommaOnDeclarationSiteRuleAssertThat(code)
             .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
             .hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a function literal with a trailing comma in the parameter list and arrow on the next line then do not report a violation`() {
+        val code =
+            """
+            val foo = {
+                    string: String,
+                    int: Int ->
+                // do something
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo = {
+                    string: String,
+                    int: Int,
+                ->
+                // do something
+            }
+            """.trimIndent()
+        trailingCommaOnDeclarationSiteRuleAssertThat(code)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
+            .hasLintViolation(3, 17, "Missing trailing comma and newline before \"->\"")
+            .isFormattedAs(formattedCode)
     }
 }

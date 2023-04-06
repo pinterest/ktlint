@@ -447,6 +447,21 @@ class ParameterListSpacingRuleTest {
             .hasNoLintViolations()
     }
 
+    @Test
+    fun `Given a function literal with a trailing comma in the parameter list and arrow on the next line then do not report a violation`() {
+        val code =
+            """
+            val foo = {
+                    string: String,
+                    int: Int,
+                ->
+                // do something
+            }
+            """.trimIndent()
+        parameterListSpacingRuleAssertThat(code)
+            .hasNoLintViolations()
+    }
+
     private companion object {
         const val TOO_MANY_SPACES = "  "
     }

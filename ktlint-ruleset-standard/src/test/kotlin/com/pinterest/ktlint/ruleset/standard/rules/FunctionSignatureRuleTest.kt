@@ -1,5 +1,8 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.Companion.FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.Companion.FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
@@ -975,26 +978,47 @@ class FunctionSignatureRuleTest {
             .hasNoLintViolations()
     }
 
-    @Test
-    fun `Given a function signature with an annotated parameter and the annotation is on the same line as the parameter then reformat it as a single line signature when it fits`() {
-        val code =
-            """
-            // $MAX_LINE_LENGTH_MARKER              $EOL_CHAR
-            fun foo(
-                @Bar bar: String
-            ) = "some-result"
-            """.trimIndent()
-        val formattedCode =
-            """
-            // $MAX_LINE_LENGTH_MARKER              $EOL_CHAR
-            fun foo(@Bar bar: String) = "some-result"
-            """.trimIndent()
-        functionSignatureWrappingRuleAssertThat(code)
-            .setMaxLineLength()
-            .hasLintViolations(
-                LintViolation(3, 5, "No whitespace expected between opening parenthesis and first parameter name"),
-                LintViolation(3, 21, "No whitespace expected between last parameter and closing parenthesis"),
-            ).isFormattedAs(formattedCode)
+    @Nested
+    inner class `Given a single line function signature with an annotated parameter` {
+        @Test
+        fun `Given ktlint_official code style`() {
+            val code =
+                """
+                fun foo(a: Int, @Bar bar: String, b: Int) = "some-result"
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun foo(
+                    a: Int,
+                    @Bar bar: String,
+                    b: Int
+                ) = "some-result"
+                """.trimIndent()
+            functionSignatureWrappingRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasLintViolations(
+                    LintViolation(1, 9, "Newline expected after opening parenthesis"),
+                    LintViolation(1, 17, "Parameter should start on a newline"),
+                    LintViolation(1, 35, "Parameter should start on a newline"),
+                    LintViolation(1, 41, "Newline expected before closing parenthesis"),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @ParameterizedTest(name = "Code style: {0}")
+        @EnumSource(
+            value = CodeStyleValue::class,
+            mode = EnumSource.Mode.EXCLUDE,
+            names = ["ktlint_official"],
+        )
+        fun `Given non-ktlint_official code style`(codeStyle: CodeStyleValue) {
+            val code =
+                """
+                fun foo(a: Int, @Bar bar: String, b: Int) = "some-result"
+                """.trimIndent()
+            functionSignatureWrappingRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyle)
+                .hasNoLintViolations()
+        }
     }
 
     @Test
