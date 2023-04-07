@@ -4,41 +4,46 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
-WARNING: This version on KtLint contains a number of breaking changes in KtLint CLI and KtLint API. If you are using KtLint with custom ruleset jars or custom reporter jars, then those need to be upgrade before you can use them with this version of ktlint. Please contact the maintainers of those jars and ask them to upgrade a.s.a.p.
+WARNING: This version of KtLint contains a number of breaking changes in KtLint CLI and KtLint API. If you are using KtLint with custom ruleset jars or custom reporter jars, then those need to be upgraded before you can use them with this version of ktlint. Please contact the maintainers of those jars and ask them to upgrade a.s.a.p.
 
-All rule id's in the output of Ktlint are now prefixed with a rule set. Although KtLint currently supports standard rules to be unqualified, users are encouraged to migrate to include the rule set id in all references to rules. This includes following:
-- The `--disabled-rules` parameter in KtLint CLI and `.editorconfig`.
-- The `source` element in the KtLint CLI `baseline.xml` file. Regenerating this file, fixes all rule references automatically.
-- The KtLint disable directives `ktlint-enable` / `ktlint-disable` and the `@Suppress('ktlint:...')` annotations.
+All rule id's in the output of Ktlint are now prefixed with a rule set. Although KtLint currently supports standard rules to be unqualified, users are encouraged to include the rule set id in all references to rules. This includes following:
+* The `--disabled-rules` parameter in KtLint CLI.
+* The `.editorconfig` properties used to enable or disable rule and rule sets. Note that properties `disabled_rules` and `ktlint_disabled_rules` have been removed in this release. See [disabled rules](https://pinterest.github.io/ktlint/rules/configuration-ktlint/#disabled-rules) for more information.
+* The `source` element in the KtLint CLI `baseline.xml` file. Regenerating this file, fixes all rule references automatically.
+* The KtLint disable directives `ktlint-enable` / `ktlint-disable` and the `@Suppress('ktlint:...')` annotations.
+* The `VisitorModifier.RunAfterRule`.
 
 ### Moving experimental rules to standard rule set
 
 The `experimental` rule set has been merged with `standard` rule set. The rules which formerly were part of the `experimental` rule set are still being treated as before. The rules will only be run in case `.editorconfig` property `ktlint_experimental` is enabled or in case the rule is explicitly enabled.
 
 Note that the prefix `experimental:` has to be removed from all references to this rule. Check references in:
-* The `.editorconfig` setting `disabled_rules`.
-* KtLint disable and enable directives.
+* The `--disabled-rules` parameter in KtLint CLI.
+* The `.editorconfig` properties used to enable or disable rule and rule sets. Note that properties `disabled_rules` and `ktlint_disabled_rules` have been removed in this release. See [disabled rules](https://pinterest.github.io/ktlint/rules/configuration-ktlint/#disabled-rules) for more information.
+* The KtLint disable directives `ktlint-enable` / `ktlint-disable` and the `@Suppress('ktlint:...')` annotations.
 * The `VisitorModifier.RunAfterRule`.
 
 ### API Changes & RuleSet providers & Reporter Providers
 
+This release is intended to be the last release before the 1.0.x release of ktlint. If all goes as planned, the 1.0.x release does not contain any new breaking changes with except of removal of functionality which is deprecated in this release.
+
+This release contains a lot of breaking changes which aims to improve the future maintainability of Ktlint. If you get stuck while migrating, please reach out to us by creating an issue.
+
 #### Experimental rules
 
-Rules in custom rule sets can be marked as experimental by implementing the `Rule.Experimental` interface on the rule. Rules marked with this interface will only be executed by Ktlint whenever the `.editorconfig` property `ktlint_experimental` is enabled.
+Rules in custom rule sets can now be marked as experimental by implementing the `Rule.Experimental` interface on the rule. Rules marked with this interface will only be executed by Ktlint if `.editorconfig` property `ktlint_experimental` is enabled or if the rule itself has been enabled explicitly.
 
-When using this feature, experimental rules should *not* be defined in a separate rule set. A rule is identified by its qualified rule id that includes the rule set id. Moving a rule from an experimental rule set to a non-experimental rule set has the downside that the qualified rule id changes. For users of such rules this means that ktlint directives to suppress the rule and properties in the `.editorconfig` files have to be changed.
+When using this feature, experimental rules should *not* be defined in a separate rule set as that would require a distinct rule set id. When moving a rule from an experimental rule set to a non-experimental rule set this would mean that the qualified rule id changes. For users of such rules this means that ktlint directives to suppress the rule and properties in the `.editorconfig` files have to be changed.
 
 #### EditorConfig
 
-Field `defaultAndroidValue` in class `EditorConfigProperty` has been renamed to `androidStudioCodeStyleDefaultValue`. Note that also new fields `ktlintOfficialCodeStyleDefaultValue` and `intellijIdeaCodeStyleDefaultValue` have been added. Read more about this in the section "Ktlint Official code style".
+Field `defaultAndroidValue` in class `EditorConfigProperty` has been renamed to `androidStudioCodeStyleDefaultValue`. New fields `ktlintOfficialCodeStyleDefaultValue` and `intellijIdeaCodeStyleDefaultValue` have been added. Read more about this in the section "Ktlint Official code style".
 
 The `.editorconfig` properties `disabled_rules` and `ktlint_disabled_rules` are no longer supported. Specifying those properties in the `editorConfigOverride` or `editorConfigDefaults` result in warnings at runtime.
 
 #### 'Ktlint Official` code style and renaming of existing code styles
 
-A new code style with name `ktlint_offical` has been added. This code style makes it possible to innovate ktlint beyond current expectations of users that are familiar with the existing code styles. 
-
-The `ktlint_official` code style combines the best elements from the Kotlin Coding conventions (https://kotlinlang.org/docs/coding-conventions.html) and Android's Kotlin styleguide (https://developer.android.com/kotlin/style-guide). This codestyle also provides additional formatting on topics which are not (explicitly) mentioned in the before mentioned styleguide. Also, this code style sometimes formats code in a way which is not accepted by the default code formatters in IntelliJ IDEA and Android Studio. The formatters of those editors produce nicely formatted code in the vast majority of cases. But in a number of edge cases, the formatting contains bugs which are waiting to be fixed for several years. The new code style formats code in a way which is compatible with the default formatting of the editors whenever possible. When using this codestyle, it is best to disable (e.g. not use) code formatting in the editor. In the long run, this code style becomes the default code style provided by KtLint.
+A new code style with name `ktlint_offical` has been added. This code style combines the best elements from the Kotlin Coding conventions (https://kotlinlang.org/docs/coding-conventions.html) and Android's Kotlin styleguide (https://developer.android.com/kotlin/style-guide). This codestyle also provides additional formatting on topics which are not (explicitly) mentioned in the before mentioned styleguides. But do note that this code style sometimes formats code in a way which is not accepted by the default code formatters in IntelliJ IDEA and Android Studio. The formatters of those editors produce nicely formatted code in the vast majority of cases. But in a number of edge cases, the formatting contains bugs which are waiting to be fixed for several years. The new code style formats code in a way which is compatible with the default formatting of the editors whenever possible. When using this codestyle, it is best to disable (e.g. not use) code formatting in the editor. In the long run, this code style becomes the default code style provided by KtLint.
 
 The `official` code style has been renamed to `intellij_idea`. Code formatted with this code style aims to be compatible with default formatter of IntelliJ IDEA. This code style is based on Kotlin Coding conventions (https://kotlinlang.org/docs/coding-conventions.html). If `.editorconfig` property `ktlint_code_style` has been set to then do not forget to change the value of that property to `intellij_idea`. When not set, this is still the default code style of ktlint. Note that in the long run, the default code style is changed to `ktlint_official`.
 
@@ -50,7 +55,7 @@ The internal structure of the Ktlint project has been revised. The Ktlint CLI an
 
 This is the last release that contains module `ktlint-core` as it had too many responsibilities. All classes in this module are relocated to other modules. Some classes have also been renamed. See tables below for details. Classes that are left behind in the `ktlint-core` module are deprecated and were kept in this version for backwards compatibility only. The `ktlint-core` module will be removed in Ktlint `0.50.x`.
 
-Classes below have been moved to the new module `ktlint-rule-engine`:
+Classes below have been moved from module `ktlint-core` to the new module `ktlint-rule-engine-core`:
 
 | Old class/package name in `ktlint-core`                  | New class/package name in `ktlint-rule-engine-core`                               |
 |----------------------------------------------------------|-----------------------------------------------------------------------------------|
@@ -63,6 +68,7 @@ Classes below have been moved to the new module `ktlint-rule-engine`:
 | com.pinterest.ktlint.core.Rule                           | com.pinterest.ktlint.rule.engine.core.api.Rule                                    |
 | com.pinterest.ktlint.core.RuleProvider                   | com.pinterest.ktlint.rule.engine.core.api.RuleProvider                            |
 
+Classes below have been moved from module `ktlint-core` to the new module `ktlint-rule-engine`:
 
 | Old class/package name in `ktlint-core`                  | New class/package name in `ktlint-rule-engine`                               |
 |----------------------------------------------------------|------------------------------------------------------------------------------|
@@ -75,74 +81,74 @@ Classes below have been moved to the new module `ktlint-rule-engine`:
 
 Class `com.pinterest.ktlint.core.KtLint.Code.CodeFile` has been replaced with factory method `com.pinterest.ktlint.rule.engine.api.Code.fromFile`. Likewise, class `com.pinterest.ktlint.core.KtLint.Code.CodeSnippet` has been replaced with factory method `com.pinterest.ktlint.rule.engine.api.Code.fromSnippet`.
 
-Classes below have been moved to the new module `ktlint-cli-ruleset-core`:
+Class below has been moved from module `ktlint-core` to the new module `ktlint-cli-ruleset-core`:
 
 | Old class/package name in `ktlint-core`                  | New class/package name in `ktlint-cli-ruleset-core`                           |
 |----------------------------------------------------------|-------------------------------------------------------------------------------|
 | com.pinterest.ktlint.core.RuleSetProviderV2              | com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3                   |
 
 
-Class below has been moved to the new module `ktlint-cli-reporter-core`:
+Class below has been moved from module `ktlint-core` to the new module `ktlint-cli-reporter-core`:
 
 | Old class/package name in `ktlint-core`   | New class/package name in `ktlint-cli-reporter-core`     |
 |-------------------------------------------|----------------------------------------------------------|
 | com.pinterest.ktlint.core.KtlintVersion   | com.pinterest.ktlint.cli.reporter.core.api.KtlintVersion |
 
-Class below has been moved to the new module `ktlint-logger`:
+Class below has been moved from module `ktlint-core` to the new module `ktlint-logger`:
 
 | Old class/package name in `ktlint-core`               | New class/package name in `ktlint-logger`                   |
 |-------------------------------------------------------|-------------------------------------------------------------|
 | com.pinterest.ktlint.core.KtLintKLoggerInitializer.kt | com.pinterest.ktlint.logger.api.KtLintKLoggerInitializer.kt |
 
-Module `ktlint` has been renamed to `ktlint-cli`. Classes below have been relocated in this module:
+Class below has been relocated from module `ktlint-core` to module `ktlint-cli`:
 
 | Old class/package name in `ktlint-core` | New class/package name in `ktlint-cli` |
 |-----------------------------------------|----------------------------------------|
 | com.pinterest.ktlint.core.api.Baseline  | com.pinterest.ktlint.cli.api.Baseline  |
 
-Module `ktlint-reporter-baseline` has been renamed to `ktlint-cli-reporter-baseline`. Classes below have been relocated:
+Module `ktlint-reporter-baseline` has been renamed to `ktlint-cli-reporter-baseline`. Class below has been relocated:
 
 | Old class/package name in `ktlint-reporter-baseline` | New class/package name in `ktlint-cli-reporter-baseline` |
 |------------------------------------------------------|----------------------------------------------------------|
 | com.pinterest.ktlint.reporter.baseline               | com.pinterest.ktlint.cli.reporter.baseline               |
 
-Module `ktlint-reporter-checkstyle` has been renamed to `ktlint-cli-reporter-checkstyle`. Classes below have been relocated:
+Module `ktlint-reporter-checkstyle` has been renamed to `ktlint-cli-reporter-checkstyle`. Class below has been relocated:
 
 | Old class/package name in `ktlint-reporter-checkstyle` | New class/package name in `ktlint-cli-reporter-checkstyle` |
 |--------------------------------------------------------|------------------------------------------------------------|
 | com.pinterest.ktlint.reporter.checkstyle               | com.pinterest.ktlint.cli.reporter.checkstyle               |
 
-Module `ktlint-reporter-format` has been renamed to `ktlint-cli-reporter-format`. Classes below have been relocated:
+Module `ktlint-reporter-format` has been renamed to `ktlint-cli-reporter-format`. Class below has been relocated:
 
 | Old class/package name in `ktlint-reporter-format` | New class/package name in `ktlint-cli-reporter-format` |
 |----------------------------------------------------|--------------------------------------------------------|
 | com.pinterest.ktlint.reporter.format               | com.pinterest.ktlint.cli.reporter.format               |
 
-Module `ktlint-reporter-html` has been renamed to `ktlint-cli-reporter-html`. Classes below have been relocated:
+Module `ktlint-reporter-html` has been renamed to `ktlint-cli-reporter-html`. Class below has been relocated:
 
 | Old class/package name in `ktlint-reporter-html` | New class/package name in `ktlint-cli-reporter-html` |
 |--------------------------------------------------|------------------------------------------------------|
 | com.pinterest.ktlint.reporter.html               | com.pinterest.ktlint.cli.reporter.html               |
 
-Module `ktlint-reporter-json` has been renamed to `ktlint-cli-reporter-json`. Classes below have been relocated:
+Module `ktlint-reporter-json` has been renamed to `ktlint-cli-reporter-json`. Class below has been relocated:
 
 | Old class/package name in `ktlint-reporter-json` | New class/package name in `ktlint-cli-reporter-json` |
 |--------------------------------------------------|------------------------------------------------------|
 | com.pinterest.ktlint.reporter.json               | com.pinterest.ktlint.cli.reporter.json               |
 
-Module `ktlint-reporter-plain` has been renamed to `ktlint-cli-reporter-plain`. Classes below have been relocated:
+Module `ktlint-reporter-plain` has been renamed to `ktlint-cli-reporter-plain`. Class below has been relocated:
 
 | Old class/package name in `ktlint-reporter-plain` | New class/package name in `ktlint-cli-reporter-plain` |
 |---------------------------------------------------|-------------------------------------------------------|
 | com.pinterest.ktlint.reporter.plain               | com.pinterest.ktlint.cli.reporter.plain               |
 
-Module `ktlint-reporter-plain-summary` has been renamed to `ktlint-cli-reporter-plain-summary`. Classes below have been relocated:
+Module `ktlint-reporter-plain-summary` has been renamed to `ktlint-cli-reporter-plain-summary`. Class below has been relocated:
 
 | Old class/package name in `ktlint-reporter-plain-summary` | New class/package name in `ktlint-cli-reporter-plain-summary` |
 |-----------------------------------------------------------|---------------------------------------------------------------|
 | com.pinterest.ktlint.reporter.plain                       | com.pinterest.ktlint.cli.reporter.plainsummary                |
 
-Module `ktlint-reporter-sarif` has been renamed to `ktlint-cli-reporter-sarif`. Classes below have been relocated:
+Module `ktlint-reporter-sarif` has been renamed to `ktlint-cli-reporter-sarif`. Class below has been relocated:
 
 | Old class/package name in `ktlint-reporter-sarif` | New class/package name in `ktlint-cli-reporter-sarif` |
 |---------------------------------------------------|-------------------------------------------------------|
@@ -150,9 +156,9 @@ Module `ktlint-reporter-sarif` has been renamed to `ktlint-cli-reporter-sarif`. 
 
 #### Custom Ruleset Provider `RuleSetProviderV2`
 
-Custom Rule Sets build for older versions of KtLint no longer supported by this version of KtLint. The `com.pinterest.ktlint.core.RuleSetProviderV2` interface has been replaced with `RuleSetProviderV3`. The accompanying interfaces `com.pinterest.ktlint.core.RuleProvider` and `com.pinterest.ktlint.core.Rule` have been replaced with `com.pinterest.ktlint.ruleset.core.api.RuleProvider` and `com.pinterest.ktlint.ruleset.core.api.Rule` respectively.
+Custom rule sets build for older versions of KtLint are no longer supported by this version of KtLint. The `com.pinterest.ktlint.core.RuleSetProviderV2` interface has been replaced with `RuleSetProviderV3`. The accompanying interfaces `com.pinterest.ktlint.core.RuleProvider` and `com.pinterest.ktlint.core.Rule` have been replaced with `com.pinterest.ktlint.ruleset.core.api.RuleProvider` and `com.pinterest.ktlint.ruleset.core.api.Rule` respectively.
 
-Contrary to `RuleSetProviderV2`, the `RuleSetProviderV3` no longer contains information about the rule set. About information now has to be specified in the new `Rule` class. This allows custom rule set providers to combine rules originating from different rule sets into a new rule set without loosing information about its origin. The typ of the id of the rule set is changed from `String` to `RuleSetId`. 
+Contrary to `RuleSetProviderV2`, the `RuleSetProviderV3` no longer contains information about the rule set. About information now has to be specified in the new `Rule` class. This allows custom rule set providers to combine rules originating from different rule sets into a new rule set without loosing information about its origin. The type of the id of the rule set is changed from `String` to `RuleSetId`. 
 
 Note that due to renaming and relocation of the `RuleSetProviderV3` interface the name of the service provider in the custom reporter needs to be changed from `resources/META-INF/services/com.pinterest.ktlint.core.RuleSetProviderV2` to `resources/META-INF/services/com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3`.
 
@@ -191,9 +197,9 @@ The biggest change in the `ReporterV2` is the replacement of the `LintError` cla
 
 API Consumers provide a set of rules directly to the Ktlint Rule Engine. The `com.pinterest.ktlint.core.Rule` has been replaced with `com.pinterest.ktlint.ruleset.core.api.Rule`.
 
-The type of the rule id's has been changed from type `String` to `RuleId`. A `RuleId` has a value that must adhere the convention "`rule-set-id`:`rule-id`". Rule set id `standard` is reserved for rules which are maintained by the KtLint project. Custom rules created by the API Consumer should use a prefix other than `standard` to clearly mark the origin of rules which are not maintained by the KtLint project.
+The type of the rule id's has been changed from type `String` to `RuleId`. A `RuleId` has a value that must adhere to the convention "`rule-set-id`:`rule-id`". Rule set id `standard` is reserved for rules which are maintained by the KtLint project. Custom rules created by the API Consumer should use a prefix other than `standard` to clearly mark the origin of rules which are not maintained by the KtLint project.
 
-Also, the field `About` has been added. This field specifies the name of the maintainer, and the repository url and issue tracker url of the rule.
+Also, the field `About` has been added. This field specifies the name of the maintainer, and the repository url and issue tracker url of the rule. The about information of a rule is printed whenever a rule throws an exception which is caught by the Ktlint Rule Engine.
 
 When wrapping a rule from the ktlint project and modifying its behavior, please change the `ruleId` and `about` fields in the wrapped rule, so that it is clear to users whenever they use the original rule provided by KtLint versus a modified version which is not maintained by the KtLint project.
 
@@ -220,7 +226,7 @@ Like before, the API Consumer can still offer a mix of rules originating from `k
 
 #### `.editorconfig` property `max_line_length` default value
 
-Previously the default value for `.editorconfig` property `max_line_length` was set to `-1` in ktlint unless the property was defined explicitly in the `.editorconfig` or when `ktlint_code_style` was set to Android. As a result of that rules have to check that max_line_length contains a positive value before checking that the actual line length is exceeding the maximum. Now the value `Int.MAX_VALUE` (use constant `MAX_LINE_LENGTH_PROPERTY_OFF` to refer to that value) is used instead. 
+Previously, the default value for `.editorconfig` property `max_line_length` was set to `-1` in ktlint unless the property was defined explicitly in the `.editorconfig` or when `ktlint_code_style` was set to Android. As a result of that rules have to check that max_line_length contains a positive value before checking that the actual line length is exceeding the maximum. Now the value `Int.MAX_VALUE` (use constant `MAX_LINE_LENGTH_PROPERTY_OFF` to refer to that value) is used instead. 
 
 #### Psi filename replaces FILE_PATH_USER_DATA_KEY
 
@@ -234,16 +240,16 @@ if (node.isRoot()) {
 
 ### Added
 
-* Add new experimental rule `no-empty-first-line-in-class-body` for `ktlint_official` code style. This rule disallows a class to start with a blank line. This rule can also be run for other code styles but then its needs to be explicitly enabled.
-* Add new experimental rule `if-else-bracing` for `ktlint_official` code style. This rules enforces consistent usage of braces in all branches of a singe if or if-else-if statement. This rule can also be run for other code styles but then its needs to be explicitly enabled.
-* Add new experimental rule `no-consecutive-comments` for `ktlint_official` code style. This rule disallows consecutive comments except EOL comments. This rule can also be run for other code styles but then its needs to be explicitly enabled.
-* Add new experimental rule `try-catch-finally-spacing` for `ktlint_official` code style. This rule enforces consistent spacing in try-catch, try-finally and try-catch-finally statement. This rule can also be run for other code styles but then its needs to be explicitly enabled.
+* Add new experimental rule `no-empty-first-line-in-class-body` for `ktlint_official` code style. This rule disallows a class to start with a blank line. This rule can also be run for other code styles, but then it needs to be enabled explicitly.
+* Add new experimental rule `if-else-bracing` for `ktlint_official` code style. This rules enforces consistent usage of braces in all branches of a single if, if-else or if-else-if statement. This rule can also be run for other code styles, but then it needs to be enabled explicitly.
+* Add new experimental rule `no-consecutive-comments` for `ktlint_official` code style. This rule disallows consecutive comments except EOL comments. This rule can also be run for other code styles, but then it needs to be enabled explicitly.
+* Add new experimental rule `try-catch-finally-spacing` for `ktlint_official` code style. This rule enforces consistent spacing in try-catch, try-finally and try-catch-finally statement. This rule can also be run for other code styles, but then it needs to be enabled explicitly.
 * Wrap the type or value of a function or class parameter in case the maximum line length is exceeded `parameter-wrapping` ([#1846](https://github.com/pinterest/ktlint/pull/1846))
 * Wrap the type or value of a property in case the maximum line length is exceeded `property-wrapping` ([#1846](https://github.com/pinterest/ktlint/pull/1846))
 * Recognize Kotlin Script when linting and formatting code from `stdin` with KtLint CLI ([#1832](https://github.com/pinterest/ktlint/issues/1832))
-* Add new experimental rule `no-blank-line-in-list` for `ktlint_official` code style. This rule disallows blank lines to be used in super type lists, type argument lists, type constraint lists, type parameter lists, value argument lists, and value parameter lists. This rule can also be run for other code styles but then its needs to be explicitly enabled. ([#1224](https://github.com/pinterest/ktlint/issues/1224))
-* Add new experimental rule `multiline-expression-wrapping` for `ktlint_official` code style. This forces a multiline expression as value in an assignment to start on a separate line. This rule can also be run for other code styles but then its needs to be explicitly enabled. ([#1217](https://github.com/pinterest/ktlint/issues/1217))
-* Add new experimental rule `string-template-indent` for `ktlint_official` code style. This forces multiline string templates which are post-fixed with `.trimIndent()` to be formatted consistently. The opening and closing `"""` are placed on separate lines and the indentation of the content of the template is aligned with the `"""`. This rule can also be run for other code styles but then its needs to be explicitly enabled. ([#925](https://github.com/pinterest/ktlint/issues/925))
+* Add new experimental rule `no-blank-line-in-list` for `ktlint_official` code style. This rule disallows blank lines to be used in super type lists, type argument lists, type constraint lists, type parameter lists, value argument lists, and value parameter lists. This rule can also be run for other code styles, but then it needs to be enabled explicitly. ([#1224](https://github.com/pinterest/ktlint/issues/1224))
+* Add new experimental rule `multiline-expression-wrapping` for `ktlint_official` code style. This forces a multiline expression as value in an assignment to start on a separate line. This rule can also be run for other code styles, but then it needs to be enabled explicitly. ([#1217](https://github.com/pinterest/ktlint/issues/1217))
+* Add new experimental rule `string-template-indent` for `ktlint_official` code style. This forces multiline string templates which are post-fixed with `.trimIndent()` to be formatted consistently. The opening and closing `"""` are placed on separate lines and the indentation of the content of the template is aligned with the `"""`. This rule can also be run for other code styles, but then it needs to be enabled explicitly. ([#925](https://github.com/pinterest/ktlint/issues/925))
 * Support Bill of Materials (BOM), now you can integrate Ktlint in your `build.gradle` like:
   ```kotlin
   dependencies {
@@ -254,7 +260,7 @@ if (node.isRoot()) {
       ...
   }
   ```
-* Add new experimental rule `if-else-wrapping` for `ktlint_official` code style. This enforces that a single line if-statement is kept simple. A single line if-statement may contain no more than one else-branch. The branches a single line if-statement may not be wrapped in a block. ([#812](https://github.com/pinterest/ktlint/issues/812))
+* Add new experimental rule `if-else-wrapping` for `ktlint_official` code style. This enforces that a single line if-statement is kept simple. A single line if-statement may contain no more than one else-branch. The branches a single line if-statement may not be wrapped in a block. This rule can also be run for other code styles, but then it needs to be enabled explicitly. ([#812](https://github.com/pinterest/ktlint/issues/812))
 * Add new experimental rule `enum-wrapping` for all code styles. An enum should either be a single line, or each enum entry should be defined on a separate line. ([#1903](https://github.com/pinterest/ktlint/issues/1903))
 
 ### Removed
@@ -296,7 +302,6 @@ if (node.isRoot()) {
 
 ### Changed
 * Wrap the parameters of a function literal containing a multiline parameter list (only in `ktlint_official` code style) `parameter-list-wrapping` ([#1681](https://github.com/pinterest/ktlint/issues/1681)).
-  Changelog:
 * KtLint CLI exits with an error in any of following cases (this list is not exhaustive):
   - A custom ruleset jar is to be loaded and that jar contains a deprecated RuleSetProviderV2.
   - A custom ruleset jar is to be loaded and that jar does not contain the required RuleSetProviderV3.
