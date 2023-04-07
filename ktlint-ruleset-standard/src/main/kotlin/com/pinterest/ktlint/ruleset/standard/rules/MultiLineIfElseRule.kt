@@ -1,6 +1,8 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.BINARY_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ELSE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ELSE_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IF
@@ -52,29 +54,54 @@ public class MultiLineIfElseRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        if (node.elementType == THEN || node.elementType == ELSE) {
-            if (node.firstChildNode?.elementType == BLOCK) {
+        if (node.elementType != THEN && node.elementType != ELSE) {
+            return
+        }
+
+        // Ignore when already wrapped in a block
+        if (node.firstChildNode?.elementType == BLOCK) {
+            return
+        }
+
+        if (node.elementType == ELSE && node.firstChildNode?.elementType == BINARY_EXPRESSION) {
+            // Allow
+            //    val foo = if (bar1) {
+            //       "bar1"
+            //   } else {
+            //       null
+            //   } ?: "something-else"
+            return
+        }
+
+        if (node.elementType == ELSE && node.firstChildNode?.elementType == DOT_QUALIFIED_EXPRESSION) {
+            // Allow
+            //    val foo = if (bar1) {
+            //       "bar1"
+            //   } else {
+            //       "bar2"
+            //   }.plus("foo")
+            return
+        }
+
+        if (!node.treePrev.textContains('\n')) {
+            if (node.firstChildNode.elementType == IF) {
+                // Allow single line for:
+                // else if (...)
+                return
+            }
+            if (!node.treeParent.textContains('\n')) {
+                // Allow single line if statements as long as they are really simple (e.g. do not contain newlines)
+                //    if (...) <statement> // no else statement
+                //    if (...) <statement> else <statement>
                 return
             }
 
-            if (!node.treePrev.textContains('\n')) {
-                if (node.firstChildNode.elementType == IF) {
-                    // Allow single line for:
-                    // else if (...)
-                    return
-                }
-                if (!node.treeParent.textContains('\n')) {
-                    // Allow single line if statements as long as they are really simple (e.g. do not contain newlines)
-                    //    if (...) <statement> // no else statement
-                    //    if (...) <statement> else <statement>
-                    return
-                }
-            }
+            Unit
+        }
 
-            emit(node.firstChildNode.startOffset, "Missing { ... }", true)
-            if (autoCorrect) {
-                autocorrect(node)
-            }
+        emit(node.firstChildNode.startOffset, "Missing { ... }", true)
+        if (autoCorrect) {
+            autocorrect(node)
         }
     }
 

@@ -292,6 +292,7 @@ if (node.isRoot()) {
 * Add newline after adding trailing comma in parameter list of a function literal `trailing-comma-on-declaration-site` ([#1911](https://github.com/pinterest/ktlint/issues/1911))
 * Wrap annotations before class constructor in code style `ktlint_official`. `annotation` ([#1916](https://github.com/pinterest/ktlint/issues/1916))
 * Annotations on type projections should be wrapped in same way as other annotations `annotation` ([#1917](https://github.com/pinterest/ktlint/issues/1917))
+* An if-else followed by an elvis operator should not be wrapped in an else-block `multiline-if-else` ([#1904](https://github.com/pinterest/ktlint/issues/1904))
 
 ### Changed
 * Wrap the parameters of a function literal containing a multiline parameter list (only in `ktlint_official` code style) `parameter-list-wrapping` ([#1681](https://github.com/pinterest/ktlint/issues/1681)).

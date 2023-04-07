@@ -569,4 +569,32 @@ class MultiLineIfElseRuleTest {
                 LintViolation(3, 10, "Missing { ... }"),
             ).isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Issue 1904 - Given an nested if else statement followed by an elvis operator`() {
+        val code =
+            """
+            val foo = if (bar1) {
+                "bar1"
+            } else {
+                null
+            } ?: "something-else"
+            """.trimIndent()
+        multiLineIfElseRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 1904 - Given an nested if else statement and else which is part of a dot qualified expression`() {
+        val code =
+            """
+            val foo = if (bar1) {
+                "bar1"
+            } else if (bar2) {
+                "bar2"
+            } else {
+                "bar3"
+            }.plus("foo")
+            """.trimIndent()
+        multiLineIfElseRuleAssertThat(code).hasNoLintViolations()
+    }
 }
