@@ -20,6 +20,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiErrorElement
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtFile
+import kotlin.io.path.pathString
 
 private val KOTLIN_PSI_FILE_FACTORY_PROVIDER = KotlinPsiFileFactoryProvider()
 
@@ -143,7 +144,9 @@ internal class RuleExecutionContext private constructor(
             val positionInTextLocator = buildPositionInTextLocator(normalizedText)
 
             val psiFileName =
-                code.fileName
+                code
+                    .filePath
+                    ?.pathString
                     ?: if (code.script) {
                         "File.kts"
                     } else {
