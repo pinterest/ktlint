@@ -7,7 +7,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.ELSE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ELSE_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IF
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.THEN
@@ -64,7 +63,7 @@ public class MultiLineIfElseRule :
             return
         }
 
-        if (node.elementType == ELSE &&node.firstChildNode?.elementType == BINARY_EXPRESSION) {
+        if (node.elementType == ELSE && node.firstChildNode?.elementType == BINARY_EXPRESSION) {
             // Allow
             //    val foo = if (bar1) {
             //       "bar1"
@@ -74,7 +73,7 @@ public class MultiLineIfElseRule :
             return
         }
 
-        if (node.elementType == ELSE &&node.firstChildNode?.elementType == DOT_QUALIFIED_EXPRESSION) {
+        if (node.elementType == ELSE && node.firstChildNode?.elementType == DOT_QUALIFIED_EXPRESSION) {
             // Allow
             //    val foo = if (bar1) {
             //       "bar1"

@@ -2,7 +2,6 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class MultiLineIfElseRuleTest {
