@@ -280,6 +280,8 @@ Previously the default value for `.editorconfig` property `max_line_length` was 
 * Wrap annotated function parameters to a separate line in code style `ktlint_official` only. `function-signature`, `parameter-list-wrapping` ([#1908](https://github.com/pinterest/ktlint/issues/1908))
 * Wrap annotated projection types in type argument lists to a separate line `annotation` ([#1909](https://github.com/pinterest/ktlint/issues/1909))
 * Add newline after adding trailing comma in parameter list of a function literal `trailing-comma-on-declaration-site` ([#1911](https://github.com/pinterest/ktlint/issues/1911))
+* Wrap annotations before class constructor in code style `ktlint_official`. `annotation` ([#1916](https://github.com/pinterest/ktlint/issues/1916))
+* Annotations on type projections should be wrapped in same way as other annotations `annotation` ([#1917](https://github.com/pinterest/ktlint/issues/1917))
 
 ### Changed
 * Wrap the parameters of a function literal containing a multiline parameter list (only in `ktlint_official` code style) `parameter-list-wrapping` ([#1681](https://github.com/pinterest/ktlint/issues/1681)).

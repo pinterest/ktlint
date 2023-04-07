@@ -1,5 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Nested
@@ -39,11 +41,11 @@ class AnnotationRuleTest {
     fun `Given an annotation with a parameter followed by a EOL comment`() {
         val code =
             """
-            @Suppress("AnnotationRule") // some comment
+            @Suppress("Something") // some comment
             class FooBar {
-                @Suppress("AnnotationRule") // some comment
+                @Suppress("Something") // some comment
                 var foo: String
-                @Suppress("AnnotationRule") // some comment
+                @Suppress("Something") // some comment
                 fun bar() {}
             }
             """.trimIndent()
@@ -54,54 +56,54 @@ class AnnotationRuleTest {
     fun `Given an annotation with a parameter on same line as annotation construct (possibly separated by a block comment or KDoc)`() {
         val code =
             """
-            @Suppress("AnnotationRule") class FooBar1 {
-                @Suppress("AnnotationRule") var foo: String
-                @Suppress("AnnotationRule") fun bar() {}
+            @Suppress("Something") class FooBar1 {
+                @Suppress("Something") var foo: String
+                @Suppress("Something") fun bar() {}
             }
-            @Suppress("AnnotationRule") /* some comment */ class FooBar2 {
-                @Suppress("AnnotationRule") /* some comment */ var foo: String
-                @Suppress("AnnotationRule") /* some comment */ fun bar() {}
+            @Suppress("Something") /* some comment */ class FooBar2 {
+                @Suppress("Something") /* some comment */ var foo: String
+                @Suppress("Something") /* some comment */ fun bar() {}
             }
-            @Suppress("AnnotationRule") /** some comment */ class FooBar3 {
-                @Suppress("AnnotationRule") /** some comment */ var foo: String
-                @Suppress("AnnotationRule") /** some comment */ fun bar() {}
+            @Suppress("Something") /** some comment */ class FooBar3 {
+                @Suppress("Something") /** some comment */ var foo: String
+                @Suppress("Something") /** some comment */ fun bar() {}
             }
             """.trimIndent()
         val formattedCode =
             """
-            @Suppress("AnnotationRule")
+            @Suppress("Something")
             class FooBar1 {
-                @Suppress("AnnotationRule")
+                @Suppress("Something")
                 var foo: String
-                @Suppress("AnnotationRule")
+                @Suppress("Something")
                 fun bar() {}
             }
-            @Suppress("AnnotationRule")
-            /* some comment */ class FooBar2 {
-                @Suppress("AnnotationRule")
-                /* some comment */ var foo: String
-                @Suppress("AnnotationRule")
-                /* some comment */ fun bar() {}
+            @Suppress("Something") /* some comment */
+            class FooBar2 {
+                @Suppress("Something") /* some comment */
+                var foo: String
+                @Suppress("Something") /* some comment */
+                fun bar() {}
             }
-            @Suppress("AnnotationRule")
-            /** some comment */ class FooBar3 {
-                @Suppress("AnnotationRule")
-                /** some comment */ var foo: String
-                @Suppress("AnnotationRule")
-                /** some comment */ fun bar() {}
+            @Suppress("Something") /** some comment */
+            class FooBar3 {
+                @Suppress("Something") /** some comment */
+                var foo: String
+                @Suppress("Something") /** some comment */
+                fun bar() {}
             }
             """.trimIndent()
         annotationRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(1, 1, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
-                LintViolation(2, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
-                LintViolation(3, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
-                LintViolation(5, 1, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
-                LintViolation(6, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
-                LintViolation(7, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
-                LintViolation(9, 1, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
-                LintViolation(10, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
-                LintViolation(11, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
+                LintViolation(1, 23, "Expected newline after last annotation"),
+                LintViolation(2, 27, "Expected newline after last annotation"),
+                LintViolation(3, 27, "Expected newline after last annotation"),
+                LintViolation(5, 42, "Expected newline after last annotation"),
+                LintViolation(6, 46, "Expected newline after last annotation"),
+                LintViolation(7, 46, "Expected newline after last annotation"),
+                LintViolation(9, 43, "Expected newline after last annotation"),
+                LintViolation(10, 47, "Expected newline after last annotation"),
+                LintViolation(11, 47, "Expected newline after last annotation"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -126,9 +128,9 @@ class AnnotationRuleTest {
             """.trimIndent()
         annotationRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(1, 11, "Multiple annotations should not be placed on the same line as the annotated construct"),
-                LintViolation(2, 15, "Multiple annotations should not be placed on the same line as the annotated construct"),
-                LintViolation(3, 15, "Multiple annotations should not be placed on the same line as the annotated construct"),
+                LintViolation(1, 10, "Expected newline after last annotation"),
+                LintViolation(2, 14, "Expected newline after last annotation"),
+                LintViolation(3, 14, "Expected newline after last annotation"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -157,7 +159,7 @@ class AnnotationRuleTest {
             var foo: String
             """.trimIndent()
         annotationRuleAssertThat(code)
-            .hasLintViolation(1, 21, "Multiple annotations should not be placed on the same line as the annotated construct")
+            .hasLintViolation(1, 20, "Expected newline after last annotation")
             .isFormattedAs(formattedCode)
     }
 
@@ -173,7 +175,7 @@ class AnnotationRuleTest {
             var foo: String
             """.trimIndent()
         annotationRuleAssertThat(code)
-            .hasLintViolation(1, 21, "Multiple annotations should not be placed on the same line as the annotated construct")
+            .hasLintViolation(1, 20, "Expected newline after last annotation")
             .isFormattedAs(formattedCode)
     }
 
@@ -181,26 +183,26 @@ class AnnotationRuleTest {
     fun `Given an annotation with a parameter not followed by a space but on same line as annotated construct`() {
         val code =
             """
-            @Suppress("AnnotationRule")class FooBar {
-                @Suppress("AnnotationRule")var foo: String
-                @Suppress("AnnotationRule")fun bar() {}
+            @Suppress("Something")class FooBar {
+                @Suppress("Something")var foo: String
+                @Suppress("Something")fun bar() {}
             }
             """.trimIndent()
         val formattedCode =
             """
-            @Suppress("AnnotationRule")
+            @Suppress("Something")
             class FooBar {
-                @Suppress("AnnotationRule")
+                @Suppress("Something")
                 var foo: String
-                @Suppress("AnnotationRule")
+                @Suppress("Something")
                 fun bar() {}
             }
             """.trimIndent()
         annotationRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(1, 1, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
-                LintViolation(2, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
-                LintViolation(3, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
+                LintViolation(1, 22, "Expected newline after last annotation"),
+                LintViolation(2, 26, "Expected newline after last annotation"),
+                LintViolation(3, 26, "Expected newline after last annotation"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -230,7 +232,7 @@ class AnnotationRuleTest {
             }
             """.trimIndent()
         annotationRuleAssertThat(code)
-            .hasLintViolation(2, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct")
+            .hasLintViolation(7, 6, "Expected newline after last annotation")
             .isFormattedAs(formattedCode)
     }
 
@@ -253,7 +255,7 @@ class AnnotationRuleTest {
             """.trimIndent()
         @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
         annotationRuleAssertThat(code)
-            .hasLintViolation(3, 5, "Annotation must be placed on a separate line when it is preceded by another annotation on a separate line")
+            .hasLintViolation(3, 9, "Expected newline after last annotation")
             .isFormattedAs(formattedCode)
     }
 
@@ -283,15 +285,6 @@ class AnnotationRuleTest {
 
             @JvmField
             var foo: String
-            """.trimIndent()
-        annotationRuleAssertThat(code).hasNoLintViolations()
-    }
-
-    @Test
-    fun `Issue 628 - Given an annotation before the primary constructor `() {
-        val code =
-            """
-            class Foo @Inject internal constructor()
             """.trimIndent()
         annotationRuleAssertThat(code).hasNoLintViolations()
     }
@@ -391,6 +384,17 @@ class AnnotationRuleTest {
         }
 
         @Test
+        fun `Given a file annotation with parameter followed by a blank line`() {
+            val code =
+                """
+                @file:JvmName("FooClass")
+
+                package foo.bar
+                """.trimIndent()
+            annotationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
         fun `Issue 624 - Given a file annotation with parameter on same line as package`() {
             val code =
                 """
@@ -405,7 +409,7 @@ class AnnotationRuleTest {
             @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
             annotationRuleAssertThat(code)
                 .hasLintViolations(
-                    LintViolation(1, 1, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
+                    LintViolation(1, 26, "Expected newline after last annotation"),
                     LintViolation(1, 27, "File annotations should be separated from file contents with a blank line"),
                 ).isFormattedAs(formattedCode)
         }
@@ -501,7 +505,7 @@ class AnnotationRuleTest {
     fun `Issue 1539 - Given an annotation with parameter followed by an EOL comment and followed by another annotation`() {
         val code =
             """
-            @Suppress("AnnotationRule") // some comment
+            @Suppress("Something") // some comment
             @Bar
             class Foo
             """.trimIndent()
@@ -512,7 +516,7 @@ class AnnotationRuleTest {
     fun `Issue 1539 - Given an annotation with parameter followed by an EOL comment on separate line before annotated construct`() {
         val code =
             """
-            @Suppress("AnnotationRule")
+            @Suppress("Something")
             // some comment between last annotation and annotated construct
             class Foo
             """.trimIndent()
@@ -552,17 +556,45 @@ class AnnotationRuleTest {
     }
 
     @Test
-    fun `Given an annotated expression on same line as annotated construct and the annotation contains a parameter then report a violation which can not be autocorrected`() {
+    fun `Given an annotated expression on same line as annotated construct and the annotation contains a parameter`() {
         val code =
             """
-            fun foo() = @Suppress("DEPRECATION") bar()
+            fun foo() = @Bar1 @Bar2 @Bar3("bar3") @Bar4 bar()
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo() =
+                @Bar1 @Bar2
+                @Bar3("bar3")
+                @Bar4
+                bar()
             """.trimIndent()
         annotationRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(
-                1,
-                13,
-                "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct",
-            )
+            .hasLintViolations(
+                LintViolation(1, 12, "Expected newline before annotation"),
+                LintViolation(1, 24, "Expected newline before annotation"),
+                LintViolation(1, 38, "Expected newline before annotation"),
+                LintViolation(1, 44, "Expected newline after last annotation"),
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given an annotated expression on same line as annotated construct and no annotation contains a parameter`() {
+        val code =
+            """
+            fun foo() = @Bar1 @Bar2 bar()
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo() =
+                @Bar1 @Bar2
+                bar()
+            """.trimIndent()
+        annotationRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 12, "Expected newline before annotation"),
+                LintViolation(1, 24, "Expected newline after last annotation"),
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -618,6 +650,27 @@ class AnnotationRuleTest {
     }
 
     @Test
+    fun `Given an annotation and other modifiers before the annotated construct`() {
+        val code =
+            """
+            @Bar("bar") public class Foo
+            @Bar("bar") public fun foo() {}
+            """.trimIndent()
+        val formattedCode =
+            """
+            @Bar("bar")
+            public class Foo
+            @Bar("bar")
+            public fun foo() {}
+            """.trimIndent()
+        annotationRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 12, "Expected newline after last annotation"),
+                LintViolation(2, 12, "Expected newline after last annotation"),
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
     fun `Given a single annotation on same line as a type parameter then do not report a violation`() {
         val code =
             """
@@ -627,6 +680,17 @@ class AnnotationRuleTest {
             val foo2 = emptyList<@Foo String>()
             val foo3: Map<@Foo String, @Foo String> = emptyMap()
             val foo4 = emptyMap<@Foo String, @Foo String>()
+            """.trimIndent()
+        annotationRuleAssertThat(code)
+            .hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given an annotation with parameter on followed by another modifier on the next line then do not report a violation`() {
+        val code =
+            """
+            @Target(AnnotationTarget.TYPE)
+            annotation class Foo
             """.trimIndent()
         annotationRuleAssertThat(code)
             .hasNoLintViolations()
@@ -645,15 +709,16 @@ class AnnotationRuleTest {
                 val fooBar: List<
                     @Foo @Bar
                     String
-                > = emptyList()
+                    > = emptyList()
                 """.trimIndent()
             annotationRuleAssertThat(code)
                 .addAdditionalRuleProvider { TrailingCommaOnDeclarationSiteRule() }
                 .addAdditionalRuleProvider { WrappingRule() }
                 .hasLintViolations(
-                    LintViolation(1, 17, "Expected newline after '<'"),
-                    LintViolation(1, 28, "Multiple annotations should not be placed on the same line as the annotated construct"),
-                    LintViolation(1, 34, "Expected newline before '>'"),
+                    LintViolation(1, 17, "Expected newline"),
+                    LintViolation(1, 17, "Expected newline before annotation"),
+                    LintViolation(1, 27, "Expected newline after last annotation"),
+                    LintViolation(1, 34, "Expected newline"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -680,13 +745,16 @@ class AnnotationRuleTest {
                 .addAdditionalRuleProvider { IndentationRule() }
                 .addAdditionalRuleProvider { WrappingRule() }
                 .hasLintViolations(
-                    LintViolation(1, 39, "Expected newline after ','"),
-                    LintViolation(1, 51, "Multiple annotations should not be placed on the same line as the annotated construct"),
-                    LintViolation(1, 57, "Expected newline after ','"),
-                    LintViolation(1, 59, "Expected newline before '@'"),
-                    LintViolation(1, 59, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
-                    LintViolation(1, 76, "Multiple annotations should not be placed on the same line as the annotated construct"),
-                    LintViolation(1, 82, "Expected newline before '>'"),
+                    LintViolation(1, 19, "Expected newline"),
+                    LintViolation(1, 27, "Expected newline"),
+                    LintViolation(1, 40, "Expected newline"),
+                    LintViolation(1, 40, "Expected newline before annotation"),
+                    LintViolation(1, 50, "Expected newline after last annotation"),
+                    LintViolation(1, 58, "Expected newline"),
+                    LintViolation(1, 58, "Expected newline before annotation"),
+                    LintViolation(1, 70, "Expected newline before annotation"),
+                    LintViolation(1, 75, "Expected newline after last annotation"),
+                    LintViolation(1, 82, "Expected newline"),
                 ).isFormattedAs(formattedCode)
         }
     }
@@ -729,9 +797,164 @@ class AnnotationRuleTest {
             """.trimIndent()
         annotationRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(4, 17, "Multiple annotations should not be placed on the same line as the annotated construct"),
-                LintViolation(5, 5, "Annotation with parameter(s) should be placed on a separate line prior to the annotated construct"),
-                LintViolation(5, 25, "Multiple annotations should not be placed on the same line as the annotated construct"),
+                LintViolation(4, 16, "Expected newline after last annotation"),
+                LintViolation(5, 18, "Expected newline before annotation"),
+                LintViolation(5, 24, "Expected newline after last annotation"),
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Nested
+    inner class `Given a class with a primary constructor` {
+        @Test
+        fun `Issue 628 - Given an annotation followed by other modifier before the primary constructor (non ktlint_official code style)`() {
+            val code =
+                """
+                class Foo @Inject internal constructor()
+                """.trimIndent()
+            annotationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Nested
+        inner class `Given ktlint_official code style` {
+            @Test
+            fun `Issue 628 - Given an annotation followed by other modifier before the primary constructor (ktlint_official code style)`() {
+                val code =
+                    """
+                    class Foo @Inject internal constructor()
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    class Foo
+                        @Inject
+                        internal constructor()
+                    """.trimIndent()
+                annotationRuleAssertThat(code)
+                    .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                    .hasLintViolations(
+                        LintViolation(1, 10, "Expected newline before annotation"),
+                        LintViolation(1, 18, "Expected newline after last annotation"),
+                    ).isFormattedAs(formattedCode)
+            }
+
+            @Test
+            fun `Given an annotation with parameter`() {
+                val code =
+                    """
+                    data class Foo @Bar1 @Bar2("bar") @Bar3 @Bar4 constructor(private val foobar: Int) {
+                        fun foo(): String = "foo"
+                    }
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    data class Foo
+                        @Bar1
+                        @Bar2("bar")
+                        @Bar3
+                        @Bar4
+                        constructor(private val foobar: Int) {
+                            fun foo(): String = "foo"
+                        }
+                    """.trimIndent()
+                annotationRuleAssertThat(code)
+                    .addAdditionalRuleProvider { IndentationRule() }
+                    .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                    .hasLintViolations(
+                        LintViolation(1, 15, "Expected newline before annotation"),
+                        LintViolation(1, 21, "Expected newline before annotation"),
+                        LintViolation(1, 34, "Expected newline before annotation"),
+                        LintViolation(1, 46, "Expected newline after last annotation"),
+                    ).isFormattedAs(formattedCode)
+            }
+
+            @Test
+            fun `Given annotations without parameters`() {
+                val code =
+                    """
+                    data class Foo @Bar1 @Bar2 constructor(private val foobar: Int) {
+                        fun foo(): String = "foo"
+                    }
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    data class Foo
+                        @Bar1 @Bar2
+                        constructor(private val foobar: Int) {
+                        fun foo(): String = "foo"
+                    }
+                    """.trimIndent()
+                annotationRuleAssertThat(code)
+                    .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                    .hasLintViolations(
+                        LintViolation(1, 15, "Expected newline before annotation"),
+                        LintViolation(1, 27, "Expected newline after last annotation"),
+                    ).isFormattedAs(formattedCode)
+            }
+
+            @Test
+            fun `Given single annotation without parameter`() {
+                val code =
+                    """
+                    data class Foo @Bar1 constructor(private val foobar: Int) {
+                        fun foo(): String = "foo"
+                    }
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    data class Foo
+                        @Bar1
+                        constructor(private val foobar: Int) {
+                        fun foo(): String = "foo"
+                    }
+                    """.trimIndent()
+                annotationRuleAssertThat(code)
+                    .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                    .hasLintViolations(
+                        LintViolation(1, 15, "Expected newline before annotation"),
+                        LintViolation(1, 21, "Expected newline after last annotation"),
+                    ).isFormattedAs(formattedCode)
+            }
+        }
+    }
+
+    @Test
+    fun `Given an annotation with parameter preceded by a blank line then do not remove the blank line`() {
+        val code =
+            """
+            val foo = "foo"
+
+            @Bar("bar")
+            fun bar() = "bar"
+            """.trimIndent()
+        annotationRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a function literal containing an annotated expression`() {
+        val code =
+            """
+            val foo = {
+                @Bar("bar")
+                foobar { "foobar" }
+            }
+            val foo = { @Bar("bar") foobar { "foobar" } }
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo = {
+                @Bar("bar")
+                foobar { "foobar" }
+            }
+            val foo = {
+                @Bar("bar")
+                foobar { "foobar" }
+            }
+            """.trimIndent()
+        annotationRuleAssertThat(code)
+            .addAdditionalRuleProvider { IndentationRule() }
+            .hasLintViolations(
+                LintViolation(5, 12, "Expected newline before annotation"),
+                LintViolation(5, 24, "Expected newline after last annotation"),
+                LintViolation(5, 44, "Expected newline"),
             ).isFormattedAs(formattedCode)
     }
 }

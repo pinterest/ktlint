@@ -48,6 +48,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_DECLARATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPEN_QUOTE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PARENTHESIZED
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.PRIMARY_CONSTRUCTOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY_ACCESSOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
@@ -577,14 +578,24 @@ public class IndentationRule :
                     toAstNode = typeConstraintList.lastChildLeafOrSelf(),
                 ).prevCodeLeaf()
             }
-        node
-            .findChildByType(SUPER_TYPE_LIST)
-            ?.let { superTypeList ->
-                nextToAstNode = startIndentContext(
-                    fromAstNode = superTypeList.getPrecedingLeadingCommentsAndWhitespaces(),
-                    toAstNode = superTypeList.lastChildLeafOrSelf(),
-                ).prevCodeLeaf()
-            }
+
+        val primaryConstructor = node.findChildByType(PRIMARY_CONSTRUCTOR)
+        if (codeStyle == ktlint_official && primaryConstructor != null) {
+            // Indent both constructor and super type list
+            nextToAstNode = startIndentContext(
+                fromAstNode = primaryConstructor.getPrecedingLeadingCommentsAndWhitespaces(),
+                toAstNode = nextToAstNode,
+            ).prevCodeLeaf()
+        } else {
+            node
+                .findChildByType(SUPER_TYPE_LIST)
+                ?.let { superTypeList ->
+                    nextToAstNode = startIndentContext(
+                        fromAstNode = superTypeList.getPrecedingLeadingCommentsAndWhitespaces(),
+                        toAstNode = superTypeList.lastChildLeafOrSelf(),
+                    ).prevCodeLeaf()
+                }
+        }
 
         // Leading annotations and comments should be indented at same level as class itself
         startIndentContext(
