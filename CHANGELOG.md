@@ -222,6 +222,16 @@ Like before, the API Consumer can still offer a mix of rules originating from `k
 
 Previously the default value for `.editorconfig` property `max_line_length` was set to `-1` in ktlint unless the property was defined explicitly in the `.editorconfig` or when `ktlint_code_style` was set to Android. As a result of that rules have to check that max_line_length contains a positive value before checking that the actual line length is exceeding the maximum. Now the value `Int.MAX_VALUE` (use constant `MAX_LINE_LENGTH_PROPERTY_OFF` to refer to that value) is used instead. 
 
+#### Psi filename replaces FILE_PATH_USER_DATA_KEY
+
+Constant `KtLint.FILE_PATH_USER_DATA_KEY` has been removed. The file path is passed correctly to the node with element type FILE and can be retrieved as follows:
+```kotlin
+if (node.isRoot()) {
+  val filePath = (node.psi as? KtFile)?.virtualFilePath
+    ...
+}
+```
+
 ### Added
 
 * Add new experimental rule `no-empty-first-line-in-class-body` for `ktlint_official` code style. This rule disallows a class to start with a blank line. This rule can also be run for other code styles but then its needs to be explicitly enabled.
