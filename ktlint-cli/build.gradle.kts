@@ -26,7 +26,6 @@ dependencies {
     implementation(projects.ktlintCliReporterPlain)
     implementation(projects.ktlintRuleEngine)
     implementation(projects.ktlintRulesetStandard)
-    implementation(projects.ktlintRulesetTestTooling)
     implementation(libs.picocli)
     implementation(libs.logback)
 

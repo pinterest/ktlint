@@ -6,7 +6,6 @@ import com.pinterest.ktlint.cli.internal.GenerateEditorConfigSubCommand
 import com.pinterest.ktlint.cli.internal.GitPreCommitHookSubCommand
 import com.pinterest.ktlint.cli.internal.GitPrePushHookSubCommand
 import com.pinterest.ktlint.cli.internal.KtlintCommandLine
-import com.pinterest.ktlint.cli.internal.PrintASTSubCommand
 import com.pinterest.ktlint.cli.internal.printCommandLineHelpOrVersionUsage
 import picocli.CommandLine
 
@@ -19,7 +18,6 @@ public fun main(args: Array<String>) {
         CommandLine(ktlintCommand)
             .addSubcommand(GitPreCommitHookSubCommand.COMMAND_NAME, GitPreCommitHookSubCommand())
             .addSubcommand(GitPrePushHookSubCommand.COMMAND_NAME, GitPrePushHookSubCommand())
-            .addSubcommand(PrintASTSubCommand.COMMAND_NAME, PrintASTSubCommand())
             .addSubcommand(GenerateEditorConfigSubCommand.COMMAND_NAME, GenerateEditorConfigSubCommand())
             // Keep setUsageHelpAutoWidth after all addSubcommands
             .setUsageHelpAutoWidth(true)
@@ -45,7 +43,6 @@ private fun handleSubCommand(
     when (val subCommand = parseResult.subcommand().commandSpec().userObject()) {
         is GitPreCommitHookSubCommand -> subCommand.run()
         is GitPrePushHookSubCommand -> subCommand.run()
-        is PrintASTSubCommand -> subCommand.run()
         is GenerateEditorConfigSubCommand -> subCommand.run()
         else -> commandLine.usage(System.out, CommandLine.Help.Ansi.OFF)
     }

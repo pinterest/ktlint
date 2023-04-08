@@ -203,8 +203,6 @@ ktlint installGitPrePushHook
 
 `--limit=<limit>`: Maximum number of errors to show (default: show all)
 
-`printAST` or `--print-ast`: Prints AST (useful when writing/debugging rules)
-
 `--relative`: Print files relative to the working directory (e.g. dir/file.kt instead of /home/user/project/dir/file.kt)
 
 `--patterns-from-stdin[=<delimiter>]`: Reads additional patterns from `stdin`, where the patterns are separated by `<delimiter>`. If `=<delimiter>` is omitted, newline is used as fallback delimiter. If an empty string is given, the `NUL` byte is used as delimiter instead.

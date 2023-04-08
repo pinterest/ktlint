@@ -18,19 +18,16 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleSetExecutionEditorConfigProperty
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
-import com.pinterest.ruleset.testtooling.DumpASTRule
 import mu.KotlinLogging
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions.assertThat
-import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 import org.junit.jupiter.api.assertAll
 import kotlin.io.path.pathString
 
 // When system and/or environment variables below are enabled, the unit tests provide additional logging information.
-private const val KTLINT_UNIT_TEST_DUMP_AST = "KTLINT_UNIT_TEST_DUMP_AST"
 private const val KTLINT_UNIT_TEST_TRACE = "KTLINT_UNIT_TEST_TRACE" // Keep value in sync with value in 'logback-test.xml'
-private const val KTLINT_UNIT_TEST_ON_PROPERTY = "ON"
 
+@Suppress("unused")
 private val LOGGER =
     KotlinLogging
         .logger {}
@@ -38,29 +35,12 @@ private val LOGGER =
             if (!logger.isTraceEnabled || !logger.isDebugEnabled) {
                 logger.info {
                     """
-                    Additional information can be printed during running of unit tests, by setting one or more of environment variables below:
+                    Additional information can be printed during running of unit tests, by setting environment variable below:
                         $KTLINT_UNIT_TEST_TRACE=[on|off]
-                        $KTLINT_UNIT_TEST_DUMP_AST=[on|off]
                     """.trimIndent()
                 }
             }
         }.initKtLintKLogger()
-
-private val DUMP_AST_RULE_PROVIDER =
-    System
-        .getenv(KTLINT_UNIT_TEST_DUMP_AST)
-        .orEmpty()
-        .equals(KTLINT_UNIT_TEST_ON_PROPERTY, ignoreCase = true)
-        .ifTrue {
-            LOGGER.info { "Dump AST of code before processing as System environment variable $KTLINT_UNIT_TEST_DUMP_AST is set to 'on'" }
-            RuleProvider {
-                DumpASTRule(
-                    // Write to STDOUT. The focus in a failed unit test should first go to the error in the rule that is
-                    // to be tested and not to the AST,
-                    out = System.out,
-                )
-            }
-        }.let { setOfNotNull(it) }
 
 // The execution of the unit tests may not be affected by the ".editorconfig" configuration of the Ktlint project itself. So each unit test
 // is to be run on a KtlintTestFileSystem not having any ".editorconfig" files. This variable should not be exposed, as unit tests should
@@ -617,7 +597,6 @@ public class KtLintAssertThatAssertable(
                 // Also run the additional rules as the main rule might have a VisitorModifier which requires one or more of
                 // the additional rules to be loaded and enabled as well.
                 .plus(additionalRuleProviders)
-                .plus(DUMP_AST_RULE_PROVIDER)
         val editorConfigOverride =
             editorConfigOverride
                 .enableExperimentalRules()
