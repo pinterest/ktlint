@@ -119,9 +119,9 @@ public fun Set<RuleProvider>.format(
         KtLintRuleEngine(
             ruleProviders = this,
             editorConfigOverride =
-            editorConfigOverride
-                .enableExperimentalRules()
-                .extendWithRuleSetRuleExecutionsFor(this),
+                editorConfigOverride
+                    .enableExperimentalRules()
+                    .extendWithRuleSetRuleExecutionsFor(this),
             fileSystem = KTLINT_TEST_FILE_SYSTEM.fileSystem,
         ).format(code) { lintError, _ -> lintErrors.add(lintError) }
     return Pair(formattedCode, lintErrors)
