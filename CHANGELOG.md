@@ -20,6 +20,24 @@ Note that the prefix `experimental:` has to be removed from all references to th
 * KtLint disable and enable directives.
 * The `VisitorModifier.RunAfterRule`.
 
+### Promote experimental rules to non-experimental
+
+The rules below have been promoted to non-experimental rules:
+* [block-comment-initial-star-alignment](https://pinterest.github.io/ktlint/rules/standard/#block-comment-initial-star-alignment)
+* [class-naming](https://pinterest.github.io/ktlint/rules/standard/#classobject-naming)
+* [comment-wrapping](https://pinterest.github.io/ktlint/rules/standard/#comment-wrapping)
+* [function-return-type-spacing](https://pinterest.github.io/ktlint/rules/standard/#function-return-type-spacing)
+* [function-start-of-body-spacing](https://pinterest.github.io/ktlint/rules/standard/#function-start-of-body-spacing)
+* [function-type-reference-spacing](https://pinterest.github.io/ktlint/rules/standard/#function-type-reference-spacing)
+* [fun-keyword-spacing](https://pinterest.github.io/ktlint/rules/standard/#fun-keyword-spacing)
+* [kdoc-wrapping](https://pinterest.github.io/ktlint/rules/standard/#kdoc-wrapping)
+* [modifier-list-spacing](https://pinterest.github.io/ktlint/rules/standard/#modifier-list-spacing)
+* [nullable-type-spacing](https://pinterest.github.io/ktlint/rules/standard/#nullable-type-spacing)
+* [spacing-between-function-name-and-opening-parenthesis](https://pinterest.github.io/ktlint/rules/standard/#spacing-between-function-name-and-opening-parenthesis)
+* [unnecessary-parentheses-before-trailing-lambda](https://pinterest.github.io/ktlint/rules/standard/#unnecessary-parenthesis-before-trailing-lambda)
+
+Note that this only affects users that have enabled the standard ruleset while having the experimental rules disabled.
+
 ### API Changes & RuleSet providers & Reporter Providers
 
 #### Experimental rules
@@ -472,7 +490,6 @@ if (node.isRoot()) {
 * Add basic formatting for context receiver in `indent` rule and new experimental rule `context-receiver-wrapping` ([#1672](https://github.com/pinterest/ktlint/issues/1672))
 * Add naming rules for classes and objects (`class-naming`), functions (`function-naming`) and properties (`property-naming`) ([#44](https://github.com/pinterest/ktlint/issues/44))
 * Add new built-in reporter `plain-summary` which prints a summary the number of violation which have been autocorrected or could not be autocorrected, both split by rule. 
-
 
 ### Fixed
 

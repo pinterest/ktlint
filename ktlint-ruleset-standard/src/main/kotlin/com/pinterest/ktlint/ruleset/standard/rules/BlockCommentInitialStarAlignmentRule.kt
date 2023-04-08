@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK_COMMENT
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.indent
@@ -25,8 +24,7 @@ public class BlockCommentInitialStarAlignmentRule :
                     mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
                 ),
             ),
-    ),
-    Rule.Experimental {
+    ) {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,

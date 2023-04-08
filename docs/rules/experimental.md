@@ -1,11 +1,5 @@
 Experimental rules in ktlint are part of the [standard ruleset](https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-standard). Enabling `.editorconfig` property `ktlint_experimental` to enable all experimental rules. Or, enable a specific experimental rule by setting `.editorconfig` property `ktlint_<rule-id>` where `<rule-id>` is replaced with the id of the rule.
 
-## Block comment initial star alignment
-
-Lines in a block comment which (exclusive the indentation) start with a `*` should have this `*` aligned with the `*` in the opening of the block comment.
-
-Rule id: `block-comment-initial-star-alignment`
-
 ## Discouraged comment location
 
 Detect discouraged comment locations (no autocorrect).
@@ -72,24 +66,6 @@ Rule id: `no-consecutive-comments`
 
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
-
-## Unnecessary parenthesis before trailing lambda
-
-An empty parentheses block before a lambda is redundant.
-
-=== "[:material-heart:](#) Ktlint"
-
-    ```kotlin
-    "some-string".count { it == '-' }
-    ```
-
-=== "[:material-heart-off-outline:](#) Disallowed"
-
-    ```kotlin
-    "some-string".count() { it == '-' }
-    ```
-
-Rule id: `unnecessary-parentheses-before-trailing-lambda`
 
 ## Function signature
 
@@ -164,26 +140,6 @@ Rule id: `if-else-wrapping`
 
 ## Naming
 
-### Class/object naming
-
-Enforce naming of class.
-
-!!! note
-    Functions in files which import a class from package `org.junit.jupiter.api` are considered to be test functions and are allowed to have a name specified between backticks and do not need to adhere to the normal naming convention. Although, the [Kotlin coding conventions](https://kotlinlang.org/docs/coding-conventions.html) does not allow this explicitly for class identifiers, `ktlint` does allow it as this makes it possible to write code like below:
-     ```kotlin
-     @Nested
-     inner class `Some descriptive class name` {
-         @Test
-         fun `Some descriptive test name`() {
-             // do something
-         }
-     }
-     ```
-
-This rule can also be suppressed with the IntelliJ IDEA inspection suppression `ClassName`.
-
-Rule id: `class-naming`
-
 ### Function naming
 
 Enforce naming of function. 
@@ -212,36 +168,6 @@ This rule can also be suppressed with the IntelliJ IDEA inspection suppression `
 Rule id: `property-naming`
 
 ## Spacing
-
-### Fun keyword spacing
-
-Consistent spacing after the fun keyword.
-
-Rule id: `fun-keyword-spacing`
-
-### Function return type spacing
-
-Consistent spacing around the function return type.
-
-Rule id: `function-return-type-spacing`
-
-### Function start of body spacing
-
-Consistent spacing before start of function body.
-
-Rule id: `function-start-of-body-spacing`:
-
-### Function type reference spacing
-
-Consistent spacing in the type reference before a function.
-
-Rule id: `function-type-reference-spacing`
-
-### Modifier list spacing
-
-Consistent spacing between modifiers in and after the last modifier in a modifier list.
-
-Rule id: `modifier-list-spacing`
 
 ### No blank lines in list
 
@@ -401,23 +327,11 @@ Rule id: `no-blank-line-in-list`
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
 
-### Nullable type spacing
-
-No spaces in a nullable type.
-
-Rule id: `nullable-type-spacing`
-
 ### Parameter list spacing
 
 Consistent spacing inside the parameter list.
 
 Rule id: `parameter-list-spacing`
-
-### Spacing between function name and opening parenthesis
-
-Consistent spacing between function name and opening parenthesis.
-
-Rule id: `spacing-between-function-name-and-opening-parenthesis`
 
 ### String template indent
 
@@ -510,12 +424,6 @@ Rule id: `type-parameter-list-spacing`
 
 ## Wrapping
 
-### Comment wrapping
-
-A block comment should start and end on a line that does not contain any other element. A block comment should not be used as end of line comment.
-
-Rule id: `comment-wrapping`
-
 ### Content receiver wrapping
 
 Wraps the content receiver list to a separate line regardless of maximum line length. If the maximum line length is configured and is exceeded, wrap the context receivers and if needed its projection types to separate lines.
@@ -606,12 +514,6 @@ An enum should be a single line, or each enum entry has to be placed on a separa
     ```
 
 Rule id: `enum-wrapping`
-
-### Kdoc wrapping
-
-A KDoc comment should start and end on a line that does not contain any other element.
-
-Rule id: `kdoc-wrapping`
 
 ### Multiline expression wrapping
 

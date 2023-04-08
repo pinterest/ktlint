@@ -2,7 +2,6 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -14,9 +13,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 /**
  * Lints and formats the spacing after the fun keyword
  */
-public class FunctionStartOfBodySpacingRule :
-    StandardRule("function-start-of-body-spacing"),
-    Rule.Experimental {
+public class FunctionStartOfBodySpacingRule : StandardRule("function-start-of-body-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,

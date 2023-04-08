@@ -4,7 +4,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC_END
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC_START
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
@@ -27,8 +26,7 @@ public class KdocWrappingRule :
                 INDENT_SIZE_PROPERTY,
                 INDENT_STYLE_PROPERTY,
             ),
-    ),
-    Rule.Experimental {
+    ) {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,

@@ -8,11 +8,68 @@ Rule-id: `annotation`
 
 Rule-id: `argument-list-wrapping`
 
+## Block comment initial star alignment
+
+Lines in a block comment which (exclusive the indentation) start with a `*` should have this `*` aligned with the `*` in the opening of the block comment.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    /*
+     * This comment is formatted well.
+     */
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    /*
+          * This comment is not formatted well.
+        */
+    ```
+
+Rule id: `block-comment-initial-star-alignment`
+
 ## Chain wrapping
 
 When wrapping chained calls `.`, `?.` and `?:` should be placed on the next line
 
 Rule id: `chain-wrapping`
+
+## Class/object naming
+
+Enforce naming of class.
+
+!!! note
+    Functions in files which import a class from package `org.junit.jupiter.api` are considered to be test functions and are allowed to have a name specified between backticks and do not need to adhere to the normal naming convention. Although, the [Kotlin coding conventions](https://kotlinlang.org/docs/coding-conventions.html) does not allow this explicitly for class identifiers, `ktlint` does allow it as this makes it possible to write code like below:
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    class Foo
+    class Foo1
+    ```
+=== "[:material-heart:](#) Ktlint JUnit Test"
+
+    ```kotlin
+    @Nested
+    inner class `Some descriptive class name` {
+        @Test
+        fun `Some descriptive test name`() {
+            // do something
+        }
+    }
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    class foo
+    class Foo_Bar
+    class `Some class in the production code`
+    ```
+
+This rule can also be suppressed with the IntelliJ IDEA inspection suppression `ClassName`.
+
+Rule id: `class-naming`
 
 ## Enum entry
 
@@ -267,22 +324,82 @@ Consistent removal (default) or adding of trailing commas on declaration site.
         ),) // it's weird to insert "," between unwrapped (continued) parenthesis
         ```
 
-
 Rule id: `trailing-comma-on-declaration-site`
 
+## Unnecessary parenthesis before trailing lambda
+
+An empty parentheses block before a lambda is redundant.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    "some-string".count { it == '-' }
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    "some-string".count() { it == '-' }
+    ```
+
+Rule id: `unnecessary-parentheses-before-trailing-lambda`
+
 ## Wrapping
+
+### Wrapping
 
 Inserts missing newlines (for example between parentheses of a multi-line function call).
 
 Rule id: `wrapping`
 
+### Comment wrapping
+
+A block comment should start and end on a line that does not contain any other element. A block comment should not be used as end of line comment.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    /* Some comment 1 */
+    val foo1 = "foo1"
+    val foo2 = "foo" // Some comment
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    /* Some comment 1 */ val foo1 = "foo1"
+    val foo2 = "foo" /* Block comment instead of end-of-line comment */
+    val foo3 = "foo" /* Some comment
+                      * with a newline
+                      */
+    ```
+
+Rule id: `comment-wrapping`
+
 ## Spacing
+
+### Angle bracket spacing
+
+No spaces around angle brackets when used for typing.
+
+Rule id: `spacing-around-angle-brackets`
 
 ### Annotation spacing
 
 Annotations should be separated by a single line break.
 
 Rule id: `annotation-spacing`
+
+### Blank line between declarations with annotations
+
+Declarations with annotations should be separated by a blank line.
+
+Rule id: `spacing-between-declarations-with-annotations`
+
+### Blank line between declaration with comments
+
+Declarations with comments should be separated by a blank line.
+
+Rule id: `spacing-between-declarations-with-comments`
 
 ### Colon spacing
 
@@ -320,11 +437,182 @@ No spaces around `::`.
 
 Rule id: `double-colon-spacing`
 
+### Function return type spacing
+
+Consistent spacing around the function return type.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun foo(): String = "some-result"
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun foo1() : String = "some-result"
+    fun foo2():  String = "some-result"
+    fun foo3():String = "some-result"
+    fun foo4():
+        String = "some-result"
+    ```
+
+Rule id: `function-return-type-spacing`
+
+### Function start of body spacing
+
+Consistent spacing before start of function body.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun foo1() = "some-result"
+    fun foo2() =
+        "some-result"
+    fun foo3() {
+        // do something
+    }
+    fun bar1(): String = "some-result"
+    fun bar2(): String =
+        "some-result"
+    fun bar3(): String {
+        return "some-result"
+    }
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun foo1()= "some-result"
+    fun foo2()
+        = "some-result"
+    fun foo3()
+    {
+        // do something
+    }
+    fun bar1(): String= "some-result"
+    fun bar2(): String
+        = "some-result"
+    fun bar3(): String
+    {
+        return "some-result"
+    }
+    ```
+
+Rule id: `function-start-of-body-spacing`:
+
+### Function type reference spacing
+
+Consistent spacing in the type reference before a function.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun String.foo() = "some-result"
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun String .foo() = "some-result"
+    fun String
+        .foo() = "some-result"
+    fun String? .foo() = "some-result"
+    fun String?
+        .foo() = "some-result"
+    ```
+
+Rule id: `function-type-reference-spacing`
+
+### Fun keyword spacing
+
+Consistent spacing after the fun keyword.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun foo() = "some-result"
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun  foo() = "some-result"
+    fun
+    foo() = "some-result"
+    ```
+
+Rule id: `fun-keyword-spacing`
+
+### Kdoc wrapping
+
+A KDoc comment should start and end on a line that does not contain any other element.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    /** Some KDoc comment 1 */
+    val foo1 = "foo1"
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    /** Some KDoc comment 1 */ val foo1 = "foo1"
+    val foo2 = "foo2" /** Some KDoc comment
+                       * with a newline
+                       */
+    ```
+
+Rule id: `kdoc-wrapping`
+
 ### Keyword spacing
 
 Consistent spacing around keywords.
 
 Rule id: `keyword-spacing`
+
+### Modifier list spacing
+
+Consistent spacing between modifiers in and after the last modifier in a modifier list.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    abstract class Foo {
+        protected abstract suspend fun execute()
+    }
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    abstract  class Foo {
+        protected  abstract  suspend  fun execute()
+    }
+    abstract
+    class Foo {
+        protected
+        abstract
+        suspend
+        fun execute()
+    }
+    ```
+
+Rule id: `modifier-list-spacing`
+
+### Nullable type spacing
+
+No spaces in a nullable type.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val foo: String? = null
+    val foo: List<String?> = listOf(null)
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val foo: String ? = null
+    val foo: List<String ?> = listOf(null)
+    ```
+
+Rule id: `nullable-type-spacing`
 
 ### Operator spacing
 
@@ -344,23 +632,22 @@ Consistent spacing around range operators.
 
 Rule id: `range-spacing`
 
-### Angle bracket spacing
+### Spacing between function name and opening parenthesis
 
-No spaces around angle brackets when used for typing.
+Consistent spacing between function name and opening parenthesis.
 
-Rule id: `spacing-around-angle-brackets`
+=== "[:material-heart:](#) Ktlint"
 
-### Blank line between declarations with annotations
+    ```kotlin
+    fun foo() = "foo"
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
 
-Declarations with annotations should be separated by a blank line.
+    ```kotlin
+    fun foo () = "foo"
+    ```
 
-Rule id: `spacing-between-declarations-with-annotations`
-
-### Blank line between declaration with comments
-
-Declarations with comments should be separated by a blank line.
-
-Rule id: `spacing-between-declarations-with-comments`
+Rule id: `spacing-between-function-name-and-opening-parenthesis`
 
 ### Unary operator spacing
 

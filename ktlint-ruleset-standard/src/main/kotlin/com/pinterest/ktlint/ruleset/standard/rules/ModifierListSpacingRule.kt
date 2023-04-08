@@ -4,7 +4,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.indent
@@ -19,9 +18,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 /**
  * Lint and format the spacing between the modifiers in and after the last modifier in a modifier list.
  */
-public class ModifierListSpacingRule :
-    StandardRule("modifier-list-spacing"),
-    Rule.Experimental {
+public class ModifierListSpacingRule : StandardRule("modifier-list-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
