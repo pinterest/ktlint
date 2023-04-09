@@ -2,9 +2,72 @@
 
 Multiple annotations should be on a separate line than the annotated declaration; annotations with parameters should each be on separate lines; annotations should be followed by a space
 
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    // A single annotation (without parameters) is allowed on same line as annotated construct
+    @FunctionalInterface class FooBar {
+        @JvmField var foo: String
+        @Test fun bar() {}
+    }
+    // A class or function parameter may have a single annotation with parameter(s) on the same line
+    class Foo(@Path("fooId") val fooId: String)
+    class Bar(
+        @NotNull("fooId") val fooId: String,
+        @NotNull("bar") bar: String
+    )
+    // Multiple annotations (without parameters) are allowed on the same line
+    @Foo @Bar
+    class FooBar {
+        @Foo @Bar
+        var foo: String
+        @Foo @Bar
+        fun bar() {}
+    }
+    // An array of annotations (without parameters) is allowed on same line as annotated construct
+    @[Foo Bar] class FooBar2 {
+        @[Foo Bar] var foo: String
+        @[Foo Bar] fun bar() {}
+    }
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    // An annotation with parameter(s) is not allowed on same line as annotated construct
+    @Suppress("Unused") class FooBar {
+        @Suppress("Unused") var foo: String
+        @Suppress("Unused") fun bar() {}
+    }
+    // Multiple annotation on same line as annotated construct are not allowed
+    @Foo @Bar class FooBar {
+        @Foo @Bar var foo: String
+        @Foo @Bar fun bar() {}
+    }
+    ```
+
 Rule-id: `annotation`
 
 ## Argument list wrapping
+
+All arguments should be on the same line, or every argument should be on a separate line.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val x = f(
+        a,
+        b,
+        c
+    )
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val x = f(
+        a,
+        b, c
+    )
+    ```
 
 Rule-id: `argument-list-wrapping`
 
@@ -33,14 +96,32 @@ Rule id: `block-comment-initial-star-alignment`
 
 When wrapping chained calls `.`, `?.` and `?:` should be placed on the next line
 
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val foo = listOf(1, 2, 3)
+        .filter { it > 2 }!!
+        .takeIf { it.count() > 100 }
+        ?.sum()
+    val foobar = foo() ?:
+        bar
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val foo = listOf(1, 2, 3).
+        filter { it > 2 }!!.
+        takeIf { it.count() > 100 }?.
+        sum()
+    val foobar = foo()
+        ?: bar
+    ```
+
 Rule id: `chain-wrapping`
 
 ## Class/object naming
 
 Enforce naming of class.
-
-!!! note
-    Functions in files which import a class from package `org.junit.jupiter.api` are considered to be test functions and are allowed to have a name specified between backticks and do not need to adhere to the normal naming convention. Although, the [Kotlin coding conventions](https://kotlinlang.org/docs/coding-conventions.html) does not allow this explicitly for class identifiers, `ktlint` does allow it as this makes it possible to write code like below:
 
 === "[:material-heart:](#) Ktlint"
 
@@ -59,6 +140,7 @@ Enforce naming of class.
         }
     }
     ```
+
 === "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
@@ -66,6 +148,9 @@ Enforce naming of class.
     class Foo_Bar
     class `Some class in the production code`
     ```
+
+!!! note
+    Functions in files which import a class from package `org.junit.jupiter.api` are considered to be test functions and are allowed to have a name specified between backticks and do not need to adhere to the normal naming convention. Although, the [Kotlin coding conventions](https://kotlinlang.org/docs/coding-conventions.html) does not allow this explicitly for class identifiers, `ktlint` does allow it.
 
 This rule can also be suppressed with the IntelliJ IDEA inspection suppression `ClassName`.
 
@@ -75,11 +160,31 @@ Rule id: `class-naming`
 
 Enum entry names should be uppercase underscore-separated names.
 
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    enum class Bar {
+        FOO,
+        Foo,
+        FOO_BAR,
+        Foo_Bar
+    }
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    enum class Bar {
+        foo,
+        bAr,
+        Foo_Bar,
+    }
+    ```
+
 Rule id: `enum-entry-name-case`
 
 ## File name
 
-Files containing only one toplevel domain should be named according to that element.
+A file containing only one visible (e.g. non-private) class, and visible declarations related to that class only, should be named according to that element. The same applies if the file does not contain a visible class but exactly one type alias or one object declaration. Otherwise, the PascalCase notation should be used.
 
 Rule id: `filename`
 
@@ -93,7 +198,24 @@ Rule id: `final-newline`
 
 ## Import ordering
 
-Imports ordered consistently (see [Custom ktlint EditorConfig properties](#custom-ktlint-specific-editorconfig-properties) for more)
+Ensures that imports are ordered consistently (see [Import Layouts](../configuration-ktlint/#import-layouts) for configuration).
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    import com.bar.Bar
+    import com.foo.Foo
+    import org.foo.bar.FooBar
+    import java.util.concurrent.ConcurrentHashMap
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    import com.bar.Bar
+    import java.util.concurrent.ConcurrentHashMap
+    import org.foo.bar.FooBar
+    import com.foo.Foo
+    ```
 
 Rule id: `import-ordering`
 
@@ -101,11 +223,65 @@ Rule id: `import-ordering`
 
 Indentation formatting - respects `.editorconfig` `indent_size` with no continuation indent (see [EditorConfig](../configuration-ktlint/) section for more).
 
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun main() {
+        foobar(
+            a,
+            b,
+            c
+        )
+    }
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun main() {
+        foobar(
+              a,
+              b,
+              c
+              )
+    }
+    ```
+
+!!! note
+    This rule handles indentation for many different language constructs which can not be summarized with a few example. See the [unit tests](https://github.com/pinterest/ktlint/blob/master/ktlint-ruleset-standard/src/test/kotlin/com/pinterest/ktlint/ruleset/standard/rules/IndentationRuleTest.kt) for more details.
+
 Rule id: `indent`
 
 ## Max line length
 
-Ensures that lines do not exceed the given length of `.editorconfig` property `max_line_length` (see [EditorConfig](../configuration-ktlint/) section for more). This rule does not apply in a number of situations. For example, in the case a line exceeds the maximum line length due to and comment that disables ktlint rules than that comment is being ignored when validating the length of the line. The `.editorconfig` property `ktlint_ignore_back_ticked_identifier` can be set to ignore identifiers which are enclosed in backticks, which for example is very useful when you want to allow longer names for unit tests.
+Ensures that lines do not exceed the given length of `.editorconfig` property `max_line_length` (see [EditorConfig](../configuration-ktlint/) section for more). This rule does not apply in a number of situations. For example, in the case a line exceeds the maximum line length due to a comment that disables ktlint rules than that comment is being ignored when validating the length of the line. The `.editorconfig` property `ktlint_ignore_back_ticked_identifier` can be set to ignore identifiers which are enclosed in backticks, which for example is very useful when you want to allow longer names for unit tests.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    // Assume that the last allowed character is
+    // at the X character on the right           X
+    // Lines below are accepted although the max
+    // line length is exceeeded.
+    package com.toooooooooooooooooooooooooooo.long
+    import com.tooooooooooooooooooooooooooooo.long
+    val foo =
+        """
+        fooooooooooooooooooooooooooooooooooooooooo
+        """
+    @Test
+    fun `Test description which is toooooooooooo long`() {
+    }
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    // Assume that the last allowed character is
+    // at the X character on the right           X
+    val fooooooooooooooo = "fooooooooooooooooooooo"
+    val foooooooooooooo = "foooooooooooooooooooo" // some comment
+    val fooooooooooooo =
+        "foooooooooooooooooooooooooooooooooooooooo"
+    ```
 
 Rule id: `max-line-length`
 
@@ -113,11 +289,50 @@ Rule id: `max-line-length`
 
 Consistent order of modifiers
 
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    abstract class A {
+        protected open val v = ""
+        internal open suspend fun f(v: Any): Any = ""
+        protected lateinit var lv: String
+    }
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    abstract class A {
+        open protected val v = ""
+        open suspend internal fun f(v: Any): Any = ""
+        lateinit protected var lv: String
+    }
+    ```
+
 Rule id: `modifier-order`
 
 ## Multiline if-else
 
 Braces required for multiline if/else statements.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val foo =
+        if (true) {
+            return 0
+        } else {
+            return 1
+        }
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val foo =
+        if (true)
+            return 0
+        else
+            return 1
+    ```
 
 Rule id: `multiline-if-else`
 
@@ -125,35 +340,157 @@ Rule id: `multiline-if-else`
 
 No blank lines before `}`.
 
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun main() {
+        fun a() {
+        }
+        fun b()
+    }
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun main() {
+        fun a() {
+
+        }
+        fun b()
+
+    }
+    ```
+
 Rule id: `no-blank-line-before-rbrace`
 
 ## No blank lines in chained method calls
 
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun foo(inputText: String) {
+        inputText
+            .lowercase(Locale.getDefault())
+    }
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun foo(inputText: String) {
+        inputText
+
+            .lowercase(Locale.getDefault())
+    }
+    ```
+
 Rule id: `no-blank-lines-in-chained-method-calls`
 
 ## No consecutive blank lines
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    package com.test
+
+    import com.test.util
+
+    val a = "a"
+
+    fun b() {
+    }
+
+    fun c()
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    package com.test
+
+
+    import com.test.util
+
+
+    val a = "a"
+
+
+    fun b() {
+    }
+
+
+    fun c()
+    ```
  
 Rule id: `no-consecutive-blank-lines`
 
 ## No empty (`{}`) class bodies
 
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    class C
+    data class DC(val v: Any)
+    interface I
+    object O
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    class C {}
+    data class DC(val v: Any) { }
+    interface I {
+    }
+    object O{}
+    ```
+
 Rule id: `no-empty-class-body`
 
 ## No leading empty lines in method blocks
- 
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun bar() {
+
+       val a = 2
+    }
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun bar() {
+       val a = 2
+    }
+    ```
+
 Rule id: `no-empty-first-line-in-method-block`
 
 ## No line break after else
 
 Disallows line breaks after the else keyword if that could lead to confusion, for example:
-```kotlin
-if (conditionA()) {
-    doSomething()
-} else
-if (conditionB()) {
-    doAnotherThing()
-}
-```
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun funA() {
+        if (conditionA()) {
+            doSomething()
+        } else if (conditionB()) {
+            doAnotherThing()
+        }
+    }
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun funA() {
+        if (conditionA()) {
+            doSomething()
+        } else
+        if (conditionB()) {
+            doAnotherThing()
+        }
+    }
+    ```
 
 Rule id: `no-line-break-after-else`
 
@@ -161,17 +498,68 @@ Rule id: `no-line-break-after-else`
 
 When a line is broken at an assignment (`=`) operator the break comes after the symbol.
 
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val valA =
+        ""
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val valA
+        = ""
+    ```
+
 Rule id: `no-line-break-before-assignment`
 
 ## No multi spaces
 
 Except in indentation and in KDoc's it is not allowed to have multiple consecutive spaces.
 
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun main() {
+        x(1, 3)
+    }
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun  main()  {
+        x(1,  3)
+    }
+    ```
+
 Rule id: `no-multi-spaces`
 
 ## No semicolons
 
 No semicolons (unless used to separate multiple statements on the same line).
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun foo() {
+        bar()
+
+        bar()
+    }
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun foo() {
+        ;
+        bar()
+        ;
+
+        bar()
+
+        ;
+    }
+    ```
 
 Rule id: `no-semi`
 
@@ -199,14 +587,28 @@ Rule id: `no-unit-return`
 
 ## No unused imports
 
+!!! warning
+    This rule is not able to detect *all* unused imports as mentioned in this [issue comment](https://github.com/pinterest/ktlint/issues/1754#issuecomment-1368201667).
+
 Rule id: `no-unused-imports`
 
 ## No wildcard imports
 
 No wildcard imports except imports listed in `.editorconfig` property `ij_kotlin_packages_to_use_import_on_demand`.
 
-!!! warning
+=== "[:material-heart:](#) Ktlint"
 
+    ```kotlin
+    import foobar.Bar
+    import foobar.Foo
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    import foobar.*
+    ```
+
+!!! warning
     In case property `ij_kotlin_packages_to_use_import_on_demand` is not explicitly set, it allows wildcards imports like `java.util.*` by default to keep in sync with IntelliJ IDEA behavior. To disallow *all* wildcard imports, add property below to your `.editorconfig`:
     ```editorconfig
     [*.{kt,kts}]
@@ -219,11 +621,55 @@ Rule id: `no-wildcard-imports`
 
 Validates that the package name matches the regular expression `[a-z][a-zA-Z\d]*(\.[a-z][a-zA-Z\d]*)*`.
 
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    package foo
+    package foo.bar
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    package Foo
+    package foo.Foo
+    package `foo bar`
+    package foo.`foo bar`
+    ```
+
 Rule id: `package-name`
 
 ## Parameter list wrapping
 
 When class/function signature doesn't fit on a single line, each parameter must be on a separate line
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    class ClassA(paramA: String, paramB: String, paramC: String)
+    class ClassA(
+        paramA: String,
+        paramB: String,
+        paramC: String
+    )
+    fun f(a: Any, b: Any, c: Any)
+    fun f(
+        a: Any,
+        b: Any,
+        c: Any
+    )
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    class ClassA(
+        paramA: String, paramB: String,
+        paramC: String
+    )
+    fun f(
+        a: Any,
+        b: Any, c: Any
+    )
+    ```
 
 Rule id: `parameter-list-wrapping`
 
@@ -231,17 +677,85 @@ Rule id: `parameter-list-wrapping`
 
 When a function or class parameter doesn't fit on a single line, wrap the type or value to a separate line
 
+=== "[:material-heart:](#) Ktlint (ktlint_official)"
+
+    ```kotlin
+    // Assume that the last allowed character is
+    // at the X character on the right           X
+    class Bar(
+        val fooooooooooooooooooooooooTooLong:
+            Foo,
+    )
+    fun bar(
+        fooooooooooooooooooooooooTooLong:
+            Foo,
+    )
+    ```
+=== "[:material-heart:](#) Ktlint (non ktlint_official)"
+
+    ```kotlin
+    // Assume that the last allowed character is
+    // at the X character on the right           X
+    class Bar(
+        val fooooooooooooooooooooooooTooLong:
+        Foo,
+    )
+    fun bar(
+        fooooooooooooooooooooooooTooLong:
+        Foo,
+    )
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    // Assume that the last allowed character is
+    // at the X character on the right           X
+    class Bar(
+        val fooooooooooooooooooooooooTooLong: Foo,
+    )
+    fun bar(
+        fooooooooooooooooooooooooooooTooLong: Foo,
+    )
+    ```
+
 Rule id: `parameter-wrapping`
 
 ## Property wrapping
 
 When a property doesn't fit on a single line, wrap the type or value to a separate line
 
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    // Assume that the last allowed character is
+    // at the X character on the right           X
+    val aVariableWithALooooooooooooongName:
+        String
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    // Assume that the last allowed character is
+    // at the X character on the right           X
+    val aVariableWithALooooooooooooongName: String
+    ```
+
 Rule id: `property-wrapping`
 
 ## String template
 
 Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`)
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val foo = "$foo hello"
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val foo = "${foo} hello"
+    ```
 
 Rule id: `string-template`
 
@@ -251,6 +765,25 @@ Consistent removal (default) or adding of trailing commas on call site.
 
 !!! important
     KtLint uses the IntelliJ IDEA `.editorconfig` property `ij_kotlin_allow_trailing_comma_on_call_site` to configure the rule. When this property is enabled, KtLint *enforces* the usage of the trailing comma at call site while IntelliJ IDEA default formatter only *allows* to use the trailing comma but leaves it to the developer's discretion to actually use it (or not). KtLint values *consistent* formatting more than a per-situation decision.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    FooWrapper(
+        Foo(
+            a = 3,
+            b = 4,
+        ),
+    )
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    FooWrapper(Foo(
+        a = 3,
+        b = 4,
+    ),) // it's weird to insert "," between unwrapped (continued) parenthesis
+    ```
 
 !!! note
     In KtLint 0.48.x the default value for using the trailing comma on call site has been changed to `true` except when codestyle `android` is used.
@@ -264,26 +797,6 @@ Consistent removal (default) or adding of trailing commas on call site.
 !!! note
     Trailing comma on call site is automatically disabled if the [Wrapping](#wrapping) rule (or, before version `0.45.0`, the [Indentation](#indentation) rule) is disabled or not loaded. Because it cannot provide proper formatting with unwrapped calls. (see [dependencies](./dependencies.md)).
 
-    === "[:material-heart:](#) Ktlint"
-
-        ```kotlin
-        FooWrapper(
-            Foo(
-                a = 3,
-                b = 4,
-            ),
-        )
-        ```
-    === "[:material-heart-off-outline:](#) Disallowed"
-
-        ```kotlin
-        FooWrapper(Foo(
-            a = 3,
-            b = 4,
-        ),) // it's weird to insert "," between unwrapped (continued) parenthesis
-        ```
-
-
 Rule id: `trailing-comma-on-call-site`
 
 ## Trailing comma on declaration site
@@ -292,6 +805,25 @@ Consistent removal (default) or adding of trailing commas on declaration site.
 
 !!! important
     KtLint uses the IntelliJ IDEA `.editorconfig` property `ij_kotlin_allow_trailing_comma` to configure the rule. When this property is enabled, KtLint *enforces* the usage of the trailing comma at declaration site while IntelliJ IDEA default formatter only *allows* to use the trailing comma but leaves it to the developer's discretion to actually use it (or not). KtLint values *consistent* formatting more than a per-situation decision.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    class FooWrapper(
+        val foo = Foo(
+            a = 3,
+            b = 4,
+        ),
+    )
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    class FooWrapper(val foo = Foo(
+        a = 3,
+        b = 4,
+    ),) // it's weird to insert "," between unwrapped (continued) parenthesis
+    ```
 
 !!! note
     In KtLint 0.48.x the default value for using the trailing comma on declaration site has been changed to `true` except when codestyle `android` is used.
@@ -304,25 +836,6 @@ Consistent removal (default) or adding of trailing commas on declaration site.
 
 !!! note
     Trailing comma on declaration site is automatically disabled if the [Wrapping](#wrapping) rule (or, before version `0.45.0`, the [Indentation](#indentation) rule) is disabled or not loaded. Because it cannot provide proper formatting with unwrapped declarations. (see [dependencies](./dependencies.md)).
-
-    === "[:material-heart:](#) Ktlint"
-
-        ```kotlin
-        class FooWrapper(
-            val foo = Foo(
-                a = 3,
-                b = 4,
-            ),
-        )
-        ```
-    === "[:material-heart-off-outline:](#) Disallowed"
-
-        ```kotlin
-        class FooWrapper(val foo = Foo(
-            a = 3,
-            b = 4,
-        ),) // it's weird to insert "," between unwrapped (continued) parenthesis
-        ```
 
 Rule id: `trailing-comma-on-declaration-site`
 
@@ -381,11 +894,54 @@ Rule id: `comment-wrapping`
 
 No spaces around angle brackets when used for typing.
 
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val a: Map<Int, String> = mapOf()
+    val b: Map<Int, String> = mapOf()
+    val c: Map<Int, String> = mapOf()
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val a: Map< Int, String> = mapOf()
+    val b: Map<Int, String > = mapOf()
+    val c: Map <Int, String> = mapOf()
+    ```
+
 Rule id: `spacing-around-angle-brackets`
 
 ### Annotation spacing
 
 Annotations should be separated by a single line break.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    @JvmField
+    fun foo() {}
+
+    /**
+     * block comment
+     */
+    @Foo @Bar
+    class FooBar {
+    }
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    @JvmField
+
+    fun foo() {}
+
+    @Foo @Bar
+    /**
+     * block comment
+     */
+    class FooBar {
+    }
+    ```
 
 Rule id: `annotation-spacing`
 
@@ -393,11 +949,49 @@ Rule id: `annotation-spacing`
 
 Declarations with annotations should be separated by a blank line.
 
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun a()
+
+    @Bar
+    fun b()
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun a()
+    @Bar
+    fun b()
+    ```
+
 Rule id: `spacing-between-declarations-with-annotations`
 
 ### Blank line between declaration with comments
 
 Declarations with comments should be separated by a blank line.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    // some comment 1
+    bar()
+
+    /*
+     * some comment 2
+     */
+    foo()
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    // some comment 1
+    bar()
+    /*
+     * some comment 2
+     */
+    foo()
+    ```
 
 Rule id: `spacing-between-declarations-with-comments`
 
@@ -405,11 +999,37 @@ Rule id: `spacing-between-declarations-with-comments`
 
 Consistent spacing around colon.
 
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    class A : B
+    class A2 : B2
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    class A:B
+    class A2  :  B2
+    ```
+
 Rule id: `colon-spacing`
 
 ### Comma spacing
 
 Consistent spacing around comma.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val foo1 = Foo(1, 3)
+    val foo2 = Foo(1, 3)
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val foo1 = Foo(1 ,3)
+    val foo2 = Foo(1,3)
+    ```
 
 Rule id: `comma-spacing`
 
@@ -417,11 +1037,52 @@ Rule id: `comma-spacing`
 
 The end of line comment sign `//` should be preceded and followed by exactly a space.
 
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    // comment
+    var debugging = false // comment
+    var debugging = false // comment
+    var debugging = false // comment
+    fun main() {
+        System.out.println( // 123
+            "test"
+        )
+    }
+        // comment
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    //comment
+    var debugging = false// comment
+    var debugging = false //comment
+    var debugging = false//comment
+    fun main() {
+        System.out.println(//123
+            "test"
+        )
+    }
+        //comment
+    ```
+
 Rule id: `comment-spacing`
 
 ### Curly spacing
 
 Consistent spacing around curly braces.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val foo = if (true) { 0 } else { 1 }
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val foo = if (true){0}else{1}
+    ```
 
 Rule id: `curly-spacing`
 
@@ -429,11 +1090,37 @@ Rule id: `curly-spacing`
 
 Consistent spacing around dots.
 
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun String.foo() = "foo"
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun String . foo() = "foo"
+    ```
+
 Rule id: `dot-spacing`
 
 ### Double colon spacing
 
 No spaces around `::`.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val foo = Foo::class
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val foo1 = Foo ::class
+    val foo2 = Foo:: class
+    val foo3 = Foo :: class
+    val foo4 = Foo::
+        class
+    ```
 
 Rule id: `double-colon-spacing`
 
@@ -565,6 +1252,21 @@ Rule id: `kdoc-wrapping`
 
 Consistent spacing around keywords.
 
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun main() {
+        if (true) {}
+    }
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun main() {
+        if(true){}
+    }
+    ```
+
 Rule id: `keyword-spacing`
 
 ### Modifier list spacing
@@ -618,17 +1320,66 @@ Rule id: `nullable-type-spacing`
 
 Consistent spacing around operators.
 
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val foo1 = 1 + 2
+    val foo2 = 1 - 2
+    val foo3 = 1 * 2
+    val foo4 = 1 / 2
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val foo1 = 1+2
+    val foo2 = 1- 2
+    val foo3 = 1 *2
+    val foo4 = 1  /  2
+    ```
+
 Rule id: `op-spacing`
 
 ### Parenthesis spacing
 
 Consistent spacing around parenthesis.
 
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    class Foo : Bar {
+        constructor(string: String) : super()
+    }
+    val foo1 = ((1 + 2) / 3)
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    class Foo : Bar {
+        constructor(string: String) : super ()
+    }
+    val foo1 = ( (1 + 2 ) / 3)
+    ```
+
 Rule id: `paren-spacing`
 
 ### Range spacing
 
 Consistent spacing around range operators.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val foo1 = (1..12 step 2).last
+    val foo2 = (1..12 step 2).last
+    val foo3 = (1..12 step 2).last
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val foo1 = (1.. 12 step 2).last
+    val foo2 = (1 .. 12 step 2).last
+    val foo3 = (1 ..12 step 2).last
+    ```
 
 Rule id: `range-spacing`
 
@@ -652,5 +1403,21 @@ Rule id: `spacing-between-function-name-and-opening-parenthesis`
 ### Unary operator spacing
 
 No spaces around unary operators.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun foo1(i: Int) = i++
+    fun foo2(i: Int) = ++i
+    fun foo3(i: Int) = ++i
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun foo1(i: Int) = i ++
+    fun foo2(i: Int) = ++ i
+    fun foo3(i: Int) = ++
+        i
+    ```
 
 Rule id: `unary-op-spacing`

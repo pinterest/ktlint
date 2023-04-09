@@ -1,8 +1,24 @@
-Experimental rules in ktlint are part of the [standard ruleset](https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-standard). Enabling `.editorconfig` property `ktlint_experimental` to enable all experimental rules. Or, enable a specific experimental rule by setting `.editorconfig` property `ktlint_<rule-id>` where `<rule-id>` is replaced with the id of the rule.
+!!! important
+    Experimental rules in ktlint are part of the [standard ruleset](https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-standard). Experimental rules are run only when `.editorconfig` property `ktlint_experimental` is enabled. Or, when a specific experimental rule is enabled via `.editorconfig` property `ktlint_<rule-set-id>_<rule-id>`.
 
 ## Discouraged comment location
 
 Detect discouraged comment locations (no autocorrect).
+
+!!! note
+    Kotlin allows comments to be placed almost everywhere. As this can lead to code which is hard to read, most of them will never be used in practice. Ideally each rule takes comments at all possible locations into account. Sometimes this is really hard and not worth the effort. By explicitly forbidding such comment locations, the development of those rules becomes a bit easier. 
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun <T> /* some comment */ foo(t: T) = "some-result"
+
+    fun foo() {
+        if (true)
+            // some comment
+            bar()
+    }
+    ```
 
 Rule id: `discouraged-comment-location`
 
@@ -42,13 +58,6 @@ Disallow consecutive comments (EOL comments, block comments or KDoc) except EOL 
     // An EOL comment
     // may be followed by another EOL comment
     val foo = "foo"
-
-    // An EOL comment
-    /* followed by a block comment */
-    /** or a KDoc
-     * will be reported as a violation when '.editorconfig' property 'ktlint_code_style = ktlint_official` is set
-     */
-    val bar = "bar" 
     ```
 
 === "[:material-heart:](#) Disallowed"
@@ -56,9 +65,8 @@ Disallow consecutive comments (EOL comments, block comments or KDoc) except EOL 
     ```kotlin
     // An EOL comment
     /* followed by a block comment */
-    /** or a KDoc
-     * will not be reported as a violation
-     */
+    /** or a KDoc */
+    // is not allowed
     val bar = "bar" 
     ```
 
@@ -69,7 +77,74 @@ Rule id: `no-consecutive-comments`
 
 ## Function signature
 
-Rewrites the function signature to a single line when possible (e.g. when not exceeding the `max_line_length` property) or a multiline signature otherwise. In case of function with a body expression, the body expression is placed on the same line as the function signature when not exceeding the `max_line_length` property. Optionally the function signature can be forced to be written as a multiline signature in case the function has more than a specified number of parameters (`.editorconfig' property `ktlint_function_signature_wrapping_rule_always_with_minimum_parameters`)
+Rewrites the function signature to a single line when possible (e.g. when not exceeding the `max_line_length` property) or a multiline signature otherwise. In case of function with a body expression, the body expression is placed on the same line as the function signature when not exceeding the `max_line_length` property. Optionally the function signature can be forced to be written as a multiline signature in case the function has more than a specified number of parameters (`.editorconfig` property `ktlint_function_signature_wrapping_rule_always_with_minimum_parameters`)
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    // Assume that the last allowed character is
+    // at the X character on the right           X
+    fun foooooooo(
+        a: Any,
+        b: Any,
+        c: Any
+    ): String {
+        // body
+    }
+
+    // Assume that the last allowed character is
+    // at the X character on the right           X
+    fun bar(a: Any, b: Any, c: Any): String {
+        // body
+    }
+
+    // When wrapping of body is set to 'default'.
+    // Assume that the last allowed character is
+    // at the X character on the right           X
+    fun f(a: Any, b: Any): String = "some-result"
+        .uppercase()
+
+    // When wrapping of body is set to 'multiline'
+    // or 'always'.
+    // Assume that the last allowed character is
+    // at the X character on the right           X
+    fun f(a: Any, b: Any): String =
+        "some-result"
+            .uppercase()
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    // Assume that the last allowed character is
+    // at the X character on the right           X
+    fun foooooooo(a: Any, b: Any, c: Any): String {
+        // body
+    }
+
+    // Assume that the last allowed character is
+    // at the X character on the right           X
+    fun bar(
+        a: Any,
+        b: Any,
+        c: Any
+    ): String {
+        // body
+    }
+
+    // When wrapping of body is set to 'default'.
+    // Assume that the last allowed character is
+    // at the X character on the right           X
+    fun f(a: Any, b: Any): String =
+        "some-result"
+            .uppercase()
+
+    // When wrapping of body is set to 'multiline'
+    // or 'always'.
+    // Assume that the last allowed character is
+    // at the X character on the right           X
+    fun f(a: Any, b: Any): String = "some-result"
+        .uppercase()
+    ```
 
 Rule id: `function-signature`
 
@@ -109,7 +184,7 @@ Rule id: `if-else-bracing`
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
 
-### If else wrapping
+## If else wrapping
 
 A single line if-statement should be kept simple. It may contain no more than one else-branch. The branches may not be wrapped in a block.
 
@@ -144,6 +219,31 @@ Rule id: `if-else-wrapping`
 
 Enforce naming of function. 
 
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun foo() {}
+    fun fooBar() {}
+    ```
+=== "[:material-heart:](#) Ktlint Test"
+
+    ```kotlin
+    @Test
+    fun `Some name`() {}
+
+    @Test
+    fun do_something() {}
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun Foo() {}
+    fun Foo_Bar() {}
+    fun `Some name`() {}
+    fun do_something() {}
+    ```
+
 !!! note
     Functions in files which import a class from package `org.junit`, `org.testng` or `kotlin.test` are considered to be test functions. Functions in such classes are allowed to have underscores in the name. Or function names can be specified between backticks and do not need to adhere to the normal naming convention.
 
@@ -157,11 +257,64 @@ Enforce naming of package.
 
 This rule can also be suppressed with the IntelliJ IDEA inspection suppression `PackageName`.
 
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    package foo
+    package foo.foo
+    package foo_bar
+    package foo.foo_bar
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    package Foo
+    package foo.Foo
+    package `foo bar`
+    package foo.`foo bar`
+    ```
+
 Rule id: `package-naming`
 
 ### Property naming
 
 Enforce naming of property.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val FOO_1 = Foo()
+    val FOO_BAR_1 = "FOO-BAR"
+
+    var foo1: Foo = Foo()
+
+    class Bar {
+        const val FOO_2 = "foo"
+        const val FOO_BAR_2 = "FOO-BAR"
+
+        val foo2 = "foo"
+        val fooBar2 = "foo-bar"
+    }
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val Foo1 = Foo()
+    val FooBar1 = "FOO-BAR"
+
+    var FOO_1: Foo = Foo()
+
+    class Bar {
+        const val foo2 = "foo"
+        const val fooBar2 = "FOO-BAR"
+
+        val FOO2 = "foo"
+        val FOO_BAR_2 = "foo-bar"
+    }
+    ```
+
+!!! note
+    Top level `val` properties and `const val` properties have to be written in screaming snake notation. Local `val` and `const val` are written in lower camel case.
 
 This rule can also be suppressed with the IntelliJ IDEA inspection suppression `PropertyName`.
 
@@ -331,6 +484,20 @@ Rule id: `no-blank-line-in-list`
 
 Consistent spacing inside the parameter list.
 
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun foo(a: Any ) = "some-result"
+    fun foo() = "some-result"
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun foo( a : Any ) = "some-result"
+    fun foo(
+    ) = "some-result"
+    ```
+
 Rule id: `parameter-list-spacing`
 
 ### String template indent
@@ -414,11 +581,43 @@ Rule id: `try-catch-finally-spacing`
 
 Spacing before and after the angle brackets of a type argument list.
 
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val res = ArrayList<LintError>()
+    class B<T> : A<T>() {
+        override fun x() = super<A>.x()
+    }
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val res = ArrayList < LintError > ()
+    class B<T> : A< T >() {
+        override fun x() = super< A >.x()
+    }
+    ```
+
 Rule id: `type-argument-list-spacing`
 
 ### Type parameter list spacing
 
 Spacing after a type parameter list in function and class declarations.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun <T> foo1(t: T) = "some-result"
+    fun <T> foo2(t: T) = "some-result"
+    fun <T> foo3(t: T) = "some-result"
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun<T> foo1(t: T) = "some-result"
+    fun <T>foo2(t: T) = "some-result"
+    fun<T>foo3(t: T) = "some-result"
+    ```
 
 Rule id: `type-parameter-list-spacing`
 

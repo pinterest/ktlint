@@ -22,8 +22,7 @@ class PropertyNamingRuleTest {
     @ValueSource(
         strings = [
             "Foo",
-            "Foo1",
-            "Foo_Bar",
+            "foo_bar",
         ],
     )
     fun `Given an invalid property name then do emit`(propertyName: String) {
