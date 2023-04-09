@@ -5,7 +5,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IMPORT_DIRECTIVE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_DECLARATION
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.internal.regExIgnoringDiacriticsAndStrokesOnLetters
@@ -14,12 +13,10 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 /**
  * https://kotlinlang.org/docs/coding-conventions.html#naming-rules
  *
- * The Kotlin convention does not allow explicitly to use backticked class name but it makes sense to allow this as
+ * The Kotlin convention does not allow explicitly to use backticked class name, but it makes sense to allow this as
  * well as it is more consistent with name of test functions.
  */
-public class ClassNamingRule :
-    StandardRule("class-naming"),
-    Rule.Experimental {
+public class ClassNamingRule : StandardRule("class-naming") {
     private var allowBacktickedClassName = false
 
     override fun beforeVisitChildNodes(
