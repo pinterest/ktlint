@@ -14,7 +14,8 @@ if (providers.gradleProperty("isKotlinDev").orNull.toBoolean()) {
 
 project.version = providers.gradleProperty("VERSION_NAME").orNull
     ?: throw GradleException("Project version property is missing")
-project.group = providers.gradleProperty("GROUP").orNull
+// TODO: Rename ktlint-cli's group to com.pinterest.ktlint whenever releasing version 1.0, or remove `localGradleProperty` once https://github.com/gradle/gradle/issues/23572 is fixed.
+project.group = localGradleProperty("GROUP").orNull ?: providers.gradleProperty("GROUP").orNull
     ?: throw GradleException("Project group property is missing")
 
 publishing {
