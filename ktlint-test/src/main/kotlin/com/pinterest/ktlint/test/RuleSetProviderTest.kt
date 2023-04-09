@@ -5,6 +5,10 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.io.File
 
+/**
+ * Extend this test in any custom ruleset that implements a RuleSetProvider to ensure that each rule that is defined in that rule set is
+ * actually defined in the RuleSetProvider.
+ */
 public open class RuleSetProviderTest(
     private val rulesetClass: Class<out RuleSetProviderV3>,
     private val packageName: String,

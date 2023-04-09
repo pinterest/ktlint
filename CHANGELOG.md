@@ -266,6 +266,7 @@ if (node.isRoot()) {
 ### Removed
 
 * Remove support of the `.editorconfig` properties `disabled_rules` and `ktlint_disabled_rules`. See [disabled rules](https://pinterest.github.io/ktlint/rules/configuration-ktlint/#disabled-rules) for more information.
+* Remove CLI option `--print-ast`. Use IntelliJ IDEA PsiViewer plugin instead. ([#1925](https://github.com/pinterest/ktlint/issues/1925))
 
 ### Fixed
 

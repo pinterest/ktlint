@@ -11,12 +11,11 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleSetExecutionEditorConfigProperty
-import com.pinterest.ruleset.testtooling.DumpASTRule
 import mu.KotlinLogging
-import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 
 // TODO: Remove entire file in KtLint 0.50. Code has already been duplicated and refactored into KtLintAssertThat.
 
+@Suppress("unused")
 private val LOGGER =
     KotlinLogging
         .logger {}
@@ -24,9 +23,8 @@ private val LOGGER =
             if (!logger.isTraceEnabled || !logger.isDebugEnabled) {
                 logger.info {
                     """
-                    Additional information can be printed during running of unit tests, by setting one or more of environment variables below:
+                    Additional information can be printed during running of unit tests, by setting environment variable below:
                         $KTLINT_UNIT_TEST_TRACE=[on|off]
-                        $KTLINT_UNIT_TEST_DUMP_AST=[on|off]
                     """.trimIndent()
                 }
             }
@@ -38,34 +36,6 @@ private val LOGGER =
 // behavior.
 // Keep value in sync with value in 'logback-test.xml' source in module 'ktlint-test-logging'
 private const val KTLINT_UNIT_TEST_TRACE = "KTLINT_UNIT_TEST_TRACE"
-
-// Via command line parameter "--print-ast" the end user of ktlint can change the logging behavior. As unit tests are
-// not invoked via the main ktlint runtime, this command line parameter can not be used to change the logging behavior
-// while running the unit tests. Instead, the environment variable below can be used by ktlint developers to change the
-// logging behavior.
-private const val KTLINT_UNIT_TEST_DUMP_AST = "KTLINT_UNIT_TEST_DUMP_AST"
-private const val KTLINT_UNIT_TEST_ON_PROPERTY = "ON"
-
-private fun Set<RuleProvider>.toRuleProviders(): Set<RuleProvider> {
-    val dumpAstRuleProvider =
-        System
-            .getenv(KTLINT_UNIT_TEST_DUMP_AST)
-            .orEmpty()
-            .equals(KTLINT_UNIT_TEST_ON_PROPERTY, ignoreCase = true)
-            .ifTrue {
-                LOGGER.info {
-                    "Dump AST of code before processing as System environment variable $KTLINT_UNIT_TEST_DUMP_AST is set to 'on'"
-                }
-                RuleProvider {
-                    DumpASTRule(
-                        // Write to STDOUT. The focus in a failed unit test should first go to the error in the rule that is
-                        // to be tested and not to the AST,
-                        out = System.out,
-                    )
-                }
-            }
-    return this.plus(setOfNotNull(dumpAstRuleProvider))
-}
 
 /**
  * Execute [KtLintRuleEngine.lint] on given code snippet. To test a kotlin script file, provide a filepath ending with
@@ -82,7 +52,6 @@ public fun Set<RuleProvider>.lint(
     editorConfigOverride: EditorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
 ): List<LintError> {
     val lintErrors = ArrayList<LintError>()
-    val ruleProviders = toRuleProviders()
     val code =
         if (filePath != null) {
             Code.fromFile(KTLINT_TEST_FILE_SYSTEM.resolve(filePath).toFile())
@@ -90,11 +59,11 @@ public fun Set<RuleProvider>.lint(
             Code.fromSnippet(text)
         }
     KtLintRuleEngine(
-        ruleProviders = ruleProviders,
+        ruleProviders = this,
         editorConfigOverride =
             editorConfigOverride
                 .enableExperimentalRules()
-                .extendWithRuleSetRuleExecutionsFor(ruleProviders),
+                .extendWithRuleSetRuleExecutionsFor(this),
         fileSystem = KTLINT_TEST_FILE_SYSTEM.fileSystem,
     ).lint(code) { lintError -> lintErrors.add(lintError) }
     return lintErrors
@@ -140,7 +109,6 @@ public fun Set<RuleProvider>.format(
     editorConfigOverride: EditorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
 ): Pair<String, List<LintError>> {
     val lintErrors = ArrayList<LintError>()
-    val ruleProviders = toRuleProviders()
     val code =
         if (filePath != null) {
             Code.fromFile(KTLINT_TEST_FILE_SYSTEM.resolve(filePath).toFile())
@@ -149,11 +117,11 @@ public fun Set<RuleProvider>.format(
         }
     val formattedCode =
         KtLintRuleEngine(
-            ruleProviders = ruleProviders,
+            ruleProviders = this,
             editorConfigOverride =
                 editorConfigOverride
                     .enableExperimentalRules()
-                    .extendWithRuleSetRuleExecutionsFor(ruleProviders),
+                    .extendWithRuleSetRuleExecutionsFor(this),
             fileSystem = KTLINT_TEST_FILE_SYSTEM.fileSystem,
         ).format(code) { lintError, _ -> lintErrors.add(lintError) }
     return Pair(formattedCode, lintErrors)

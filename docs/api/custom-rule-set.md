@@ -66,32 +66,8 @@ $ ktlint -R build/libs/ktlint-ruleset-template.jar --log-level=debug --relative 
 !!! tip
     Multiple custom rule sets can be loaded at the same time.
 
-## AST
+## Abstract Syntax Tree (AST)
 
-While writing/debugging [Rule](https://github.com/pinterest/ktlint/blob/master/ktlint-rule-engine-core/src/main/kotlin/com/pinterest/ktlint/ruleset/core/api/Rule.kt)s it's often helpful to have an AST printed out to see the structure rules have to work with. ktlint >= 0.15.0 has a `printAST` subcommand (or `--print-ast` flag for ktlint < 0.34.0) specifically for this purpose (usage: `ktlint --color printAST <file>`).
-An example of the output is shown below.
+While writing/debugging [Rule](https://github.com/pinterest/ktlint/blob/master/ktlint-rule-engine-core/src/main/kotlin/com/pinterest/ktlint/ruleset/core/api/Rule.kt)s it's often helpful to inspect the Abstract Syntax Tree (AST) of the code snippet that is to be linted / formatted. The [Jetbrain PsiViewer plugin for IntelliJ IDEA](https://github.com/JetBrains/psiviewer) is a convenient tool to inspect code as shown below:
 
-```sh
-$ printf "fun main() {}" | ktlint --color printAST --stdin
-
-1: ~.psi.KtFile (~.psi.stubs.elements.KtFileElementType.kotlin.FILE)
-1:   ~.psi.KtPackageDirective (~.psi.stubs.elements.KtPlaceHolderStubElementType.PACKAGE_DIRECTIVE) ""
-1:   ~.psi.KtImportList (~.psi.stubs.elements.KtPlaceHolderStubElementType.IMPORT_LIST) ""
-1:   ~.psi.KtScript (~.psi.stubs.elements.KtScriptElementType.SCRIPT)
-1:     ~.psi.KtBlockExpression (~.KtNodeType.BLOCK)
-1:       ~.psi.KtNamedFunction (~.psi.stubs.elements.KtFunctionElementType.FUN)
-1:         ~.c.i.p.impl.source.tree.LeafPsiElement (~.lexer.KtKeywordToken.fun) "fun"
-1:         ~.c.i.p.impl.source.tree.PsiWhiteSpaceImpl (~.c.i.p.tree.IElementType.WHITE_SPACE) " "
-1:         ~.c.i.p.impl.source.tree.LeafPsiElement (~.lexer.KtToken.IDENTIFIER) "main"
-1:         ~.psi.KtParameterList 
-  (~.psi.stubs.elements.KtPlaceHolderStubElementType.VALUE_PARAMETER_LIST)
-1:           ~.c.i.p.impl.source.tree.LeafPsiElement (~.lexer.KtSingleValueToken.LPAR) "("
-1:           ~.c.i.p.impl.source.tree.LeafPsiElement (~.lexer.KtSingleValueToken.RPAR) ")"
-1:         ~.c.i.p.impl.source.tree.PsiWhiteSpaceImpl (~.c.i.p.tree.IElementType.WHITE_SPACE) " "
-1:         ~.psi.KtBlockExpression (~.KtNodeType.BLOCK)
-1:           ~.c.i.p.impl.source.tree.LeafPsiElement (~.lexer.KtSingleValueToken.LBRACE) "{"
-1:           ~.c.i.p.impl.source.tree.LeafPsiElement (~.lexer.KtSingleValueToken.RBRACE) "}"
-
-   format: <line_number:> <node.psi::class> (<node.elementType>) "<node.text>"
-   legend: ~ = org.jetbrains.kotlin, c.i.p = com.intellij.psi
-```
+![Image](../assets/images/psi-viewer.png)
