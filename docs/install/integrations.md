@@ -97,8 +97,8 @@ The [autostyle/autostyle](https://github.com/autostyle/autostyle/tree/master/plu
 
 The configuration below, defines following task:
 
-* The `ktlint` is bound to the *Gradle check* task. It can also be executed with command `gradle ktlint`.
-* The `ktlint-format` task is not bound to any other task. It can be executed with command `gradle ktlintFormat`.
+* The `ktlintCheck` is bound to the *Gradle check* task. It can also be executed with command `./gradlew ktlintCheck`.
+* The `ktlintFormat` task is not bound to any other task. It can be executed with command `./gradlew ktlintFormat`.
 
 ```groovy title="build.gradle"
 // kotlin-gradle-plugin must be applied for configuration below to work
@@ -160,8 +160,8 @@ See [Making your Gradle tasks incremental](https://proandroiddev.com/making-your
 
 The configuration below, defines following task:
 
-* The `ktlint` is bound to the *Gradle check* task. It can also be executed with command `gradle ktlint`.
-* The `ktlint-format` task is not bound to any other task. It can be executed with command `gradle ktlintFormat`.
+* The `ktlintCheck` is bound to the *Gradle check* task. It can also be executed with command `./gradlew ktlintCheck`.
+* The `ktlintFormat` task is not bound to any other task. It can be executed with command `./gradlew ktlintFormat`.
 
 ```kotlin title="build.gradle.kts"
 val ktlint by configurations.creating

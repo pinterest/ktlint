@@ -8,6 +8,30 @@ By using ktlint you put the importance of code clarity and community conventions
 
 ktlint is a single binary with both linter & formatter included. All you need is to drop it in (no need to get [overwhelmed](https://en.wikipedia.org/wiki/Decision_fatigue) while choosing among [dozens of code style options](https://checkstyle.sourceforge.net/checks.html)).
 
+##  How do I enable or disable a rule?
+
+An individual rule can be enabled or disabled with a rule property. The name of the rule property consists of the `ktlint_` prefix followed by the rule set id followed by a `_` and the rule id. Examples:
+```editorconfig
+ktlint_standard_final-newline = disabled # Disables the `final-newline` rule in the `standard` rule set provided by KtLint
+ktlint_standard_some-experimental-rule = enabled # Enables the (experimental) `some-experimental-rule` in the `standard` rule set provided by KtLint
+ktlint_custom-rule-set_custom-rule = disabled # Disables the `custom-rule` rule in the `custom-rule-set` rule set (not provided by KtLint)
+```
+
+!!! note
+    The *rule* properties are applied after applying the *rule set* properties and take precedence. So if a rule set is disabled but a specific rule of that rule set is enabled, then the rule will be executed.
+
+##  How do I enable or disable a rule set?
+
+All rules in a rule set can be enabled or disabled with a rule set property. The name of the rule set property consists of the `ktlint_` prefix followed by the rule set id. Examples:
+```editorconfig
+ktlint_standard = disabled # Disable all rules from the `standard` rule set provided by KtLint
+ktlint_experimental = enabled # Enable rules marked as experimental for all rule sets that are enabled
+ktlint_custom-rule-set = enabled # Enable all rules in the `custom-rule-set` rule set (not provided by KtLint)
+```
+
+!!! note
+    All rules from the `standard` and custom rule sets are *enabled* by default and can optionally be disabled in the `.editorconfig`. All rules from the `experimental` rule set are *disabled* by default and can optionally be enabled in the `.editorconfig`.
+
 ## Can I have my own rules on top of ktlint?
 
 Absolutely, "no configuration" doesn't mean "no extensibility". You can add your own ruleset(s) to discover potential bugs, check for anti-patterns, etc.
@@ -27,135 +51,85 @@ An error can be suppressed using:
 * Block comments
 * @Suppress annotations
 
-From a consistency perspective seen, it might be best to **not** mix the (EOL/Block) comment style with the annotation style in the same project.
+=== "[:material-heart:](#) Suppress annotation"
 
-### Disabling for one specific line using EOL comment
+    ```kotlin
+    // Suppressing all rules for the entire file
+    @file:Suppress("ktlint")
 
-An error for a specific rule on a specific line can be disabled with an EOL comment on that line:
+    // Suppress a single rule for the annotated construct
+    @Suppress("ktlint:standard:no-wildcard-imports")
+    import foo.*
 
-```kotlin
-import foo.* // ktlint-disable no-wildcard-imports
-```
+    // Suppress multiple rules for the annotated construct
+    @Suppress("ktlint:standard:no-wildcard-imports", "ktlint:standard:other-rule-id")
+    import foo.*
 
-In case lint errors for different rules on the same line need to be ignored, then specify multiple rule ids (separated by a space):
+    // Suppress all rules for the annotated construct
+    @Suppress("ktlint")
+    import foo.*
+    ```
+=== "[:material-heart:](#) EOL comments"
 
-```kotlin
-import foo.* // ktlint-disable no-wildcard-imports other-rule-id
-```
+    ```kotlin
+    // Suppress a single rule for the commented line
+    import foo.* // ktlint-disable standard_no-wildcard-imports
 
-In case all lint errors on a line need to be ignored, then do not specify the rule id at all:
+    // Suppress multiple rules for the commented line
+    import foo.* // ktlint-disable standard_no-wildcard-imports standard_other-rule-id
 
-```kotlin
-import foo.* // ktlint-disable
-```
+    // Suppress all rules for the commented line
+    import foo.* // ktlint-disable
+    ```
 
-### Disabling for a block of lines using Block comments
+=== "[:material-heart-off-outline:](#) Block comments"
 
-An error for a specific rule in a block of lines can be disabled with an block comment like:
+    ```kotlin
+    // Suppress a single rule for all code between the start and end tag
+    /* ktlint-disable standard_no-wildcard-imports */
+    import foo.*
+    /* ktlint-disable standard_no-wildcard-imports */
 
-```kotlin
-/* ktlint-disable no-wildcard-imports */
-import package.a.*
-import package.b.*
-/* ktlint-enable no-wildcard-imports */
-```
+    // Suppress multiple rules for all code between the start and end tag
+    /* ktlint-disable standard_no-wildcard-imports standard_no-wildcard-imports */
+    import foo.*
+    /* ktlint-enable standard_no-wildcard-imports standard_no-wildcard-imports */
 
-In case lint errors for different rules in the same block of lines need to be ignored, then specify multiple rule ids (separated by a space):
+    // Suppress all rules for all code between the start and end tag
+    /* ktlint-disable */
+    import foo.*
+    /* ktlint-enable */
+    ```
 
-```kotlin
-/* ktlint-disable no-wildcard-imports other-rule-id */
-import package.a.*
-import package.b.*
-/* ktlint-enable no-wildcard-imports,other-rule-id */
-```
+!!! important
+    When using the block comments, the `ktlint-enable` directive needs to specify the exact same rule-id's and in the same order as the `ktlint-disable` directive.
 
-Note that the `ktlint-enable` directive needs to specify the exact same rule-id's and in the same order as the `ktlint-disable` directive.
+!!! warning
+    From a consistency perspective seen, it might be best to **not** mix the (EOL/Block) comment style with the annotation style in the same project.
 
-In case all lint errors in a block of lines needs to be ignored, then do not specify the rule id at all:
+## How do I globally disable a rule without `.editorconfig`?
 
-```kotlin
-/* ktlint-disable */
-import package.a.*
-import package.b.*
-/* ktlint-enable */
-```
-
-### Disabling for a statement or an entire file using @Suppress
-
-!!! tip
-    As of ktlint version 0.46, it is possible to specify any ktlint rule id via the `@Suppress` annotation in order to suppress errors found by that rule. Note that some rules like `indent` still do not support disabling for parts of a file.
-
-An error for a specific rule on a specific line can be disabled with a `@Suppress` annotation:
-
-```kotlin
-@Suppress("ktlint:max-line-length", "ktlint:some-custom-rule-set-id:some-custom-rule-id")
-val foo = listOf(
-    "some really looooooooooooooooong string exceeding the max line length",
-  )
-```
-
-Note that when using `@Suppress` each rule id needs to be prefixed with `ktlint:` in case of standard rules provided by ktlint and with `ktlint:some-custom-rule-set-id:` in case the rule is provided by the custom rule set with id `some-custom-rule-set-id`. 
-
-To suppress the violations of all ktlint rules, use:
-```kotlin
-@Suppress("ktlint")
-val foo = "some really looooooooooooooooong string exceeding the max line length"
-```
-
-Like with other `@Suppress` annotations, it can be placed on targets supported by the annotation. As of this it is possible to disable rules in the entire file with:
-```kotlin
-@file:Suppress("ktlint") // Suppressing all rules for the entire file
-```
-or
-```
-@file:Suppress("ktlint:max-line-length", "ktlint:some-custom-rule-set-id:some-custom-rule-id") // Suppressing specific rules for the entire file
-```
-
-## How do I globally disable a rule?
-Rules can be disabled globally by setting a [`.editorConfig` property](../rules/configuration-ktlint#disabled-rules).
-
-You may also pass a list of disabled rules via the `--disabled_rules` command line flag of Ktlint CLI. The value is a comma separated list of rule id's that have to be disabled. The rule id must be fully qualified (e.g. must be prefixed with the rule set id). 
+When using Ktlint CLI, you may pass a list of disabled rules via the `--disabled_rules` command line flag. The value is a comma separated list of rule id's that have to be disabled. The rule id must be fully qualified (e.g. must be prefixed with the rule set id). 
 
 
 ## Why is `.editorconfig` property `disabled_rules` deprecated and how do I resolve this?
-The `.editorconfig` properties `disabled_rules` and `ktlint_disabled_rules` are deprecated as of KtLint version `0.48` and are marked for removal in version `0.49`. Those properties contain a comma separated list of rules which are disabled. Using a comma separated list of values has some disadvantages.
+
+The `.editorconfig` properties `disabled_rules` and `ktlint_disabled_rules` are deprecated as of KtLint version `0.48` and are removed in version `0.49`. Those properties contain a comma separated list of rules which are disabled. Using a comma separated list of values has some disadvantages.
 
 A big disadvantage is that it is not possible to override the property partially in an `.editorconfig` file in a subpackage. Another disadvantage is that it is not possible to express explicitly that a rule is enabled. Lastly, (qualified) rule ids can be 20 characters or longer, which makes a list with multiple entries hard to read.
 
-*Root `.editorconfig`*
-```editorconfig
-root = true
-
-[*.kt]
-disabled_rules=rule-1,rule-2,rule-3
-```
-This `.editorconfig` defines that all rules except `rule-1`, `rule-2` and `rule-3` should be run in all packages. Suppose that we want to enable `rule-1` but disable `rule-4` in certain subpackage, then we would need to define an `.editorconfig` file like below:
-
-*Secondary `.editorconfig`*
-```editorconfig
-[*.kt]
-disabled_rules=rule-2,rule-4,rule-3
-```
-Disabling another rule in the root `.editorconfig` file, does not have effect on this subpackage as long as that rule has not been added to the `.editorconfig` file in the subpackage. 
-
-Starting with KtLint `0.48` entire rule sets and individual rules can be disabled / enabled with a separate property per rule (set). 
-
-All rules in a rule set can be enabled or disabled with a rule set property. The name of the rule set property consists of the `ktlint_` prefix followed by the rule set id. Examples:
+Starting with KtLint `0.48` entire rule sets and individual rules can be disabled / enabled with a separate property per rule (set). Examples:
 ```editorconfig
 ktlint_standard = disabled # Disable all rules from the `standard` rule set provided by KtLint
+ktlint_standard_final-newline = enabled # Enables the `final-newline` rule in the `standard` rule set provided by KtLint
 ktlint_experimental = enabled # Enable rules marked as experimental for all rule sets that are enabled
+ktlint_standard_some-experimental-rule = disabled # Disables the (experimental) `some-experimental-rule` in the `standard` rule set provided by KtLint
 ktlint_custom-rule-set = enabled # Enable all rules in the `custom-rule-set` rule set (not provided by KtLint)
+ktlint_custom-rule-set_custom-rule = disabled # Disables the `custom-rule` rule in the `custom-rule-set` rule set (not provided by KtLint)
 ```
 
 !!! note
     All rules from the `standard` and custom rule sets are *enabled* by default and can optionally be disabled in the `.editorconfig`. All rules from the `experimental` rule set are *disabled* by default and can optionally be enabled in the `.editorconfig`.
-
-An individual property can be enabled or disabled with a rule property. The name of the rule property consists of the `ktlint_` prefix followed by the rule set id followed by a `_` and the rule id. Examples:
-```editorconfig
-ktlint_standard_final-newline = disabled # Disables the `final-newline` rule in the `standard` rule set provided by KtLint
-ktlint_standard_some-experimental-rule = enabled # Enables the (experimental) `some-experimental-rule` in the `standard` rule set provided by KtLint
-ktlint_custom-rule-set_custom-rule = disabled # Disables the `custom-rule` rule in the `custom-rule-set` rule set (not provided by KtLint)
-```
 
 !!! note
     The *rule* properties are applied after applying the *rule set* properties and take precedence. So if a rule set is disabled but a specific rule of that rule set is enabled, then the rule will be executed.  

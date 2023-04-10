@@ -5,15 +5,12 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.NULLABLE_TYPE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
-public class FunctionTypeReferenceSpacingRule :
-    StandardRule("function-type-reference-spacing"),
-    Rule.Experimental {
+public class FunctionTypeReferenceSpacingRule : StandardRule("function-type-reference-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
