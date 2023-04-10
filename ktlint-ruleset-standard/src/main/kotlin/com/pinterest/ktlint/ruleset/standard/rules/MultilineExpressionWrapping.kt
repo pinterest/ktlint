@@ -31,8 +31,8 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -103,7 +103,8 @@ public class MultilineExpressionWrapping :
                             )
                             node
                                 .lastChildLeafOrSelf()
-                                .nextLeaf { !it.isWhiteSpace() && it.elementType != COMMA }
+                                .nextLeaf { !it.isWhiteSpaceWithoutNewline() && !it.isPartOfComment() && it.elementType != COMMA }
+                                ?.takeIf { !it.isWhiteSpaceWithNewline() }
                                 ?.upsertWhitespaceBeforeMe(node.treeParent.indent())
                         }
                     }

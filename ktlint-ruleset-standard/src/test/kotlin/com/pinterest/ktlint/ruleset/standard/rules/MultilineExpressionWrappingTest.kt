@@ -690,4 +690,28 @@ class MultilineExpressionWrappingTest {
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
             .hasNoLintViolations()
     }
+
+    @Test
+    fun `Given a multiline expression with an EOL comment on the last line`() {
+        val code =
+            """
+            val foo = bar
+                .length() // some-comment
+
+            val foobar = "foobar"
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo =
+                bar
+                    .length() // some-comment
+
+            val foobar = "foobar"
+            """.trimIndent()
+        multilineExpressionWrappingAssertThat(code)
+            .addAdditionalRuleProvider { IndentationRule() }
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
+            .hasLintViolation(1, 11, "A multiline expression should start on a new line")
+            .isFormattedAs(formattedCode)
+    }
 }
