@@ -875,6 +875,7 @@ A block comment should start and end on a line that does not contain any other e
     /* Some comment 1 */
     val foo1 = "foo1"
     val foo2 = "foo" // Some comment
+    val foo3 = { /* no-op */ } 
     ```
 === "[:material-heart-off-outline:](#) Disallowed"
 

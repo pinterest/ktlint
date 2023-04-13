@@ -1,19 +1,34 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class CommentWrappingRuleTest {
     private val commentWrappingRuleAssertThat = assertThatRule { CommentWrappingRule() }
 
     @Test
-    fun `Given a single line block comment that start starts and end on a separate line then do not reformat`() {
+    fun `Given a single line block comment then replace it with an EOL comment`() {
         val code =
             """
-            /* Some comment */
+            fun bar() {
+                /* Some comment */
+            }
             """.trimIndent()
-        commentWrappingRuleAssertThat(code).hasNoLintViolations()
+        val formattedCode =
+            """
+            fun bar() {
+                // Some comment
+            }
+            """.trimIndent()
+        commentWrappingRuleAssertThat(code)
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+            .hasLintViolation(2, 5, "A single line block comment must be replaced with an EOL comment")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -27,33 +42,138 @@ class CommentWrappingRuleTest {
         commentWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
-    @Test
-    fun `Given a block comment followed by a code element on the same line as the block comment ended then split the elements with a new line`() {
-        val code =
-            """
-            /* Some comment 1 */ val foo1 = "foo1"
-            /* Some comment 2 */val foo2 = "foo2"
-            /* Some comment 3 */ fun foo3() = "foo3"
-            /* Some comment 4 */fun foo4() = "foo4"
-            """.trimIndent()
-        val formattedCode =
-            """
-            /* Some comment 1 */
-            val foo1 = "foo1"
-            /* Some comment 2 */
-            val foo2 = "foo2"
-            /* Some comment 3 */
-            fun foo3() = "foo3"
-            /* Some comment 4 */
-            fun foo4() = "foo4"
-            """.trimIndent()
-        commentWrappingRuleAssertThat(code)
-            .hasLintViolations(
-                LintViolation(1, 21, "A block comment may not be followed by any other element on that same line"),
-                LintViolation(2, 21, "A block comment may not be followed by any other element on that same line"),
-                LintViolation(3, 21, "A block comment may not be followed by any other element on that same line"),
-                LintViolation(4, 21, "A block comment may not be followed by any other element on that same line"),
-            ).isFormattedAs(formattedCode)
+    @Nested
+    inner class `Given a block comment followed by a code element on the same line` {
+        @Test
+        fun `Given a comment followed by a property and separated with space`() {
+            val code =
+                """
+                /* Some comment */ val foo = "foo"
+                """.trimIndent()
+            val formattedCode =
+                """
+                /* Some comment */
+                val foo = "foo"
+                """.trimIndent()
+            commentWrappingRuleAssertThat(code)
+                .hasLintViolation(1, 20, "A block comment may not be followed by any other element on that same line")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given a comment followed by a property but not separated with space`() {
+            val code =
+                """
+                /* Some comment */val foo = "foo"
+                """.trimIndent()
+            val formattedCode =
+                """
+                /* Some comment */
+                val foo = "foo"
+                """.trimIndent()
+            commentWrappingRuleAssertThat(code)
+                .hasLintViolation(1, 19, "A block comment may not be followed by any other element on that same line")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given a comment followed by a function and separated with space`() {
+            val code =
+                """
+                /* Some comment */ fun foo() = "foo"
+                """.trimIndent()
+            val formattedCode =
+                """
+                /* Some comment */
+                fun foo() = "foo"
+                """.trimIndent()
+            commentWrappingRuleAssertThat(code)
+                .hasLintViolation(1, 20, "A block comment may not be followed by any other element on that same line")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given a comment followed by a function but not separated with space`() {
+            val code =
+                """
+                /* Some comment */fun foo() = "foo"
+                """.trimIndent()
+            val formattedCode =
+                """
+                /* Some comment */
+                fun foo() = "foo"
+                """.trimIndent()
+            commentWrappingRuleAssertThat(code)
+                .hasLintViolation(1, 19, "A block comment may not be followed by any other element on that same line")
+                .isFormattedAs(formattedCode)
+        }
+    }
+
+    @Nested
+    inner class `Given some code code followed by a block comment on the same line` {
+        @Test
+        fun `Given a comment followed by a property and separated with space`() {
+            val code =
+                """
+                val foo = "foo" /* Some comment */
+                """.trimIndent()
+            val formattedCode =
+                """
+                val foo = "foo" // Some comment
+                """.trimIndent()
+            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+            commentWrappingRuleAssertThat(code)
+                .hasLintViolation(1, 17, "A single line block comment after a code element on the same line must be replaced with an EOL comment")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given a comment followed by a property but not separated with space`() {
+            val code =
+                """
+                val foo = "foo"/* Some comment */
+                """.trimIndent()
+            val formattedCode =
+                """
+                val foo = "foo" // Some comment
+                """.trimIndent()
+            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+            commentWrappingRuleAssertThat(code)
+                .hasLintViolation(1, 16, "A single line block comment after a code element on the same line must be replaced with an EOL comment")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given a comment followed by a function and separated with space`() {
+            val code =
+                """
+                fun foo() = "foo" /* Some comment */
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun foo() = "foo" // Some comment
+                """.trimIndent()
+            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+            commentWrappingRuleAssertThat(code)
+                .hasLintViolation(1, 19, "A single line block comment after a code element on the same line must be replaced with an EOL comment")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given a comment followed by a function but not separated with space`() {
+            val code =
+                """
+                fun foo() = "foo"/* Some comment */
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun foo() = "foo" // Some comment
+                """.trimIndent()
+            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+            commentWrappingRuleAssertThat(code)
+                .hasLintViolation(1, 18, "A single line block comment after a code element on the same line must be replaced with an EOL comment")
+                .isFormattedAs(formattedCode)
+        }
     }
 
     @Test
@@ -64,12 +184,9 @@ class CommentWrappingRuleTest {
                              * with a newline
                              */
             """.trimIndent()
+        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
         commentWrappingRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(
-                1,
-                17,
-                "A block comment after any other element on the same line must be separated by a new line",
-            )
+            .hasLintViolationWithoutAutoCorrect(1, 17, "A block comment after any other element on the same line must be separated by a new line")
     }
 
     @Test
@@ -84,7 +201,7 @@ class CommentWrappingRuleTest {
             """.trimIndent()
         @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
         commentWrappingRuleAssertThat(code)
-            .hasLintViolation(1, 16, "A single line block comment after a code element on the same line must be replaced with an EOL comment")
+            .hasLintViolation(1, 17, "A single line block comment after a code element on the same line must be replaced with an EOL comment")
             .isFormattedAs(formattedCode)
     }
 
@@ -94,12 +211,9 @@ class CommentWrappingRuleTest {
             """
             val foo /* some comment */ = "foo"
             """.trimIndent()
+        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
         commentWrappingRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(
-                1,
-                9,
-                "A block comment in between other elements on the same line is disallowed",
-            )
+            .hasLintViolationWithoutAutoCorrect(1, 9, "A block comment in between other elements on the same line is disallowed")
     }
 
     @Test
@@ -110,12 +224,9 @@ class CommentWrappingRuleTest {
             some comment
             */ = "foo"
             """.trimIndent()
+        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
         commentWrappingRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(
-                1,
-                9,
-                "A block comment starting on same line as another element and ending on another line before another element is disallowed",
-            )
+            .hasLintViolationWithoutAutoCorrect(1, 9, "A block comment starting on same line as another element and ending on another line before another element is disallowed")
     }
 
     @Test
@@ -134,7 +245,18 @@ class CommentWrappingRuleTest {
             }
             """.trimIndent()
         commentWrappingRuleAssertThat(code)
-            .hasLintViolation(2, 23, "A block comment may not be followed by any other element on that same line")
+            .hasLintViolation(2, 24, "A block comment may not be followed by any other element on that same line")
             .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a single line block containing a block comment then do not reformat`() {
+        val code =
+            """
+            val foo = { /* no-op */ }
+            """.trimIndent()
+        commentWrappingRuleAssertThat(code)
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+            .hasNoLintViolations()
     }
 }
