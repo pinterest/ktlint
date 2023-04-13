@@ -42,12 +42,9 @@ class PropertyNamingRuleTest {
             const val FOO_BAR_2 = "foo-bar-2"
             const val ŸÈŠ_THÎS_IS_ALLOWED_123 = "Yes this is allowed"
             """.trimIndent()
+        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
         propertyNamingRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(
-                1,
-                11,
-                "Property name should use the screaming snake case notation when the value can not be changed",
-            )
+            .hasLintViolationWithoutAutoCorrect(1, 11, "Property name should use the screaming snake case notation when the value can not be changed")
     }
 
     @Test
@@ -57,12 +54,9 @@ class PropertyNamingRuleTest {
             val foo = Foo()
             val FOO_BAR = FooBar()
             """.trimIndent()
+        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
         propertyNamingRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(
-                1,
-                5,
-                "Property name should use the screaming snake case notation when the value can not be changed",
-            )
+            .hasLintViolationWithoutAutoCorrect(1, 5, "Property name should use the screaming snake case notation when the value can not be changed")
     }
 
     @Test
@@ -76,12 +70,9 @@ class PropertyNamingRuleTest {
                 }
             }
             """.trimIndent()
+        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
         propertyNamingRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(
-                3,
-                13,
-                "Property name should use the screaming snake case notation when the value can not be changed",
-            )
+            .hasLintViolationWithoutAutoCorrect(3, 13, "Property name should use the screaming snake case notation when the value can not be changed")
     }
 
     @Test

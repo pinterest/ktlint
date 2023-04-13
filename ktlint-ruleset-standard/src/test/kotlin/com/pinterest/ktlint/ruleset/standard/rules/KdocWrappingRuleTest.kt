@@ -64,12 +64,9 @@ class KdocWrappingRuleTest {
                              * with a newline
                              */
             """.trimIndent()
+        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
         kdocWrappingRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(
-                1,
-                17,
-                "A KDoc comment after any other element on the same line must be separated by a new line",
-            )
+            .hasLintViolationWithoutAutoCorrect(1, 17, "A KDoc comment after any other element on the same line must be separated by a new line")
     }
 
     @Test
@@ -90,12 +87,9 @@ class KdocWrappingRuleTest {
             some KDoc comment
             */ = "foo"
             """.trimIndent()
+        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
         kdocWrappingRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(
-                1,
-                9,
-                "A KDoc comment starting on same line as another element and ending on another line before another element is disallowed",
-            )
+            .hasLintViolationWithoutAutoCorrect(1, 9, "A KDoc comment starting on same line as another element and ending on another line before another element is disallowed")
     }
 
     @Test

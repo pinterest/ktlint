@@ -3203,12 +3203,9 @@ internal class IndentationRuleTest {
                 ${TAB}line2
                     $MULTILINE_STRING_QUOTE.trimIndent()
                 """.trimIndent()
+            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
             indentationRuleAssertThat(code)
-                .hasLintViolationWithoutAutoCorrect(
-                    1,
-                    11,
-                    "Indentation of multiline string should not contain both tab(s) and space(s)",
-                )
+                .hasLintViolationWithoutAutoCorrect(1, 11, "Indentation of multiline string should not contain both tab(s) and space(s)")
         }
 
         @Test
