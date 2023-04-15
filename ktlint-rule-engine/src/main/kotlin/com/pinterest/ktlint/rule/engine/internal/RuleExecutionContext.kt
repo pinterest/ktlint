@@ -66,7 +66,7 @@ internal class RuleExecutionContext private constructor(
                 e.col,
                 e.rule.ruleId.value,
                 """
-                Rule '${e.rule.ruleId.value}' throws exception in file '${code.fileName}' at position (${e.line}:${e.col})
+                Rule '${e.rule.ruleId.value}' throws exception in file '${code.fileNameOrStdin()}' at position (${e.line}:${e.col})
                    Rule maintainer: ${e.rule.about.maintainer}
                    Issue tracker  : ${e.rule.about.issueTrackerUrl}
                    Repository     : ${e.rule.about.repositoryUrl}

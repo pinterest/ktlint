@@ -590,20 +590,15 @@ internal class KtlintCommandLine {
                         status = KOTLIN_PARSE_EXCEPTION,
                     )
                 is KtLintRuleException -> {
-                    val codeSource =
-                        if (code.isStdIn) {
-                            "code"
-                        } else {
-                            "file '${code.fileName}'"
-                        }
-                    logger.debug("Internal Error (${e.ruleId}) in $codeSource at position '${e.line}:${e.col}", e)
+                    logger.debug("Internal Error (${e.ruleId}) in ${code.fileNameOrStdin()} at position '${e.line}:${e.col}", e)
                     KtlintCliError(
                         line = e.line,
                         col = e.col,
                         ruleId = "",
                         detail =
-                            "Internal Error (rule '${e.ruleId}') in $codeSource at position '${e.line}:${e.col}. Please create a ticket " +
-                                "at https://github.com/pinterest/ktlint/issues and provide the source code that triggered an error.\n" +
+                            "Internal Error (rule '${e.ruleId}') in ${code.fileNameOrStdin()} at position '${e.line}:${e.col}. Please " +
+                                "create a ticket at https://github.com/pinterest/ktlint/issues and provide the source code that " +
+                                "triggered an error.\n" +
                                 e.stackTraceToString(),
                         status = KTLINT_RULE_ENGINE_EXCEPTION,
                     )
