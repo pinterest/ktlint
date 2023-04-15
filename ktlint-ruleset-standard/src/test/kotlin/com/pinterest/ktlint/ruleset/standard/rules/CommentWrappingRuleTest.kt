@@ -259,4 +259,17 @@ class CommentWrappingRuleTest {
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
             .hasNoLintViolations()
     }
+
+    @Test
+    fun `Given single line block comments to disable or enable ktlint then do not reformat`() {
+        val code =
+            """
+            /* ktlint-disable foo-rule-id bar-rule-id */
+            val foo = "foo"
+            /* ktlint-enable foo-rule-id bar-rule-id */
+            """.trimIndent()
+        commentWrappingRuleAssertThat(code)
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+            .hasNoLintViolations()
+    }
 }

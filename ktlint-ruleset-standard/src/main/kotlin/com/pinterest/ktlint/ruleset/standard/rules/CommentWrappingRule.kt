@@ -55,6 +55,7 @@ public class CommentWrappingRule :
                     ?: node.lastChildLeafOrSelf()
 
             if (!node.textContains('\n') &&
+                !node.isKtlintSuppressionDirective() &&
                 beforeBlockComment.prevLeaf().isWhitespaceWithNewlineOrNull() &&
                 afterBlockComment.nextLeaf().isWhitespaceWithNewlineOrNull()
             ) {
@@ -141,6 +142,16 @@ public class CommentWrappingRule :
 
     private fun ASTNode?.isWhitespaceWithNewlineOrNull() =
         this == null || this.isWhiteSpaceWithNewline()
+
+    // TODO: Remove when ktlint suppression directive in comments are no longer supported
+    private fun ASTNode?.isKtlintSuppressionDirective() =
+        this
+            ?.text
+            ?.removePrefix("/*")
+            ?.removeSuffix("*/")
+            ?.trim()
+            ?.let { it.startsWith("ktlint-enable") || it.startsWith("ktlint-disable") }
+            ?: false
 }
 
 public val COMMENT_WRAPPING_RULE_ID: RuleId = CommentWrappingRule().ruleId
