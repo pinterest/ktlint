@@ -51,7 +51,6 @@ include(
     ":ktlint-rule-engine-core",
     ":ktlint-ruleset-standard",
     ":ktlint-ruleset-template",
-    ":ktlint-ruleset-test-tooling",
     ":ktlint-test",
     ":ktlint-test-ruleset-provider-v2-deprecated",
 )

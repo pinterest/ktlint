@@ -12,7 +12,6 @@ val excludeList =
         "ktlint-api-consumer",
         "ktlint-bom",
         "ktlint-ruleset-template",
-        "ktlint-ruleset-test-tooling",
         "ktlint-test-ruleset-provider-v2-deprecated",
     )
 
