@@ -7,6 +7,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
@@ -51,13 +52,14 @@ class NoConsecutiveCommentsRuleTest {
             /** KDoc 1 */
             /* Block comment 2 */
             """.trimIndent()
+        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
         noConsecutiveBlankLinesRuleAssertThat(code)
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyle)
             .withEditorConfigOverride(NO_CONSECUTIVE_COMMENTS_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled)
             .hasLintViolationsWithoutAutoCorrect(
-                LintViolation(2, 1, "a block comment may not be preceded by an EOL comment"),
-                LintViolation(3, 1, "a KDoc may not be preceded by a block comment"),
-                LintViolation(4, 1, "a block comment may not be preceded by a KDoc"),
+                LintViolation(2, 1, "a block comment may not be preceded by an EOL comment unless separated by a blank line"),
+                LintViolation(3, 1, "a KDoc may not be preceded by a block comment unless separated by a blank line"),
+                LintViolation(4, 1, "a block comment may not be preceded by a KDoc. Reversed order is allowed though when separated by a newline."),
             )
     }
 
@@ -107,76 +109,141 @@ class NoConsecutiveCommentsRuleTest {
             )
     }
 
-    @Test
-    fun `Given a KDoc followed by a block comment then report a violation`() {
-        val code =
-            """
-            /** KDoc */
-            /* Block comment */
-            """.trimIndent()
-        noConsecutiveBlankLinesRuleAssertThat(code)
-            .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
-            .hasLintViolationWithoutAutoCorrect(2, 1, "a block comment may not be preceded by a KDoc")
+    @Nested
+    inner class `Given a KDoc and block comment` {
+        @Test
+        fun `Given a KDoc followed by a block comment then report a violation`() {
+            val code =
+                """
+                /** KDoc */
+                /* Block comment */
+                """.trimIndent()
+            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+            noConsecutiveBlankLinesRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasLintViolationWithoutAutoCorrect(2, 1, "a block comment may not be preceded by a KDoc. Reversed order is allowed though when separated by a newline.")
+        }
+
+        @Test
+        fun `Given a block comment followed by a KDoc then report a violation`() {
+            val code =
+                """
+                /* Block comment */
+                /** KDoc */
+                """.trimIndent()
+            noConsecutiveBlankLinesRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasLintViolationWithoutAutoCorrect(2, 1, "a KDoc may not be preceded by a block comment unless separated by a blank line")
+        }
+
+        @Test
+        fun `Given a block comment followed by a blank line and a KDoc then do not report a violation`() {
+            val code =
+                """
+                /* Block comment */
+
+                /** KDoc */
+                """.trimIndent()
+            noConsecutiveBlankLinesRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasNoLintViolations()
+        }
     }
 
-    @Test
-    fun `Given a block comment followed by a KDoc then report a violation`() {
-        val code =
-            """
-            /* Block comment */
-            /** KDoc */
-            """.trimIndent()
-        noConsecutiveBlankLinesRuleAssertThat(code)
-            .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
-            .hasLintViolationWithoutAutoCorrect(2, 1, "a KDoc may not be preceded by a block comment")
+    @Nested
+    inner class `Given a KDoc and EOL comment` {
+        @Test
+        fun `Given a KDoc followed by an EOL comment then report a violation`() {
+            val code =
+                """
+                /** KDoc */
+                // EOL comment
+                """.trimIndent()
+            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+            noConsecutiveBlankLinesRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasLintViolationWithoutAutoCorrect(2, 1, "an EOL comment may not be preceded by a KDoc. Reversed order is allowed though when separated by a newline.")
+        }
+
+        @Test
+        fun `Given an EOL comment followed by a KDoc then report a violation`() {
+            val code =
+                """
+                // EOL comment
+                /** KDoc */
+                """.trimIndent()
+            noConsecutiveBlankLinesRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasLintViolationWithoutAutoCorrect(2, 1, "a KDoc may not be preceded by an EOL comment unless separated by a blank line")
+        }
+
+        @Test
+        fun `Given an EOL comment followed by a blank line and a KDoc then report a violation`() {
+            val code =
+                """
+                // EOL comment
+
+                /** KDoc */
+                """.trimIndent()
+            noConsecutiveBlankLinesRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasNoLintViolations()
+        }
     }
 
-    @Test
-    fun `Given an EOL comment followed by a KDoc then report a violation`() {
-        val code =
-            """
-            // EOL comment
-            /** KDoc */
-            """.trimIndent()
-        noConsecutiveBlankLinesRuleAssertThat(code)
-            .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
-            .hasLintViolationWithoutAutoCorrect(2, 1, "a KDoc may not be preceded by an EOL comment")
-    }
+    @Nested
+    inner class `Given a block and EOL comment` {
+        @Test
+        fun `Given an EOL comment followed by a block comment then report a violation`() {
+            val code =
+                """
+                // EOL comment
+                /* Block comment */
+                """.trimIndent()
+            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+            noConsecutiveBlankLinesRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasLintViolationWithoutAutoCorrect(2, 1, "a block comment may not be preceded by an EOL comment unless separated by a blank line")
+        }
 
-    @Test
-    fun `Given a KDoc followed by an EOL comment then report a violation`() {
-        val code =
-            """
-            /** KDoc */
-            // EOL comment
-            """.trimIndent()
-        noConsecutiveBlankLinesRuleAssertThat(code)
-            .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
-            .hasLintViolationWithoutAutoCorrect(2, 1, "an EOL comment may not be preceded by a KDoc")
-    }
+        @Test
+        fun `Given an EOL comment followed by a blank line and a block comment then report a violation`() {
+            val code =
+                """
+                // EOL comment
 
-    @Test
-    fun `Given an EOL comment followed by a block comment then report a violation`() {
-        val code =
-            """
-            // EOL comment
-            /* Block comment */
-            """.trimIndent()
-        noConsecutiveBlankLinesRuleAssertThat(code)
-            .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
-            .hasLintViolationWithoutAutoCorrect(2, 1, "a block comment may not be preceded by an EOL comment")
-    }
+                /* Block comment */
+                """.trimIndent()
+            noConsecutiveBlankLinesRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasNoLintViolations()
+        }
 
-    @Test
-    fun `Given a block comment followed by an EOL comment then report a violation`() {
-        val code =
-            """
-            /* Block comment */
-            // EOL comment
-            """.trimIndent()
-        noConsecutiveBlankLinesRuleAssertThat(code)
-            .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
-            .hasLintViolationWithoutAutoCorrect(2, 1, "an EOL comment may not be preceded by a block comment")
+        @Test
+        fun `Given a block comment followed by an EOL comment then report a violation`() {
+            val code =
+                """
+                /* Block comment */
+                // EOL comment
+                """.trimIndent()
+            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+            noConsecutiveBlankLinesRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasLintViolationWithoutAutoCorrect(2, 1, "an EOL comment may not be preceded by a block comment unless separated by a blank line")
+        }
+
+        @Test
+        fun `Given a block comment followed by a blank line and an EOL comment then report a violation`() {
+            val code =
+                """
+                /* Block comment */
+
+                // EOL comment
+                """.trimIndent()
+            noConsecutiveBlankLinesRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasNoLintViolations()
+        }
     }
 
     @Test

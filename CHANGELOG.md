@@ -260,7 +260,7 @@ if (node.isRoot()) {
 
 * Add new experimental rule `no-empty-first-line-in-class-body` for `ktlint_official` code style. This rule disallows a class to start with a blank line. This rule can also be run for other code styles, but then it needs to be enabled explicitly.
 * Add new experimental rule `if-else-bracing` for `ktlint_official` code style. This rules enforces consistent usage of braces in all branches of a single if, if-else or if-else-if statement. This rule can also be run for other code styles, but then it needs to be enabled explicitly.
-* Add new experimental rule `no-consecutive-comments` for `ktlint_official` code style. This rule disallows consecutive comments except EOL comments. This rule can also be run for other code styles, but then it needs to be enabled explicitly.
+* Add new experimental rule `no-consecutive-comments` for `ktlint_official` code style. This rule disallows consecutive comments except EOL comments (see [examples](See https://pinterest.github.io/ktlint/rules/experimental/#disallow-consecutive-comments)). This rule can also be run for other code styles, but then it needs to be enabled explicitly.
 * Add new experimental rule `try-catch-finally-spacing` for `ktlint_official` code style. This rule enforces consistent spacing in try-catch, try-finally and try-catch-finally statement. This rule can also be run for other code styles, but then it needs to be enabled explicitly.
 * Wrap the type or value of a function or class parameter in case the maximum line length is exceeded `parameter-wrapping` ([#1846](https://github.com/pinterest/ktlint/pull/1846))
 * Wrap the type or value of a property in case the maximum line length is exceeded `property-wrapping` ([#1846](https://github.com/pinterest/ktlint/pull/1846))
