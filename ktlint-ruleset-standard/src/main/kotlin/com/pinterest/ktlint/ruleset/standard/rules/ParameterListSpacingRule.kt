@@ -4,6 +4,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
@@ -190,8 +191,18 @@ public class ParameterListSpacingRule :
             .let { whiteSpaceAfterColon ->
                 if (whiteSpaceAfterColon == null) {
                     addMissingWhiteSpaceAfterMe(colonNode, emit, autoCorrect)
-                } else if (whiteSpaceAfterColon.isIndent() || whiteSpaceAfterColon.isNotSingleSpace()) {
-                    replaceWithSingleSpace(whiteSpaceAfterColon, emit, autoCorrect)
+                } else {
+                    if (node.isTypeReferenceWithModifierList() && whiteSpaceAfterColon.isIndent()) {
+                        // Allow the type to be wrapped to the next line when it has a modifier:
+                        //   data class Foo(
+                        //       val bar:
+                        //           @FooBar("foobar")
+                        //           Bar,
+                        //   )
+                        Unit
+                    } else if (whiteSpaceAfterColon.isNotSingleSpace()) {
+                        replaceWithSingleSpace(whiteSpaceAfterColon, emit, autoCorrect)
+                    }
                 }
             }
     }
@@ -253,6 +264,12 @@ public class ParameterListSpacingRule :
                 }
             }
     }
+
+    private fun ASTNode?.isTypeReferenceWithModifierList() =
+        null !=
+            this
+                ?.findChildByType(TYPE_REFERENCE)
+                ?.findChildByType(MODIFIER_LIST)
 }
 
 public val PARAMETER_LIST_SPACING_RULE_ID: RuleId = ParameterListSpacingRule().ruleId
