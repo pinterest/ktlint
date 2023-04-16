@@ -47,6 +47,7 @@ tasks.register<Checksum>("shadowJarExecutableChecksum") {
     // put the checksums in the same folder with the executable itself
     outputDirectory.fileProvider(shadowJarExecutable.map { it.outputs.files.files.first().parentFile })
     checksumAlgorithm.set(Checksum.Algorithm.MD5)
+    mustRunAfter(tasks.named("signMavenPublication"))
 }
 
 // Implements https://github.com/brianm/really-executable-jars-maven-plugin maven plugin behaviour.
