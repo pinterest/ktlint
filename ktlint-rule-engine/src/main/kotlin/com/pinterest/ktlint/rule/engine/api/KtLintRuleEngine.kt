@@ -89,7 +89,7 @@ public class KtLintRuleEngine(
         code: Code,
         callback: (LintError) -> Unit = { },
     ) {
-        LOGGER.debug { "Starting with linting file '${code.fileName}'" }
+        LOGGER.debug { "Starting with linting file '${code.fileNameOrStdin()}'" }
 
         val ruleExecutionContext = createRuleExecutionContext(this, code)
         val errors = mutableListOf<LintError>()
@@ -107,7 +107,7 @@ public class KtLintRuleEngine(
             .sortedWith { l, r -> if (l.line != r.line) l.line - r.line else l.col - r.col }
             .forEach { e -> callback(e) }
 
-        LOGGER.debug { "Finished with linting file '${code.fileName}'" }
+        LOGGER.debug { "Finished with linting file '${code.fileNameOrStdin()}'" }
     }
 
     /**
@@ -121,7 +121,7 @@ public class KtLintRuleEngine(
         code: Code,
         callback: (LintError, Boolean) -> Unit = { _, _ -> },
     ): String {
-        LOGGER.debug { "Starting with formatting file '${code.fileName}'" }
+        LOGGER.debug { "Starting with formatting file '${code.fileNameOrStdin()}'" }
 
         val hasUTF8BOM = code.content.startsWith(UTF8_BOM)
         val ruleExecutionContext = createRuleExecutionContext(this, code)
@@ -193,7 +193,7 @@ public class KtLintRuleEngine(
         } else {
             formattedCode
         }.also {
-            LOGGER.debug("Finished with formatting file '${code.fileName}'")
+            LOGGER.debug("Finished with formatting file '${code.fileNameOrStdin()}'")
         }
     }
 

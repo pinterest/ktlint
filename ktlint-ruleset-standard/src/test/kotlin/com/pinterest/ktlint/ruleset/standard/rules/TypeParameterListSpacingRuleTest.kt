@@ -201,49 +201,12 @@ class TypeParameterListSpacingRuleTest {
             """.trimIndent()
         typeParameterListSpacingRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(1, 16, "Expected a single space"),
-                LintViolation(2, 16, "Expected a single space"),
-                LintViolation(3, 16, "Expected a single space"),
-                LintViolation(4, 16, "Expected a single space"),
-                LintViolation(5, 16, "Expected a single space"),
-                LintViolation(6, 16, "Expected a single space"),
-            ).isFormattedAs(formattedCode)
-    }
-
-    @Test
-    fun `Given a class definition with a type parameter list followed by newlines and a compound constructor then replace with single space`() {
-        val code =
-            """
-            class Foo1<Bar>
-                constructor() {}
-            class Foo2<Bar>
-                actual constructor() {}
-            class Foo3<Bar>
-                private constructor() {}
-            class Foo4<Bar>
-                internal constructor() {}
-            class Foo5<Bar>
-                @FooBar constructor() {}
-            class Foo6<Bar>
-                @FooBar internal constructor() {}
-            """.trimIndent()
-        val formattedCode =
-            """
-            class Foo1<Bar> constructor() {}
-            class Foo2<Bar> actual constructor() {}
-            class Foo3<Bar> private constructor() {}
-            class Foo4<Bar> internal constructor() {}
-            class Foo5<Bar> @FooBar constructor() {}
-            class Foo6<Bar> @FooBar internal constructor() {}
-            """.trimIndent()
-        typeParameterListSpacingRuleAssertThat(code)
-            .hasLintViolations(
-                LintViolation(1, 16, "Expected a single space instead of newline"),
-                LintViolation(3, 16, "Expected a single space instead of newline"),
-                LintViolation(5, 16, "Expected a single space instead of newline"),
-                LintViolation(7, 16, "Expected a single space instead of newline"),
-                LintViolation(9, 16, "Expected a single space instead of newline"),
-                LintViolation(11, 16, "Expected a single space instead of newline"),
+                LintViolation(1, 16, "Expected a single space or newline (with indent)"),
+                LintViolation(2, 16, "Expected a single space or newline (with indent)"),
+                LintViolation(3, 16, "Expected a single space or newline (with indent)"),
+                LintViolation(4, 16, "Expected a single space or newline (with indent)"),
+                LintViolation(5, 16, "Expected a single space or newline (with indent)"),
+                LintViolation(6, 16, "Expected a single space or newline (with indent)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -327,6 +290,28 @@ class TypeParameterListSpacingRuleTest {
                 Foo,
                 Bar,
                 > foobar()
+            """.trimIndent()
+        typeParameterListSpacingRuleAssertThat(code)
+            .hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a class with an annotated constructor on a separate line then do not report a violation`() {
+        val code =
+            """
+            class Foo<out T>
+                @Bar
+                constructor(val value: T?) : FooBar<T>()
+            """.trimIndent()
+        typeParameterListSpacingRuleAssertThat(code)
+            .hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a class with an annotated constructor on same line as parameter type list then do not report a violation`() {
+        val code =
+            """
+            class Foo<out T> @Bar constructor(val value: T?) : FooBar<T>()
             """.trimIndent()
         typeParameterListSpacingRuleAssertThat(code)
             .hasNoLintViolations()

@@ -38,6 +38,7 @@ nav:
 #    - API: install/api.md  TODO: properly document
     - Snapshot build: install/snapshot-build.md
   - Rules:
+    - Code styles: rules/code-styles.md
     - Standard rules: rules/standard.md
     - Experimental rules: rules/experimental.md
     - Dependencies: rules/dependencies.md

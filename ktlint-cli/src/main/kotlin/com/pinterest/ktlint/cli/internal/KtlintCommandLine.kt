@@ -381,12 +381,13 @@ internal class KtlintCommandLine {
 
     // Do not convert to "val" as the function depends on PicoCli options which are not fully instantiated until the "run" method is started
     internal fun configureLogger() {
-        logger = KotlinLogging
-            .logger {}
-            .setDefaultLoggerModifier { logger ->
-                (logger.underlyingLogger as Logger).level = minLogLevel
-            }
-            .initKtLintKLogger()
+        logger =
+            KotlinLogging
+                .logger {}
+                .setDefaultLoggerModifier { logger ->
+                    (logger.underlyingLogger as Logger).level = minLogLevel
+                }
+                .initKtLintKLogger()
     }
 
     private fun assertStdinAndPatternsFromStdinOptionsMutuallyExclusive() {
@@ -411,11 +412,12 @@ internal class KtlintCommandLine {
             .map { file ->
                 val fileName = file.toPath().absolutePathString()
                 Callable {
-                    fileName to process(
-                        ktLintRuleEngine = ktLintRuleEngine,
-                        code = Code.fromFile(file),
-                        baselineLintErrors = lintErrorsPerFile.getOrDefault(fileName, emptyList()),
-                    )
+                    fileName to
+                        process(
+                            ktLintRuleEngine = ktLintRuleEngine,
+                            code = Code.fromFile(file),
+                            baselineLintErrors = lintErrorsPerFile.getOrDefault(fileName, emptyList()),
+                        )
                 }
             }.parallel({ (fileName, errList) -> report(Paths.get(fileName).relativeRoute, errList, reporter) })
     }
@@ -590,20 +592,15 @@ internal class KtlintCommandLine {
                         status = KOTLIN_PARSE_EXCEPTION,
                     )
                 is KtLintRuleException -> {
-                    val codeSource =
-                        if (code.isStdIn) {
-                            "code"
-                        } else {
-                            "file '${code.fileName}'"
-                        }
-                    logger.debug("Internal Error (${e.ruleId}) in $codeSource at position '${e.line}:${e.col}", e)
+                    logger.debug("Internal Error (${e.ruleId}) in ${code.fileNameOrStdin()} at position '${e.line}:${e.col}", e)
                     KtlintCliError(
                         line = e.line,
                         col = e.col,
                         ruleId = "",
                         detail =
-                            "Internal Error (rule '${e.ruleId}') in $codeSource at position '${e.line}:${e.col}. Please create a ticket " +
-                                "at https://github.com/pinterest/ktlint/issues and provide the source code that triggered an error.\n" +
+                            "Internal Error (rule '${e.ruleId}') in ${code.fileNameOrStdin()} at position '${e.line}:${e.col}. Please " +
+                                "create a ticket at https://github.com/pinterest/ktlint/issues and provide the source code that " +
+                                "triggered an error.\n" +
                                 e.stackTraceToString(),
                         status = KTLINT_RULE_ENGINE_EXCEPTION,
                     )

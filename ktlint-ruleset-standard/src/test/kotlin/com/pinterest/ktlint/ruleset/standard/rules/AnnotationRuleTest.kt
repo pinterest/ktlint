@@ -957,4 +957,18 @@ class AnnotationRuleTest {
                 LintViolation(5, 44, "Expected newline"),
             ).isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Given a try-finally containing an annotated expression`() {
+        val code =
+            """
+            val foo = try {
+                @Bar("bar")
+                bar()
+            } finally {
+                // something
+            }
+            """.trimIndent()
+        annotationRuleAssertThat(code).hasNoLintViolations()
+    }
 }

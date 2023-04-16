@@ -3,7 +3,6 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATED_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONSTRUCTOR_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE_ANNOTATION_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.GT
@@ -31,7 +30,6 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -94,10 +92,11 @@ public class AnnotationRule :
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         codeStyle = editorConfig[CODE_STYLE_PROPERTY]
-        indentConfig = IndentConfig(
-            indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
-            tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
-        )
+        indentConfig =
+            IndentConfig(
+                indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
+                tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
+            )
     }
 
     override fun beforeVisitChildNodes(
@@ -189,15 +188,15 @@ public class AnnotationRule :
 
             node
                 .takeIf { it.elementType == ANNOTATED_EXPRESSION }
-                ?.treeParent
-                ?.takeIf { it.elementType == BLOCK }
-                ?.nextSibling()
-                ?.let { nextSibling ->
+                ?.lastChildLeafOrSelf()
+                ?.nextCodeLeaf()
+                ?.prevLeaf()
+                ?.let { leaf ->
                     // Let the indentation rule determine the exact indentation and only report and fix when the line needs to be wrapped
-                    if (!nextSibling.textContains('\n')) {
-                        emit(nextSibling.startOffset, "Expected newline", true)
+                    if (!leaf.textContains('\n')) {
+                        emit(leaf.startOffset, "Expected newline", true)
                         if (autoCorrect) {
-                            nextSibling.upsertWhitespaceBeforeMe(node.indent())
+                            leaf.upsertWhitespaceBeforeMe(node.indent())
                         }
                     }
                 }

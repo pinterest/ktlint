@@ -14,6 +14,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IF
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IS_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_LITERAL
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PREFIX_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REFERENCE_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
@@ -31,8 +32,8 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -60,10 +61,11 @@ public class MultilineExpressionWrapping :
     private var indentConfig = DEFAULT_INDENT_CONFIG
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
-        indentConfig = IndentConfig(
-            indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
-            tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
-        )
+        indentConfig =
+            IndentConfig(
+                indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
+                tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
+            )
     }
 
     override fun beforeVisitChildNodes(
@@ -72,7 +74,7 @@ public class MultilineExpressionWrapping :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType in CHAINABLE_EXPRESSION &&
-            node.treeParent.elementType !in CHAINABLE_EXPRESSION
+            (node.treeParent.elementType !in CHAINABLE_EXPRESSION || node.isRightHandSideOfBinaryExpression())
         ) {
             visitExpression(node, emit, autoCorrect)
         }
@@ -103,7 +105,8 @@ public class MultilineExpressionWrapping :
                             )
                             node
                                 .lastChildLeafOrSelf()
-                                .nextLeaf { !it.isWhiteSpace() && it.elementType != COMMA }
+                                .nextLeaf { !it.isWhiteSpaceWithoutNewline() && !it.isPartOfComment() && it.elementType != COMMA }
+                                ?.takeIf { !it.isWhiteSpaceWithNewline() }
                                 ?.upsertWhitespaceBeforeMe(node.treeParent.indent())
                         }
                     }
@@ -132,12 +135,18 @@ public class MultilineExpressionWrapping :
     private fun ASTNode.isValueInAnAssignment() =
         null !=
             prevCodeSibling()
-                ?.takeIf { it.elementType == EQ }
+                ?.takeIf { it.elementType == EQ || it.elementType == OPERATION_REFERENCE }
+                ?.takeUnless { it.isElvisOperator() }
                 ?.takeUnless {
                     it.closingParenthesisOfFunctionOrNull()
                         ?.prevLeaf()
                         .isWhiteSpaceWithNewline()
                 }
+
+    private fun ASTNode?.isElvisOperator() =
+        this != null &&
+            elementType == OPERATION_REFERENCE &&
+            firstChildNode.elementType == ElementType.ELVIS
 
     private fun ASTNode.closingParenthesisOfFunctionOrNull() =
         takeIf { treeParent.elementType == FUN }
@@ -159,6 +168,11 @@ public class MultilineExpressionWrapping :
     private fun ASTNode.isValueArgument() = treeParent.elementType == VALUE_ARGUMENT
 
     private fun ASTNode.isAfterArrow() = prevCodeLeaf()?.elementType == ARROW
+
+    private fun ASTNode.isRightHandSideOfBinaryExpression() =
+        null !=
+            takeIf { it.treeParent.elementType == BINARY_EXPRESSION }
+                .takeIf { it?.prevCodeSibling()?.elementType == OPERATION_REFERENCE }
 
     private companion object {
         // Based  on https://kotlinlang.org/spec/expressions.html#expressions
