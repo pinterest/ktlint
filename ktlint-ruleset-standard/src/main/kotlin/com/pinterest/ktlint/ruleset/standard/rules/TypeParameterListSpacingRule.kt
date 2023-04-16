@@ -87,11 +87,21 @@ public class TypeParameterListSpacingRule :
             ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling()?.elementType == PRIMARY_CONSTRUCTOR }
             ?.let { whiteSpace ->
                 if (whiteSpace.nextCodeSibling()?.findChildByType(CONSTRUCTOR_KEYWORD) != null) {
-                    // Single space expect before (modifier list of) constructor
+                    // Single space or newline expected before (modifier list of) constructor
                     //    class Bar<T> constructor(...)
                     //    class Bar<T> actual constructor(...)
                     //    class Bar<T> @SomeAnnotation constructor(...)
-                    singleSpaceExpected(whiteSpace, autoCorrect, emit)
+                    if (whiteSpace.text != " " && whiteSpace.text != node.indent().plus(indentConfig.indent)) {
+                        emit(
+                            whiteSpace.startOffset,
+                            "Expected a single space or newline (with indent)",
+                            true,
+                        )
+                        if (autoCorrect) {
+                            // If line is to be wrapped this should have been done by other rules before running this rule
+                            whiteSpace.upsertWhitespaceBeforeMe(" ")
+                        }
+                    }
                 } else {
                     visitWhitespace(whiteSpace, autoCorrect, emit)
                 }
