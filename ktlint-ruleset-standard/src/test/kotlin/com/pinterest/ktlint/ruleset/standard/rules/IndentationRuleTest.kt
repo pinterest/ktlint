@@ -5039,6 +5039,89 @@ internal class IndentationRuleTest {
             ).isFormattedAs(formattedCode)
     }
 
+    @Test
+    fun `Given an elvis operator followed by a multiline expression`() {
+        val code =
+            """
+            fun fooBar(foo: String?, bar: String) =
+                foo
+                    ?.lowercase()
+                    ?: bar
+                        .uppercase()
+                        .trimIndent()
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Nested
+    inner class `Given a function with raw string literal as result` {
+        @Test
+        fun `As body expression on same line as equals and preceded by space`() {
+            val code =
+                """
+                private fun foo(
+                    bar: String,
+                ) = $MULTILINE_STRING_QUOTE
+                    bar
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `As body expression on same line as equals but not preceded by space`() {
+            val code =
+                """
+                private fun foo(
+                    bar: String,
+                ) =$MULTILINE_STRING_QUOTE
+                    bar
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `As body expression on next line`() {
+            val code =
+                """
+                private fun foo( bar: String) =
+                    $MULTILINE_STRING_QUOTE
+                    bar
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `As block body`() {
+            val code =
+                """
+                private fun foo( bar: String): String {
+                    return $MULTILINE_STRING_QUOTE
+                        bar
+                        $MULTILINE_STRING_QUOTE.trimIndent()
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `As body expression of function wrapped in class`() {
+            val code =
+                """
+                class Bar {
+                    private fun foo(
+                        bar: String,
+                    ) = $MULTILINE_STRING_QUOTE
+                        bar
+                        $MULTILINE_STRING_QUOTE.trimIndent()
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+    }
+
     private companion object {
         val INDENT_STYLE_TAB =
             INDENT_STYLE_PROPERTY to PropertyType.IndentStyleValue.tab

@@ -43,6 +43,7 @@ tasks.register<JavaExec>("ktlintFormat") {
 }
 
 tasks.wrapper {
-    distributionSha256Sum = URL("$distributionUrl.sha256")
-        .openStream().use { it.reader().readText().trim() }
+    distributionSha256Sum =
+        URL("$distributionUrl.sha256")
+            .openStream().use { it.reader().readText().trim() }
 }

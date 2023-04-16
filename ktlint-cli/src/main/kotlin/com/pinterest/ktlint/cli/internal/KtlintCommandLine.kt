@@ -381,12 +381,13 @@ internal class KtlintCommandLine {
 
     // Do not convert to "val" as the function depends on PicoCli options which are not fully instantiated until the "run" method is started
     internal fun configureLogger() {
-        logger = KotlinLogging
-            .logger {}
-            .setDefaultLoggerModifier { logger ->
-                (logger.underlyingLogger as Logger).level = minLogLevel
-            }
-            .initKtLintKLogger()
+        logger =
+            KotlinLogging
+                .logger {}
+                .setDefaultLoggerModifier { logger ->
+                    (logger.underlyingLogger as Logger).level = minLogLevel
+                }
+                .initKtLintKLogger()
     }
 
     private fun assertStdinAndPatternsFromStdinOptionsMutuallyExclusive() {
@@ -411,11 +412,12 @@ internal class KtlintCommandLine {
             .map { file ->
                 val fileName = file.toPath().absolutePathString()
                 Callable {
-                    fileName to process(
-                        ktLintRuleEngine = ktLintRuleEngine,
-                        code = Code.fromFile(file),
-                        baselineLintErrors = lintErrorsPerFile.getOrDefault(fileName, emptyList()),
-                    )
+                    fileName to
+                        process(
+                            ktLintRuleEngine = ktLintRuleEngine,
+                            code = Code.fromFile(file),
+                            baselineLintErrors = lintErrorsPerFile.getOrDefault(fileName, emptyList()),
+                        )
                 }
             }.parallel({ (fileName, errList) -> report(Paths.get(fileName).relativeRoute, errList, reporter) })
     }

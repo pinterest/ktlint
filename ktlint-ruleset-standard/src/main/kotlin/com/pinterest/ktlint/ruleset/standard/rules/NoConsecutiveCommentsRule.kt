@@ -105,7 +105,8 @@ public class NoConsecutiveCommentsRule :
                     else -> {
                         emit(
                             node.startOffset,
-                            "${node.commentType()} may not be preceded by ${previousComment.commentType()} unless separated by a blank line",
+                            "${node.commentType()} may not be preceded by ${previousComment.commentType()} unless separated by a blank " +
+                                "line",
                             false,
                         )
                     }

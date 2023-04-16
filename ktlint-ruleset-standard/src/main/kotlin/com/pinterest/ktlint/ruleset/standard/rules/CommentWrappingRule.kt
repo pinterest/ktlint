@@ -124,7 +124,7 @@ public class CommentWrappingRule :
                     emit(
                         nextLeaf.startOffset,
                         "A block comment may not be followed by any other element on that same line",
-                        true
+                        true,
                     )
                     if (autoCorrect) {
                         nextLeaf.upsertWhitespaceBeforeMe(node.indent())
@@ -140,8 +140,7 @@ public class CommentWrappingRule :
         rawRemove()
     }
 
-    private fun ASTNode?.isWhitespaceWithNewlineOrNull() =
-        this == null || this.isWhiteSpaceWithNewline()
+    private fun ASTNode?.isWhitespaceWithNewlineOrNull() = this == null || this.isWhiteSpaceWithNewline()
 
     // TODO: Remove when ktlint suppression directive in comments are no longer supported
     private fun ASTNode?.isKtlintSuppressionDirective() =
