@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## ## [0.49.0] - 2023-04-16
 
 WARNING: This version of KtLint contains a number of breaking changes in KtLint CLI and KtLint API. If you are using KtLint with custom ruleset jars or custom reporter jars, then those need to be upgraded before you can use them with this version of ktlint. Please contact the maintainers of those jars and ask them to upgrade a.s.a.p.
 
@@ -1850,6 +1850,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.49.0]: https://github.com/pinterest/ktlint/compare/0.48.2...0.49.0
 [0.48.2]: https://github.com/pinterest/ktlint/compare/0.48.1...0.48.2
 [0.48.1]: https://github.com/pinterest/ktlint/compare/0.48.0...0.48.1
 [0.48.0]: https://github.com/pinterest/ktlint/compare/0.47.1...0.48.0
