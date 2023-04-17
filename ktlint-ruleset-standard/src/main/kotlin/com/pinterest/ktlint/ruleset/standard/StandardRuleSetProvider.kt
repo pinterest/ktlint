@@ -39,6 +39,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.NoBlankLinesInChainedMethodCa
 import com.pinterest.ktlint.ruleset.standard.rules.NoConsecutiveBlankLinesRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoConsecutiveCommentsRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoEmptyClassBodyRule
+import com.pinterest.ktlint.ruleset.standard.rules.NoEmptyFileRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoEmptyFirstLineInClassBodyRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoEmptyFirstLineInMethodBlockRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoLineBreakAfterElseRule
@@ -120,6 +121,7 @@ public class StandardRuleSetProvider :
             RuleProvider { NoBlankLinesInChainedMethodCallsRule() },
             RuleProvider { NoConsecutiveBlankLinesRule() },
             RuleProvider { NoConsecutiveCommentsRule() },
+            RuleProvider { NoEmptyFileRule() },
             RuleProvider { NoEmptyClassBodyRule() },
             RuleProvider { NoEmptyFirstLineInClassBodyRule() },
             RuleProvider { NoEmptyFirstLineInMethodBlockRule() },
