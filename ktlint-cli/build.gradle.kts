@@ -40,6 +40,7 @@ dependencies {
 }
 
 tasks.register<Checksum>("shadowJarExecutableChecksum") {
+    dependsOn(tasks.signMavenPublication)
     description = "Generates MD5 checksum for ktlint executable"
     group = "Distribution"
 
