@@ -47,7 +47,7 @@ public class NoEmptyFileRule :
                 type =
                     PropertyType.LowerCasingPropertyType(
                         "no_empty_file",
-                        "",
+                        "Define whether empty files are allowed",
                         PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
                         setOf(true.toString(), false.toString()),
                     ),
