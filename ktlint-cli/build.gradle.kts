@@ -83,11 +83,16 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
 
         execFile.appendBytes(inputs.files.singleFile.readBytes())
         execFile.setExecutable(true, false)
-        if (!version.toString().endsWith("SNAPSHOT")) {
-            signing.sign(execFile)
-        }
     }
     finalizedBy(tasks.named("shadowJarExecutableChecksum"))
+}
+
+tasks.signMavenPublication {
+    dependsOn(shadowJarExecutable)
+    if (!version.toString().endsWith("SNAPSHOT")) {
+        // Just need to sign execFile.
+        sign(shadowJarExecutable.map { it.outputs.files.first { file -> file.name == "ktlint" } }.get())
+    }
 }
 
 tasks.withType<Test>().configureEach {
