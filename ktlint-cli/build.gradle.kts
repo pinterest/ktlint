@@ -88,7 +88,8 @@ tasks.register<Checksum>("shadowJarExecutableChecksum") {
     checksumAlgorithm.set(Checksum.Algorithm.MD5)
 }
 
-signing {
+tasks.signMavenPublication {
+    dependsOn(shadowJarExecutable)
     if (!version.toString().endsWith("SNAPSHOT")) {
         // Just need to sign execFile.
         sign(shadowJarExecutable.map { it.outputs.files.first() }.get())
