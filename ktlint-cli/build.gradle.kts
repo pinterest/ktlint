@@ -45,7 +45,18 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
     description = "Creates self-executable file, that runs generated shadow jar"
     group = "Distribution"
 
-    inputs.files(tasks.shadowJar.map { it.outputs.files })
+    inputs.files(
+        tasks
+            .shadowJar
+            .also { logger.info("Set input files on shadowJarExecutable:") }
+            .map {
+                it
+                    .outputs
+                    .also { logger.info("TasksOutputInternal contains ${it.files.count()} fileCollections") }
+                    .files
+                    .also { logger.info(it.joinToString(prefix = "Files [${it.asPath}]: ", separator = ", ") { it.path }) }
+            },
+    )
     outputs.files("$buildDir/run/ktlint")
     if (!version.toString().endsWith("SNAPSHOT")) {
         outputs.files("$buildDir/run/ktlint.asc")
@@ -84,7 +95,23 @@ tasks.register<Checksum>("shadowJarExecutableChecksum") {
 
     inputFiles.setFrom(shadowJarExecutable.map { it.outputs.files })
     // put the checksums in the same folder with the executable itself
-    outputDirectory.fileProvider(shadowJarExecutable.map { it.outputs.files.files.first().parentFile })
+    outputDirectory.fileProvider(
+        shadowJarExecutable
+            .also { logger.info("Set output files on shadowJarExecutableChecksum:") }
+            .map {
+                it
+                    .outputs
+                    .also { logger.info("TasksOutputInternal contains ${it.files.count()} fileCollections") }
+                    .files
+                    .also { logger.info(it.joinToString(prefix = "Files [${it.asPath}]: ", separator = ", ") { it.path }) }
+                    .files
+                    .also { logger.info("File set contains ${it.count()} files") }
+                    .first()
+                    .also { logger.info("First file: ${it.path}") }
+                    .parentFile
+                    .also { logger.info("Parent file: ${it.path}") }
+            },
+    )
     checksumAlgorithm.set(Checksum.Algorithm.MD5)
 }
 
@@ -92,7 +119,20 @@ tasks.signMavenPublication {
     dependsOn(shadowJarExecutable)
     if (!version.toString().endsWith("SNAPSHOT")) {
         // Just need to sign execFile.
-        sign(shadowJarExecutable.map { it.outputs.files.first() }.get())
+        sign(
+            shadowJarExecutable
+                .also { logger.info("Signing:") }
+                .map {
+                    it
+                        .outputs
+                        .also { logger.info("TasksOutputInternal contains ${it.files.count()} fileCollections") }
+                        .files
+                        .also { logger.info(it.joinToString(prefix = "Files [${it.asPath}]: ", separator = ", ") { it.path }) }
+                        .first()
+                        .also { logger.info("First file: ${it.path}") }
+                }.get()
+                .also { logger.info("Result file to sign: ${it.path}") },
+        )
     }
 }
 
