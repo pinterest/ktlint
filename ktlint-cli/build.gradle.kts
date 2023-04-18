@@ -90,7 +90,8 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
 tasks.signMavenPublication {
     dependsOn(shadowJarExecutable)
     if (!version.toString().endsWith("SNAPSHOT")) {
-        sign(*shadowJarExecutable.map { it.outputs.files.files }.get().toTypedArray())
+        // Just need to sign execFile.
+        sign(shadowJarExecutable.map { it.outputs.files.first { file -> file.name == "ktlint" } }.get())
     }
 }
 
