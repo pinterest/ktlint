@@ -22,21 +22,23 @@ public class NoEmptyFileRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        node
-            .takeIf { it.elementType == ElementType.FILE }
-            ?.takeIf { it.textLength == TEXT_LENGTH_EMPTY_FILE_CONTAINS }
-            ?.let {
-                val filePath = it.psi.containingFile.virtualFile.name
-                val fileName =
-                    filePath
-                        .replace("\\", "/") // Ensure compatibility with Windows OS
-                        .substringAfterLast("/")
-                emit(
-                    0,
-                    "File `$fileName` should not be empty",
-                    false,
-                )
-            }
+        if (noEmptyFile) {
+            node
+                .takeIf { it.elementType == ElementType.FILE }
+                ?.takeIf { it.textLength == TEXT_LENGTH_EMPTY_FILE_CONTAINS }
+                ?.let {
+                    val filePath = it.psi.containingFile.virtualFile.name
+                    val fileName =
+                        filePath
+                            .replace("\\", "/") // Ensure compatibility with Windows OS
+                            .substringAfterLast("/")
+                    emit(
+                        0,
+                        "File `$fileName` should not be empty",
+                        false,
+                    )
+                }
+        }
     }
 
     public companion object {
