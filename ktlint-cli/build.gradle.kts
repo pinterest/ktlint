@@ -39,16 +39,6 @@ dependencies {
     testImplementation(projects.ktlintTest)
 }
 
-tasks.register<Checksum>("shadowJarExecutableChecksum") {
-    description = "Generates MD5 checksum for ktlint executable"
-    group = "Distribution"
-
-    inputFiles.setFrom(shadowJarExecutable.map { it.outputs.files })
-    // put the checksums in the same folder with the executable itself
-    outputDirectory.fileProvider(shadowJarExecutable.map { it.outputs.files.files.first().parentFile })
-    checksumAlgorithm.set(Checksum.Algorithm.MD5)
-}
-
 // Implements https://github.com/brianm/really-executable-jars-maven-plugin maven plugin behaviour.
 // To check details how it works, see https://skife.org/java/unix/2011/06/20/really_executable_jars.html.
 val shadowJarExecutable by tasks.registering(DefaultTask::class) {
@@ -84,7 +74,18 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
         execFile.appendBytes(inputs.files.singleFile.readBytes())
         execFile.setExecutable(true, false)
     }
-    finalizedBy(tasks.named("shadowJarExecutableChecksum"))
+}
+
+tasks.register<Checksum>("shadowJarExecutableChecksum") {
+    description = "Generates MD5 checksum for ktlint executable"
+    group = "Distribution"
+
+    dependsOn(shadowJarExecutable)
+
+    inputFiles.setFrom(shadowJarExecutable.map { it.outputs.files })
+    // put the checksums in the same folder with the executable itself
+    outputDirectory.fileProvider(shadowJarExecutable.map { it.outputs.files.files.first().parentFile })
+    checksumAlgorithm.set(Checksum.Algorithm.MD5)
 }
 
 tasks.signMavenPublication {
