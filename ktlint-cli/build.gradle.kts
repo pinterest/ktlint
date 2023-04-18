@@ -91,7 +91,7 @@ tasks.signMavenPublication {
     dependsOn(shadowJarExecutable)
     if (!version.toString().endsWith("SNAPSHOT")) {
         // Just need to sign execFile.
-        sign(shadowJarExecutable.map { it.outputs.files.first { file -> file.name == "ktlint" } }.get())
+        sign(shadowJarExecutable.map { it.outputs.files.first() }.get())
     }
 }
 
