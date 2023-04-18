@@ -40,4 +40,16 @@ class NoEmptyFileRuleTest {
             .asFileWithPath("/some/path/$fileName")
             .hasLintViolationWithoutAutoCorrect(1, 1, "File `$fileName` should not be empty")
     }
+
+    @Test
+    fun testLintOff() {
+        val code =
+            """
+
+            """.trimIndent()
+        noEmptyFileRuleAssertThat(code)
+            .asFileWithPath("/some/path/Tmp.kt")
+            .withEditorConfigOverride(NO_EMPTY_FILE_PROPERTY to false)
+            .hasNoLintViolations()
+    }
 }
