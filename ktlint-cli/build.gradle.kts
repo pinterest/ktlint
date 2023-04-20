@@ -45,53 +45,45 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
     description = "Creates self-executable file, that runs generated shadow jar"
     group = "Distribution"
 
-    dependsOn(tasks.shadowJar)
-
-    // Find the "ktlint-cli-<version>-all.jar" file
-    val ktlintCliAllJarFile =
+    inputs.files(
         tasks
             .shadowJar
-            .orNull
-            ?.outputs
-            ?.files
-            ?.singleFile
-            ?: throw GradleException("Can not locate the jar file for building the self-executable ktlint-cli")
-    logger.lifecycle("ktlint-cli: Base jar to build self-executable file: ${ktlintCliAllJarFile.absolutePath}")
-    inputs.files(ktlintCliAllJarFile)
-
-    // Output is the self-executable file
-    val selfExecutableKtlintPath = "$buildDir/run/ktlint"
-    outputs.files(selfExecutableKtlintPath)
+            .also { logger.lifecycle("Set input files on shadowJarExecutable:") }
+            .map {
+                it
+                    .outputs
+                    .also { logger.lifecycle("TasksOutputInternal contains ${it.files.count()} fileCollections") }
+                    .files
+                    .also { logger.lifecycle(it.joinToString(prefix = "Files [${it.asPath}]: ", separator = ", ") { it.path }) }
+            },
+    )
+    outputs.files("$buildDir/run/ktlint")
     if (!version.toString().endsWith("SNAPSHOT")) {
-        // And for releases also the signature file
         outputs.files("$buildDir/run/ktlint.asc")
     }
 
     doLast {
-        logger.lifecycle("Creating the self-executable ktlint-cli")
-        File(selfExecutableKtlintPath).apply {
-            appendText(
-                """
-                #!/bin/sh
+        val execFile = outputs.files.first()
+        execFile.appendText(
+            """
+            #!/bin/sh
 
-                # From this SO answer: https://stackoverflow.com/a/56243046
+            # From this SO answer: https://stackoverflow.com/a/56243046
 
-                # First we get the major Java version as an integer, e.g. 8, 11, 16. It has special handling for the leading 1 of older java
-                # versions, e.g. 1.8 = Java 8
-                JV=$(java -version 2>&1 | sed -E -n 's/.* version "([^.-]*).*".*/\1/p')
+            # First we get the major Java version as an integer, e.g. 8, 11, 16. It has special handling for the leading 1 of older java
+            # versions, e.g. 1.8 = Java 8
+            JV=$(java -version 2>&1 | sed -E -n 's/.* version "([^.-]*).*".*/\1/p')
 
-                # Add --add-opens for java version 16 and above
-                X=$( [ "${"$"}JV" -ge "16" ] && echo "--add-opens java.base/java.lang=ALL-UNNAMED" || echo "")
+            # Add --add-opens for java version 16 and above
+            X=$( [ "${"$"}JV" -ge "16" ] && echo "--add-opens java.base/java.lang=ALL-UNNAMED" || echo "")
 
-                exec java ${"$"}X -Xmx512m -jar "$0" "$@"
+            exec java ${"$"}X -Xmx512m -jar "$0" "$@"
 
-                """.trimIndent(),
-            )
+            """.trimIndent(),
+        )
 
-            appendBytes(ktlintCliAllJarFile.readBytes())
-            setExecutable(true, false)
-        }
-        logger.lifecycle("Finished creating the self-executable ktlint-cli")
+        execFile.appendBytes(inputs.files.singleFile.readBytes())
+        execFile.setExecutable(true, false)
     }
 }
 
@@ -105,19 +97,19 @@ tasks.register<Checksum>("shadowJarExecutableChecksum") {
     // put the checksums in the same folder with the executable itself
     outputDirectory.fileProvider(
         shadowJarExecutable
-            .also { logger.lifecycle("registerChecksum - Set output files on shadowJarExecutableChecksum:") }
+            .also { logger.lifecycle("Set output files on shadowJarExecutableChecksum:") }
             .map {
                 it
                     .outputs
-                    .also { logger.lifecycle("registerChecksum - TasksOutputInternal contains ${it.files.count()} fileCollections") }
+                    .also { logger.lifecycle("TasksOutputInternal contains ${it.files.count()} fileCollections") }
                     .files
-                    .also { logger.lifecycle(it.joinToString(prefix = "registerChecksum - Files [${it.asPath}]: ", separator = ", ") { it.path }) }
+                    .also { logger.lifecycle(it.joinToString(prefix = "Files [${it.asPath}]: ", separator = ", ") { it.path }) }
                     .files
-                    .also { logger.lifecycle("registerChecksum - File set contains ${it.count()} files") }
+                    .also { logger.lifecycle("File set contains ${it.count()} files") }
                     .first()
-                    .also { logger.lifecycle("registerChecksum - First file: ${it.path}") }
+                    .also { logger.lifecycle("First file: ${it.path}") }
                     .parentFile
-                    .also { logger.lifecycle("registerChecksum - Parent file: ${it.path}") }
+                    .also { logger.lifecycle("Parent file: ${it.path}") }
             },
     )
     checksumAlgorithm.set(Checksum.Algorithm.MD5)
@@ -127,20 +119,20 @@ tasks.signMavenPublication {
     dependsOn(shadowJarExecutable)
     if (!version.toString().endsWith("SNAPSHOT")) {
         // Just need to sign execFile.
-        val ktlintSelfExecutable =
+        sign(
             shadowJarExecutable
-                .orNull
-                ?.outputs
-                ?.files
-                ?.files
-                ?.filterNot {
-                    // Ignore the signature file
-                    it.path.endsWith(".asc")
-                }?.single()
-                ?: throw GradleException("Can not locate the self-executable ktlint-cli to be signed")
-        logger.lifecycle("Before sign of ${ktlintSelfExecutable.path} in signMavenPublication")
-        sign(ktlintSelfExecutable)
-        logger.lifecycle("After sign of ${ktlintSelfExecutable.path} in signMavenPublication")
+                .also { logger.lifecycle("Signing:") }
+                .map {
+                    it
+                        .outputs
+                        .also { logger.lifecycle("TasksOutputInternal contains ${it.files.count()} fileCollections") }
+                        .files
+                        .also { logger.lifecycle(it.joinToString(prefix = "Files [${it.asPath}]: ", separator = ", ") { it.path }) }
+                        .first()
+                        .also { logger.lifecycle("First file: ${it.path}") }
+                }.get()
+                .also { logger.lifecycle("Result file to sign: ${it.path}") },
+        )
     }
 }
 
