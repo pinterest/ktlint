@@ -110,5 +110,3 @@ tasks.withType<Test>().configureEach {
         systemProperty("ktlint-version", ktlintVersion)
     }
 }
-
-tasks.getByName("publishMavenPublicationToMavenCentralRepository").dependsOn(tasks.named("shadowJarExecutableChecksum"))
