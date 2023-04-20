@@ -48,13 +48,13 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
     inputs.files(
         tasks
             .shadowJar
-            .also { logger.lifecycle("Set input files on shadowJarExecutable:") }
+            .also { logger.info("Set input files on shadowJarExecutable:") }
             .map {
                 it
                     .outputs
-                    .also { logger.lifecycle("TasksOutputInternal contains ${it.files.count()} fileCollections") }
+                    .also { logger.info("TasksOutputInternal contains ${it.files.count()} fileCollections") }
                     .files
-                    .also { logger.lifecycle(it.joinToString(prefix = "Files [${it.asPath}]: ", separator = ", ") { it.path }) }
+                    .also { logger.info(it.joinToString(prefix = "Files [${it.asPath}]: ", separator = ", ") { it.path }) }
             },
     )
     outputs.files("$buildDir/run/ktlint")
@@ -97,19 +97,19 @@ tasks.register<Checksum>("shadowJarExecutableChecksum") {
     // put the checksums in the same folder with the executable itself
     outputDirectory.fileProvider(
         shadowJarExecutable
-            .also { logger.lifecycle("Set output files on shadowJarExecutableChecksum:") }
+            .also { logger.info("Set output files on shadowJarExecutableChecksum:") }
             .map {
                 it
                     .outputs
-                    .also { logger.lifecycle("TasksOutputInternal contains ${it.files.count()} fileCollections") }
+                    .also { logger.info("TasksOutputInternal contains ${it.files.count()} fileCollections") }
                     .files
-                    .also { logger.lifecycle(it.joinToString(prefix = "Files [${it.asPath}]: ", separator = ", ") { it.path }) }
+                    .also { logger.info(it.joinToString(prefix = "Files [${it.asPath}]: ", separator = ", ") { it.path }) }
                     .files
-                    .also { logger.lifecycle("File set contains ${it.count()} files") }
+                    .also { logger.info("File set contains ${it.count()} files") }
                     .first()
-                    .also { logger.lifecycle("First file: ${it.path}") }
+                    .also { logger.info("First file: ${it.path}") }
                     .parentFile
-                    .also { logger.lifecycle("Parent file: ${it.path}") }
+                    .also { logger.info("Parent file: ${it.path}") }
             },
     )
     checksumAlgorithm.set(Checksum.Algorithm.MD5)
@@ -121,17 +121,17 @@ tasks.signMavenPublication {
         // Just need to sign execFile.
         sign(
             shadowJarExecutable
-                .also { logger.lifecycle("Signing:") }
+                .also { logger.info("Signing:") }
                 .map {
                     it
                         .outputs
-                        .also { logger.lifecycle("TasksOutputInternal contains ${it.files.count()} fileCollections") }
+                        .also { logger.info("TasksOutputInternal contains ${it.files.count()} fileCollections") }
                         .files
-                        .also { logger.lifecycle(it.joinToString(prefix = "Files [${it.asPath}]: ", separator = ", ") { it.path }) }
+                        .also { logger.info(it.joinToString(prefix = "Files [${it.asPath}]: ", separator = ", ") { it.path }) }
                         .first()
-                        .also { logger.lifecycle("First file: ${it.path}") }
+                        .also { logger.info("First file: ${it.path}") }
                 }.get()
-                .also { logger.lifecycle("Result file to sign: ${it.path}") },
+                .also { logger.info("Result file to sign: ${it.path}") },
         )
     }
 }
