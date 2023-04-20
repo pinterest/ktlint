@@ -55,14 +55,14 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
     description = "Creates self-executable file, that runs generated shadow jar"
     group = "Distribution"
 
-    inputs.files(tasks.shadowJar.map { it.outputs.files })
+    inputs.files(tasks.shadowJar)
     outputs.files("$buildDir/run/ktlint")
     if (!version.toString().endsWith("SNAPSHOT")) {
         outputs.files("$buildDir/run/ktlint.asc")
     }
 
     doLast {
-        val execFile = outputs.files.first()
+        val execFile = outputs.files.files.first()
         execFile.appendText(
             """
             #!/bin/sh
@@ -83,15 +83,11 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
 
         execFile.appendBytes(inputs.files.singleFile.readBytes())
         execFile.setExecutable(true, false)
+        if (!version.toString().endsWith("SNAPSHOT")) {
+            signing.sign(execFile)
+        }
     }
     finalizedBy(tasks.named("shadowJarExecutableChecksum"))
-}
-
-tasks.signMavenPublication {
-    dependsOn(shadowJarExecutable)
-    if (!version.toString().endsWith("SNAPSHOT")) {
-        sign(*shadowJarExecutable.map { it.outputs.files.files }.get().toTypedArray())
-    }
 }
 
 tasks.withType<Test>().configureEach {
