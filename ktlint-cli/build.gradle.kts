@@ -111,8 +111,11 @@ tasks.register<Checksum>("shadowJarExecutableChecksum") {
                     .outputs
                     .also { logger.lifecycle("registerChecksum - TasksOutputInternal contains ${it.files.count()} fileCollections") }
                     .files
-                    .also { logger.lifecycle(it.joinToString(prefix = "registerChecksum - Files [${it.asPath}]: ", separator = ", ") { it.path }) }
-                    .files
+                    .also {
+                        logger.lifecycle(
+                            it.joinToString(prefix = "registerChecksum - Files [${it.asPath}]: ", separator = ", ") { it.path },
+                        )
+                    }.files
                     .also { logger.lifecycle("registerChecksum - File set contains ${it.count()} files") }
                     .first()
                     .also { logger.lifecycle("registerChecksum - First file: ${it.path}") }
