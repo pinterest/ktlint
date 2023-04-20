@@ -22,7 +22,7 @@ jobs:
         with:
           gradle-home-cache-cleanup: true
       - name: Build executable and publish to Maven
-        run: ./gradlew clean shadowJarExecutable publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel --no-configuration-cache
+        run: ./gradlew clean shadowJarExecutable publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel --no-configuration-cache --no-build-cache
         env:
           SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
           SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
