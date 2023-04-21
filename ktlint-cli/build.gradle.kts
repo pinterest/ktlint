@@ -93,6 +93,10 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
             appendBytes(ktlintCliAllJarFile.readBytes())
 
             setExecutable(true, false)
+
+            if (!version.toString().endsWith("SNAPSHOT")) {
+                signing.sign(this)
+            }
         }
         logger.lifecycle("Finished creating the self-executable ktlint-cli")
     }
@@ -127,27 +131,6 @@ tasks.register<Checksum>("shadowJarExecutableChecksum") {
             },
     )
     checksumAlgorithm.set(Checksum.Algorithm.MD5)
-}
-
-tasks.signMavenPublication {
-    dependsOn(shadowJarExecutable)
-    if (!version.toString().endsWith("SNAPSHOT")) {
-        // Just need to sign execFile.
-        val ktlintSelfExecutable =
-            shadowJarExecutable
-                .orNull
-                ?.outputs
-                ?.files
-                ?.files
-                ?.filterNot {
-                    // Ignore the signature file
-                    it.path.endsWith(".asc")
-                }?.single()
-                ?: throw GradleException("Can not locate the self-executable ktlint-cli to be signed")
-        logger.lifecycle("Before sign of ${ktlintSelfExecutable.path} in signMavenPublication")
-        sign(ktlintSelfExecutable)
-        logger.lifecycle("After sign of ${ktlintSelfExecutable.path} in signMavenPublication")
-    }
 }
 
 tasks.withType<Test>().configureEach {
