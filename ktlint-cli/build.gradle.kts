@@ -70,7 +70,9 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
     doLast {
         logger.lifecycle("Creating the self-executable ktlint-cli")
         File(selfExecutableKtlintPath).apply {
-            appendText(
+            // writeText effective replaces the entire content if the file already exists. If appendText is used, the file keeps on growing
+            // with each build if the clean target is not used.
+            writeText(
                 """
                 #!/bin/sh
 
@@ -87,9 +89,14 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
 
                 """.trimIndent(),
             )
-
+            // Add the jar
             appendBytes(ktlintCliAllJarFile.readBytes())
+
             setExecutable(true, false)
+
+            if (!version.toString().endsWith("SNAPSHOT")) {
+                signing.sign(this)
+            }
         }
         logger.lifecycle("Finished creating the self-executable ktlint-cli")
     }
@@ -105,46 +112,16 @@ tasks.register<Checksum>("shadowJarExecutableChecksum") {
     // put the checksums in the same folder with the executable itself
     outputDirectory.fileProvider(
         shadowJarExecutable
-            .also { logger.lifecycle("registerChecksum - Set output files on shadowJarExecutableChecksum:") }
             .map {
                 it
                     .outputs
-                    .also { logger.lifecycle("registerChecksum - TasksOutputInternal contains ${it.files.count()} fileCollections") }
                     .files
-                    .also {
-                        logger.lifecycle(
-                            it.joinToString(prefix = "registerChecksum - Files [${it.asPath}]: ", separator = ", ") { it.path },
-                        )
-                    }.files
-                    .also { logger.lifecycle("registerChecksum - File set contains ${it.count()} files") }
+                    .files
                     .first()
-                    .also { logger.lifecycle("registerChecksum - First file: ${it.path}") }
                     .parentFile
-                    .also { logger.lifecycle("registerChecksum - Parent file: ${it.path}") }
             },
     )
     checksumAlgorithm.set(Checksum.Algorithm.MD5)
-}
-
-tasks.signMavenPublication {
-    dependsOn(shadowJarExecutable)
-    if (!version.toString().endsWith("SNAPSHOT")) {
-        // Just need to sign execFile.
-        val ktlintSelfExecutable =
-            shadowJarExecutable
-                .orNull
-                ?.outputs
-                ?.files
-                ?.files
-                ?.filterNot {
-                    // Ignore the signature file
-                    it.path.endsWith(".asc")
-                }?.single()
-                ?: throw GradleException("Can not locate the self-executable ktlint-cli to be signed")
-        logger.lifecycle("Before sign of ${ktlintSelfExecutable.path} in signMavenPublication")
-        sign(ktlintSelfExecutable)
-        logger.lifecycle("After sign of ${ktlintSelfExecutable.path} in signMavenPublication")
-    }
 }
 
 tasks.withType<Test>().configureEach {

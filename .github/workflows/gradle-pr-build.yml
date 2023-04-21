@@ -35,6 +35,7 @@ jobs:
         with:
           gradle-home-cache-cleanup: true
       - name: Build with release Kotlin version
-        run: ./gradlew build ktlintCheck
+        run: ./gradlew build ktlintCheck --no-configuration-cache
       - name: Build with dev Kotlin version
-        run: ./gradlew -PkotlinDev build ktlintCheck
+        run: ./gradlew -PkotlinDev build ktlintCheck --no-configuration-cache
+
