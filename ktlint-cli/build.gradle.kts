@@ -112,22 +112,13 @@ tasks.register<Checksum>("shadowJarExecutableChecksum") {
     // put the checksums in the same folder with the executable itself
     outputDirectory.fileProvider(
         shadowJarExecutable
-            .also { logger.lifecycle("registerChecksum - Set output files on shadowJarExecutableChecksum:") }
             .map {
                 it
                     .outputs
-                    .also { logger.lifecycle("registerChecksum - TasksOutputInternal contains ${it.files.count()} fileCollections") }
                     .files
-                    .also {
-                        logger.lifecycle(
-                            it.joinToString(prefix = "registerChecksum - Files [${it.asPath}]: ", separator = ", ") { it.path },
-                        )
-                    }.files
-                    .also { logger.lifecycle("registerChecksum - File set contains ${it.count()} files") }
+                    .files
                     .first()
-                    .also { logger.lifecycle("registerChecksum - First file: ${it.path}") }
                     .parentFile
-                    .also { logger.lifecycle("registerChecksum - Parent file: ${it.path}") }
             },
     )
     checksumAlgorithm.set(Checksum.Algorithm.MD5)

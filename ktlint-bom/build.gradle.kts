@@ -20,9 +20,9 @@ dependencies {
     constraints {
         project.rootProject.subprojects.forEach { subproject ->
             if (subproject.name in excludeList) {
-                logger.lifecycle("Ignore dependency on $subproject")
+                logger.lifecycle("  - Ignore dependency '${subproject.name}' and do not add to ktlint-bom")
             } else {
-                logger.lifecycle("Add api dependency on $subproject to ktlint-bom")
+                logger.lifecycle("  + Add api dependency on '${subproject.name}' to ktlint-bom")
                 api(subproject)
             }
         }

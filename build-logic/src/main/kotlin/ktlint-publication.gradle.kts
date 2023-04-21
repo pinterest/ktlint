@@ -89,9 +89,7 @@ signing {
     // This property allows OS package maintainers to disable signing
     val enableSigning = providers.gradleProperty("ktlint.publication.signing.enable").orNull != "false"
 
-    logger.lifecycle("Before sign in ktlint-publication: ${publishing.publications["maven"]}")
     sign(publishing.publications["maven"])
-    logger.lifecycle("After sign in ktlint-publication: ${publishing.publications["maven"]}")
     isRequired = enableSigning && !version.toString().endsWith("SNAPSHOT")
 }
 
