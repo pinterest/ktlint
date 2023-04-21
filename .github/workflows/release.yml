@@ -44,7 +44,7 @@ jobs:
           prerelease: false
           body : ${{ steps.release_notes.outputs.release_notes }}
           files: |
-            ktlint/build/run/*
+            ktlint-cli/build/run/*
         env :
           GITHUB_TOKEN : ${{ secrets.GITHUB_TOKEN }}
 
