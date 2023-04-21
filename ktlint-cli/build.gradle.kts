@@ -70,7 +70,9 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
     doLast {
         logger.lifecycle("Creating the self-executable ktlint-cli")
         File(selfExecutableKtlintPath).apply {
-            appendText(
+            // writeText effective replaces the entire content if the file already exists. If appendText is used, the file keeps on growing
+            // with each build if the clean target is not used.
+            writeText(
                 """
                 #!/bin/sh
 
@@ -87,8 +89,9 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
 
                 """.trimIndent(),
             )
-
+            // Add the jar
             appendBytes(ktlintCliAllJarFile.readBytes())
+
             setExecutable(true, false)
         }
         logger.lifecycle("Finished creating the self-executable ktlint-cli")
