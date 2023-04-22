@@ -4,6 +4,18 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+### Added
+
+### Removed
+
+### Fixed
+
+* Store path of file containing a lint violation relative to the location of the baseline file itself ([#1962](https://github.com/pinterest/ktlint/issues/1962))
+
+### Changed
+
+## [0.49.0] - 2023-04-21
+
 WARNING: This version of KtLint contains a number of breaking changes in KtLint CLI and KtLint API. If you are using KtLint with custom ruleset jars or custom reporter jars, then those need to be upgraded before you can use them with this version of ktlint. Please contact the maintainers of those jars and ask them to upgrade a.s.a.p.
 
 All rule id's in the output of Ktlint are now prefixed with a rule set. Although KtLint currently supports standard rules to be unqualified, users are encouraged to include the rule set id in all references to rules. This includes following:
@@ -61,11 +73,15 @@ The `.editorconfig` properties `disabled_rules` and `ktlint_disabled_rules` are 
 
 #### 'Ktlint Official` code style and renaming of existing code styles
 
-A new code style with name `ktlint_offical` has been added. This code style combines the best elements from the Kotlin Coding conventions (https://kotlinlang.org/docs/coding-conventions.html) and Android's Kotlin styleguide (https://developer.android.com/kotlin/style-guide). This codestyle also provides additional formatting on topics which are not (explicitly) mentioned in the before mentioned styleguides. But do note that this code style sometimes formats code in a way which is not accepted by the default code formatters in IntelliJ IDEA and Android Studio. The formatters of those editors produce nicely formatted code in the vast majority of cases. But in a number of edge cases, the formatting contains bugs which are waiting to be fixed for several years. The new code style formats code in a way which is compatible with the default formatting of the editors whenever possible. When using this codestyle, it is best to disable (e.g. not use) code formatting in the editor. In the long run, this code style becomes the default code style provided by KtLint.
+A new code style `ktlint_official` is introduced. This code style is work in progress but will become the default code style in the `1.0` release. Please try out the new code style and provide your feedback via the [issue tracker](https://github.com/pinterest/ktlint/issues).
 
-The `official` code style has been renamed to `intellij_idea`. Code formatted with this code style aims to be compatible with default formatter of IntelliJ IDEA. This code style is based on Kotlin Coding conventions (https://kotlinlang.org/docs/coding-conventions.html). If `.editorconfig` property `ktlint_code_style` has been set to then do not forget to change the value of that property to `intellij_idea`. When not set, this is still the default code style of ktlint. Note that in the long run, the default code style is changed to `ktlint_official`.
+This `ktlint_official` code style combines the best elements from the [Kotlin Coding conventions](https://kotlinlang.org/docs/coding-conventions.html) and [Android's Kotlin styleguide](https://developer.android.com/kotlin/style-guide). This code style also provides additional formatting on topics which are not (explicitly) mentioned in those conventions and style guide. But do note that this code style sometimes formats code in a way which is not accepted by the default code formatters in IntelliJ IDEA and Android Studio. The formatters of those editors produce nicely formatted code in the vast majority of cases. But in a number of edge cases, the formatting contains bugs which are waiting to be fixed for several years. The new code style formats code in a way which is compatible with the default formatting of the editors whenever possible. When using this codestyle, it is best to disable (e.g. not use) code formatting in the editor.
 
-Code style `android` has been renamed to `android_studio`. Code formatted with this code style aims to be compatible with default formatter of Android Studio. This code style is based on Android's Kotlin styleguide (https://developer.android.com/kotlin/style-guide). If `.editorconfig` property `ktlint_code_style` has been set to then do not forget to change the value of that property to `android_studio`.
+The existing code styles have been renamed to make more clear what the basis of the code style is.
+
+The `official` code style has been renamed to `intellij_idea`. Code formatted with this code style aims to be compatible with default formatter of IntelliJ IDEA. This code style is based on [Kotlin Coding conventions](https://kotlinlang.org/docs/coding-conventions.html). If `.editorconfig` property `ktlint_code_style` has been set to `android` then do not forget to change the value of that property to `intellij_idea`. When not set, this is still the default code style of ktlint `0.49`. Note that the default code style will be changed to `ktlint_official` in the `1.0` release.
+
+Code style `android` has been renamed to `android_studio`. Code formatted with this code style aims to be compatible with default formatter of Android Studio. This code style is based on [Android's Kotlin styleguide](https://developer.android.com/kotlin/style-guide). If `.editorconfig` property `ktlint_code_style` has been set to `android` then do not forget to change the value of that property to `android_studio`.
 
 #### Package restructuring and class relocation
 
@@ -258,16 +274,18 @@ if (node.isRoot()) {
 
 ### Added
 
-* Add new experimental rule `no-empty-first-line-in-class-body` for `ktlint_official` code style. This rule disallows a class to start with a blank line. This rule can also be run for other code styles, but then it needs to be enabled explicitly.
-* Add new experimental rule `if-else-bracing` for `ktlint_official` code style. This rules enforces consistent usage of braces in all branches of a single if, if-else or if-else-if statement. This rule can also be run for other code styles, but then it needs to be enabled explicitly.
-* Add new experimental rule `no-consecutive-comments` for `ktlint_official` code style. This rule disallows consecutive comments except EOL comments. This rule can also be run for other code styles, but then it needs to be enabled explicitly.
-* Add new experimental rule `try-catch-finally-spacing` for `ktlint_official` code style. This rule enforces consistent spacing in try-catch, try-finally and try-catch-finally statement. This rule can also be run for other code styles, but then it needs to be enabled explicitly.
+* Add new code style `ktlint_offical`. The code style is work in progress and should be considered a preview. It is intended to become the default code style in the next release. Please try it out and give your feedback. See [code styles](https://pinterest.github.io/ktlint/rules/code-styles/) for more information. The following rules have been added to the `ktlint_official` code style (the rules can also be run for other code styles when enabled explicitly):
+  * Add new experimental rule `no-empty-first-line-in-class-body`. This rule disallows a class to start with a blank line.
+  * Add new experimental rule `if-else-bracing`. This rules enforces consistent usage of braces in all branches of a single if, if-else or if-else-if statement.
+  * Add new experimental rule `no-consecutive-comments`. This rule disallows consecutive comments except EOL comments (see [examples](See https://pinterest.github.io/ktlint/rules/experimental/#disallow-consecutive-comments)).
+  * Add new experimental rule `try-catch-finally-spacing`. This rule enforces consistent spacing in try-catch, try-finally and try-catch-finally statement. This rule can also be run for other code styles, but then it needs to be enabled explicitly.
+  * Add new experimental rule `no-blank-line-in-list`. This rule disallows blank lines to be used in super type lists, type argument lists, type constraint lists, type parameter lists, value argument lists, and value parameter lists. ([#1224](https://github.com/pinterest/ktlint/issues/1224))
+  * Add new experimental rule `multiline-expression-wrapping`. This forces a multiline expression as value in an assignment to start on a separate line. ([#1217](https://github.com/pinterest/ktlint/issues/1217))
+  * Add new experimental rule `string-template-indent`. This forces multiline string templates which are post-fixed with `.trimIndent()` to be formatted consistently. The opening and closing `"""` are placed on separate lines and the indentation of the content of the template is aligned with the `"""`. ([#925](https://github.com/pinterest/ktlint/issues/925))
+  * Add new experimental rule `if-else-wrapping`. This enforces that a single line if-statement is kept simple. A single line if-statement may contain no more than one else-branch. The branches a single line if-statement may not be wrapped in a block. ([#812](https://github.com/pinterest/ktlint/issues/812))
 * Wrap the type or value of a function or class parameter in case the maximum line length is exceeded `parameter-wrapping` ([#1846](https://github.com/pinterest/ktlint/pull/1846))
 * Wrap the type or value of a property in case the maximum line length is exceeded `property-wrapping` ([#1846](https://github.com/pinterest/ktlint/pull/1846))
 * Recognize Kotlin Script when linting and formatting code from `stdin` with KtLint CLI ([#1832](https://github.com/pinterest/ktlint/issues/1832))
-* Add new experimental rule `no-blank-line-in-list` for `ktlint_official` code style. This rule disallows blank lines to be used in super type lists, type argument lists, type constraint lists, type parameter lists, value argument lists, and value parameter lists. This rule can also be run for other code styles, but then it needs to be enabled explicitly. ([#1224](https://github.com/pinterest/ktlint/issues/1224))
-* Add new experimental rule `multiline-expression-wrapping` for `ktlint_official` code style. This forces a multiline expression as value in an assignment to start on a separate line. This rule can also be run for other code styles, but then it needs to be enabled explicitly. ([#1217](https://github.com/pinterest/ktlint/issues/1217))
-* Add new experimental rule `string-template-indent` for `ktlint_official` code style. This forces multiline string templates which are post-fixed with `.trimIndent()` to be formatted consistently. The opening and closing `"""` are placed on separate lines and the indentation of the content of the template is aligned with the `"""`. This rule can also be run for other code styles, but then it needs to be enabled explicitly. ([#925](https://github.com/pinterest/ktlint/issues/925))
 * Support Bill of Materials (BOM), now you can integrate Ktlint in your `build.gradle` like:
   ```kotlin
   dependencies {
@@ -278,7 +296,6 @@ if (node.isRoot()) {
       ...
   }
   ```
-* Add new experimental rule `if-else-wrapping` for `ktlint_official` code style. This enforces that a single line if-statement is kept simple. A single line if-statement may contain no more than one else-branch. The branches a single line if-statement may not be wrapped in a block. This rule can also be run for other code styles, but then it needs to be enabled explicitly. ([#812](https://github.com/pinterest/ktlint/issues/812))
 * Add new experimental rule `enum-wrapping` for all code styles. An enum should either be a single line, or each enum entry should be defined on a separate line. ([#1903](https://github.com/pinterest/ktlint/issues/1903))
 * Add new experimental rule `no-empty-file` for all code styles. Kotlin and Kotlin Script empty files should not be existed.
 
@@ -331,6 +348,8 @@ if (node.isRoot()) {
 * Update Kotlin development version to `1.8.20` and Kotlin version to `1.8.20`.
 * Revert to matrix build to speed up build, especially for the Windows related build ([#1787](https://github.com/pinterest/ktlint/pull/1787))
 * For the new code style `ktlint_official`, do not allow wildcard imports `java.util` and `kotlinx.android.synthetic` by default. Important: `.editorconfig` property `ij_kotlin_packages_to_use_import_on_demand` needs to be set to value `unset` in order to enforce IntelliJ IDEA default formatter to not generate wildcard imports `no-wildcard-imports` ([#1797](https://github.com/pinterest/ktlint/issues/1797))
+* Convert a single line block comment to an EOL comment if not preceded or followed by another code element on the same line `comment-wrapping` ([#1941](https://github.com/pinterest/ktlint/issues/1941))
+* Ignore a block comment inside a single line block `comment-wrapping` ([#1942](https://github.com/pinterest/ktlint/issues/1942))
 
 ## [0.48.2] - 2023-01-21
 
@@ -1844,6 +1863,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.49.0]: https://github.com/pinterest/ktlint/compare/0.48.2...0.49.0
 [0.48.2]: https://github.com/pinterest/ktlint/compare/0.48.1...0.48.2
 [0.48.1]: https://github.com/pinterest/ktlint/compare/0.48.0...0.48.1
 [0.48.0]: https://github.com/pinterest/ktlint/compare/0.47.1...0.48.0

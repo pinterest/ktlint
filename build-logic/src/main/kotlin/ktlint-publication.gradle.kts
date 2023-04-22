@@ -88,12 +88,9 @@ signing {
 
     // This property allows OS package maintainers to disable signing
     val enableSigning = providers.gradleProperty("ktlint.publication.signing.enable").orNull != "false"
+
     sign(publishing.publications["maven"])
     isRequired = enableSigning && !version.toString().endsWith("SNAPSHOT")
-}
-
-tasks.withType<Sign>().configureEach {
-    notCompatibleWithConfigurationCache("https://github.com/gradle/gradle/issues/13470")
 }
 
 // TODO: remove this once https://github.com/gradle/gradle/issues/23572 is fixed

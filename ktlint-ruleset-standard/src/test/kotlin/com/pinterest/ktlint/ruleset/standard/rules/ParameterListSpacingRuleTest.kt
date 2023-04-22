@@ -462,6 +462,19 @@ class ParameterListSpacingRuleTest {
             .hasNoLintViolations()
     }
 
+    @Test
+    fun `Given a class with a parameter having an annotated type on a separate line then do not report a violation`() {
+        val code =
+            """
+            data class Foo(
+                val bar:
+                    @FooBar("foobar")
+                    Bar,
+            )
+            """.trimIndent()
+        parameterListSpacingRuleAssertThat(code).hasNoLintViolations()
+    }
+
     private companion object {
         const val TOO_MANY_SPACES = "  "
     }

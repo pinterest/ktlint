@@ -53,10 +53,11 @@ public class PropertyWrappingRule :
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         line = 1
-        indentConfig = IndentConfig(
-            indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
-            tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
-        )
+        indentConfig =
+            IndentConfig(
+                indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
+                tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
+            )
         maxLineLength = editorConfig[MAX_LINE_LENGTH_PROPERTY]
     }
 

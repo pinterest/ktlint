@@ -76,14 +76,13 @@ public class FunctionSignatureRule :
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         codeStyle = editorConfig[CODE_STYLE_PROPERTY]
-        functionSignatureWrappingMinimumParameters = editorConfig[
-            FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY,
-        ]
+        functionSignatureWrappingMinimumParameters = editorConfig[FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY]
         functionBodyExpressionWrapping = editorConfig[FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY]
-        indentConfig = IndentConfig(
-            indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
-            tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
-        )
+        indentConfig =
+            IndentConfig(
+                indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
+                tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
+            )
         maxLineLength = editorConfig[MAX_LINE_LENGTH_PROPERTY]
     }
 
@@ -275,14 +274,15 @@ public class FunctionSignatureRule :
                 .children()
                 .firstOrNull { it.elementType == VALUE_PARAMETER }
 
-        whiteSpaceCorrection += if (firstParameterInList == null) {
-            // handle empty parameter list
-            fixWhiteSpacesInEmptyValueParameterList(node, emit, autoCorrect, dryRun)
-        } else {
-            fixWhiteSpacesBeforeFirstParameterInValueParameterList(node, emit, autoCorrect, multiline, dryRun) +
-                fixWhiteSpacesBetweenParametersInValueParameterList(node, emit, autoCorrect, multiline, dryRun) +
-                fixWhiteSpaceBeforeClosingParenthesis(node, emit, autoCorrect, multiline, dryRun)
-        }
+        whiteSpaceCorrection +=
+            if (firstParameterInList == null) {
+                // handle empty parameter list
+                fixWhiteSpacesInEmptyValueParameterList(node, emit, autoCorrect, dryRun)
+            } else {
+                fixWhiteSpacesBeforeFirstParameterInValueParameterList(node, emit, autoCorrect, multiline, dryRun) +
+                    fixWhiteSpacesBetweenParametersInValueParameterList(node, emit, autoCorrect, multiline, dryRun) +
+                    fixWhiteSpaceBeforeClosingParenthesis(node, emit, autoCorrect, multiline, dryRun)
+            }
 
         return whiteSpaceCorrection
     }

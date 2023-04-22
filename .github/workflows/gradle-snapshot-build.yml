@@ -22,6 +22,6 @@ jobs:
         with:
           gradle-home-cache-cleanup: true
       - name: Publish snapshot to Maven
-        run: ./gradlew clean publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel
+        run: ./gradlew clean publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel --no-configuration-cache
       - name: Publish Kotlin-dev snapshot to Maven
-        run: ./gradlew -PkotlinDev clean publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel
+        run: ./gradlew -PkotlinDev clean publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel --no-configuration-cache

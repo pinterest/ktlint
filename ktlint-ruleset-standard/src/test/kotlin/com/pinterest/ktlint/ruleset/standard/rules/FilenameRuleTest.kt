@@ -86,13 +86,10 @@ class FilenameRuleTest {
         ],
     )
     fun `Given a file containing one top level declaration then the file should be named after the identifier`(code: String) {
+        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
         fileNameRuleAssertThat(code)
             .asFileWithPath(UNEXPECTED_FILE_NAME)
-            .hasLintViolationWithoutAutoCorrect(
-                1,
-                1,
-                "File '$UNEXPECTED_FILE_NAME' contains a single top level declaration and should be named 'Foo.kt'",
-            )
+            .hasLintViolationWithoutAutoCorrect(1, 1, "File '$UNEXPECTED_FILE_NAME' contains a single top level declaration and should be named 'Foo.kt'")
     }
 
     @ParameterizedTest(name = "Top level declaration: {0}")

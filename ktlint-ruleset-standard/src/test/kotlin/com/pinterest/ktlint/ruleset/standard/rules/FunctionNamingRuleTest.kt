@@ -39,12 +39,9 @@ class FunctionNamingRuleTest {
                 """
                 fun `Some name`() {}
                 """.trimIndent()
+            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
             functionNamingRuleAssertThat(code)
-                .hasLintViolationWithoutAutoCorrect(
-                    1,
-                    5,
-                    "Function name should start with a lowercase letter (except factory methods) and use camel case",
-                )
+                .hasLintViolationWithoutAutoCorrect(1, 5, "Function name should start with a lowercase letter (except factory methods) and use camel case")
         }
 
         @ParameterizedTest(name = "Junit import: {0}")
@@ -78,12 +75,9 @@ class FunctionNamingRuleTest {
                 """
                 fun do_something() {}
                 """.trimIndent()
+            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
             functionNamingRuleAssertThat(code)
-                .hasLintViolationWithoutAutoCorrect(
-                    1,
-                    5,
-                    "Function name should start with a lowercase letter (except factory methods) and use camel case",
-                )
+                .hasLintViolationWithoutAutoCorrect(1, 5, "Function name should start with a lowercase letter (except factory methods) and use camel case")
         }
 
         @ParameterizedTest(name = "Junit import: {0}")
@@ -123,12 +117,9 @@ class FunctionNamingRuleTest {
             """
             fun $functionName() = "foo"
             """.trimIndent()
+        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
         functionNamingRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(
-                1,
-                5,
-                "Function name should start with a lowercase letter (except factory methods) and use camel case",
-            )
+            .hasLintViolationWithoutAutoCorrect(1, 5, "Function name should start with a lowercase letter (except factory methods) and use camel case")
     }
 
     @ParameterizedTest(name = "Suppression annotation: {0}")

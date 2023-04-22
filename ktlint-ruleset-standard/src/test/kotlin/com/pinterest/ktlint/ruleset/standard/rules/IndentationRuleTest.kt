@@ -3203,12 +3203,9 @@ internal class IndentationRuleTest {
                 ${TAB}line2
                     $MULTILINE_STRING_QUOTE.trimIndent()
                 """.trimIndent()
+            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
             indentationRuleAssertThat(code)
-                .hasLintViolationWithoutAutoCorrect(
-                    1,
-                    11,
-                    "Indentation of multiline string should not contain both tab(s) and space(s)",
-                )
+                .hasLintViolationWithoutAutoCorrect(1, 11, "Indentation of multiline string should not contain both tab(s) and space(s)")
         }
 
         @Test
@@ -5040,6 +5037,89 @@ internal class IndentationRuleTest {
                 LintViolation(10, 1, "Unexpected indentation (4) (should be 8)"),
                 LintViolation(11, 1, "Unexpected indentation (0) (should be 4)"),
             ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given an elvis operator followed by a multiline expression`() {
+        val code =
+            """
+            fun fooBar(foo: String?, bar: String) =
+                foo
+                    ?.lowercase()
+                    ?: bar
+                        .uppercase()
+                        .trimIndent()
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Nested
+    inner class `Given a function with raw string literal as result` {
+        @Test
+        fun `As body expression on same line as equals and preceded by space`() {
+            val code =
+                """
+                private fun foo(
+                    bar: String,
+                ) = $MULTILINE_STRING_QUOTE
+                    bar
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `As body expression on same line as equals but not preceded by space`() {
+            val code =
+                """
+                private fun foo(
+                    bar: String,
+                ) =$MULTILINE_STRING_QUOTE
+                    bar
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `As body expression on next line`() {
+            val code =
+                """
+                private fun foo( bar: String) =
+                    $MULTILINE_STRING_QUOTE
+                    bar
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `As block body`() {
+            val code =
+                """
+                private fun foo( bar: String): String {
+                    return $MULTILINE_STRING_QUOTE
+                        bar
+                        $MULTILINE_STRING_QUOTE.trimIndent()
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `As body expression of function wrapped in class`() {
+            val code =
+                """
+                class Bar {
+                    private fun foo(
+                        bar: String,
+                    ) = $MULTILINE_STRING_QUOTE
+                        bar
+                        $MULTILINE_STRING_QUOTE.trimIndent()
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
     }
 
     private companion object {

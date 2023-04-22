@@ -10,26 +10,31 @@ import java.nio.file.Path
 
 class BaselineCLITest {
     @Test
-    fun `Given a file containing lint errors then find those errors when the baseline is ignored`(
+    fun `Given files containing lint errors then find those errors when the baseline is ignored`(
         @TempDir
         tempDir: Path,
     ) {
         CommandLineTestRunner(tempDir)
             .run(
                 "baseline",
-                listOf("TestBaselineFile.kt.test"),
+                listOf(
+                    "TestBaselineFile.kt.test",
+                    "some/path/to/TestBaselineFile2.kt.test",
+                ),
             ) {
                 SoftAssertions().apply {
                     assertErrorExitCode()
                     assertThat(normalOutput)
-                        .containsLineMatching(Regex(".*:1:24: Unnecessary block.*"))
-                        .containsLineMatching(Regex(".*:2:1: Unexpected blank line.*"))
+                        .containsLineMatching(Regex("^TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
+                        .containsLineMatching(Regex("^TestBaselineFile.kt.test:2:1: Unexpected blank line.*"))
+                        .containsLineMatching(Regex("^some/path/to/TestBaselineFile2.kt.test:1:25: Unnecessary block.*"))
+                        .containsLineMatching(Regex("^some/path/to/TestBaselineFile2.kt.test:2:1: Unexpected blank line.*"))
                 }.assertAll()
             }
     }
 
     @Test
-    fun `Given a file containing lint errors which are all registered in the baseline file and as of that are all ignored`(
+    fun `Given files containing lint errors which are all registered in the baseline file and as of that are all ignored`(
         @TempDir
         tempDir: Path,
     ) {
@@ -41,16 +46,19 @@ class BaselineCLITest {
                 listOf(
                     "--baseline=$baselinePath",
                     "TestBaselineFile.kt.test",
+                    "some/path/to/TestBaselineFile2.kt.test",
                 ),
             ) {
                 SoftAssertions().apply {
                     assertNormalExitCode()
                     assertThat(normalOutput)
-                        .doesNotContainLineMatching(Regex(".*:1:24: Unnecessary block.*"))
-                        .doesNotContainLineMatching(Regex(".*:2:1: Unexpected blank line.*"))
+                        .doesNotContainLineMatching(Regex("^TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
+                        .doesNotContainLineMatching(Regex("^TestBaselineFile.kt.test:2:1: Unexpected blank line.*"))
+                        .doesNotContainLineMatching(Regex("^some/path/to/TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
+                        .doesNotContainLineMatching(Regex("^some/path/to/TestBaselineFile.kt.test:2:1: Unexpected blank line.*"))
                         .containsLineMatching(
                             Regex(
-                                ".*Baseline file '$baselinePath' contains 3 reference\\(s\\) to rule ids without a rule set id. For " +
+                                ".*Baseline file '$baselinePath' contains 6 reference\\(s\\) to rule ids without a rule set id. For " +
                                     "those references the rule set id 'standard' is assumed. It is advised to regenerate this baseline " +
                                     "file.*",
                             ),
@@ -60,7 +68,7 @@ class BaselineCLITest {
     }
 
     @Test
-    fun `Given a file containing lint errors which are not registered in the baseline file and as of that are all reported`(
+    fun `Given files containing lint errors which are not registered in the baseline file and as of that are all reported`(
         @TempDir
         tempDir: Path,
     ) {
@@ -72,15 +80,17 @@ class BaselineCLITest {
                 listOf(
                     "--baseline=$baselinePath",
                     "TestBaselineExtraErrorFile.kt.test",
+                    "some/path/to/TestBaselineExtraErrorFile2.kt.test",
                 ),
             ) {
                 SoftAssertions().apply {
                     assertErrorExitCode()
                     assertThat(normalOutput)
-                        .containsLineMatching(Regex(".*:2:1: Unexpected blank line.*"))
+                        .containsLineMatching(Regex("^TestBaselineExtraErrorFile.kt.test:2:1: Unexpected blank line.*"))
+                        .containsLineMatching(Regex("^some/path/to/TestBaselineExtraErrorFile2.kt.test:2:1: Unexpected blank line.*"))
                         .containsLineMatching(
                             Regex(
-                                ".*Baseline file '$baselinePath' contains 3 reference\\(s\\) to rule ids without a rule set id. For " +
+                                ".*Baseline file '$baselinePath' contains 6 reference\\(s\\) to rule ids without a rule set id. For " +
                                     "those references the rule set id 'standard' is assumed. It is advised to regenerate this baseline " +
                                     "file.*",
                             ),

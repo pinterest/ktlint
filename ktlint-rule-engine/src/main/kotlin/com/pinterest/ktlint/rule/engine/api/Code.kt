@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.rule.engine.api
 
+import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine.Companion.STDIN_FILE
 import org.jetbrains.kotlin.konan.file.file
 import java.io.File
 import java.nio.file.Path
@@ -15,6 +16,13 @@ public class Code private constructor(
     public val script: Boolean,
     public val isStdIn: Boolean,
 ) {
+    public fun fileNameOrStdin(): String =
+        if (isStdIn) {
+            STDIN_FILE
+        } else {
+            fileName.orEmpty()
+        }
+
     public companion object {
         /**
          * Create [Code] from a [file] containing valid Kotlin code or script. The '.editorconfig' files on the path to [file] are taken

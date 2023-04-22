@@ -45,42 +45,60 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
     description = "Creates self-executable file, that runs generated shadow jar"
     group = "Distribution"
 
-    inputs.files(tasks.shadowJar.map { it.outputs.files })
-    outputs.files("$buildDir/run/ktlint")
+    dependsOn(tasks.shadowJar)
+
+    // Find the "ktlint-cli-<version>-all.jar" file
+    val ktlintCliAllJarFile =
+        tasks
+            .shadowJar
+            .orNull
+            ?.outputs
+            ?.files
+            ?.singleFile
+            ?: throw GradleException("Can not locate the jar file for building the self-executable ktlint-cli")
+    logger.lifecycle("ktlint-cli: Base jar to build self-executable file: ${ktlintCliAllJarFile.absolutePath}")
+    inputs.files(ktlintCliAllJarFile)
+
+    // Output is the self-executable file
+    val selfExecutableKtlintPath = "$buildDir/run/ktlint"
+    outputs.files(selfExecutableKtlintPath)
     if (!version.toString().endsWith("SNAPSHOT")) {
+        // And for releases also the signature file
         outputs.files("$buildDir/run/ktlint.asc")
     }
 
     doLast {
-        val execFile = outputs.files.first()
-        execFile.appendText(
-            """
-            #!/bin/sh
+        logger.lifecycle("Creating the self-executable ktlint-cli")
+        File(selfExecutableKtlintPath).apply {
+            // writeText effective replaces the entire content if the file already exists. If appendText is used, the file keeps on growing
+            // with each build if the clean target is not used.
+            writeText(
+                """
+                #!/bin/sh
 
-            # From this SO answer: https://stackoverflow.com/a/56243046
+                # From this SO answer: https://stackoverflow.com/a/56243046
 
-            # First we get the major Java version as an integer, e.g. 8, 11, 16. It has special handling for the leading 1 of older java
-            # versions, e.g. 1.8 = Java 8
-            JV=$(java -version 2>&1 | sed -E -n 's/.* version "([^.-]*).*".*/\1/p')
+                # First we get the major Java version as an integer, e.g. 8, 11, 16. It has special handling for the leading 1 of older java
+                # versions, e.g. 1.8 = Java 8
+                JV=$(java -version 2>&1 | sed -E -n 's/.* version "([^.-]*).*".*/\1/p')
 
-            # Add --add-opens for java version 16 and above
-            X=$( [ "${"$"}JV" -ge "16" ] && echo "--add-opens java.base/java.lang=ALL-UNNAMED" || echo "")
+                # Add --add-opens for java version 16 and above
+                X=$( [ "${"$"}JV" -ge "16" ] && echo "--add-opens java.base/java.lang=ALL-UNNAMED" || echo "")
 
-            exec java ${"$"}X -Xmx512m -jar "$0" "$@"
+                exec java ${"$"}X -Xmx512m -jar "$0" "$@"
 
-            """.trimIndent(),
-        )
+                """.trimIndent(),
+            )
+            // Add the jar
+            appendBytes(ktlintCliAllJarFile.readBytes())
 
-        execFile.appendBytes(inputs.files.singleFile.readBytes())
-        execFile.setExecutable(true, false)
-    }
-    finalizedBy(tasks.named("shadowJarExecutableChecksum"))
-}
+            setExecutable(true, false)
 
-tasks.signMavenPublication {
-    dependsOn(shadowJarExecutable)
-    if (!version.toString().endsWith("SNAPSHOT")) {
-        sign(*shadowJarExecutable.map { it.outputs.files.files }.get().toTypedArray())
+            if (!version.toString().endsWith("SNAPSHOT")) {
+                signing.sign(this)
+            }
+        }
+        logger.lifecycle("Finished creating the self-executable ktlint-cli")
     }
 }
 
@@ -88,9 +106,21 @@ tasks.register<Checksum>("shadowJarExecutableChecksum") {
     description = "Generates MD5 checksum for ktlint executable"
     group = "Distribution"
 
+    dependsOn(shadowJarExecutable)
+
     inputFiles.setFrom(shadowJarExecutable.map { it.outputs.files })
     // put the checksums in the same folder with the executable itself
-    outputDirectory.fileProvider(shadowJarExecutable.map { it.outputs.files.files.first().parentFile })
+    outputDirectory.fileProvider(
+        shadowJarExecutable
+            .map {
+                it
+                    .outputs
+                    .files
+                    .files
+                    .first()
+                    .parentFile
+            },
+    )
     checksumAlgorithm.set(Checksum.Algorithm.MD5)
 }
 

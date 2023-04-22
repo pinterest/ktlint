@@ -45,7 +45,7 @@ Before releasing a new version of KtLint, the release candidate is tested on a s
    Note that `~/git/ktlint` is the directory in which the ktlint project is checked out and that `~/git/ktlint/ktlint` refers to the `ktlint` CLI-module.
 5. Create an alias or script to run the latest development-version of ktlint (note that this script will print the version and the datetime of compilation as reference to which version is used):
    ```shell
-   alias ktlint-dev="echo 'ktlint-dev version:';ls -aslh ~/git/ktlint/ktlint/build/run/ktlint;echo ' ';~/git/ktlint/ktlint/build/run/ktlint $@"
+   alias ktlint-dev="echo 'ktlint-dev version:';ls -aslh ~/git/ktlint/ktlint/build-cli/run/ktlint;echo ' ';~/git/ktlint/ktlint/build/run/ktlint $@"
    ```
    Note that `~/git/ktlint` is the directory in which the ktlint project is checked out and that `~/git/ktlint/ktlint` refers to the `ktlint` CLI-module.
 

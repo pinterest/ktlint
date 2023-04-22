@@ -123,10 +123,6 @@ internal class RunAfterRuleFilter : RuleFilter {
                     }
 
                     runAfterRule.mode == ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED -> {
-                        LOGGER.warn {
-                            "Skipping rule with id '${ruleProvider.ruleId.value}' as it requires that the rule with id " +
-                                "'${runAfterRule.ruleId.value}' is loaded. However, no rule with this id is loaded."
-                        }
                         requiredButMissingRuleIds.add(
                             RunAfterRuleRequiredButNotLoaded(
                                 ruleProvider.ruleId,

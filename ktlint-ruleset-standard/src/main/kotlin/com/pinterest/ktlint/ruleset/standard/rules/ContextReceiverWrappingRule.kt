@@ -48,10 +48,11 @@ public class ContextReceiverWrappingRule :
     private var maxLineLength = MAX_LINE_LENGTH_PROPERTY.defaultValue
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
-        indentConfig = IndentConfig(
-            indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
-            tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
-        )
+        indentConfig =
+            IndentConfig(
+                indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
+                tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
+            )
         maxLineLength = editorConfig[MAX_LINE_LENGTH_PROPERTY]
     }
 

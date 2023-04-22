@@ -22,7 +22,7 @@ jobs:
         with:
           gradle-home-cache-cleanup: true
       - name: Build executable and publish to Maven
-        run: ./gradlew clean shadowJarExecutable publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel
+        run: ./gradlew clean shadowJarExecutable publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel --no-configuration-cache
         env:
           SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
           SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
@@ -44,7 +44,7 @@ jobs:
           prerelease: false
           body : ${{ steps.release_notes.outputs.release_notes }}
           files: |
-            ktlint/build/run/*
+            ktlint-cli/build/run/*
         env :
           GITHUB_TOKEN : ${{ secrets.GITHUB_TOKEN }}
 

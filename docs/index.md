@@ -18,7 +18,7 @@
 ## Features
 
 - **No configuration required**  
- `ktlint` aims to capture the [official Kotlin coding conventions](https://kotlinlang.org/docs/reference/coding-conventions.html) and [Android Kotlin Style Guide](https://android.github.io/kotlin-guides/style.html). In some aspects `ktlint` is a bit more strict[*](https://github.com/pinterest/ktlint/issues/284#issuecomment-425177186).
+ `ktlint` aims to capture the [Kotlin coding conventions](https://kotlinlang.org/docs/reference/coding-conventions.html) and [Android Kotlin Style Guide](https://android.github.io/kotlin-guides/style.html). In some aspects `ktlint` is a bit more strict[*](https://github.com/pinterest/ktlint/issues/284#issuecomment-425177186).
 - **Rule sets**  
   `ktlint` offers a `standard` rule set. Next to this, it is easy to provide [custom rule sets](api/custom-rule-set/).
 - **.editorconfig**  

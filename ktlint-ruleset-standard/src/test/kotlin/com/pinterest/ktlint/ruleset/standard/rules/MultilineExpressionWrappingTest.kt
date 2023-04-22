@@ -690,4 +690,109 @@ class MultilineExpressionWrappingTest {
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
             .hasNoLintViolations()
     }
+
+    @Test
+    fun `Given a multiline expression with an EOL comment on the last line`() {
+        val code =
+            """
+            val foo = bar
+                .length() // some-comment
+
+            val foobar = "foobar"
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo =
+                bar
+                    .length() // some-comment
+
+            val foobar = "foobar"
+            """.trimIndent()
+        multilineExpressionWrappingAssertThat(code)
+            .addAdditionalRuleProvider { IndentationRule() }
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
+            .hasLintViolation(1, 11, "A multiline expression should start on a new line")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given an assignment to variable`() {
+        val code =
+            """
+            fun foo() {
+                var givenCode: String
+
+                givenCode = $MULTILINE_STRING_QUOTE
+                    some text
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo() {
+                var givenCode: String
+
+                givenCode =
+                    $MULTILINE_STRING_QUOTE
+                    some text
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+            }
+            """.trimIndent()
+        multilineExpressionWrappingAssertThat(code)
+            .addAdditionalRuleProvider { IndentationRule() }
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
+            .hasLintViolation(4, 17, "A multiline expression should start on a new line")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a comparison in which the right hand side is a multiline expression`() {
+        val code =
+            """
+            fun foo(bar: String): Boolean {
+                return bar != $MULTILINE_STRING_QUOTE
+                    some text
+                $MULTILINE_STRING_QUOTE.trimIndent()
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo(bar: String): Boolean {
+                return bar !=
+                    $MULTILINE_STRING_QUOTE
+                    some text
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+            }
+            """.trimIndent()
+        multilineExpressionWrappingAssertThat(code)
+            .addAdditionalRuleProvider { IndentationRule() }
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
+            .hasLintViolation(2, 19, "A multiline expression should start on a new line")
+            .isFormattedAs(formattedCode)
+    }
+
+    fun fooBar(foobar: String?) =
+        foobar
+            ?.lowercase()
+            ?: """
+                foo
+                """
+                .uppercase()
+                .trimIndent()
+
+    @Test
+    fun `Given an elvis operator followed by a multiline expression then do not reformat`() {
+        val code =
+            """
+            fun fooBar(foobar: String?, bar: String) =
+                foo
+                    ?.lowercase()
+                    ?: bar
+                        .uppercase()
+                        .trimIndent()
+            """.trimIndent()
+        multilineExpressionWrappingAssertThat(code)
+            .addAdditionalRuleProvider { IndentationRule() }
+            .hasNoLintViolations()
+    }
 }

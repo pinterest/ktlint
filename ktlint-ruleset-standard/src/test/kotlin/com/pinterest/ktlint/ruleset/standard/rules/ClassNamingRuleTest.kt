@@ -33,12 +33,9 @@ class ClassNamingRuleTest {
                 """
                 class $className
                 """.trimIndent()
+            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
             classNamingRuleAssertThat(code)
-                .hasLintViolationWithoutAutoCorrect(
-                    1,
-                    7,
-                    "Class or object name should start with an uppercase letter and use camel case",
-                )
+                .hasLintViolationWithoutAutoCorrect(1, 7, "Class or object name should start with an uppercase letter and use camel case")
         }
 
         @Nested
@@ -49,12 +46,9 @@ class ClassNamingRuleTest {
                     """
                     class `foo`
                     """.trimIndent()
+                @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
                 classNamingRuleAssertThat(code)
-                    .hasLintViolationWithoutAutoCorrect(
-                        1,
-                        7,
-                        "Class or object name should start with an uppercase letter and use camel case",
-                    )
+                    .hasLintViolationWithoutAutoCorrect(1, 7, "Class or object name should start with an uppercase letter and use camel case")
             }
 
             @Test

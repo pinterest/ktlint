@@ -6,12 +6,15 @@ Ktlint uses a limited set of `.editorconfig` properties for additional configura
 
 ## Code style
 
-By default, the `offical` Kotlin code style is applied. Alternatively, the code style can be set to `android`.
+By default, the `intellij_idea` Kotlin code style is applied. Alternatively, the code style can be set to `ktlint_official` or `android`.
 
 ```ini
 [*.{kt,kts}]
-ktlint_code_style = official
+ktlint_code_style = ktlint_official
 ```
+
+!!! note
+    The default code style will be changed to `ktlint_official` in the `1.0` version of ktlint.
 
 ## Disabled rules
 
@@ -175,7 +178,7 @@ This setting only takes effect when rule `no-wildcard-imports` is enabled.
 
 ## Indent size & style
 
-By default, indenting is done with 4 spaces per indent level in `official` Kotlin code style while a single tab is used by default in the `android` code style.
+By default, indenting is done with 4 spaces per indent level. Code style `android_studio` uses a tab per indent level.
 
 ```ini
 [*.{kt,kts}]
