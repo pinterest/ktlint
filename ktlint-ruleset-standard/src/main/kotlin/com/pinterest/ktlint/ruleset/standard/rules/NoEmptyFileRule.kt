@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -8,7 +9,8 @@ import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 public class NoEmptyFileRule :
-    StandardRule(id = "no-empty-file", usesEditorConfigProperties = setOf(NO_EMPTY_FILE_PROPERTY)) {
+    StandardRule(id = "no-empty-file", usesEditorConfigProperties = setOf(NO_EMPTY_FILE_PROPERTY)),
+    Rule.Experimental {
     private var noEmptyFile = NO_EMPTY_FILE_PROPERTY.defaultValue
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
