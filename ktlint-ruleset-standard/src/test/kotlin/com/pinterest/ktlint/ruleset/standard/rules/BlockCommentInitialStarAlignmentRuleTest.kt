@@ -56,8 +56,8 @@ class BlockCommentInitialStarAlignmentRuleTest {
             """.trimIndent()
         blockCommentInitialStarAlignmentRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(2, 8, "Initial star should be align with start of block comment"),
-                LintViolation(3, 6, "Initial star should be align with start of block comment"),
+                LintViolation(2, 8, "Initial star should align with start of block comment"),
+                LintViolation(3, 6, "Initial star should align with start of block comment"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -83,9 +83,9 @@ class BlockCommentInitialStarAlignmentRuleTest {
             """.trimIndent()
         blockCommentInitialStarAlignmentRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(3, 12, "Initial star should be align with start of block comment"),
-                LintViolation(4, 4, "Initial star should be align with start of block comment"),
-                LintViolation(5, 10, "Initial star should be align with start of block comment"),
+                LintViolation(3, 12, "Initial star should align with start of block comment"),
+                LintViolation(4, 4, "Initial star should align with start of block comment"),
+                LintViolation(5, 10, "Initial star should align with start of block comment"),
             ).isFormattedAs(formattedCode)
     }
 }
