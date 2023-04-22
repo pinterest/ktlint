@@ -444,10 +444,6 @@ Rule id: `no-consecutive-blank-lines`
 
 Rule id: `no-empty-class-body`
 
-## No empty files
-Ensure that no empty Kotlin or Kotlin Script files are allowed.
-This rule can be configured with `.editorconfig` property [`no_empty_file`](../configuration-ktlint/#no-empty-file)
-
 ## No leading empty lines in method blocks
 
 === "[:material-heart:](#) Ktlint"
