@@ -19,7 +19,7 @@ class BaselineCLITest {
                 "baseline",
                 listOf(
                     "TestBaselineFile.kt.test",
-                    "some/path/to/TestBaselineFile2.kt.test"
+                    "some/path/to/TestBaselineFile2.kt.test",
                 ),
             ) {
                 SoftAssertions().apply {
