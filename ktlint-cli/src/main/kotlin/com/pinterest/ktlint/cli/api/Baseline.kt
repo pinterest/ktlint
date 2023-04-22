@@ -121,10 +121,12 @@ private class BaselineLoader(private val path: String) {
         with(parseDocument().getElementsByTagName("file")) {
             for (i in 0 until length) {
                 with(item(i) as Element) {
+                    // Use relative path to file starting from baseline path
                     val fileName =
                         Paths
                             .get(getAttribute("name"))
                             .absolutePathString()
+                            .removePrefix(path)
                     lintErrorsPerFile[fileName] = parseBaselineFileElement()
                 }
             }
