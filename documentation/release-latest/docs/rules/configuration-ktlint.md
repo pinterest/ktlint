@@ -256,11 +256,3 @@ ktlint_standard_indent = disabled
 ```
 
 Note that the `import-ordering` rule is disabled for *all* packages including the `api` sub package. Next to this the `indent` rule is disabled for the `api` package and its sub packages.
-
-## No empty file
-
-By default, empty files are allowed to exist. You can set to allow them not to exist.
-```ini
-[*.{kt,kts}]
-  no_empty_file = true # Use "true" if empty files are not allowed
-```
