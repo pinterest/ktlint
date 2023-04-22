@@ -42,7 +42,7 @@ public class BlockCommentInitialStarAlignmentRule :
                         ?.let { matchResult ->
                             val (prefix, content) = matchResult.destructured
                             if (prefix != expectedIndentForLineWithInitialStar) {
-                                emit(offset + prefix.length, "Initial star should be align with start of block comment", true)
+                                emit(offset + prefix.length, "Initial star should align with start of block comment", true)
                                 expectedIndentForLineWithInitialStar + content
                             } else {
                                 line
