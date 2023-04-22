@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
+* Add new experimental rule `no-empty-file` for all code styles. Kotlin and Kotlin Scription files may not be empty.
 
 ### Added
 
@@ -297,7 +298,6 @@ if (node.isRoot()) {
   }
   ```
 * Add new experimental rule `enum-wrapping` for all code styles. An enum should either be a single line, or each enum entry should be defined on a separate line. ([#1903](https://github.com/pinterest/ktlint/issues/1903))
-* Add new experimental rule `no-empty-file` for all code styles. Kotlin and Kotlin Script empty files should not be existed.
 
 ### Removed
 
