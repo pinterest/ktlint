@@ -280,6 +280,7 @@ if (node.isRoot()) {
   ```
 * Add new experimental rule `if-else-wrapping` for `ktlint_official` code style. This enforces that a single line if-statement is kept simple. A single line if-statement may contain no more than one else-branch. The branches a single line if-statement may not be wrapped in a block. This rule can also be run for other code styles, but then it needs to be enabled explicitly. ([#812](https://github.com/pinterest/ktlint/issues/812))
 * Add new experimental rule `enum-wrapping` for all code styles. An enum should either be a single line, or each enum entry should be defined on a separate line. ([#1903](https://github.com/pinterest/ktlint/issues/1903))
+* Add new experimental rule `no-empty-file` for all code styles. Kotlin and Kotlin Script empty files should not be existed.
 
 ### Removed
 
