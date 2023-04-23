@@ -27,8 +27,9 @@ public class NoEmptyFileRule :
                 .takeIf { it.elementType == ElementType.FILE }
                 ?.takeIf { it.text.isBlank() }
                 ?.let {
-                    val filePath = it.psi.containingFile.virtualFile.name
-                        .replace("\\", "/") // Ensure compatibility with Windows OS
+                    val filePath =
+                        it.psi.containingFile.virtualFile.name
+                            .replace("\\", "/") // Ensure compatibility with Windows OS
                     emit(0, "File `$filePath` should not be empty", false)
                 }
         }
@@ -38,12 +39,12 @@ public class NoEmptyFileRule :
         public val NO_EMPTY_FILE_PROPERTY: EditorConfigProperty<Boolean> =
             EditorConfigProperty(
                 type =
-                PropertyType.LowerCasingPropertyType(
-                    "no_empty_file",
-                    "Define whether empty files are allowed",
-                    PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
-                    setOf(true.toString(), false.toString()),
-                ),
+                    PropertyType.LowerCasingPropertyType(
+                        "no_empty_file",
+                        "Define whether empty files are allowed",
+                        PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
+                        setOf(true.toString(), false.toString()),
+                    ),
                 defaultValue = true,
             )
     }
