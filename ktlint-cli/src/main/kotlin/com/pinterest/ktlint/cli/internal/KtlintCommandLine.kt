@@ -410,7 +410,7 @@ internal class KtlintCommandLine {
             .map { it.toFile() }
             .takeWhile { errorNumber.get() < limit }
             .map { file ->
-                val fileName = file.toPath().absolutePathString()
+                val fileName = file.toPath().relativeRoute
                 Callable {
                     fileName to
                         process(
