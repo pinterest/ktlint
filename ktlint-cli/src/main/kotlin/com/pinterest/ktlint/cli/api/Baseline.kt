@@ -17,7 +17,6 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.parsers.ParserConfigurationException
-import kotlin.io.path.absolutePathString
 import kotlin.io.path.pathString
 import kotlin.io.path.relativeToOrSelf
 

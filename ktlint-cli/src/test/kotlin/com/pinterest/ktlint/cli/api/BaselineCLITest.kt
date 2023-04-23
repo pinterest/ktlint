@@ -62,8 +62,8 @@ class BaselineCLITest {
                             .containsLineMatching(
                                 Regex(
                                     ".*Baseline file '$baselinePath' contains 6 reference\\(s\\) to rule ids without a rule set id. For " +
-                                        "those references the rule set id 'standard' is assumed. It is advised to regenerate this baseline " +
-                                        "file.*",
+                                        "those references the rule set id 'standard' is assumed. It is advised to regenerate this " +
+                                        "baseline file.*",
                                 ),
                             )
                     }.assertAll()
@@ -96,8 +96,8 @@ class BaselineCLITest {
                             .containsLineMatching(
                                 Regex(
                                     ".*Baseline file '$baselinePath' contains 6 reference\\(s\\) to rule ids without a rule set id. For " +
-                                        "those references the rule set id 'standard' is assumed. It is advised to regenerate this baseline " +
-                                        "file.*",
+                                        "those references the rule set id 'standard' is assumed. It is advised to regenerate this " +
+                                        "baseline file.*",
                                 ),
                             )
                     }.assertAll()
@@ -130,8 +130,8 @@ class BaselineCLITest {
                             .containsLineMatching(
                                 Regex(
                                     ".*Baseline file '$baselinePath' contains 6 reference\\(s\\) to rule ids without a rule set id. For " +
-                                        "those references the rule set id 'standard' is assumed. It is advised to regenerate this baseline " +
-                                        "file.*",
+                                        "those references the rule set id 'standard' is assumed. It is advised to regenerate this " +
+                                        "baseline file.*",
                                 ),
                             )
                     }.assertAll()
