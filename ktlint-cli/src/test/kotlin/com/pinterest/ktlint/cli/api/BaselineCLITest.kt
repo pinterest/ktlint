@@ -130,9 +130,9 @@ class BaselineCLITest {
                             .containsLineMatching(
                                 Regex(
                                     // Escape "\" in baseline path for Windows
-                                    ".*Baseline file '${baselinePath.replace("\\", "\\\\")}' contains 6 reference\\(s\\) to rule ids without a rule set id. For " +
-                                        "those references the rule set id 'standard' is assumed. It is advised to regenerate this " +
-                                        "baseline file.*",
+                                    ".*Baseline file '${baselinePath.replace("\\", "\\\\")}' contains 6 " +
+                                        "reference\\(s\\) to rule ids without a rule set id. For those references the rule set id " +
+                                        "'standard' is assumed. It is advised to regenerate this baseline file.*",
                                 ),
                             )
                     }.assertAll()
