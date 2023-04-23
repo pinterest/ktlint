@@ -54,7 +54,6 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.collections.ArrayList
 import kotlin.collections.LinkedHashSet
 import kotlin.concurrent.thread
-import kotlin.io.path.absolutePathString
 import kotlin.io.path.pathString
 import kotlin.io.path.relativeToOrSelf
 import kotlin.system.exitProcess
@@ -410,7 +409,7 @@ internal class KtlintCommandLine {
             .map { it.toFile() }
             .takeWhile { errorNumber.get() < limit }
             .map { file ->
-                val fileName = file.toPath().absolutePathString()
+                val fileName = file.toPath().relativeRoute
                 Callable {
                     fileName to
                         process(
