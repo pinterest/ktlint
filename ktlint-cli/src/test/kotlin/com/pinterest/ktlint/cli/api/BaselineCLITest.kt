@@ -129,7 +129,8 @@ class BaselineCLITest {
                             .doesNotContainLineMatching(Regex("^some/path/to/TestBaselineFile.kt.test:2:1: Unexpected blank line.*"))
                             .containsLineMatching(
                                 Regex(
-                                    ".*Baseline file '$baselinePath' contains 6 reference\\(s\\) to rule ids without a rule set id. For " +
+                                    // Escape "\" in baseline path for Windows
+                                    ".*Baseline file '${baselinePath.replace("\\", "\\\\")}' contains 6 reference\\(s\\) to rule ids without a rule set id. For " +
                                         "those references the rule set id 'standard' is assumed. It is advised to regenerate this " +
                                         "baseline file.*",
                                 ),
