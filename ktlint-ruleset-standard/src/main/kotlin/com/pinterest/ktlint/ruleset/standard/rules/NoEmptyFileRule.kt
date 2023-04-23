@@ -25,25 +25,16 @@ public class NoEmptyFileRule :
         if (noEmptyFile) {
             node
                 .takeIf { it.elementType == ElementType.FILE }
-                ?.takeIf { it.textLength == TEXT_LENGTH_EMPTY_FILE_CONTAINS }
+                ?.takeIf { it.text.isBlank() }
                 ?.let {
                     val filePath = it.psi.containingFile.virtualFile.name
-                    val fileName =
-                        filePath
-                            .replace("\\", "/") // Ensure compatibility with Windows OS
-                            .substringAfterLast("/")
-                    emit(
-                        0,
-                        "File `$fileName` should not be empty",
-                        false,
-                    )
+                        .replace("\\", "/") // Ensure compatibility with Windows OS
+                    emit(0, "File `$filePath` should not be empty", false)
                 }
         }
     }
 
     public companion object {
-        private const val TEXT_LENGTH_EMPTY_FILE_CONTAINS: Int = 0
-
         public val NO_EMPTY_FILE_PROPERTY: EditorConfigProperty<Boolean> =
             EditorConfigProperty(
                 type =
