@@ -49,6 +49,20 @@ class NoEmptyFileRuleTest {
             .hasNoLintViolations()
     }
 
+    @Test
+    fun `Given non-empty kotlin file when lint disable then ignore this file`() {
+        val code = """
+            package tmp
+            fun main(){
+                println("Hello world")
+            }
+        """.trimIndent()
+        noEmptyFileRuleAssertThat(code)
+            .asFileWithPath("/some/path/Tmp.kt")
+            .withEditorConfigOverride(NO_EMPTY_FILE_PROPERTY to false)
+            .hasNoLintViolations()
+    }
+
     private companion object {
         private const val EMPTY_FILE = ""
     }
