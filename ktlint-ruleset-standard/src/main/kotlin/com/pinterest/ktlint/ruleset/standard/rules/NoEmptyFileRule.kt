@@ -38,13 +38,13 @@ public class NoEmptyFileRule :
         public val NO_EMPTY_FILE_PROPERTY: EditorConfigProperty<Boolean> =
             EditorConfigProperty(
                 type =
-                    PropertyType.LowerCasingPropertyType(
-                        "no_empty_file",
-                        "Define whether empty files are allowed",
-                        PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
-                        setOf(true.toString(), false.toString()),
-                    ),
-                defaultValue = false,
+                PropertyType.LowerCasingPropertyType(
+                    "no_empty_file",
+                    "Define whether empty files are allowed",
+                    PropertyType.PropertyValueParser.BOOLEAN_VALUE_PARSER,
+                    setOf(true.toString(), false.toString()),
+                ),
+                defaultValue = true,
             )
     }
 }
