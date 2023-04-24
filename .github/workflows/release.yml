@@ -35,6 +35,19 @@ jobs:
         if: ${{ success() }}
         uses : ffurrer2/extract-release-notes@v1
 
+      - name: Get version
+        id: get_version
+        if: ${{ success() }}
+        run: echo "version=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+
+      - name: Create zip for sdkman
+        if: ${{ success() }}
+        run: |
+          cd ktlint-cli/build/run
+          mkdir -p ktlint-${{ env.version }}/bin
+          cp ktlint ktlint-${{ env.version }}/bin
+          zip -rm ktlint-${{ env.version }}.zip ktlint-${{ env.version }}
+
       - name : Create release
         id: github_release
         if: ${{ success() }}
@@ -48,11 +61,6 @@ jobs:
         env :
           GITHUB_TOKEN : ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get version
-        id: get_version
-        if: ${{ success() }}
-        run: echo "version=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
-
       - name: Bump Homebrew Formula
         if: ${{ success() }}
         uses: mislav/bump-homebrew-formula-action@v2
@@ -60,7 +68,15 @@ jobs:
           COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TOKEN }}
         with:
           formula-name: ktlint
-          download-url: https://github.com/pinterest/ktlint/releases/download/${{ env.version }}/ktlint
+          download-url: https://github.com/pinterest/ktlint/releases/download/${{ env.version }}/ktlint-${{ env.version }}.zip
+
+      - name: Release to sdkman
+        if: ${{ success() }}
+        env:
+          SDKMAN_KEY: ${{ secrets.SDKMAN_KEY }}
+          SDKMAN_TOKEN: ${{ secrets.SDKMAN_TOKEN }}
+          SDKMAN_VERSION: ${{ env.version }}
+        run: ./gradlew :ktlint-cli:sdkMajorRelease
 
       - name: Announce Release
         if: ${{ success() }}
