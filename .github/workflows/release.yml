@@ -40,10 +40,11 @@ jobs:
         if: ${{ success() }}
         run: echo "version=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
 
-      - name: Create zip for sdkman
+      - name: Create zip for dependency managers
         if: ${{ success() }}
         run: |
           cd ktlint-cli/build/run
+          # Doing this for Homebrew and https://github.com/sdkman/sdkman-cli/wiki/Well-formed-SDK-archives
           mkdir -p ktlint-${{ env.version }}/bin
           cp ktlint ktlint-${{ env.version }}/bin
           zip -rm ktlint-${{ env.version }}.zip ktlint-${{ env.version }}
