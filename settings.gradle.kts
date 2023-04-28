@@ -34,6 +34,7 @@ include(
     // ktlint-core module is no longer used internally in the ktlint project except for backwards compatibility
     ":ktlint-core",
     ":ktlint-api-consumer",
+    ":ktlint-baseline",
     ":ktlint-bom",
     ":ktlint-cli",
     ":ktlint-cli-reporter-baseline",
