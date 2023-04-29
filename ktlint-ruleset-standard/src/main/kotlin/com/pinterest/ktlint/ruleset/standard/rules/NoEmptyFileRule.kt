@@ -47,8 +47,7 @@ public class NoEmptyFileRule :
                 !it.isWhiteSpace() &&
                     it.elementType != ElementType.PACKAGE_DIRECTIVE &&
                     it.elementType != ElementType.IMPORT_LIST
-            }
-            .isEmpty()
+            }.isEmpty()
     }
 
     public companion object {
