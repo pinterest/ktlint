@@ -3,9 +3,9 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
-* Add new experimental rule `no-empty-file` for all code styles. Kotlin and Kotlin Scription files may not be empty.
 
 ### Added
+* Add new experimental rule `no-empty-file` for all code styles. Kotlin and Kotlin Scription files may not be empty.
 
 ### Removed
 
