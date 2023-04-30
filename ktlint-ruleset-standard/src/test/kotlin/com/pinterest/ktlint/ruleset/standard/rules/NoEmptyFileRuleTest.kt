@@ -52,6 +52,17 @@ class NoEmptyFileRuleTest {
     fun `Given only import statement in kotlin file then do a return lint error`() {
         val code =
             """
+            import sample.Hello
+            """.trimIndent()
+        noEmptyFileRuleAssertThat(code)
+            .asFileWithPath("/some/path/Tmp.kt")
+            .hasLintViolationWithoutAutoCorrect(1, 1, "File `/project/some/path/Tmp.kt` should not be empty")
+    }
+
+    @Test
+    fun `Given only package and import statements in kotlin file then do a return lint error`() {
+        val code =
+            """
             package path
             import sample.Hello
             """.trimIndent()
