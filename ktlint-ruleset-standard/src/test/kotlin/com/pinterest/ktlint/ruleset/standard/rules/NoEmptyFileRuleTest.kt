@@ -2,8 +2,6 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.DisabledOnOs
-import org.junit.jupiter.api.condition.OS
 
 class NoEmptyFileRuleTest {
     private val noEmptyFileRuleAssertThat = assertThatRule { NoEmptyFileRule() }
@@ -22,7 +20,6 @@ class NoEmptyFileRuleTest {
             .hasNoLintViolations()
     }
 
-    @DisabledOnOs(OS.WINDOWS)
     @Test
     fun `Given an empty kotlin file then do a return lint error`() {
         val code = EMPTY_FILE
@@ -31,7 +28,6 @@ class NoEmptyFileRuleTest {
             .hasLintViolationWithoutAutoCorrect(1, 1, "File `/project/some/path/Tmp.kt` should not be empty")
     }
 
-    @DisabledOnOs(OS.WINDOWS)
     @Test
     fun `Given an empty kotlin script file then do a return lint error`() {
         val code = EMPTY_FILE
@@ -40,7 +36,6 @@ class NoEmptyFileRuleTest {
             .hasLintViolationWithoutAutoCorrect(1, 1, "File `/project/some/path/Tmp.kts` should not be empty")
     }
 
-    @DisabledOnOs(OS.WINDOWS)
     @Test
     fun `Given only package statement in kotlin file then do a return lint error`() {
         val code =
@@ -53,7 +48,6 @@ class NoEmptyFileRuleTest {
             .hasLintViolationWithoutAutoCorrect(1, 1, "File `/project/some/path/Tmp.kt` should not be empty")
     }
 
-    @DisabledOnOs(OS.WINDOWS)
     @Test
     fun `Given only import statement in kotlin file then do a return lint error`() {
         val code =
@@ -65,7 +59,6 @@ class NoEmptyFileRuleTest {
             .hasLintViolationWithoutAutoCorrect(1, 1, "File `/project/some/path/Tmp.kt` should not be empty")
     }
 
-    @DisabledOnOs(OS.WINDOWS)
     @Test
     fun `Given only package and import statements in kotlin file then do a return lint error`() {
         val code =
