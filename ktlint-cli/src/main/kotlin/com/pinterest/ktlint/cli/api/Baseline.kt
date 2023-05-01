@@ -17,7 +17,6 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.parsers.ParserConfigurationException
-import kotlin.io.path.absolutePathString
 import kotlin.io.path.pathString
 import kotlin.io.path.relativeToOrSelf
 
@@ -121,12 +120,7 @@ private class BaselineLoader(private val path: String) {
         with(parseDocument().getElementsByTagName("file")) {
             for (i in 0 until length) {
                 with(item(i) as Element) {
-                    // Use relative path to file starting from baseline path
-                    val fileName =
-                        Paths
-                            .get(getAttribute("name"))
-                            .absolutePathString()
-                            .removePrefix(path)
+                    val fileName = getAttribute("name")
                     lintErrorsPerFile[fileName] = parseBaselineFileElement()
                 }
             }
