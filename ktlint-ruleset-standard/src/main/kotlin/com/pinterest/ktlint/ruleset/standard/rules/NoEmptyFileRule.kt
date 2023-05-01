@@ -18,10 +18,11 @@ public class NoEmptyFileRule : StandardRule(id = "no-empty-file"), Rule.Experime
             .takeIf { it.isRoot() }
             ?.takeIf { it.isEmptyFile() }
             ?.let {
-                val filePath =
+                val fileName =
                     node.psi.containingFile.virtualFile.name
                         .replace("\\", "/") // Ensure compatibility with Windows OS
-                emit(0, "File `$filePath` should not be empty", false)
+                        .substringAfterLast("/")
+                emit(0, "File `$fileName` should not be empty", false)
             }
     }
 

@@ -25,7 +25,7 @@ class NoEmptyFileRuleTest {
         val code = EMPTY_FILE
         noEmptyFileRuleAssertThat(code)
             .asFileWithPath("/some/path/Tmp.kt")
-            .hasLintViolationWithoutAutoCorrect(1, 1, "File `/project/some/path/Tmp.kt` should not be empty")
+            .hasLintViolationWithoutAutoCorrect(1, 1, "File `Tmp.kt` should not be empty")
     }
 
     @Test
@@ -33,7 +33,7 @@ class NoEmptyFileRuleTest {
         val code = EMPTY_FILE
         noEmptyFileRuleAssertThat(code)
             .asFileWithPath("/some/path/Tmp.kts")
-            .hasLintViolationWithoutAutoCorrect(1, 1, "File `/project/some/path/Tmp.kts` should not be empty")
+            .hasLintViolationWithoutAutoCorrect(1, 1, "File `Tmp.kts` should not be empty")
     }
 
     @Test
@@ -45,7 +45,7 @@ class NoEmptyFileRuleTest {
 
         noEmptyFileRuleAssertThat(code)
             .asFileWithPath("/some/path/Tmp.kt")
-            .hasLintViolationWithoutAutoCorrect(1, 1, "File `/project/some/path/Tmp.kt` should not be empty")
+            .hasLintViolationWithoutAutoCorrect(1, 1, "File `Tmp.kt` should not be empty")
     }
 
     @Test
@@ -56,7 +56,7 @@ class NoEmptyFileRuleTest {
             """.trimIndent()
         noEmptyFileRuleAssertThat(code)
             .asFileWithPath("/some/path/Tmp.kt")
-            .hasLintViolationWithoutAutoCorrect(1, 1, "File `/project/some/path/Tmp.kt` should not be empty")
+            .hasLintViolationWithoutAutoCorrect(1, 1, "File `Tmp.kt` should not be empty")
     }
 
     @Test
@@ -68,7 +68,7 @@ class NoEmptyFileRuleTest {
             """.trimIndent()
         noEmptyFileRuleAssertThat(code)
             .asFileWithPath("/some/path/Tmp.kt")
-            .hasLintViolationWithoutAutoCorrect(1, 1, "File `/project/some/path/Tmp.kt` should not be empty")
+            .hasLintViolationWithoutAutoCorrect(1, 1, "File `Tmp.kt` should not be empty")
     }
 
     @Test
