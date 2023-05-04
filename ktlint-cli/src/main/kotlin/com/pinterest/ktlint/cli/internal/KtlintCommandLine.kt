@@ -409,16 +409,21 @@ internal class KtlintCommandLine {
             .map { it.toFile() }
             .takeWhile { errorNumber.get() < limit }
             .map { file ->
-                val fileName = file.toPath().relativeRoute
                 Callable {
-                    fileName to
+                    file.location(relative) to
                         process(
                             ktLintRuleEngine = ktLintRuleEngine,
                             code = Code.fromFile(file),
-                            baselineLintErrors = lintErrorsPerFile.getOrDefault(fileName, emptyList()),
+                            baselineLintErrors =
+                                lintErrorsPerFile
+                                    .getOrDefault(
+                                        // Baseline stores the lint violations as relative path to work dir
+                                        file.location(true),
+                                        emptyList()
+                                    ),
                         )
                 }
-            }.parallel({ (fileName, errList) -> report(Paths.get(fileName).relativeRoute, errList, reporter) })
+            }.parallel({ (fileName, errList) -> report(File(fileName).location(relative), errList, reporter) })
     }
 
     private fun lintStdin(
@@ -732,18 +737,6 @@ internal fun List<String>.toFilesURIList() =
             exitKtLintProcess(1)
         }
         jarFile.toURI().toURL()
-    }
-
-/**
- * Gets the relative route of the path. Also adjusts the slashes for uniformity between file systems.
- */
-internal val Path.relativeRoute: String
-    get() {
-        val rootPath = Paths.get("").toAbsolutePath()
-        return this
-            .relativeToOrSelf(rootPath)
-            .pathString
-            .replace(File.separatorChar, '/')
     }
 
 /**

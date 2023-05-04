@@ -334,9 +334,18 @@ private val onWindowsOS
             .getProperty("os.name")
             .startsWith("windows", true)
 
+/**
+ * Gets the relative route of the path. Also adjusts the slashes for uniformity between file systems.
+ */
 internal fun File.location(relative: Boolean) =
     if (relative) {
-        this.toPath().relativeToOrSelf(Path(WORK_DIR)).pathString
+        this
+            .toPath()
+            .relativeToOrSelf(Path(WORK_DIR))
+            .pathString
+            .replace(File.separatorChar, '/')
     } else {
-        this.path
+        this
+            .path
+            .replace(File.separatorChar, '/')
     }

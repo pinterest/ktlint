@@ -15,9 +15,10 @@ class BaselineCLITest {
         @TempDir
         tempDir: Path,
     ) {
+        val projectName = "baseline"
         CommandLineTestRunner(tempDir)
             .run(
-                "baseline",
+                projectName,
                 listOf(
                     "TestBaselineFile.kt.test",
                     "some/path/to/TestBaselineFile2.kt.test",
@@ -26,10 +27,10 @@ class BaselineCLITest {
                 SoftAssertions().apply {
                     assertErrorExitCode()
                     assertThat(normalOutput)
-                        .containsLineMatching(Regex("^TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
-                        .containsLineMatching(Regex("^TestBaselineFile.kt.test:2:1: Unexpected blank line.*"))
-                        .containsLineMatching(Regex("^some/path/to/TestBaselineFile2.kt.test:1:25: Unnecessary block.*"))
-                        .containsLineMatching(Regex("^some/path/to/TestBaselineFile2.kt.test:2:1: Unexpected blank line.*"))
+                        .containsLineMatching(Regex(".*/$projectName/TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
+                        .containsLineMatching(Regex(".*/$projectName/TestBaselineFile.kt.test:2:1: Unexpected blank line.*"))
+                        .containsLineMatching(Regex(".*/$projectName/some/path/to/TestBaselineFile2.kt.test:1:25: Unnecessary block.*"))
+                        .containsLineMatching(Regex(".*/$projectName/some/path/to/TestBaselineFile2.kt.test:2:1: Unexpected blank line.*"))
                 }.assertAll()
             }
     }
@@ -41,11 +42,12 @@ class BaselineCLITest {
             @TempDir
             tempDir: Path,
         ) {
+            val projectName = "baseline"
             val baselinePath = "test-baseline.xml"
 
             CommandLineTestRunner(tempDir)
                 .run(
-                    "baseline",
+                    projectName,
                     listOf(
                         "--baseline=$baselinePath",
                         "TestBaselineFile.kt.test",
@@ -55,10 +57,10 @@ class BaselineCLITest {
                     SoftAssertions().apply {
                         assertNormalExitCode()
                         assertThat(normalOutput)
-                            .doesNotContainLineMatching(Regex("^TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
-                            .doesNotContainLineMatching(Regex("^TestBaselineFile.kt.test:2:1: Unexpected blank line.*"))
-                            .doesNotContainLineMatching(Regex("^some/path/to/TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
-                            .doesNotContainLineMatching(Regex("^some/path/to/TestBaselineFile.kt.test:2:1: Unexpected blank line.*"))
+                            .doesNotContainLineMatching(Regex(".*/$projectName/TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
+                            .doesNotContainLineMatching(Regex(".*/$projectName/TestBaselineFile.kt.test:2:1: Unexpected blank line.*"))
+                            .doesNotContainLineMatching(Regex(".*/$projectName/some/path/to/TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
+                            .doesNotContainLineMatching(Regex(".*/$projectName/some/path/to/TestBaselineFile.kt.test:2:1: Unexpected blank line.*"))
                             .containsLineMatching(
                                 Regex(
                                     ".*Baseline file '$baselinePath' contains 6 reference\\(s\\) to rule ids without a rule set id. For " +
@@ -75,11 +77,12 @@ class BaselineCLITest {
             @TempDir
             tempDir: Path,
         ) {
+            val projectName = "baseline"
             val baselinePath = "config/test-baseline.xml"
 
             CommandLineTestRunner(tempDir)
                 .run(
-                    "baseline",
+                    projectName,
                     listOf(
                         "--baseline=$baselinePath",
                         "TestBaselineFile.kt.test",
@@ -89,10 +92,10 @@ class BaselineCLITest {
                     SoftAssertions().apply {
                         assertNormalExitCode()
                         assertThat(normalOutput)
-                            .doesNotContainLineMatching(Regex("^TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
-                            .doesNotContainLineMatching(Regex("^TestBaselineFile.kt.test:2:1: Unexpected blank line.*"))
-                            .doesNotContainLineMatching(Regex("^some/path/to/TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
-                            .doesNotContainLineMatching(Regex("^some/path/to/TestBaselineFile.kt.test:2:1: Unexpected blank line.*"))
+                            .doesNotContainLineMatching(Regex(".*/$projectName/TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
+                            .doesNotContainLineMatching(Regex(".*/$projectName/TestBaselineFile.kt.test:2:1: Unexpected blank line.*"))
+                            .doesNotContainLineMatching(Regex(".*/$projectName/some/path/to/TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
+                            .doesNotContainLineMatching(Regex(".*/$projectName/some/path/to/TestBaselineFile.kt.test:2:1: Unexpected blank line.*"))
                             .containsLineMatching(
                                 Regex(
                                     ".*Baseline file '$baselinePath' contains 6 reference\\(s\\) to rule ids without a rule set id. For " +
@@ -145,11 +148,12 @@ class BaselineCLITest {
         @TempDir
         tempDir: Path,
     ) {
+        val projectName = "baseline"
         val baselinePath = "test-baseline.xml"
 
         CommandLineTestRunner(tempDir)
             .run(
-                "baseline",
+                projectName,
                 listOf(
                     "--baseline=$baselinePath",
                     "TestBaselineExtraErrorFile.kt.test",
@@ -159,8 +163,8 @@ class BaselineCLITest {
                 SoftAssertions().apply {
                     assertErrorExitCode()
                     assertThat(normalOutput)
-                        .containsLineMatching(Regex("^TestBaselineExtraErrorFile.kt.test:2:1: Unexpected blank line.*"))
-                        .containsLineMatching(Regex("^some/path/to/TestBaselineExtraErrorFile2.kt.test:2:1: Unexpected blank line.*"))
+                        .containsLineMatching(Regex(".*/$projectName/TestBaselineExtraErrorFile.kt.test:2:1: Unexpected blank line.*"))
+                        .containsLineMatching(Regex(".*/$projectName/some/path/to/TestBaselineExtraErrorFile2.kt.test:2:1: Unexpected blank line.*"))
                         .containsLineMatching(
                             Regex(
                                 ".*Baseline file '$baselinePath' contains 6 reference\\(s\\) to rule ids without a rule set id. For " +
