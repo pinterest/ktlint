@@ -41,7 +41,6 @@ import picocli.CommandLine.ParameterException
 import picocli.CommandLine.Parameters
 import java.io.File
 import java.nio.file.FileSystems
-import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.Locale
 import java.util.concurrent.ArrayBlockingQueue
@@ -54,8 +53,6 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.collections.ArrayList
 import kotlin.collections.LinkedHashSet
 import kotlin.concurrent.thread
-import kotlin.io.path.pathString
-import kotlin.io.path.relativeToOrSelf
 import kotlin.system.exitProcess
 
 private lateinit var logger: KLogger
@@ -419,7 +416,7 @@ internal class KtlintCommandLine {
                                     .getOrDefault(
                                         // Baseline stores the lint violations as relative path to work dir
                                         file.location(true),
-                                        emptyList()
+                                        emptyList(),
                                     ),
                         )
                 }
