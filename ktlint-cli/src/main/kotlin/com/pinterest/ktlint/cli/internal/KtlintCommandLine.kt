@@ -41,6 +41,7 @@ import picocli.CommandLine.ParameterException
 import picocli.CommandLine.Parameters
 import java.io.File
 import java.nio.file.FileSystems
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.Locale
 import java.util.concurrent.ArrayBlockingQueue
@@ -53,6 +54,9 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.collections.ArrayList
 import kotlin.collections.LinkedHashSet
 import kotlin.concurrent.thread
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.pathString
+import kotlin.io.path.relativeToOrSelf
 import kotlin.system.exitProcess
 
 private lateinit var logger: KLogger
@@ -400,12 +404,35 @@ internal class KtlintCommandLine {
         lintErrorsPerFile: Map<String, List<KtlintCliError>>,
         reporter: ReporterV2,
     ) {
+        logger.debug {
+            """
+            lintErrorsPerFile: $lintErrorsPerFile
+            """.trimIndent()
+        }
         FileSystems
             .getDefault()
             .fileSequence(patterns)
             .map { it.toFile() }
             .takeWhile { errorNumber.get() < limit }
             .map { file ->
+                logger.debug {
+                    """
+                    File (absolutePathString): ${file.toPath().absolutePathString()}
+
+                      - file.location(true): ${file.location(true)}
+                        lintErrorsPerFile: ${lintErrorsPerFile
+                        .getOrDefault(
+                            // Baseline stores the lint violations as relative path to work dir
+                            file.location(true),
+                            emptyList(),
+                        )}
+
+                      - file.toPath().relativeRoute: ${file.toPath().relativeRoute}
+                        lintErrorsPerFile: ${lintErrorsPerFile.getOrDefault(file.toPath().relativeRoute, kotlin.collections.emptyList())}
+                    }
+
+                    """.trimIndent()
+                }
                 Callable {
                     file to
                         process(
@@ -744,3 +771,15 @@ internal fun exitKtLintProcess(status: Int): Nothing {
     logger.debug { "Exit ktlint with exit code: $status" }
     exitProcess(status)
 }
+
+/**
+ * Gets the relative route of the path. Also adjusts the slashes for uniformity between file systems.
+ */
+internal val Path.relativeRoute: String
+    get() {
+        val rootPath = Paths.get("").toAbsolutePath()
+        return this
+            .relativeToOrSelf(rootPath)
+            .pathString
+            .replace(File.separatorChar, '/')
+    }
