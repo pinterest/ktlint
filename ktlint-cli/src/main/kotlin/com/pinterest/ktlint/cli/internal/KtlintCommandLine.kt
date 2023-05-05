@@ -407,7 +407,7 @@ internal class KtlintCommandLine {
             .takeWhile { errorNumber.get() < limit }
             .map { file ->
                 Callable {
-                    file.location(relative) to
+                    file to
                         process(
                             ktLintRuleEngine = ktLintRuleEngine,
                             code = Code.fromFile(file),
@@ -420,7 +420,7 @@ internal class KtlintCommandLine {
                                     ),
                         )
                 }
-            }.parallel({ (fileName, errList) -> report(File(fileName).location(relative), errList, reporter) })
+            }.parallel({ (file, errList) -> report(file.location(relative), errList, reporter) })
     }
 
     private fun lintStdin(
