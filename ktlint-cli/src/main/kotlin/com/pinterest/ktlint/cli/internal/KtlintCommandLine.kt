@@ -260,9 +260,9 @@ internal class KtlintCommandLine {
                 }.applyIf(disabledRules.isNotBlank()) {
                     logger.debug { "Add editor config override to disable rules: '$disabledRules'" }
                     plus(*disabledRulesEditorConfigOverrides())
-                }.applyIf(android || codeStyle == CodeStyleValue.android || codeStyle == CodeStyleValue.android_studio) {
-                    logger.debug { "Add editor config override to set code style to 'android_studio'" }
-                    plus(CODE_STYLE_PROPERTY to CodeStyleValue.android_studio)
+                }.applyIf(android) {
+                    logger.debug { "Add editor config override to set code style to 'android'" }
+                    plus(CODE_STYLE_PROPERTY to CodeStyleValue.android)
                 }.applyIf(stdin) {
                     logger.debug {
                         "Add editor config override to disable 'filename' rule which can not be used in combination with reading from " +
