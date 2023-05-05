@@ -51,10 +51,7 @@ import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.collections.ArrayList
-import kotlin.collections.LinkedHashSet
 import kotlin.concurrent.thread
-import kotlin.io.path.absolutePathString
 import kotlin.io.path.pathString
 import kotlin.io.path.relativeToOrSelf
 import kotlin.system.exitProcess
@@ -404,35 +401,12 @@ internal class KtlintCommandLine {
         lintErrorsPerFile: Map<String, List<KtlintCliError>>,
         reporter: ReporterV2,
     ) {
-        logger.debug {
-            """
-            lintErrorsPerFile: $lintErrorsPerFile
-            """.trimIndent()
-        }
         FileSystems
             .getDefault()
             .fileSequence(patterns)
             .map { it.toFile() }
             .takeWhile { errorNumber.get() < limit }
             .map { file ->
-                logger.debug {
-                    """
-                    File (absolutePathString): ${file.toPath().absolutePathString()}
-
-                      - file.location(true): ${file.location(true)}
-                        lintErrorsPerFile: ${lintErrorsPerFile
-                        .getOrDefault(
-                            // Baseline stores the lint violations as relative path to work dir
-                            file.location(true),
-                            emptyList(),
-                        )}
-
-                      - file.toPath().relativeRoute: ${file.toPath().relativeRoute}
-                        lintErrorsPerFile: ${lintErrorsPerFile.getOrDefault(file.toPath().relativeRoute, kotlin.collections.emptyList())}
-                    }
-
-                    """.trimIndent()
-                }
                 Callable {
                     file to
                         process(
