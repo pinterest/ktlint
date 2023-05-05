@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 * Store path of file containing a lint violation relative to the location of the baseline file itself ([#1962](https://github.com/pinterest/ktlint/issues/1962))
+* Handle parameter `--code-style=android_studio` in Ktlint CLI identical to deprecated parameter `--android` ([#1982](https://github.com/pinterest/ktlint/issues/1982))
 
 ### Changed
 * Separated Baseline functionality out of `ktlint-cli` into separate `ktlint-baseline` module for API consumers
