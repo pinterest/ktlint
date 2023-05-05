@@ -62,7 +62,7 @@ public class NoConsecutiveBlankLinesRule : StandardRule("no-consecutive-blank-li
             ?.let { prevNode ->
                 prevNode.elementType == IDENTIFIER &&
                     prevNode.treeParent.elementType == CLASS &&
-                    this.treeNext.elementType == PRIMARY_CONSTRUCTOR
+                    this.treeNext?.elementType == PRIMARY_CONSTRUCTOR
             }
             ?: false
 }
