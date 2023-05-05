@@ -5122,6 +5122,32 @@ internal class IndentationRuleTest {
         }
     }
 
+    @Test
+    fun `Issue 1993 - An or operator at start of line followed by a dot qualified expressions should not throw an exception`() {
+        val code =
+            """
+            val foo =
+                if (false
+                    || foobar.bar()
+                ) {
+                    // Do something
+                }
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo =
+                if (false ||
+                    foobar.bar()
+                ) {
+                    // Do something
+                }
+            """.trimIndent()
+        indentationRuleAssertThat(code)
+            .addAdditionalRuleProvider { ChainWrappingRule() }
+            .hasLintViolationForAdditionalRule(3, 9, "Line must not begin with \"||\"")
+            .isFormattedAs(formattedCode)
+    }
+
     private companion object {
         val INDENT_STYLE_TAB =
             INDENT_STYLE_PROPERTY to PropertyType.IndentStyleValue.tab
