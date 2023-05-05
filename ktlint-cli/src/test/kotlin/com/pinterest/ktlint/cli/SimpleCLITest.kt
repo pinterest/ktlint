@@ -476,4 +476,39 @@ class SimpleCLITest {
                     .doesNotContainLineMatching(Regex(".*Needless blank line.*"))
             }
     }
+
+    @Nested
+    inner class `Issue 1983 - Enable android code style` {
+        @Test
+        fun `Enable android code style via parameter --android`(
+            @TempDir
+            tempDir: Path,
+        ) {
+            CommandLineTestRunner(tempDir)
+                .run(
+                    testProjectName = "too-many-empty-lines",
+                    arguments = listOf("--android"),
+                ) {
+                    assertThat(normalOutput).containsLineMatching(
+                        Regex(".*Add editor config override to set code style to 'android_studio'.*"),
+                    )
+                }
+        }
+
+        @Test
+        fun `Enable android code style via parameter --code-style=android_studio`(
+            @TempDir
+            tempDir: Path,
+        ) {
+            CommandLineTestRunner(tempDir)
+                .run(
+                    testProjectName = "too-many-empty-lines",
+                    arguments = listOf("--code-style=android_studio"),
+                ) {
+                    assertThat(normalOutput).containsLineMatching(
+                        Regex(".*Add editor config override to set code style to 'android_studio'.*"),
+                    )
+                }
+        }
+    }
 }
