@@ -212,4 +212,13 @@ class NoConsecutiveBlankLinesRuleTest {
                 """.trimIndent(),
             )
     }
+
+    @Test
+    fun `Issue 1987 - Class without body but followed by multiple blank lines until end of file should not throw exception`() {
+        val code = "class Foo\n\n\n"
+        val formattedCode = "class Foo\n"
+        noConsecutiveBlankLinesRuleAssertThat(code)
+            .hasLintViolations(LintViolation(3, 1, "Needless blank line(s)"))
+            .isFormattedAs(formattedCode)
+    }
 }
