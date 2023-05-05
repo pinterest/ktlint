@@ -59,11 +59,14 @@ This setting only takes effect when rule `final-newline` is enabled.
 
 ## Force multiline function signature based on number of parameters
 
-By default, the number of parameters in a function signature is not relevant when rewriting the function signature. Only the maximum line length determines when a function signature should be written on a single line or with multiple lines. Setting `ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than` can be used, to force a multiline function signature in case the function contain at least a number of parameters even in case the function signature would fit on a single line. Use value `-1` (default) to disable this setting.
+Setting `ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than` forces a multiline function signature in case the function contains the specified minimum number of parameters even in case the function signature would fit on a single line. Use value `unset` (default) to disable this setting.
+
+!!! note
+    By default, the `ktlint_official` code style wraps parameters of functions having at least 2 parameters. For other code styles, this setting is disabled by default. 
 
 ```ini
 [*.{kt,kts}]
-ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than= -1
+ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than=unset
 ```
 
 This setting only takes effect when rule `function-signature` is enabled.

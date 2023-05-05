@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.rule.engine.core.api.editorconfig
 
-import com.pinterest.ktlint.rule.engine.internal.toPropertyWithValue
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.ec4j.toPropertyWithValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
