@@ -23,7 +23,7 @@ import kotlin.system.measureTimeMillis
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
-private val WORK_DIR: String = File(".").canonicalPath
+private val ROOT_DIR_PATH: Path = Paths.get("").toAbsolutePath()
 
 private val TILDE_REGEX = Regex("^(!)?~")
 private const val NEGATION_PREFIX = "!"
@@ -334,9 +334,18 @@ private val onWindowsOS
             .getProperty("os.name")
             .startsWith("windows", true)
 
+/**
+ * Gets the relative route of the path. Also adjusts the slashes for uniformity between file systems.
+ */
 internal fun File.location(relative: Boolean) =
     if (relative) {
-        this.toPath().relativeToOrSelf(Path(WORK_DIR)).pathString
+        this
+            .toPath()
+            .relativeToOrSelf(ROOT_DIR_PATH)
+            .pathString
+            .replace(File.separatorChar, '/')
     } else {
-        this.path
+        this
+            .path
+            .replace(File.separatorChar, '/')
     }

@@ -51,8 +51,6 @@ import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.collections.ArrayList
-import kotlin.collections.LinkedHashSet
 import kotlin.concurrent.thread
 import kotlin.io.path.pathString
 import kotlin.io.path.relativeToOrSelf
@@ -409,16 +407,21 @@ internal class KtlintCommandLine {
             .map { it.toFile() }
             .takeWhile { errorNumber.get() < limit }
             .map { file ->
-                val fileName = file.toPath().relativeRoute
                 Callable {
-                    fileName to
+                    file to
                         process(
                             ktLintRuleEngine = ktLintRuleEngine,
                             code = Code.fromFile(file),
-                            baselineLintErrors = lintErrorsPerFile.getOrDefault(fileName, emptyList()),
+                            baselineLintErrors =
+                                lintErrorsPerFile
+                                    .getOrDefault(
+                                        // Baseline stores the lint violations as relative path to work dir
+                                        file.location(true),
+                                        emptyList(),
+                                    ),
                         )
                 }
-            }.parallel({ (fileName, errList) -> report(Paths.get(fileName).relativeRoute, errList, reporter) })
+            }.parallel({ (file, errList) -> report(file.location(relative), errList, reporter) })
     }
 
     private fun lintStdin(
@@ -735,6 +738,15 @@ internal fun List<String>.toFilesURIList() =
     }
 
 /**
+ * Wrapper around exitProcess which ensure that a proper log line is written which can be used in unit tests for
+ * validating the result of the test.
+ */
+internal fun exitKtLintProcess(status: Int): Nothing {
+    logger.debug { "Exit ktlint with exit code: $status" }
+    exitProcess(status)
+}
+
+/**
  * Gets the relative route of the path. Also adjusts the slashes for uniformity between file systems.
  */
 internal val Path.relativeRoute: String
@@ -745,12 +757,3 @@ internal val Path.relativeRoute: String
             .pathString
             .replace(File.separatorChar, '/')
     }
-
-/**
- * Wrapper around exitProcess which ensure that a proper log line is written which can be used in unit tests for
- * validating the result of the test.
- */
-internal fun exitKtLintProcess(status: Int): Nothing {
-    logger.debug { "Exit ktlint with exit code: $status" }
-    exitProcess(status)
-}
