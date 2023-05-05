@@ -23,7 +23,7 @@ import kotlin.system.measureTimeMillis
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
-private val WORK_DIR: String = File(".").canonicalPath
+private val ROOT_DIR_PATH: Path = Paths.get("").toAbsolutePath()
 
 private val TILDE_REGEX = Regex("^(!)?~")
 private const val NEGATION_PREFIX = "!"
@@ -341,7 +341,7 @@ internal fun File.location(relative: Boolean) =
     if (relative) {
         this
             .toPath()
-            .relativeToOrSelf(Path(WORK_DIR))
+            .relativeToOrSelf(ROOT_DIR_PATH)
             .pathString
             .replace(File.separatorChar, '/')
     } else {
