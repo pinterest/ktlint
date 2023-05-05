@@ -1091,7 +1091,7 @@ public class IndentationRule :
     private fun ASTNode?.isElvisOperator() =
         this != null &&
             elementType == OPERATION_REFERENCE &&
-            firstChildNode.elementType == ELVIS
+            firstChildNode?.elementType == ELVIS
 
     private fun ASTNode.acceptableTrailingSpaces(): String {
         require(elementType == WHITE_SPACE)
