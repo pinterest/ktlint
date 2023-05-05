@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.rule.engine.core.api.editorconfig
 
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
-import com.pinterest.ktlint.rule.engine.internal.toPropertyWithValue
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.ec4j.toPropertyWithValue
 import com.pinterest.ktlint.test.KtlintTestFileSystem
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatNoException

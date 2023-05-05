@@ -717,6 +717,7 @@ public class FunctionSignatureRule :
             ?.prevCodeLeaf()
 
     public companion object {
+        private const val FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY_UNSET = Int.MAX_VALUE
         public val FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY: EditorConfigProperty<Int> =
             EditorConfigProperty(
                 type =
@@ -728,8 +729,22 @@ public class FunctionSignatureRule :
                         PropertyType.PropertyValueParser.POSITIVE_INT_VALUE_PARSER,
                         setOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "unset"),
                     ),
-                defaultValue = Int.MAX_VALUE,
+                defaultValue = FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY_UNSET,
                 ktlintOfficialCodeStyleDefaultValue = 2,
+                propertyMapper = { property, _ ->
+                    if (property?.isUnset == true) {
+                        FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY_UNSET
+                    } else {
+                        property?.getValueAs<Int>()
+                    }
+                },
+                propertyWriter = { property ->
+                    if (property == FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY_UNSET) {
+                        "unset"
+                    } else {
+                        property.toString()
+                    }
+                },
             )
 
         public val FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY: EditorConfigProperty<FunctionBodyExpressionWrapping> =

@@ -3,16 +3,20 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.ec4j.toPropertyWithValue
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.Companion.FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.Companion.FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
+import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.EnumSource
 
 class FunctionSignatureRuleTest {
@@ -1129,6 +1133,115 @@ class FunctionSignatureRuleTest {
                 .setMaxLineLength()
                 .hasNoLintViolations()
         }
+    }
+
+    @Nested
+    inner class `Property ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than` {
+        val propertyMapper = FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY.propertyMapper!!
+
+        @ParameterizedTest(name = "Code style: {0}")
+        @EnumSource(CodeStyleValue::class)
+        fun `Given a null property then the property mapper returns null`(codeStyleValue: CodeStyleValue) {
+            val actual = propertyMapper(null, codeStyleValue)
+
+            assertThat(actual).isNull()
+        }
+
+        @ParameterizedTest(name = "Code style: {0}")
+        @EnumSource(CodeStyleValue::class)
+        fun `Given a property which is unset then the property mapper returns max integer which is set as the default value`(
+            codeStyleValue: CodeStyleValue,
+        ) {
+            val property = FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY.toPropertyWithValue("unset")
+
+            val actual = propertyMapper(property, codeStyleValue)
+
+            assertThat(actual).isEqualTo(Int.MAX_VALUE)
+        }
+
+        @ParameterizedTest(name = "Code style: {0}")
+        @EnumSource(CodeStyleValue::class)
+        fun `Given a valid string value then the property mapper returns the integer value`(codeStyleValue: CodeStyleValue) {
+            val someValue = 123
+            val property = FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY.toPropertyWithValue(someValue.toString())
+
+            val actual = propertyMapper(property, codeStyleValue)
+
+            assertThat(actual).isEqualTo(someValue)
+        }
+
+        @ParameterizedTest(name = "Code style: {0}")
+        @EnumSource(CodeStyleValue::class)
+        fun `Given a negative value then the property mapper throws and exception`(codeStyleValue: CodeStyleValue) {
+            val someNegativeValue = "-1"
+            val property = FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY.toPropertyWithValue(someNegativeValue)
+
+            Assertions.assertThatExceptionOfType(RuntimeException::class.java)
+                .isThrownBy { propertyMapper(property, codeStyleValue) }
+                .withMessage(
+                    "Property 'ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than' expects a " +
+                        "positive integer; found '$someNegativeValue'",
+                )
+        }
+
+        @ParameterizedTest(name = "Code style: {0}")
+        @EnumSource(CodeStyleValue::class)
+        fun `Given a value bigger than max integer then the property mapper throws and exception`(codeStyleValue: CodeStyleValue) {
+            val someValueBiggerThanMaxInt = (1L + Int.MAX_VALUE).toString()
+            val property =
+                FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY.toPropertyWithValue(someValueBiggerThanMaxInt)
+
+            Assertions.assertThatExceptionOfType(RuntimeException::class.java)
+                .isThrownBy { propertyMapper(property, codeStyleValue) }
+                .withMessage(
+                    "Property 'ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than' expects an " +
+                        "integer. The parsed '$someValueBiggerThanMaxInt' is not an integer.",
+                )
+        }
+
+        @ParameterizedTest(name = "Code style: {0}")
+        @EnumSource(CodeStyleValue::class)
+        fun `Given a invalid string value then the property mapper returns the integer value`(codeStyleValue: CodeStyleValue) {
+            val property =
+                FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY.toPropertyWithValue("some-invalid-value")
+
+            Assertions.assertThatExceptionOfType(RuntimeException::class.java)
+                .isThrownBy { propertyMapper(property, codeStyleValue) }
+                .withMessage(
+                    "Property 'ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than' expects an " +
+                        "integer. The parsed 'some-invalid-value' is not an integer.",
+                )
+        }
+
+        @ParameterizedTest(name = "Input value: {0}, output value: {1}")
+        @CsvSource(
+            value = [
+                "1, 1",
+                "${Int.MAX_VALUE}, unset",
+            ],
+        )
+        fun `Given a property with an integer value than write that property`(
+            inputValue: Int,
+            expectedOutputValue: String,
+        ) {
+            val actual = FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY.propertyWriter(inputValue)
+
+            assertThat(actual).isEqualTo(expectedOutputValue)
+        }
+    }
+
+    @Test
+    fun `Given the ktlint_official code style then avoid wrapping of parameters by overriding property ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than`() {
+        val code =
+            """
+            fun f(a: Any, b: Any, c: Any): String {
+                // body
+            }
+            """.trimIndent()
+        functionSignatureWrappingRuleAssertThat(code)
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+            .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
+            .hasNoLintViolations()
     }
 
     private companion object {
