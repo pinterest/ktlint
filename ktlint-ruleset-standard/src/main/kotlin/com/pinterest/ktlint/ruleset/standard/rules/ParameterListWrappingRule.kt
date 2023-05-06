@@ -19,8 +19,11 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.parent
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
@@ -33,6 +36,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.KtTypeArgumentList
 import org.jetbrains.kotlin.psi.psiUtil.children
 import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
+import org.jetbrains.kotlin.psi.psiUtil.leaves
 
 public class ParameterListWrappingRule :
     StandardRule(
@@ -120,7 +124,9 @@ public class ParameterListWrappingRule :
     private fun ASTNode.needToWrapParameterList() =
         when {
             hasNoParameters() -> false
-            isPartOfFunctionLiteralInNonKtlintOfficialCodeStyle() -> false
+            codeStyle != ktlint_official && isPartOfFunctionLiteralInNonKtlintOfficialCodeStyle() -> false
+            codeStyle == ktlint_official && isPartOfFunctionLiteralStartingOnSameLineAsClosingParenthesisOfPrecedingReferenceExpression() ->
+                false
             isFunctionTypeWrappedInNullableType() -> false
             textContains('\n') -> true
             codeStyle == ktlint_official && containsAnnotatedParameter() -> true
@@ -135,7 +141,23 @@ public class ParameterListWrappingRule :
 
     private fun ASTNode.isPartOfFunctionLiteralInNonKtlintOfficialCodeStyle(): Boolean {
         require(elementType == VALUE_PARAMETER_LIST)
-        return codeStyle != ktlint_official && treeParent?.elementType == FUNCTION_LITERAL
+        return treeParent?.elementType == FUNCTION_LITERAL
+    }
+
+    private fun ASTNode.isPartOfFunctionLiteralStartingOnSameLineAsClosingParenthesisOfPrecedingReferenceExpression(): Boolean {
+        require(elementType == VALUE_PARAMETER_LIST)
+        return firstChildLeafOrSelf()
+            .let { startOfFunctionLiteral ->
+                treeParent
+                    ?.takeIf { it.elementType == FUNCTION_LITERAL }
+                    ?.prevCodeLeaf()
+                    ?.takeIf { it.treeParent.elementType == ElementType.VALUE_ARGUMENT_LIST }
+                    ?.takeIf { it.treeParent.treeParent.elementType == ElementType.CALL_EXPRESSION }
+                    ?.leaves()
+                    ?.takeWhile { it != startOfFunctionLiteral }
+                    ?.none { it.isWhiteSpaceWithNewline() }
+                    ?: false
+            }
     }
 
     private fun ASTNode.isFunctionTypeWrappedInNullableType(): Boolean {
