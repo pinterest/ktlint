@@ -5070,20 +5070,20 @@ internal class IndentationRuleTest {
 
         @Nested
         inner class `Given non-ktlint_official code style` {
-            private val NON_KTLINT_OFFICIAL = CodeStyleValue.android_studio
+            private val nonKtlintOfficialCodeStyle = CodeStyleValue.android_studio
 
             @Test
             fun `As body expression on same line as equals and preceded by space`() {
                 val code =
                     """
-                private fun foo(
-                    bar: String,
-                ) = $MULTILINE_STRING_QUOTE
-                    bar
-                $MULTILINE_STRING_QUOTE.trimIndent()
-                """.trimIndent()
+                    private fun foo(
+                        bar: String,
+                    ) = $MULTILINE_STRING_QUOTE
+                        bar
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+                    """.trimIndent()
                 indentationRuleAssertThat(code)
-                    .withEditorConfigOverride(CODE_STYLE_PROPERTY to NON_KTLINT_OFFICIAL)
+                    .withEditorConfigOverride(CODE_STYLE_PROPERTY to nonKtlintOfficialCodeStyle)
                     .hasNoLintViolations()
             }
 
@@ -5091,14 +5091,14 @@ internal class IndentationRuleTest {
             fun `As body expression on same line as equals but not preceded by space`() {
                 val code =
                     """
-                private fun foo(
-                    bar: String,
-                ) =$MULTILINE_STRING_QUOTE
-                    bar
-                $MULTILINE_STRING_QUOTE.trimIndent()
-                """.trimIndent()
+                    private fun foo(
+                        bar: String,
+                    ) =$MULTILINE_STRING_QUOTE
+                        bar
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+                    """.trimIndent()
                 indentationRuleAssertThat(code)
-                    .withEditorConfigOverride(CODE_STYLE_PROPERTY to NON_KTLINT_OFFICIAL)
+                    .withEditorConfigOverride(CODE_STYLE_PROPERTY to nonKtlintOfficialCodeStyle)
                     .hasNoLintViolations()
             }
 
@@ -5106,14 +5106,14 @@ internal class IndentationRuleTest {
             fun `As block body`() {
                 val code =
                     """
-                private fun foo( bar: String): String {
-                    return $MULTILINE_STRING_QUOTE
-                        bar
-                    $MULTILINE_STRING_QUOTE.trimIndent()
-                }
-                """.trimIndent()
+                    private fun foo( bar: String): String {
+                        return $MULTILINE_STRING_QUOTE
+                            bar
+                        $MULTILINE_STRING_QUOTE.trimIndent()
+                    }
+                    """.trimIndent()
                 indentationRuleAssertThat(code)
-                    .withEditorConfigOverride(CODE_STYLE_PROPERTY to NON_KTLINT_OFFICIAL)
+                    .withEditorConfigOverride(CODE_STYLE_PROPERTY to nonKtlintOfficialCodeStyle)
                     .hasNoLintViolations()
             }
 
@@ -5121,16 +5121,16 @@ internal class IndentationRuleTest {
             fun `As body expression of function wrapped in class`() {
                 val code =
                     """
-                class Bar {
-                    private fun foo(
-                        bar: String,
-                    ) = $MULTILINE_STRING_QUOTE
-                        bar
-                    $MULTILINE_STRING_QUOTE.trimIndent()
-                }
-                """.trimIndent()
+                    class Bar {
+                        private fun foo(
+                            bar: String,
+                        ) = $MULTILINE_STRING_QUOTE
+                            bar
+                        $MULTILINE_STRING_QUOTE.trimIndent()
+                    }
+                    """.trimIndent()
                 indentationRuleAssertThat(code)
-                    .withEditorConfigOverride(CODE_STYLE_PROPERTY to NON_KTLINT_OFFICIAL)
+                    .withEditorConfigOverride(CODE_STYLE_PROPERTY to nonKtlintOfficialCodeStyle)
                     .hasNoLintViolations()
             }
         }
@@ -5141,12 +5141,12 @@ internal class IndentationRuleTest {
             fun `As body expression on same line as equals and preceded by space`() {
                 val code =
                     """
-                private fun foo(
-                    bar: String,
-                ) = $MULTILINE_STRING_QUOTE
-                    bar
-                    $MULTILINE_STRING_QUOTE.trimIndent()
-                """.trimIndent()
+                    private fun foo(
+                        bar: String,
+                    ) = $MULTILINE_STRING_QUOTE
+                        bar
+                        $MULTILINE_STRING_QUOTE.trimIndent()
+                    """.trimIndent()
                 indentationRuleAssertThat(code)
                     .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
                     .hasNoLintViolations()
@@ -5156,12 +5156,12 @@ internal class IndentationRuleTest {
             fun `As body expression on same line as equals but not preceded by space`() {
                 val code =
                     """
-                private fun foo(
-                    bar: String,
-                ) =$MULTILINE_STRING_QUOTE
-                    bar
-                    $MULTILINE_STRING_QUOTE.trimIndent()
-                """.trimIndent()
+                    private fun foo(
+                        bar: String,
+                    ) =$MULTILINE_STRING_QUOTE
+                        bar
+                        $MULTILINE_STRING_QUOTE.trimIndent()
+                    """.trimIndent()
                 indentationRuleAssertThat(code)
                     .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
                     .hasNoLintViolations()
@@ -5171,12 +5171,12 @@ internal class IndentationRuleTest {
             fun `As block body`() {
                 val code =
                     """
-                private fun foo( bar: String): String {
-                    return $MULTILINE_STRING_QUOTE
-                        bar
-                        $MULTILINE_STRING_QUOTE.trimIndent()
-                }
-                """.trimIndent()
+                    private fun foo( bar: String): String {
+                        return $MULTILINE_STRING_QUOTE
+                            bar
+                            $MULTILINE_STRING_QUOTE.trimIndent()
+                    }
+                    """.trimIndent()
                 indentationRuleAssertThat(code)
                     .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
                     .hasNoLintViolations()
@@ -5186,14 +5186,14 @@ internal class IndentationRuleTest {
             fun `As body expression of function wrapped in class`() {
                 val code =
                     """
-                class Bar {
-                    private fun foo(
-                        bar: String,
-                    ) = $MULTILINE_STRING_QUOTE
-                        bar
-                        $MULTILINE_STRING_QUOTE.trimIndent()
-                }
-                """.trimIndent()
+                    class Bar {
+                        private fun foo(
+                            bar: String,
+                        ) = $MULTILINE_STRING_QUOTE
+                            bar
+                            $MULTILINE_STRING_QUOTE.trimIndent()
+                    }
+                    """.trimIndent()
                 indentationRuleAssertThat(code)
                     .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
                     .hasNoLintViolations()

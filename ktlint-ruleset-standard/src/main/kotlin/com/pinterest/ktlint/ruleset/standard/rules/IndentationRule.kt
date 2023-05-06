@@ -1218,7 +1218,7 @@ private fun String.textWithEscapedTabAndNewline(): String {
 
 private class StringTemplateIndenter(
     private val codeStyle: CodeStyleValue,
-    private val indentConfig: IndentConfig
+    private val indentConfig: IndentConfig,
 ) {
     fun visitClosingQuotes(
         expectedIndent: String,
