@@ -88,6 +88,7 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRu
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
@@ -1093,7 +1094,7 @@ public class IndentationRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (!this::stringTemplateIndenter.isInitialized) {
-            stringTemplateIndenter = StringTemplateIndenter(indentConfig)
+            stringTemplateIndenter = StringTemplateIndenter(codeStyle, indentConfig)
         }
         stringTemplateIndenter.visitClosingQuotes(currentIndent(), node.treeParent, autoCorrect, emit)
     }
@@ -1225,7 +1226,10 @@ private fun String.textWithEscapedTabAndNewline(): String {
         ).plus(suffix)
 }
 
-private class StringTemplateIndenter(private val indentConfig: IndentConfig) {
+private class StringTemplateIndenter(
+    private val codeStyle: CodeStyleValue,
+    private val indentConfig: IndentConfig,
+) {
     fun visitClosingQuotes(
         expectedIndent: String,
         node: ASTNode,
@@ -1253,7 +1257,7 @@ private class StringTemplateIndenter(private val indentConfig: IndentConfig) {
                 val prefixLength = node.getCommonPrefixLength()
                 val prevLeaf = node.prevLeaf()
                 val correctedExpectedIndent =
-                    if (node.isRawStringLiteralReturnInFunctionBodyBlock()) {
+                    if (codeStyle == ktlint_official && node.isRawStringLiteralReturnInFunctionBodyBlock()) {
                         // Allow:
                         //   fun foo(): String {
                         //       return """
@@ -1263,7 +1267,7 @@ private class StringTemplateIndenter(private val indentConfig: IndentConfig) {
                         node
                             .indent(false)
                             .plus(indentConfig.indent)
-                    } else if (node.isRawStringLiteralFunctionBodyExpression()) {
+                    } else if (codeStyle == ktlint_official && node.isRawStringLiteralFunctionBodyExpression()) {
                         // Allow:
                         //   fun foo(
                         //       bar: String
