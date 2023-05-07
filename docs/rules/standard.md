@@ -867,7 +867,7 @@ Rule id: `wrapping`
 
 ### Comment wrapping
 
-A block comment should start and end on a line that does not contain any other element. A block comment should not be used as end of line comment.
+A block comment should start and end on a line that does not contain any other element.
 
 === "[:material-heart:](#) Ktlint"
 
