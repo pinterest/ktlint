@@ -179,7 +179,7 @@ class ParameterListWrappingRuleTest {
     }
 
     @Nested
-    inner class `Given a function literal having a multiline parameter list` {
+    inner class `Given a function literal having a multiline parameter list and the first parameter starts on same line as LBRACE` {
         private val code =
             """
             val fieldExample =
@@ -204,10 +204,9 @@ class ParameterListWrappingRuleTest {
                 """.trimIndent()
             parameterListWrappingRuleAssertThat(code)
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
-                .hasLintViolationsForAdditionalRule(
-                    LintViolation(3, 1, "Unexpected indentation (20) (should be 12)"),
-                    LintViolation(4, 1, "Unexpected indentation (20) (should be 12)"),
-                ).isFormattedAs(formattedCode)
+                // Indent violations will not be reported until after the wrapping of the first parameter is completed and as of that will
+                // not be found during linting
+                .isFormattedAs(formattedCode)
         }
 
         @ParameterizedTest(name = "Code style = {0}")
@@ -216,15 +215,33 @@ class ParameterListWrappingRuleTest {
             mode = EnumSource.Mode.EXCLUDE,
             names = ["ktlint_official"],
         )
-        fun `Given another than ktlint_official code style then do not reformat`(codeStyleValue: CodeStyleValue) {
+        fun `Given another code style than ktlint_official then do not reformat`(codeStyleValue: CodeStyleValue) {
             parameterListWrappingRuleAssertThat(code)
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyleValue)
                 .hasNoLintViolations()
-//                .hasLintViolationsForAdditionalRule(
-//                    LintViolation(3, 1, "Unexpected indentation (20) (should be 12)"),
-//                    LintViolation(4, 1, "Unexpected indentation (20) (should be 12)"),
-//                )
         }
+    }
+
+    @ParameterizedTest(name = "Code style = {0}")
+    @EnumSource(value = CodeStyleValue::class)
+    fun `Given a multiline reference expression with trailing lambda having a multiline parameter list and the first parameter starts on same line as LBRACE`(
+        codeStyleValue: CodeStyleValue,
+    ) {
+        val code =
+            """
+            val foo =
+                bar(
+                    Any(),
+                    Any()
+                ) { a,
+                    b
+                    ->
+                    foobar()
+                }
+            """.trimIndent()
+        parameterListWrappingRuleAssertThat(code)
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyleValue)
+            .hasNoLintViolations()
     }
 
     @Test

@@ -53,7 +53,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY_ACCESSOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACKET
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.REFERENCE_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RETURN_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
@@ -96,6 +95,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isRoot
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
@@ -452,7 +452,7 @@ public class IndentationRule :
     }
 
     private fun ASTNode.calculateIndentOfFunctionLiteralParameters() =
-        if (codeStyle == ktlint_official || isFirstParameterOfFunctionLiteralPrecededByNewLine()) {
+        if (isFirstParameterOfFunctionLiteralPrecededByNewLine()) {
             // val fieldExample =
             //      LongNameClass {
             //              paramA,
@@ -469,13 +469,23 @@ public class IndentationRule :
             //                     paramC ->
             //         ClassB(paramA, paramB, paramC)
             //     }
-            parent(CALL_EXPRESSION)
-                ?.let { callExpression ->
-                    val textBeforeFirstParameter =
-                        callExpression.findChildByType(REFERENCE_EXPRESSION)?.text +
-                            " { "
-                    " ".repeat(textBeforeFirstParameter.length)
-                }
+            // val fieldExample =
+            //     someFunction(
+            //         1,
+            //         2,
+            //     ) { paramA,
+            //         paramB,
+            //         paramC ->
+            //         ClassB(paramA, paramB, paramC)
+            //     }
+            this
+                .takeIf { it.isPartOf(CALL_EXPRESSION) }
+                ?.treeParent
+                ?.leaves(false)
+                ?.takeWhile { !it.isWhiteSpaceWithNewline() }
+                ?.sumOf { it.textLength }
+                ?.plus(2) // need to add spaces to compensate for "{ "
+                ?.let { length -> " ".repeat(length) }
                 ?: indentConfig.indent.repeat(2)
         }
 
