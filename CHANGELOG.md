@@ -18,6 +18,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 * Fix indentation of multiline parameter list in function literal `indent` ([#1976](https://github.com/pinterest/ktlint/issues/1976))
 * Restrict indentation of closing quotes to `ktlint_official` code style to keep formatting of other code styles consistent with `0.48.x` and before `indent` ([#1971](https://github.com/pinterest/ktlint/issues/1971))
 * Clean-up unwanted logging dependencies ([#1998](https://github.com/pinterest/ktlint/issues/1998))
+* Fix directory traversal for patterns referring to paths outside of current working directory or any of it child directories ([#2002](https://github.com/pinterest/ktlint/issues/2002))
 
 ### Changed
 * Separated Baseline functionality out of `ktlint-cli` into separate `ktlint-baseline` module for API consumers

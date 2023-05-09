@@ -13,6 +13,7 @@ import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import java.nio.file.Path
+import kotlin.io.path.absolutePathString
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -35,6 +36,7 @@ internal class FileUtilsTest {
     private val ktFile2InProjectSubDirectory = "project1/src/main/kotlin/example/Two.kt"
     private val ktsFileInProjectSubDirectory = "project1/src/scripts/Script.kts"
     private val javaFileInProjectSubDirectory = "project1/src/main/java/One.java"
+    private val someFileInOtherProjectRootDirectory = "other-project/SomeFile.txt"
 
     @BeforeEach
     internal fun setUp() {
@@ -52,6 +54,7 @@ internal class FileUtilsTest {
             createFile(ktFile1InProjectSubDirectory)
             createFile(ktFile2InProjectSubDirectory)
             createFile(javaFileInProjectSubDirectory)
+            createFile(someFileInOtherProjectRootDirectory)
         }
     }
 
@@ -411,6 +414,66 @@ internal class FileUtilsTest {
                 ktFileInProjectRootDirectory,
                 ktFile1InProjectSubDirectory,
                 ktFile2InProjectSubDirectory,
+            )
+    }
+
+    @Test
+    fun `Issue 2002 - Find files in a sibling directory based on a relative path to the working directory`() {
+        val foundFiles =
+            getFiles(
+                patterns = listOf("../project1"),
+                rootDir = ktlintTestFileSystem.resolve(someFileInOtherProjectRootDirectory).parent.toAbsolutePath(),
+            )
+
+        assertThat(foundFiles)
+            .containsExactlyInAnyOrder(
+                ktFileInProjectRootDirectory,
+                ktsFileInProjectRootDirectory,
+                ktFile1InProjectSubDirectory,
+                ktFile2InProjectSubDirectory,
+                ktsFileInProjectSubDirectory,
+            ).doesNotContain(
+                ktFileRootDirectory,
+                ktsFileRootDirectory,
+            )
+    }
+
+    @Test
+    fun `Issue 2002 - Find files in a sibling directory based on a relative glob`() {
+        val foundFiles =
+            getFiles(
+                patterns = listOf("../project1/**/*.kt"),
+                rootDir = ktlintTestFileSystem.resolve("other-project"),
+            )
+
+        assertThat(foundFiles)
+            .containsExactlyInAnyOrder(
+                ktFileInProjectRootDirectory,
+                ktFile1InProjectSubDirectory,
+                ktFile2InProjectSubDirectory,
+            ).doesNotContain(
+                ktFileRootDirectory,
+            )
+    }
+
+    @Test
+    fun `Issue 2002 - Find files in a sibling directory based on an absolute path`() {
+        val foundFiles =
+            getFiles(
+                patterns = listOf(ktlintTestFileSystem.resolve(ktFileInProjectRootDirectory).parent.absolutePathString()),
+                rootDir = ktlintTestFileSystem.resolve(someFileInOtherProjectRootDirectory).parent.toAbsolutePath(),
+            )
+
+        assertThat(foundFiles)
+            .containsExactlyInAnyOrder(
+                ktFileInProjectRootDirectory,
+                ktsFileInProjectRootDirectory,
+                ktFile1InProjectSubDirectory,
+                ktFile2InProjectSubDirectory,
+                ktsFileInProjectSubDirectory,
+            ).doesNotContain(
+                ktFileRootDirectory,
+                ktsFileRootDirectory,
             )
     }
 
