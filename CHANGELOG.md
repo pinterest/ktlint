@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Unreleased
 
 ### Added
+* Add new experimental rule statement-wrapping which ensures function, class, or other blocks statement body doesn't start or end at starting or ending braces of the block ([#1938](https://github.com/pinterest/ktlint/issues/1938))
 
 ### Removed
 
