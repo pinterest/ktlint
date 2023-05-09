@@ -1,10 +1,5 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import ch.qos.logback.classic.Level
-import ch.qos.logback.classic.Logger
-import com.pinterest.ktlint.logger.api.initKtLintKLogger
-import com.pinterest.ktlint.logger.api.setDefaultLoggerModifier
-import mu.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.EditorConfigLoader
 import org.ec4j.core.Resource
@@ -17,16 +12,6 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Paths
 
 class ThreadSafeEditorConfigCacheTest {
-    init {
-        // Overwrite default logging with TRACE logging by initializing *and* printing first log statement before
-        // loading any other classes.
-        KotlinLogging
-            .logger {}
-            .setDefaultLoggerModifier { logger -> (logger.underlyingLogger as Logger).level = Level.TRACE }
-            .initKtLintKLogger()
-            .trace { "Enable trace logging for unit test" }
-    }
-
     @Test
     fun `Given a file which is requested multiple times then it is read only once and then stored into and retrieved from the cache`() {
         val threadSafeEditorConfigCache = ThreadSafeEditorConfigCache()
