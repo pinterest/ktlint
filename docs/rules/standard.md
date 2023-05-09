@@ -450,7 +450,6 @@ Rule id: `no-empty-class-body`
 
     ```kotlin
     fun bar() {
-
        val a = 2
     }
     ```
@@ -458,6 +457,7 @@ Rule id: `no-empty-class-body`
 
     ```kotlin
     fun bar() {
+
        val a = 2
     }
     ```
