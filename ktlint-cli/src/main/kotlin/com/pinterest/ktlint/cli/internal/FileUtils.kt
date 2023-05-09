@@ -83,11 +83,15 @@ internal fun FileSystem.fileSequence(
             }
     var commonRootDir = rootDir
     patterns.forEach { pattern ->
-        val patternDir =
-            rootDir
-                .resolve(pattern)
-                .normalize()
-        commonRootDir = commonRootDir.findCommonParentDir(patternDir)
+        try {
+            val patternDir =
+                rootDir
+                    .resolve(pattern)
+                    .normalize()
+            commonRootDir = commonRootDir.findCommonParentDir(patternDir)
+        } catch (e: InvalidPathException) {
+            // Windows throws an exception when you pass a glob to Path#resolve.
+        }
     }
 
     val pathMatchers = includeGlobs.map { getPathMatcher(it) }
