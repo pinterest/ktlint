@@ -45,6 +45,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.NoLineBreakAfterElseRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoLineBreakBeforeAssignmentRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoMultipleSpacesRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoSemicolonsRule
+import com.pinterest.ktlint.ruleset.standard.rules.NoSingleLineBlockCommentRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoTrailingSpacesRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoUnitReturnRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoUnusedImportsRule
@@ -126,6 +127,7 @@ public class StandardRuleSetProvider :
             RuleProvider { NoLineBreakBeforeAssignmentRule() },
             RuleProvider { NoMultipleSpacesRule() },
             RuleProvider { NoSemicolonsRule() },
+            RuleProvider { NoSingleLineBlockCommentRule() },
             RuleProvider { NoTrailingSpacesRule() },
             RuleProvider { NoUnitReturnRule() },
             RuleProvider { NoUnusedImportsRule() },

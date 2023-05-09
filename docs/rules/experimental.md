@@ -345,6 +345,32 @@ This rule can also be suppressed with the IntelliJ IDEA inspection suppression `
 
 Rule id: `property-naming`
 
+## No single line block comments
+
+A single line block comment should be replaced with an EOL comment when possible.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    /*
+     * Some comment
+     */
+    val foo = "foo" // Some comment
+    val foo = { /* no-op */ }
+
+    /* ktlint-disable foo-rule-id bar-rule-id */
+    val foo = "foo"
+    /* ktlint-enable foo-rule-id bar-rule-id */
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    /* Some comment */
+    val foo = "foo" /* Some comment */
+    ```
+
+Rule id: `no-single-line-block-comment`
+
 ## Spacing
 
 ### No blank lines in list

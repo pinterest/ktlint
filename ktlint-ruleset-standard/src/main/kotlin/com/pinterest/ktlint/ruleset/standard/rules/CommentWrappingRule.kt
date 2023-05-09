@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK_COMMENT
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
@@ -18,13 +17,10 @@ import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiCommentImpl
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 
 /**
- * Checks external wrapping of block comments. Wrapping inside the comment is not altered. A block comment following another element on the
- * same line is replaced with an EOL comment, if possible.
+ * Checks external wrapping of block comments. Wrapping inside the comment is not altered.
  */
 public class CommentWrappingRule :
     StandardRule(
@@ -53,17 +49,6 @@ public class CommentWrappingRule :
                     .takeWhile { it.isWhiteSpace() && !it.textContains('\n') }
                     .firstOrNull()
                     ?: node.lastChildLeafOrSelf()
-
-            if (!node.textContains('\n') &&
-                !node.isKtlintSuppressionDirective() &&
-                beforeBlockComment.prevLeaf().isWhitespaceWithNewlineOrNull() &&
-                afterBlockComment.nextLeaf().isWhitespaceWithNewlineOrNull()
-            ) {
-                emit(node.startOffset, "A single line block comment must be replaced with an EOL comment", true)
-                if (autoCorrect) {
-                    node.replaceWithEndOfLineComment()
-                }
-            }
 
             if (!beforeBlockComment.prevLeaf().isWhitespaceWithNewlineOrNull() &&
                 !afterBlockComment.nextLeaf().isWhitespaceWithNewlineOrNull()
@@ -112,7 +97,6 @@ public class CommentWrappingRule :
                         )
                         if (autoCorrect) {
                             node.upsertWhitespaceBeforeMe(" ")
-                            node.replaceWithEndOfLineComment()
                         }
                     }
                 }
@@ -133,24 +117,7 @@ public class CommentWrappingRule :
         }
     }
 
-    private fun ASTNode.replaceWithEndOfLineComment() {
-        val content = text.removeSurrounding("/*", "*/").trim()
-        val eolComment = PsiCommentImpl(EOL_COMMENT, "// $content")
-        (this as LeafPsiElement).rawInsertBeforeMe(eolComment)
-        rawRemove()
-    }
-
     private fun ASTNode?.isWhitespaceWithNewlineOrNull() = this == null || this.isWhiteSpaceWithNewline()
-
-    // TODO: Remove when ktlint suppression directive in comments are no longer supported
-    private fun ASTNode?.isKtlintSuppressionDirective() =
-        this
-            ?.text
-            ?.removePrefix("/*")
-            ?.removeSuffix("*/")
-            ?.trim()
-            ?.let { it.startsWith("ktlint-enable") || it.startsWith("ktlint-disable") }
-            ?: false
 }
 
 public val COMMENT_WRAPPING_RULE_ID: RuleId = CommentWrappingRule().ruleId
