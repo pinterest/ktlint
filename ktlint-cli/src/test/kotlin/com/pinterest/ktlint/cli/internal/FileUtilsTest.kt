@@ -417,8 +417,9 @@ internal class FileUtilsTest {
             )
     }
 
+    @DisabledOnOs(OS.WINDOWS)
     @Test
-    fun `Issue 2002 - Find files in a sibling directory based on a relative path to the working directory`() {
+    fun `Issue 2002 - On non-Windows OS, find files in a sibling directory based on a relative path to the working directory`() {
         val foundFiles =
             getFiles(
                 patterns = listOf("../project1"),
@@ -438,8 +439,9 @@ internal class FileUtilsTest {
             )
     }
 
+    @DisabledOnOs(OS.WINDOWS)
     @Test
-    fun `Issue 2002 - Find files in a sibling directory based on a relative glob`() {
+    fun `Issue 2002 - On non-Windows OS, find files in a sibling directory based on a relative glob`() {
         val foundFiles =
             getFiles(
                 patterns = listOf("../project1/**/*.kt"),
