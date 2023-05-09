@@ -14,7 +14,6 @@ import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.Deque
 import java.util.LinkedList
-import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.isDirectory
 import kotlin.io.path.pathString
@@ -66,7 +65,7 @@ internal fun FileSystem.fileSequence(
             .filter { it.startsWith(NEGATION_PREFIX) }
             .map { getPathMatcher(it.removePrefix(NEGATION_PREFIX)) }
 
-    val pathMatchers =
+    val includeGlobs =
         globs
             .filterNot { it.startsWith(NEGATION_PREFIX) }
             .let { includeMatchers ->
@@ -81,23 +80,27 @@ internal fun FileSystem.fileSequence(
                 } else {
                     includeMatchers
                 }
-            }.map { getPathMatcher(it) }
-
-    LOGGER.debug {
-        """
-        Start walkFileTree for rootDir: '$rootDir'
-           include:
-        ${pathMatchers.map {
-            "      - $it"
-        }}
-           exclude:
-        ${negatedPathMatchers.map { "      - $it" }}
-        """.trimIndent()
+            }
+    var commonRootDir = rootDir
+    patterns.forEach { pattern ->
+        try {
+            val patternDir =
+                rootDir
+                    .resolve(pattern)
+                    .normalize()
+            commonRootDir = commonRootDir.findCommonParentDir(patternDir)
+        } catch (e: InvalidPathException) {
+            // Windows throws an exception when you pass a glob to Path#resolve.
+        }
     }
+
+    val pathMatchers = includeGlobs.map { getPathMatcher(it) }
+
+    LOGGER.debug { "Start walkFileTree from directory: '$commonRootDir'" }
     val duration =
         measureTimeMillis {
             Files.walkFileTree(
-                rootDir,
+                commonRootDir,
                 object : SimpleFileVisitor<Path>() {
                     override fun visitFile(
                         filePath: Path,
@@ -147,6 +150,16 @@ internal fun FileSystem.fileSequence(
 
     return result.asSequence()
 }
+
+private fun Path.findCommonParentDir(path: Path): Path =
+    when {
+        path.startsWith(this) ->
+            this
+        startsWith(path) ->
+            path
+        else ->
+            this@findCommonParentDir.findCommonParentDir(path.parent)
+    }
 
 private fun FileSystem.expand(
     patterns: List<String>,
