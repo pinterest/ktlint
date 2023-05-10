@@ -79,7 +79,7 @@ jobs:
           SDKMAN_VERSION: ${{ env.version }}
         run: ./gradlew :ktlint-cli:sdkMajorRelease
 
-      - name: Announce Release
+      - name: Update Release documentation
         if: ${{ success() }}
         run: |
           git config user.email "<>" |
@@ -87,4 +87,3 @@ jobs:
           ./.announce -y
         env:
           VERSION: ${{ env.version }}
-

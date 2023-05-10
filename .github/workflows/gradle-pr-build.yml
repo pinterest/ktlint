@@ -2,8 +2,8 @@ name: PR Build
 
 on:
   push:
-    branches:
-      - master
+    branches: ['master']
+    paths: ['**/*.kt', '**/*.kts', '**/*.properties', '**/*.toml']
   pull_request:
   workflow_dispatch:
 
