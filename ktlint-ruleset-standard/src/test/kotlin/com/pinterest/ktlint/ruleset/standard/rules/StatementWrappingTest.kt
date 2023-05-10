@@ -589,6 +589,66 @@ class StatementWrappingTest {
             .isFormattedAs(formattedCode)
     }
 
+    @Test
+    fun `Given lambda with parameters`() {
+        val code =
+            """
+            fun interface Adder {
+                fun add(a: Int, b: Int)
+            }
+
+            fun foo(a: Adder) {
+                a.add(1, 2)
+            }
+
+            fun test() {
+                foo { a, b ->
+                    println(a + b)
+                }
+            }
+            """.trimIndent()
+        statementWrappingAssertThat(code)
+            .hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given lambda with parameters where first line of body aligns with the arrow`() {
+        val code =
+            """
+            fun interface Adder {
+                fun add(a: Int, b: Int)
+            }
+
+            fun foo(a: Adder) {
+                a.add(1, 2)
+            }
+
+            fun test() {
+                foo { a, b -> println(a + b)
+                }
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun interface Adder {
+                fun add(a: Int, b: Int)
+            }
+
+            fun foo(a: Adder) {
+                a.add(1, 2)
+            }
+
+            fun test() {
+                foo { a, b ->
+                    println(a + b)
+                }
+            }
+            """.trimIndent()
+        statementWrappingAssertThat(code)
+            .hasLintViolation(10, 19, AFTER_LBRACE_ERROR_MSG)
+            .isFormattedAs(formattedCode)
+    }
+
     companion object {
         private const val AFTER_LBRACE_ERROR_MSG = "Expected new line after '{' of function body"
         private const val BEFORE_RBRACE_ERROR_MSG = "Expected new line before '}' of function body"

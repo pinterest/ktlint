@@ -60,17 +60,19 @@ public class StatementWrapping :
             it.isEmptyBlock ||
                 (it.elementType == ElementType.FUNCTION_LITERAL && it.isSingleLineBlock)
         }?.let { blockAstNode ->
-            val lBrace = requireNotNull(blockAstNode.findChildByType(ElementType.LBRACE))
+            val lBraceOrArrow =
+                requireNotNull(
+                    blockAstNode.findChildByType(ElementType.ARROW) ?: blockAstNode.findChildByType(ElementType.LBRACE),
+                )
             val rBrace = requireNotNull(blockAstNode.findChildByType(ElementType.RBRACE))
-            val lBraceNextCodeElement = requireNotNull(lBrace.nextCodeLeaf())
+            val lBraceOrArrowNextCodeElement = requireNotNull(lBraceOrArrow.nextCodeLeaf())
             val rBracePrevCodeElement = requireNotNull(rBrace.prevCodeLeaf())
 
-            if (noNewLineInClosedRange(lBrace, lBraceNextCodeElement)) {
-                emit(lBraceNextCodeElement.startOffset, "Expected new line after '{' of function body", true)
+            if (noNewLineInClosedRange(lBraceOrArrow, lBraceOrArrowNextCodeElement)) {
+                emit(lBraceOrArrowNextCodeElement.startOffset, "Expected new line after '{' of function body", true)
 
                 if (autoCorrect) {
-                    blockAstNode.findChildByType(ElementType.LBRACE)!!
-                        .upsertWhitespaceAfterMe(blockAstNode.parentAstForIndentation.childIndent)
+                    lBraceOrArrow.upsertWhitespaceAfterMe(blockAstNode.parentAstForIndentation.childIndent)
                 }
             }
 
@@ -78,8 +80,7 @@ public class StatementWrapping :
                 emit(rBracePrevCodeElement.startOffset, "Expected new line before '}' of function body", true)
 
                 if (autoCorrect) {
-                    blockAstNode.findChildByType(ElementType.RBRACE)!!
-                        .upsertWhitespaceBeforeMe(blockAstNode.treeParent.indent())
+                    rBrace.upsertWhitespaceBeforeMe(blockAstNode.treeParent.indent())
                 }
             }
         }
