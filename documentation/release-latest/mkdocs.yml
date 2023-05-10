@@ -1,8 +1,16 @@
 site_name: Ktlint
 site_url: https://pinterest.github.io/ktlint/
 
+site_dir: build/site
+docs_dir: docs
+
+extra:
+  version:
+    provider: mike
+
 theme:
   name: material
+  custom_dir: overrides
   favicon: assets/images/favicon.ico
   palette:
     # Palette toggle for light mode

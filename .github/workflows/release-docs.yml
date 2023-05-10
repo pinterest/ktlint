@@ -1,0 +1,39 @@
+name: Publish release documentation
+on:
+  push:
+    branches: ['master']
+    paths: ['documentation/release-latest/**']
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.repository == 'pinterest/ktlint'
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # fetch all commits/branches
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+
+      - name: Install mkdocs and mike
+        run: pip install mkdocs-material mike
+
+      - name: Config git
+        run: |
+          git config user.email "ktlint@github.com"
+          git config user.name "Ktlint Release Workflow"
+
+      - name: Get last released version
+        run: echo "version=$(git describe --abbrev=0 --tags)" >> $GITHUB_ENV
+
+      - name: Deploy release docs
+        run: |
+          echo "Deploy release docs to version ${{ env.version }}"
+          cd documentation/release-latest
+          # Release docs are versioned so that user can use relevant docs for the ktlint version they use
+          mike deploy --push --update-aliases ${{ env.version }} latest
+
+      - name: Update default release docs
+        run: |
+          cd documentation/release-latest
+          mike set-default --push latest
