@@ -247,13 +247,13 @@ Indentation formatting - respects `.editorconfig` `indent_size` with no continua
     ```
 
 !!! note
-    This rule handles indentation for many different language constructs which can not be summarized with a few example. See the [unit tests](https://github.com/pinterest/ktlint/blob/master/ktlint-ruleset-standard/src/test/kotlin/com/pinterest/ktlint/ruleset/standard/rules/IndentationRuleTest.kt) for more details.
+    This rule handles indentation for many different language constructs which can not be summarized with a few examples. See the [unit tests](https://github.com/pinterest/ktlint/blob/master/ktlint-ruleset-standard/src/test/kotlin/com/pinterest/ktlint/ruleset/standard/rules/IndentationRuleTest.kt) for more details.
 
 Rule id: `indent`
 
 ## Max line length
 
-Ensures that lines do not exceed the given length of `.editorconfig` property `max_line_length` (see [EditorConfig](../configuration-ktlint/) section for more). This rule does not apply in a number of situations. For example, in the case a line exceeds the maximum line length due to a comment that disables ktlint rules than that comment is being ignored when validating the length of the line. The `.editorconfig` property `ktlint_ignore_back_ticked_identifier` can be set to ignore identifiers which are enclosed in backticks, which for example is very useful when you want to allow longer names for unit tests.
+Ensures that lines do not exceed the given length of `.editorconfig` property `max_line_length` (see [EditorConfig](../configuration-ktlint/) section for more). This rule does not apply in a number of situations. For example, in the case a line exceeds the maximum line length due to a comment that disables ktlint rules then that comment is being ignored when validating the length of the line. The `.editorconfig` property `ktlint_ignore_back_ticked_identifier` can be set to ignore identifiers which are enclosed in backticks, which for example is very useful when you want to allow longer names for unit tests.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -261,7 +261,7 @@ Ensures that lines do not exceed the given length of `.editorconfig` property `m
     // Assume that the last allowed character is
     // at the X character on the right           X
     // Lines below are accepted although the max
-    // line length is exceeeded.
+    // line length is exceeded.
     package com.toooooooooooooooooooooooooooo.long
     import com.tooooooooooooooooooooooooooooo.long
     val foo =
