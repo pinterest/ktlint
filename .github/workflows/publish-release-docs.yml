@@ -1,8 +1,10 @@
 name: Publish release documentation
+
 on:
   push:
     branches: ['master']
     paths: ['documentation/release-latest/**']
+
 jobs:
   deploy:
     runs-on: ubuntu-latest

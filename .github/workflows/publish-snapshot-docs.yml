@@ -1,8 +1,10 @@
 name: Publish snapshot documentation
+
 on:
   push:
     branches: ['master']
     paths: ['documentation/snapshot/**']
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
