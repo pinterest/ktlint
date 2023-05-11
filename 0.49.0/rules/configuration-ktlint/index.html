@@ -1073,13 +1073,9 @@ You're not viewing the latest version.
 </code></pre></div>
 <p>This setting only takes effect when rule <code>final-newline</code> is enabled.</p>
 <h2 id="force-multiline-function-signature-based-on-number-of-parameters">Force multiline function signature based on number of parameters<a class="headerlink" href="#force-multiline-function-signature-based-on-number-of-parameters" title="Permanent link">&para;</a></h2>
-<p>Setting <code>ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than</code> forces a multiline function signature in case the function contains the specified minimum number of parameters even in case the function signature would fit on a single line. Use value <code>unset</code> (default) to disable this setting.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>By default, the <code>ktlint_official</code> code style wraps parameters of functions having at least 2 parameters. For other code styles, this setting is disabled by default. </p>
-</div>
+<p>By default, the number of parameters in a function signature is not relevant when rewriting the function signature. Only the maximum line length determines when a function signature should be written on a single line or with multiple lines. Setting <code>ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than</code> can be used, to force a multiline function signature in case the function contain at least a number of parameters even in case the function signature would fit on a single line. Use value <code>-1</code> (default) to disable this setting.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">[*.{kt,kts}]</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="na">ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than</span><span class="o">=</span><span class="s">unset</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="na">ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than</span><span class="o">=</span><span class="w"> </span><span class="s">-1</span>
 </code></pre></div>
 <p>This setting only takes effect when rule <code>function-signature</code> is enabled.</p>
 <h2 id="wrapping-the-expression-body-of-a-function">Wrapping the expression body of a function<a class="headerlink" href="#wrapping-the-expression-body-of-a-function" title="Permanent link">&para;</a></h2>
