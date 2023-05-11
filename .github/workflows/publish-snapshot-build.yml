@@ -1,8 +1,9 @@
-name: Snapshot Publish
+name: Publish snapshot build
 
 on:
   push:
     branches: [ master ]
+    paths: ['**/*.kt', '**/*.kts', '**/*.properties', '**/*.toml']
 
 env:
   SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
