@@ -1,8 +1,8 @@
-package com.pinterest.ktlint.cli.api
+package com.pinterest.ktlint.cli.reporter.baseline
 
-import com.pinterest.ktlint.cli.api.Baseline.Status.INVALID
-import com.pinterest.ktlint.cli.api.Baseline.Status.NOT_FOUND
-import com.pinterest.ktlint.cli.api.Baseline.Status.VALID
+import com.pinterest.ktlint.cli.reporter.baseline.Baseline.Status.INVALID
+import com.pinterest.ktlint.cli.reporter.baseline.Baseline.Status.NOT_FOUND
+import com.pinterest.ktlint.cli.reporter.baseline.Baseline.Status.VALID
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.BASELINE_IGNORED
 import com.pinterest.ktlint.logger.api.initKtLintKLogger

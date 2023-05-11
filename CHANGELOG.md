@@ -24,7 +24,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 * Fix directory traversal for patterns referring to paths outside of current working directory or any of it child directories ([#2002](https://github.com/pinterest/ktlint/issues/2002))
 
 ### Changed
-* Separated Baseline functionality out of `ktlint-cli` into separate `ktlint-baseline` module for API consumers
+
+* Moved class `Baseline` from `ktlint-cli` to `ktlint-cli-reporter-baseline` so that Baseline functionality is reusable for API Consumers.
 
 ## [0.49.0] - 2023-04-21
 

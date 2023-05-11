@@ -2,9 +2,9 @@ package com.pinterest.ktlint.cli.internal
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
-import com.pinterest.ktlint.cli.api.Baseline
-import com.pinterest.ktlint.cli.api.doesNotContain
-import com.pinterest.ktlint.cli.api.loadBaseline
+import com.pinterest.ktlint.cli.reporter.baseline.Baseline
+import com.pinterest.ktlint.cli.reporter.baseline.doesNotContain
+import com.pinterest.ktlint.cli.reporter.baseline.loadBaseline
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.FORMAT_IS_AUTOCORRECTED
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.KOTLIN_PARSE_EXCEPTION
