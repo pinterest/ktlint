@@ -20,7 +20,6 @@ tasks.shadowJar {
 }
 
 dependencies {
-    implementation(projects.ktlintBaseline)
     implementation(projects.ktlintCore)
     implementation(projects.ktlintLogger)
     implementation(projects.ktlintCliReporterBaseline)

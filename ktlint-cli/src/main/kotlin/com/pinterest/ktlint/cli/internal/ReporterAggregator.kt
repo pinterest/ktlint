@@ -1,8 +1,8 @@
 package com.pinterest.ktlint.cli.internal
 
-import com.pinterest.ktlint.cli.api.Baseline
 import com.pinterest.ktlint.cli.internal.ReporterAggregator.ReporterConfigurationElement.ARTIFACT
 import com.pinterest.ktlint.cli.internal.ReporterAggregator.ReporterConfigurationElement.OUTPUT
+import com.pinterest.ktlint.cli.reporter.baseline.Baseline
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
 import com.pinterest.ktlint.cli.reporter.core.api.ReporterProviderV2
 import com.pinterest.ktlint.cli.reporter.core.api.ReporterV2
