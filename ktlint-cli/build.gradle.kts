@@ -142,7 +142,7 @@ tasks.withType<Test>().configureEach {
 }
 
 sdkman {
-    val sdkmanVersion = providers.environmentVariable("SDKMAN_KEY").orElse(project.version.toString())
+    val sdkmanVersion = providers.environmentVariable("SDKMAN_VERSION").orElse(project.version.toString())
     candidate.set("ktlint")
     version.set(sdkmanVersion)
     url.set("https://github.com/pinterest/ktlint/releases/download/$sdkmanVersion/ktlint-$sdkmanVersion.zip")

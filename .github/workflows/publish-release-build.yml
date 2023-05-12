@@ -72,7 +72,7 @@ jobs:
           download-url: https://github.com/pinterest/ktlint/releases/download/${{ env.version }}/ktlint-${{ env.version }}.zip
 
       - name: Release to sdkman
-        if: ${{ success() }}
+        if: false
         env:
           SDKMAN_KEY: ${{ secrets.SDKMAN_KEY }}
           SDKMAN_TOKEN: ${{ secrets.SDKMAN_TOKEN }}
