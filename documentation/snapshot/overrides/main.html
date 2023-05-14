@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block outdated %}
+You're viewing the SNAPSHOT version of the documentation. Be sure to use the
+<a href="{{ '../' ~ base_url }}/dev-snapshot/install/snapshot-build">
+    <strong>SNAPSHOT version of ktlint</strong>
+</a>
+, or go to the latest
+<a href="{{ '../' ~ base_url }}">
+    <strong>RELEASE version of the documentation</strong>
+</a>
+{% endblock %}

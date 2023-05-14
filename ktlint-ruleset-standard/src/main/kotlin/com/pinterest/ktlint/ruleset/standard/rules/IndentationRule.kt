@@ -53,7 +53,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY_ACCESSOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACKET
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.REFERENCE_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RETURN_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
@@ -89,12 +88,14 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRu
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isRoot
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
@@ -451,7 +452,7 @@ public class IndentationRule :
     }
 
     private fun ASTNode.calculateIndentOfFunctionLiteralParameters() =
-        if (codeStyle == ktlint_official || isFirstParameterOfFunctionLiteralPrecededByNewLine()) {
+        if (isFirstParameterOfFunctionLiteralPrecededByNewLine()) {
             // val fieldExample =
             //      LongNameClass {
             //              paramA,
@@ -468,13 +469,23 @@ public class IndentationRule :
             //                     paramC ->
             //         ClassB(paramA, paramB, paramC)
             //     }
-            parent(CALL_EXPRESSION)
-                ?.let { callExpression ->
-                    val textBeforeFirstParameter =
-                        callExpression.findChildByType(REFERENCE_EXPRESSION)?.text +
-                            " { "
-                    " ".repeat(textBeforeFirstParameter.length)
-                }
+            // val fieldExample =
+            //     someFunction(
+            //         1,
+            //         2,
+            //     ) { paramA,
+            //         paramB,
+            //         paramC ->
+            //         ClassB(paramA, paramB, paramC)
+            //     }
+            this
+                .takeIf { it.isPartOf(CALL_EXPRESSION) }
+                ?.treeParent
+                ?.leaves(false)
+                ?.takeWhile { !it.isWhiteSpaceWithNewline() }
+                ?.sumOf { it.textLength }
+                ?.plus(2) // need to add spaces to compensate for "{ "
+                ?.let { length -> " ".repeat(length) }
                 ?: indentConfig.indent.repeat(2)
         }
 
@@ -1083,7 +1094,7 @@ public class IndentationRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (!this::stringTemplateIndenter.isInitialized) {
-            stringTemplateIndenter = StringTemplateIndenter(indentConfig)
+            stringTemplateIndenter = StringTemplateIndenter(codeStyle, indentConfig)
         }
         stringTemplateIndenter.visitClosingQuotes(currentIndent(), node.treeParent, autoCorrect, emit)
     }
@@ -1215,7 +1226,10 @@ private fun String.textWithEscapedTabAndNewline(): String {
         ).plus(suffix)
 }
 
-private class StringTemplateIndenter(private val indentConfig: IndentConfig) {
+private class StringTemplateIndenter(
+    private val codeStyle: CodeStyleValue,
+    private val indentConfig: IndentConfig,
+) {
     fun visitClosingQuotes(
         expectedIndent: String,
         node: ASTNode,
@@ -1243,7 +1257,7 @@ private class StringTemplateIndenter(private val indentConfig: IndentConfig) {
                 val prefixLength = node.getCommonPrefixLength()
                 val prevLeaf = node.prevLeaf()
                 val correctedExpectedIndent =
-                    if (node.isRawStringLiteralReturnInFunctionBodyBlock()) {
+                    if (codeStyle == ktlint_official && node.isRawStringLiteralReturnInFunctionBodyBlock()) {
                         // Allow:
                         //   fun foo(): String {
                         //       return """
@@ -1253,7 +1267,7 @@ private class StringTemplateIndenter(private val indentConfig: IndentConfig) {
                         node
                             .indent(false)
                             .plus(indentConfig.indent)
-                    } else if (node.isRawStringLiteralFunctionBodyExpression()) {
+                    } else if (codeStyle == ktlint_official && node.isRawStringLiteralFunctionBodyExpression()) {
                         // Allow:
                         //   fun foo(
                         //       bar: String

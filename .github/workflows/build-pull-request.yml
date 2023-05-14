@@ -1,0 +1,40 @@
+name: Build pull request
+
+on:
+  push:
+    branches: ['master']
+    paths: ['**/*.kt', '**/*.kts', '**/*.properties', '**/*.toml']
+  pull_request:
+  workflow_dispatch:
+
+env:
+  ORG_GRADLE_PROJECT_signingKey : ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEY }}
+  ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID }}
+  ORG_GRADLE_PROJECT_signingKeyPassword : ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
+  CLI_TEST_MAX_DURATION_IN_SECONDS: 10
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest ]
+        # When changing the list of JDK versions, the build configuration has to be changed by a repository admin. See
+        # https://github.com/pinterest/ktlint/pull/1787#issuecomment-1409074092
+        jdk: [ 8, 11, 17, 19 ]
+        exclude: # windows with JDK8 are *really* flaky
+          - os: windows-latest
+            jdk: 8
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: ${{ matrix.jdk }}
+      - uses: gradle/gradle-build-action@v2
+        with:
+          gradle-home-cache-cleanup: true
+      - name: Build with release Kotlin version
+        run: ./gradlew build ktlintCheck --no-configuration-cache
+      - name: Build with dev Kotlin version
+        run: ./gradlew -PkotlinDev build ktlintCheck --no-configuration-cache

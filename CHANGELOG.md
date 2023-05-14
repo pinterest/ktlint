@@ -10,15 +10,31 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Removed
 
 ### Fixed
+
+### Changed
+
+## [0.49.1] - 2023-05-12
+
+### Added
+
+### Removed
+
+### Fixed
 * Store path of file containing a lint violation relative to the location of the baseline file itself ([#1962](https://github.com/pinterest/ktlint/issues/1962))
 * Print absolute path of file in lint violations when flag "--relative" is not specified in Ktlint CLI ([#1963](https://github.com/pinterest/ktlint/issues/1963)) 
 * Handle parameter `--code-style=android_studio` in Ktlint CLI identical to deprecated parameter `--android` ([#1982](https://github.com/pinterest/ktlint/issues/1982))
 * Prevent nullpointer exception (NPE) if class without body is followed by multiple blank lines until end of file `no-consecutive-blank-lines` ([#1987](https://github.com/pinterest/ktlint/issues/1987))
 * Allow to 'unset' the `.editorconfig` property `ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than` when using `ktlint_official` code style `function-signature` ([#1977](https://github.com/pinterest/ktlint/issues/1977))
 * Prevent nullpointer exception (NPE) if or operator at start of line is followed by dot qualified expression `indent` ([#1993](https://github.com/pinterest/ktlint/issues/1993))
+* Fix indentation of multiline parameter list in function literal `indent` ([#1976](https://github.com/pinterest/ktlint/issues/1976))
+* Restrict indentation of closing quotes to `ktlint_official` code style to keep formatting of other code styles consistent with `0.48.x` and before `indent` ([#1971](https://github.com/pinterest/ktlint/issues/1971))
+* Extract rule `no-single-line-block-comment` from `comment-wrapping` rule. The `no-single-line-block-comment` rule is added as experimental rule to the `ktlint_official` code style, but it can be enabled explicitly for the other code styles as well. ([#1980](https://github.com/pinterest/ktlint/issues/1980))
+* Clean-up unwanted logging dependencies ([#1998](https://github.com/pinterest/ktlint/issues/1998))
+* Fix directory traversal for patterns referring to paths outside of current working directory or any of it child directories ([#2002](https://github.com/pinterest/ktlint/issues/2002))
 
 ### Changed
-* Separated Baseline functionality out of `ktlint-cli` into separate `ktlint-baseline` module for API consumers
+
+* Moved class `Baseline` from `ktlint-cli` to `ktlint-cli-reporter-baseline` so that Baseline functionality is reusable for API Consumers.
 
 ## [0.49.0] - 2023-04-21
 
@@ -1868,6 +1884,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.49.1]: https://github.com/pinterest/ktlint/compare/0.49.0...0.49.1
 [0.49.0]: https://github.com/pinterest/ktlint/compare/0.48.2...0.49.0
 [0.48.2]: https://github.com/pinterest/ktlint/compare/0.48.1...0.48.2
 [0.48.1]: https://github.com/pinterest/ktlint/compare/0.48.0...0.48.1
