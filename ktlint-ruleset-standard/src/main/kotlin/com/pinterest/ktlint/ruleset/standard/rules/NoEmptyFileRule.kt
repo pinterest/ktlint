@@ -3,6 +3,7 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isRoot
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -17,24 +18,25 @@ public class NoEmptyFileRule : StandardRule(id = "no-empty-file"), Rule.Experime
         node
             .takeIf { it.isRoot() }
             ?.takeIf { it.isEmptyFile() }
-            ?.let {
-                val fileName =
-                    node.psi.containingFile.virtualFile.name
-                        .replace("\\", "/") // Ensure compatibility with Windows OS
-                        .substringAfterLast("/")
-                emit(0, "File `$fileName` should not be empty", false)
-            }
+            ?.let { emit(0, "File '${node.getFileName()}' should not be empty", false) }
     }
 
-    private fun ASTNode.isEmptyFile(): Boolean {
-        if (text.isBlank()) return true
+    private fun ASTNode.getFileName() =
+        psi
+            .containingFile
+            .virtualFile
+            .name
+            .replace("\\", "/") // Ensure compatibility with Windows OS
+            .substringAfterLast("/")
 
-        return this.children()
-            .toList()
-            .filter {
-                !it.isWhiteSpace() &&
-                    it.elementType != ElementType.PACKAGE_DIRECTIVE &&
-                    it.elementType != ElementType.IMPORT_LIST
-            }.isEmpty()
-    }
+    private fun ASTNode.isEmptyFile(): Boolean =
+        null ==
+            children()
+                .firstOrNull {
+                    !it.isWhiteSpace() &&
+                        !it.isPartOfComment() &&
+                        it.elementType != ElementType.PACKAGE_DIRECTIVE &&
+                        it.elementType != ElementType.IMPORT_LIST &&
+                        !(it.elementType == ElementType.SCRIPT && it.text.isBlank())
+                }
 }
