@@ -41,15 +41,23 @@ public class StatementWrapping :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         when (node.elementType) {
-            ElementType.FUN, ElementType.TRY, ElementType.CATCH, ElementType.FINALLY, ElementType.CLASS_INITIALIZER -> {
+            ElementType.FUN,
+            ElementType.TRY,
+            ElementType.CATCH,
+            ElementType.FINALLY,
+            ElementType.CLASS_INITIALIZER -> {
                 node.findChildByType(ElementType.BLOCK)
             }
 
-            ElementType.FUNCTION_LITERAL, ElementType.WHEN, ElementType.CLASS_BODY -> {
+            ElementType.FUNCTION_LITERAL,
+            ElementType.WHEN,
+            ElementType.CLASS_BODY -> {
                 node
             }
 
-            ElementType.FOR, ElementType.WHILE, ElementType.DO_WHILE -> {
+            ElementType.FOR,
+            ElementType.WHILE,
+            ElementType.DO_WHILE -> {
                 node.findChildByType(ElementType.BODY)?.findChildByType(ElementType.BLOCK)
             }
 
@@ -108,7 +116,5 @@ public class StatementWrapping :
             }
 
     private inline val ASTNode.childIndent: String
-        get() {
-            return this.indent().plus(indentConfig.indent)
-        }
+        get() = this.indent().plus(indentConfig.indent)
 }
