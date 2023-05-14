@@ -1,8 +1,16 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ARROW
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
@@ -14,6 +22,7 @@ import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 
 public class StatementWrapping :
     StandardRule(
@@ -41,80 +50,94 @@ public class StatementWrapping :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         when (node.elementType) {
-            ElementType.FUN,
-            ElementType.TRY,
-            ElementType.CATCH,
-            ElementType.FINALLY,
-            ElementType.CLASS_INITIALIZER -> {
-                node.findChildByType(ElementType.BLOCK)
-            }
-
-            ElementType.FUNCTION_LITERAL,
-            ElementType.WHEN,
-            ElementType.CLASS_BODY -> {
-                node
-            }
-
-            ElementType.FOR,
-            ElementType.WHILE,
-            ElementType.DO_WHILE -> {
-                node.findChildByType(ElementType.BODY)?.findChildByType(ElementType.BLOCK)
-            }
-
-            else -> {
-                null
-            }
-        }?.takeUnless {
-            it.isEmptyBlock ||
-                (it.elementType == ElementType.FUNCTION_LITERAL && it.isSingleLineBlock)
-        }?.let { blockAstNode ->
-            val lBraceOrArrow =
-                requireNotNull(
-                    blockAstNode.findChildByType(ElementType.ARROW) ?: blockAstNode.findChildByType(ElementType.LBRACE),
-                )
-            val rBrace = requireNotNull(blockAstNode.findChildByType(ElementType.RBRACE))
-            val lBraceOrArrowNextCodeElement = requireNotNull(lBraceOrArrow.nextCodeLeaf())
-            val rBracePrevCodeElement = requireNotNull(rBrace.prevCodeLeaf())
-
-            if (noNewLineInClosedRange(lBraceOrArrow, lBraceOrArrowNextCodeElement)) {
-                emit(lBraceOrArrowNextCodeElement.startOffset, "Expected new line after '{' of function body", true)
-
-                if (autoCorrect) {
-                    lBraceOrArrow.upsertWhitespaceAfterMe(blockAstNode.parentAstForIndentation.childIndent)
+            BLOCK ->
+                if (node.treeParent.elementType == FUNCTION_LITERAL) {
+                    // LBRACE and RBRACE are outside of BLOCK
+                    visitBlock(node.treeParent, emit, autoCorrect)
+                } else {
+                    visitBlock(node, emit, autoCorrect)
                 }
-            }
 
-            if (noNewLineInClosedRange(rBracePrevCodeElement, rBrace)) {
-                emit(rBracePrevCodeElement.startOffset, "Expected new line before '}' of function body", true)
-
-                if (autoCorrect) {
-                    rBrace.upsertWhitespaceBeforeMe(blockAstNode.treeParent.indent())
-                }
-            }
+            CLASS_BODY, WHEN ->
+                visitBlock(node, emit, autoCorrect)
         }
     }
 
-    private inline val ASTNode.isSingleLineBlock: Boolean
-        get() {
-            val lBrace = requireNotNull(this.findChildByType(ElementType.LBRACE))
-            val rBrace = requireNotNull(this.findChildByType(ElementType.RBRACE))
-            return noNewLineInClosedRange(lBrace, rBrace)
-        }
+    private fun visitBlock(
+        node: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        autoCorrect: Boolean,
+    ) {
+        node
+            .takeUnless {
+                // Allow
+                //     val foo = {}
+                //     val foo = { /* no-op */ }
+                //     val foo = { a, b -> println(a + b) }
+                it.isBlockWithoutStatements || it.isFunctionLiteralWithSingleStatementOnSingleLine
+            }?.findChildByType(LBRACE)
+            ?.applyIf(node.isFunctionLiteralWithParameterList) {
+                // Allow:
+                // val foobar =
+                //     foo { bar ->
+                //         doSomething()
+                //     }
+                node.findChildByType(ARROW)
+            }?.let { lbraceOrArrow ->
+                val nextCodeLeaf = lbraceOrArrow.nextCodeLeaf()
+                if (nextCodeLeaf != null && noNewLineInClosedRange(lbraceOrArrow, nextCodeLeaf)) {
+                    emit(nextCodeLeaf.startOffset, "Expected new line after '${lbraceOrArrow.text}'", true)
+                    if (autoCorrect) {
+                        if (node.elementType == WHEN) {
+                            lbraceOrArrow.upsertWhitespaceAfterMe(lbraceOrArrow.indentAsChild)
+                        } else {
+                            lbraceOrArrow.upsertWhitespaceAfterMe(lbraceOrArrow.indentAsSibling)
+                        }
+                    }
+                }
 
-    private inline val ASTNode.isEmptyBlock: Boolean
-        get() {
-            val lBrace = requireNotNull(this.findChildByType(ElementType.LBRACE))
-            return lBrace.nextCodeLeaf()?.elementType == ElementType.RBRACE
-        }
-
-    private inline val ASTNode.parentAstForIndentation: ASTNode
-        get() =
-            if (this.elementType == ElementType.WHEN) {
-                this
-            } else {
-                this.treeParent
+                node
+                    .findChildByType(RBRACE)
+                    ?.let { rbrace ->
+                        val prevCodeLeaf = rbrace.prevCodeLeaf()
+                        if (prevCodeLeaf != null && noNewLineInClosedRange(prevCodeLeaf, rbrace)) {
+                            emit(rbrace.startOffset, "Expected new line before '}'", true)
+                            if (autoCorrect) {
+                                rbrace.upsertWhitespaceBeforeMe(rbrace.indentAsParent)
+                            }
+                        }
+                    }
             }
+    }
 
-    private inline val ASTNode.childIndent: String
-        get() = this.indent().plus(indentConfig.indent)
+    private inline val ASTNode.isBlockWithoutStatements: Boolean
+        get() =
+            RBRACE ==
+                findChildByType(LBRACE)
+                    ?.nextCodeLeaf()
+                    ?.elementType
+
+    private inline val ASTNode.isFunctionLiteralWithParameterList: Boolean
+        get() =
+            elementType == FUNCTION_LITERAL &&
+                findChildByType(VALUE_PARAMETER_LIST) != null
+
+    private inline val ASTNode.isFunctionLiteralWithSingleStatementOnSingleLine: Boolean
+        get() =
+            takeIf { elementType == FUNCTION_LITERAL }
+                ?.takeUnless { it.textContains('\n') }
+                ?.findChildByType(BLOCK)
+                ?.children()
+                ?.count { it.elementType != VALUE_PARAMETER_LIST && it.elementType != ARROW }
+                ?.let { count -> count <= 1 }
+                ?: false
+
+    private inline val ASTNode.indentAsChild: String
+        get() = indent().plus(indentConfig.indent)
+
+    private inline val ASTNode.indentAsSibling: String
+        get() = treeParent.indent().plus(indentConfig.indent)
+
+    private inline val ASTNode.indentAsParent: String
+        get() = treeParent.indent()
 }
