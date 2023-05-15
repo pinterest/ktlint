@@ -14,7 +14,10 @@ internal object IdNamingPolicy {
      * Will throw [IllegalArgumentException] on invalid [ruleId] name.
      */
     internal fun enforceRuleIdNaming(ruleId: String) =
-        require(ruleId.matches(RULE_ID_REGEX)) { "Rule id '$ruleId' must match '${RULE_ID_REGEX.pattern}'" }
+        require(ruleId.matches(RULE_ID_REGEX)) {
+            "No ktlint rule with rule id '$ruleId' has been loaded. Please check " +
+                "spelling of the id which has to match regexp '${RULE_ID_REGEX.pattern}'"
+        }
 
     /**
      * Checks provided [ruleSetId] is valid.
@@ -22,5 +25,8 @@ internal object IdNamingPolicy {
      * Will throw [IllegalArgumentException] on invalid [ruleSetId] name.
      */
     internal fun enforceRuleSetIdNaming(ruleSetId: String) =
-        require(ruleSetId.matches(RULE_SET_ID_REGEX)) { "RuleSet id '$ruleSetId' must match '${RULE_SET_ID_REGEX.pattern}'" }
+        require(ruleSetId.matches(RULE_SET_ID_REGEX)) {
+            "No ktlint rule with ruleSet id '$ruleSetId' has been loaded. Please check spelling of the id which has " +
+                "to match regexp '${RULE_SET_ID_REGEX.pattern}'"
+        }
 }
