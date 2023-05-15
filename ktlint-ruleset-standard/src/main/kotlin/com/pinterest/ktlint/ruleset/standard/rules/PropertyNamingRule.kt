@@ -3,6 +3,7 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONST_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.GET_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_DECLARATION
@@ -102,10 +103,7 @@ public class PropertyNamingRule :
             }
     }
 
-    private fun ASTNode.hasCustomGetter() =
-        findChildByType(PROPERTY_ACCESSOR)
-            ?.firstChildNode
-            ?.text == "get"
+    private fun ASTNode.hasCustomGetter() = findChildByType(PROPERTY_ACCESSOR)?.findChildByType(GET_KEYWORD) != null
 
     private fun ASTNode.hasConstModifier() = hasModifier(CONST_KEYWORD)
 

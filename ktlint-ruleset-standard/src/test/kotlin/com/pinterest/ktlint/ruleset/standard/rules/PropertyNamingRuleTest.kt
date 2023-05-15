@@ -105,6 +105,20 @@ class PropertyNamingRuleTest {
     }
 
     @Test
+    fun `Given a top level property extension function having a custom get function and not in screaming case notation then do not emit`() {
+        val code =
+            """
+            val fooBar1: Any
+                get() = foobar() // Lint can not check whether data is immutable
+            val fooBar2
+                inline get() = foobar() // Lint can not check whether data is immutable
+            val fooBar3
+                @Bar get() = foobar() // Lint can not check whether data is immutable
+            """.trimIndent()
+        propertyNamingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
     fun `Given a backing val property name having a custom get function and not in screaming case notation then do not emit`() {
         val code =
             """
