@@ -5,9 +5,11 @@ import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
+import org.jetbrains.kotlin.com.intellij.core.CoreApplicationEnvironment
 import org.jetbrains.kotlin.com.intellij.mock.MockProject
 import org.jetbrains.kotlin.com.intellij.openapi.diagnostic.DefaultLogger
 import org.jetbrains.kotlin.com.intellij.openapi.extensions.ExtensionPoint
+import org.jetbrains.kotlin.com.intellij.openapi.extensions.ExtensionPointName
 import org.jetbrains.kotlin.com.intellij.openapi.extensions.Extensions.getRootArea
 import org.jetbrains.kotlin.com.intellij.openapi.util.Disposer
 import org.jetbrains.kotlin.com.intellij.openapi.util.UserDataHolderBase
@@ -110,20 +112,40 @@ private class LoggerFactory : DiagnosticLogger.Factory {
         }
 }
 
+// FIXME: DO NOT MERGE WITH MASTER. THIS IS SOLELY NEEDED FOR INVESTIGATION OF KOTLIN 1.9 IMPACT
+// https://github.com/pinterest/ktlint/issues/1981
+/**
+ * Enables AST mutations (`ktlint -F ...`). Works for Kotlin 1.8 and before.
+ */
+//private fun MockProject.enableASTMutations() {
+//    val extensionPoint = "org.jetbrains.kotlin.com.intellij.treeCopyHandler"
+//    val extensionClassName = TreeCopyHandler::class.java.name
+//    for (area in arrayOf(extensionArea, getRootArea())) {
+//        if (!area.hasExtensionPoint(extensionPoint)) {
+//            area.registerExtensionPoint(extensionPoint, extensionClassName, ExtensionPoint.Kind.INTERFACE)
+//        }
+//    }
+//
+//    registerService(PomModel::class.java, FormatPomModel())
+//}
+
 /**
  * Enables AST mutations (`ktlint -F ...`).
  */
 private fun MockProject.enableASTMutations() {
-    val extensionPoint = "org.jetbrains.kotlin.com.intellij.treeCopyHandler"
-    val extensionClassName = TreeCopyHandler::class.java.name
-    for (area in arrayOf(extensionArea, getRootArea())) {
-        if (!area.hasExtensionPoint(extensionPoint)) {
-            area.registerExtensionPoint(extensionPoint, extensionClassName, ExtensionPoint.Kind.INTERFACE)
-        }
-    }
-
+//    val extensionPointName: ExtensionPointName<TreeCopyHandler> = ExtensionPointName.create("org.jetbrains.kotlin.com.intellij.treeCopyHandler")
+//    val extensionClass = TreeCopyHandler::class.java
+//    if (!extensionArea.hasExtensionPoint(extensionPointName)) {
+//        CoreApplicationEnvironment.registerExtensionPoint(
+//            extensionArea,
+//            extensionPointName,
+//            extensionClass
+//        )
+//    }
+//
     registerService(PomModel::class.java, FormatPomModel())
 }
+// END OF FIXME: DO NOT MERGE WITH MASTER. THIS IS SOLELY NEEDED FOR INVESTIGATION OF KOTLIN 1.9 IMPACT
 
 private class FormatPomModel : UserDataHolderBase(), PomModel {
     override fun runTransaction(transaction: PomTransaction) {

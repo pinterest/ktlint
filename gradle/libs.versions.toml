@@ -9,7 +9,10 @@ shadow = "com.github.johnrengelman.shadow:8.1.1"
 sdkman = "io.sdkman.vendors:3.0.0"
 
 [libraries]
-kotlin-compiler = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
+# FIXME: DO NOT COMMIT THIS IS SOLELY NEEDED FOR INVESTIGATION OF KOTLIN 1.9 IMPACT (https://github.com/pinterest/ktlint/issues/1981)
+kotlin-compiler = "org.jetbrains.kotlin:kotlin-compiler-embeddable:1.9.0-dev-6976"
+#kotlin-compiler = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
+# END OF FIXME: DO NOT MERGE WITH MASTER. THIS IS SOLELY NEEDED FOR INVESTIGATION OF KOTLIN 1.9 IMPACT
 kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-plugin-dev = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlinDev" }
 dokka = "org.jetbrains.dokka:dokka-gradle-plugin:1.8.10"
