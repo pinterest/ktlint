@@ -7,7 +7,7 @@ import java.io.Serializable
 /**
  * KtLint uses [ServiceLoader](https://docs.oracle.com/javase/6/docs/api/java/util/ServiceLoader.html) to
  * discover all available [RuleSetProviderV3]`s on the classpath and so each [RuleSetProviderV3] must be registered using
- * `META-INF/services/com.pinterest.ktlint.ruleset.core.api.RuleSetProviderV2` (see `ktlint-ruleset-standard/src/main/resources`
+ * `META-INF/services/com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3` (see `ktlint-ruleset-standard/src/main/resources`
  * for an example).
  */
 public abstract class RuleSetProviderV3(public val id: RuleSetId) : Serializable {
