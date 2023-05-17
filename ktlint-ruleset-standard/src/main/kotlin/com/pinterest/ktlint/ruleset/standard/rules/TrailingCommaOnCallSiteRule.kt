@@ -2,6 +2,7 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLLECTION_LITERAL_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.INDICES
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
@@ -21,6 +22,7 @@ import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.PropertyType.PropertyValueParser
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.KtPsiFactory
 
@@ -171,10 +173,12 @@ public class TrailingCommaOnCallSiteRule :
                         true,
                     )
                     if (autoCorrect) {
-                        val prevPsi = inspectNode.prevCodeSibling()!!.psi
-                        val parentPsi = prevPsi.parent
-                        val psiFactory = KtPsiFactory(prevPsi)
-                        parentPsi.addAfter(psiFactory.createComma(), prevPsi)
+                        inspectNode
+                            .prevCodeSibling()
+                            ?.nextSibling()
+                            ?.let { before ->
+                                before.treeParent.addChild(LeafPsiElement(COMMA, ","), before)
+                            }
                     }
                 }
             TrailingCommaState.REDUNDANT -> {
