@@ -27,7 +27,7 @@ public class NoLineBreakBeforeAssignmentRule : StandardRule("no-line-break-befor
     private fun visitEquals(
         assignmentNode: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         assignmentNode
             .prevSibling()

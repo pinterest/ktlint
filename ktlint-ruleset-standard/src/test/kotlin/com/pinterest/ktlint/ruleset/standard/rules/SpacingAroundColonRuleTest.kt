@@ -307,7 +307,7 @@ class SpacingAroundColonRuleTest {
                 val v4: Int =
                     // comment
                     1
-             """.trimIndent()
+                """.trimIndent()
             spacingAroundColonRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(1, 7, "Unexpected newline before \":\""),
@@ -348,7 +348,7 @@ class SpacingAroundColonRuleTest {
                 fun foo4(): Int =
                     // comment
                     1
-             """.trimIndent()
+                """.trimIndent()
             spacingAroundColonRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(1, 11, "Unexpected newline before \":\""),
