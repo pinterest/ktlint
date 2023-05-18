@@ -62,7 +62,7 @@ public class StringTemplateRule : StandardRule("string-template") {
                     nextSibling.elementType == CLOSING_QUOTE ||
                         (
                             nextSibling.elementType == LITERAL_STRING_TEMPLATE_ENTRY &&
-                                !nextSibling.text.isPartOfIdentifier()
+                                !nextSibling.text.substring(0, 1).isPartOfIdentifier()
                             )
                 }
             ) {
