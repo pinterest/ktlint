@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.rule.engine.internal
 
+import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
@@ -8,6 +9,7 @@ import com.pinterest.ktlint.rule.engine.core.util.safeAs
 import com.pinterest.ktlint.rule.engine.internal.SuppressionLocatorBuilder.CommentSuppressionHint.Type.BLOCK_END
 import com.pinterest.ktlint.rule.engine.internal.SuppressionLocatorBuilder.CommentSuppressionHint.Type.BLOCK_START
 import com.pinterest.ktlint.rule.engine.internal.SuppressionLocatorBuilder.CommentSuppressionHint.Type.EOL
+import mu.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
@@ -27,6 +29,8 @@ internal object SuppressionLocatorBuilder {
      * No suppression is detected. Always returns `false`.
      */
     private val NO_SUPPRESSION: SuppressionLocator = { _, _ -> false }
+
+    private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
     /**
      * Mapping of non-ktlint annotations to ktlint-annotation so that ktlint rules will be suppressed automatically
@@ -207,7 +211,7 @@ internal object SuppressionLocatorBuilder {
                 // not prefixed with any rule set id.
                 RuleId.prefixWithStandardRuleSetIdWhenMissing(it)
             }
-            .map { RuleId(it) }
+            .mapNotNull { createRuleIdOrNull(it) }
 
     private fun <T> List<T>.tail() = this.subList(1, this.size)
 
@@ -257,7 +261,7 @@ internal object SuppressionLocatorBuilder {
                         // Disable specific rule
                         argumentExpressionText.removePrefix("ktlint:")
                             .let { RuleId.prefixWithStandardRuleSetIdWhenMissing(it) }
-                            .let { RuleId(it) }
+                            .let { createRuleIdOrNull(it) }
                     }
                     else -> {
                         // Disable specific rule if the annotation value is mapped to a specific rule
@@ -265,6 +269,17 @@ internal object SuppressionLocatorBuilder {
                     }
                 }
             }
+
+    private fun createRuleIdOrNull(ruleId: String): RuleId? {
+        return try {
+            RuleId(ruleId)
+        } catch (illegalArgument: IllegalArgumentException) {
+            LOGGER.warn {
+                "Can not create rule with ruleId = $ruleId due to following error ${illegalArgument.message}"
+            }
+            null
+        }
+    }
 
     /**
      * @param range zero-based range of lines where lint errors should be suppressed
