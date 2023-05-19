@@ -10,6 +10,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isPartOfString
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -17,6 +18,7 @@ import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtConstructor
@@ -51,31 +53,70 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                     val prevNonCodeElements =
                         node
                             .siblings(forward = false, withItself = false)
-                            .takeWhile { it.node.isWhiteSpace() || it.node.isPartOfComment() }.toList()
+                            .takeWhile { it.node.isWhiteSpace() || it.node.isPartOfComment() }
+                            .toList()
+                            .reversed()
                     when {
                         parent is KtProperty || parent is KtNamedFunction -> {
                             val equalsSignElement =
                                 node
-                                    .siblings(forward = true, withItself = false)
-                                    .firstOrNull { it.node.elementType == EQ }
+                                    .node
+                                    .siblings(forward = true)
+                                    .firstOrNull { it.elementType == EQ }
                             if (equalsSignElement != null) {
-                                equalsSignElement.nextSibling?.takeIf { it.node.isWhiteSpace() }?.delete()
-                                prevNonCodeElements.forEach { parent.addAfter(it, equalsSignElement) }
+                                equalsSignElement
+                                    .treeNext
+                                    ?.let { treeNext ->
+                                        prevNonCodeElements.forEach {
+                                            parent.node.addChild(it.node, treeNext)
+                                        }
+                                        if (treeNext.isWhiteSpace()) {
+                                            equalsSignElement.treeParent.removeChild(treeNext)
+                                        }
+                                        Unit
+                                    }
                             }
                             val blockElement =
                                 node
                                     .siblings(forward = true, withItself = false)
                                     .firstIsInstanceOrNull<KtBlockExpression>()
+                                    ?.node
                             if (blockElement != null) {
+                                val before =
+                                    blockElement
+                                        .firstChildNode
+                                        .nextSibling()
                                 prevNonCodeElements
-                                    .let { if (it.first().node.isWhiteSpace()) it.drop(1) else it }
-                                    .forEach { blockElement.addAfter(it, blockElement.lBrace) }
+                                    .let {
+                                        if (it.first().node.isWhiteSpace()) {
+                                            blockElement.treeParent.removeChild(it.first().node)
+                                            it.drop(1)
+                                        } else {
+                                            blockElement.addChild(PsiWhiteSpaceImpl("#"), before)
+                                            it
+                                        }
+                                        if (it.last().node.isWhiteSpaceWithNewline()) {
+                                            blockElement.treeParent.removeChild(it.last().node)
+                                            it.dropLast(1)
+                                        } else {
+                                            it
+                                        }
+                                    }.forEach {
+                                        blockElement.addChild(it.node, before)
+                                    }
                             }
-                            parent.deleteChildRange(prevNonCodeElements.last(), prevNonCodeElements.first())
+                            if (prevNonCodeElements.first() != prevNonCodeElements.last()) {
+                                //                                parent.deleteChildRange(prevNonCodeElements.first(), prevNonCodeElements.last())
+//                                parent.node.removeRange(prevNonCodeElements.first().node, prevNonCodeElements.last().node)
+                                Unit
+                            } else {
+                                //                                parent.node.removeChild(prevNonCodeElements.first().node)
+                                Unit
+                            }
                         }
                         prevLeaf.prevLeaf()?.isPartOfComment() == true -> {
                             val nextLeaf = node.nextLeaf()
-                            prevNonCodeElements.reversed().forEach {
+                            prevNonCodeElements.forEach {
                                 node.treeParent.addChild(it.node, nextLeaf)
                             }
                             if (nextLeaf != null && nextLeaf.isWhiteSpace()) {
