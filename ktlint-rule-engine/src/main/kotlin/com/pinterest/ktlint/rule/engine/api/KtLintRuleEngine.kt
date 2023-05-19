@@ -50,6 +50,14 @@ public class KtLintRuleEngine(
      */
     public val editorConfigOverride: EditorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
     /**
+     * Temporary flag to indicate that kotlin embeddable compiler is to be executed with (default) or without the extension point
+     * 'org.jetbrains.kotlin.com.intellij.treeCopyHandler'. This extension point is not (yet) supported in the preview of Kotlin 1.9. Some
+     * rules might no longer work and throw exceptions at runtime.
+     * It is unclear whether the extension point will be supported. Disabling this flag on the Kotlin 1.8 compiler has the same effect. As
+     * of that it can be used to assess the impact, and to fix rules before release of the Ktlint version which will be based on Kotlin 1.9.
+     */
+    public val enableKotlinCompilerExtensionPoint: Boolean = true,
+    /**
      * **For internal use only**: indicates that linting was invoked from KtLint CLI tool. It enables some internals workarounds for Kotlin
      * Compiler initialization. This property is likely to be removed in any of next versions without further notice.
      */
