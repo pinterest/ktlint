@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Changed
 
 * Update dependency `info.picocli:picocli` to v4.7.3
+* Update dependency `org.junit.jupiter:junit-jupiter` to v5.9.3
 
 ## [0.49.1] - 2023-05-12
 
