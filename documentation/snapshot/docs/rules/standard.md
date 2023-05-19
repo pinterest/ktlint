@@ -1185,7 +1185,7 @@ Consistent spacing before start of function body.
     }
     ```
 
-Rule id: `function-start-of-body-spacing`:
+Rule id: `function-start-of-body-spacing`
 
 ### Function type reference spacing
 
