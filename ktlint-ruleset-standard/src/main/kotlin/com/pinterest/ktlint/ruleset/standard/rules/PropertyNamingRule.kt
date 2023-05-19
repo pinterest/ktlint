@@ -81,7 +81,8 @@ public class PropertyNamingRule :
     ) {
         identifier
             .text
-            .takeUnless { it.matches(SCREAMING_SNAKE_CASE_REGEXP) }
+            .takeUnless { it == SERIAL_VERSION_UID_PROPERTY_NAME }
+            ?.takeUnless { it.matches(SCREAMING_SNAKE_CASE_REGEXP) }
             ?.let {
                 emit(
                     identifier.startOffset,
@@ -142,6 +143,7 @@ public class PropertyNamingRule :
     private companion object {
         val LOWER_CAMEL_CASE_REGEXP = "[a-z][a-zA-Z0-9]*".regExIgnoringDiacriticsAndStrokesOnLetters()
         val SCREAMING_SNAKE_CASE_REGEXP = "[A-Z][_A-Z0-9]*".regExIgnoringDiacriticsAndStrokesOnLetters()
+        const val SERIAL_VERSION_UID_PROPERTY_NAME = "serialVersionUID"
         val BACKING_PROPERTY_LOWER_CAMEL_CASE_REGEXP = "_[a-z][a-zA-Z0-9]*".regExIgnoringDiacriticsAndStrokesOnLetters()
     }
 }
