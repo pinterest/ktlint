@@ -2,6 +2,7 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class SpacingAroundColonRuleTest {
@@ -273,96 +274,141 @@ class SpacingAroundColonRuleTest {
             ).isFormattedAs(formattedCode)
     }
 
-    @Test
-    fun `Issue 1057 - Given some declaration with an unexpected newline before the colon`() {
-        val code =
-            """
-            fun test() {
+    @Nested
+    inner class `Issue 1057 - Given some declaration with an unexpected newline before the colon` {
+        @Test
+        fun `Property with colon on next line`() {
+            val code =
+                """
                 val v1
                     : Int = 1
 
-                val v2 // comment
+                val v2// comment
                     : Int = 1
 
-                val v3
+                val v3 // comment
+                    : Int = 1
+
+                val v4
                     // comment
                     : Int = 1
-
-                fun f1()
-                    : Int = 1
-
-                fun f2() // comment
-                    : Int = 1
-
-                fun f3()
-                    // comment
-                    : Int = 1
-
-                fun g1()
-                    : Int {
-                    return 1
-                }
-
-                fun g2() // comment
-                    : Int {
-                    return 1
-                }
-
-                fun g3()
-                    // comment
-                    : Int {
-                    return 1
-                }
-            }
-            """.trimIndent()
-        val formattedCode =
-            """
-            fun test() {
+                """.trimIndent()
+            val formattedCode =
+                """
                 val v1: Int =
                     1
 
-                val v2: Int = // comment
+                val v2: Int =// comment
                     1
 
-                val v3: Int =
+                val v3: Int = // comment
+                    1
+
+                val v4: Int =
                     // comment
                     1
+                """.trimIndent()
+            spacingAroundColonRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(1, 7, "Unexpected newline before \":\""),
+                    LintViolation(4, 17, "Unexpected newline before \":\""),
+                    LintViolation(7, 18, "Unexpected newline before \":\""),
+                    LintViolation(11, 15, "Unexpected newline before \":\""),
+                ).isFormattedAs(formattedCode)
+        }
 
-                fun f1(): Int =
+        @Test
+        fun `Function with colon on next line followed by body expression`() {
+            val code =
+                """
+                fun foo1()
+                    : Int = 1
+
+                fun foo2()// comment
+                    : Int = 1
+
+                fun foo3() // comment
+                    : Int = 1
+
+                fun foo4()
+                    // comment
+                    : Int = 1
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun foo1(): Int =
                     1
 
-                fun f2(): Int = // comment
+                fun foo2(): Int =// comment
                     1
 
-                fun f3(): Int =
+                fun foo3(): Int = // comment
+                    1
+
+                fun foo4(): Int =
                     // comment
                     1
+                """.trimIndent()
+            spacingAroundColonRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(1, 11, "Unexpected newline before \":\""),
+                    LintViolation(4, 21, "Unexpected newline before \":\""),
+                    LintViolation(7, 22, "Unexpected newline before \":\""),
+                    LintViolation(11, 15, "Unexpected newline before \":\""),
+                ).isFormattedAs(formattedCode)
+        }
 
-                fun g1(): Int {
-                    return 1
+        @Test
+        fun `Function with colon on next line followed by body block`() {
+            val code =
+                """
+                fun foo1()
+                    : Int {
+                    1
                 }
 
-                fun g2(): Int { // comment
-                    return 1
+                fun foo2()// comment
+                    : Int {
+                    1
                 }
 
-                fun g3(): Int {
+                fun foo3() // comment
+                    : Int {
+                    1
+                }
+
+                fun foo4()
                     // comment
-                    return 1
+                    : Int {
+                    1
                 }
-            }
-            """.trimIndent()
-        spacingAroundColonRuleAssertThat(code)
-            .hasLintViolations(
-                LintViolation(2, 11, "Unexpected newline before \":\""),
-                LintViolation(5, 22, "Unexpected newline before \":\""),
-                LintViolation(9, 19, "Unexpected newline before \":\""),
-                LintViolation(12, 13, "Unexpected newline before \":\""),
-                LintViolation(15, 24, "Unexpected newline before \":\""),
-                LintViolation(19, 19, "Unexpected newline before \":\""),
-                LintViolation(22, 13, "Unexpected newline before \":\""),
-                LintViolation(27, 24, "Unexpected newline before \":\""),
-                LintViolation(33, 19, "Unexpected newline before \":\""),
-            ).isFormattedAs(formattedCode)
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun foo1(): Int {
+                    1
+                }
+
+                fun foo2(): Int {// comment
+                    1
+                }
+
+                fun foo3(): Int { // comment
+                    1
+                }
+
+                fun foo4(): Int {
+                    // comment
+                    1
+                }
+                """.trimIndent()
+            spacingAroundColonRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(1, 11, "Unexpected newline before \":\""),
+                    LintViolation(6, 21, "Unexpected newline before \":\""),
+                    LintViolation(11, 22, "Unexpected newline before \":\""),
+                    LintViolation(17, 15, "Unexpected newline before \":\""),
+                ).isFormattedAs(formattedCode)
+        }
     }
 }
