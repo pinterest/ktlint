@@ -863,6 +863,25 @@ Rule id: `unnecessary-parentheses-before-trailing-lambda`
 
 Inserts missing newlines (for example between parentheses of a multi-line function call).
 
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val x = f(
+        a,
+        b,
+        c
+    )
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val x = f(
+        a,
+        b,
+        c)
+    ```
+
 Rule id: `wrapping`
 
 ### Comment wrapping
