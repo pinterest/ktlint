@@ -175,7 +175,7 @@ class PropertyNamingRuleTest {
     }
 
     @Nested
-    inner class `Given property is serialVersionUID` {
+    inner class `Issue 2017 - Given property is serialVersionUID` {
         @Test
         fun `Given property is present in companion object`() {
             val code =

@@ -81,7 +81,13 @@ public class PropertyNamingRule :
     ) {
         identifier
             .text
-            .takeUnless { it == SERIAL_VERSION_UID_PROPERTY_NAME }
+            .takeUnless {
+                // Allow
+                // object Foo {
+                //     private const val serialVersionUID: Long = 123
+                // }
+                it == SERIAL_VERSION_UID_PROPERTY_NAME
+            }
             ?.takeUnless { it.matches(SCREAMING_SNAKE_CASE_REGEXP) }
             ?.let {
                 emit(
