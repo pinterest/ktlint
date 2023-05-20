@@ -187,16 +187,8 @@ class PropertyNamingRuleTest {
                 }
                 class Foo2 {
                     companion object {
-                        private val serialVersionUID: Long = 123
+                        private const val serialVersionUID = 123L
                     }
-                }
-                class Foo3 {
-                    companion object {
-                        @JvmStatic private val serialVersionUID: Long = 123
-                    }
-                }
-                class Foo4 {
-                    private val serialVersionUID: Long = 123
                 }
                 """.trimIndent()
             propertyNamingRuleAssertThat(code).hasNoLintViolations()
@@ -210,10 +202,7 @@ class PropertyNamingRuleTest {
                     private const val serialVersionUID: Long = 123
                 }
                 object Foo2 {
-                    private val serialVersionUID: Long = 123
-                }
-                object Foo3 {
-                    @JvmStatic private val serialVersionUID: Long = 123
+                    private const val serialVersionUID = 123L
                 }
                 """.trimIndent()
             propertyNamingRuleAssertThat(code).hasNoLintViolations()
