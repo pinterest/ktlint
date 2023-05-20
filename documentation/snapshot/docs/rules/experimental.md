@@ -34,7 +34,7 @@ Detect blank lines at start of a class body.
     }
     ```
 
-=== "[:material-heart:](#) Disallowed"
+=== "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
     class Foo {
@@ -77,7 +77,7 @@ Consecutive EOL comments are always allowed as they are often used instead of a 
 
     ```
 
-=== "[:material-heart:](#) Disallowed"
+=== "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
     /*
@@ -191,7 +191,7 @@ If at least one branch of an if-else statement or an if-else-if statement is wra
     }
     ```
 
-=== "[:material-heart:](#) Disallowed"
+=== "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
     fun foo(value: int) {
@@ -222,7 +222,7 @@ A single line if-statement should be kept simple. It may contain no more than on
     }
     ```
 
-=== "[:material-heart:](#) Disallowed"
+=== "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
     fun foobar() {
@@ -389,7 +389,7 @@ Disallow blank lines to be used in lists before the first element, between eleme
     }
     ```
 
-=== "[:material-heart:](#) Disallowed"
+=== "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
     class FooBar:
@@ -414,7 +414,7 @@ Disallow blank lines to be used in lists before the first element, between eleme
         > = FooBar(Foo(), Bar())
     ```
 
-=== "[:material-heart:](#) Disallowed"
+=== "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
     val foobar: FooBar<
@@ -441,7 +441,7 @@ Disallow blank lines to be used in lists before the first element, between eleme
     }
     ```
 
-=== "[:material-heart:](#) Disallowed"
+=== "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
     class BiAdapter<C : RecyclerView.ViewHolder, V1 : C, V2 : C, out A1, out A2>(
@@ -468,7 +468,7 @@ Disallow blank lines to be used in lists before the first element, between eleme
         > foobar()
     ```
 
-=== "[:material-heart:](#) Disallowed"
+=== "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
     fun <
@@ -571,7 +571,7 @@ Enforce consistent string template indentation for multiline string templates wh
             """.trimIndent()
     }
     ```
-=== "[:material-heart:](#) Disallowed"
+=== "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
     val foo = """
@@ -607,7 +607,7 @@ Enforce consistent spacing in `try { .. } catch { .. } finally { .. }`.
             // clean up
         }
     ```
-=== "[:material-heart:](#) Disallowed"
+=== "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
     fun foo1() = try { /* ... */ } catch (exception: Exception) { /* ... */ } finally { /* ... */ }
@@ -748,7 +748,7 @@ An enum should be a single line, or each enum entry has to be placed on a separa
     }
     ```
 
-=== "[:material-heart:](#) Disallowed"
+=== "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
     enum class Foo {
