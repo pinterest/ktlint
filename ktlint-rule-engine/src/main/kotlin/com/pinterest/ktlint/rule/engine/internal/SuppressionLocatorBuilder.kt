@@ -204,14 +204,7 @@ internal object SuppressionLocatorBuilder {
             ?.let { it.startOffset + it.text.lastIndexOf('\n') + 1 }
             ?: 0
 
-    private fun List<String>.tailToRuleIds() =
-        tail()
-            .map {
-                // For backwards compatibility the suppression hints have to be prefixed with the standard rule set id when the rule id is
-                // not prefixed with any rule set id.
-                RuleId.prefixWithStandardRuleSetIdWhenMissing(it)
-            }
-            .mapNotNull { createRuleIdOrNull(it) }
+    private fun List<String>.tailToRuleIds() = tail().mapNotNull { createRuleIdOrNull(it) }
 
     private fun <T> List<T>.tail() = this.subList(1, this.size)
 
@@ -259,8 +252,8 @@ internal object SuppressionLocatorBuilder {
                     }
                     argumentExpressionText.startsWith("ktlint:") -> {
                         // Disable specific rule
-                        argumentExpressionText.removePrefix("ktlint:")
-                            .let { RuleId.prefixWithStandardRuleSetIdWhenMissing(it) }
+                        argumentExpressionText
+                            .removePrefix("ktlint:")
                             .let { createRuleIdOrNull(it) }
                     }
                     else -> {
@@ -270,16 +263,26 @@ internal object SuppressionLocatorBuilder {
                 }
             }
 
-    private fun createRuleIdOrNull(ruleId: String): RuleId? {
-        return try {
-            RuleId(ruleId)
-        } catch (illegalArgument: IllegalArgumentException) {
+    private fun createRuleIdOrNull(ruleId: String): RuleId? =
+        try {
+            // For backwards compatibility the suppression hints have to be prefixed with the standard rule set id when the rule id is
+            // not prefixed with any rule set id.
+            RuleId
+                .prefixWithStandardRuleSetIdWhenMissing(ruleId)
+                .let { RuleId(it) }
+        } catch (illegalArgumentException: IllegalArgumentException) {
+            // Ktlint should not terminate with an exception in case the code being scanned contains a suppression for a non-existing rule.
+            // Instead, a warning should be printed and the invalid reference is to be ignored. The original ruleId is printed in the
+            // warning message so that user will not go searching for the fully qualified rule id while the code actually contained an
+            // unqualified ruleId.
             LOGGER.warn {
-                "Can not create rule with ruleId = $ruleId due to following error ${illegalArgument.message}"
+                """
+                Can not suppress rule with id '$ruleId'. Please check and fix references to this rule in your code.
+                    Underlying cause: ${illegalArgumentException.message}
+                """.trimIndent()
             }
             null
         }
-    }
 
     /**
      * @param range zero-based range of lines where lint errors should be suppressed
