@@ -5,8 +5,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProper
 import com.pinterest.ktlint.rule.engine.core.internal.IdNamingPolicy
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
-@JvmInline
-public value class RuleId(public val value: String) {
+public data class RuleId(public val value: String) {
     init {
         IdNamingPolicy.enforceRuleIdNaming(value)
     }
@@ -27,8 +26,7 @@ public value class RuleId(public val value: String) {
     }
 }
 
-@JvmInline
-public value class RuleSetId(public val value: String) {
+public data class RuleSetId(public val value: String) {
     init {
         IdNamingPolicy.enforceRuleSetIdNaming(value)
     }
