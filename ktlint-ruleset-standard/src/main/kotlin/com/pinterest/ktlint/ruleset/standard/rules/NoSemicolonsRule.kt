@@ -4,6 +4,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SEMICOLON
+import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
@@ -24,7 +25,17 @@ import org.jetbrains.kotlin.psi.KtIfExpression
 import org.jetbrains.kotlin.psi.KtLoopExpression
 import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
 
-public class NoSemicolonsRule : StandardRule("no-semi") {
+public class NoSemicolonsRule :
+    StandardRule(
+        id = "no-semi",
+        visitorModifiers =
+            setOf(
+                RunAfterRule(
+                    ruleId = WRAPPING_RULE_ID,
+                    mode = RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                ),
+            ),
+    ) {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,

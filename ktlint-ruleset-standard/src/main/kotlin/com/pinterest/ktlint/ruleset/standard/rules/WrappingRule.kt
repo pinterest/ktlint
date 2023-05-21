@@ -26,6 +26,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACKET
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.SEMICOLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_TYPE_CALL_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_TYPE_ENTRY
@@ -64,6 +65,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.noNewLineInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
@@ -137,6 +139,7 @@ public class WrappingRule :
             ARROW -> rearrangeArrow(node, autoCorrect, emit)
             WHITE_SPACE -> line += node.text.count { it == '\n' }
             CLOSING_QUOTE -> rearrangeClosingQuote(node, autoCorrect, emit)
+            SEMICOLON -> insertNewLineBeforeSemi(node, autoCorrect, emit)
         }
     }
 
@@ -526,6 +529,18 @@ public class WrappingRule :
         val r = node.nextSibling { it.elementType == RBRACE } ?: return
         if (!r.prevLeaf().isWhiteSpaceWithNewline()) {
             requireNewlineBeforeLeaf(r, autoCorrect, emit, node.indent())
+        }
+    }
+
+    private fun insertNewLineBeforeSemi(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+    ) {
+        val previousCodeLeaf = node.prevCodeLeaf()?.lastChildLeafOrSelf() ?: return
+        val nextCodeLeaf = node.nextCodeLeaf()?.firstChildLeafOrSelf() ?: return
+        if (noNewLineInClosedRange(previousCodeLeaf, nextCodeLeaf)) {
+            requireNewlineAfterLeaf(node, autoCorrect, emit, indent = previousCodeLeaf.indent())
         }
     }
 

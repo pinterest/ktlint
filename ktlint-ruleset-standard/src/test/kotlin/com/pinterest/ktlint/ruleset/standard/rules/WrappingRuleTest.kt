@@ -1871,6 +1871,147 @@ internal class WrappingRuleTest {
             .hasLintViolation(2, 10, "A newline was expected before 'Bar'")
             .isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Issue 1078 - Given a multiline semi separated var initialisation then wrap each expression to a new line`() {
+        val code =
+            """
+            fun f1() {
+                val a = 3; val b = 2
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun f1() {
+                val a = 3;
+                val b = 2
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code)
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 1078 - Given a multiline semi separated statements then wrap each expression to a new line`() {
+        val code =
+            """
+            public fun f2() {
+                // no-op
+            }; public fun f3() {
+                // no-op
+            }
+
+            public class A {
+
+            }; public class B {
+
+            }
+
+            public class C; public class D
+
+            class E {
+                init {
+                    f1(); f2()
+                }
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            public fun f2() {
+                // no-op
+            };
+            public fun f3() {
+                // no-op
+            }
+
+            public class A {
+
+            };
+            public class B {
+
+            }
+
+            public class C;
+            public class D
+
+            class E {
+                init {
+                    f1();
+                    f2()
+                }
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code)
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 1078 - Given a multiline semi separated control flow then wrap each expression to a new line`() {
+        val code =
+            """
+            fun test() {
+                for (i in 0..10) {
+                    println(i)
+                }; for (i in 0..100) {
+                    println(i)
+                }
+
+                while (System.currentTimeMillis() % 2 == 0L) {
+                    println(System.currentTimeMillis())
+                }; while (Random(System.currentTimeMillis()).nextBoolean()) {
+                    println(System.currentTimeMillis())
+                }
+
+                while (System.currentTimeMillis() % 2 == 0L) {
+                    println(System.currentTimeMillis())
+                }; do {
+                    println(System.currentTimeMillis())
+                } while (System.currentTimeMillis() % 2 == 0L)
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun test() {
+                for (i in 0..10) {
+                    println(i)
+                };
+                for (i in 0..100) {
+                    println(i)
+                }
+
+                while (System.currentTimeMillis() % 2 == 0L) {
+                    println(System.currentTimeMillis())
+                };
+                while (Random(System.currentTimeMillis()).nextBoolean()) {
+                    println(System.currentTimeMillis())
+                }
+
+                while (System.currentTimeMillis() % 2 == 0L) {
+                    println(System.currentTimeMillis())
+                };
+                do {
+                    println(System.currentTimeMillis())
+                } while (System.currentTimeMillis() % 2 == 0L)
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code)
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 1078 - Given a multiline semi separated import statement then wrap each expression to a new line`() {
+        val code =
+            """
+            import java.util.ArrayList; import java.util.HashMap
+            """.trimIndent()
+        val formattedCode =
+            """
+            import java.util.ArrayList;
+            import java.util.HashMap
+            """.trimIndent()
+        wrappingRuleAssertThat(code)
+            .isFormattedAs(formattedCode)
+    }
 }
 
 // Replace the "$." placeholder with an actual "$" so that string "$.{expression}" is transformed to a String template
