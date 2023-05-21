@@ -5,6 +5,7 @@ import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.IndentStyle.TAB
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import org.ec4j.core.model.PropertyType
+import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 public data class IndentConfig(
     val indentStyle: IndentStyle,
@@ -78,6 +79,21 @@ public data class IndentConfig(
                 SPACE -> indentChar.toString().repeat(tabWidth)
             }
         }
+
+    /**
+     * Get the indentation including the newline character for a node at the next indent level compared to the given node.
+     */
+    public fun childIndentOf(node: ASTNode): String = node.indent().plus(indent)
+
+    /**
+     * Get the indentation including the newline character for a node at the same indent level as the given node.
+     */
+    public fun siblingIndentOf(node: ASTNode): String = parentIndentOf(node).plus(indent)
+
+    /**
+     * Get the indentation including the newline character for a node at the same indent level as the parent of the given node.
+     */
+    public fun parentIndentOf(node: ASTNode): String = node.treeParent.indent()
 
     /**
      * Converts [text] to a normalized indent. If [text] contains a new line, then only text after the last new line

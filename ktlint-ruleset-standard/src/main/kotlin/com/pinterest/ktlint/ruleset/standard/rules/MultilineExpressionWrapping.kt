@@ -30,7 +30,6 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
-import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
@@ -97,17 +96,12 @@ public class MultilineExpressionWrapping :
                     if (prevLeaf != null && !prevLeaf.textContains('\n')) {
                         emit(node.startOffset, "A multiline expression should start on a new line", true)
                         if (autoCorrect) {
-                            node.upsertWhitespaceBeforeMe(
-                                node
-                                    .treeParent
-                                    .indent()
-                                    .plus(indentConfig.indent),
-                            )
+                            node.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
                             node
                                 .lastChildLeafOrSelf()
                                 .nextLeaf { !it.isWhiteSpaceWithoutNewline() && !it.isPartOfComment() && it.elementType != COMMA }
                                 ?.takeIf { !it.isWhiteSpaceWithNewline() }
-                                ?.upsertWhitespaceBeforeMe(node.treeParent.indent())
+                                ?.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
                         }
                     }
                 }

@@ -7,7 +7,6 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -57,9 +56,7 @@ public class NoEmptyFirstLineInClassBodyRule :
                             true,
                         )
                         if (autoCorrect) {
-                            (whitespace as LeafPsiElement).rawReplaceWithText(
-                                node.indent().plus(indentConfig.indent),
-                            )
+                            (whitespace as LeafPsiElement).rawReplaceWithText(indentConfig.childIndentOf(node))
                         }
                     }
                 }

@@ -80,10 +80,9 @@ public class ArgumentListWrappingRule :
 
         if (node.elementType == VALUE_ARGUMENT_LIST) {
             if (needToWrapArgumentList(node)) {
-                val newIndentLevel = node.getNewIndentLevel()
                 node
                     .children()
-                    .forEach { child -> wrapArgumentInList(newIndentLevel, child, emit, autoCorrect) }
+                    .forEach { child -> wrapArgumentInList(child, emit, autoCorrect) }
             }
         }
     }
@@ -107,9 +106,8 @@ public class ArgumentListWrappingRule :
 
     private fun ASTNode.exceedsMaxLineLength() = (column - 1 + textLength) > maxLineLength && !textContains('\n')
 
-    private fun ASTNode.getNewIndentLevel(): Int {
-        val currentIndentLevel = editorConfigIndent.indentLevelFrom(indent(false))
-        return when {
+    private fun intendedIndent(child: ASTNode): String =
+        when {
             // IDEA quirk:
             // generic<
             //     T,
@@ -124,7 +122,7 @@ public class ArgumentListWrappingRule :
             //         1,
             //         2
             //     )
-            currentIndentLevel > 0 && hasTypeArgumentListInFront() -> currentIndentLevel - 1
+            child.treeParent.hasTypeArgumentListInFront() -> -1
 
             // IDEA quirk:
             // foo
@@ -138,25 +136,34 @@ public class ArgumentListWrappingRule :
             //         1,
             //         2
             //     )
-            currentIndentLevel > 0 && isPartOfDotQualifiedAssignmentExpression() -> currentIndentLevel - 1
+            child.treeParent.isPartOfDotQualifiedAssignmentExpression() -> -1
 
-            else -> currentIndentLevel
+            else -> 0
         }.let {
-            if (isOnSameLineAsControlFlowKeyword()) {
+            if (child.treeParent.isOnSameLineAsControlFlowKeyword()) {
                 it + 1
             } else {
                 it
             }
+        }.let {
+            if (child.elementType == ElementType.VALUE_ARGUMENT) {
+                it + 1
+            } else {
+                it
+            }
+        }.let { indentLevelFix ->
+            val indentLevel =
+                editorConfigIndent
+                    .indentLevelFrom(child.treeParent.indent(false))
+                    .plus(indentLevelFix)
+            "\n" + editorConfigIndent.indent.repeat(indentLevel)
         }
-    }
 
     private fun wrapArgumentInList(
-        newIndentLevel: Int,
         child: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
     ) {
-        val indent = "\n" + editorConfigIndent.indent.repeat(newIndentLevel)
         when (child.elementType) {
             ElementType.LPAR -> {
                 val prevLeaf = child.prevLeaf()
@@ -174,12 +181,7 @@ public class ArgumentListWrappingRule :
                 // ... LPAR
                 // <line indent + indentSize> VALUE_PARAMETER...
                 // <line indent> RPAR
-                val intendedIndent =
-                    if (child.elementType == ElementType.VALUE_ARGUMENT) {
-                        indent + editorConfigIndent.indent
-                    } else {
-                        indent
-                    }
+                val intendedIndent = intendedIndent(child)
                 val prevLeaf = child.prevWhiteSpaceWithNewLine() ?: child.prevLeaf()
                 if (prevLeaf is PsiWhiteSpace) {
                     if (prevLeaf.getText().contains("\n")) {

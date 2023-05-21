@@ -22,7 +22,6 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PR
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
@@ -107,13 +106,13 @@ public class ParameterListWrappingRule :
                                     true,
                                 )
                                 if (autoCorrect) {
-                                    it.upsertWhitespaceAfterMe("\n${indentConfig.indent}")
+                                    it.upsertWhitespaceAfterMe(indentConfig.childIndentOf(node))
                                 }
                             }
                             RPAR -> {
                                 emit(it.startOffset, errorMessage(it), true)
                                 if (autoCorrect) {
-                                    it.upsertWhitespaceBeforeMe("\n")
+                                    it.upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(node))
                                 }
                             }
                         }
@@ -183,15 +182,13 @@ public class ParameterListWrappingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
     ) {
-        val newIndentLevel = getNewIndentLevel(node)
         node
             .children()
-            .forEach { child -> wrapParameterInList(newIndentLevel, child, emit, autoCorrect) }
+            .forEach { child -> wrapParameterInList(child, emit, autoCorrect) }
     }
 
-    private fun getNewIndentLevel(node: ASTNode): Int {
-        val currentIndentLevel = indentConfig.indentLevelFrom(node.indent(false))
-        return when {
+    private fun intendedIndent(child: ASTNode): String =
+        when {
             // IDEA quirk:
             // fun <
             //     T,
@@ -206,19 +203,28 @@ public class ParameterListWrappingRule :
             //         param1: T
             //         param2: R
             //     )
-            currentIndentLevel > 0 && node.hasTypeParameterListInFront() -> currentIndentLevel - 1
+            child.treeParent.hasTypeParameterListInFront() -> -1
 
-            else -> currentIndentLevel
+            else -> 0
+        }.let {
+            if (child.elementType == VALUE_PARAMETER) {
+                it + 1
+            } else {
+                it
+            }
+        }.let { indentLevelFix ->
+            val indentLevel =
+                indentConfig
+                    .indentLevelFrom(child.treeParent.indent(false))
+                    .plus(indentLevelFix)
+            "\n" + indentConfig.indent.repeat(indentLevel)
         }
-    }
 
     private fun wrapParameterInList(
-        newIndentLevel: Int,
         child: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
     ) {
-        val indent = "\n" + indentConfig.indent.repeat(newIndentLevel)
         when (child.elementType) {
             LPAR -> {
                 val prevLeaf = child.prevLeaf()
@@ -236,12 +242,7 @@ public class ParameterListWrappingRule :
                 // ... LPAR
                 // <line indent + indentSize> VALUE_PARAMETER...
                 // <line indent> RPAR
-                val intendedIndent =
-                    if (child.elementType == VALUE_PARAMETER) {
-                        indent + indentConfig.indent
-                    } else {
-                        indent
-                    }
+                val intendedIndent = intendedIndent(child)
                 val prevLeaf = child.prevLeaf()
                 if (prevLeaf is PsiWhiteSpace) {
                     if (prevLeaf.getText().contains("\n")) {

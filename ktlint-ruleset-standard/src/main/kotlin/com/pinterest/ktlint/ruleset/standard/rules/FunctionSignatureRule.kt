@@ -345,7 +345,7 @@ public class FunctionSignatureRule :
             ?.takeIf { it.elementType == WHITE_SPACE }
             .let { whiteSpaceBeforeIdentifier ->
                 if (multiline) {
-                    val expectedParameterIndent = node.indent().plus(indentConfig.indent)
+                    val expectedParameterIndent = indentConfig.childIndentOf(node)
                     if (whiteSpaceBeforeIdentifier == null ||
                         whiteSpaceBeforeIdentifier.text != expectedParameterIndent
                     ) {
@@ -409,7 +409,7 @@ public class FunctionSignatureRule :
                     ?.takeIf { it.elementType == WHITE_SPACE }
                     .let { whiteSpaceBeforeIdentifier ->
                         if (multiline) {
-                            val expectedParameterIndent = node.indent().plus(indentConfig.indent)
+                            val expectedParameterIndent = indentConfig.childIndentOf(node)
                             if (whiteSpaceBeforeIdentifier == null ||
                                 whiteSpaceBeforeIdentifier.text != expectedParameterIndent
                             ) {
@@ -592,7 +592,7 @@ public class FunctionSignatureRule :
                         if (autoCorrect) {
                             functionBodyExpressionNodes
                                 .first()
-                                .upsertWhitespaceBeforeMe(node.indent().plus(indentConfig.indent))
+                                .upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
                         }
                     }
                 }
