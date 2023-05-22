@@ -1,5 +1,12 @@
 !!! important
-    Experimental rules in ktlint are part of the [standard ruleset](https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-standard). Experimental rules are run only when `.editorconfig` property `ktlint_experimental` is enabled. Or, when a specific experimental rule is enabled via `.editorconfig` property `ktlint_<rule-set-id>_<rule-id>`.
+    Up and until Ktlint version `0.47`, experimental were located in a separate `experimental` rule set. As of Ktlint version `0.48`, each rule set can optionally define experimental rules.
+
+All experimental rules described below are part of the `standard` rule set of Ktlint. To enable all experimental rules (from all rule sets), set `editorconfig` property below:
+```ini
+[*.{kt,kts}]
+ktlint_experimental=enabled
+```
+Also see [enable/disable specific rules](../configuration-ktlint/#disabled-rules).
 
 ## Discouraged comment location
 
@@ -20,7 +27,7 @@ Detect discouraged comment locations (no autocorrect).
     }
     ```
 
-Rule id: `discouraged-comment-location`
+Rule id: `discouraged-comment-location` (`standard` rule set)
 
 ## Disallow empty lines at start of class body
 
@@ -43,7 +50,7 @@ Detect blank lines at start of a class body.
     }
     ```
 
-Rule id: `no-empty-first-line-in-class-body`
+Rule id: `no-empty-first-line-in-class-body` (`standard` rule set)
 
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
@@ -95,7 +102,7 @@ Consecutive EOL comments are always allowed as they are often used instead of a 
     // ... even not when separated by a new line.
     ```
 
-Rule id: `no-consecutive-comments`
+Rule id: `no-consecutive-comments` (`standard` rule set)
 
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
@@ -171,7 +178,7 @@ Rewrites the function signature to a single line when possible (e.g. when not ex
         .uppercase()
     ```
 
-Rule id: `function-signature`
+Rule id: `function-signature` (`standard` rule set)
 
 ## If else bracing
 
@@ -204,7 +211,7 @@ If at least one branch of an if-else statement or an if-else-if statement is wra
     }
     ```
 
-Rule id: `if-else-bracing`
+Rule id: `if-else-bracing` (`standard` rule set)
 
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
@@ -233,7 +240,7 @@ A single line if-statement should be kept simple. It may contain no more than on
     }
     ```
 
-Rule id: `if-else-wrapping`
+Rule id: `if-else-wrapping` (`standard` rule set)
 
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
@@ -274,7 +281,7 @@ Enforce naming of function.
 
 This rule can also be suppressed with the IntelliJ IDEA inspection suppression `FunctionName`.
 
-Rule id: `function-naming`
+Rule id: `function-naming` (`standard` rule set)
 
 ### Package naming
 
@@ -299,7 +306,7 @@ This rule can also be suppressed with the IntelliJ IDEA inspection suppression `
     package foo.`foo bar`
     ```
 
-Rule id: `package-naming`
+Rule id: `package-naming` (`standard` rule set)
 
 ### Property naming
 
@@ -343,7 +350,7 @@ Enforce naming of property.
 
 This rule can also be suppressed with the IntelliJ IDEA inspection suppression `PropertyName`.
 
-Rule id: `property-naming`
+Rule id: `property-naming` (`standard` rule set)
 
 ## No single line block comments
 
@@ -369,7 +376,7 @@ A single line block comment should be replaced with an EOL comment when possible
     val foo = "foo" /* Some comment */
     ```
 
-Rule id: `no-single-line-block-comment`
+Rule id: `no-single-line-block-comment` (`standard` rule set)
 
 ## Spacing
 
@@ -526,7 +533,7 @@ Disallow blank lines to be used in lists before the first element, between eleme
     )
     ```
 
-Rule id: `no-blank-line-in-list`
+Rule id: `no-blank-line-in-list` (`standard` rule set)
 
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
@@ -549,7 +556,7 @@ Consistent spacing inside the parameter list.
     ) = "some-result"
     ```
 
-Rule id: `parameter-list-spacing`
+Rule id: `parameter-list-spacing` (`standard` rule set)
 
 ### String template indent
 
@@ -586,7 +593,7 @@ Enforce consistent string template indentation for multiline string templates wh
     }
     ```
 
-Rule id: `string-template-indent`
+Rule id: `string-template-indent` (`standard` rule set)
 
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
@@ -623,7 +630,7 @@ Enforce consistent spacing in `try { .. } catch { .. } finally { .. }`.
         }
     ```
 
-Rule id: `try-catch-finally-spacing`
+Rule id: `try-catch-finally-spacing` (`standard` rule set)
 
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
@@ -649,7 +656,7 @@ Spacing before and after the angle brackets of a type argument list.
     }
     ```
 
-Rule id: `type-argument-list-spacing`
+Rule id: `type-argument-list-spacing` (`standard` rule set)
 
 ### Type parameter list spacing
 
@@ -670,7 +677,7 @@ Spacing after a type parameter list in function and class declarations.
     fun<T>foo3(t: T) = "some-result"
     ```
 
-Rule id: `type-parameter-list-spacing`
+Rule id: `type-parameter-list-spacing` (`standard` rule set)
 
 ## Wrapping
 
@@ -726,7 +733,7 @@ Wraps the content receiver list to a separate line regardless of maximum line le
     fun fooBar()
     ```
 
-Rule id: `context-receiver-wrapping`
+Rule id: `context-receiver-wrapping` (`standard` rule set)
 
 ## Enum wrapping
 
@@ -763,7 +770,7 @@ An enum should be a single line, or each enum entry has to be placed on a separa
     }
     ```
 
-Rule id: `enum-wrapping`
+Rule id: `enum-wrapping` (`standard` rule set)
 
 ### Multiline expression wrapping
 
@@ -791,7 +798,7 @@ Multiline expression on the right hand side of an expression are forced to start
     )
     ```
 
-Rule id: `multiline-expression-wrapping`
+Rule id: `multiline-expression-wrapping` (`standard` rule set)
 
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
