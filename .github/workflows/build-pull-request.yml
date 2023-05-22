@@ -5,6 +5,8 @@ on:
     branches: ['master']
     paths: ['**/*.kt', '**/*.kts', '**/*.properties', '**/*.toml']
   pull_request:
+    branches: ['master']
+    paths: ['**/*.kt', '**/*.kts', '**/*.properties', '**/*.toml']
   workflow_dispatch:
 
 env:
