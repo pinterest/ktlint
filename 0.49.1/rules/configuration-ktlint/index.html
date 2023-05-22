@@ -1053,7 +1053,7 @@ You're not viewing the latest version.
 <p>Rule sets and individual rules can be disabled / enabled with a separate property per rule (set).</p>
 <p>All rules in a rule set can be enabled or disabled with a rule set property. The name of the rule set property consists of the <code>ktlint_</code> prefix followed by the rule set id. Examples:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>ktlint_standard = disabled # Disable all rules from the `standard` rule set provided by KtLint
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>ktlint_experimental = enabled # Enable all rules from the `experimental` rule set provided by KtLint
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>ktlint_experimental = enabled # Enable all `experimental` rules from all rule sets provided by KtLint or other rule providers
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>ktlint_custom-rule-set = enabled # Enable all rules in the `custom-rule-set` rule set (not provided by KtLint)
 </code></pre></div></p>
 <p>Rules that are marked as experimental will not be run, unless explicitly enabled:
