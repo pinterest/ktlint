@@ -25,6 +25,7 @@ import org.ec4j.core.Resource
 import org.ec4j.core.model.PropertyType.EndOfLineValue.crlf
 import org.ec4j.core.model.PropertyType.EndOfLineValue.lf
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
+import org.jetbrains.kotlin.utils.addToStdlib.ifFalse
 import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystem
 import java.nio.file.FileSystems
@@ -152,6 +153,13 @@ public class KtLintRuleEngine(
                             canBeAutoCorrected,
                         ),
                     )
+                    // In trace mode report the violation immediately. The order in which violations are actually found might be different
+                    // from the order in which they are reported. For debugging purposes it cn be helpful to know the exact order in which
+                    // violations are being solved.
+                    LOGGER.trace {
+                        "Format violation: ${code.fileNameOrStdin()}:$line:$col: $errorMessage (${rule.ruleId})" +
+                            canBeAutoCorrected.ifFalse { " [cannot be autocorrected]" }
+                    }
                 }
             }
         if (tripped) {

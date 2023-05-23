@@ -268,7 +268,8 @@ internal class FileUtilsTest {
         LOGGER.info {
             val patterns = "src/main/kotlin"
             val dir = "/project1"
-            "`Given a (relative) directory path (but not a glob) from the workdir then find all files in that workdir and it subdirectories having the default kotlin extensions`\n" +
+            "`Given a (relative) directory path (but not a glob) from the workdir then find all files in that workdir and it " +
+                "subdirectories having the default kotlin extensions`\n" +
                 "\tpatterns = $patterns\n" +
                 "\trootDir = $dir"
         }

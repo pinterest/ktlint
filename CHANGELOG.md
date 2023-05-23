@@ -6,6 +6,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+* Add new experimental rule `binary-expression-wrapping`. This rule wraps a binary expression in case the max line length is exceeded ([#1940](https://github.com/pinterest/ktlint/issues/1940))
+
 ### Removed
 
 ### Fixed
