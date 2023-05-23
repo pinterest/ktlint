@@ -103,6 +103,7 @@ private class LoggerFactory : DiagnosticLogger.Factory {
                 message: String?,
                 t: Throwable?,
             ) {}
+
             override fun error(
                 message: String?,
                 vararg details: String?,

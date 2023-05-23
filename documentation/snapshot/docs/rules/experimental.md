@@ -8,6 +8,56 @@ ktlint_experimental=enabled
 ```
 Also see [enable/disable specific rules](../configuration-ktlint/#disabled-rules).
 
+## Blank line before declarations
+
+Requires a blank line before any class or function declaration. No blank line is required between the class signature and the first declaration in the class. In a similar way, a blank line is required before any list of top level or class properties. No blank line is required before local properties or between consecutive properties.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    const val foo1 = "foo1"
+
+    class FooBar {
+        val foo2 = "foo2"
+        val foo3 = "foo3"
+
+        fun bar1() {
+           val foo4 = "foo4"
+           val foo5 = "foo5"
+        }
+
+        fun bar2() = "bar"
+
+        val foo6 = "foo3"
+        val foo7 = "foo4"
+
+        enum class Foo {}
+    }
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    const val foo1 = "foo1"
+    class FooBar {
+        val foo2 = "foo2"
+        val foo3 = "foo3"
+        fun bar1() {
+           val foo4 = "foo4"
+           val foo5 = "foo5"
+        }
+        fun bar2() = "bar"
+        val foo6 = "foo3"
+        val foo7 = "foo4"
+        enum class Foo {}
+    }
+    ```
+
+Rule id: `blank-line-before-declaration` (`standard` rule set)
+
+!!! Note
+This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
+
 ## Discouraged comment location
 
 Detect discouraged comment locations (no autocorrect).

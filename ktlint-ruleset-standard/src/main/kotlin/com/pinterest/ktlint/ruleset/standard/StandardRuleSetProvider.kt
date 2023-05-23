@@ -6,6 +6,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import com.pinterest.ktlint.ruleset.standard.rules.AnnotationRule
 import com.pinterest.ktlint.ruleset.standard.rules.AnnotationSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ArgumentListWrappingRule
+import com.pinterest.ktlint.ruleset.standard.rules.BlankLineBeforeDeclarationRule
 import com.pinterest.ktlint.ruleset.standard.rules.BlockCommentInitialStarAlignmentRule
 import com.pinterest.ktlint.ruleset.standard.rules.ChainWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ClassNamingRule
@@ -88,6 +89,7 @@ public class StandardRuleSetProvider :
             RuleProvider { AnnotationRule() },
             RuleProvider { AnnotationSpacingRule() },
             RuleProvider { ArgumentListWrappingRule() },
+            RuleProvider { BlankLineBeforeDeclarationRule() },
             RuleProvider { BlockCommentInitialStarAlignmentRule() },
             RuleProvider { ChainWrappingRule() },
             RuleProvider { ClassNamingRule() },

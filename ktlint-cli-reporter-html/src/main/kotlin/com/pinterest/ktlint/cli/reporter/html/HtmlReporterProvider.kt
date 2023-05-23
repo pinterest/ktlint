@@ -29,6 +29,7 @@ import java.io.PrintStream
 
 public class HtmlReporterProvider : ReporterProviderV2<HtmlReporter> {
     override val id: String = "html"
+
     override fun get(
         out: PrintStream,
         opt: Map<String, String>,

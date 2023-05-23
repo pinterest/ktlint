@@ -455,6 +455,7 @@ class RuleProviderSorterTest {
         visitorModifiers,
     ) {
         constructor(ruleId: RuleId, visitorModifier: VisitorModifier) : this(ruleId, setOf(visitorModifier))
+
         override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,

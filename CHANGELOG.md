@@ -6,6 +6,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+* Add new experimental rule `blank-line-before-declaration`. This rule requires a blank line before class, function or property declarations ([#1939](https://github.com/pinterest/ktlint/issues/1939))
+
 ### Removed
 
 ### Fixed

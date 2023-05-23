@@ -49,6 +49,7 @@ private class SegmentTree(
             }
 
     fun get(i: Int): Segment = segments[i]
+
     fun indexOf(v: Int): Int = binarySearch(v, 0, segments.size - 1)
 
     private fun binarySearch(

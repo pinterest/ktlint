@@ -11,6 +11,7 @@ import java.io.Serializable
  */
 public interface ReporterProviderV2<T : ReporterV2> : Serializable {
     public val id: String
+
     public fun get(
         out: PrintStream,
         opt: Map<String, String>,

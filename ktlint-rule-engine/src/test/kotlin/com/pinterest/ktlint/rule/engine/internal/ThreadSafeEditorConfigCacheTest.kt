@@ -86,6 +86,7 @@ class ThreadSafeEditorConfigCacheTest {
         const val SOME_PROPERTY = "some-property"
 
         private fun String.resource() = Resource.Resources.ofPath(Paths.get(this), StandardCharsets.UTF_8)
+
         val FILE_1: Resource = "/some/path/to/file/1".resource()
         val FILE_2: Resource = "/some/path/to/file/2".resource()
 
