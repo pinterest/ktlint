@@ -1,10 +1,20 @@
-name: Build pull request
+# name must be identical to name of 'pull-request-without-code'
+name: Pull request
 
 on:
   push:
     branches: ['master']
-    paths: ['**/*.kt', '**/*.kts', '**/*.properties', '**/*.toml']
+    paths:
+      - '**/*.kt'
+      - '**/*.kts'
+      - '**/*.properties'
+      - '**/*.toml'
   pull_request:
+    paths:
+      - '**/*.kt'
+      - '**/*.kts'
+      - '**/*.properties'
+      - '**/*.toml'
   workflow_dispatch:
 
 env:
