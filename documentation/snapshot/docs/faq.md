@@ -57,20 +57,16 @@ An error can be suppressed using:
     // Suppressing all rules for the entire file
     @file:Suppress("ktlint")
 
-    // Suppress a single rule for the annotated construct
-    @Suppress("ktlint:standard:no-wildcard-imports")
-    import foo.*
+    // Suppress a single rule (with id 'rule-id', defined in rule set with id 'rule-set-id') from the annotated construct
+    @Suppress("ktlint:rule-set-id:rule-id")
+    class Foo {}
 
     // Suppress multiple rules for the annotated construct
-    @Suppress("ktlint:standard:no-wildcard-imports", "ktlint:standard:other-rule-id")
+    @Suppress("ktlint:standard:no-wildcard-imports", "ktlint:custom-rule-set-id:custom-rule-id")
     import foo.*
 
     // Suppress all rules for the annotated construct
     @Suppress("ktlint")
-    import foo.*
-
-    // Suppress a single custom rule for the annotated construct
-    @Suppress("ktlint:custom-ruleset-id:custom-rule")
     import foo.*
     ```
 === "[:material-heart:](#) EOL comments"
