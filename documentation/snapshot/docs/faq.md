@@ -68,6 +68,10 @@ An error can be suppressed using:
     // Suppress all rules for the annotated construct
     @Suppress("ktlint")
     import foo.*
+
+    // Suppress a single custom rule for the annotated construct
+    @Suppress("ktlint:custom-ruleset-id:custom-rule")
+    import foo.*
     ```
 === "[:material-heart:](#) EOL comments"
 
