@@ -48,6 +48,8 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
 
     dependsOn(tasks.shadowJar)
 
+    val isReleaseBuild = !version.toString().endsWith("SNAPSHOT")
+
     // Find the "ktlint-cli-<version>-all.jar" file
     val ktlintCliAllJarFile =
         tasks
@@ -60,17 +62,25 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
     logger.lifecycle("ktlint-cli: Base jar to build self-executable file: ${ktlintCliAllJarFile.absolutePath}")
     inputs.files(ktlintCliAllJarFile)
 
+    val windowsBatchFileInputPath = "$projectDir/src/main/scripts/ktlint.bat"
+    inputs.files(windowsBatchFileInputPath)
+
     // Output is the self-executable file
-    val selfExecutableKtlintPath = "$buildDir/run/ktlint"
-    outputs.files(selfExecutableKtlintPath)
-    if (!version.toString().endsWith("SNAPSHOT")) {
-        // And for releases also the signature file
-        outputs.files("$buildDir/run/ktlint.asc")
+    val outputDirectoryPath = "$buildDir/run"
+    val selfExecutableKtlintOutputPath = "$outputDirectoryPath/ktlint"
+    val selfExecutableKtlintSignatureOutputPath = "$outputDirectoryPath/ktlint.asc"
+    val windowsBatchFileOutputPath = "$outputDirectoryPath/ktlint.bat"
+    outputs.files(selfExecutableKtlintOutputPath)
+    if (isReleaseBuild) {
+        // And for releases also the signature file and a batch file for Windows OS
+        outputs.files(selfExecutableKtlintSignatureOutputPath)
+        outputs.files(windowsBatchFileOutputPath)
     }
 
     doLast {
-        logger.lifecycle("Creating the self-executable ktlint-cli")
-        File(selfExecutableKtlintPath).apply {
+        File(selfExecutableKtlintOutputPath).apply {
+            logger.lifecycle("Creating the self-executable file: $selfExecutableKtlintOutputPath")
+
             // writeText effective replaces the entire content if the file already exists. If appendText is used, the file keeps on growing
             // with each build if the clean target is not used.
             writeText(
@@ -95,11 +105,18 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
 
             setExecutable(true, false)
 
-            if (!version.toString().endsWith("SNAPSHOT")) {
+            if (isReleaseBuild) {
+                logger.lifecycle("Creating the signature file: $selfExecutableKtlintSignatureOutputPath")
                 signing.sign(this)
             }
         }
-        logger.lifecycle("Finished creating the self-executable ktlint-cli")
+        if (isReleaseBuild) {
+            logger.lifecycle("Creating the batch file for Windows OS: $windowsBatchFileOutputPath")
+            File(windowsBatchFileOutputPath).apply {
+                writeText(File(windowsBatchFileInputPath).readText())
+            }
+        }
+        logger.lifecycle("Finished creating output files ktlint-cli")
     }
 }
 
