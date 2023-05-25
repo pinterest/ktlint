@@ -23,6 +23,7 @@ env:
   ORG_GRADLE_PROJECT_signingKeyPassword : ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
   CLI_TEST_MAX_DURATION_IN_SECONDS: 10
 
+# Note that "jobs.build.strategy" and "jobs.build.runs-on" should be kept in sync with "pull-request-wth-code"
 jobs:
   build:
     strategy:
