@@ -269,7 +269,7 @@ public class WrappingRule :
             requireNewlineAfterLeaf(node, autoCorrect, emit)
         }
         if (!r.prevLeaf().isWhiteSpaceWithNewline()) {
-            requireNewlineBeforeLeaf(r, autoCorrect, emit, node.treeParent.indent())
+            requireNewlineBeforeLeaf(r, autoCorrect, emit, indentConfig.parentIndentOf(node))
         }
     }
 
@@ -404,9 +404,7 @@ public class WrappingRule :
                             if (prevSibling?.elementType == LT || prevSibling.isWhiteSpaceWithoutNewline()) {
                                 emit(typeProjection.startOffset, "A newline was expected before '${typeProjection.text}'", true)
                                 if (autoCorrect) {
-                                    typeProjection.upsertWhitespaceBeforeMe(
-                                        node.treeParent.indent().plus(indentConfig.indent),
-                                    )
+                                    typeProjection.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
                                 }
                             }
                         }
@@ -420,9 +418,7 @@ public class WrappingRule :
                     if (prevSibling?.elementType != WHITE_SPACE || prevSibling.isWhiteSpaceWithoutNewline()) {
                         emit(closingAngle.startOffset, "A newline was expected before '${closingAngle.text}'", true)
                         if (autoCorrect) {
-                            closingAngle.upsertWhitespaceBeforeMe(
-                                node.treeParent.indent().plus(indentConfig.indent),
-                            )
+                            closingAngle.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
                         }
                     }
                 }
@@ -566,7 +562,7 @@ public class WrappingRule :
             "$line: " + (if (!autoCorrect) "would have " else "") + "inserted newline after ${nodeAfterWhichNewlineIsRequired.text}"
         }
         if (autoCorrect) {
-            val tempIndent = indent ?: (nodeToFix.indent().plus(indentConfig.indent))
+            val tempIndent = indent ?: (indentConfig.childIndentOf(nodeToFix))
             nodeToFix.upsertWhitespaceAfterMe(tempIndent)
         }
     }
@@ -658,7 +654,7 @@ public class WrappingRule :
                     endOfBlock,
                     autoCorrect,
                     emit,
-                    node.treeParent.indent(),
+                    indentConfig.parentIndentOf(node),
                 )
             }
         }

@@ -517,18 +517,28 @@ class ParameterListWrappingRuleTest {
         val code =
             """
             var changesListener: ((width: Double?, depth: Double?, length: Double?, area: Double?) -> Unit)? = null
+            fun foo() {
+                var changesListener: ((width: Double?, depth: Double?, length: Double?, area: Double?) -> Unit)? = null
+            }
             """.trimIndent()
         val formattedCode =
             """
             var changesListener: (
                 (width: Double?, depth: Double?, length: Double?, area: Double?) -> Unit
             )? = null
+            fun foo() {
+                var changesListener: (
+                    (width: Double?, depth: Double?, length: Double?, area: Double?) -> Unit
+                )? = null
+            }
             """.trimIndent()
         parameterListWrappingRuleAssertThat(code)
             .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 80)
             .hasLintViolations(
                 LintViolation(1, 22, "Parameter of nullable type should be on a separate line (unless the type fits on a single line)"),
                 LintViolation(1, 95, """Missing newline before ")""""),
+                LintViolation(3, 26, "Parameter of nullable type should be on a separate line (unless the type fits on a single line)"),
+                LintViolation(3, 99, """Missing newline before ")""""),
             ).isFormattedAs(formattedCode)
     }
 
