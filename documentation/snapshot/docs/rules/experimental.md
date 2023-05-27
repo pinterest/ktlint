@@ -352,6 +352,12 @@ This rule can also be suppressed with the IntelliJ IDEA inspection suppression `
 
 Rule id: `property-naming` (`standard` rule set)
 
+## No empty file
+
+A kotlin (script) file should not be empty. It needs to contain at least one declaration. Files only contain a package and/or import statements are as of that disallowed.
+
+Rule id: `no-empty-file`
+
 ## No single line block comments
 
 A single line block comment should be replaced with an EOL comment when possible.
