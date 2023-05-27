@@ -4,7 +4,8 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Nested
@@ -51,10 +52,12 @@ class ParameterListWrappingRuleTest {
     fun `Given a single line class header which exceeds the maximum line length`() {
         val code =
             """
+            // $MAX_LINE_LENGTH_MARKER                                $EOL_CHAR
             class ClassA(paramA: String, paramB: String, paramC: String)
             """.trimIndent()
         val formattedCode =
             """
+            // $MAX_LINE_LENGTH_MARKER                                $EOL_CHAR
             class ClassA(
                 paramA: String,
                 paramB: String,
@@ -62,12 +65,12 @@ class ParameterListWrappingRuleTest {
             )
             """.trimIndent()
         parameterListWrappingRuleAssertThat(code)
-            .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 10)
+            .setMaxLineLength()
             .hasLintViolations(
-                LintViolation(1, 14, "Parameter should start on a newline"),
-                LintViolation(1, 30, "Parameter should start on a newline"),
-                LintViolation(1, 46, "Parameter should start on a newline"),
-                LintViolation(1, 60, """Missing newline before ")""""),
+                LintViolation(2, 14, "Parameter should start on a newline"),
+                LintViolation(2, 30, "Parameter should start on a newline"),
+                LintViolation(2, 46, "Parameter should start on a newline"),
+                LintViolation(2, 60, """Missing newline before ")""""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -75,10 +78,11 @@ class ParameterListWrappingRuleTest {
     fun `Given a class header with a very long name and without parameters which exceeds the maximum line length then do not change the class header`() {
         val code =
             """
-            class ClassAWithALongName()
+            // $MAX_LINE_LENGTH_MARKER    $EOL_CHAR
+            class ClassAWithALoooooongName()
             """.trimIndent()
         parameterListWrappingRuleAssertThat(code)
-            .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 10)
+            .setMaxLineLength()
             .hasNoLintViolations()
     }
 
@@ -130,7 +134,7 @@ class ParameterListWrappingRuleTest {
     }
 
     @Test
-    fun `Given a multiline function with parameters wheren some parameters are on the same line then start each parameter and closing parenthesis on a separate line`() {
+    fun `Given a multiline function with parameters where some parameters are on the same line then start each parameter and closing parenthesis on a separate line`() {
         val code =
             """
             fun f(
@@ -156,11 +160,13 @@ class ParameterListWrappingRuleTest {
     fun `Given a single line function which exceeds the maximum line length then start each parameter and the closing parenthesis on a separate line`() {
         val code =
             """
+            // $MAX_LINE_LENGTH_MARKER   $EOL_CHAR
             fun f(a: Any, b: Any, c: Any) {
             }
             """.trimIndent()
         val formattedCode =
             """
+            // $MAX_LINE_LENGTH_MARKER   $EOL_CHAR
             fun f(
                 a: Any,
                 b: Any,
@@ -169,12 +175,12 @@ class ParameterListWrappingRuleTest {
             }
             """.trimIndent()
         parameterListWrappingRuleAssertThat(code)
-            .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 10)
+            .setMaxLineLength()
             .hasLintViolations(
-                LintViolation(1, 7, "Parameter should start on a newline"),
-                LintViolation(1, 15, "Parameter should start on a newline"),
-                LintViolation(1, 23, "Parameter should start on a newline"),
-                LintViolation(1, 29, """Missing newline before ")""""),
+                LintViolation(2, 7, "Parameter should start on a newline"),
+                LintViolation(2, 15, "Parameter should start on a newline"),
+                LintViolation(2, 23, "Parameter should start on a newline"),
+                LintViolation(2, 29, """Missing newline before ")""""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -248,6 +254,7 @@ class ParameterListWrappingRuleTest {
     fun `Given a function with annotated parameters then start each parameter on a separate line but preserve spacing between annotation and parameter name`() {
         val code =
             """
+            // $MAX_LINE_LENGTH_MARKER    $EOL_CHAR
             class A {
                 fun f(@Annotation
                       a: Any,
@@ -259,6 +266,7 @@ class ParameterListWrappingRuleTest {
             """.trimIndent()
         val formattedCode =
             """
+            // $MAX_LINE_LENGTH_MARKER    $EOL_CHAR
             class A {
                 fun f(
                     @Annotation
@@ -272,11 +280,11 @@ class ParameterListWrappingRuleTest {
             }
             """.trimIndent()
         parameterListWrappingRuleAssertThat(code)
-            .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 10)
+            .setMaxLineLength()
             .hasLintViolations(
-                LintViolation(2, 11, "Parameter should start on a newline"),
-                LintViolation(6, 19, "Parameter should start on a newline"),
-                LintViolation(6, 37, """Missing newline before ")""""),
+                LintViolation(3, 11, "Parameter should start on a newline"),
+                LintViolation(7, 19, "Parameter should start on a newline"),
+                LintViolation(7, 37, """Missing newline before ")""""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -344,10 +352,12 @@ class ParameterListWrappingRuleTest {
     fun `Given a single line function with nested declarations which exceeds the maximum line length then format each parameter and closing parenthesis on a separate line`() {
         val code =
             """
+            // $MAX_LINE_LENGTH_MARKER                                                      $EOL_CHAR
             fun visit(node: ASTNode, autoCorrect: Boolean, emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {}
             """.trimIndent()
         val formattedCode =
             """
+            // $MAX_LINE_LENGTH_MARKER                                                      $EOL_CHAR
             fun visit(
                 node: ASTNode,
                 autoCorrect: Boolean,
@@ -359,16 +369,16 @@ class ParameterListWrappingRuleTest {
             ) {}
             """.trimIndent()
         parameterListWrappingRuleAssertThat(code)
-            .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 10)
+            .setMaxLineLength()
             .hasLintViolations(
-                LintViolation(1, 11, "Parameter should start on a newline"),
-                LintViolation(1, 26, "Parameter should start on a newline"),
-                LintViolation(1, 48, "Parameter should start on a newline"),
-                LintViolation(1, 55, "Parameter should start on a newline"),
-                LintViolation(1, 68, "Parameter should start on a newline"),
-                LintViolation(1, 90, "Parameter should start on a newline"),
-                LintViolation(1, 117, "Missing newline before \")\""),
-                LintViolation(1, 126, "Missing newline before \")\""),
+                LintViolation(2, 11, "Parameter should start on a newline"),
+                LintViolation(2, 26, "Parameter should start on a newline"),
+                LintViolation(2, 48, "Parameter should start on a newline"),
+                LintViolation(2, 55, "Parameter should start on a newline"),
+                LintViolation(2, 68, "Parameter should start on a newline"),
+                LintViolation(2, 90, "Parameter should start on a newline"),
+                LintViolation(2, 117, "Missing newline before \")\""),
+                LintViolation(2, 126, "Missing newline before \")\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -512,24 +522,85 @@ class ParameterListWrappingRuleTest {
         parameterListWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
-    @Test
-    fun `Issue 1255 - Given a variable declaration for nullable function type which exceeds the max-line-length then wrap the function type to a new line`() {
-        val code =
-            """
-            var changesListener: ((width: Double?, depth: Double?, length: Double?, area: Double?) -> Unit)? = null
-            """.trimIndent()
-        val formattedCode =
-            """
-            var changesListener: (
-                (width: Double?, depth: Double?, length: Double?, area: Double?) -> Unit
-            )? = null
-            """.trimIndent()
-        parameterListWrappingRuleAssertThat(code)
-            .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 80)
-            .hasLintViolations(
-                LintViolation(1, 22, "Parameter of nullable type should be on a separate line (unless the type fits on a single line)"),
-                LintViolation(1, 95, """Missing newline before ")""""),
-            ).isFormattedAs(formattedCode)
+    @Nested
+    inner class `Issue 1255 - Given a variable declaration for nullable function type` {
+        @Test
+        fun `Given a nullable function type for which the function type fits on a single line after wrapping the nullable type`() {
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER                  $EOL_CHAR
+                var foo1: ((bar1: Bar, bar2: Bar, bar3: Bar) -> Unit)? = null
+                var foo2: (
+                    (bar1: Bar, bar2: Bar, bar3: Bar) -> Unit
+                )? = null
+                """.trimIndent()
+            val formattedCode =
+                """
+                // $MAX_LINE_LENGTH_MARKER                  $EOL_CHAR
+                var foo1: (
+                    (bar1: Bar, bar2: Bar, bar3: Bar) -> Unit
+                )? = null
+                var foo2: (
+                    (bar1: Bar, bar2: Bar, bar3: Bar) -> Unit
+                )? = null
+                """.trimIndent()
+            parameterListWrappingRuleAssertThat(code)
+                .setMaxLineLength()
+                .hasLintViolations(
+                    // Some violations below are only reported during linting but not on formatting. After wrapping the
+                    // nullable type, there is no need to wrap the parameters.
+                    LintViolation(2, 12, "Expected new line before function type as it does not fit on a single line"),
+                    LintViolation(2, 13, "Parameter should start on a newline"),
+                    LintViolation(2, 24, "Parameter should start on a newline"),
+                    LintViolation(2, 35, "Parameter should start on a newline"),
+                    LintViolation(2, 44, "Missing newline before \")\""),
+                    LintViolation(2, 53, "Expected new line after function type as it does not fit on a single line"),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given a nullable function type for which the function type fits does not fit on a single line after wrapping the nullable type`() {
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER                $EOL_CHAR
+                var foo1: ((bar1: Bar, bar2: Bar, bar3: Bar) -> Unit)? = null
+                var foo2: (
+                    (bar1: Bar, bar2: Bar, bar3: Bar) -> Unit
+                )? = null
+                """.trimIndent()
+            val formattedCode =
+                """
+                // $MAX_LINE_LENGTH_MARKER                $EOL_CHAR
+                var foo1: (
+                    (
+                        bar1: Bar,
+                        bar2: Bar,
+                        bar3: Bar
+                    ) -> Unit
+                )? = null
+                var foo2: (
+                    (
+                        bar1: Bar,
+                        bar2: Bar,
+                        bar3: Bar
+                    ) -> Unit
+                )? = null
+                """.trimIndent()
+            parameterListWrappingRuleAssertThat(code)
+                .setMaxLineLength()
+                .hasLintViolations(
+                    LintViolation(2, 12, "Expected new line before function type as it does not fit on a single line"),
+                    LintViolation(2, 13, "Parameter should start on a newline"),
+                    LintViolation(2, 24, "Parameter should start on a newline"),
+                    LintViolation(2, 35, "Parameter should start on a newline"),
+                    LintViolation(2, 44, "Missing newline before \")\""),
+                    LintViolation(2, 53, "Expected new line after function type as it does not fit on a single line"),
+                    LintViolation(4, 6, "Parameter should start on a newline"),
+                    LintViolation(4, 17, "Parameter should start on a newline"),
+                    LintViolation(4, 28, "Parameter should start on a newline"),
+                    LintViolation(4, 37, "Missing newline before \")\""),
+                ).isFormattedAs(formattedCode)
+        }
     }
 
     @Nested
