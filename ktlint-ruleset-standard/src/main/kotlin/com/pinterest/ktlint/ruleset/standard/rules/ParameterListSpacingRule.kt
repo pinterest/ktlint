@@ -249,7 +249,7 @@ public class ParameterListSpacingRule :
     ) {
         emit(node.startOffset, "Expected a single space", true)
         if (autoCorrect) {
-            (node as LeafPsiElement).replaceWithText(" ")
+            (node as LeafPsiElement).rawReplaceWithText(" ")
         }
     }
 

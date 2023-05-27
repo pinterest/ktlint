@@ -137,11 +137,11 @@ public class AnnotationRule :
             val expectedIndent =
                 when {
                     node.elementType == ANNOTATED_EXPRESSION ->
-                        node.treeParent.indent().plus(indentConfig.indent)
+                        indentConfig.siblingIndentOf(node)
                     node.hasAnnotationBeforeConstructor() ->
-                        node.treeParent.treeParent.indent().plus(indentConfig.indent)
+                        indentConfig.siblingIndentOf(node.treeParent)
                     else ->
-                        node.treeParent.indent()
+                        indentConfig.parentIndentOf(node)
                 }
 
             node
@@ -264,7 +264,7 @@ public class AnnotationRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
     ) {
-        val expectedIndent = node.indent().plus(indentConfig.indent)
+        val expectedIndent = indentConfig.childIndentOf(node)
 
         node
             .children()

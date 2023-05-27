@@ -173,7 +173,7 @@ public class ParameterWrappingRule :
             "$line: " + (if (!autoCorrect) "would have " else "") + "inserted newline after ${nodeAfterWhichNewlineIsRequired.text}"
         }
         if (autoCorrect) {
-            nodeToFix.upsertWhitespaceAfterMe(nodeToFix.indent().plus(indentConfig.indent))
+            nodeToFix.upsertWhitespaceAfterMe(indentConfig.childIndentOf(nodeToFix))
         }
     }
 }

@@ -53,6 +53,59 @@ class ASTNodeExtensionTest {
     }
 
     @Nested
+    inner class NoNewLineInOpenRange {
+        @Test
+        fun `Given an enum class with no whitespace leaf containing a newline between the first and last enum entry`() {
+            val code =
+                """
+                enum class Shape {
+                    FOO, FOOBAR, BAR
+                }
+                """.trimIndent()
+            val enumEntries =
+                code
+                    .transformAst(::toEnumClassBodySequence)
+                    .filter { it.elementType == ENUM_ENTRY }
+
+            val actual = noNewLineInOpenRange(enumEntries.first(), enumEntries.last())
+
+            assertThat(actual).isTrue
+        }
+
+        @Test
+        fun `Given a range of nodes not starting or ending with a whitespace leaf containing a newline but containing another whitespace leaf containing a newline`() {
+            val code =
+                """
+                enum class Shape {
+                    FOO,
+                    FOOBAR,
+                    BAR
+                }
+                """.trimIndent()
+            val enumClassBody = code.transformAst(::toEnumClassBodySequence)
+
+            val actual = noNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
+
+            assertThat(actual).isFalse
+        }
+
+        @Test
+        fun `Given a range of nodes not containing a newline inside a block comment in between`() {
+            val code =
+                """
+                enum class Shape { FOO, /*
+                newline in a block comment is ignored as it is not part of a whitespace leaf
+                */ FOOBAR, BAR }
+                """.trimIndent()
+            val enumClassBody = code.transformAst(::toEnumClassBodySequence)
+
+            val actual = noNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
+
+            assertThat(actual).isFalse
+        }
+    }
+
+    @Nested
     inner class HasNewLineInClosedRange {
         @Test
         fun `Given an enum class with no whitespace leaf containing a newline between the first and last enum entry`() {
@@ -118,7 +171,7 @@ class ASTNodeExtensionTest {
         }
 
         @Test
-        fun `Given a range of nodes not containing a newline inside a block comment in between`() {
+        fun `Given a range of nodes containing a newline inside a block comment in between`() {
             val code =
                 """
                 enum class Shape { FOO, /*

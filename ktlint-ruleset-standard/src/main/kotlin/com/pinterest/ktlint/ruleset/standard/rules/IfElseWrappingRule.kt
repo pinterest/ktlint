@@ -16,7 +16,6 @@ import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
@@ -140,11 +139,7 @@ public class IfElseWrappingRule :
         }
 
         with(node.findFirstNodeInBlockToBeIndented() ?: node) {
-            val expectedIndent =
-                node
-                    .treeParent
-                    .indent()
-                    .plus(indentConfig.indent)
+            val expectedIndent = indentConfig.siblingIndentOf(node)
             if (text != expectedIndent) {
                 emit(startOffset, "Expected a newline", true)
                 if (autoCorrect) {

@@ -1,6 +1,8 @@
 package com.pinterest.ktlint.rule.engine.internal
 
+import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
+import mu.KotlinLogging
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
@@ -24,29 +26,31 @@ import java.nio.file.Files
 import java.nio.file.Path
 import org.jetbrains.kotlin.com.intellij.openapi.diagnostic.Logger as DiagnosticLogger
 
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
+
 internal class KotlinPsiFileFactoryProvider {
     private lateinit var psiFileFactory: PsiFileFactory
 
     @Synchronized
-    fun getKotlinPsiFileFactory(isFromCli: Boolean): PsiFileFactory =
+    fun getKotlinPsiFileFactory(ktLintRuleEngine: KtLintRuleEngine): PsiFileFactory =
         if (::psiFileFactory.isInitialized) {
             psiFileFactory
         } else {
-            initPsiFileFactory(isFromCli).also { psiFileFactory = it }
+            initPsiFileFactory(ktLintRuleEngine).also { psiFileFactory = it }
         }
 }
 
 /**
  * Initialize Kotlin Lexer.
  */
-internal fun initPsiFileFactory(isFromCli: Boolean): PsiFileFactory {
+internal fun initPsiFileFactory(ktLintRuleEngine: KtLintRuleEngine): PsiFileFactory {
     DiagnosticLogger.setFactory(LoggerFactory::class.java)
 
     val compilerConfiguration = CompilerConfiguration()
     compilerConfiguration.put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
     // Special workaround on JDK 1.8 when KtLint is used from shipped CLI
     // to prevent Kotlin compiler initialization error
-    if (isFromCli && System.getProperty("java.specification.version") == "1.8") {
+    if (ktLintRuleEngine.isInvokedFromCli && System.getProperty("java.specification.version") == "1.8") {
         val extensionPath = extractCompilerExtension()
         compilerConfiguration.put(
             CLIConfigurationKeys.INTELLIJ_PLUGIN_ROOT,
@@ -62,7 +66,19 @@ internal fun initPsiFileFactory(isFromCli: Boolean): PsiFileFactory {
                 compilerConfiguration,
                 EnvironmentConfigFiles.JVM_CONFIG_FILES,
             ).project as MockProject
-        project.enableASTMutations()
+        if (ktLintRuleEngine.enableKotlinCompilerExtensionPoint) {
+            project.enableASTMutations()
+        } else {
+            LOGGER.info {
+                """
+                *** Kotlin extension points are disabled to investigate the impact of Kotlin 1.9 in a future release.
+                *** If runtime exceptions are throw because extension point 'org.jetbrains.kotlin.com.intellij.treeCopyHandler'
+                *** is not registered then your rules will fail when ktlint starts using Kotlin 1.9 unless the extension point
+                *** will be fully supported by Jetbrains.
+                """.trimIndent()
+            }
+        }
+        project.registerFormatPomModel()
 
         return PsiFileFactory.getInstance(project)
     } finally {
@@ -121,7 +137,9 @@ private fun MockProject.enableASTMutations() {
             area.registerExtensionPoint(extensionPoint, extensionClassName, ExtensionPoint.Kind.INTERFACE)
         }
     }
+}
 
+private fun MockProject.registerFormatPomModel() {
     registerService(PomModel::class.java, FormatPomModel())
 }
 
