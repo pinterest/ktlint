@@ -3,6 +3,7 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONST_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.GET_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_DECLARATION
@@ -80,7 +81,13 @@ public class PropertyNamingRule :
     ) {
         identifier
             .text
-            .takeUnless { it.matches(SCREAMING_SNAKE_CASE_REGEXP) }
+            .takeUnless {
+                // Allow
+                // object Foo {
+                //     private const val serialVersionUID: Long = 123
+                // }
+                it == SERIAL_VERSION_UID_PROPERTY_NAME
+            }?.takeUnless { it.matches(SCREAMING_SNAKE_CASE_REGEXP) }
             ?.let {
                 emit(
                     identifier.startOffset,
@@ -102,10 +109,7 @@ public class PropertyNamingRule :
             }
     }
 
-    private fun ASTNode.hasCustomGetter() =
-        findChildByType(PROPERTY_ACCESSOR)
-            ?.firstChildNode
-            ?.text == "get"
+    private fun ASTNode.hasCustomGetter() = findChildByType(PROPERTY_ACCESSOR)?.findChildByType(GET_KEYWORD) != null
 
     private fun ASTNode.hasConstModifier() = hasModifier(CONST_KEYWORD)
 
@@ -145,6 +149,7 @@ public class PropertyNamingRule :
         val LOWER_CAMEL_CASE_REGEXP = "[a-z][a-zA-Z0-9]*".regExIgnoringDiacriticsAndStrokesOnLetters()
         val SCREAMING_SNAKE_CASE_REGEXP = "[A-Z][_A-Z0-9]*".regExIgnoringDiacriticsAndStrokesOnLetters()
         val BACKING_PROPERTY_LOWER_CAMEL_CASE_REGEXP = "_[a-z][a-zA-Z0-9]*".regExIgnoringDiacriticsAndStrokesOnLetters()
+        const val SERIAL_VERSION_UID_PROPERTY_NAME = "serialVersionUID"
     }
 }
 

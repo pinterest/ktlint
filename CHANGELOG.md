@@ -7,12 +7,23 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 
 * Add new experimental rule `no-empty-file` for all code styles. A kotlin (script) file may not be empty ([#1074](https://github.com/pinterest/ktlint/issues/1074))
+* Add new experimental rule `statement-wrapping` which ensures function, class, or other blocks statement body doesn't start or end at starting or ending braces of the block ([#1938](https://github.com/pinterest/ktlint/issues/1938))
 
 ### Removed
 
 ### Fixed
 
+* Do not flag a (potential) mutable extension property in case the getter is annotated or prefixed with a modifier `property-naming` ([#2024](https://github.com/pinterest/ktlint/issues/2024))
+* Do not merge an annotated expression body with the function signature even if it fits on a single line ([#2043](https://github.com/pinterest/ktlint/issues/2043))
+* Ignore property with name `serialVersionUID` in `property-naming` ([#2045](https://github.com/pinterest/ktlint/issues/2045))
+
 ### Changed
+
+* Fix Java interoperability issues with `RuleId` and `RuleSetId` classes. Those classes were defined as value classes in `0.49.0` and `0.49.1`. Although the classes were marked with `@JvmInline` it seems that it is not possible to uses those classes from Java base API Consumers like Spotless. The classes have now been replaced with data classes ([#2041](https://github.com/pinterest/ktlint/issues/2041))
+* Update dependency `info.picocli:picocli` to v4.7.3
+* Update dependency `org.junit.jupiter:junit-jupiter` to v5.9.3
+* Update Kotlin development version to `1.8.21` and Kotlin version to `1.8.21`.
+* Update dependency io.github.detekt.sarif4k:sarif4k to v0.4.0
 
 ## [0.49.1] - 2023-05-12
 

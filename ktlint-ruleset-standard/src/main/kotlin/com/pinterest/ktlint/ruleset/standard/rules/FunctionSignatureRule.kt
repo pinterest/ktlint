@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATED_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
@@ -540,6 +541,13 @@ public class FunctionSignatureRule :
             .firstOrNull()
             ?.also { firstLineOfBodyExpression ->
                 if (whiteSpaceBeforeFunctionBodyExpression.isWhiteSpaceWithNewline()) {
+                    lastNodeOfFunctionSignatureWithBodyExpression
+                        .nextCodeSibling()
+                        .takeIf { it?.elementType == ANNOTATED_EXPRESSION }
+                        ?.let {
+                            // Never merge an annotated expression body with function signature as this conflicts with the Annotation rule
+                            return
+                        }
                     val mergeWithFunctionSignature =
                         if (firstLineOfBodyExpression.length < maxLengthRemainingForFirstLineOfBodyExpression) {
                             functionBodyExpressionWrapping == default ||

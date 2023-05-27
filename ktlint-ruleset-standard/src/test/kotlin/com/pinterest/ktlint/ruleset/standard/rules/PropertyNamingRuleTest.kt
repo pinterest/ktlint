@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.test.KtLintAssertThat
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -105,6 +106,20 @@ class PropertyNamingRuleTest {
     }
 
     @Test
+    fun `Given a top level property extension function having a custom get function and not in screaming case notation then do not emit`() {
+        val code =
+            """
+            val fooBar1: Any
+                get() = foobar() // Lint can not check whether data is immutable
+            val fooBar2
+                inline get() = foobar() // Lint can not check whether data is immutable
+            val fooBar3
+                @Bar get() = foobar() // Lint can not check whether data is immutable
+            """.trimIndent()
+        propertyNamingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
     fun `Given a backing val property name having a custom get function and not in screaming case notation then do not emit`() {
         val code =
             """
@@ -157,5 +172,40 @@ class PropertyNamingRuleTest {
             val foo = Foo()
             """.trimIndent()
         propertyNamingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Nested
+    inner class `Issue 2017 - Given property is serialVersionUID` {
+        @Test
+        fun `Given property is present in companion object`() {
+            val code =
+                """
+                class Foo1 {
+                    companion object {
+                        private const val serialVersionUID: Long = 123
+                    }
+                }
+                class Foo2 {
+                    companion object {
+                        private const val serialVersionUID = 123L
+                    }
+                }
+                """.trimIndent()
+            propertyNamingRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `Given property defined object is private const`() {
+            val code =
+                """
+                object Foo1 {
+                    private const val serialVersionUID: Long = 123
+                }
+                object Foo2 {
+                    private const val serialVersionUID = 123L
+                }
+                """.trimIndent()
+            propertyNamingRuleAssertThat(code).hasNoLintViolations()
+        }
     }
 }

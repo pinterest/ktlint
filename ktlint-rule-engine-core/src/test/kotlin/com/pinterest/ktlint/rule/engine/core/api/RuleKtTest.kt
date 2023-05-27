@@ -12,7 +12,7 @@ class RuleKtTest {
     fun `Given a rule with an unqualified rule id than the rule can not be instantiated`() {
         assertThatThrownBy { creatRule("some-unqualified-rule-id") }
             .isInstanceOf(IllegalArgumentException::class.java)
-            .hasMessage("Rule id 'some-unqualified-rule-id' must match '[a-z]+(-[a-z]+)*:[a-z]+(-[a-z]+)*'")
+            .hasMessage("Rule with id 'some-unqualified-rule-id' must match regexp '[a-z]+(-[a-z]+)*:[a-z]+(-[a-z]+)*'")
     }
 
     @ParameterizedTest(name = "Qualified rule id: `{0}`, expected rule id: `{1}`")
