@@ -115,7 +115,7 @@ public class ParameterListWrappingRule :
                         emit(
                             rpar.startOffset,
                             "Expected new line after function type as it does not fit on a single line",
-                            true
+                            true,
                         )
                         if (autoCorrect) {
                             rpar.upsertWhitespaceBeforeMe("\n")
