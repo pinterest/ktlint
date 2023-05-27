@@ -30,7 +30,7 @@ ktlint_custom-rule-set = enabled # Enable all rules in the `custom-rule-set` rul
 ```
 
 !!! note
-    All rules from the `standard` and custom rule sets are *enabled* by default and can optionally be disabled in the `.editorconfig`. All rules from the `experimental` rule set are *disabled* by default and can optionally be enabled in the `.editorconfig`.
+    All rules from the `standard` and custom rule sets are *enabled* by default and can optionally be disabled in the `.editorconfig`. All `experimental` rules are *disabled* by default and can optionally be enabled in the `.editorconfig`.
 
 ## Can I have my own rules on top of ktlint?
 
@@ -129,7 +129,7 @@ ktlint_custom-rule-set_custom-rule = disabled # Disables the `custom-rule` rule 
 ```
 
 !!! note
-    All rules from the `standard` and custom rule sets are *enabled* by default and can optionally be disabled in the `.editorconfig`. All rules from the `experimental` rule set are *disabled* by default and can optionally be enabled in the `.editorconfig`.
+    All rules from the `standard` and custom rule sets are *enabled* by default and can optionally be disabled in the `.editorconfig`. All `experimental` rules are *disabled* by default and can optionally be enabled in the `.editorconfig`.
 
 !!! note
     The *rule* properties are applied after applying the *rule set* properties and take precedence. So if a rule set is disabled but a specific rule of that rule set is enabled, then the rule will be executed.  

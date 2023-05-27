@@ -6,6 +6,8 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktl
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.ec4j.toPropertyWithValue
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.Companion.FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.Companion.FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY
+import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.FunctionBodyExpressionWrapping
+import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.FunctionBodyExpressionWrapping.default
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
@@ -671,11 +673,11 @@ class FunctionSignatureRuleTest {
     inner class BodyExpressionOnSameLine {
         @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
         @EnumSource(
-            value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
+            value = FunctionBodyExpressionWrapping::class,
             names = ["default", "multiline"],
         )
         fun `Given that the function signature and a single line body expression body fit on the same line then do not reformat function signature or body expression`(
-            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
+            bodyExpressionWrapping: FunctionBodyExpressionWrapping,
         ) {
             val code =
                 """
@@ -690,11 +692,11 @@ class FunctionSignatureRuleTest {
 
         @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
         @EnumSource(
-            value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
+            value = FunctionBodyExpressionWrapping::class,
             names = ["always"],
         )
         fun `Given that the function signature and a single line body expression body fit on the same line then do not reformat function signature but move the body expression to a separate line`(
-            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
+            bodyExpressionWrapping: FunctionBodyExpressionWrapping,
         ) {
             val code =
                 """
@@ -717,11 +719,11 @@ class FunctionSignatureRuleTest {
 
         @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
         @EnumSource(
-            value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
+            value = FunctionBodyExpressionWrapping::class,
             names = ["multiline", "always"],
         )
         fun `Given that the function signature and first line of a multiline body expression body fit on the same line then do not reformat the function signature, move the body expression to a separate line`(
-            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
+            bodyExpressionWrapping: FunctionBodyExpressionWrapping,
         ) {
             val code =
                 """
@@ -750,11 +752,11 @@ class FunctionSignatureRuleTest {
     inner class BodyExpressionOnSeparateLine {
         @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
         @EnumSource(
-            value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
+            value = FunctionBodyExpressionWrapping::class,
             names = ["default", "multiline"],
         )
         fun `Given that the function signature and a single line body expression body fit on the same line then do reformat as single line signature`(
-            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
+            bodyExpressionWrapping: FunctionBodyExpressionWrapping,
         ) {
             val code =
                 """
@@ -784,11 +786,11 @@ class FunctionSignatureRuleTest {
 
         @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
         @EnumSource(
-            value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
+            value = FunctionBodyExpressionWrapping::class,
             names = ["default", "multiline", "always"],
         )
         fun `Given that the function signature and first line of a multi line body expression body do not fit on the same line then do reformat`(
-            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
+            bodyExpressionWrapping: FunctionBodyExpressionWrapping,
         ) {
             val code =
                 """
@@ -818,11 +820,11 @@ class FunctionSignatureRuleTest {
 
         @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
         @EnumSource(
-            value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
+            value = FunctionBodyExpressionWrapping::class,
             names = ["multiline", "always"],
         )
         fun `Given that the function signature and the first line of a multi line body expression body fit on the same line then reformat to single line signature but keep body expression on separate line`(
-            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
+            bodyExpressionWrapping: FunctionBodyExpressionWrapping,
         ) {
             val code =
                 """
@@ -854,11 +856,11 @@ class FunctionSignatureRuleTest {
 
         @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
         @EnumSource(
-            value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
+            value = FunctionBodyExpressionWrapping::class,
             names = ["default"],
         )
         fun `Given that the function signature and first line of a multiline body expression body fit on the same line then do reformat as single line signature`(
-            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
+            bodyExpressionWrapping: FunctionBodyExpressionWrapping,
         ) {
             val code =
                 """
@@ -890,11 +892,11 @@ class FunctionSignatureRuleTest {
 
         @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
         @EnumSource(
-            value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
+            value = FunctionBodyExpressionWrapping::class,
             names = ["always"],
         )
         fun `Given that the function signature and first line of a multiline body expression body fit on the same line then do reformat as single line signature, keep the body expression on a separate line`(
-            bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
+            bodyExpressionWrapping: FunctionBodyExpressionWrapping,
         ) {
             val code =
                 """
@@ -927,10 +929,10 @@ class FunctionSignatureRuleTest {
 
     @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
     @EnumSource(
-        value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
+        value = FunctionBodyExpressionWrapping::class,
     )
     fun `Given a multiline function signature without explicit return type and start of body expression on next line then keep first line of body expression body on the same line as the last line of the function signature`(
-        bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
+        bodyExpressionWrapping: FunctionBodyExpressionWrapping,
     ) {
         val code =
             """
@@ -961,10 +963,10 @@ class FunctionSignatureRuleTest {
 
     @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
     @EnumSource(
-        value = FunctionSignatureRule.FunctionBodyExpressionWrapping::class,
+        value = FunctionBodyExpressionWrapping::class,
     )
     fun `Given a multiline function signature without explicit return type and start of body expression on same line as last line of function signature then do not reformat`(
-        bodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping,
+        bodyExpressionWrapping: FunctionBodyExpressionWrapping,
     ) {
         val code =
             """
@@ -1241,6 +1243,23 @@ class FunctionSignatureRuleTest {
         functionSignatureWrappingRuleAssertThat(code)
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
             .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
+            .hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 2043 - Given a function signature with an expression body that is an annotated expression then do not reformat to single line function signature`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER                                                    $EOL_CHAR
+            fun foo1(bar: String): String =
+                @Bar
+                bar
+            fun foo2(bar: String): String =
+                @Bar bar
+            """.trimIndent()
+        functionSignatureWrappingRuleAssertThat(code)
+            .setMaxLineLength()
+            .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to default)
             .hasNoLintViolations()
     }
 

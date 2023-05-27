@@ -24,5 +24,5 @@ janino = "org.codehaus.janino:janino:3.1.9"
 # Testing libraries
 junit5 = "org.junit.jupiter:junit-jupiter:5.9.3"
 assertj = "org.assertj:assertj-core:3.24.2"
-sarif4k = "io.github.detekt.sarif4k:sarif4k:0.2.0"
+sarif4k = "io.github.detekt.sarif4k:sarif4k:0.4.0"
 jimfs = "com.google.jimfs:jimfs:1.2"

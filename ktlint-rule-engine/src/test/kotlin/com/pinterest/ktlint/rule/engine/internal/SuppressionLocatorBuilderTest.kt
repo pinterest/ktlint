@@ -214,6 +214,24 @@ class SuppressionLocatorBuilderTest {
         assertThat(lint(code)).isEmpty()
     }
 
+    @Test
+    fun `Given an invalid rule id then ignore it without throwing an exception`() {
+        val code =
+            """
+            @file:Suppress("ktlint:standard:SOME-INVALID-RULE-ID-1")
+
+            @Suppress("ktlint:standard:SOME-INVALID-RULE-ID-2")
+            class Foo {
+                /* ktlint-disable standard:SOME-INVALID-RULE-ID-3 */
+                fun foo() {
+                    val fooNotReported = "foo" // ktlint-disable standard:SOME-INVALID-RULE-ID-4
+                }
+                /* ktlint-enable standard:SOME-INVALID-RULE-ID-3 */
+            }
+            """.trimIndent()
+        assertThat(lint(code)).isEmpty()
+    }
+
     @Nested
     inner class `Given that formatter tags are enabled` {
         @Test
