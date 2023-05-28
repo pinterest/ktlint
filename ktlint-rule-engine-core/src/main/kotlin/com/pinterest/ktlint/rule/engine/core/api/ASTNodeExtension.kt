@@ -235,6 +235,7 @@ public fun ASTNode?.isWhiteSpaceWithNewline(): Boolean = this != null && element
 public fun ASTNode?.isWhiteSpaceWithoutNewline(): Boolean = this != null && elementType == WHITE_SPACE && !textContains('\n')
 
 public fun ASTNode.isRoot(): Boolean = elementType == ElementType.FILE
+
 public fun ASTNode.isLeaf(): Boolean = firstChildNode == null
 
 /**

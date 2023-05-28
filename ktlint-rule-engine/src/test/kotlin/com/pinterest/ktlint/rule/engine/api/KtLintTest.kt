@@ -609,6 +609,7 @@ private data class RuleExecutionCall(
     val classIdentifier: String? = null,
 ) {
     enum class RuleMethod { BEFORE_FIRST, BEFORE_CHILDREN, VISIT, AFTER_CHILDREN, AFTER_LAST }
+
     enum class VisitNodeType { ROOT, CHILD }
 }
 

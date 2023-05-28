@@ -23,6 +23,7 @@ import kotlin.io.path.pathString
 import kotlin.io.path.relativeToOrSelf
 
 private const val SRCROOT = "%SRCROOT%"
+
 internal fun String.sanitize(): String =
     this.replace(File.separatorChar, '/')
         .let {

@@ -12,6 +12,7 @@ import java.io.Serializable
 @Deprecated("Deprecated since ktlint 0.49.0. Custom reporters have to be migrated to ReporterV2. See changelog 0.49.")
 public interface ReporterProvider<T : Reporter> : Serializable {
     public val id: String
+
     public fun get(
         out: PrintStream,
         opt: Map<String, String>,

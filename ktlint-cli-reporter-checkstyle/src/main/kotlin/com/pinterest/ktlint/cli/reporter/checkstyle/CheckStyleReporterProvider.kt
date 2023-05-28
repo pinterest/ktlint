@@ -5,6 +5,7 @@ import java.io.PrintStream
 
 public class CheckStyleReporterProvider : ReporterProviderV2<CheckStyleReporter> {
     override val id: String = "checkstyle"
+
     override fun get(
         out: PrintStream,
         opt: Map<String, String>,

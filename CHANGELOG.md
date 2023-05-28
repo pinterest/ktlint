@@ -30,6 +30,7 @@ At this point in time, it is not yet decided what the next steps will be. Ktlint
 * Add flag to disable extension point `org.jetbrains.kotlin.com.intellij.treeCopyHandler` to analyse impact on custom rules [#1981](https://github.com/pinterest/ktlint/issues/1981)
 * Add new experimental rule `no-empty-file` for all code styles. A kotlin (script) file may not be empty ([#1074](https://github.com/pinterest/ktlint/issues/1074))
 * Add new experimental rule `statement-wrapping` which ensures function, class, or other blocks statement body doesn't start or end at starting or ending braces of the block ([#1938](https://github.com/pinterest/ktlint/issues/1938))
+* Add new experimental rule `blank-line-before-declaration`. This rule requires a blank line before class, function or property declarations ([#1939](https://github.com/pinterest/ktlint/issues/1939))
 
 ### Removed
 
