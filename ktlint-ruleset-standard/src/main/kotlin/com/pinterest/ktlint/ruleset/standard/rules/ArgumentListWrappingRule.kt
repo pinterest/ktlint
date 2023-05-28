@@ -42,10 +42,13 @@ public class ArgumentListWrappingRule :
         id = "argument-list-wrapping",
         visitorModifiers =
             setOf(
+                // ArgumentListWrapping should only be used in case the max_line_length is still violated after running rules below:
                 VisitorModifier.RunAfterRule(
-                    // ArgumentListWrapping should only be used in case after normal wrapping the max_line_length is still
-                    // violated
                     ruleId = WRAPPING_RULE_ID,
+                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                ),
+                VisitorModifier.RunAfterRule(
+                    ruleId = BINARY_EXPRESSION_WRAPPING_RULE_ID,
                     mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
                 ),
             ),
