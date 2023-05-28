@@ -23,6 +23,7 @@ public class BlockCommentInitialStarAlignmentRule :
                     ruleId = INDENTATION_RULE_ID,
                     mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
                 ),
+                VisitorModifier.RunAsLateAsPossible,
             ),
     ) {
     override fun beforeVisitChildNodes(

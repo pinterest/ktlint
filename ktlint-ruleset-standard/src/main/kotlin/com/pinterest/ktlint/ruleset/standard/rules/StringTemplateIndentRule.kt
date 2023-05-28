@@ -38,6 +38,7 @@ public class StringTemplateIndentRule :
                 // the string template is relative to the opening quotes. Running this rule before the IndentationRule results in a wrong
                 // indentation whenever the indent level of the root of the string template is changed.
                 VisitorModifier.RunAfterRule(INDENTATION_RULE_ID, ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED),
+                VisitorModifier.RunAsLateAsPossible,
             ),
         usesEditorConfigProperties =
             setOf(
