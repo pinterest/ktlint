@@ -22,6 +22,8 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PR
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
+import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
@@ -88,37 +90,45 @@ public class ParameterListWrappingRule :
         require(node.elementType == NULLABLE_TYPE)
         node
             .takeUnless {
-                // skip when max line length is not exceedd
+                // skip when max line length is not exceeded
                 (node.column - 1 + node.textLength) <= maxLineLength
-            }?.findChildByType(FUNCTION_TYPE)
-            ?.findChildByType(VALUE_PARAMETER_LIST)
-            ?.takeIf { it.findChildByType(VALUE_PARAMETER) != null }
-            ?.takeUnless { it.textContains('\n') }
-            ?.let {
-                node
-                    .children()
-                    .forEach {
-                        when (it.elementType) {
-                            LPAR -> {
-                                emit(
-                                    it.startOffset,
-                                    "Parameter of nullable type should be on a separate line (unless the type fits on a single line)",
-                                    true,
-                                )
-                                if (autoCorrect) {
-                                    it.upsertWhitespaceAfterMe(indentConfig.childIndentOf(node))
-                                }
-                            }
-                            RPAR -> {
-                                emit(it.startOffset, errorMessage(it), true)
-                                if (autoCorrect) {
-                                    it.upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(node))
-                                }
-                            }
+            }?.takeUnless { it.textContains('\n') }
+            ?.takeIf { it.isFunctionTypeWithNonEmptyValueParameterList() }
+            ?.let { nullableType ->
+                nullableType
+                    .findChildByType(LPAR)
+                    ?.takeUnless { it.nextLeaf()?.isWhiteSpaceWithNewline() == true }
+                    ?.let { lpar ->
+                        emit(
+                            lpar.startOffset + 1,
+                            "Expected new line before function type as it does not fit on a single line",
+                            true,
+                        )
+                        if (autoCorrect) {
+                            lpar.upsertWhitespaceAfterMe(indentConfig.childIndentOf(node))
+                        }
+                    }
+                nullableType
+                    .findChildByType(RPAR)
+                    ?.takeUnless { it.prevLeaf()?.isWhiteSpaceWithNewline() == true }
+                    ?.let { rpar ->
+                        emit(
+                            rpar.startOffset,
+                            "Expected new line after function type as it does not fit on a single line",
+                            true,
+                        )
+                        if (autoCorrect) {
+                            rpar.upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(node))
                         }
                     }
             }
     }
+
+    private fun ASTNode.isFunctionTypeWithNonEmptyValueParameterList() =
+        null !=
+            findChildByType(FUNCTION_TYPE)
+                ?.findChildByType(VALUE_PARAMETER_LIST)
+                ?.findChildByType(VALUE_PARAMETER)
 
     private fun ASTNode.needToWrapParameterList() =
         when {
@@ -126,10 +136,9 @@ public class ParameterListWrappingRule :
             codeStyle != ktlint_official && isPartOfFunctionLiteralInNonKtlintOfficialCodeStyle() -> false
             codeStyle == ktlint_official && isPartOfFunctionLiteralStartingOnSameLineAsClosingParenthesisOfPrecedingReferenceExpression() ->
                 false
-            isFunctionTypeWrappedInNullableType() -> false
             textContains('\n') -> true
             codeStyle == ktlint_official && containsAnnotatedParameter() -> true
-            exceedsMaxLineLength() -> true
+            isOnLineExceedingMaxLineLength() -> true
             else -> false
         }
 
@@ -157,11 +166,6 @@ public class ParameterListWrappingRule :
                     ?.none { it.isWhiteSpaceWithNewline() }
                     ?: false
             }
-    }
-
-    private fun ASTNode.isFunctionTypeWrappedInNullableType(): Boolean {
-        require(elementType == VALUE_PARAMETER_LIST)
-        return treeParent.elementType == FUNCTION_TYPE && treeParent?.treeParent?.elementType == NULLABLE_TYPE
     }
 
     private fun ASTNode.containsAnnotatedParameter(): Boolean {
@@ -228,10 +232,12 @@ public class ParameterListWrappingRule :
         when (child.elementType) {
             LPAR -> {
                 val prevLeaf = child.prevLeaf()
-                if (prevLeaf is PsiWhiteSpace && prevLeaf.textContains('\n')) {
+                if (!child.treeParent.isValueParameterListInFunctionType() &&
+                    prevLeaf.isWhiteSpaceWithNewline()
+                ) {
                     emit(child.startOffset, errorMessage(child), true)
                     if (autoCorrect) {
-                        prevLeaf.delete()
+                        (prevLeaf as PsiWhiteSpace).delete()
                     }
                 }
             }
@@ -272,7 +278,24 @@ public class ParameterListWrappingRule :
         }
     }
 
-    private fun ASTNode.exceedsMaxLineLength() = (column - 1 + textLength) > maxLineLength && !textContains('\n')
+    private fun ASTNode.isValueParameterListInFunctionType() =
+        FUNCTION_TYPE ==
+            takeIf { it.elementType == VALUE_PARAMETER_LIST }
+                ?.treeParent
+                ?.elementType
+
+    private fun ASTNode.isOnLineExceedingMaxLineLength(): Boolean {
+        val stopLeaf = nextLeaf { it.textContains('\n') }?.nextLeaf()
+        val lineContent =
+            prevLeaf { it.textContains('\n') }
+                ?.leavesIncludingSelf()
+                ?.takeWhile { it.prevLeaf() != stopLeaf }
+                ?.joinToString(separator = "") { it.text }
+                ?.substringAfter('\n')
+                ?.substringBefore('\n')
+                .orEmpty()
+        return lineContent.length > maxLineLength
+    }
 
     private fun errorMessage(node: ASTNode) =
         when (node.elementType) {
