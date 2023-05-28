@@ -84,7 +84,7 @@ public class ContextReceiverWrappingRule :
                 if (autoCorrect) {
                     nodeAfterContextReceiver
                         .firstChildLeafOrSelf()
-                        .upsertWhitespaceBeforeMe(node.treeParent.indent())
+                        .upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(node))
                 }
             }
 
@@ -104,7 +104,7 @@ public class ContextReceiverWrappingRule :
                     if (autoCorrect) {
                         it
                             .prevLeaf(includeEmpty = true)
-                            ?.upsertWhitespaceAfterMe(node.indent().plus(indentConfig.indent))
+                            ?.upsertWhitespaceAfterMe(indentConfig.childIndentOf(node))
                     }
                 }
             node
@@ -143,8 +143,7 @@ public class ContextReceiverWrappingRule :
                         true,
                     )
                     if (autoCorrect) {
-                        it
-                            .upsertWhitespaceBeforeMe(node.indent().plus(indentConfig.indent))
+                        it.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
                     }
                 }
             node
@@ -159,7 +158,7 @@ public class ContextReceiverWrappingRule :
                         // Ideally, the closing angle bracket should be de-indented to make it consistent with
                         // de-intentation of closing ")", "}" and "]". This however would be inconsistent with how the
                         // type argument lists are formatted by IntelliJ IDEA default formatter.
-                        gt.upsertWhitespaceBeforeMe(node.indent().plus(indentConfig.indent))
+                        gt.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
                     }
                 }
         }

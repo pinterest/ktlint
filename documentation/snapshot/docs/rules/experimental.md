@@ -8,6 +8,88 @@ ktlint_experimental=enabled
 ```
 Also see [enable/disable specific rules](../configuration-ktlint/#disabled-rules).
 
+## Binary expression wrapping
+
+Wraps binary expression at the operator reference whenever the binary expression does not fit on the line. In case the binary expression is nested, the expression is evaluated from outside to inside. If the left and right hand sides of the binary expression, after wrapping, fit on a single line then the inner binary expressions will not be wrapped. If one or both inner binary expression still do not fit on a single after wrapping of the outer binary expression, then each of those inner binary expressions will be wrapped.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun foo() {
+        // Assume that the last allowed character is
+        // at the X character on the right                       X
+        if ((leftHandSideExpression && rightHandSideExpression) ||
+            (leftHandSideLongExpression &&
+                rightHandSideLongExpression)) {
+            // do something
+        }
+    }
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun foo() {
+        // Assume that the last allowed character is
+        // at the X character on the right                       X
+        if ((leftHandSideExpression && rightHandSideExpression) || (leftHandSideLongExpression && rightHandSideLongExpression)) {
+            // do something
+        }
+    }
+    ```
+
+Rule id: `binary-expression-wrapping` (`standard` rule set)
+
+## Blank line before declarations
+
+Requires a blank line before any class or function declaration. No blank line is required between the class signature and the first declaration in the class. In a similar way, a blank line is required before any list of top level or class properties. No blank line is required before local properties or between consecutive properties.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    const val foo1 = "foo1"
+
+    class FooBar {
+        val foo2 = "foo2"
+        val foo3 = "foo3"
+
+        fun bar1() {
+           val foo4 = "foo4"
+           val foo5 = "foo5"
+        }
+
+        fun bar2() = "bar"
+
+        val foo6 = "foo3"
+        val foo7 = "foo4"
+
+        enum class Foo {}
+    }
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    const val foo1 = "foo1"
+    class FooBar {
+        val foo2 = "foo2"
+        val foo3 = "foo3"
+        fun bar1() {
+           val foo4 = "foo4"
+           val foo5 = "foo5"
+        }
+        fun bar2() = "bar"
+        val foo6 = "foo3"
+        val foo7 = "foo4"
+        enum class Foo {}
+    }
+    ```
+
+Rule id: `blank-line-before-declaration` (`standard` rule set)
+
+!!! Note
+This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
+
 ## Discouraged comment location
 
 Detect discouraged comment locations (no autocorrect).
@@ -351,6 +433,12 @@ Enforce naming of property.
 This rule can also be suppressed with the IntelliJ IDEA inspection suppression `PropertyName`.
 
 Rule id: `property-naming` (`standard` rule set)
+
+## No empty file
+
+A kotlin (script) file should not be empty. It needs to contain at least one declaration. Files only contain a package and/or import statements are as of that disallowed.
+
+Rule id: `no-empty-file`
 
 ## No single line block comments
 
@@ -735,7 +823,7 @@ Wraps the content receiver list to a separate line regardless of maximum line le
 
 Rule id: `context-receiver-wrapping` (`standard` rule set)
 
-## Enum wrapping
+### Enum wrapping
 
 An enum should be a single line, or each enum entry has to be placed on a separate line. In case the enumeration contains enum entries and declarations those are to be separated by a blank line.
 
@@ -802,3 +890,34 @@ Rule id: `multiline-expression-wrapping` (`standard` rule set)
 
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
+
+### Statement wrapping
+
+A function, class/object body or other block body statement has to be placed on different line than the braces of the body block.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun foo() {
+        if (true) {
+            // do something
+        }
+    }
+    class A {
+        val a = 0
+        val b = 1
+    }
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun foo() { if (true) {
+            // do something
+        }
+    }
+    class A { val a = 0
+        val b = 1 }
+    ```
+
+Rule id: `statement-wrapping`

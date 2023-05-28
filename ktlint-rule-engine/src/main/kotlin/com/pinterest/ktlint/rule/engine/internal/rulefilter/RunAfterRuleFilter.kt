@@ -166,6 +166,7 @@ internal class RunAfterRuleFilter : RuleFilter {
                 }
             }.toSet()
     }
+
     private fun RuleProvider.canRunWith(loadedRuleIds: Set<RuleId>): Boolean =
         this
             .runAfterRules

@@ -139,7 +139,7 @@ internal class RuleExecutionContext private constructor(
             ktLintRuleEngine: KtLintRuleEngine,
             code: Code,
         ): RuleExecutionContext {
-            val psiFileFactory = KOTLIN_PSI_FILE_FACTORY_PROVIDER.getKotlinPsiFileFactory(ktLintRuleEngine.isInvokedFromCli)
+            val psiFileFactory = KOTLIN_PSI_FILE_FACTORY_PROVIDER.getKotlinPsiFileFactory(ktLintRuleEngine)
             val normalizedText = normalizeText(code.content)
             val positionInTextLocator = buildPositionInTextLocator(normalizedText)
 

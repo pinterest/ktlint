@@ -22,7 +22,6 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
@@ -90,7 +89,7 @@ public class ChainWrappingRule :
                     // <prevLeaf><node="."><spaceBeforeComment><comment><nextLeaf="\n"> to
                     // <prevLeaf><delete space if any><spaceBeforeComment><comment><nextLeaf="\n"><node="."><space if needed>
                     if (node.elementType == ELVIS) {
-                        node.upsertWhitespaceBeforeMe(node.indent().plus(indentConfig.indent))
+                        node.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
                         node.upsertWhitespaceAfterMe(" ")
                     } else {
                         node.treeParent.removeChild(node)

@@ -3,10 +3,12 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ARROW
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DESTRUCTURING_DECLARATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_TYPE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.SEMICOLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN_ENTRY
@@ -18,6 +20,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isCodeLeaf
+import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.noNewLineInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -29,6 +32,8 @@ import org.ec4j.core.model.PropertyType.PropertyValueParser
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtCollectionLiteralExpression
@@ -36,7 +41,6 @@ import org.jetbrains.kotlin.psi.KtDestructuringDeclaration
 import org.jetbrains.kotlin.psi.KtEnumEntry
 import org.jetbrains.kotlin.psi.KtFunctionLiteral
 import org.jetbrains.kotlin.psi.KtParameterList
-import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.KtValueArgumentList
 import org.jetbrains.kotlin.psi.KtWhenEntry
 import org.jetbrains.kotlin.psi.KtWhenExpression
@@ -316,36 +320,39 @@ public class TrailingCommaOnDeclarationSiteRule :
                     }
                     if (autoCorrect) {
                         if (addNewLine) {
-                            val newLine =
-                                KtPsiFactory(prevNode.psi).createWhiteSpace(
-                                    prevNode
-                                        .treeParent
-                                        .indent(),
-                                )
-                            if (leafBeforeArrowOrNull != null && leafBeforeArrowOrNull is PsiWhiteSpace) {
-                                leafBeforeArrowOrNull.replace(newLine)
+                            val indent =
+                                prevNode
+                                    .treeParent
+                                    .indent()
+                            if (leafBeforeArrowOrNull is PsiWhiteSpace) {
+                                (leafBeforeArrowOrNull as LeafPsiElement).rawReplaceWithText(indent)
                             } else {
-                                prevNode.psi.parent.addAfter(newLine, prevNode.psi)
+                                inspectNode
+                                    .prevCodeLeaf()
+                                    ?.nextLeaf()
+                                    ?.let { before ->
+                                        before.treeParent.addChild(PsiWhiteSpaceImpl(indent), before)
+                                    }
                             }
                         }
 
-                        val comma = KtPsiFactory(prevNode.psi).createComma()
                         if (inspectNode.treeParent.elementType == ElementType.ENUM_ENTRY) {
-                            with(KtPsiFactory(prevNode.psi)) {
-                                val parentIndent =
-                                    (prevNode.psi.parent.prevLeaf() as? PsiWhiteSpace)?.text
-                                        ?: prevNode.indent()
-                                val newline = createWhiteSpace(parentIndent)
-                                val enumEntry = inspectNode.treeParent.psi
-                                enumEntry.apply {
-                                    inspectNode.psi.replace(comma)
-                                    add(newline)
-                                    add(createSemicolon())
-                                }
+                            val parentIndent =
+                                (prevNode.psi.parent.prevLeaf() as? PsiWhiteSpace)?.text
+                                    ?: prevNode.indent()
+                            (inspectNode as LeafPsiElement).apply {
+                                this.treeParent.addChild(LeafPsiElement(COMMA, ","), this)
+                                this.treeParent.addChild(PsiWhiteSpaceImpl(parentIndent), null)
+                                this.treeParent.addChild(LeafPsiElement(SEMICOLON, ";"), null)
                             }
-                            Unit
+                            inspectNode.treeParent.removeChild(inspectNode)
                         } else {
-                            prevNode.psi.parent.addAfter(comma, prevNode.psi)
+                            inspectNode
+                                .prevCodeLeaf()
+                                ?.nextLeaf()
+                                ?.let { before ->
+                                    before.treeParent.addChild(LeafPsiElement(COMMA, ","), before)
+                                }
                         }
                     }
                 }

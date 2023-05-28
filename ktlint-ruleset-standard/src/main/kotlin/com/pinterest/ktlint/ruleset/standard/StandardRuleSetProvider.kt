@@ -6,6 +6,8 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import com.pinterest.ktlint.ruleset.standard.rules.AnnotationRule
 import com.pinterest.ktlint.ruleset.standard.rules.AnnotationSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ArgumentListWrappingRule
+import com.pinterest.ktlint.ruleset.standard.rules.BinaryExpressionWrappingRule
+import com.pinterest.ktlint.ruleset.standard.rules.BlankLineBeforeDeclarationRule
 import com.pinterest.ktlint.ruleset.standard.rules.BlockCommentInitialStarAlignmentRule
 import com.pinterest.ktlint.ruleset.standard.rules.ChainWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ClassNamingRule
@@ -39,6 +41,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.NoBlankLinesInChainedMethodCa
 import com.pinterest.ktlint.ruleset.standard.rules.NoConsecutiveBlankLinesRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoConsecutiveCommentsRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoEmptyClassBodyRule
+import com.pinterest.ktlint.ruleset.standard.rules.NoEmptyFileRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoEmptyFirstLineInClassBodyRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoEmptyFirstLineInMethodBlockRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoLineBreakAfterElseRule
@@ -88,6 +91,8 @@ public class StandardRuleSetProvider :
             RuleProvider { AnnotationRule() },
             RuleProvider { AnnotationSpacingRule() },
             RuleProvider { ArgumentListWrappingRule() },
+            RuleProvider { BinaryExpressionWrappingRule() },
+            RuleProvider { BlankLineBeforeDeclarationRule() },
             RuleProvider { BlockCommentInitialStarAlignmentRule() },
             RuleProvider { ChainWrappingRule() },
             RuleProvider { ClassNamingRule() },
@@ -121,6 +126,7 @@ public class StandardRuleSetProvider :
             RuleProvider { NoConsecutiveBlankLinesRule() },
             RuleProvider { NoConsecutiveCommentsRule() },
             RuleProvider { NoEmptyClassBodyRule() },
+            RuleProvider { NoEmptyFileRule() },
             RuleProvider { NoEmptyFirstLineInClassBodyRule() },
             RuleProvider { NoEmptyFirstLineInMethodBlockRule() },
             RuleProvider { NoLineBreakAfterElseRule() },

@@ -4,6 +4,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
@@ -599,6 +600,30 @@ class ParameterListWrappingRuleTest {
                     LintViolation(4, 17, "Parameter should start on a newline"),
                     LintViolation(4, 28, "Parameter should start on a newline"),
                     LintViolation(4, 37, "Missing newline before \")\""),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given a fucntion containing a nullable function type for which the function type fits does not fit on a single line after wrapping the nullable type`() {
+            val code =
+                """
+                fun foo() {
+                    var changesListener: ((width: Double?, depth: Double?, length: Double?, area: Double?) -> Unit)? = null
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun foo() {
+                    var changesListener: (
+                        (width: Double?, depth: Double?, length: Double?, area: Double?) -> Unit
+                    )? = null
+                }
+                """.trimIndent()
+            parameterListWrappingRuleAssertThat(code)
+                .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 80)
+                .hasLintViolations(
+                    LintViolation(2, 26, "Parameter of nullable type should be on a separate line (unless the type fits on a single line)"),
+                    LintViolation(2, 99, """Missing newline before ")""""),
                 ).isFormattedAs(formattedCode)
         }
     }
