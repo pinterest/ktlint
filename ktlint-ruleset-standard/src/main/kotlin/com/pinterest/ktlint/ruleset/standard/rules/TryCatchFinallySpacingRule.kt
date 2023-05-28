@@ -13,7 +13,6 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -78,7 +77,7 @@ public class TryCatchFinallySpacingRule :
                 if (!nextSibling.text.startsWith("\n")) {
                     emit(lbrace.startOffset + 1, "Expected a newline after '{'", true)
                     if (autoCorrect) {
-                        lbrace.upsertWhitespaceAfterMe(node.treeParent.indent().plus(indentConfig.indent))
+                        lbrace.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(node))
                     }
                 }
             }
@@ -90,7 +89,7 @@ public class TryCatchFinallySpacingRule :
                 if (!prevSibling.text.startsWith("\n")) {
                     emit(rbrace.startOffset, "Expected a newline before '}'", true)
                     if (autoCorrect) {
-                        rbrace.upsertWhitespaceBeforeMe(node.treeParent.indent())
+                        rbrace.upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(node))
                     }
                 }
             }

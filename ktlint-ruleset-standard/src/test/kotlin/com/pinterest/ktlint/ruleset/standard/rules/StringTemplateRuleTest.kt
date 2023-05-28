@@ -354,6 +354,17 @@ class StringTemplateRuleTest {
             .hasLintViolation(3, 21, "Redundant \"toString()\" call in string template")
             .isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Given a string template immediately followed by non-whitespace character`() {
+        val code =
+            """
+            fun test(foo: String, bar: String) {
+                println("${'$'}{foo}text:${'$'}bar")
+            }
+            """.trimIndent()
+        stringTemplateRuleAssertThat(code).hasNoLintViolations()
+    }
 }
 
 // Replace the "$." placeholder with an actual "$" so that string "$.{expression}" is transformed to a String template

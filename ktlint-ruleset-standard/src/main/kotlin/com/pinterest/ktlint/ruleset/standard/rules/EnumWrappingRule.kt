@@ -13,7 +13,6 @@ import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
@@ -90,11 +89,11 @@ public class EnumWrappingRule :
                 .takeWhile { it != firstEnumEntry }
                 .firstOrNull { it.isPartOfComment() }
                 ?.let { commentBeforeFirstEnumEntry ->
-                    val expectedIndent = node.treeParent.indent()
+                    val expectedIndent = indentConfig.parentIndentOf(node)
                     if (commentBeforeFirstEnumEntry.prevLeaf()?.text != expectedIndent) {
                         emit(node.startOffset, "Expected a newline before comment", true)
                         if (autoCorrect) {
-                            commentBeforeFirstEnumEntry.upsertWhitespaceBeforeMe(node.treeParent.indent().plus(indentConfig.indent))
+                            commentBeforeFirstEnumEntry.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
                         }
                         return true
                     }
@@ -144,7 +143,7 @@ public class EnumWrappingRule :
             ?.let { prevLeaf ->
                 emit(node.startOffset, "Enum entry should start on a separate line", true)
                 if (autoCorrect) {
-                    prevLeaf.upsertWhitespaceAfterMe(node.treeParent.indent().plus(indentConfig.indent))
+                    prevLeaf.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(node))
                 }
             }
     }
@@ -158,7 +157,7 @@ public class EnumWrappingRule :
             .findChildByType(RBRACE)
             ?.let { rbrace ->
                 val prevLeaf = rbrace.prevLeaf()
-                val expectedIndent = node.treeParent.indent()
+                val expectedIndent = indentConfig.parentIndentOf(node)
                 if (prevLeaf?.text != expectedIndent) {
                     emit(rbrace.startOffset, "Expected newline before '}'", true)
                     if (autoCorrect) {
@@ -179,10 +178,7 @@ public class EnumWrappingRule :
             ?.nextSibling { !it.isPartOfComment() }
             ?.takeUnless { it.nextCodeSibling()?.elementType == RBRACE }
             ?.let { nextSibling ->
-                val expectedIndent =
-                    "\n"
-                        .plus(node.treeParent.indent())
-                        .plus(indentConfig.indent)
+                val expectedIndent = "\n".plus(indentConfig.siblingIndentOf(node))
                 if (nextSibling.text != expectedIndent) {
                     emit(nextSibling.startOffset + 1, "Expected blank line between enum entries and other declaration(s)", true)
                     if (autoCorrect) {

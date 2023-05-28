@@ -386,8 +386,19 @@ public fun noNewLineInClosedRange(
     to: ASTNode,
 ): Boolean =
     !from.isWhiteSpaceWithNewline() &&
-        leavesInOpenRange(from, to).none { it.textContains('\n') } &&
+        noNewLineInOpenRange(from, to) &&
         !to.isWhiteSpaceWithNewline()
+
+/**
+ * Verifies that no leaf contains a newline in the open range [from] - [to]. This means that the boundary nodes are excluded from the range
+ * in case they would happen to be a leaf node. In case [from] is a [CompositeElement] than the first leaf node in the sequence is the first
+ * leaf node in this [CompositeElement]. In case [to] is a [CompositeElement] than the last node in the sequence is the last leaf node prior
+ * to this [CompositeElement].
+ */
+public fun noNewLineInOpenRange(
+    from: ASTNode,
+    to: ASTNode,
+): Boolean = leavesInOpenRange(from, to).none { it.textContains('\n') }
 
 /**
  * Creates a sequence of leaf nodes in the open range [from] - [to]. This means that the boundary nodes are excluded

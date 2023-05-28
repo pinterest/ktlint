@@ -494,7 +494,7 @@ public class KtLintAssertThatAssertable(
                 .toLintViolationsFields()
         assertThat(actualLintViolationFields)
             .describedAs("Lint errors which can be automatically corrected")
-            .containsExactlyInAnyOrder(*expectedErrors.toLintViolationsFields(canBeAutoCorrected = true))
+            .containsExactlyInAnyOrder(*expectedErrors.toLintViolationsFields())
         return this
     }
 
@@ -511,7 +511,7 @@ public class KtLintAssertThatAssertable(
                 .toLintViolationsFields()
         assertThat(actualLintViolationFields)
             .describedAs("Lint errors which can be automatically corrected")
-            .containsExactlyInAnyOrder(*expectedErrors.toLintViolationsFields(canBeAutoCorrected = true))
+            .containsExactlyInAnyOrder(*expectedErrors.toLintViolationsFields())
         return this
     }
 
@@ -559,20 +559,37 @@ public class KtLintAssertThatAssertable(
         val actualLintViolationFields =
             lint()
                 .filterCurrentRuleOnly()
-                .toLintViolationsFields()
+                .map {
+                    LintViolationFields(
+                        line = it.line,
+                        col = it.col,
+                        detail = it.detail,
+                        canBeAutoCorrected = false,
+                    )
+                }.toTypedArray()
+        val expectedLintViolationFields =
+            expectedLintViolations
+                .map {
+                    LintViolationFields(
+                        line = it.line,
+                        col = it.col,
+                        detail = it.detail,
+                        canBeAutoCorrected = false,
+                    )
+                }
 
         assertThat(actualLintViolationFields)
             .describedAs("Lint errors which can not be automatically corrected")
-            .containsExactlyInAnyOrder(*expectedLintViolations.toLintViolationsFields(canBeAutoCorrected = false))
+            .containsExactlyInAnyOrder(*expectedLintViolationFields.toTypedArray())
     }
 
-    private fun Array<out LintViolation>.toLintViolationsFields(canBeAutoCorrected: Boolean): Array<LintViolationFields> {
+    private fun Array<out LintViolation>.toLintViolationsFields(): Array<LintViolationFields> {
         return map {
             LintViolationFields(
                 line = it.line,
                 col = it.col,
                 detail = it.detail,
-                canBeAutoCorrected = canBeAutoCorrected,
+                canBeAutoCorrected = it.canBeAutoCorrected,
             )
         }.toTypedArray()
     }
@@ -647,6 +664,7 @@ public data class LintViolation(
     val line: Int,
     val col: Int,
     val detail: String,
+    val canBeAutoCorrected: Boolean = true,
 )
 
 /**

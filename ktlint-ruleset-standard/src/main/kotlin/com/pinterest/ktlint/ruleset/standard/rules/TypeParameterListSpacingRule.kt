@@ -17,7 +17,6 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
@@ -92,7 +91,7 @@ public class TypeParameterListSpacingRule :
                     //    class Bar<T> constructor(...)
                     //    class Bar<T> actual constructor(...)
                     //    class Bar<T> @SomeAnnotation constructor(...)
-                    if (whiteSpace.text != " " && whiteSpace.text != node.indent().plus(indentConfig.indent)) {
+                    if (whiteSpace.text != " " && whiteSpace.text != indentConfig.childIndentOf(node)) {
                         emit(
                             whiteSpace.startOffset,
                             "Expected a single space or newline (with indent)",
@@ -176,7 +175,7 @@ public class TypeParameterListSpacingRule :
             ?.let {
                 val expectedWhitespace =
                     if (node.textContains('\n')) {
-                        node.indent().plus(indentConfig.indent)
+                        indentConfig.childIndentOf(node)
                     } else {
                         ""
                     }
@@ -190,7 +189,7 @@ public class TypeParameterListSpacingRule :
             ?.let {
                 val expectedWhitespace =
                     if (node.textContains('\n')) {
-                        node.indent().plus(indentConfig.indent)
+                        indentConfig.childIndentOf(node)
                     } else {
                         ""
                     }

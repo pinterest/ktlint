@@ -735,7 +735,7 @@ Wraps the content receiver list to a separate line regardless of maximum line le
 
 Rule id: `context-receiver-wrapping` (`standard` rule set)
 
-## Enum wrapping
+### Enum wrapping
 
 An enum should be a single line, or each enum entry has to be placed on a separate line. In case the enumeration contains enum entries and declarations those are to be separated by a blank line.
 
@@ -771,6 +771,39 @@ An enum should be a single line, or each enum entry has to be placed on a separa
     ```
 
 Rule id: `enum-wrapping` (`standard` rule set)
+
+### Statement wrapping
+
+A function, class/object body or other block body statement has to be placed on different line than the braces of the body block.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun foo() {
+        if (true) {
+            // do something
+        }
+    }
+
+    class A {
+        val a = 0
+        val b = 1
+    }
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun foo() { if (true) {
+            // do something
+        }
+    }
+
+    class A { val a = 0
+        val b = 1 }
+    ```
+
+Rule id: `statement-wrapping`
 
 ### Multiline expression wrapping
 

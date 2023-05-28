@@ -44,44 +44,60 @@ public class StringTemplateRule : StandardRule("string-template") {
                         true,
                     )
                     if (autoCorrect) {
-                        entryExpression.replace(receiver)
-                        entryExpression = receiver
+                        entryExpression
+                            .node
+                            .let { entryExpressionNode ->
+                                entryExpressionNode.treeParent.addChild(receiver.node, entryExpressionNode)
+                                entryExpressionNode.treeParent.removeChild(entryExpressionNode)
+                            }
+                        node
+                            .takeIf { it.isStringTemplate() }
+                            ?.removeCurlyBracesIfRedundant()
                     }
                 }
             }
-            if (node.text.startsWith("${'$'}{") &&
-                node.text.let { it.substring(2, it.length - 1) }.all { it.isPartOfIdentifier() } &&
+            if (node.isStringTemplate() &&
                 (entryExpression is KtNameReferenceExpression || entryExpression is KtThisExpression) &&
                 node.treeNext.let { nextSibling ->
                     nextSibling.elementType == CLOSING_QUOTE ||
                         (
                             nextSibling.elementType == LITERAL_STRING_TEMPLATE_ENTRY &&
-                                !nextSibling.text[0].isPartOfIdentifier()
+                                !nextSibling.text.substring(0, 1).isPartOfIdentifier()
                             )
                 }
             ) {
                 emit(node.treePrev.startOffset + 2, "Redundant curly braces", true)
                 if (autoCorrect) {
-                    val leftCurlyBraceNode = node.findChildByType(LONG_TEMPLATE_ENTRY_START)
-                    val rightCurlyBraceNode = node.findChildByType(LONG_TEMPLATE_ENTRY_END)
-                    if (leftCurlyBraceNode != null && rightCurlyBraceNode != null) {
-                        node.removeChild(leftCurlyBraceNode)
-                        node.removeChild(rightCurlyBraceNode)
-                        val remainingNode = node.firstChildNode
-                        val newNode =
-                            if (remainingNode.elementType == DOT_QUALIFIED_EXPRESSION) {
-                                LeafPsiElement(REGULAR_STRING_PART, "\$${remainingNode.text}")
-                            } else {
-                                LeafPsiElement(remainingNode.elementType, "\$${remainingNode.text}")
-                            }
-                        node.replaceChild(node.firstChildNode, newNode)
-                    }
+                    node.removeCurlyBracesIfRedundant()
                 }
             }
         }
     }
 
-    private fun Char.isPartOfIdentifier() = this == '_' || this.isLetterOrDigit()
+    private fun ASTNode.removeCurlyBracesIfRedundant() {
+        if (isStringTemplate()) {
+            val leftCurlyBraceNode = findChildByType(LONG_TEMPLATE_ENTRY_START)
+            val rightCurlyBraceNode = findChildByType(LONG_TEMPLATE_ENTRY_END)
+            if (leftCurlyBraceNode != null && rightCurlyBraceNode != null) {
+                removeChild(leftCurlyBraceNode)
+                removeChild(rightCurlyBraceNode)
+                val remainingNode = firstChildNode
+                val newNode =
+                    if (remainingNode.elementType == DOT_QUALIFIED_EXPRESSION) {
+                        LeafPsiElement(REGULAR_STRING_PART, "\$${remainingNode.text}")
+                    } else {
+                        LeafPsiElement(remainingNode.elementType, "\$${remainingNode.text}")
+                    }
+                replaceChild(firstChildNode, newNode)
+            }
+        }
+    }
+
+    private fun ASTNode.isStringTemplate() =
+        text.startsWith("${'$'}{") &&
+            text.substring(2, text.length - 1).isPartOfIdentifier()
+
+    private fun String.isPartOfIdentifier() = this == "_" || this.all { it.isLetterOrDigit() }
 }
 
 public val STRING_TEMPLATE_RULE_ID: RuleId = StringTemplateRule().ruleId

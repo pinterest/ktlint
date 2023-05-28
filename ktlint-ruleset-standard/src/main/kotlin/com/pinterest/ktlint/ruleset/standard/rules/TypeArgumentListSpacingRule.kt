@@ -8,7 +8,6 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.findCompositeParentElementOfType
-import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfCompositeElementOfType
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -19,7 +18,6 @@ import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 
 /**
  * Lints and formats the spacing before and after the angle brackets of a type argument list.
@@ -98,11 +96,11 @@ public class TypeArgumentListSpacingRule :
     ) {
         val multiline = node.textContains('\n')
         val expectedIndent =
-            node
-                .indent()
-                .applyIf(multiline) {
-                    plus(indentConfig.indent)
-                }
+            if (multiline) {
+                indentConfig.childIndentOf(node)
+            } else {
+                indentConfig.siblingIndentOf(node)
+            }
 
         node
             .findChildByType(ElementType.LT)

@@ -73,7 +73,7 @@ public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
                 regex = SPACE_OR_TAB_BEFORE_NEWLINE_REGEX,
                 replacement = "\n",
             )
-        (this as LeafPsiElement).replaceWithText(newText)
+        (this as LeafPsiElement).rawReplaceWithText(newText)
     }
 
     private fun String.hasTrailingSpace() = takeLast(1) == " "

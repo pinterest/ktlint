@@ -130,7 +130,7 @@ public class MultiLineIfElseRule :
             val previousChild = node.firstChildNode
             node.replaceChild(node.firstChildNode, this)
             addChild(LeafPsiElement(LBRACE, "{"))
-            addChild(PsiWhiteSpaceImpl(node.indent().plus(indentConfig.indent)))
+            addChild(PsiWhiteSpaceImpl(indentConfig.childIndentOf(node)))
             prevLeaves
                 .dropWhile { it.isWhiteSpace() }
                 .forEach(::addChild)

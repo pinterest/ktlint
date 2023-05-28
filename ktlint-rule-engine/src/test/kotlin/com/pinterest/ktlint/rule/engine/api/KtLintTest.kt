@@ -503,7 +503,7 @@ private class AutoCorrectErrorRule : Rule(
                 STRING_VALUE_TO_BE_AUTOCORRECTED -> {
                     emit(node.startOffset, ERROR_MESSAGE_CAN_BE_AUTOCORRECTED, true)
                     if (autoCorrect) {
-                        (node as LeafElement).replaceWithText(STRING_VALUE_AFTER_AUTOCORRECT)
+                        (node as LeafElement).rawReplaceWithText(STRING_VALUE_AFTER_AUTOCORRECT)
                     }
                 }
                 STRING_VALUE_NOT_TO_BE_CORRECTED ->
