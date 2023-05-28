@@ -4,7 +4,6 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
@@ -604,26 +603,34 @@ class ParameterListWrappingRuleTest {
         }
 
         @Test
-        fun `Given a fucntion containing a nullable function type for which the function type fits does not fit on a single line after wrapping the nullable type`() {
+        fun `Given a function containing a nullable function type for which the function type fits does not fit on a single line after wrapping the nullable type`() {
             val code =
                 """
+                // $MAX_LINE_LENGTH_MARKER                      $EOL_CHAR
                 fun foo() {
-                    var changesListener: ((width: Double?, depth: Double?, length: Double?, area: Double?) -> Unit)? = null
+                    var changesListener: ((bar1: Bar, bar2: Bar, bar3: Bar) -> Unit)? = null
                 }
                 """.trimIndent()
             val formattedCode =
                 """
+                // $MAX_LINE_LENGTH_MARKER                      $EOL_CHAR
                 fun foo() {
                     var changesListener: (
-                        (width: Double?, depth: Double?, length: Double?, area: Double?) -> Unit
+                        (bar1: Bar, bar2: Bar, bar3: Bar) -> Unit
                     )? = null
                 }
                 """.trimIndent()
             parameterListWrappingRuleAssertThat(code)
-                .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 80)
+                .setMaxLineLength()
                 .hasLintViolations(
-                    LintViolation(2, 26, "Parameter of nullable type should be on a separate line (unless the type fits on a single line)"),
-                    LintViolation(2, 99, """Missing newline before ")""""),
+                    // Some violations below are only reported during linting but not on formatting. After wrapping the
+                    // nullable type, there is no need to wrap the parameters.
+                    LintViolation(3, 27, "Expected new line before function type as it does not fit on a single line"),
+                    LintViolation(3, 28, "Parameter should start on a newline"),
+                    LintViolation(3, 39, "Parameter should start on a newline"),
+                    LintViolation(3, 50, "Parameter should start on a newline"),
+                    LintViolation(3, 59, "Missing newline before \")\""),
+                    LintViolation(3, 68, "Expected new line after function type as it does not fit on a single line"),
                 ).isFormattedAs(formattedCode)
         }
     }
