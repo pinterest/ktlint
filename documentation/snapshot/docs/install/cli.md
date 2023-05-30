@@ -220,3 +220,12 @@ Options `--stdin` and `--patterns-from-stdin` are mutually exclusive, only one o
 
 !!! tip "Microsoft Windows"
     On Microsoft Windows you'll have to use `java -jar ktlint ...`.
+
+!!! tip "Microsoft Windows"
+
+1. You can download the file via wget on Windows or manually via [releases](https://github.com/pinterest/ktlint/releases)
+- Example: `wget https://github.com/pinterest/ktlint/releases/download/0.49.1/ktlint`
+
+2. After downloading the file you can add it to your environment variables (aka %PATH%)
+
+3. You should now be able to use `ktlint -F`
