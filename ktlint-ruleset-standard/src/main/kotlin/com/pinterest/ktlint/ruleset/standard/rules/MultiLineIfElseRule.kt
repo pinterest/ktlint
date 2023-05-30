@@ -64,7 +64,10 @@ public class MultiLineIfElseRule :
             return
         }
 
-        if (node.elementType == ELSE && node.firstChildNode?.elementType == BINARY_EXPRESSION) {
+        if (node.elementType == ELSE &&
+            node.firstChildNode?.elementType == BINARY_EXPRESSION &&
+            node.firstChildNode.firstChildNode?.elementType == IF
+        ) {
             // Allow
             //    val foo = if (bar1) {
             //       "bar1"
@@ -74,7 +77,10 @@ public class MultiLineIfElseRule :
             return
         }
 
-        if (node.elementType == ELSE && node.firstChildNode?.elementType == DOT_QUALIFIED_EXPRESSION) {
+        if (node.elementType == ELSE &&
+            node.firstChildNode?.elementType == DOT_QUALIFIED_EXPRESSION &&
+            node.firstChildNode.firstChildNode?.elementType == IF
+        ) {
             // Allow
             //    val foo = if (bar1) {
             //       "bar1"
