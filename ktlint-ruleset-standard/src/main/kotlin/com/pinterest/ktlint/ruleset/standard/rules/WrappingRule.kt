@@ -11,6 +11,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONDITION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DESTRUCTURING_DECLARATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
@@ -539,6 +540,11 @@ public class WrappingRule :
     ) {
         val previousCodeLeaf = node.prevCodeLeaf()?.lastChildLeafOrSelf() ?: return
         val nextCodeLeaf = node.nextCodeLeaf()?.firstChildLeafOrSelf() ?: return
+        if (previousCodeLeaf.treeParent.elementType == ENUM_ENTRY && nextCodeLeaf.elementType == RBRACE) {
+            // Allow
+            // enum class INDEX2 { ONE, TWO, THREE; }
+            return
+        }
         if (noNewLineInClosedRange(previousCodeLeaf, nextCodeLeaf)) {
             requireNewlineAfterLeaf(node, autoCorrect, emit, indent = previousCodeLeaf.indent())
         }

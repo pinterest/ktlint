@@ -1878,6 +1878,7 @@ internal class WrappingRuleTest {
             """
             fun f1() {
                 val a = 3; val b = 2
+                val key: String = ""; val lambda: () -> Unit = {  }
             }
             """.trimIndent()
         val formattedCode =
@@ -1885,9 +1886,15 @@ internal class WrappingRuleTest {
             fun f1() {
                 val a = 3;
                 val b = 2
+                val key: String = "";
+                val lambda: () -> Unit = {  }
             }
             """.trimIndent()
         wrappingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 15, "Missing newline after \";\""),
+                LintViolation(3, 26, "Missing newline after \";\""),
+            )
             .isFormattedAs(formattedCode)
     }
 
@@ -1898,6 +1905,10 @@ internal class WrappingRuleTest {
             public fun f2() {
                 // no-op
             }; public fun f3() {
+                // no-op
+            }
+
+            public fun f4() = 1; public fun f5() {
                 // no-op
             }
 
@@ -1914,6 +1925,10 @@ internal class WrappingRuleTest {
                     f1(); f2()
                 }
             }
+
+            enum class INDEX {
+                A, B, C; fun test() = 0
+            }
             """.trimIndent()
         val formattedCode =
             """
@@ -1921,6 +1936,11 @@ internal class WrappingRuleTest {
                 // no-op
             };
             public fun f3() {
+                // no-op
+            }
+
+            public fun f4() = 1;
+            public fun f5() {
                 // no-op
             }
 
@@ -1940,8 +1960,21 @@ internal class WrappingRuleTest {
                     f2()
                 }
             }
+
+            enum class INDEX {
+                A, B, C;
+                fun test() = 0
+            }
             """.trimIndent()
         wrappingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(3, 3, "Missing newline after \";\""),
+                LintViolation(7, 21, "Missing newline after \";\""),
+                LintViolation(13, 3, "Missing newline after \";\""),
+                LintViolation(17, 16, "Missing newline after \";\""),
+                LintViolation(21, 14, "Missing newline after \";\""),
+                LintViolation(26, 13, "Missing newline after \";\""),
+            )
             .isFormattedAs(formattedCode)
     }
 
@@ -1995,6 +2028,37 @@ internal class WrappingRuleTest {
             }
             """.trimIndent()
         wrappingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(4, 7, "Missing newline after \";\""),
+                LintViolation(10, 7, "Missing newline after \";\""),
+                LintViolation(16, 7, "Missing newline after \";\""),
+            )
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 1078 - Given a multiline semi separated control flow with no body`() {
+        val code =
+            """
+            fun test() {
+                for (i in 0..10); for (i in 0..100);while (System.currentTimeMillis() % 2 == 0L); while (Random(System.currentTimeMillis()).nextBoolean());
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun test() {
+                for (i in 0..10);
+                for (i in 0..100);
+                while (System.currentTimeMillis() % 2 == 0L);
+                while (Random(System.currentTimeMillis()).nextBoolean());
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 22, "Missing newline after \";\""),
+                LintViolation(2, 41, "Missing newline after \";\""),
+                LintViolation(2, 86, "Missing newline after \";\""),
+            )
             .isFormattedAs(formattedCode)
     }
 
@@ -2010,7 +2074,99 @@ internal class WrappingRuleTest {
             import java.util.HashMap
             """.trimIndent()
         wrappingRuleAssertThat(code)
+            .hasLintViolation(1, 28, "Missing newline after \";\"")
             .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 1078 - Given a multiline semi separated with multiple items`() {
+        val code =
+            """
+            fun test() {
+                val a = 0; val b = 0; fun bar() {
+                    // no-op
+                }; for(i in 0..10) {
+                    println(i); println(i); a++; println(a)
+                }
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun test() {
+                val a = 0;
+                val b = 0;
+                fun bar() {
+                    // no-op
+                };
+                for(i in 0..10) {
+                    println(i);
+                    println(i);
+                    a++;
+                    println(a)
+                }
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 15, "Missing newline after \";\""),
+                LintViolation(2, 26, "Missing newline after \";\""),
+                LintViolation(4, 7, "Missing newline after \";\""),
+                LintViolation(5, 20, "Missing newline after \";\""),
+                LintViolation(5, 32, "Missing newline after \";\""),
+                LintViolation(5, 37, "Missing newline after \";\""),
+            )
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 1078 - Given a enum with semicolon has not violation`() {
+        val code =
+            """
+            enum class INDEX1 { ONE, TWO, THREE }
+            enum class INDEX2 { ONE, TWO, THREE; }
+            enum class INDEX3 { ONE, TWO, THREE; /* with comment */ }
+            enum class INDEX4 {
+                ONE, TWO, THREE;
+            }
+            enum class INDEX5 {
+                ONE,
+                TWO,
+                THREE;
+            }
+            enum class INDEX6 {
+                ONE,
+                TWO,
+                THREE,
+                ;
+            }
+            enum class INDEX7 {
+                ONE,
+                TWO,
+                THREE,
+                ;
+                fun foo() = ""
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code)
+            .hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 1078 - Given a companion object with semicolon has not violation`() {
+        val code =
+            """
+            class FirstClass(private val param: String) {
+                companion object;
+                private var toto: Boolean = false
+            }
+
+            class SecondClass(private val param: String) {
+                companion object; // with comment
+                private var toto: Boolean = false
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code)
+            .hasNoLintViolations()
     }
 }
 
