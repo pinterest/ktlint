@@ -140,7 +140,7 @@ public class WrappingRule :
             ARROW -> rearrangeArrow(node, autoCorrect, emit)
             WHITE_SPACE -> line += node.text.count { it == '\n' }
             CLOSING_QUOTE -> rearrangeClosingQuote(node, autoCorrect, emit)
-            SEMICOLON -> insertNewLineBeforeSemi(node, autoCorrect, emit)
+            SEMICOLON -> insertNewLineAfterSemi(node, autoCorrect, emit)
         }
     }
 
@@ -533,7 +533,7 @@ public class WrappingRule :
         }
     }
 
-    private fun insertNewLineBeforeSemi(
+    private fun insertNewLineAfterSemi(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,

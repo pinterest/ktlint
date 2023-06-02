@@ -1872,301 +1872,613 @@ internal class WrappingRuleTest {
             .isFormattedAs(formattedCode)
     }
 
-    @Test
-    fun `Issue 1078 - Given a multiline semi separated var initialisation then wrap each expression to a new line`() {
-        val code =
-            """
-            fun f1() {
-                val a = 3; val b = 2
-                val key: String = ""; val lambda: () -> Unit = {  }
-            }
-            """.trimIndent()
-        val formattedCode =
-            """
-            fun f1() {
-                val a = 3;
-                val b = 2
-                val key: String = "";
-                val lambda: () -> Unit = {  }
-            }
-            """.trimIndent()
-        wrappingRuleAssertThat(code)
-            .hasLintViolations(
-                LintViolation(2, 15, "Missing newline after \";\""),
-                LintViolation(3, 26, "Missing newline after \";\""),
-            )
-            .isFormattedAs(formattedCode)
-    }
-
-    @Test
-    fun `Issue 1078 - Given a multiline semi separated statements then wrap each expression to a new line`() {
-        val code =
-            """
-            public fun f2() {
-                // no-op
-            }; public fun f3() {
-                // no-op
+    @Nested
+    inner class `Issue 1078 - Given multiple expression seperated with semi in a single line` {
+        @Nested
+        inner class `Given multiple variables` {
+            @Test
+            fun `Given two variables`() {
+                val code =
+                    """
+                    fun foo() {
+                        val bar1 = 3; val bar2 = 2
+                        val fooBar1: String = ""; val fooBar2: () -> Unit = {  }
+                    }
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    fun foo() {
+                        val bar1 = 3;
+                        val bar2 = 2
+                        val fooBar1: String = "";
+                        val fooBar2: () -> Unit = {  }
+                    }
+                    """.trimIndent()
+                wrappingRuleAssertThat(code)
+                    .hasLintViolations(
+                        LintViolation(2, 18, "Missing newline after \";\""),
+                        LintViolation(3, 30, "Missing newline after \";\""),
+                    ).isFormattedAs(formattedCode)
             }
 
-            public fun f4() = 1; public fun f5() {
-                // no-op
+            @Test
+            fun `Given more than two variables`() {
+                val code =
+                    """
+                    fun foo() {
+                        val bar1 = 3; val bar2 = 2; val bar3 = 3; val bar4: () -> Unit = {  }; val bar4: String = "";
+                    }
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    fun foo() {
+                        val bar1 = 3;
+                        val bar2 = 2;
+                        val bar3 = 3;
+                        val bar4: () -> Unit = {  };
+                        val bar4: String = "";
+                    }
+                    """.trimIndent()
+                wrappingRuleAssertThat(code)
+                    .hasLintViolations(
+                        LintViolation(2, 18, "Missing newline after \";\""),
+                        LintViolation(2, 32, "Missing newline after \";\""),
+                        LintViolation(2, 46, "Missing newline after \";\""),
+                        LintViolation(2, 75, "Missing newline after \";\""),
+                    ).isFormattedAs(formattedCode)
             }
 
-            public class A {
+            @Test
+            fun `Given variables with comments`() {
+                val code =
+                    """
+                    fun foo() {
+                        val bar1 = 3; val bar2 = 2; // this is end comment
+                        val bar1 = 3; /* block comment */ val bar2 = 2;
+                    }
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    fun foo() {
+                        val bar1 = 3;
+                        val bar2 = 2; // this is end comment
+                        val bar1 = 3;
+                        /* block comment */ val bar2 = 2;
+                    }
+                    """.trimIndent()
+                wrappingRuleAssertThat(code)
+                    .hasLintViolations(
+                        LintViolation(2, 18, "Missing newline after \";\""),
+                        LintViolation(3, 18, "Missing newline after \";\""),
+                    ).isFormattedAs(formattedCode)
+            }
+        }
 
-            }; public class B {
+        @Nested
+        inner class `Given multiple classes, functions and init blocks` {
+            @Test
+            fun `Given multiple function declaration`() {
+                val code =
+                    """
+                    public fun foo1() {
+                        // no-op
+                    }; public fun foo2() {
+                        // no-op
+                    }; fun foo3() = 0
 
+                    public fun foo4() = 1; public fun foo5() {
+                        // no-op
+                    }
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    public fun foo1() {
+                        // no-op
+                    };
+                    public fun foo2() {
+                        // no-op
+                    };
+                    fun foo3() = 0
+
+                    public fun foo4() = 1;
+                    public fun foo5() {
+                        // no-op
+                    }
+                    """.trimIndent()
+                wrappingRuleAssertThat(code)
+                    .hasLintViolations(
+                        LintViolation(3, 3, "Missing newline after \";\""),
+                        LintViolation(5, 3, "Missing newline after \";\""),
+                        LintViolation(7, 23, "Missing newline after \";\""),
+                    ).isFormattedAs(formattedCode)
             }
 
-            public class C; public class D
+            @Test
+            fun `Given multiple function declaration with comments`() {
+                val code =
+                    """
+                    public fun foo1() {
+                        // no-op
+                    }; /* block comment */ public fun foo2() {
+                        // no-op
+                    }; fun foo3() = 0 // single line comment
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    public fun foo1() {
+                        // no-op
+                    };
+                    /* block comment */ public fun foo2() {
+                        // no-op
+                    };
+                    fun foo3() = 0 // single line comment
+                    """.trimIndent()
+                wrappingRuleAssertThat(code)
+                    .hasLintViolations(
+                        LintViolation(3, 3, "Missing newline after \";\""),
+                        LintViolation(5, 3, "Missing newline after \";\""),
+                    ).isFormattedAs(formattedCode)
+            }
 
-            class E {
-                init {
-                    f1(); f2()
+            @Test
+            fun `Given multiple function invocations`() {
+                val code =
+                    """
+                    class Bar {
+                        public fun foo1() = 0
+                        fun foo2() = 0
+                        fun foo3(lambda: () -> Unit) = 0
+
+                        init {
+                            foo1(); foo3 {  }; foo2()
+                        }
+                    }
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    class Bar {
+                        public fun foo1() = 0
+                        fun foo2() = 0
+                        fun foo3(lambda: () -> Unit) = 0
+
+                        init {
+                            foo1();
+                            foo3 {  };
+                            foo2()
+                        }
+                    }
+                    """.trimIndent()
+                wrappingRuleAssertThat(code)
+                    .hasLintViolations(
+                        LintViolation(7, 16, "Missing newline after \";\""),
+                        LintViolation(7, 27, "Missing newline after \";\""),
+                    ).isFormattedAs(formattedCode)
+            }
+
+            @Test
+            fun `Given a multiline class declaration`() {
+                val code =
+                    """
+                    public class FooBar1 {
+
+                    }; public class FooBar2 {
+
+                    }
+
+                    public class FooBar3; public class FooBar4
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    public class FooBar1 {
+
+                    };
+                    public class FooBar2 {
+
+                    }
+
+                    public class FooBar3;
+                    public class FooBar4
+                    """.trimIndent()
+                wrappingRuleAssertThat(code)
+                    .hasLintViolations(
+                        LintViolation(3, 3, "Missing newline after \";\""),
+                        LintViolation(7, 22, "Missing newline after \";\""),
+                    ).isFormattedAs(formattedCode)
+            }
+
+            @Test
+            fun `Given a multiline class declaration with comments`() {
+                val code =
+                    """
+                    public class FooBar1 {
+
+                    }; /* block comment */ public class FooBar2 {
+
+                    }; public class FooBar2 {
+
+                    } // single line comment
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    public class FooBar1 {
+
+                    };
+                    /* block comment */ public class FooBar2 {
+
+                    };
+                    public class FooBar2 {
+
+                    } // single line comment
+                    """.trimIndent()
+                wrappingRuleAssertThat(code)
+                    .hasLintViolations(
+                        LintViolation(3, 3, "Missing newline after \";\""),
+                        LintViolation(5, 3, "Missing newline after \";\""),
+                    ).isFormattedAs(formattedCode)
+            }
+
+            @Test
+            fun `Given a multiple init block`() {
+                val code =
+                    """
+                    public class Foo {
+                        init {
+
+                        };init {
+
+                        }
+                    }
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    public class Foo {
+                        init {
+
+                        };
+                        init {
+
+                        }
+                    }
+                    """.trimIndent()
+                wrappingRuleAssertThat(code)
+                    .hasLintViolation(4, 7, "Missing newline after \";\"")
+                    .isFormattedAs(formattedCode)
+            }
+
+            @Test
+            fun `Given a multiple init block and variables with nested violations`() {
+                val code =
+                    """
+                    public class Foo {
+                        init {
+                            val bar1 = 0; val bar2 = 0;
+                        };init {
+                            val bar3 = 0; val bar4 = 0;
+                        }
+                    }
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    public class Foo {
+                        init {
+                            val bar1 = 0;
+                            val bar2 = 0;
+                        };
+                        init {
+                            val bar3 = 0;
+                            val bar4 = 0;
+                        }
+                    }
+                    """.trimIndent()
+                wrappingRuleAssertThat(code)
+                    .hasLintViolations(
+                        LintViolation(3, 22, "Missing newline after \";\""),
+                        LintViolation(4, 7, "Missing newline after \";\""),
+                        LintViolation(5, 22, "Missing newline after \";\""),
+                    ).isFormattedAs(formattedCode)
+            }
+        }
+
+        @Nested
+        inner class `Given flow control statements` {
+            @Test
+            fun `Given a multiple for statements`() {
+                val code =
+                    """
+                    fun test() {
+                        for (i in 0..10) {
+                            println(i)
+                        }; for (i in 0..100) {
+                            println(i)
+                        }; for (i in 0..1000) {
+                            println(i)
+                        }
+                    }
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    fun test() {
+                        for (i in 0..10) {
+                            println(i)
+                        };
+                        for (i in 0..100) {
+                            println(i)
+                        };
+                        for (i in 0..1000) {
+                            println(i)
+                        }
+                    }
+                    """.trimIndent()
+                wrappingRuleAssertThat(code)
+                    .hasLintViolations(
+                        LintViolation(4, 7, "Missing newline after \";\""),
+                        LintViolation(6, 7, "Missing newline after \";\""),
+                    ).isFormattedAs(formattedCode)
+            }
+
+            @Test
+            fun `Given a multiline while statements`() {
+                val code =
+                    """
+                    fun test() {
+                        while (System.currentTimeMillis() % 2 == 0L) {
+                            println(System.currentTimeMillis())
+                        }; while (Random(System.currentTimeMillis()).nextBoolean()) {
+                            println(System.currentTimeMillis())
+                        }
+                    }
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    fun test() {
+                        while (System.currentTimeMillis() % 2 == 0L) {
+                            println(System.currentTimeMillis())
+                        };
+                        while (Random(System.currentTimeMillis()).nextBoolean()) {
+                            println(System.currentTimeMillis())
+                        }
+                    }
+                    """.trimIndent()
+                wrappingRuleAssertThat(code)
+                    .hasLintViolation(4, 7, "Missing newline after \";\"")
+                    .isFormattedAs(formattedCode)
+            }
+
+            @Test
+            fun `Given a multiline do-while statements`() {
+                val code =
+                    """
+                    fun test() {
+                        while (System.currentTimeMillis() % 2 == 0L) {
+                            println(System.currentTimeMillis())
+                        }; do {
+                            println(System.currentTimeMillis())
+                        } while (System.currentTimeMillis() % 2 == 0L); do {
+                            println(System.currentTimeMillis())
+                        } while (System.currentTimeMillis() % 2 == 0L)
+                    }
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    fun test() {
+                        while (System.currentTimeMillis() % 2 == 0L) {
+                            println(System.currentTimeMillis())
+                        };
+                        do {
+                            println(System.currentTimeMillis())
+                        } while (System.currentTimeMillis() % 2 == 0L);
+                        do {
+                            println(System.currentTimeMillis())
+                        } while (System.currentTimeMillis() % 2 == 0L)
+                    }
+                    """.trimIndent()
+                wrappingRuleAssertThat(code)
+                    .hasLintViolations(
+                        LintViolation(4, 7, "Missing newline after \";\""),
+                        LintViolation(6, 52, "Missing newline after \";\""),
+                    ).isFormattedAs(formattedCode)
+            }
+
+            @Test
+            fun `Given a multiline semi separated control flow with no body`() {
+                val code =
+                    """
+                    fun test() {
+                        for (i in 0..10); for (i in 0..100);while (System.currentTimeMillis() % 2 == 0L); while (Random(System.currentTimeMillis()).nextBoolean());
+                    }
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    fun test() {
+                        for (i in 0..10);
+                        for (i in 0..100);
+                        while (System.currentTimeMillis() % 2 == 0L);
+                        while (Random(System.currentTimeMillis()).nextBoolean());
+                    }
+                    """.trimIndent()
+                wrappingRuleAssertThat(code)
+                    .hasLintViolations(
+                        LintViolation(2, 22, "Missing newline after \";\""),
+                        LintViolation(2, 41, "Missing newline after \";\""),
+                        LintViolation(2, 86, "Missing newline after \";\""),
+                    ).isFormattedAs(formattedCode)
+            }
+        }
+
+        @Test
+        fun `Given a multiline semi separated import statement then wrap each expression to a new line`() {
+            val code =
+                """
+                import java.util.ArrayList; import java.util.HashMap
+                """.trimIndent()
+            val formattedCode =
+                """
+                import java.util.ArrayList;
+                import java.util.HashMap
+                """.trimIndent()
+            wrappingRuleAssertThat(code)
+                .hasLintViolation(1, 28, "Missing newline after \";\"")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given a multiline semi separated with variables, flow controls and method calls`() {
+            val code =
+                """
+                fun test() {
+                    val a = 0; val b = 0; fun bar() {
+                        // no-op
+                    }; for(i in 0..10) {
+                        println(i); println(i); a++; println(a)
+                    }
                 }
-            }
-
-            enum class INDEX {
-                A, B, C; fun test() = 0
-            }
-            """.trimIndent()
-        val formattedCode =
-            """
-            public fun f2() {
-                // no-op
-            };
-            public fun f3() {
-                // no-op
-            }
-
-            public fun f4() = 1;
-            public fun f5() {
-                // no-op
-            }
-
-            public class A {
-
-            };
-            public class B {
-
-            }
-
-            public class C;
-            public class D
-
-            class E {
-                init {
-                    f1();
-                    f2()
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun test() {
+                    val a = 0;
+                    val b = 0;
+                    fun bar() {
+                        // no-op
+                    };
+                    for(i in 0..10) {
+                        println(i);
+                        println(i);
+                        a++;
+                        println(a)
+                    }
                 }
+                """.trimIndent()
+            wrappingRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(2, 15, "Missing newline after \";\""),
+                    LintViolation(2, 26, "Missing newline after \";\""),
+                    LintViolation(4, 7, "Missing newline after \";\""),
+                    LintViolation(5, 20, "Missing newline after \";\""),
+                    LintViolation(5, 32, "Missing newline after \";\""),
+                    LintViolation(5, 37, "Missing newline after \";\""),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @Nested
+        inner class `Given enum class` {
+            @Test
+            fun `Given a enum without ending semi`() {
+                val code =
+                    """
+                    enum class INDEX1 { ONE, TWO, THREE }
+                    enum class INDEX5 {
+                        ONE,
+                        TWO,
+                        THREE
+                    }
+                    """.trimIndent()
+                wrappingRuleAssertThat(code)
+                    .hasNoLintViolations()
             }
 
-            enum class INDEX {
-                A, B, C;
-                fun test() = 0
-            }
-            """.trimIndent()
-        wrappingRuleAssertThat(code)
-            .hasLintViolations(
-                LintViolation(3, 3, "Missing newline after \";\""),
-                LintViolation(7, 21, "Missing newline after \";\""),
-                LintViolation(13, 3, "Missing newline after \";\""),
-                LintViolation(17, 16, "Missing newline after \";\""),
-                LintViolation(21, 14, "Missing newline after \";\""),
-                LintViolation(26, 13, "Missing newline after \";\""),
-            )
-            .isFormattedAs(formattedCode)
-    }
-
-    @Test
-    fun `Issue 1078 - Given a multiline semi separated control flow then wrap each expression to a new line`() {
-        val code =
-            """
-            fun test() {
-                for (i in 0..10) {
-                    println(i)
-                }; for (i in 0..100) {
-                    println(i)
-                }
-
-                while (System.currentTimeMillis() % 2 == 0L) {
-                    println(System.currentTimeMillis())
-                }; while (Random(System.currentTimeMillis()).nextBoolean()) {
-                    println(System.currentTimeMillis())
-                }
-
-                while (System.currentTimeMillis() % 2 == 0L) {
-                    println(System.currentTimeMillis())
-                }; do {
-                    println(System.currentTimeMillis())
-                } while (System.currentTimeMillis() % 2 == 0L)
-            }
-            """.trimIndent()
-        val formattedCode =
-            """
-            fun test() {
-                for (i in 0..10) {
-                    println(i)
-                };
-                for (i in 0..100) {
-                    println(i)
-                }
-
-                while (System.currentTimeMillis() % 2 == 0L) {
-                    println(System.currentTimeMillis())
-                };
-                while (Random(System.currentTimeMillis()).nextBoolean()) {
-                    println(System.currentTimeMillis())
-                }
-
-                while (System.currentTimeMillis() % 2 == 0L) {
-                    println(System.currentTimeMillis())
-                };
-                do {
-                    println(System.currentTimeMillis())
-                } while (System.currentTimeMillis() % 2 == 0L)
-            }
-            """.trimIndent()
-        wrappingRuleAssertThat(code)
-            .hasLintViolations(
-                LintViolation(4, 7, "Missing newline after \";\""),
-                LintViolation(10, 7, "Missing newline after \";\""),
-                LintViolation(16, 7, "Missing newline after \";\""),
-            )
-            .isFormattedAs(formattedCode)
-    }
-
-    @Test
-    fun `Issue 1078 - Given a multiline semi separated control flow with no body`() {
-        val code =
-            """
-            fun test() {
-                for (i in 0..10); for (i in 0..100);while (System.currentTimeMillis() % 2 == 0L); while (Random(System.currentTimeMillis()).nextBoolean());
-            }
-            """.trimIndent()
-        val formattedCode =
-            """
-            fun test() {
-                for (i in 0..10);
-                for (i in 0..100);
-                while (System.currentTimeMillis() % 2 == 0L);
-                while (Random(System.currentTimeMillis()).nextBoolean());
-            }
-            """.trimIndent()
-        wrappingRuleAssertThat(code)
-            .hasLintViolations(
-                LintViolation(2, 22, "Missing newline after \";\""),
-                LintViolation(2, 41, "Missing newline after \";\""),
-                LintViolation(2, 86, "Missing newline after \";\""),
-            )
-            .isFormattedAs(formattedCode)
-    }
-
-    @Test
-    fun `Issue 1078 - Given a multiline semi separated import statement then wrap each expression to a new line`() {
-        val code =
-            """
-            import java.util.ArrayList; import java.util.HashMap
-            """.trimIndent()
-        val formattedCode =
-            """
-            import java.util.ArrayList;
-            import java.util.HashMap
-            """.trimIndent()
-        wrappingRuleAssertThat(code)
-            .hasLintViolation(1, 28, "Missing newline after \";\"")
-            .isFormattedAs(formattedCode)
-    }
-
-    @Test
-    fun `Issue 1078 - Given a multiline semi separated with multiple items`() {
-        val code =
-            """
-            fun test() {
-                val a = 0; val b = 0; fun bar() {
-                    // no-op
-                }; for(i in 0..10) {
-                    println(i); println(i); a++; println(a)
-                }
-            }
-            """.trimIndent()
-        val formattedCode =
-            """
-            fun test() {
-                val a = 0;
-                val b = 0;
-                fun bar() {
-                    // no-op
-                };
-                for(i in 0..10) {
-                    println(i);
-                    println(i);
-                    a++;
-                    println(a)
-                }
-            }
-            """.trimIndent()
-        wrappingRuleAssertThat(code)
-            .hasLintViolations(
-                LintViolation(2, 15, "Missing newline after \";\""),
-                LintViolation(2, 26, "Missing newline after \";\""),
-                LintViolation(4, 7, "Missing newline after \";\""),
-                LintViolation(5, 20, "Missing newline after \";\""),
-                LintViolation(5, 32, "Missing newline after \";\""),
-                LintViolation(5, 37, "Missing newline after \";\""),
-            )
-            .isFormattedAs(formattedCode)
-    }
-
-    @Test
-    fun `Issue 1078 - Given a enum with semicolon has not violation`() {
-        val code =
-            """
-            enum class INDEX1 { ONE, TWO, THREE }
-            enum class INDEX2 { ONE, TWO, THREE; }
-            enum class INDEX3 { ONE, TWO, THREE; /* with comment */ }
-            enum class INDEX4 {
-                ONE, TWO, THREE;
-            }
-            enum class INDEX5 {
-                ONE,
-                TWO,
-                THREE;
-            }
-            enum class INDEX6 {
-                ONE,
-                TWO,
-                THREE,
-                ;
-            }
-            enum class INDEX7 {
-                ONE,
-                TWO,
-                THREE,
-                ;
-                fun foo() = ""
-            }
-            """.trimIndent()
-        wrappingRuleAssertThat(code)
-            .hasNoLintViolations()
-    }
-
-    @Test
-    fun `Issue 1078 - Given a companion object with semicolon has not violation`() {
-        val code =
-            """
-            class FirstClass(private val param: String) {
-                companion object;
-                private var toto: Boolean = false
+            @Test
+            fun `Given a enum with ending semi`() {
+                val code =
+                    """
+                    enum class INDEX2 { ONE, TWO, THREE; }
+                    enum class INDEX4 {
+                        ONE, TWO, THREE;
+                    }
+                    enum class INDEX5 {
+                        ONE,
+                        TWO,
+                        THREE;
+                    }
+                    enum class INDEX6 {
+                        ONE,
+                        TWO,
+                        THREE,
+                        ;
+                    }
+                    enum class INDEX7 {
+                        ONE,
+                        TWO,
+                        THREE,
+                        ;
+                        fun foo() = ""
+                    }
+                    """.trimIndent()
+                wrappingRuleAssertThat(code)
+                    .hasNoLintViolations()
             }
 
-            class SecondClass(private val param: String) {
-                companion object; // with comment
-                private var toto: Boolean = false
+            @Test
+            fun `Given a enum with ending semi with comment`() {
+                val code =
+                    """
+                    enum class INDEX3 { ONE, TWO, THREE; /* with comment */ }
+                    enum class INDEX6 {
+                        ONE,
+                        TWO,
+                        THREE, // single line comment
+                        ; // last single line comment
+                    }
+                    """.trimIndent()
+                wrappingRuleAssertThat(code)
+                    .hasNoLintViolations()
             }
-            """.trimIndent()
-        wrappingRuleAssertThat(code)
-            .hasNoLintViolations()
+
+            @Test
+            fun `Given enum class with methods`() {
+                val code =
+                    """
+                    enum class INDEX {
+                        A, B, C; fun test() = 0
+                    }
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    enum class INDEX {
+                        A, B, C;
+                        fun test() = 0
+                    }
+                    """.trimIndent()
+                wrappingRuleAssertThat(code)
+                    .hasLintViolation(2, 13, "Missing newline after \";\"")
+                    .isFormattedAs(formattedCode)
+            }
+        }
+
+        @Nested
+        inner class `Given companion or object class` {
+            @Test
+            fun `Given a companion object with semicolon and variable`() {
+                val code =
+                    """
+                    class Foo() {
+                        companion object; private var toto: Boolean = false
+                    }
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    class Foo() {
+                        companion object;
+                        private var toto: Boolean = false
+                    }
+                    """.trimIndent()
+                wrappingRuleAssertThat(code)
+                    .hasLintViolation(2, 22, "Missing newline after \";\"")
+                    .isFormattedAs(formattedCode)
+            }
+
+            @Test
+            fun `Given a companion object with semicolon and comment has not violation`() {
+                val code =
+                    """
+                    class Foo() {
+                        companion object; // single-line comment
+                    }
+                    """.trimIndent()
+                wrappingRuleAssertThat(code)
+                    .hasNoLintViolations()
+            }
+        }
     }
 }
 
