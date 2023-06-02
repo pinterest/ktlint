@@ -1888,13 +1888,14 @@ internal class WrappingRuleTest {
                 val formattedCode =
                     """
                     fun foo() {
-                        val bar1 = 3;
+                        val bar1 = 3
                         val bar2 = 2
-                        val fooBar1: String = "";
+                        val fooBar1: String = ""
                         val fooBar2: () -> Unit = {  }
                     }
                     """.trimIndent()
                 wrappingRuleAssertThat(code)
+                    .addAdditionalRuleProvider { NoSemicolonsRule() }
                     .hasLintViolations(
                         LintViolation(2, 18, "Missing newline after \";\""),
                         LintViolation(3, 30, "Missing newline after \";\""),
@@ -1912,14 +1913,15 @@ internal class WrappingRuleTest {
                 val formattedCode =
                     """
                     fun foo() {
-                        val bar1 = 3;
-                        val bar2 = 2;
-                        val bar3 = 3;
-                        val bar4: () -> Unit = {  };
-                        val bar4: String = "";
+                        val bar1 = 3
+                        val bar2 = 2
+                        val bar3 = 3
+                        val bar4: () -> Unit = {  }
+                        val bar4: String = ""
                     }
                     """.trimIndent()
                 wrappingRuleAssertThat(code)
+                    .addAdditionalRuleProvider { NoSemicolonsRule() }
                     .hasLintViolations(
                         LintViolation(2, 18, "Missing newline after \";\""),
                         LintViolation(2, 32, "Missing newline after \";\""),
@@ -1974,18 +1976,19 @@ internal class WrappingRuleTest {
                     """
                     public fun foo1() {
                         // no-op
-                    };
+                    }
                     public fun foo2() {
                         // no-op
-                    };
+                    }
                     fun foo3() = 0
 
-                    public fun foo4() = 1;
+                    public fun foo4() = 1
                     public fun foo5() {
                         // no-op
                     }
                     """.trimIndent()
                 wrappingRuleAssertThat(code)
+                    .addAdditionalRuleProvider { NoSemicolonsRule() }
                     .hasLintViolations(
                         LintViolation(3, 3, "Missing newline after \";\""),
                         LintViolation(5, 3, "Missing newline after \";\""),
@@ -2042,13 +2045,14 @@ internal class WrappingRuleTest {
                         fun foo3(lambda: () -> Unit) = 0
 
                         init {
-                            foo1();
-                            foo3 {  };
+                            foo1()
+                            foo3 {  }
                             foo2()
                         }
                     }
                     """.trimIndent()
                 wrappingRuleAssertThat(code)
+                    .addAdditionalRuleProvider { NoSemicolonsRule() }
                     .hasLintViolations(
                         LintViolation(7, 16, "Missing newline after \";\""),
                         LintViolation(7, 27, "Missing newline after \";\""),
@@ -2071,15 +2075,16 @@ internal class WrappingRuleTest {
                     """
                     public class FooBar1 {
 
-                    };
+                    }
                     public class FooBar2 {
 
                     }
 
-                    public class FooBar3;
+                    public class FooBar3
                     public class FooBar4
                     """.trimIndent()
                 wrappingRuleAssertThat(code)
+                    .addAdditionalRuleProvider { NoSemicolonsRule() }
                     .hasLintViolations(
                         LintViolation(3, 3, "Missing newline after \";\""),
                         LintViolation(7, 22, "Missing newline after \";\""),
@@ -2134,13 +2139,14 @@ internal class WrappingRuleTest {
                     public class Foo {
                         init {
 
-                        };
+                        }
                         init {
 
                         }
                     }
                     """.trimIndent()
                 wrappingRuleAssertThat(code)
+                    .addAdditionalRuleProvider { NoSemicolonsRule() }
                     .hasLintViolation(4, 7, "Missing newline after \";\"")
                     .isFormattedAs(formattedCode)
             }
@@ -2161,16 +2167,17 @@ internal class WrappingRuleTest {
                     """
                     public class Foo {
                         init {
-                            val bar1 = 0;
-                            val bar2 = 0;
-                        };
+                            val bar1 = 0
+                            val bar2 = 0
+                        }
                         init {
-                            val bar3 = 0;
-                            val bar4 = 0;
+                            val bar3 = 0
+                            val bar4 = 0
                         }
                     }
                     """.trimIndent()
                 wrappingRuleAssertThat(code)
+                    .addAdditionalRuleProvider { NoSemicolonsRule() }
                     .hasLintViolations(
                         LintViolation(3, 22, "Missing newline after \";\""),
                         LintViolation(4, 7, "Missing newline after \";\""),
@@ -2200,16 +2207,17 @@ internal class WrappingRuleTest {
                     fun test() {
                         for (i in 0..10) {
                             println(i)
-                        };
+                        }
                         for (i in 0..100) {
                             println(i)
-                        };
+                        }
                         for (i in 0..1000) {
                             println(i)
                         }
                     }
                     """.trimIndent()
                 wrappingRuleAssertThat(code)
+                    .addAdditionalRuleProvider { NoSemicolonsRule() }
                     .hasLintViolations(
                         LintViolation(4, 7, "Missing newline after \";\""),
                         LintViolation(6, 7, "Missing newline after \";\""),
@@ -2233,13 +2241,14 @@ internal class WrappingRuleTest {
                     fun test() {
                         while (System.currentTimeMillis() % 2 == 0L) {
                             println(System.currentTimeMillis())
-                        };
+                        }
                         while (Random(System.currentTimeMillis()).nextBoolean()) {
                             println(System.currentTimeMillis())
                         }
                     }
                     """.trimIndent()
                 wrappingRuleAssertThat(code)
+                    .addAdditionalRuleProvider { NoSemicolonsRule() }
                     .hasLintViolation(4, 7, "Missing newline after \";\"")
                     .isFormattedAs(formattedCode)
             }
@@ -2263,16 +2272,17 @@ internal class WrappingRuleTest {
                     fun test() {
                         while (System.currentTimeMillis() % 2 == 0L) {
                             println(System.currentTimeMillis())
-                        };
+                        }
                         do {
                             println(System.currentTimeMillis())
-                        } while (System.currentTimeMillis() % 2 == 0L);
+                        } while (System.currentTimeMillis() % 2 == 0L)
                         do {
                             println(System.currentTimeMillis())
                         } while (System.currentTimeMillis() % 2 == 0L)
                     }
                     """.trimIndent()
                 wrappingRuleAssertThat(code)
+                    .addAdditionalRuleProvider { NoSemicolonsRule() }
                     .hasLintViolations(
                         LintViolation(4, 7, "Missing newline after \";\""),
                         LintViolation(6, 52, "Missing newline after \";\""),
@@ -2297,6 +2307,7 @@ internal class WrappingRuleTest {
                     }
                     """.trimIndent()
                 wrappingRuleAssertThat(code)
+                    .addAdditionalRuleProvider { NoSemicolonsRule() }
                     .hasLintViolations(
                         LintViolation(2, 22, "Missing newline after \";\""),
                         LintViolation(2, 41, "Missing newline after \";\""),
@@ -2313,10 +2324,11 @@ internal class WrappingRuleTest {
                 """.trimIndent()
             val formattedCode =
                 """
-                import java.util.ArrayList;
+                import java.util.ArrayList
                 import java.util.HashMap
                 """.trimIndent()
             wrappingRuleAssertThat(code)
+                .addAdditionalRuleProvider { NoSemicolonsRule() }
                 .hasLintViolation(1, 28, "Missing newline after \";\"")
                 .isFormattedAs(formattedCode)
         }
@@ -2463,6 +2475,7 @@ internal class WrappingRuleTest {
                     }
                     """.trimIndent()
                 wrappingRuleAssertThat(code)
+                    .addAdditionalRuleProvider { NoSemicolonsRule() }
                     .hasLintViolation(2, 22, "Missing newline after \";\"")
                     .isFormattedAs(formattedCode)
             }
