@@ -69,11 +69,13 @@ public class MultiLineIfElseRule :
             node.firstChildNode.firstChildNode?.elementType == IF
         ) {
             // Allow
-            //    val foo = if (bar1) {
-            //       "bar1"
-            //   } else {
-            //       null
-            //   } ?: "something-else"
+            // val foo2 = if (bar1) {
+            //     "bar1"
+            // } else if (bar2) {
+            //     null
+            // } else {
+            //     null
+            // } ?: "something-else"
             return
         }
 
@@ -82,11 +84,13 @@ public class MultiLineIfElseRule :
             node.firstChildNode.firstChildNode?.elementType == IF
         ) {
             // Allow
-            //    val foo = if (bar1) {
-            //       "bar1"
-            //   } else {
-            //       "bar2"
-            //   }.plus("foo")
+            // val foo = if (bar1) {
+            //     "bar1"
+            // } else if (bar2) {
+            //     "bar2"
+            // } else {
+            //     "bar3"
+            // }.plus("foo")
             return
         }
 
