@@ -64,23 +64,33 @@ public class MultiLineIfElseRule :
             return
         }
 
-        if (node.elementType == ELSE && node.firstChildNode?.elementType == BINARY_EXPRESSION) {
+        if (node.elementType == ELSE &&
+            node.firstChildNode?.elementType == BINARY_EXPRESSION &&
+            node.firstChildNode.firstChildNode?.elementType == IF
+        ) {
             // Allow
-            //    val foo = if (bar1) {
-            //       "bar1"
-            //   } else {
-            //       null
-            //   } ?: "something-else"
+            // val foo2 = if (bar1) {
+            //     "bar1"
+            // } else if (bar2) {
+            //     null
+            // } else {
+            //     null
+            // } ?: "something-else"
             return
         }
 
-        if (node.elementType == ELSE && node.firstChildNode?.elementType == DOT_QUALIFIED_EXPRESSION) {
+        if (node.elementType == ELSE &&
+            node.firstChildNode?.elementType == DOT_QUALIFIED_EXPRESSION &&
+            node.firstChildNode.firstChildNode?.elementType == IF
+        ) {
             // Allow
-            //    val foo = if (bar1) {
-            //       "bar1"
-            //   } else {
-            //       "bar2"
-            //   }.plus("foo")
+            // val foo = if (bar1) {
+            //     "bar1"
+            // } else if (bar2) {
+            //     "bar2"
+            // } else {
+            //     "bar3"
+            // }.plus("foo")
             return
         }
 
