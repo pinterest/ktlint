@@ -1903,6 +1903,31 @@ internal class WrappingRuleTest {
             }
 
             @Test
+            fun `Given two variables run without NoSemicolonsRule`() {
+                val code =
+                    """
+                    fun foo() {
+                        val bar1 = 3; val bar2 = 2
+                        val fooBar1: String = ""; val fooBar2: () -> Unit = {  }
+                    }
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    fun foo() {
+                        val bar1 = 3;
+                        val bar2 = 2
+                        val fooBar1: String = "";
+                        val fooBar2: () -> Unit = {  }
+                    }
+                    """.trimIndent()
+                wrappingRuleAssertThat(code)
+                    .hasLintViolations(
+                        LintViolation(2, 18, "Missing newline after \";\""),
+                        LintViolation(3, 30, "Missing newline after \";\""),
+                    ).isFormattedAs(formattedCode)
+            }
+
+            @Test
             fun `Given more than two variables`() {
                 val code =
                     """
@@ -1942,13 +1967,14 @@ internal class WrappingRuleTest {
                 val formattedCode =
                     """
                     fun foo() {
-                        val bar1 = 3;
+                        val bar1 = 3
                         val bar2 = 2; // this is end comment
-                        val bar1 = 3;
-                        /* block comment */ val bar2 = 2;
+                        val bar1 = 3
+                        /* block comment */ val bar2 = 2
                     }
                     """.trimIndent()
                 wrappingRuleAssertThat(code)
+                    .addAdditionalRuleProvider { NoSemicolonsRule() }
                     .hasLintViolations(
                         LintViolation(2, 18, "Missing newline after \";\""),
                         LintViolation(3, 18, "Missing newline after \";\""),
@@ -2010,13 +2036,14 @@ internal class WrappingRuleTest {
                     """
                     public fun foo1() {
                         // no-op
-                    };
+                    }
                     /* block comment */ public fun foo2() {
                         // no-op
-                    };
+                    }
                     fun foo3() = 0 // single line comment
                     """.trimIndent()
                 wrappingRuleAssertThat(code)
+                    .addAdditionalRuleProvider { NoSemicolonsRule() }
                     .hasLintViolations(
                         LintViolation(3, 3, "Missing newline after \";\""),
                         LintViolation(5, 3, "Missing newline after \";\""),
@@ -2107,15 +2134,16 @@ internal class WrappingRuleTest {
                     """
                     public class FooBar1 {
 
-                    };
+                    }
                     /* block comment */ public class FooBar2 {
 
-                    };
+                    }
                     public class FooBar2 {
 
                     } // single line comment
                     """.trimIndent()
                 wrappingRuleAssertThat(code)
+                    .addAdditionalRuleProvider { NoSemicolonsRule() }
                     .hasLintViolations(
                         LintViolation(3, 3, "Missing newline after \";\""),
                         LintViolation(5, 3, "Missing newline after \";\""),
@@ -2348,20 +2376,21 @@ internal class WrappingRuleTest {
             val formattedCode =
                 """
                 fun test() {
-                    val a = 0;
-                    val b = 0;
+                    val a = 0
+                    val b = 0
                     fun bar() {
                         // no-op
-                    };
+                    }
                     for(i in 0..10) {
-                        println(i);
-                        println(i);
-                        a++;
+                        println(i)
+                        println(i)
+                        a++
                         println(a)
                     }
                 }
                 """.trimIndent()
             wrappingRuleAssertThat(code)
+                .addAdditionalRuleProvider { NoSemicolonsRule() }
                 .hasLintViolations(
                     LintViolation(2, 15, "Missing newline after \";\""),
                     LintViolation(2, 26, "Missing newline after \";\""),
@@ -2378,8 +2407,8 @@ internal class WrappingRuleTest {
             fun `Given a enum without ending semi`() {
                 val code =
                     """
-                    enum class INDEX1 { ONE, TWO, THREE }
-                    enum class INDEX5 {
+                    enum class FOO1 { ONE, TWO, THREE }
+                    enum class FOO2 {
                         ONE,
                         TWO,
                         THREE
@@ -2393,22 +2422,22 @@ internal class WrappingRuleTest {
             fun `Given a enum with ending semi`() {
                 val code =
                     """
-                    enum class INDEX2 { ONE, TWO, THREE; }
-                    enum class INDEX4 {
+                    enum class FOO1 { ONE, TWO, THREE; }
+                    enum class FOO2 {
                         ONE, TWO, THREE;
                     }
-                    enum class INDEX5 {
+                    enum class FOO3 {
                         ONE,
                         TWO,
                         THREE;
                     }
-                    enum class INDEX6 {
+                    enum class FOO4 {
                         ONE,
                         TWO,
                         THREE,
                         ;
                     }
-                    enum class INDEX7 {
+                    enum class FOO5 {
                         ONE,
                         TWO,
                         THREE,
@@ -2424,8 +2453,8 @@ internal class WrappingRuleTest {
             fun `Given a enum with ending semi with comment`() {
                 val code =
                     """
-                    enum class INDEX3 { ONE, TWO, THREE; /* with comment */ }
-                    enum class INDEX6 {
+                    enum class FOO1 { ONE, TWO, THREE; /* with comment */ }
+                    enum class FOO2 {
                         ONE,
                         TWO,
                         THREE, // single line comment
@@ -2440,18 +2469,19 @@ internal class WrappingRuleTest {
             fun `Given enum class with methods`() {
                 val code =
                     """
-                    enum class INDEX {
+                    enum class FOO {
                         A, B, C; fun test() = 0
                     }
                     """.trimIndent()
                 val formattedCode =
                     """
-                    enum class INDEX {
+                    enum class FOO {
                         A, B, C;
                         fun test() = 0
                     }
                     """.trimIndent()
                 wrappingRuleAssertThat(code)
+                    .addAdditionalRuleProvider { NoSemicolonsRule() }
                     .hasLintViolation(2, 13, "Missing newline after \";\"")
                     .isFormattedAs(formattedCode)
             }
