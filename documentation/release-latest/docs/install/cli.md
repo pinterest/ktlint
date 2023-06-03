@@ -219,6 +219,7 @@ Options `--stdin` and `--patterns-from-stdin` are mutually exclusive, only one o
 ### Microsoft Windows users
 
 !!! tip "Microsoft Windows"
+    On Microsoft Windows you'll have to use `java -jar ktlint ...`
 
 1. You can download the file via wget on Windows or manually via [releases](https://github.com/pinterest/ktlint/releases)
   - Example: `wget https://github.com/pinterest/ktlint/releases/download/0.49.1/ktlint`
@@ -226,3 +227,8 @@ Options `--stdin` and `--patterns-from-stdin` are mutually exclusive, only one o
 2. After downloading the file you can add it to your environment variables (aka %PATH%)
 
 3. You should now be able to use `ktlint -F`
+
+OR
+
+You can also make use of the `ktlint.bat` file to help with the formatting.
+- See path `ktlint-cli/src/main/scripts/ktlint.bat`
