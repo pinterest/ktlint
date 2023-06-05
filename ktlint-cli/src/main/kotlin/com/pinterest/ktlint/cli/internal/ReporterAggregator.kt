@@ -140,7 +140,8 @@ internal class ReporterAggregator(
         val stream =
             when {
                 reporterConfiguration.output != null -> {
-                    File(reporterConfiguration.output).parentFile?.mkdirsOrFail(); PrintStream(reporterConfiguration.output, "UTF-8")
+                    File(reporterConfiguration.output).parentFile?.mkdirsOrFail()
+                    PrintStream(reporterConfiguration.output, "UTF-8")
                 }
 
                 stdin -> {
