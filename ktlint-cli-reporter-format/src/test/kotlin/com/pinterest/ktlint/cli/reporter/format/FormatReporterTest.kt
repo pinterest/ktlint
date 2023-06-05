@@ -123,15 +123,15 @@ class FormatReporterTest {
     }
 
     companion object {
-        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
         val SOME_LINT_ERROR_CAN_BE_AUTOCORRECTED =
             KtlintCliError(1, 1, "some-rule", "This error can be autocorrected", LINT_CAN_BE_AUTOCORRECTED)
 
-        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
         val SOME_LINT_ERROR_CAN_NOT_BE_AUTOCORRECTED =
             KtlintCliError(1, 1, "rule-1", "This error can *not* be autocorrected", LINT_CAN_NOT_BE_AUTOCORRECTED)
 
-        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
         val SOME_FORMAT_ERROR_IS_AUTOCORRECTED =
             KtlintCliError(1, 1, "rule-1", "This error can *not* be autocorrected", FORMAT_IS_AUTOCORRECTED)
 

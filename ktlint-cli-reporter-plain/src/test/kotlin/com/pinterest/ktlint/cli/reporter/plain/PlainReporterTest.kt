@@ -17,29 +17,29 @@ class PlainReporterTest {
         val reporter = PlainReporter(PrintStream(out, true))
         reporter.onLintError(
             "file-1.kt",
-            @Suppress("ktlint:argument-list-wrapping")
+            @Suppress("ktlint:standard:argument-list-wrapping")
             KtlintCliError(1, 1, "rule-1", "description-error-at-position-1:1", LINT_CAN_BE_AUTOCORRECTED),
         )
         reporter.onLintError(
             "file-1.kt",
-            @Suppress("ktlint:argument-list-wrapping")
+            @Suppress("ktlint:standard:argument-list-wrapping")
             KtlintCliError(2, 1, "rule-2", "description-error-at-position-2:1", FORMAT_IS_AUTOCORRECTED),
         )
 
         reporter.onLintError(
             "file-2.kt",
-            @Suppress("ktlint:argument-list-wrapping")
+            @Suppress("ktlint:standard:argument-list-wrapping")
             KtlintCliError(1, 10, "rule-1", "description-error-at-position-1:10", LINT_CAN_BE_AUTOCORRECTED),
         )
         reporter.onLintError(
             "file-2.kt",
-            @Suppress("ktlint:argument-list-wrapping")
+            @Suppress("ktlint:standard:argument-list-wrapping")
             KtlintCliError(2, 20, "rule-2", "description-error-at-position-2:20", LINT_CAN_BE_AUTOCORRECTED),
         )
 
         reporter.onLintError(
             "file-3.kt",
-            @Suppress("ktlint:argument-list-wrapping")
+            @Suppress("ktlint:standard:argument-list-wrapping")
             KtlintCliError(1, 1, "rule-1", "description-error-at-position-1:1", FORMAT_IS_AUTOCORRECTED),
         )
 
@@ -65,17 +65,17 @@ class PlainReporterTest {
         val reporter = PlainReporter(PrintStream(out, true))
         reporter.onLintError(
             "file-1.kt",
-            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
             KtlintCliError(18, 51, "", "Not a valid Kotlin file (18:51 unexpected tokens (use ';' to separate expressions on the same line)) (cannot be auto-corrected) ()", KOTLIN_PARSE_EXCEPTION),
         )
         reporter.onLintError(
             "file-2.kt",
-            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
             KtlintCliError(18, 51, "", "Not a valid Kotlin file (18:51 unexpected tokens (use ';' to separate expressions on the same line)) (cannot be auto-corrected) ()", KOTLIN_PARSE_EXCEPTION),
         )
         reporter.onLintError(
             "file-3.kt",
-            @Suppress("ktlint:argument-list-wrapping")
+            @Suppress("ktlint:standard:argument-list-wrapping")
             KtlintCliError(18, 51, "", "Something else", LINT_CAN_BE_AUTOCORRECTED),
         )
         reporter.afterAll()
@@ -106,7 +106,7 @@ class PlainReporterTest {
             )
         reporter.onLintError(
             File.separator + "one-fixed-and-one-not.kt",
-            @Suppress("ktlint:argument-list-wrapping")
+            @Suppress("ktlint:standard:argument-list-wrapping")
             KtlintCliError(1, 1, "rule-1", "<\"&'>", LINT_CAN_BE_AUTOCORRECTED),
         )
         val outputString = String(out.toByteArray())
@@ -130,29 +130,29 @@ class PlainReporterTest {
         val reporter = PlainReporter(PrintStream(out, true), groupByFile = true)
         reporter.onLintError(
             "/one-fixed-and-one-not.kt",
-            @Suppress("ktlint:argument-list-wrapping")
+            @Suppress("ktlint:standard:argument-list-wrapping")
             KtlintCliError(1, 1, "rule-1", "<\"&'>", LINT_CAN_BE_AUTOCORRECTED),
         )
         reporter.onLintError(
             "/one-fixed-and-one-not.kt",
-            @Suppress("ktlint:argument-list-wrapping")
+            @Suppress("ktlint:standard:argument-list-wrapping")
             KtlintCliError(2, 1, "rule-2", "And if you see my friend", FORMAT_IS_AUTOCORRECTED),
         )
 
         reporter.onLintError(
             "/two-not-fixed.kt",
-            @Suppress("ktlint:argument-list-wrapping")
+            @Suppress("ktlint:standard:argument-list-wrapping")
             KtlintCliError(1, 10, "rule-1", "I thought I would again", LINT_CAN_BE_AUTOCORRECTED),
         )
         reporter.onLintError(
             "/two-not-fixed.kt",
-            @Suppress("ktlint:argument-list-wrapping")
+            @Suppress("ktlint:standard:argument-list-wrapping")
             KtlintCliError(2, 20, "rule-2", "A single thin straight line", LINT_CAN_BE_AUTOCORRECTED),
         )
 
         reporter.onLintError(
             "/all-corrected.kt",
-            @Suppress("ktlint:argument-list-wrapping")
+            @Suppress("ktlint:standard:argument-list-wrapping")
             KtlintCliError(1, 1, "rule-1", "I thought we had more time", FORMAT_IS_AUTOCORRECTED),
         )
         reporter.after("/one-fixed-and-one-not.kt")

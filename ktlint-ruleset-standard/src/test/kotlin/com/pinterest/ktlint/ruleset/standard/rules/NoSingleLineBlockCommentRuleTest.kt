@@ -91,7 +91,7 @@ class NoSingleLineBlockCommentRuleTest {
                 """
                 val foo = "foo" // Some comment
                 """.trimIndent()
-            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
             noSingleLineBlockCommentRuleAssertThat(code)
                 .hasLintViolation(1, 16, "Replace the block comment with an EOL comment")
                 .isFormattedAs(formattedCode)
@@ -107,7 +107,7 @@ class NoSingleLineBlockCommentRuleTest {
                 """
                 fun foo() = "foo" // Some comment
                 """.trimIndent()
-            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
             noSingleLineBlockCommentRuleAssertThat(code)
                 .hasLintViolation(1, 19, "Replace the block comment with an EOL comment")
                 .isFormattedAs(formattedCode)

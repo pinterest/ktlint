@@ -52,7 +52,7 @@ class NoConsecutiveCommentsRuleTest {
             /** KDoc 1 */
             /* Block comment 2 */
             """.trimIndent()
-        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
         noConsecutiveBlankLinesRuleAssertThat(code)
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyle)
             .withEditorConfigOverride(NO_CONSECUTIVE_COMMENTS_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled)
@@ -118,7 +118,7 @@ class NoConsecutiveCommentsRuleTest {
                 /** KDoc */
                 /* Block comment */
                 """.trimIndent()
-            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
             noConsecutiveBlankLinesRuleAssertThat(code)
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
                 .hasLintViolationWithoutAutoCorrect(2, 1, "a block comment may not be preceded by a KDoc. Reversed order is allowed though when separated by a newline.")
@@ -159,7 +159,7 @@ class NoConsecutiveCommentsRuleTest {
                 /** KDoc */
                 // EOL comment
                 """.trimIndent()
-            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
             noConsecutiveBlankLinesRuleAssertThat(code)
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
                 .hasLintViolationWithoutAutoCorrect(2, 1, "an EOL comment may not be preceded by a KDoc. Reversed order is allowed though when separated by a newline.")
@@ -200,7 +200,7 @@ class NoConsecutiveCommentsRuleTest {
                 // EOL comment
                 /* Block comment */
                 """.trimIndent()
-            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
             noConsecutiveBlankLinesRuleAssertThat(code)
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
                 .hasLintViolationWithoutAutoCorrect(2, 1, "a block comment may not be preceded by an EOL comment unless separated by a blank line")
@@ -226,7 +226,7 @@ class NoConsecutiveCommentsRuleTest {
                 /* Block comment */
                 // EOL comment
                 """.trimIndent()
-            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
             noConsecutiveBlankLinesRuleAssertThat(code)
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
                 .hasLintViolationWithoutAutoCorrect(2, 1, "an EOL comment may not be preceded by a block comment unless separated by a blank line")

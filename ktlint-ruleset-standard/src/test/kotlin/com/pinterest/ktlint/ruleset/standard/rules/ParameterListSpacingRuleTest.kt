@@ -331,10 +331,11 @@ class ParameterListSpacingRuleTest {
 
     @Test
     fun `Given a function signature with multiple parameters and at least one space before the comma separating the parameters then reformat`() {
+        @Suppress("ktlint:standard:string-template")
         val code =
             """
             fun foo(a: Any$TOO_MANY_SPACES, b: Any) = "some-result"
-            """.trimIndent() // ktlint-disable string-template
+            """.trimIndent()
         val formattedCode =
             """
             fun foo(a: Any, b: Any) = "some-result"
@@ -346,11 +347,12 @@ class ParameterListSpacingRuleTest {
 
     @Test
     fun `Given a function signature with multiple parameters and at least one newline before the comma separating the parameters then reformat`() {
+        @Suppress("ktlint:standard:string-template")
         val code =
             """
             fun foo(a: Any
             , b: Any) = "some-result"
-            """.trimIndent() // ktlint-disable string-template
+            """.trimIndent()
         val formattedCode =
             """
             fun foo(a: Any, b: Any) = "some-result"
@@ -377,10 +379,11 @@ class ParameterListSpacingRuleTest {
 
     @Test
     fun `Given a function signature with multiple parameters and too many spaces after the comma separating the parameters then reformat`() {
+        @Suppress("ktlint:standard:string-template")
         val code =
             """
             fun foo(a: Any,${TOO_MANY_SPACES}b: Any) = "some-result"
-            """.trimIndent() // ktlint-disable string-template
+            """.trimIndent()
         val formattedCode =
             """
             fun foo(a: Any, b: Any) = "some-result"
@@ -392,13 +395,14 @@ class ParameterListSpacingRuleTest {
 
     @Test
     fun `Given a function signature with multiple parameters and a newline after the comma separating the parameters then do not reformat`() {
+        @Suppress("ktlint:standard:string-template")
         val code =
             """
             fun foo(
                 a: Any,
                 b: Any
             ) = "some-result"
-            """.trimIndent() // ktlint-disable string-template
+            """.trimIndent()
         parameterListSpacingRuleAssertThat(code).hasNoLintViolations()
     }
 

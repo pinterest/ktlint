@@ -15,29 +15,29 @@ class CheckStyleReporterTest {
         val reporter = CheckStyleReporter(PrintStream(out, true))
         reporter.onLintError(
             "/one-fixed-and-one-not.kt",
-            @Suppress("ktlint:argument-list-wrapping")
+            @Suppress("ktlint:standard:argument-list-wrapping")
             KtlintCliError(1, 1, "rule-1", "<\"&'>", LINT_CAN_BE_AUTOCORRECTED),
         )
         reporter.onLintError(
             "/one-fixed-and-one-not.kt",
-            @Suppress("ktlint:argument-list-wrapping")
+            @Suppress("ktlint:standard:argument-list-wrapping")
             KtlintCliError(2, 1, "rule-2", "And if you see my friend", FORMAT_IS_AUTOCORRECTED),
         )
 
         reporter.onLintError(
             "/two-not-fixed.kt",
-            @Suppress("ktlint:argument-list-wrapping")
+            @Suppress("ktlint:standard:argument-list-wrapping")
             KtlintCliError(1, 10, "rule-1", "I thought I would again", LINT_CAN_BE_AUTOCORRECTED),
         )
         reporter.onLintError(
             "/two-not-fixed.kt",
-            @Suppress("ktlint:argument-list-wrapping")
+            @Suppress("ktlint:standard:argument-list-wrapping")
             KtlintCliError(2, 20, "rule-2", "A single thin straight line", LINT_CAN_BE_AUTOCORRECTED),
         )
 
         reporter.onLintError(
             "/all-corrected.kt",
-            @Suppress("ktlint:argument-list-wrapping")
+            @Suppress("ktlint:standard:argument-list-wrapping")
             KtlintCliError(1, 1, "rule-1", "I thought we had more time", FORMAT_IS_AUTOCORRECTED),
         )
         reporter.afterAll()
