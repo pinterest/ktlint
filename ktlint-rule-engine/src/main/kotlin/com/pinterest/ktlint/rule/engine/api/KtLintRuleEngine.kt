@@ -25,7 +25,6 @@ import org.ec4j.core.Resource
 import org.ec4j.core.model.PropertyType.EndOfLineValue.crlf
 import org.ec4j.core.model.PropertyType.EndOfLineValue.lf
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
-import org.jetbrains.kotlin.utils.addToStdlib.ifFalse
 import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystem
 import java.nio.file.FileSystems
@@ -108,7 +107,14 @@ public class KtLintRuleEngine(
             .invoke { rule ->
                 ruleExecutionContext.executeRule(rule, false) { offset, errorMessage, canBeAutoCorrected ->
                     val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
-                    errors.add(LintError(line, col, rule.ruleId, errorMessage, canBeAutoCorrected))
+                    LintError(line, col, rule.ruleId, errorMessage, canBeAutoCorrected)
+                        .let { lintError ->
+                            errors.add(lintError)
+                            // In trace mode report the violation immediately. The order in which violations are actually found might be
+                            // different from the order in which they are reported. For debugging purposes it can be helpful to know the
+                            // exact order in which violations are being solved.
+                            LOGGER.trace { "Lint violation: ${lintError.logMessage(code)}" }
+                        }
                 }
             }
 
@@ -153,21 +159,20 @@ public class KtLintRuleEngine(
                         ruleExecutionContext.rebuildSuppressionLocator()
                     }
                     val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
-                    errors.add(
-                        Pair(
-                            LintError(line, col, rule.ruleId, errorMessage, canBeAutoCorrected),
-                            // It is assumed that a rule that emits that an error can be autocorrected, also
-                            // does correct the error.
-                            canBeAutoCorrected,
-                        ),
-                    )
-                    // In trace mode report the violation immediately. The order in which violations are actually found might be different
-                    // from the order in which they are reported. For debugging purposes it cn be helpful to know the exact order in which
-                    // violations are being solved.
-                    LOGGER.trace {
-                        "Format violation: ${code.fileNameOrStdin()}:$line:$col: $errorMessage (${rule.ruleId})" +
-                            canBeAutoCorrected.ifFalse { " [cannot be autocorrected]" }
-                    }
+                    LintError(line, col, rule.ruleId, errorMessage, canBeAutoCorrected)
+                        .let { lintError ->
+                            errors.add(
+                                Pair(
+                                    lintError,
+                                    // It is assumed that a rule that emits that an error can be autocorrected, also does correct the error.
+                                    canBeAutoCorrected,
+                                ),
+                            )
+                            // In trace mode report the violation immediately. The order in which violations are actually found might be
+                            // different from the order in which they are reported. For debugging purposes it can be helpful to know the
+                            // exact order in which violations are being solved.
+                            LOGGER.trace { "Format violation: ${lintError.logMessage(code)}" }
+                        }
                 }
             }
         if (tripped) {
@@ -179,14 +184,21 @@ public class KtLintRuleEngine(
                         false,
                     ) { offset, errorMessage, canBeAutoCorrected ->
                         val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
-                        errors.add(
-                            Pair(
-                                LintError(line, col, rule.ruleId, errorMessage, canBeAutoCorrected),
-                                // It is assumed that a rule only corrects an error after it has emitted an
-                                // error and indicating that it actually can be autocorrected.
-                                false,
-                            ),
-                        )
+                        LintError(line, col, rule.ruleId, errorMessage, canBeAutoCorrected)
+                            .let { lintError ->
+                                errors.add(
+                                    Pair(
+                                        lintError,
+                                        // It is assumed that a rule only corrects an error after it has emitted an error and indicating
+                                        // that it actually can be autocorrected.
+                                        false,
+                                    ),
+                                )
+                                // In trace mode report the violation immediately. The order in which violations are actually found might be
+                                // different from the order in which they are reported. For debugging purposes it can be helpful to know the
+                                // exact order in which violations are being solved.
+                                LOGGER.trace { "Lint violation after format: ${lintError.logMessage(code)}" }
+                            }
                     }
                 }
         }
@@ -280,6 +292,14 @@ public class KtLintRuleEngine(
     }
 
     public fun transformToAst(code: Code): FileASTNode = createRuleExecutionContext(this, code).rootNode
+
+    private fun LintError.logMessage(code: Code) =
+        "${code.fileNameOrStdin()}:$line:$col: $detail ($ruleId)" +
+            if (canBeAutoCorrected) {
+                ""
+            } else {
+                " [cannot be autocorrected]"
+            }
 
     public companion object {
         internal const val UTF8_BOM = "\uFEFF"
