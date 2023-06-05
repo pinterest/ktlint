@@ -4,6 +4,14 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+### Deprecation of ktlint-enable and ktlint-disable directives
+
+The `ktlint-disable` and `ktlint-enable` directives are no longer supported. Ktlint rules can now only be suppressed using the `@Suppress` or `@SuppressWarnings` annotations. A new rule, `ktlint-suppression`, is provided to replace the directives with annotations.
+
+It is recommended that API Consumers that do not provide the Ktlint `standard` rules at least provide the `DeprecatedRuleDirectiveRule` by default. If the rule is not provided, a log message will be printed for each `ktlint-disable` and `ktlint-enable` directive that is found and violations will not be suppressed.
+
+The `ktlint-suppression` rule can not be disabled via the `.editorconfig`.
+
 ### Custom Rule Providers need to prepare for Kotlin 1.9
 
 In Kotlin 1.9 the extension points of the embedded kotlin compiler will change. Ktlint only uses the `org.jetbrains.kotlin.com.intellij.treeCopyHandler` extension point. This extension is not yet supported in 1.9, neither is it documented ([#KT-58704](https://youtrack.jetbrains.com/issue/KT-58704/Support-and-document-extension-point-org.jetbrains.kotlin.com.intellij.treeCopyHandler)). Without this extension point it might happen that your custom rules will throw exceptions during runtime. See [#1981](https://github.com/pinterest/ktlint/issues/1981).
@@ -31,6 +39,7 @@ At this point in time, it is not yet decided what the next steps will be. Ktlint
 * Add new experimental rule `no-empty-file` for all code styles. A kotlin (script) file may not be empty ([#1074](https://github.com/pinterest/ktlint/issues/1074))
 * Add new experimental rule `statement-wrapping` which ensures function, class, or other blocks statement body doesn't start or end at starting or ending braces of the block ([#1938](https://github.com/pinterest/ktlint/issues/1938))
 * Add new experimental rule `blank-line-before-declaration`. This rule requires a blank line before class, function or property declarations ([#1939](https://github.com/pinterest/ktlint/issues/1939))
+* Add new rule `ktlint-suppression` to replace the `ktlint-disable` and `ktlint-enable` directives with annotations. This rule can not be disabled via the `.editorconfig` ([#1947](https://github.com/pinterest/ktlint/issues/1947))
 
 ### Removed
 

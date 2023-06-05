@@ -30,6 +30,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.IfElseWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ImportOrderingRule
 import com.pinterest.ktlint.ruleset.standard.rules.IndentationRule
 import com.pinterest.ktlint.ruleset.standard.rules.KdocWrappingRule
+import com.pinterest.ktlint.ruleset.standard.rules.KtlintSuppressionRule
 import com.pinterest.ktlint.ruleset.standard.rules.MaxLineLengthRule
 import com.pinterest.ktlint.ruleset.standard.rules.ModifierListSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ModifierOrderRule
@@ -115,6 +116,7 @@ public class StandardRuleSetProvider :
             RuleProvider { ImportOrderingRule() },
             RuleProvider { IndentationRule() },
             RuleProvider { KdocWrappingRule() },
+            RuleProvider { KtlintSuppressionRule() },
             RuleProvider { MaxLineLengthRule() },
             RuleProvider { ModifierListSpacingRule() },
             RuleProvider { ModifierOrderRule() },

@@ -50,6 +50,7 @@ internal object SuppressionLocatorBuilder {
         )
     private val SUPPRESS_ANNOTATIONS = setOf("Suppress", "SuppressWarnings")
     private val SUPPRESS_ALL_KTLINT_RULES_RULE_ID = RuleId("ktlint:suppress-all-rules")
+    private val KTLINT_SUPPRESSION_RULE_ID = RuleId("standard:ktlint-suppression")
 
     /**
      * Builds [SuppressionLocator] for given [rootNode] of AST tree.
@@ -68,9 +69,15 @@ internal object SuppressionLocatorBuilder {
 
     private fun toSuppressedRegionsLocator(hintsList: List<SuppressionHint>): SuppressionLocator =
         { offset, ruleId ->
-            hintsList
-                .filter { offset in it.range }
-                .any { hint -> hint.disabledRuleIds.isEmpty() || hint.disabledRuleIds.contains(ruleId) }
+            if (ruleId == KTLINT_SUPPRESSION_RULE_ID) {
+                // The rule to detect deprecated rule directives may not be disabled itself as otherwise the directives
+                // will not be reported and fixed.
+                false
+            } else {
+                hintsList
+                    .filter { offset in it.range }
+                    .any { hint -> hint.disabledRuleIds.isEmpty() || hint.disabledRuleIds.contains(ruleId) }
+            }
         }
 
     private fun collect(

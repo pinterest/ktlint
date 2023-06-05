@@ -6,6 +6,7 @@ import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.plus
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.LintError
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
@@ -329,6 +330,54 @@ class SuppressionLocatorBuilderTest {
         }
     }
 
+    @Test
+    fun `Given a rule in rule set 'standard' with id 'ktlint-suppression' then it will not be suppressed`() {
+        val standardDeprecatedRuleDirectiveRuleId = RuleId("standard:ktlint-suppression")
+        val code =
+            """
+            val bar1 = "bar1" // ktlint-disable
+            val bar2 = "bar2" // ktlint-disable ktlint-suppression
+            val bar3 = "bar3" // ktlint-disable standard:ktlint-suppression
+            @Suppress("ktlint")
+            val bar4 = "bar4"
+            @Suppress("ktlint:ktlint-suppression")
+            val bar5 = "bar5"
+            @Suppress("ktlint:standard:ktlint-suppression")
+            val bar6 = "bar6"
+            """.trimIndent()
+        val actual =
+            lint(
+                code = code,
+                ruleProviders =
+                    setOf(
+                        RuleProvider {
+                            object : Rule(
+                                ruleId = standardDeprecatedRuleDirectiveRuleId,
+                                about = About(),
+                            ) {
+                                override fun beforeVisitChildNodes(
+                                    node: ASTNode,
+                                    autoCorrect: Boolean,
+                                    emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+                                ) {
+                                    if (node.elementType == PROPERTY) {
+                                        emit(node.startOffset, "This rule will not be suppressed", false)
+                                    }
+                                }
+                            }
+                        },
+                    ),
+            )
+        assertThat(actual).containsExactly(
+            LintError(1, 1, standardDeprecatedRuleDirectiveRuleId, "This rule will not be suppressed", false),
+            LintError(2, 1, standardDeprecatedRuleDirectiveRuleId, "This rule will not be suppressed", false),
+            LintError(3, 1, standardDeprecatedRuleDirectiveRuleId, "This rule will not be suppressed", false),
+            LintError(4, 1, standardDeprecatedRuleDirectiveRuleId, "This rule will not be suppressed", false),
+            LintError(6, 1, standardDeprecatedRuleDirectiveRuleId, "This rule will not be suppressed", false),
+            LintError(8, 1, standardDeprecatedRuleDirectiveRuleId, "This rule will not be suppressed", false),
+        )
+    }
+
     private class NoFooIdentifierRule(id: RuleId) : Rule(
         ruleId = id,
         about = About(),
@@ -347,6 +396,7 @@ class SuppressionLocatorBuilderTest {
     private fun lint(
         code: String,
         editorConfigOverride: EditorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
+        ruleProviders: Set<RuleProvider> = emptySet(),
     ) = ArrayList<LintError>().apply {
         KtLintRuleEngine(
             ruleProviders =
@@ -355,7 +405,7 @@ class SuppressionLocatorBuilderTest {
                     // ruleIds are different.
                     RuleProvider { NoFooIdentifierRule(STANDARD_NO_FOO_IDENTIFIER_RULE_ID) },
                     RuleProvider { NoFooIdentifierRule(NON_STANDARD_NO_FOO_IDENTIFIER_RULE_ID) },
-                ),
+                ).plus(ruleProviders),
             editorConfigOverride =
                 editorConfigOverride
                     .plus(
