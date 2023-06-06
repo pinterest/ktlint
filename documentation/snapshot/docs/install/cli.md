@@ -218,17 +218,8 @@ Options `--stdin` and `--patterns-from-stdin` are mutually exclusive, only one o
 
 ### Microsoft Windows users
 
-!!! tip "Microsoft Windows"
-    On Microsoft Windows you'll have to use `java -jar ktlint ...`
+Microsoft Windows is not able to run the `ktlint` command directly. Ktlint can be run in following ways on Microsoft Windows:
 
-1. You can download the file via wget on Windows or manually via [releases](https://github.com/pinterest/ktlint/releases)
-   - Example: `wget https://github.com/pinterest/ktlint/releases/download/0.49.1/ktlint`
-
-2. After downloading the file you can add it to your environment variables (aka %PATH%)
-
-3. You should now be able to use `ktlint -F`
-
-OR
-
-You can also make use of the `ktlint.bat` file to help with the formatting.
-- See path `ktlint-cli/src/main/scripts/ktlint.bat`
+1. Use the `ktlint.bat` batch file provided as part of the [release](https://github.com/pinterest/ktlint/releases/tag/0.49.1). Add the batch file to your `%PATH%` environment variable for easy access
+2. Run `ktlint` using Git Bash
+3. Run as `java -jar ktlint`
