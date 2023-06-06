@@ -48,6 +48,42 @@ class KtlintSuppressionRuleTest {
         }
 
         @Test
+        fun `Given a @file array annotation with Suppress and SuppressWarnings annotations`() {
+            val code =
+                """
+                @file:[Suppress("ktlint:bar", "ktlint:standard:foo") SuppressWarnings("ktlint:foo-bar")]
+                """.trimIndent()
+            val formattedCode =
+                """
+                @file:[Suppress("ktlint:standard:bar", "ktlint:standard:foo") SuppressWarnings("ktlint:standard:foo-bar")]
+                """.trimIndent()
+            ktlintSuppressionRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(1, 25, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
+                    LintViolation(1, 79, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given an array annotation with Suppress and SuppressWarnings annotations`() {
+            val code =
+                """
+                @[Suppress("ktlint:bar", "ktlint:standard:foo") SuppressWarnings("ktlint:foo-bar")]
+                val foo = "foo"
+                """.trimIndent()
+            val formattedCode =
+                """
+                @[Suppress("ktlint:standard:bar", "ktlint:standard:foo") SuppressWarnings("ktlint:standard:foo-bar")]
+                val foo = "foo"
+                """.trimIndent()
+            ktlintSuppressionRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(1, 20, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
+                    LintViolation(1, 74, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @Test
         fun `Given a Suppress annotation on a declaration`() {
             val code =
                 """

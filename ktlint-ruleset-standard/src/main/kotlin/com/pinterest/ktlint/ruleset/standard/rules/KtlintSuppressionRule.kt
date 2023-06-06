@@ -27,6 +27,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtBlockExpression
+import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtDeclarationModifierList
 import org.jetbrains.kotlin.psi.KtExpression
@@ -34,6 +35,9 @@ import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtFileAnnotationList
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtScript
+import org.jetbrains.kotlin.psi.KtScriptInitializer
+import org.jetbrains.kotlin.psi.KtValueArgument
+import org.jetbrains.kotlin.psi.KtValueArgumentList
 import org.jetbrains.kotlin.psi.psiUtil.children
 import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.util.prefixIfNot
@@ -60,8 +64,9 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         node
-            .suppressionAnnotationTypeOrNull()
-            ?.visitSuppressAnnotation(node, emit, autoCorrect)
+            .takeIf { it.elementType == VALUE_ARGUMENT }
+            ?.takeIf { it.text.startsWith("\"ktlint:") }
+            ?.let { visitKtlintSuppressionInAnnotation(node, emit, autoCorrect) }
 
         node
             .removeCommentWithoutMarkersOrNull()
@@ -84,47 +89,42 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
             }
     }
 
-    private fun SuppressAnnotationType.visitSuppressAnnotation(
+    private fun visitKtlintSuppressionInAnnotation(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
     ) {
         node
-            .findChildByType(VALUE_ARGUMENT_LIST)
-            ?.let { valueArgumentList ->
-                val suppressions =
-                    valueArgumentList
-                        .children()
-                        .filter { it.elementType == VALUE_ARGUMENT }
-                        .map { valueArgument ->
-                            valueArgument
-                                .text
-                                .prefixKtlintSuppressionWithRuleSetId()
-                                .also { prefixedSuppression ->
-                                    if (prefixedSuppression != valueArgument.text) {
-                                        emit(
-                                            valueArgument.startOffset + "\"ktlint:".length,
-                                            "Identifier to suppress ktlint rule must be fully qualified with the rule set id",
-                                            true,
-                                        )
-                                        // See below for autocorrect on entire value argument list
-                                    }
-                                }
-                        }.toSet()
-                if (autoCorrect) {
-                    node
-                        .psi
-                        .createSuppressAnnotation(this, suppressions)
-                        .node
-                        .findChildByType(VALUE_ARGUMENT_LIST)
-                        ?.let { newValueArgumentList ->
-                            if (valueArgumentList != newValueArgumentList) {
-                                valueArgumentList.replaceWith(newValueArgumentList)
-                            }
-                        }
+            .text
+            .prefixKtlintSuppressionWithRuleSetId()
+            .also { prefixedSuppression ->
+                if (prefixedSuppression != node.text) {
+                    emit(
+                        node.startOffset + "\"ktlint:".length,
+                        "Identifier to suppress ktlint rule must be fully qualified with the rule set id",
+                        true,
+                    )
+                    if (autoCorrect) {
+                        node
+                            .createValueArgument(prefixedSuppression)
+                            ?.let { node.replaceWith(it) }
+                    }
                 }
             }
     }
+
+    private fun ASTNode.createValueArgument(
+        prefixedSuppression: String
+    ) = PsiFileFactory
+        .getInstance(psi.project)
+        .createFileFromText(KotlinLanguage.INSTANCE, "listOf($prefixedSuppression)")
+        .getChildOfType<KtScript>()
+        ?.getChildOfType<KtBlockExpression>()
+        ?.getChildOfType<KtScriptInitializer>()
+        ?.getChildOfType<KtCallExpression>()
+        ?.getChildOfType<KtValueArgumentList>()
+        ?.getChildOfType<KtValueArgument>()
+        ?.node
 
     private fun String.prefixKtlintSuppressionWithRuleSetId() =
         takeIf { startsWith("\"ktlint:") }
