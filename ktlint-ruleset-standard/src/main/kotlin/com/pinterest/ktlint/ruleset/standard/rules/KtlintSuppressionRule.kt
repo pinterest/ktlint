@@ -8,6 +8,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE_ANNOTATION_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PACKAGE_DIRECTIVE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
@@ -16,6 +17,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isRoot
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.KtlintSuppressionRule.SuppressAnnotationType.SUPPRESS
@@ -33,14 +35,18 @@ import org.jetbrains.kotlin.psi.KtDeclarationModifierList
 import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtFileAnnotationList
+import org.jetbrains.kotlin.psi.KtLiteralStringTemplateEntry
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtScript
 import org.jetbrains.kotlin.psi.KtScriptInitializer
+import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.KtValueArgument
 import org.jetbrains.kotlin.psi.KtValueArgumentList
 import org.jetbrains.kotlin.psi.psiUtil.children
+import org.jetbrains.kotlin.psi.psiUtil.findDescendantOfType
 import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.util.prefixIfNot
+import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 
 /**
  * Disallow usage of the old "ktlint-disable" and "ktlint-enable" directives.
@@ -64,9 +70,14 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         node
-            .takeIf { it.elementType == VALUE_ARGUMENT }
+            .takeIf { it.elementType == STRING_TEMPLATE }
             ?.takeIf { it.text.startsWith("\"ktlint:") }
-            ?.let { visitKtlintSuppressionInAnnotation(node, emit, autoCorrect) }
+            ?.takeIf { literalStringTemplate ->
+                literalStringTemplate
+                    .parent(VALUE_ARGUMENT)
+                    ?.isPartOfAnnotation()
+                    ?: false
+            }?.let { visitKtlintSuppressionInAnnotation(node, emit, autoCorrect) }
 
         node
             .removeCommentWithoutMarkersOrNull()
@@ -89,52 +100,68 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
             }
     }
 
+    private fun ASTNode.isPartOfAnnotation() =
+        parent { it.elementType == ANNOTATION || it.elementType == ANNOTATION_ENTRY } != null
+
     private fun visitKtlintSuppressionInAnnotation(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
     ) {
+        // node
+        //    .psi
+        //    .findDescendantOfType<KtLiteralStringTemplateEntry>()
         node
-            .text
-            .prefixKtlintSuppressionWithRuleSetId()
-            .also { prefixedSuppression ->
-                if (prefixedSuppression != node.text) {
-                    emit(
-                        node.startOffset + "\"ktlint:".length,
-                        "Identifier to suppress ktlint rule must be fully qualified with the rule set id",
-                        true,
-                    )
-                    if (autoCorrect) {
-                        node
-                            .createValueArgument(prefixedSuppression)
-                            ?.let { node.replaceWith(it) }
+            .psi
+            .findDescendantOfType<KtLiteralStringTemplateEntry>()
+            ?.let { literalStringTemplateEntry ->
+                literalStringTemplateEntry
+                    .text
+                    ?.prefixKtlintSuppressionWithRuleSetId()
+                    ?.let { prefixedSuppression ->
+                        if (prefixedSuppression != literalStringTemplateEntry.text) {
+                            emit(
+                                literalStringTemplateEntry.node.startOffset + "ktlint:".length,
+                                "Identifier to suppress ktlint rule must be fully qualified with the rule set id",
+                                true,
+                            )
+                            if (autoCorrect) {
+                                node
+                                    .createLiteralStringTemplateEntry(prefixedSuppression)
+                                    ?.let {
+                                        literalStringTemplateEntry.node.replaceWith(it)
+                                    }
+                            }
+                        }
                     }
-                }
             }
     }
 
-    private fun ASTNode.createValueArgument(
+    private fun ASTNode.createLiteralStringTemplateEntry(
         prefixedSuppression: String
     ) = PsiFileFactory
         .getInstance(psi.project)
-        .createFileFromText(KotlinLanguage.INSTANCE, "listOf($prefixedSuppression)")
+        .createFileFromText(KotlinLanguage.INSTANCE, "listOf(\"$prefixedSuppression\")")
         .getChildOfType<KtScript>()
         ?.getChildOfType<KtBlockExpression>()
         ?.getChildOfType<KtScriptInitializer>()
         ?.getChildOfType<KtCallExpression>()
         ?.getChildOfType<KtValueArgumentList>()
         ?.getChildOfType<KtValueArgument>()
+        ?.getChildOfType<KtStringTemplateExpression>()
+        ?.getChildOfType<KtLiteralStringTemplateEntry>()
         ?.node
 
-    private fun String.prefixKtlintSuppressionWithRuleSetId() =
-        takeIf { startsWith("\"ktlint:") }
-            ?.substringAfter("\"ktlint:")
-            ?.let { originalRuleId ->
-                RuleId
-                    .prefixWithStandardRuleSetIdWhenMissing(originalRuleId)
-                    .prefixIfNot("\"ktlint:")
-            }
+    private fun String.prefixKtlintSuppressionWithRuleSetId(): String {
+        val isPrefixedWithDoubleQuote = startsWith("\"")
+        return removePrefix("\"")
+            .takeIf { startsWith("ktlint:") }
+            ?.substringAfter("ktlint:")
+            ?.let { RuleId.prefixWithStandardRuleSetIdWhenMissing(it) }
+            ?.prefixIfNot("ktlint:")
+            ?.applyIf(isPrefixedWithDoubleQuote) { prefixIfNot("\"") }
             ?: this
+    }
 
     private fun ASTNode.removeCommentWithoutMarkersOrNull() =
         when (elementType) {

@@ -84,6 +84,44 @@ class KtlintSuppressionRuleTest {
         }
 
         @Test
+        fun `Given a Suppress annotation with a named argument with an arrayOf initialization`() {
+            val code =
+                """
+                @Suppress(names = arrayOf("ktlint:bar", "ktlint:standard:foo", "ktlint:foo-bar"))
+                val foo = "foo"
+                """.trimIndent()
+            val formattedCode =
+                """
+                @Suppress(names = arrayOf("ktlint:standard:bar", "ktlint:standard:foo", "ktlint:standard:foo-bar"))
+                val foo = "foo"
+                """.trimIndent()
+            ktlintSuppressionRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(1, 35, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
+                    LintViolation(1, 72, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given a Suppress annotation with a named argument with an array (squared brackets) initialization`() {
+            val code =
+                """
+                @Suppress(names = ["ktlint:bar", "ktlint:standard:foo", "ktlint:foo-bar"])
+                val foo = "foo"
+                """.trimIndent()
+            val formattedCode =
+                """
+                @Suppress(names = ["ktlint:standard:bar", "ktlint:standard:foo", "ktlint:standard:foo-bar"])
+                val foo = "foo"
+                """.trimIndent()
+            ktlintSuppressionRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(1, 28, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
+                    LintViolation(1, 65, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @Test
         fun `Given a Suppress annotation on a declaration`() {
             val code =
                 """
