@@ -221,6 +221,25 @@ class KtlintSuppressionRuleTest {
         }
 
         @Test
+        fun `Given an EOL comment with a ktlint-disable directive on an import and an existing @file Suppress annotation without parameters`() {
+            val code =
+                """
+                @file:Suppress
+
+                import foobar.* // ktlint-disable no-wildcard-imports
+                """.trimIndent()
+            val formattedCode =
+                """
+                @file:Suppress("ktlint:standard:no-wildcard-imports")
+
+                import foobar.*
+                """.trimIndent()
+            ktlintSuppressionRuleAssertThat(code)
+                .hasLintViolation(3, 20, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
         fun `Given an EOL comment with a ktlint-disable directive on an import on a file starting with a (copyright) comment before the package statement`() {
             val code =
                 """
