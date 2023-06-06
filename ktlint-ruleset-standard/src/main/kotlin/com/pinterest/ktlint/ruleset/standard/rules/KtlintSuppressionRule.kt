@@ -44,14 +44,14 @@ import org.jetbrains.kotlin.util.prefixIfNot
  * A ktlint-disable directive is replaced with an annotation on the closest parent declaration or expression, or as annotation on the file
  * level in case the directive is associated with a top level element.
  *
- * If the target element is annotated with a [Suppress], or if missing with a [SuppressWarnings] annotation then the ktlint-directive will
- * be matched against this annotation. If this annotation already contains a suppression for *all* ktlint rules, or for the specific rule
- * id, then it is not added to annotation as it would be redundant. In case a suppression identifier is added to an existing annotation then
- * all identifiers in the annotation are alphabetically sorted.
+ * If the target element is annotated with a [Suppress] (or, if missing, is annotated with a [SuppressWarnings] annotation) then the
+ * ktlint-directive will be matched against this annotation. If this annotation already contains a suppression for *all* ktlint rules, or
+ * for the specific rule id, then it is not added to annotation as it would be redundant. In case a suppression identifier is added to an
+ * existing annotation then all identifiers in the annotation are alphabetically sorted.
  *
  * If the target element is not annotated with [Suppress] or [SuppressWarnings] then a [Suppress] annotation is added.
  *
- * A ktlint-enable directive is removed as annotations have a scope in which the suppression will be active.
+ * Ktlint-enable directives are removed as annotations have a scope in which the suppression will be active.
  */
 public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
     override fun beforeVisitChildNodes(
