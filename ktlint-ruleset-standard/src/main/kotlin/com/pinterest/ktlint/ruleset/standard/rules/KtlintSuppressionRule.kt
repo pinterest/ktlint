@@ -100,8 +100,7 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
             }
     }
 
-    private fun ASTNode.isPartOfAnnotation() =
-        parent { it.elementType == ANNOTATION || it.elementType == ANNOTATION_ENTRY } != null
+    private fun ASTNode.isPartOfAnnotation() = parent { it.elementType == ANNOTATION || it.elementType == ANNOTATION_ENTRY } != null
 
     private fun visitKtlintSuppressionInAnnotation(
         node: ASTNode,
@@ -137,20 +136,19 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
             }
     }
 
-    private fun ASTNode.createLiteralStringTemplateEntry(
-        prefixedSuppression: String
-    ) = PsiFileFactory
-        .getInstance(psi.project)
-        .createFileFromText(KotlinLanguage.INSTANCE, "listOf(\"$prefixedSuppression\")")
-        .getChildOfType<KtScript>()
-        ?.getChildOfType<KtBlockExpression>()
-        ?.getChildOfType<KtScriptInitializer>()
-        ?.getChildOfType<KtCallExpression>()
-        ?.getChildOfType<KtValueArgumentList>()
-        ?.getChildOfType<KtValueArgument>()
-        ?.getChildOfType<KtStringTemplateExpression>()
-        ?.getChildOfType<KtLiteralStringTemplateEntry>()
-        ?.node
+    private fun ASTNode.createLiteralStringTemplateEntry(prefixedSuppression: String) =
+        PsiFileFactory
+            .getInstance(psi.project)
+            .createFileFromText(KotlinLanguage.INSTANCE, "listOf(\"$prefixedSuppression\")")
+            .getChildOfType<KtScript>()
+            ?.getChildOfType<KtBlockExpression>()
+            ?.getChildOfType<KtScriptInitializer>()
+            ?.getChildOfType<KtCallExpression>()
+            ?.getChildOfType<KtValueArgumentList>()
+            ?.getChildOfType<KtValueArgument>()
+            ?.getChildOfType<KtStringTemplateExpression>()
+            ?.getChildOfType<KtLiteralStringTemplateEntry>()
+            ?.node
 
     private fun String.prefixKtlintSuppressionWithRuleSetId(): String {
         val isPrefixedWithDoubleQuote = startsWith("\"")

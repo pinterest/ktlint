@@ -161,7 +161,7 @@ class PropertyNamingRuleTest {
     @ParameterizedTest(name = "Suppression annotation: {0}")
     @ValueSource(
         strings = [
-            "ktlint:property-naming",
+            "ktlint:standard:property-naming",
             "PropertyName", // IntelliJ IDEA suppression
         ],
     )

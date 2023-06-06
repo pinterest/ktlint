@@ -73,7 +73,7 @@ class ClassNamingRuleTest {
         @ParameterizedTest(name = "Suppression annotation: {0}")
         @ValueSource(
             strings = [
-                "ktlint:class-naming",
+                "ktlint:standard:class-naming",
                 "ClassName", // IntelliJ IDEA suppression
             ],
         )
@@ -117,7 +117,7 @@ class ClassNamingRuleTest {
         @ParameterizedTest(name = "Suppression annotation: {0}")
         @ValueSource(
             strings = [
-                "ktlint:class-naming",
+                "ktlint:standard:class-naming",
                 "ClassName", // IntelliJ IDEA suppression
             ],
         )

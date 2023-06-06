@@ -67,7 +67,7 @@ class PackageNameRuleTest {
     @ParameterizedTest(name = "Suppression annotation: {0}")
     @ValueSource(
         strings = [
-            "ktlint:package-name",
+            "ktlint:standard:package-name",
             "PackageName", // IntelliJ IDEA suppression
         ],
     )

@@ -125,7 +125,7 @@ class FunctionNamingRuleTest {
     @ParameterizedTest(name = "Suppression annotation: {0}")
     @ValueSource(
         strings = [
-            "ktlint:function-naming",
+            "ktlint:standard:function-naming",
             "FunctionName", // IntelliJ IDEA suppression
         ],
     )
