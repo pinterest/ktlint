@@ -4,10 +4,13 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK_COMMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE_ANNOTATION_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PACKAGE_DIRECTIVE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
@@ -30,6 +33,7 @@ import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtCallExpression
+import org.jetbrains.kotlin.psi.KtClassInitializer
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtDeclarationModifierList
 import org.jetbrains.kotlin.psi.KtExpression
@@ -107,9 +111,6 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
     ) {
-        // node
-        //    .psi
-        //    .findDescendantOfType<KtLiteralStringTemplateEntry>()
         node
             .psi
             .findDescendantOfType<KtLiteralStringTemplateEntry>()
@@ -237,9 +238,9 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
     private fun ASTNode.findParentDeclarationOrExpression(): ASTNode {
         var targetNode = this
         while (
-            !targetNode.isRoot() &&
-            targetNode.psi !is KtDeclaration &&
-            (targetNode.psi !is KtExpression || targetNode.psi is KtBlockExpression)
+            targetNode.psi is KtClassInitializer ||
+            targetNode.psi is KtBlockExpression ||
+            (!targetNode.isRoot() && targetNode.psi !is KtDeclaration && targetNode.psi !is KtExpression)
         ) {
             targetNode = targetNode.treeParent
         }
@@ -263,38 +264,7 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
             suppressionAnnotations.containsKey(SUPPRESS_WARNINGS) ->
                 ktlintRuleSuppressions.mergeInto(suppressionAnnotations.getValue(SUPPRESS_WARNINGS), SUPPRESS_WARNINGS)
 
-            else -> {
-                psi
-                    .createSuppressAnnotation(SUPPRESS, ktlintRuleSuppressions)
-                    .node
-                    .let { annotation ->
-                        if (annotation.elementType == FILE_ANNOTATION_LIST) {
-                            require(isRoot()) { "File annotation list can only be created for root node" }
-                            // Should always be inserted into the first (root) code child regardless in which root node the ktlint directive
-                            // was actually found
-                            if (findChildByType(FILE_ANNOTATION_LIST) != null) {
-                                findChildByType(FILE_ANNOTATION_LIST)
-                                    ?.let { fileAnnotationList ->
-                                        fileAnnotationList.treeParent.addChild(annotation, fileAnnotationList)
-                                        fileAnnotationList.remove()
-                                    }
-                            } else {
-                                findChildByType(PACKAGE_DIRECTIVE)
-                                    ?.let { packageDirective ->
-                                        packageDirective
-                                            .treeParent
-                                            .addChild(annotation, packageDirective)
-                                        packageDirective
-                                            .treeParent
-                                            .addChild(PsiWhiteSpaceImpl("\n" + indent()), packageDirective)
-                                    }
-                            }
-                        } else {
-                            treeParent.addChild(annotation, this)
-                            treeParent.addChild(PsiWhiteSpaceImpl(indent()), this)
-                        }
-                    }
-            }
+            else -> createSuppressAnnotation(SUPPRESS, ktlintRuleSuppressions)
         }
     }
 
@@ -316,18 +286,7 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
                 }
             }.map { it.prefixKtlintSuppressionWithRuleSetId() }
             .let { suppressions ->
-                annotationNode
-                    .treeParent
-                    .psi
-                    .createSuppressAnnotation(suppressType, suppressions)
-                    .node
-                    .let { newAnnotation ->
-                        if (annotationNode.treeParent.elementType == FILE_ANNOTATION_LIST) {
-                            annotationNode.treeParent.replaceWith(newAnnotation)
-                        } else {
-                            annotationNode.replaceWith(newAnnotation)
-                        }
-                    }
+                annotationNode.createSuppressAnnotation(suppressType, suppressions)
             }
     }
 
@@ -370,20 +329,65 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
             ?.toSet()
             .orEmpty()
 
-    private fun PsiElement.createSuppressAnnotation(
+    private fun ASTNode.createSuppressAnnotation(
         suppressType: SuppressAnnotationType,
         suppressions: Collection<String>,
-    ): PsiElement =
-        suppressions
-            .sorted()
-            .joinToString()
-            .let { sortedSuppressionsString ->
-                if (this is KtFile || this is KtFileAnnotationList) {
-                    createFileAnnotation(suppressType, sortedSuppressionsString)
-                } else {
-                    createDeclarationAnnotationEntry(suppressType, sortedSuppressionsString)
+    ) {
+        val targetNode =
+            if (elementType == ANNOTATION_ENTRY) {
+                treeParent
+            } else {
+                this
+            }
+
+        if (targetNode.psi is KtFile || targetNode.psi is KtFileAnnotationList) {
+            val annotation =
+                targetNode
+                    .psi
+                    .createFileAnnotation(
+                        suppressType,
+                        suppressions
+                            .sorted()
+                            .joinToString()
+                    ).node
+            if (targetNode.elementType == FILE_ANNOTATION_LIST) {
+                targetNode.replaceWith(annotation)
+            } else {
+                this.insertFileAnnotation(annotation)
+            }
+        } else {
+            val modifierListWithAnnotation =
+                targetNode
+                    .psi
+                    .createModifierListWithAnnotationEntry(
+                        suppressType,
+                        suppressions
+                            .sorted()
+                            .joinToString()
+                    )
+            when (elementType) {
+                ANNOTATION_ENTRY ->
+                    this.replaceWith(
+                        modifierListWithAnnotation
+                            .getChildOfType<KtAnnotationEntry>()!!
+                            .node
+                    )
+                CLASS, FUN, PROPERTY -> {
+                    this.addChild(PsiWhiteSpaceImpl(indent()), this.firstChildNode)
+                    this.addChild(modifierListWithAnnotation.node, this.firstChildNode)
+                }
+                else -> {
+                    treeParent.addChild(
+                        modifierListWithAnnotation
+                            .getChildOfType<KtAnnotationEntry>()!!
+                            .node,
+                        this
+                    )
+                    treeParent.addChild(PsiWhiteSpaceImpl(indent()), this)
                 }
             }
+        }
+    }
 
     private fun PsiElement.createFileAnnotation(
         suppressType: SuppressAnnotationType,
@@ -398,7 +402,30 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
                     ?: throw IllegalStateException("Can not create annotation '$annotation'")
             }
 
-    private fun PsiElement.createDeclarationAnnotationEntry(
+    private fun ASTNode.insertFileAnnotation(annotation: ASTNode) {
+        require(isRoot()) { "File annotation list can only be created for root node" }
+        // Should always be inserted into the first (root) code child regardless in which root node the ktlint directive
+        // was actually found
+        if (findChildByType(FILE_ANNOTATION_LIST) != null) {
+            findChildByType(FILE_ANNOTATION_LIST)
+                ?.let { fileAnnotationList ->
+                    fileAnnotationList.treeParent.addChild(annotation, fileAnnotationList)
+                    fileAnnotationList.remove()
+                }
+        } else {
+            findChildByType(PACKAGE_DIRECTIVE)
+                ?.let { packageDirective ->
+                    packageDirective
+                        .treeParent
+                        .addChild(annotation, packageDirective)
+                    packageDirective
+                        .treeParent
+                        .addChild(PsiWhiteSpaceImpl("\n" + indent()), packageDirective)
+                }
+        }
+    }
+
+    private fun PsiElement.createModifierListWithAnnotationEntry(
         suppressType: SuppressAnnotationType,
         sortedSuppressionsString: String,
     ): PsiElement =
@@ -417,7 +444,6 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
                     ?.getChildOfType<KtBlockExpression>()
                     ?.getChildOfType<KtNamedFunction>()
                     ?.getChildOfType<KtDeclarationModifierList>()
-                    ?.getChildOfType<KtAnnotationEntry>()
                     ?: throw IllegalStateException("Can not create annotation '$annotation'")
             }
 
