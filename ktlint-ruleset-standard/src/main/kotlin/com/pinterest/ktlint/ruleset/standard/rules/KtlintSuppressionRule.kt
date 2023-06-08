@@ -348,7 +348,7 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
                         suppressType,
                         suppressions
                             .sorted()
-                            .joinToString()
+                            .joinToString(),
                     ).node
             if (targetNode.elementType == FILE_ANNOTATION_LIST) {
                 targetNode.replaceWith(annotation)
@@ -363,14 +363,14 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
                         suppressType,
                         suppressions
                             .sorted()
-                            .joinToString()
+                            .joinToString(),
                     )
             when (elementType) {
                 ANNOTATION_ENTRY ->
                     this.replaceWith(
                         modifierListWithAnnotation
                             .getChildOfType<KtAnnotationEntry>()!!
-                            .node
+                            .node,
                     )
                 CLASS, FUN, PROPERTY -> {
                     this.addChild(PsiWhiteSpaceImpl(indent()), this.firstChildNode)
@@ -381,7 +381,7 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
                         modifierListWithAnnotation
                             .getChildOfType<KtAnnotationEntry>()!!
                             .node,
-                        this
+                        this,
                     )
                     treeParent.addChild(PsiWhiteSpaceImpl(indent()), this)
                 }
