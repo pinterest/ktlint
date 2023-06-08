@@ -12,7 +12,7 @@ sdkman = "io.sdkman.vendors:3.0.0"
 kotlin-compiler = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
 kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-plugin-dev = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlinDev" }
-dokka = "org.jetbrains.dokka:dokka-gradle-plugin:1.8.10"
+dokka = "org.jetbrains.dokka:dokka-gradle-plugin:1.8.20"
 ec4j = "org.ec4j.core:ec4j-core:0.3.0"
 picocli = "info.picocli:picocli:4.7.4"
 logging = "io.github.microutils:kotlin-logging-jvm:3.0.5"
