@@ -47,7 +47,7 @@ At this point in time, it is not yet decided what the next steps will be. Ktlint
 * Fix Java interoperability issues with `RuleId` and `RuleSetId` classes. Those classes were defined as value classes in `0.49.0` and `0.49.1`. Although the classes were marked with `@JvmInline` it seems that it is not possible to uses those classes from Java base API Consumers like Spotless. The classes have now been replaced with data classes ([#2041](https://github.com/pinterest/ktlint/issues/2041))
 * Update dependency `info.picocli:picocli` to v4.7.4
 * Update dependency `org.junit.jupiter:junit-jupiter` to v5.9.3
-* Update Kotlin development version to `1.8.21` and Kotlin version to `1.8.21`.
+* Update Kotlin development version to `1.8.22` and Kotlin version to `1.8.22`.
 * Update dependency io.github.detekt.sarif4k:sarif4k to v0.4.0
 
 ## [0.49.1] - 2023-05-12
