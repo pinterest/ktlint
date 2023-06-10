@@ -6,6 +6,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE_ANNOTATION_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
@@ -23,6 +24,8 @@ import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
+import com.pinterest.ktlint.ruleset.standard.rules.KtlintDirectiveType.KTLINT_DISABLE
+import com.pinterest.ktlint.ruleset.standard.rules.KtlintDirectiveType.KTLINT_ENABLE
 import com.pinterest.ktlint.ruleset.standard.rules.KtlintSuppressionRule.SuppressAnnotationType.SUPPRESS
 import com.pinterest.ktlint.ruleset.standard.rules.KtlintSuppressionRule.SuppressAnnotationType.SUPPRESS_WARNINGS
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -49,6 +52,7 @@ import org.jetbrains.kotlin.psi.KtValueArgumentList
 import org.jetbrains.kotlin.psi.psiUtil.children
 import org.jetbrains.kotlin.psi.psiUtil.findDescendantOfType
 import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
+import org.jetbrains.kotlin.psi.psiUtil.siblings
 import org.jetbrains.kotlin.util.prefixIfNot
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 
@@ -56,7 +60,9 @@ import org.jetbrains.kotlin.utils.addToStdlib.applyIf
  * Disallow usage of the old "ktlint-disable" and "ktlint-enable" directives.
  *
  * A ktlint-disable directive is replaced with an annotation on the closest parent declaration or expression, or as annotation on the file
- * level in case the directive is associated with a top level element.
+ * level in case the directive is associated with a top level element. Ktlint-disable directives placed in block comments are only
+ * autocorrected when placed as top level element or in case a matching Ktlint-enable directive is found in the same parent as the disable
+ * directive.
  *
  * If the target element is annotated with a [Suppress] (or, if missing, is annotated with a [SuppressWarnings] annotation) then the
  * ktlint-directive will be matched against this annotation. If this annotation already contains a suppression for *all* ktlint rules, or
@@ -74,35 +80,24 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         node
+            .takeIf { isKtlintRuleSuppressionInAnnotation(it) }
+            ?.let { visitKtlintSuppressionInAnnotation(node, emit, autoCorrect) }
+
+        node
+            .ktlintDirectiveOrNull()
+            ?.visitKtlintDirective(autoCorrect, emit)
+    }
+
+    private fun isKtlintRuleSuppressionInAnnotation(node: ASTNode) =
+        node
             .takeIf { it.elementType == STRING_TEMPLATE }
             ?.takeIf { it.text.startsWith("\"ktlint:") }
-            ?.takeIf { literalStringTemplate ->
+            ?.let { literalStringTemplate ->
                 literalStringTemplate
                     .parent(VALUE_ARGUMENT)
                     ?.isPartOfAnnotation()
-                    ?: false
-            }?.let { visitKtlintSuppressionInAnnotation(node, emit, autoCorrect) }
-
-        node
-            .removeCommentWithoutMarkersOrNull()
-            ?.let { commentWithoutMarkers ->
-                when {
-                    commentWithoutMarkers.startsWith(KTLINT_DISABLE) -> {
-                        if (node.elementType == EOL_COMMENT && node.prevLeaf().isWhiteSpaceWithNewline()) {
-                            removeDanglingEolCommentWithKtlintDisableDirective(node, autoCorrect, emit)
-                        } else {
-                            visitKtlintDisableDirective(node, autoCorrect, emit, commentWithoutMarkers)
-                        }
-                    }
-
-                    commentWithoutMarkers.startsWith(KTLINT_ENABLE) -> {
-                        removeKtlintEnableDirective(node, autoCorrect, emit)
-                    }
-
-                    else -> null
-                }
             }
-    }
+            ?: false
 
     private fun ASTNode.isPartOfAnnotation() = parent { it.elementType == ANNOTATION || it.elementType == ANNOTATION_ENTRY } != null
 
@@ -162,29 +157,31 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
             ?: this
     }
 
-    private fun ASTNode.removeCommentWithoutMarkersOrNull() =
-        when (elementType) {
-            EOL_COMMENT ->
-                text
-                    .removePrefix("//")
-                    .trim()
+    private fun KtLintDirective.visitKtlintDirective(
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+    ) {
+        when (ktlintDirectiveType) {
+            KTLINT_DISABLE -> {
+                if (node.elementType == EOL_COMMENT && node.prevLeaf().isWhiteSpaceWithNewline()) {
+                    removeDanglingEolCommentWithKtlintDisableDirective(autoCorrect, emit)
+                } else {
+                    visitKtlintDisableDirective(autoCorrect, emit)
+                }
+            }
 
-            BLOCK_COMMENT ->
-                text
-                    .removePrefix("/*")
-                    .removeSuffix("*/")
-                    .trim()
-
-            else -> null
+            KTLINT_ENABLE -> {
+                removeKtlintEnableDirective(autoCorrect, emit)
+            }
         }
+    }
 
-    private fun removeDanglingEolCommentWithKtlintDisableDirective(
-        node: ASTNode,
+    private fun KtLintDirective.removeDanglingEolCommentWithKtlintDisableDirective(
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         emit(
-            node.ktlintDisableOffset(),
+            offset,
             "Directive 'ktlint-disable' in EOL comment is ignored as it is not preceded by a code element",
             true,
         )
@@ -193,27 +190,27 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
                 .prevLeaf()
                 .takeIf { it.isWhiteSpace() }
                 ?.remove()
-            node.remove()
+            node
+                .remove()
         }
     }
 
-    private fun ASTNode.ktlintDisableOffset() = startOffset + text.indexOf(KTLINT_DISABLE)
-
-    private fun visitKtlintDisableDirective(
-        node: ASTNode,
+    private fun KtLintDirective.visitKtlintDisableDirective(
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        ktlintDisableDirective: String,
     ) {
-        emit(
-            node.ktlintDisableOffset(),
-            "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation",
-            true,
-        )
+        if (node.elementType == BLOCK_COMMENT && hasNoMatchingKtlintEnableDirective()) {
+            emit(
+                offset,
+                "Directive 'ktlint-disable' is deprecated. The matching 'ktlint-enable' directive is not found in same scope. " +
+                    "Replace with @Suppress annotation",
+                false,
+            )
+            return
+        }
+        emit(offset, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation", true)
         if (autoCorrect) {
-            node
-                .findParentDeclarationOrExpression()
-                .addKtlintRuleSuppression(ktlintDisableDirective.toFullyQualifiedSuppressKtlintRuleIds())
+            findParentDeclarationOrExpression().addKtlintRuleSuppression(ruleIds)
             if (node.elementType == EOL_COMMENT) {
                 node
                     .prevLeaf()
@@ -235,16 +232,21 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
         }
     }
 
-    private fun ASTNode.findParentDeclarationOrExpression(): ASTNode {
-        var targetNode = this
+    private fun KtLintDirective.findParentDeclarationOrExpression(): ASTNode {
+        val shouldBeConvertedToFileAnnotation = shouldBeConvertedToFileAnnotation()
+        var targetNode = node.psi
         while (
-            targetNode.psi is KtClassInitializer ||
-            targetNode.psi is KtBlockExpression ||
-            (!targetNode.isRoot() && targetNode.psi !is KtDeclaration && targetNode.psi !is KtExpression)
+            shouldBeConvertedToFileAnnotation ||
+            targetNode is KtClassInitializer ||
+            targetNode is KtBlockExpression ||
+            (targetNode.parent != null && targetNode !is KtDeclaration && targetNode !is KtExpression)
         ) {
-            targetNode = targetNode.treeParent
+            if (targetNode.parent == null) {
+                return targetNode.node
+            }
+            targetNode = targetNode.parent
         }
-        return targetNode
+        return targetNode.node
     }
 
     private fun ASTNode.remove() {
@@ -286,7 +288,7 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
                 }
             }.map { it.prefixKtlintSuppressionWithRuleSetId() }
             .let { suppressions ->
-                annotationNode.createSuppressAnnotation(suppressType, suppressions)
+                annotationNode.createSuppressAnnotation(suppressType, suppressions.toSet())
             }
     }
 
@@ -331,7 +333,7 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
 
     private fun ASTNode.createSuppressAnnotation(
         suppressType: SuppressAnnotationType,
-        suppressions: Collection<String>,
+        suppressions: Set<String>,
     ) {
         val targetNode =
             if (elementType == ANNOTATION_ENTRY) {
@@ -341,7 +343,7 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
             }
 
         if (targetNode.psi is KtFile || targetNode.psi is KtFileAnnotationList) {
-            val annotation =
+            val fileAnnotation =
                 targetNode
                     .psi
                     .createFileAnnotation(
@@ -351,9 +353,9 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
                             .joinToString(),
                     ).node
             if (targetNode.elementType == FILE_ANNOTATION_LIST) {
-                targetNode.replaceWith(annotation)
+                this.replaceWith(fileAnnotation.firstChildNode)
             } else {
-                this.insertFileAnnotation(annotation)
+                this.createFileAnnotationList(fileAnnotation)
             }
         } else {
             val modifierListWithAnnotation =
@@ -402,27 +404,19 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
                     ?: throw IllegalStateException("Can not create annotation '$annotation'")
             }
 
-    private fun ASTNode.insertFileAnnotation(annotation: ASTNode) {
+    private fun ASTNode.createFileAnnotationList(annotation: ASTNode) {
         require(isRoot()) { "File annotation list can only be created for root node" }
         // Should always be inserted into the first (root) code child regardless in which root node the ktlint directive
         // was actually found
-        if (findChildByType(FILE_ANNOTATION_LIST) != null) {
-            findChildByType(FILE_ANNOTATION_LIST)
-                ?.let { fileAnnotationList ->
-                    fileAnnotationList.treeParent.addChild(annotation, fileAnnotationList)
-                    fileAnnotationList.remove()
-                }
-        } else {
-            findChildByType(PACKAGE_DIRECTIVE)
-                ?.let { packageDirective ->
-                    packageDirective
-                        .treeParent
-                        .addChild(annotation, packageDirective)
-                    packageDirective
-                        .treeParent
-                        .addChild(PsiWhiteSpaceImpl("\n" + indent()), packageDirective)
-                }
-        }
+        findChildByType(PACKAGE_DIRECTIVE)
+            ?.let { packageDirective ->
+                packageDirective
+                    .treeParent
+                    .addChild(annotation, packageDirective)
+                packageDirective
+                    .treeParent
+                    .addChild(PsiWhiteSpaceImpl("\n" + indent()), packageDirective)
+            }
     }
 
     private fun PsiElement.createModifierListWithAnnotationEntry(
@@ -447,40 +441,11 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
                     ?: throw IllegalStateException("Can not create annotation '$annotation'")
             }
 
-    private fun String.toFullyQualifiedSuppressKtlintRuleIds(): Set<String> =
-        removePrefix(KTLINT_DISABLE)
-            .trim()
-            .split(" ")
-            .map { it.trim() }
-            .filter { it.isNotBlank() }
-            .map {
-                it.prefixKtlintSuppressionWithRuleSetId()
-                RuleId
-                    .prefixWithStandardRuleSetIdWhenMissing(it)
-                    .prefixIfNot("ktlint:")
-            }.ifEmpty { listOf("ktlint") }
-            .map { it.surroundWith('"') }
-            .toSet()
-
-    private fun String.surroundWith(char: Char) =
-        char
-            .toString()
-            .let { string ->
-                removeSurrounding(string)
-                    .prefixIfNot(string)
-                    .plus(string)
-            }
-
-    private fun removeKtlintEnableDirective(
-        node: ASTNode,
+    private fun KtLintDirective.removeKtlintEnableDirective(
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        emit(
-            node.startOffset + node.text.indexOf(KTLINT_ENABLE),
-            "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations",
-            true,
-        )
+        emit(offset, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations", true)
         if (autoCorrect) {
             node
                 .prevLeaf()
@@ -507,11 +472,109 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
                     .firstOrNull { it.annotationName == id }
         }
     }
+}
 
-    private companion object {
-        const val KTLINT_DISABLE = "ktlint-disable"
-        const val KTLINT_ENABLE = "ktlint-enable"
+private data class KtLintDirective(
+    val node: ASTNode,
+    val ktlintDirectiveType: KtlintDirectiveType,
+    val ruleIds: Set<String>,
+) {
+    val offset = node.startOffset + node.text.indexOf(ktlintDirectiveType.id)
+
+    fun hasNoMatchingKtlintEnableDirective(): Boolean {
+        require(ktlintDirectiveType == KTLINT_DISABLE && node.elementType == BLOCK_COMMENT)
+
+        return if (shouldBeConvertedToFileAnnotation()) {
+            false
+        } else {
+            null ==
+                node
+                    .siblings()
+                    .firstOrNull { it.ktlintDirectiveOrNull()?.ruleIds == ruleIds }
+        }
     }
+
+    fun shouldBeConvertedToFileAnnotation() =
+        node.isTopLevel() ||
+            (node.elementType == BLOCK_COMMENT && node.isSuppressibleDeclaration() && node.treeParent.isTopLevel())
+
+    private fun ASTNode.isSuppressibleDeclaration() =
+        when (treeParent.elementType) {
+            CLASS, FUN, PROPERTY -> true
+            else -> false
+        }
+
+    private fun ASTNode.isTopLevel() =
+        FILE ==
+            this
+                .treeParent
+                .elementType
+}
+
+private fun ASTNode.ktlintDirectiveOrNull(): KtLintDirective? {
+    val ktlintDirectiveString =
+        when (elementType) {
+            EOL_COMMENT ->
+                text
+                    .removePrefix("//")
+                    .trim()
+
+            BLOCK_COMMENT ->
+                text
+                    .removePrefix("/*")
+                    .removeSuffix("*/")
+                    .trim()
+
+            else ->
+                return null
+        }
+    val ktlintDirectiveType =
+        ktlintDirectiveString.toKtlintDirectiveTypeOrNull()
+            ?: return null
+    val ruleIds =
+        ktlintDirectiveString
+            .removePrefix(ktlintDirectiveType.id)
+            .toFullyQualifiedKtlintRuleIds()
+
+    return KtLintDirective(this, ktlintDirectiveType, ruleIds)
+}
+
+private fun String.toKtlintDirectiveTypeOrNull() =
+    when {
+        startsWith(KTLINT_DISABLE.id) -> KTLINT_DISABLE
+        startsWith(KTLINT_ENABLE.id) -> KTLINT_ENABLE
+        else -> null
+    }
+
+// Transform the string: "ktlint-disable foo standard:bar"
+// to a (sorted) list containing elements:
+//    ktlint:standard:bar
+//    ktlint:standard:foo
+private fun String.toFullyQualifiedKtlintRuleIds() =
+    trim()
+        .split(" ")
+        .map { it.trim() }
+        .filter { it.isNotBlank() }
+        .map {
+            RuleId
+                .prefixWithStandardRuleSetIdWhenMissing(it)
+                .prefixIfNot("ktlint:")
+        }.ifEmpty { listOf("ktlint") }
+        .map { it.surroundWith('"') }
+        .toSet()
+
+private fun String.surroundWith(char: Char) =
+    char
+        .toString()
+        .let { string ->
+            removeSurrounding(string)
+                .prefixIfNot(string)
+                .plus(string)
+        }
+
+private enum class KtlintDirectiveType(val id: String) {
+    KTLINT_DISABLE("ktlint-disable"),
+    KTLINT_ENABLE("ktlint-enable"),
 }
 
 public val KTLINT_SUPPRESSION_RULE_ID: RuleId = KtlintSuppressionRule().ruleId

@@ -5,6 +5,7 @@ import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.ValueSource
 
 class KtlintSuppressionRuleTest {
@@ -421,6 +422,10 @@ class KtlintSuppressionRuleTest {
         }
     }
 
+    // Note that the embedded kotlin compiler treats the last comment preceding a declaration or expression as integral part of the ASTNode
+    // representing that declaration or expression. To match the working SuppressionBuilderLocator of Ktlint it should be treated as a top
+    // level comment.
+    // To keep test cases below concise, they only contain a ktlint-disable directive in a block comment and no declaration or expression.
     @Nested
     inner class `Given a top level block comment with a ktlint-disable directive` {
         @Test
@@ -428,74 +433,46 @@ class KtlintSuppressionRuleTest {
             val code =
                 """
                 /* ktlint-disable */
-                val foo = "foo"
                 """.trimIndent()
             val formattedCode =
                 """
-                @Suppress("ktlint")
-                val foo = "foo"
+                @file:Suppress("ktlint")
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
                 .hasLintViolation(1, 4, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
                 .isFormattedAs(formattedCode)
         }
 
-        @Test
-        fun `Given a ktlint-disable directive with rule-id not prefixed with a rule set id`() {
-            val code =
-                """
-                /* ktlint-disable some-rule-id */
-                val foo = "foo"
-                """.trimIndent()
-            val formattedCode =
-                """
-                @Suppress("ktlint:standard:some-rule-id")
-                val foo = "foo"
-                """.trimIndent()
-            ktlintSuppressionRuleAssertThat(code)
-                .hasLintViolation(1, 4, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
-                .isFormattedAs(formattedCode)
-        }
-
-        @Test
-        fun `Given a ktlint-disable directive with rule-id prefixed with a rule set id`() {
-            val code =
-                """
-                /* ktlint-disable some-rule-set:some-rule-id */
-                val foo = "foo"
-                """.trimIndent()
-            val formattedCode =
-                """
-                @Suppress("ktlint:some-rule-set:some-rule-id")
-                val foo = "foo"
-                """.trimIndent()
-            ktlintSuppressionRuleAssertThat(code)
-                .hasLintViolation(1, 4, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
-                .isFormattedAs(formattedCode)
-        }
-
-        @ParameterizedTest(name = "Rules: {0}")
-        @ValueSource(
-            strings = [
-                "some-rule-set-1:some-rule-id-1 some-rule-set-2:some-rule-id-2",
+        @ParameterizedTest(name = "Ktlint-disable: {0}")
+        @CsvSource(
+            quoteCharacter = '"',
+            delimiter = '|',
+            value = [
+                "foo                                   | ktlint:standard:foo",
+                "standard:foo                          | ktlint:standard:foo",
+                "custom-rule-set:foo                   | ktlint:custom-rule-set:foo",
+                "set-a:rule-a set-b:rule-b             | ktlint:set-a:rule-a,ktlint:set-b:rule-b",
                 // Redundant spaces between rule ids should not lead to suppressing all rules by adding "ktlint" as suppression id
-                "some-rule-set-1:some-rule-id-1   some-rule-set-2:some-rule-id-2",
+                "set-a:rule-a   set-b:rule-b           | ktlint:set-a:rule-a,ktlint:set-b:rule-b",
                 // Duplicate rule ids are ignored
-                "some-rule-set-1:some-rule-id-1 some-rule-set-2:some-rule-id-2 some-rule-set-1:some-rule-id-1",
+                "set-a:rule-a set-b:rule-b set-a:rule-a| ktlint:set-a:rule-a,ktlint:set-b:rule-b",
                 // Unsorted rule ids are sorted
-                "some-rule-set-2:some-rule-id-2 some-rule-set-1:some-rule-id-1",
+                "set-b:rule-b set-a:rule-a             | ktlint:set-a:rule-a,ktlint:set-b:rule-b",
             ],
         )
-        fun `Given a ktlint-disable directive with multiple rule-ids`(ruleIds: String) {
+        fun `Given a top-level ktlint-disable directive`(
+            ruleIds: String,
+            expectedSuppressionIdString: String,
+        ) {
             val code =
                 """
                 /* ktlint-disable $ruleIds */
-                val foo = "foo"
                 """.trimIndent()
             val formattedCode =
                 """
-                @Suppress("ktlint:some-rule-set-1:some-rule-id-1", "ktlint:some-rule-set-2:some-rule-id-2")
-                val foo = "foo"
+                @file:Suppress(${expectedSuppressionIdString
+                    .split(',')
+                    .joinToString { "\"$it\"" }})
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
                 .hasLintViolation(1, 4, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
@@ -506,17 +483,15 @@ class KtlintSuppressionRuleTest {
         fun `Given a ktlint-disable directive for which the target element is already annotated with @Suppress then add the ktlint suppression and sort all suppressions alphabetically`() {
             val code =
                 """
+                @file:Suppress("zzz", "aaa")
                 /* ktlint-disable some-rule-set:some-rule-id */
-                @Suppress("zzz", "aaa")
-                val foo = "foo"
                 """.trimIndent()
             val formattedCode =
                 """
-                @Suppress("aaa", "ktlint:some-rule-set:some-rule-id", "zzz")
-                val foo = "foo"
+                @file:Suppress("aaa", "ktlint:some-rule-set:some-rule-id", "zzz")
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
-                .hasLintViolation(1, 4, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
+                .hasLintViolation(2, 4, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
                 .isFormattedAs(formattedCode)
         }
 
@@ -524,17 +499,15 @@ class KtlintSuppressionRuleTest {
         fun `Given a ktlint-disable directive for which the target element is already annotated with @SuppressWarnings then add the ktlint suppression and sort all suppressions alphabetically`() {
             val code =
                 """
+                @file:SuppressWarnings("aaa", "zzz")
                 /* ktlint-disable some-rule-set:some-rule-id */
-                @SuppressWarnings("aaa", "zzz")
-                val foo = "foo"
                 """.trimIndent()
             val formattedCode =
                 """
-                @SuppressWarnings("aaa", "ktlint:some-rule-set:some-rule-id", "zzz")
-                val foo = "foo"
+                @file:SuppressWarnings("aaa", "ktlint:some-rule-set:some-rule-id", "zzz")
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
-                .hasLintViolation(1, 4, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
+                .hasLintViolation(2, 4, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
                 .isFormattedAs(formattedCode)
         }
 
@@ -542,25 +515,43 @@ class KtlintSuppressionRuleTest {
         fun `Given a ktlint-disable directive for which the target element is already annotated with both @Suppress and @SuppressWarnings then add the ktlint suppression to the @Suppress`() {
             val code =
                 """
+                @file:Suppress("aaa", "zzz")
+                @file:SuppressWarnings("bbb", "yyy")
+
                 /* ktlint-disable some-rule-set:some-rule-id */
-                @Suppress("aaa", "zzz")
-                @SuppressWarnings("bbb", "yyy")
-                val foo = "foo"
                 """.trimIndent()
             val formattedCode =
                 """
-                @Suppress("aaa", "ktlint:some-rule-set:some-rule-id", "zzz")
-                @SuppressWarnings("bbb", "yyy")
-                val foo = "foo"
+                @file:Suppress("aaa", "ktlint:some-rule-set:some-rule-id", "zzz")
+                @file:SuppressWarnings("bbb", "yyy")
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
-                .hasLintViolation(1, 4, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
+                .hasLintViolation(4, 4, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given a ktlint-disable directive for which the target element is already annotated with both @SuppressWarnings and @Suppress then add the ktlint suppression to the @Suppress`() {
+            val code =
+                """
+                @file:SuppressWarnings("bbb", "yyy")
+                @file:Suppress("aaa", "zzz")
+
+                /* ktlint-disable some-rule-set:some-rule-id */
+                """.trimIndent()
+            val formattedCode =
+                """
+                @file:SuppressWarnings("bbb", "yyy")
+                @file:Suppress("aaa", "ktlint:some-rule-set:some-rule-id", "zzz")
+                """.trimIndent()
+            ktlintSuppressionRuleAssertThat(code)
+                .hasLintViolation(4, 4, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
                 .isFormattedAs(formattedCode)
         }
     }
 
     @Nested
-    inner class `Given a non-top level block comment with a ktlint-disable directive` {
+    inner class `Given a pair of matching ktlint directives in block comments within the same parent node` {
         @Test
         fun `Given a ktlint-disable directive without rule-id`() {
             val code =
@@ -568,6 +559,7 @@ class KtlintSuppressionRuleTest {
                 fun foo() {
                     /* ktlint-disable */
                     doSomething()
+                    /* ktlint-enable */
                 }
                 """.trimIndent()
             val formattedCode =
@@ -578,8 +570,10 @@ class KtlintSuppressionRuleTest {
                 }
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
-                .hasLintViolation(2, 8, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
-                .isFormattedAs(formattedCode)
+                .hasLintViolations(
+                    LintViolation(2, 8, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
+                    LintViolation(4, 8, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations"),
+                ).isFormattedAs(formattedCode)
         }
 
         @Test
@@ -589,6 +583,7 @@ class KtlintSuppressionRuleTest {
                 fun foo() {
                     /* ktlint-disable some-rule-id */
                     doSomething()
+                    /* ktlint-enable some-rule-id */
                 }
                 """.trimIndent()
             val formattedCode =
@@ -599,8 +594,10 @@ class KtlintSuppressionRuleTest {
                 }
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
-                .hasLintViolation(2, 8, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
-                .isFormattedAs(formattedCode)
+                .hasLintViolations(
+                    LintViolation(2, 8, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
+                    LintViolation(4, 8, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations"),
+                ).isFormattedAs(formattedCode)
         }
 
         @Test
@@ -610,6 +607,7 @@ class KtlintSuppressionRuleTest {
                 fun foo() {
                     /* ktlint-disable some-rule-set:some-rule-id */
                     doSomething()
+                    /* ktlint-enable some-rule-set:some-rule-id */
                 }
                 """.trimIndent()
             val formattedCode =
@@ -620,8 +618,10 @@ class KtlintSuppressionRuleTest {
                 }
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
-                .hasLintViolation(2, 8, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
-                .isFormattedAs(formattedCode)
+                .hasLintViolations(
+                    LintViolation(2, 8, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
+                    LintViolation(4, 8, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations"),
+                ).isFormattedAs(formattedCode)
         }
 
         @ParameterizedTest(name = "Rules: {0}")
@@ -642,6 +642,7 @@ class KtlintSuppressionRuleTest {
                 fun foo() {
                     /* ktlint-disable $ruleIds */
                     doSomething()
+                    /* ktlint-enable $ruleIds */
                 }
                 """.trimIndent()
             val formattedCode =
@@ -652,8 +653,10 @@ class KtlintSuppressionRuleTest {
                 }
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
-                .hasLintViolation(2, 8, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
-                .isFormattedAs(formattedCode)
+                .hasLintViolations(
+                    LintViolation(2, 8, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
+                    LintViolation(4, 8, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations"),
+                ).isFormattedAs(formattedCode)
         }
 
         @Test
@@ -664,6 +667,7 @@ class KtlintSuppressionRuleTest {
                 fun foo() {
                     /* ktlint-disable some-rule-set:some-rule-id */
                     doSomething()
+                    /* ktlint-enable some-rule-set:some-rule-id */
                 }
                 """.trimIndent()
             val formattedCode =
@@ -674,8 +678,10 @@ class KtlintSuppressionRuleTest {
                 }
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
-                .hasLintViolation(3, 8, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
-                .isFormattedAs(formattedCode)
+                .hasLintViolations(
+                    LintViolation(3, 8, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
+                    LintViolation(5, 8, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations"),
+                ).isFormattedAs(formattedCode)
         }
 
         @Test
@@ -686,6 +692,7 @@ class KtlintSuppressionRuleTest {
                 fun foo() {
                     /* ktlint-disable some-rule-set:some-rule-id */
                     doSomething()
+                    /* ktlint-enable some-rule-set:some-rule-id */
                 }
                 """.trimIndent()
             val formattedCode =
@@ -696,8 +703,10 @@ class KtlintSuppressionRuleTest {
                 }
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
-                .hasLintViolation(3, 8, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
-                .isFormattedAs(formattedCode)
+                .hasLintViolations(
+                    LintViolation(3, 8, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
+                    LintViolation(5, 8, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations"),
+                ).isFormattedAs(formattedCode)
         }
 
         @Test
@@ -709,6 +718,7 @@ class KtlintSuppressionRuleTest {
                 fun foo() {
                     /* ktlint-disable some-rule-set:some-rule-id */
                     doSomething()
+                    /* ktlint-enable some-rule-set:some-rule-id */
                 }
                 """.trimIndent()
             val formattedCode =
@@ -720,8 +730,10 @@ class KtlintSuppressionRuleTest {
                 }
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
-                .hasLintViolation(4, 8, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
-                .isFormattedAs(formattedCode)
+                .hasLintViolations(
+                    LintViolation(4, 8, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
+                    LintViolation(6, 8, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations"),
+                ).isFormattedAs(formattedCode)
         }
     }
 
@@ -783,6 +795,8 @@ class KtlintSuppressionRuleTest {
                 /* ktlint-disable some-rule-set:some-rule-id-2 */
                 /* ktlint-disable some-rule-set:some-rule-id-3 */
                 bar()
+                /* ktlint-enable some-rule-set:some-rule-id-3 */
+                /* ktlint-enable some-rule-set:some-rule-id-2 */
             }
             """.trimIndent()
         val formattedCode =
@@ -799,6 +813,8 @@ class KtlintSuppressionRuleTest {
                 LintViolation(3, 14, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
                 LintViolation(5, 8, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
                 LintViolation(6, 8, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
+                LintViolation(8, 8, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations"),
+                LintViolation(9, 8, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -900,6 +916,7 @@ class KtlintSuppressionRuleTest {
                 init {
                     /* ktlint-disable standard:foo */
                     foo = "foo"
+                    /* ktlint-enable standard:foo */
                 }
 
                 init { // ktlint-disable standard:bar
@@ -926,7 +943,119 @@ class KtlintSuppressionRuleTest {
         ktlintSuppressionRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(6, 12, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
-                LintViolation(10, 15, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
+                LintViolation(8, 12, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations"),
+                LintViolation(11, 15, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
             ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a pair of matching ktlint directives in block comments as siblings in same parent node`() {
+        val code =
+            """
+            fun foobar(
+                /* ktlint-disable standard:foo */
+                foo: Int,
+                bar: Int,
+                /* ktlint-enable standard:foo */
+            ) {}
+            """.trimIndent()
+        val formattedCode =
+            """
+            @Suppress("ktlint:standard:foo")
+            fun foobar(
+                foo: Int,
+                bar: Int,
+            ) {}
+            """.trimIndent()
+        ktlintSuppressionRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 8, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
+                LintViolation(5, 8, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations"),
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Nested
+    inner class `Given ktlint-disable directive in block comment not having a ktlint-enable directive in a sibling in the same parent node` {
+        @Test
+        fun `G1iven a ktlint-disable directive root level not related to an declaration or expression then move to @file annotation`() {
+            val code =
+                """
+                /* ktlint-disable standard:foo */
+                """.trimIndent()
+            val formattedCode =
+                """
+                @file:Suppress("ktlint:standard:foo")
+                """.trimIndent()
+            ktlintSuppressionRuleAssertThat(code)
+                .hasLintViolation(1, 4, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given ktlint-disable directive in last block comment before class but not having a ktlint-enable directive`() {
+            val code =
+                """
+                /* ktlint-disable standard:foo */
+                class Foo
+                """.trimIndent()
+            val formattedCode =
+                """
+                @file:Suppress("ktlint:standard:foo")
+
+                class Foo
+                """.trimIndent()
+            ktlintSuppressionRuleAssertThat(code)
+                .hasLintViolation(1, 4, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given ktlint-disable directive in last block comment before property but not having a ktlint-enable directive`() {
+            val code =
+                """
+                /* ktlint-disable standard:foo */
+                val foo = "foo"
+                """.trimIndent()
+            val formattedCode =
+                """
+                @file:Suppress("ktlint:standard:foo")
+
+                val foo = "foo"
+                """.trimIndent()
+            ktlintSuppressionRuleAssertThat(code)
+                .hasLintViolation(1, 4, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given a pair of matching ktlint directives in block comments but not as siblings in same parent node`() {
+            val code =
+                """
+                fun foobar(
+                    /* ktlint-disable standard:foo */
+                    foo: Int,
+                    bar: Int,
+                ) {
+                    /* ktlint-enable standard:foo */
+                    doSomething()
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun foobar(
+                    /* ktlint-disable standard:foo */
+                    foo: Int,
+                    bar: Int,
+                ) {
+                    doSomething()
+                }
+                """.trimIndent()
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+            ktlintSuppressionRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(2, 8, "Directive 'ktlint-disable' is deprecated. The matching 'ktlint-enable' directive is not found in same scope. Replace with @Suppress annotation", false),
+                    LintViolation(6, 8, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations"),
+                ).isFormattedAs(formattedCode)
+        }
     }
 }
