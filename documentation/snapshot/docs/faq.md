@@ -142,7 +142,7 @@ The `no-wildcard-imports` rule forbids wildcard imports, except for imports defi
 
 Ktlint can be configured by enabling and disabling rules. Some rules can be configured in more details with additional `.editorconfig` properties. Regularly, a new configuration option is requested to modify behavior in existing rules.
 
-Ktlint is very restrictive with adding additional configuration settings to customize behavior in rules. Each configuration option that Ktlint offers comes with complexity that has to be maintained by only a couple of maintainers. As of that, we cannot provide tens or even hundreds of such options.
+Ktlint is restrictive with adding additional configuration settings to customize behavior in rules. Each configuration option that Ktlint offers comes with complexity that has to be maintained by only a couple of maintainers. As of that, we cannot provide tens or even hundreds of such options.
 
 Less configuration options also means less discussions in teams about settings to use. Unfortunately this means that you cannot tweak Ktlint exactly to the format you prefer.
 
