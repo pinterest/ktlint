@@ -138,6 +138,17 @@ ktlint_custom-rule-set_custom-rule = disabled # Disables the `custom-rule` rule 
 
 The `no-wildcard-imports` rule forbids wildcard imports, except for imports defined in `.editorconfig` property `ij_kotlin_packages_to_use_import_on_demand`. If this property is not explicitly set, it allows wildcards imports like `java.util.*` by default to keep in sync with IntelliJ IDEA behavior.
 
+## Can a new toggle be added to optionally (enable/disable) format code in a particular way?
+
+Ktlint can be configured by enabling and disabling rules. Some rules can be configured in more details with additional `.editorconfig` properties. Regularly, a new configuration option is requested to modify behavior in existing rules.
+
+Ktlint is very restrictive with adding additional configuration settings to customize behavior in rules. Each configuration option that Ktlint offers comes with complexity that has to be maintained by only a couple of maintainers. As of that, we cannot provide tens or even hundreds of such options.
+
+Less configuration options also means less discussions in teams about settings to use. Unfortunately this means that you cannot tweak Ktlint exactly to the format you prefer.
+
+!!! tip
+    Any idea for a new configuration option is valuable. Please create an issue for it so that it can be considered to incorporate it in Ktlint.
+
 ## Can I use KtLint to directly format the code I'm generating with KotlinPoet?
 
 Yes, it is possible to use KtLint to directly format the code generated with KotlinPoet. 
