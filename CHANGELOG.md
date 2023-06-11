@@ -49,6 +49,7 @@ At this point in time, it is not yet decided what the next steps will be. Ktlint
 * Update dependency `org.junit.jupiter:junit-jupiter` to v5.9.3
 * Update Kotlin development version to `1.8.22` and Kotlin version to `1.8.22`.
 * Update dependency io.github.detekt.sarif4k:sarif4k to v0.4.0
+* Update dependency org.jetbrains.dokka:dokka-gradle-plugin to v1.8.20
 
 ## [0.49.1] - 2023-05-12
 
