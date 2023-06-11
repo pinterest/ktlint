@@ -1,4 +1,4 @@
-package com.pinterest.ktlint.ruleset.standard.rules
+package com.pinterest.ktlint.rule.engine.internal.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
@@ -23,11 +23,12 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
-import com.pinterest.ktlint.ruleset.standard.StandardRule
-import com.pinterest.ktlint.ruleset.standard.rules.KtlintDirectiveType.KTLINT_DISABLE
-import com.pinterest.ktlint.ruleset.standard.rules.KtlintDirectiveType.KTLINT_ENABLE
-import com.pinterest.ktlint.ruleset.standard.rules.KtlintSuppressionRule.SuppressAnnotationType.SUPPRESS
-import com.pinterest.ktlint.ruleset.standard.rules.KtlintSuppressionRule.SuppressAnnotationType.SUPPRESS_WARNINGS
+import com.pinterest.ktlint.rule.engine.internal.rules.KtLintDirective.KtlintDirectiveType.KTLINT_DISABLE
+import com.pinterest.ktlint.rule.engine.internal.rules.KtLintDirective.KtlintDirectiveType.KTLINT_ENABLE
+import com.pinterest.ktlint.rule.engine.internal.rules.KtLintDirective.SuppressionIdChange.InvalidSuppressionId
+import com.pinterest.ktlint.rule.engine.internal.rules.KtLintDirective.SuppressionIdChange.ValidSuppressionId
+import com.pinterest.ktlint.rule.engine.internal.rules.KtlintSuppressionRule.SuppressAnnotationType.SUPPRESS
+import com.pinterest.ktlint.rule.engine.internal.rules.KtlintSuppressionRule.SuppressAnnotationType.SUPPRESS_WARNINGS
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
@@ -56,6 +57,10 @@ import org.jetbrains.kotlin.psi.psiUtil.siblings
 import org.jetbrains.kotlin.util.prefixIfNot
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 
+private const val KTLINT_SUPPRESSION_ID_PREFIX = "ktlint:"
+private const val KTLINT_SUPPRESSION_ID_ALL_RULES = "\"ktlint\""
+private const val DOUBLE_QUOTE = "\""
+
 /**
  * Disallow usage of the old "ktlint-disable" and "ktlint-enable" directives.
  *
@@ -73,7 +78,11 @@ import org.jetbrains.kotlin.utils.addToStdlib.applyIf
  *
  * Ktlint-enable directives are removed as annotations have a scope in which the suppression will be active.
  */
-public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
+public class KtlintSuppressionRule(private val allowedRuleIds: List<RuleId>) : InternalRule("ktlint-suppression") {
+    private val allowedRuleIdAsStrings = allowedRuleIds.map { it.value }
+
+    private val ruleIdValidator: (String) -> Boolean = { ruleId -> allowedRuleIdAsStrings.contains(ruleId) }
+
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -81,17 +90,17 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
     ) {
         node
             .takeIf { isKtlintRuleSuppressionInAnnotation(it) }
-            ?.let { visitKtlintSuppressionInAnnotation(node, emit, autoCorrect) }
+            ?.let { visitKtlintSuppressionInAnnotation(node, autoCorrect, emit) }
 
         node
-            .ktlintDirectiveOrNull()
+            .ktlintDirectiveOrNull(ruleIdValidator)
             ?.visitKtlintDirective(autoCorrect, emit)
     }
 
     private fun isKtlintRuleSuppressionInAnnotation(node: ASTNode) =
         node
             .takeIf { it.elementType == STRING_TEMPLATE }
-            ?.takeIf { it.text.startsWith("\"ktlint:") }
+            ?.takeIf { it.text.isKtlintSuppressionId() }
             ?.let { literalStringTemplate ->
                 literalStringTemplate
                     .parent(VALUE_ARGUMENT)
@@ -99,36 +108,35 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
             }
             ?: false
 
+    private fun String.isKtlintSuppressionId() = removePrefix(DOUBLE_QUOTE).startsWith(KTLINT_SUPPRESSION_ID_PREFIX)
+
     private fun ASTNode.isPartOfAnnotation() = parent { it.elementType == ANNOTATION || it.elementType == ANNOTATION_ENTRY } != null
 
     private fun visitKtlintSuppressionInAnnotation(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         node
             .psi
             .findDescendantOfType<KtLiteralStringTemplateEntry>()
+            ?.node
             ?.let { literalStringTemplateEntry ->
-                literalStringTemplateEntry
-                    .text
-                    ?.prefixKtlintSuppressionWithRuleSetId()
-                    ?.let { prefixedSuppression ->
-                        if (prefixedSuppression != literalStringTemplateEntry.text) {
-                            emit(
-                                literalStringTemplateEntry.node.startOffset + "ktlint:".length,
-                                "Identifier to suppress ktlint rule must be fully qualified with the rule set id",
-                                true,
-                            )
-                            if (autoCorrect) {
-                                node
-                                    .createLiteralStringTemplateEntry(prefixedSuppression)
-                                    ?.let {
-                                        literalStringTemplateEntry.node.replaceWith(it)
-                                    }
-                            }
-                        }
+                val prefixedSuppression =
+                    literalStringTemplateEntry
+                        .text
+                        .prefixKtlintSuppressionWithRuleSetIdOrNull()
+                val offset = literalStringTemplateEntry.startOffset + KTLINT_SUPPRESSION_ID_PREFIX.length
+                if (prefixedSuppression.isUnknownKtlintSuppression()) {
+                    emit(offset, "Ktlint rule with id '$prefixedSuppression' is unknown or not loaded", false)
+                } else if (prefixedSuppression != literalStringTemplateEntry.text) {
+                    emit(offset, "Identifier to suppress ktlint rule must be fully qualified with the rule set id", true)
+                    if (autoCorrect) {
+                        node
+                            .createLiteralStringTemplateEntry(prefixedSuppression)
+                            ?.let { literalStringTemplateEntry.replaceWith(it) }
                     }
+                }
             }
     }
 
@@ -146,16 +154,26 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
             ?.getChildOfType<KtLiteralStringTemplateEntry>()
             ?.node
 
-    private fun String.prefixKtlintSuppressionWithRuleSetId(): String {
-        val isPrefixedWithDoubleQuote = startsWith("\"")
-        return removePrefix("\"")
-            .takeIf { startsWith("ktlint:") }
-            ?.substringAfter("ktlint:")
-            ?.let { RuleId.prefixWithStandardRuleSetIdWhenMissing(it) }
-            ?.prefixIfNot("ktlint:")
-            ?.applyIf(isPrefixedWithDoubleQuote) { prefixIfNot("\"") }
+    private fun String.prefixKtlintSuppressionWithRuleSetIdOrNull(): String {
+        val isPrefixedWithDoubleQuote = startsWith(DOUBLE_QUOTE)
+        return removePrefix(DOUBLE_QUOTE)
+            .takeIf { startsWith(KTLINT_SUPPRESSION_ID_PREFIX) }
+            ?.substringAfter(KTLINT_SUPPRESSION_ID_PREFIX)
+            ?.let { prefixWithRuleSetIdWhenMissing(it) }
+            ?.prefixIfNot(KTLINT_SUPPRESSION_ID_PREFIX)
+            ?.applyIf(isPrefixedWithDoubleQuote) { prefixIfNot(DOUBLE_QUOTE) }
             ?: this
     }
+
+    private fun String.isUnknownKtlintSuppression(): Boolean =
+        removePrefix(DOUBLE_QUOTE)
+            .takeIf { startsWith(KTLINT_SUPPRESSION_ID_PREFIX) }
+            ?.substringAfter(KTLINT_SUPPRESSION_ID_PREFIX)
+            ?.let { prefixWithRuleSetIdWhenMissing(it) }
+            ?.let { ruleId ->
+                allowedRuleIds.none { it.value == ruleId }
+            }
+            ?: false
 
     private fun KtLintDirective.visitKtlintDirective(
         autoCorrect: Boolean,
@@ -180,11 +198,7 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        emit(
-            offset,
-            "Directive 'ktlint-disable' in EOL comment is ignored as it is not preceded by a code element",
-            true,
-        )
+        emit(offset, "Directive 'ktlint-disable' in EOL comment is ignored as it is not preceded by a code element", true)
         if (autoCorrect) {
             node
                 .prevLeaf()
@@ -199,18 +213,29 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        if (node.elementType == BLOCK_COMMENT && hasNoMatchingKtlintEnableDirective()) {
+        if (node.elementType == BLOCK_COMMENT && hasNoMatchingKtlintEnableDirective(ruleIdValidator)) {
             emit(
                 offset,
-                "Directive 'ktlint-disable' is deprecated. The matching 'ktlint-enable' directive is not found in same scope. " +
-                    "Replace with @Suppress annotation",
+                "Directive 'ktlint-disable' is deprecated. The matching 'ktlint-enable' directive is not found in same scope. Replace " +
+                    "with @Suppress annotation",
                 false,
             )
             return
         }
         emit(offset, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation", true)
+        suppressionIdChanges
+            .filterIsInstance<InvalidSuppressionId>()
+            .forEach { ktlintDirectiveChange ->
+                emit(
+                    offset +
+                        ktlintDirectiveType.id.length +
+                        ktlintDirectiveChange.offsetOriginalRuleId,
+                    "Ktlint rule with id '${ktlintDirectiveChange.originalRuleId}' is unknown or not loaded",
+                    false,
+                )
+            }
         if (autoCorrect) {
-            findParentDeclarationOrExpression().addKtlintRuleSuppression(ruleIds)
+            findParentDeclarationOrExpression().addKtlintRuleSuppression(suppressionIdChanges)
             if (node.elementType == EOL_COMMENT) {
                 node
                     .prevLeaf()
@@ -239,7 +264,7 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
             shouldBeConvertedToFileAnnotation ||
             targetNode is KtClassInitializer ||
             targetNode is KtBlockExpression ||
-            (targetNode.parent != null && targetNode !is KtDeclaration && targetNode !is KtExpression)
+            (targetNode !is KtDeclaration && targetNode !is KtExpression)
         ) {
             if (targetNode.parent == null) {
                 return targetNode.node
@@ -253,7 +278,12 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
         treeParent.removeChild(this)
     }
 
-    private fun ASTNode.addKtlintRuleSuppression(ktlintRuleSuppressions: Set<String>) {
+    private fun ASTNode.addKtlintRuleSuppression(suppressionIdChanges: Set<KtLintDirective.SuppressionIdChange>) {
+        val ktlintRuleSuppressions =
+            suppressionIdChanges
+                .filterIsInstance<ValidSuppressionId>()
+                .map { it.suppressionId }
+                .toSet()
         val suppressionAnnotations = findSuppressionAnnotations()
         // Add ktlint rule suppressions:
         //   - To the @Suppress annotation if found
@@ -275,21 +305,20 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
         suppressType: SuppressAnnotationType,
     ) {
         annotationNode
-            .getExistingSuppressions()
+            .getValueArguments()
             .plus(this)
             .let { suppressions ->
-                if (suppressions.contains("\"ktlint\"")) {
+                if (suppressions.contains(KTLINT_SUPPRESSION_ID_ALL_RULES)) {
                     // When all ktlint rules are to be suppressed, then ignore all suppressions for specific ktlint rules
                     suppressions
-                        .filterNot { it.startsWith("\"ktlint:") }
+                        .filterNot { it.isKtlintSuppressionId() }
                         .toSet()
                 } else {
                     suppressions
                 }
-            }.map { it.prefixKtlintSuppressionWithRuleSetId() }
-            .let { suppressions ->
-                annotationNode.createSuppressAnnotation(suppressType, suppressions.toSet())
-            }
+            }.map { it.prefixKtlintSuppressionWithRuleSetIdOrNull() }
+            .toSet()
+            .let { suppressions -> annotationNode.createSuppressAnnotation(suppressType, suppressions) }
     }
 
     private fun ASTNode.findSuppressionAnnotations(): Map<SuppressAnnotationType, ASTNode> =
@@ -323,7 +352,7 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
             ?.text
             ?.let { SuppressAnnotationType.findByIdOrNull(it) }
 
-    private fun ASTNode.getExistingSuppressions() =
+    private fun ASTNode.getValueArguments() =
         findChildByType(VALUE_ARGUMENT_LIST)
             ?.children()
             ?.filter { it.elementType == VALUE_ARGUMENT }
@@ -477,11 +506,12 @@ public class KtlintSuppressionRule : StandardRule("ktlint-suppression") {
 private data class KtLintDirective(
     val node: ASTNode,
     val ktlintDirectiveType: KtlintDirectiveType,
-    val ruleIds: Set<String>,
+    val ktlintDirectives: String,
+    val suppressionIdChanges: Set<SuppressionIdChange>,
 ) {
     val offset = node.startOffset + node.text.indexOf(ktlintDirectiveType.id)
 
-    fun hasNoMatchingKtlintEnableDirective(): Boolean {
+    fun hasNoMatchingKtlintEnableDirective(ruleIdValidator: (String) -> Boolean): Boolean {
         require(ktlintDirectiveType == KTLINT_DISABLE && node.elementType == BLOCK_COMMENT)
 
         return if (shouldBeConvertedToFileAnnotation()) {
@@ -489,8 +519,13 @@ private data class KtLintDirective(
         } else {
             null ==
                 node
+                    .applyIf(node.isSuppressibleDeclaration()) { node.treeParent }
                     .siblings()
-                    .firstOrNull { it.ktlintDirectiveOrNull()?.ruleIds == ruleIds }
+                    .firstOrNull {
+                        it
+                            .ktlintDirectiveOrNull(ruleIdValidator)
+                            ?.ktlintDirectives == ktlintDirectives
+                    }
         }
     }
 
@@ -509,9 +544,23 @@ private data class KtLintDirective(
             this
                 .treeParent
                 .elementType
+
+    enum class KtlintDirectiveType(val id: String) {
+        KTLINT_DISABLE("ktlint-disable"),
+        KTLINT_ENABLE("ktlint-enable"),
+    }
+
+    sealed class SuppressionIdChange {
+        class ValidSuppressionId(val suppressionId: String) : SuppressionIdChange()
+
+        class InvalidSuppressionId(
+            val originalRuleId: String,
+            val offsetOriginalRuleId: Int,
+        )  : SuppressionIdChange()
+    }
 }
 
-private fun ASTNode.ktlintDirectiveOrNull(): KtLintDirective? {
+private fun ASTNode.ktlintDirectiveOrNull(ruleIdValidator: (String) -> Boolean): KtLintDirective? {
     val ktlintDirectiveString =
         when (elementType) {
             EOL_COMMENT ->
@@ -531,12 +580,10 @@ private fun ASTNode.ktlintDirectiveOrNull(): KtLintDirective? {
     val ktlintDirectiveType =
         ktlintDirectiveString.toKtlintDirectiveTypeOrNull()
             ?: return null
-    val ruleIds =
-        ktlintDirectiveString
-            .removePrefix(ktlintDirectiveType.id)
-            .toFullyQualifiedKtlintRuleIds()
+    val ruleIds = ktlintDirectiveString.removePrefix(ktlintDirectiveType.id)
+    val suppressionIdChanges = ruleIds.toSuppressionIdChanges(ruleIdValidator)
 
-    return KtLintDirective(this, ktlintDirectiveType, ruleIds)
+    return KtLintDirective(this, ktlintDirectiveType, ruleIds, suppressionIdChanges)
 }
 
 private fun String.toKtlintDirectiveTypeOrNull() =
@@ -550,31 +597,39 @@ private fun String.toKtlintDirectiveTypeOrNull() =
 // to a (sorted) list containing elements:
 //    ktlint:standard:bar
 //    ktlint:standard:foo
-private fun String.toFullyQualifiedKtlintRuleIds() =
+private fun String.toSuppressionIdChanges(ruleIdValidator: (String) -> Boolean) =
     trim()
         .split(" ")
         .map { it.trim() }
         .filter { it.isNotBlank() }
-        .map {
-            RuleId
-                .prefixWithStandardRuleSetIdWhenMissing(it)
-                .prefixIfNot("ktlint:")
-        }.ifEmpty { listOf("ktlint") }
-        .map { it.surroundWith('"') }
-        .toSet()
+        .map { originalRuleId ->
+            val prefixedRuleId = prefixWithRuleSetIdWhenMissing(originalRuleId)
+            if (ruleIdValidator(prefixedRuleId)) {
+                ValidSuppressionId(
+                    prefixedRuleId
+                        .prefixIfNot(KTLINT_SUPPRESSION_ID_PREFIX)
+                        .surroundWith(DOUBLE_QUOTE),
+                    )
+            } else {
+                InvalidSuppressionId(
+                    originalRuleId,
+                    this.indexOf(originalRuleId),
+                )
+            }
+        }.toSet()
+        .ifEmpty { setOf(ValidSuppressionId("\"ktlint\"")) }
 
-private fun String.surroundWith(char: Char) =
-    char
-        .toString()
-        .let { string ->
-            removeSurrounding(string)
-                .prefixIfNot(string)
-                .plus(string)
-        }
+private fun prefixWithRuleSetIdWhenMissing(ruleIdString: String) =
+    RuleId
+        .prefixWithStandardRuleSetIdWhenMissing(
+            // The experimental ruleset was removed in Ktlint 0.49. References to that ruleset however may still exist. Also, not all
+            // user seem to understand that it is no longer a separate ruleset.
+            ruleIdString.removePrefix("experimental:"),
+        )
 
-private enum class KtlintDirectiveType(val id: String) {
-    KTLINT_DISABLE("ktlint-disable"),
-    KTLINT_ENABLE("ktlint-enable"),
-}
+private fun String.surroundWith(string: String) =
+    removeSurrounding(string)
+        .prefixIfNot(string)
+        .plus(string)
 
-public val KTLINT_SUPPRESSION_RULE_ID: RuleId = KtlintSuppressionRule().ruleId
+public val KTLINT_SUPPRESSION_RULE_ID: RuleId = KtlintSuppressionRule(emptyList()).ruleId

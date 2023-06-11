@@ -1,6 +1,11 @@
-package com.pinterest.ktlint.ruleset.standard.rules
+package com.pinterest.ktlint.rule.engine.internal.rules
 
-import com.pinterest.ktlint.test.KtLintAssertThat
+import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.ruleset.standard.rules.ArgumentListWrappingRule
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
+import com.pinterest.ktlint.test.KtlintDocumentationTest
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -10,7 +15,25 @@ import org.junit.jupiter.params.provider.ValueSource
 
 class KtlintSuppressionRuleTest {
     private val ktlintSuppressionRuleAssertThat =
-        KtLintAssertThat.assertThatRule { KtlintSuppressionRule() }
+        assertThatRule(
+            provider = { KtlintSuppressionRule(emptyList()) },
+            additionalRuleProviders =
+                setOf(
+                    // Create a dummy rule for each rule id that is used in a ktlint directive or suppression in the tests in this
+                    // class. If no rule provider is added for the rule id, a lint violation is thrown which will bloat the tests too
+                    // much.
+                    //
+                    // Ids of real rules used but for which the real implementation is unwanted as it would modify the formatted code
+                    RuleProvider { DummyRule("standard:no-wildcard-imports") },
+                    RuleProvider { DummyRule("standard:no-multi-spaces") },
+                    RuleProvider { DummyRule("standard:max-line-length") },
+                    RuleProvider { DummyRule("standard:package-name") },
+                    // Ids of fake rules in a custom and the standard rule set
+                    RuleProvider { DummyRule("custom:foo") },
+                    RuleProvider { DummyRule("standard:bar") },
+                    RuleProvider { DummyRule("standard:foo") },
+                ),
+        )
 
     @Nested
     inner class `Given a suppression annotation missing the rule set id prefix` {
@@ -18,50 +41,46 @@ class KtlintSuppressionRuleTest {
         fun `Given a @file Suppress annotation`() {
             val code =
                 """
-                @file:Suppress("ktlint:bar", "ktlint:standard:foo", "ktlint:foo-bar")
+                @file:Suppress("ktlint:bar", "ktlint:standard:foo", "ktlint:custom:foo")
                 """.trimIndent()
             val formattedCode =
                 """
-                @file:Suppress("ktlint:standard:bar", "ktlint:standard:foo", "ktlint:standard:foo-bar")
+                @file:Suppress("ktlint:standard:bar", "ktlint:standard:foo", "ktlint:custom:foo")
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
-                .hasLintViolations(
-                    LintViolation(1, 24, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
-                    LintViolation(1, 61, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
-                ).isFormattedAs(formattedCode)
+                .hasLintViolation(1, 24, "Identifier to suppress ktlint rule must be fully qualified with the rule set id")
+                .isFormattedAs(formattedCode)
         }
 
         @Test
         fun `Given a @file SuppressWarnings annotation`() {
             val code =
                 """
-                @file:SuppressWarnings("ktlint:bar", "ktlint:standard:foo", "ktlint:foo-bar")
+                @file:SuppressWarnings("ktlint:bar", "ktlint:standard:foo", "ktlint:custom:foo")
                 """.trimIndent()
             val formattedCode =
                 """
-                @file:SuppressWarnings("ktlint:standard:bar", "ktlint:standard:foo", "ktlint:standard:foo-bar")
+                @file:SuppressWarnings("ktlint:standard:bar", "ktlint:standard:foo", "ktlint:custom:foo")
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
-                .hasLintViolations(
-                    LintViolation(1, 32, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
-                    LintViolation(1, 69, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
-                ).isFormattedAs(formattedCode)
+                .hasLintViolation(1, 32, "Identifier to suppress ktlint rule must be fully qualified with the rule set id")
+                .isFormattedAs(formattedCode)
         }
 
         @Test
         fun `Given a @file array annotation with Suppress and SuppressWarnings annotations`() {
             val code =
                 """
-                @file:[Suppress("ktlint:bar", "ktlint:standard:foo") SuppressWarnings("ktlint:foo-bar")]
+                @file:[Suppress("ktlint:bar", "ktlint:custom:foo") SuppressWarnings("ktlint:foo")]
                 """.trimIndent()
             val formattedCode =
                 """
-                @file:[Suppress("ktlint:standard:bar", "ktlint:standard:foo") SuppressWarnings("ktlint:standard:foo-bar")]
+                @file:[Suppress("ktlint:standard:bar", "ktlint:custom:foo") SuppressWarnings("ktlint:standard:foo")]
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(1, 25, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
-                    LintViolation(1, 79, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
+                    LintViolation(1, 77, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -69,18 +88,18 @@ class KtlintSuppressionRuleTest {
         fun `Given an array annotation with Suppress and SuppressWarnings annotations`() {
             val code =
                 """
-                @[Suppress("ktlint:bar", "ktlint:standard:foo") SuppressWarnings("ktlint:foo-bar")]
+                @[Suppress("ktlint:bar", "ktlint:custom:foo") SuppressWarnings("ktlint:foo")]
                 val foo = "foo"
                 """.trimIndent()
             val formattedCode =
                 """
-                @[Suppress("ktlint:standard:bar", "ktlint:standard:foo") SuppressWarnings("ktlint:standard:foo-bar")]
+                @[Suppress("ktlint:standard:bar", "ktlint:custom:foo") SuppressWarnings("ktlint:standard:foo")]
                 val foo = "foo"
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(1, 20, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
-                    LintViolation(1, 74, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
+                    LintViolation(1, 72, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -88,76 +107,68 @@ class KtlintSuppressionRuleTest {
         fun `Given a Suppress annotation with a named argument with an arrayOf initialization`() {
             val code =
                 """
-                @Suppress(names = arrayOf("ktlint:bar", "ktlint:standard:foo", "ktlint:foo-bar"))
+                @Suppress(names = arrayOf("ktlint:bar", "ktlint:standard:foo", "ktlint:custom:foo"))
                 val foo = "foo"
                 """.trimIndent()
             val formattedCode =
                 """
-                @Suppress(names = arrayOf("ktlint:standard:bar", "ktlint:standard:foo", "ktlint:standard:foo-bar"))
+                @Suppress(names = arrayOf("ktlint:standard:bar", "ktlint:standard:foo", "ktlint:custom:foo"))
                 val foo = "foo"
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
-                .hasLintViolations(
-                    LintViolation(1, 35, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
-                    LintViolation(1, 72, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
-                ).isFormattedAs(formattedCode)
+                .hasLintViolation(1, 35, "Identifier to suppress ktlint rule must be fully qualified with the rule set id")
+                .isFormattedAs(formattedCode)
         }
 
         @Test
         fun `Given a Suppress annotation with a named argument with an array (squared brackets) initialization`() {
             val code =
                 """
-                @Suppress(names = ["ktlint:bar", "ktlint:standard:foo", "ktlint:foo-bar"])
+                @Suppress(names = ["ktlint:bar", "ktlint:standard:foo", "ktlint:custom:foo"])
                 val foo = "foo"
                 """.trimIndent()
             val formattedCode =
                 """
-                @Suppress(names = ["ktlint:standard:bar", "ktlint:standard:foo", "ktlint:standard:foo-bar"])
+                @Suppress(names = ["ktlint:standard:bar", "ktlint:standard:foo", "ktlint:custom:foo"])
                 val foo = "foo"
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
-                .hasLintViolations(
-                    LintViolation(1, 28, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
-                    LintViolation(1, 65, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
-                ).isFormattedAs(formattedCode)
+                .hasLintViolation(1, 28, "Identifier to suppress ktlint rule must be fully qualified with the rule set id")
+                .isFormattedAs(formattedCode)
         }
 
         @Test
         fun `Given a Suppress annotation on a declaration`() {
             val code =
                 """
-                @Suppress("ktlint:bar", "ktlint:standard:foo", "ktlint:foo-bar")
+                @Suppress("ktlint:bar", "ktlint:standard:foo", "ktlint:custom:foo")
                 val foo = "foo"
                 """.trimIndent()
             val formattedCode =
                 """
-                @Suppress("ktlint:standard:bar", "ktlint:standard:foo", "ktlint:standard:foo-bar")
+                @Suppress("ktlint:standard:bar", "ktlint:standard:foo", "ktlint:custom:foo")
                 val foo = "foo"
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
-                .hasLintViolations(
-                    LintViolation(1, 19, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
-                    LintViolation(1, 56, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
-                ).isFormattedAs(formattedCode)
+                .hasLintViolation(1, 19, "Identifier to suppress ktlint rule must be fully qualified with the rule set id")
+                .isFormattedAs(formattedCode)
         }
 
         @Test
         fun `Given a SuppressWarnings annotation on a declaration`() {
             val code =
                 """
-                @SuppressWarnings("ktlint:bar", "ktlint:standard:foo", "ktlint:foo-bar")
+                @SuppressWarnings("ktlint:bar", "ktlint:standard:foo", "ktlint:custom:foo")
                 val foo = "foo"
                 """.trimIndent()
             val formattedCode =
                 """
-                @SuppressWarnings("ktlint:standard:bar", "ktlint:standard:foo", "ktlint:standard:foo-bar")
+                @SuppressWarnings("ktlint:standard:bar", "ktlint:standard:foo", "ktlint:custom:foo")
                 val foo = "foo"
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
-                .hasLintViolations(
-                    LintViolation(1, 27, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
-                    LintViolation(1, 64, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
-                ).isFormattedAs(formattedCode)
+                .hasLintViolation(1, 27, "Identifier to suppress ktlint rule must be fully qualified with the rule set id")
+                .isFormattedAs(formattedCode)
         }
     }
 
@@ -313,11 +324,11 @@ class KtlintSuppressionRuleTest {
         fun `Given a ktlint-disable directive with rule-id not prefixed with a rule set id`() {
             val code =
                 """
-                val foo = "foo" // ktlint-disable some-rule-id
+                val foo = "foo" // ktlint-disable foo
                 """.trimIndent()
             val formattedCode =
                 """
-                @Suppress("ktlint:standard:some-rule-id")
+                @Suppress("ktlint:standard:foo")
                 val foo = "foo"
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
@@ -329,11 +340,11 @@ class KtlintSuppressionRuleTest {
         fun `Given a ktlint-disable directive with rule-id prefixed with a rule set id`() {
             val code =
                 """
-                val foo = "foo" // ktlint-disable some-rule-set:some-rule-id
+                val foo = "foo" // ktlint-disable standard:foo
                 """.trimIndent()
             val formattedCode =
                 """
-                @Suppress("ktlint:some-rule-set:some-rule-id")
+                @Suppress("ktlint:standard:foo")
                 val foo = "foo"
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
@@ -344,13 +355,14 @@ class KtlintSuppressionRuleTest {
         @ParameterizedTest(name = "Rules: {0}")
         @ValueSource(
             strings = [
-                "some-rule-set-1:some-rule-id-1 some-rule-set-2:some-rule-id-2",
+                // Rule ids are already sorted
+                "custom:foo standard:bar standard:foo",
                 // Redundant spaces between rule ids should not lead to suppressing all rules by adding "ktlint" as suppression id
-                "some-rule-set-1:some-rule-id-1   some-rule-set-2:some-rule-id-2",
+                "custom:foo   standard:bar   standard:foo",
                 // Duplicate rule ids are ignored
-                "some-rule-set-1:some-rule-id-1 some-rule-set-2:some-rule-id-2 some-rule-set-1:some-rule-id-1",
+                "standard:bar standard:foo standard:bar custom:foo",
                 // Unsorted rule ids are sorted
-                "some-rule-set-2:some-rule-id-2 some-rule-set-1:some-rule-id-1",
+                "standard:foo custom:foo standard:bar",
             ],
         )
         fun `Given a ktlint-disable directive with multiple rule-ids`(ruleIds: String) {
@@ -360,7 +372,7 @@ class KtlintSuppressionRuleTest {
                 """.trimIndent()
             val formattedCode =
                 """
-                @Suppress("ktlint:some-rule-set-1:some-rule-id-1", "ktlint:some-rule-set-2:some-rule-id-2")
+                @Suppress("ktlint:custom:foo", "ktlint:standard:bar", "ktlint:standard:foo")
                 val foo = "foo"
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
@@ -373,11 +385,11 @@ class KtlintSuppressionRuleTest {
             val code =
                 """
                 @Suppress("zzz", "aaa")
-                val foo = "foo" // ktlint-disable some-rule-set:some-rule-id
+                val foo = "foo" // ktlint-disable standard:foo
                 """.trimIndent()
             val formattedCode =
                 """
-                @Suppress("aaa", "ktlint:some-rule-set:some-rule-id", "zzz")
+                @Suppress("aaa", "ktlint:standard:foo", "zzz")
                 val foo = "foo"
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
@@ -390,11 +402,11 @@ class KtlintSuppressionRuleTest {
             val code =
                 """
                 @SuppressWarnings("aaa", "zzz")
-                val foo = "foo" // ktlint-disable some-rule-set:some-rule-id
+                val foo = "foo" // ktlint-disable standard:foo
                 """.trimIndent()
             val formattedCode =
                 """
-                @SuppressWarnings("aaa", "ktlint:some-rule-set:some-rule-id", "zzz")
+                @SuppressWarnings("aaa", "ktlint:standard:foo", "zzz")
                 val foo = "foo"
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
@@ -408,11 +420,11 @@ class KtlintSuppressionRuleTest {
                 """
                 @Suppress("aaa", "zzz")
                 @SuppressWarnings("bbb", "yyy")
-                val foo = "foo" // ktlint-disable some-rule-set:some-rule-id
+                val foo = "foo" // ktlint-disable standard:foo
                 """.trimIndent()
             val formattedCode =
                 """
-                @Suppress("aaa", "ktlint:some-rule-set:some-rule-id", "zzz")
+                @Suppress("aaa", "ktlint:standard:foo", "zzz")
                 @SuppressWarnings("bbb", "yyy")
                 val foo = "foo"
                 """.trimIndent()
@@ -448,16 +460,16 @@ class KtlintSuppressionRuleTest {
             quoteCharacter = '"',
             delimiter = '|',
             value = [
-                "foo                                   | ktlint:standard:foo",
-                "standard:foo                          | ktlint:standard:foo",
-                "custom-rule-set:foo                   | ktlint:custom-rule-set:foo",
-                "set-a:rule-a set-b:rule-b             | ktlint:set-a:rule-a,ktlint:set-b:rule-b",
+                "foo                                | ktlint:standard:foo",
+                "standard:foo                       | ktlint:standard:foo",
+                "custom:foo                         | ktlint:custom:foo",
+                "custom:foo standard:bar            | ktlint:custom:foo,ktlint:standard:bar",
                 // Redundant spaces between rule ids should not lead to suppressing all rules by adding "ktlint" as suppression id
-                "set-a:rule-a   set-b:rule-b           | ktlint:set-a:rule-a,ktlint:set-b:rule-b",
+                "custom:foo   standard:bar          | ktlint:custom:foo,ktlint:standard:bar",
                 // Duplicate rule ids are ignored
-                "set-a:rule-a set-b:rule-b set-a:rule-a| ktlint:set-a:rule-a,ktlint:set-b:rule-b",
+                "custom:foo standard:bar custom:foo | ktlint:custom:foo,ktlint:standard:bar",
                 // Unsorted rule ids are sorted
-                "set-b:rule-b set-a:rule-a             | ktlint:set-a:rule-a,ktlint:set-b:rule-b",
+                "standard:bar custom:foo            | ktlint:custom:foo,ktlint:standard:bar",
             ],
         )
         fun `Given a top-level ktlint-disable directive`(
@@ -484,11 +496,11 @@ class KtlintSuppressionRuleTest {
             val code =
                 """
                 @file:Suppress("zzz", "aaa")
-                /* ktlint-disable some-rule-set:some-rule-id */
+                /* ktlint-disable standard:foo */
                 """.trimIndent()
             val formattedCode =
                 """
-                @file:Suppress("aaa", "ktlint:some-rule-set:some-rule-id", "zzz")
+                @file:Suppress("aaa", "ktlint:standard:foo", "zzz")
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
                 .hasLintViolation(2, 4, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
@@ -500,11 +512,11 @@ class KtlintSuppressionRuleTest {
             val code =
                 """
                 @file:SuppressWarnings("aaa", "zzz")
-                /* ktlint-disable some-rule-set:some-rule-id */
+                /* ktlint-disable standard:foo */
                 """.trimIndent()
             val formattedCode =
                 """
-                @file:SuppressWarnings("aaa", "ktlint:some-rule-set:some-rule-id", "zzz")
+                @file:SuppressWarnings("aaa", "ktlint:standard:foo", "zzz")
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
                 .hasLintViolation(2, 4, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
@@ -518,11 +530,11 @@ class KtlintSuppressionRuleTest {
                 @file:Suppress("aaa", "zzz")
                 @file:SuppressWarnings("bbb", "yyy")
 
-                /* ktlint-disable some-rule-set:some-rule-id */
+                /* ktlint-disable standard:foo */
                 """.trimIndent()
             val formattedCode =
                 """
-                @file:Suppress("aaa", "ktlint:some-rule-set:some-rule-id", "zzz")
+                @file:Suppress("aaa", "ktlint:standard:foo", "zzz")
                 @file:SuppressWarnings("bbb", "yyy")
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
@@ -537,12 +549,12 @@ class KtlintSuppressionRuleTest {
                 @file:SuppressWarnings("bbb", "yyy")
                 @file:Suppress("aaa", "zzz")
 
-                /* ktlint-disable some-rule-set:some-rule-id */
+                /* ktlint-disable standard:foo */
                 """.trimIndent()
             val formattedCode =
                 """
                 @file:SuppressWarnings("bbb", "yyy")
-                @file:Suppress("aaa", "ktlint:some-rule-set:some-rule-id", "zzz")
+                @file:Suppress("aaa", "ktlint:standard:foo", "zzz")
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
                 .hasLintViolation(4, 4, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
@@ -581,14 +593,14 @@ class KtlintSuppressionRuleTest {
             val code =
                 """
                 fun foo() {
-                    /* ktlint-disable some-rule-id */
+                    /* ktlint-disable foo */
                     doSomething()
-                    /* ktlint-enable some-rule-id */
+                    /* ktlint-enable foo */
                 }
                 """.trimIndent()
             val formattedCode =
                 """
-                @Suppress("ktlint:standard:some-rule-id")
+                @Suppress("ktlint:standard:foo")
                 fun foo() {
                     doSomething()
                 }
@@ -605,14 +617,14 @@ class KtlintSuppressionRuleTest {
             val code =
                 """
                 fun foo() {
-                    /* ktlint-disable some-rule-set:some-rule-id */
+                    /* ktlint-disable standard:foo */
                     doSomething()
-                    /* ktlint-enable some-rule-set:some-rule-id */
+                    /* ktlint-enable standard:foo */
                 }
                 """.trimIndent()
             val formattedCode =
                 """
-                @Suppress("ktlint:some-rule-set:some-rule-id")
+                @Suppress("ktlint:standard:foo")
                 fun foo() {
                     doSomething()
                 }
@@ -627,13 +639,13 @@ class KtlintSuppressionRuleTest {
         @ParameterizedTest(name = "Rules: {0}")
         @ValueSource(
             strings = [
-                "some-rule-set-1:some-rule-id-1 some-rule-set-2:some-rule-id-2",
+                "standard:bar standard:foo",
                 // Redundant spaces between rule ids should not lead to suppressing all rules by adding "ktlint" as suppression id
-                "some-rule-set-1:some-rule-id-1   some-rule-set-2:some-rule-id-2",
+                "standard:bar   standard:foo",
                 // Duplicate rule ids are ignored
-                "some-rule-set-1:some-rule-id-1 some-rule-set-2:some-rule-id-2 some-rule-set-1:some-rule-id-1",
+                "standard:bar standard:foo standard:bar",
                 // Unsorted rule ids are sorted
-                "some-rule-set-2:some-rule-id-2 some-rule-set-1:some-rule-id-1",
+                "standard:foo standard:bar",
             ],
         )
         fun `Given a ktlint-disable directive with multiple rule-ids`(ruleIds: String) {
@@ -647,7 +659,7 @@ class KtlintSuppressionRuleTest {
                 """.trimIndent()
             val formattedCode =
                 """
-                @Suppress("ktlint:some-rule-set-1:some-rule-id-1", "ktlint:some-rule-set-2:some-rule-id-2")
+                @Suppress("ktlint:standard:bar", "ktlint:standard:foo")
                 fun foo() {
                     doSomething()
                 }
@@ -665,14 +677,14 @@ class KtlintSuppressionRuleTest {
                 """
                 @Suppress("zzz", "aaa")
                 fun foo() {
-                    /* ktlint-disable some-rule-set:some-rule-id */
+                    /* ktlint-disable standard:foo */
                     doSomething()
-                    /* ktlint-enable some-rule-set:some-rule-id */
+                    /* ktlint-enable standard:foo */
                 }
                 """.trimIndent()
             val formattedCode =
                 """
-                @Suppress("aaa", "ktlint:some-rule-set:some-rule-id", "zzz")
+                @Suppress("aaa", "ktlint:standard:foo", "zzz")
                 fun foo() {
                     doSomething()
                 }
@@ -690,14 +702,14 @@ class KtlintSuppressionRuleTest {
                 """
                 @SuppressWarnings("aaa", "zzz")
                 fun foo() {
-                    /* ktlint-disable some-rule-set:some-rule-id */
+                    /* ktlint-disable standard:foo */
                     doSomething()
-                    /* ktlint-enable some-rule-set:some-rule-id */
+                    /* ktlint-enable standard:foo */
                 }
                 """.trimIndent()
             val formattedCode =
                 """
-                @SuppressWarnings("aaa", "ktlint:some-rule-set:some-rule-id", "zzz")
+                @SuppressWarnings("aaa", "ktlint:standard:foo", "zzz")
                 fun foo() {
                     doSomething()
                 }
@@ -716,14 +728,14 @@ class KtlintSuppressionRuleTest {
                 @Suppress("aaa", "zzz")
                 @SuppressWarnings("bbb", "yyy")
                 fun foo() {
-                    /* ktlint-disable some-rule-set:some-rule-id */
+                    /* ktlint-disable standard:foo */
                     doSomething()
-                    /* ktlint-enable some-rule-set:some-rule-id */
+                    /* ktlint-enable standard:foo */
                 }
                 """.trimIndent()
             val formattedCode =
                 """
-                @Suppress("aaa", "ktlint:some-rule-set:some-rule-id", "zzz")
+                @Suppress("aaa", "ktlint:standard:foo", "zzz")
                 @SuppressWarnings("bbb", "yyy")
                 fun foo() {
                     doSomething()
@@ -744,14 +756,14 @@ class KtlintSuppressionRuleTest {
             val code =
                 """
                 fun foo() {
-                    /* ktlint-disable some-rule-set:some-rule-id */
+                    /* ktlint-disable standard:foo */
                     doSomething()
-                    /* ktlint-enable some-rule-set:some-rule-id */
+                    /* ktlint-enable standard:foo */
                 }
                 """.trimIndent()
             val formattedCode =
                 """
-                @Suppress("ktlint:some-rule-set:some-rule-id")
+                @Suppress("ktlint:standard:foo")
                 fun foo() {
                     doSomething()
                 }
@@ -769,7 +781,7 @@ class KtlintSuppressionRuleTest {
                 """
                 fun foo() {
                     doSomething()
-                    /* ktlint-enable some-rule-set:some-rule-id */
+                    /* ktlint-enable standard:foo */
                 }
                 """.trimIndent()
             val formattedCode =
@@ -790,13 +802,13 @@ class KtlintSuppressionRuleTest {
             """
             @Suppress("ktlint")
             fun foo() {
-                bar() // ktlint-disable some-rule-set:some-rule-id-1
+                bar() // ktlint-disable standard:bar
 
-                /* ktlint-disable some-rule-set:some-rule-id-2 */
-                /* ktlint-disable some-rule-set:some-rule-id-3 */
+                /* ktlint-disable standard:foo */
+                /* ktlint-disable custom:foo */
                 bar()
-                /* ktlint-enable some-rule-set:some-rule-id-3 */
-                /* ktlint-enable some-rule-set:some-rule-id-2 */
+                /* ktlint-enable custom:foo */
+                /* ktlint-enable standard:foo */
             }
             """.trimIndent()
         val formattedCode =
@@ -874,23 +886,21 @@ class KtlintSuppressionRuleTest {
     fun `Given multiple ktlint-disable directives which have to merged into an existing @file Suppress annotation`(annotationName: String) {
         val code =
             """
-            @file:$annotationName("ktlint:standard:ccc", "ktlint:standard:ddd")
+            @file:$annotationName("ktlint:standard:bar")
 
-            import foo // ktlint-disable foo
-            import bar // ktlint-disable bar
+            import bar // ktlint-disable standard:no-wildcard-imports
 
-            /* ktlint-disable fff */
+            /* ktlint-disable standard:foo */
 
             val someFoo = foo.TEST
             val someBar = bar.TEST
 
-            /* ktlint-disable aaa */
+            /* ktlint-disable custom:foo */
             """.trimIndent()
         val formattedCode =
             """
-            @file:$annotationName("ktlint:standard:aaa", "ktlint:standard:bar", "ktlint:standard:ccc", "ktlint:standard:ddd", "ktlint:standard:fff", "ktlint:standard:foo")
+            @file:$annotationName("ktlint:custom:foo", "ktlint:standard:bar", "ktlint:standard:foo", "ktlint:standard:no-wildcard-imports")
 
-            import foo
             import bar
 
             val someFoo = foo.TEST
@@ -899,14 +909,13 @@ class KtlintSuppressionRuleTest {
         ktlintSuppressionRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(3, 15, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
-                LintViolation(4, 15, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
-                LintViolation(6, 4, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
-                LintViolation(11, 4, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
+                LintViolation(5, 4, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
+                LintViolation(10, 4, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
             ).isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `Given a BLOCK comment containing a ktlint-disable directive inside an init block`() {
+    fun `Given a block comment containing a ktlint-disable directive inside an init block`() {
         val code =
             """
             class Foo() {
@@ -1058,4 +1067,50 @@ class KtlintSuppressionRuleTest {
                 ).isFormattedAs(formattedCode)
         }
     }
+
+    @Test
+    fun `Given ktlint-disable directive on a package statement`() {
+        val code =
+            """
+            package foo.foo_bar // ktlint-disable standard:package-name
+            """.trimIndent()
+        val formattedCode =
+            """
+            @file:Suppress("ktlint:standard:package-name")
+
+            package foo.foo_bar
+            """.trimIndent()
+        ktlintSuppressionRuleAssertThat(code)
+            .hasLintViolation(1, 24, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given an invalid rule id then ignore it without throwing an exception`() {
+        val code =
+            """
+            @file:Suppress("ktlint:standard:SOME-INVALID-RULE-ID-1")
+
+            @Suppress("ktlint:standard:SOME-INVALID-RULE-ID-2")
+            class Foo {
+                /* ktlint-disable standard:SOME-INVALID-RULE-ID-3 */
+                fun bar() {
+                    val bar = "bar" // ktlint-disable standard:SOME-INVALID-RULE-ID-4
+                }
+                /* ktlint-enable standard:SOME-INVALID-RULE-ID-3 */
+            }
+            """.trimIndent()
+        ktlintSuppressionRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 24, "Ktlint rule with id 'ktlint:standard:SOME-INVALID-RULE-ID-1' is unknown or not loaded", false),
+                LintViolation(3, 19, "Ktlint rule with id 'ktlint:standard:SOME-INVALID-RULE-ID-2' is unknown or not loaded", false),
+                LintViolation(5, 8, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
+                LintViolation(5, 23, "Ktlint rule with id 'standard:SOME-INVALID-RULE-ID-3' is unknown or not loaded", false),
+                LintViolation(7, 28, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
+                LintViolation(7, 43, "Ktlint rule with id 'standard:SOME-INVALID-RULE-ID-4' is unknown or not loaded", false),
+                LintViolation(9, 8, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations"),
+            )
+    }
 }
+
+private class DummyRule(id: String) : Rule(RuleId(id), About())

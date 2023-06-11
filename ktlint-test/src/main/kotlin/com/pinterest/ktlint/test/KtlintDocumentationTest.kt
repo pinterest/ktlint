@@ -1,4 +1,4 @@
-package com.pinterest.ktlint.ruleset.standard.rules
+package com.pinterest.ktlint.test
 
 import org.junit.jupiter.api.Test
 
@@ -8,4 +8,4 @@ import org.junit.jupiter.api.Test
  * test directly which then will ensure that the code samples in the documentation actually provide the documented results.
  */
 @Test
-annotation class KtlintDocumentationTest
+public annotation class KtlintDocumentationTest

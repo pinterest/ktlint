@@ -6,7 +6,6 @@ import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.plus
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.LintError
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
@@ -16,6 +15,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutio
 import com.pinterest.ktlint.rule.engine.internal.FormatterTags.Companion.FORMATTER_TAGS_ENABLED_PROPERTY
 import com.pinterest.ktlint.rule.engine.internal.FormatterTags.Companion.FORMATTER_TAG_OFF_ENABLED_PROPERTY
 import com.pinterest.ktlint.rule.engine.internal.FormatterTags.Companion.FORMATTER_TAG_ON_ENABLED_PROPERTY
+import com.pinterest.ktlint.rule.engine.internal.rules.KTLINT_SUPPRESSION_RULE_ID
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.junit.jupiter.api.Nested
@@ -38,51 +38,16 @@ class SuppressionLocatorBuilderTest {
     }
 
     @Test
-    fun `Given that a NoFooIdentifierRule violation is suppressed with an EOL-comment to disable all rules then do not find a violation`() {
+    fun `Given a line having a NoFooIdentifierRule violation and an EOL-comment with a ktlint-directive to disable all rules then do not suppress the violation anymore`() {
         val code =
             """
             val foo = "foo" // ktlint-disable
             """.trimIndent()
-        assertThat(lint(code)).isEmpty()
-    }
-
-    @Test
-    fun `Given that a NoFooIdentifierRule violation is suppressed with an EOL-comment for the specific rule then do not find a violation`() {
-        val code =
-            """
-            val foo = "foo" // ktlint-disable no-foo-identifier-standard $NON_STANDARD_RULE_SET_ID:no-foo-identifier
-            """.trimIndent()
-        assertThat(lint(code)).isEmpty()
-    }
-
-    @Test
-    fun `Given that a NoFooIdentifierRule violation is suppressed with a block comment for all rules then do not find a violation in that block`() {
-        val code =
-            """
-            /* ktlint-disable */
-            val fooNotReported = "foo"
-            /* ktlint-enable */
-            val fooReported = "foo"
-            """.trimIndent()
-        assertThat(lint(code)).containsExactly(
-            lintError(4, 5, "standard:no-foo-identifier-standard"),
-            lintError(4, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
-        )
-    }
-
-    @Test
-    fun `Given that a NoFooIdentifierRule violation is suppressed with a block comment for a specific rule then do not find a violation for that rule in that block`() {
-        val code =
-            """
-            /* ktlint-disable no-foo-identifier-standard $NON_STANDARD_RULE_SET_ID:no-foo-identifier */
-            val fooNotReported = "foo"
-            /* ktlint-enable no-foo-identifier-standard $NON_STANDARD_RULE_SET_ID:no-foo-identifier */
-            val fooReported = "foo"
-            """.trimIndent()
-        assertThat(lint(code)).containsExactly(
-            lintError(4, 5, "standard:no-foo-identifier-standard"),
-            lintError(4, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
-        )
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+        assertThat(lint(code))
+            .contains(
+                LintError(1, 5, STANDARD_NO_FOO_IDENTIFIER_RULE_ID, "Line should not contain a foo identifier", false),
+            )
     }
 
     @Test
@@ -215,24 +180,6 @@ class SuppressionLocatorBuilderTest {
         assertThat(lint(code)).isEmpty()
     }
 
-    @Test
-    fun `Given an invalid rule id then ignore it without throwing an exception`() {
-        val code =
-            """
-            @file:Suppress("ktlint:standard:SOME-INVALID-RULE-ID-1")
-
-            @Suppress("ktlint:standard:SOME-INVALID-RULE-ID-2")
-            class Foo {
-                /* ktlint-disable standard:SOME-INVALID-RULE-ID-3 */
-                fun foo() {
-                    val fooNotReported = "foo" // ktlint-disable standard:SOME-INVALID-RULE-ID-4
-                }
-                /* ktlint-enable standard:SOME-INVALID-RULE-ID-3 */
-            }
-            """.trimIndent()
-        assertThat(lint(code)).isEmpty()
-    }
-
     @Nested
     inner class `Given that formatter tags are enabled` {
         @Test
@@ -330,52 +277,50 @@ class SuppressionLocatorBuilderTest {
         }
     }
 
-    @Test
-    fun `Given a rule in rule set 'standard' with id 'ktlint-suppression' then it will not be suppressed`() {
-        val standardDeprecatedRuleDirectiveRuleId = RuleId("standard:ktlint-suppression")
-        val code =
-            """
-            val bar1 = "bar1" // ktlint-disable
-            val bar2 = "bar2" // ktlint-disable ktlint-suppression
-            val bar3 = "bar3" // ktlint-disable standard:ktlint-suppression
-            @Suppress("ktlint")
-            val bar4 = "bar4"
-            @Suppress("ktlint:ktlint-suppression")
-            val bar5 = "bar5"
-            @Suppress("ktlint:standard:ktlint-suppression")
-            val bar6 = "bar6"
-            """.trimIndent()
-        val actual =
-            lint(
-                code = code,
-                ruleProviders =
-                    setOf(
-                        RuleProvider {
-                            object : Rule(
-                                ruleId = standardDeprecatedRuleDirectiveRuleId,
-                                about = About(),
-                            ) {
-                                override fun beforeVisitChildNodes(
-                                    node: ASTNode,
-                                    autoCorrect: Boolean,
-                                    emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-                                ) {
-                                    if (node.elementType == PROPERTY) {
-                                        emit(node.startOffset, "This rule will not be suppressed", false)
-                                    }
-                                }
-                            }
-                        },
-                    ),
+    @Nested
+    inner class `Given code that tries to disable to ktlint-suppression rule itself` {
+        @Test
+        fun `Given a @file annotation`() {
+            val code =
+                """
+                @file:Suppress("ktlint:internal:ktlint-suppression")
+                """.trimIndent()
+            val actual = lint(code = code, ignoreKtlintSuppressionRule = false)
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+            assertThat(actual).containsExactly(
+                LintError(1, 24, KTLINT_SUPPRESSION_RULE_ID, "Ktlint rule with id 'ktlint:internal:ktlint-suppression' is unknown or not loaded", false),
             )
-        assertThat(actual).containsExactly(
-            LintError(1, 1, standardDeprecatedRuleDirectiveRuleId, "This rule will not be suppressed", false),
-            LintError(2, 1, standardDeprecatedRuleDirectiveRuleId, "This rule will not be suppressed", false),
-            LintError(3, 1, standardDeprecatedRuleDirectiveRuleId, "This rule will not be suppressed", false),
-            LintError(4, 1, standardDeprecatedRuleDirectiveRuleId, "This rule will not be suppressed", false),
-            LintError(6, 1, standardDeprecatedRuleDirectiveRuleId, "This rule will not be suppressed", false),
-            LintError(8, 1, standardDeprecatedRuleDirectiveRuleId, "This rule will not be suppressed", false),
-        )
+        }
+
+        @Test
+        fun `Given a block comment with a ktlint-disable directive`() {
+            val code =
+                """
+                /* ktlint-disable internal:ktlint-suppression */
+                """.trimIndent()
+            val actual = lint(code = code, ignoreKtlintSuppressionRule = false)
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+            assertThat(actual).containsExactly(
+                LintError(1, 4, KTLINT_SUPPRESSION_RULE_ID, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation", true),
+                LintError(1, 19, KTLINT_SUPPRESSION_RULE_ID, "Ktlint rule with id 'internal:ktlint-suppression' is unknown or not loaded", false),
+            )
+        }
+
+        @Test
+        fun `Given an EOL comment with a ktlint-disable directive which is ignored then emit the violation`() {
+            val code =
+                """
+                val foo = "foo" // ktlint-disable internal:ktlint-suppression
+                """.trimIndent()
+            val actual = lint(code = code, ignoreKtlintSuppressionRule = false)
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+            assertThat(actual).containsExactly(
+                lintError(1, 5, "standard:no-foo-identifier-standard"),
+                lintError(1, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
+                LintError(1, 20, KTLINT_SUPPRESSION_RULE_ID, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation", true),
+                LintError(1, 35, KTLINT_SUPPRESSION_RULE_ID, "Ktlint rule with id 'internal:ktlint-suppression' is unknown or not loaded", false),
+            )
+        }
     }
 
     private class NoFooIdentifierRule(id: RuleId) : Rule(
@@ -397,6 +342,7 @@ class SuppressionLocatorBuilderTest {
         code: String,
         editorConfigOverride: EditorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
         ruleProviders: Set<RuleProvider> = emptySet(),
+        ignoreKtlintSuppressionRule: Boolean = true,
     ) = ArrayList<LintError>().apply {
         KtLintRuleEngine(
             ruleProviders =
@@ -412,14 +358,20 @@ class SuppressionLocatorBuilderTest {
                         STANDARD_NO_FOO_IDENTIFIER_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled,
                         NON_STANDARD_NO_FOO_IDENTIFIER_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled,
                     ),
-        ).lint(Code.fromSnippet(code)) { e -> add(e) }
+        ).lint(Code.fromSnippet(code)) { e ->
+            if (ignoreKtlintSuppressionRule && e.ruleId == KTLINT_SUPPRESSION_RULE_ID) {
+                // This class should be able to test code snippets containing the deprecated ktlint-directives
+            } else {
+                add(e)
+            }
+        }
     }
 
     private fun lintError(
         line: Int,
-        col: Int,
+        column: Int,
         ruleId: String,
-    ) = LintError(line, col, RuleId(ruleId), "Line should not contain a foo identifier", false)
+    ) = LintError(line, column, RuleId(ruleId), "Line should not contain a foo identifier", false)
 
     private companion object {
         val NON_STANDARD_RULE_SET_ID = "custom".also { require(it != RuleSetId.STANDARD.value) }

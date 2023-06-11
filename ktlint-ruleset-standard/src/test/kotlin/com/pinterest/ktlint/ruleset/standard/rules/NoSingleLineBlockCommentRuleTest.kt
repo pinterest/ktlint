@@ -163,17 +163,4 @@ class NoSingleLineBlockCommentRuleTest {
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
             .hasNoLintViolations()
     }
-
-    @Test
-    fun `Given single line block comments to disable or enable ktlint then do not reformat`() {
-        val code =
-            """
-            /* ktlint-disable foo-rule-id bar-rule-id */
-            val foo = "foo"
-            /* ktlint-enable foo-rule-id bar-rule-id */
-            """.trimIndent()
-        noSingleLineBlockCommentRuleAssertThat(code)
-            .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
-            .hasNoLintViolations()
-    }
 }

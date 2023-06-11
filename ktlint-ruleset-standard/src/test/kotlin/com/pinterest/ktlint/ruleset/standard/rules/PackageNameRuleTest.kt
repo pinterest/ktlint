@@ -81,15 +81,6 @@ class PackageNameRuleTest {
     }
 
     @Test
-    fun `Given a package name containing an forbidden character and the rule is suppressed via ktlint directive in comment then do not emit`() {
-        val code =
-            """
-            package foo.foo_bar // ktlint-disable package-name
-            """.trimIndent()
-        packageNameRuleAssertThat(code).hasNoLintViolations()
-    }
-
-    @Test
     fun `Issue 1757 - Given a package name containing diacritics then do no report a violation`() {
         val code =
             """

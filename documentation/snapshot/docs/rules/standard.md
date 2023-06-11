@@ -253,7 +253,9 @@ Rule id: `indent` (`standard` rule set)
 
 ## Ktlint-suppression rule
 
-The `ktlint-disable` and `ktlint-enable` directives are no longer supported as of ktlint version `0.50.0`. This rule migrates the directives to annotations. Identifiers in the @Suppress and @SuppressWarning annotations to suppress ktlint rules which are not prefixed with the rule set id are fixed. 
+The `ktlint-disable` and `ktlint-enable` directives are no longer supported as of ktlint version `0.50.0`. This rule migrates the directives to Suppress or SuppressWarning annotations.
+
+Identifiers in the @Suppress and @SuppressWarning annotations to suppress ktlint rules are checked for validity and autocorrected when possible. 
 
 === "[:material-heart:](#) Ktlint"
 

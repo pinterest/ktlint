@@ -106,36 +106,22 @@ class MaxLineLengthRuleTest {
     @Nested
     inner class `Given some error suppression` {
         @Test
-        fun `Given some code followed by a ktlint-disable directive which causes the line length to be exceeded then do not return a lint error for that line`() {
-            val code =
-                """
-                // $MAX_LINE_LENGTH_MARKER          $EOL_CHAR
-                val bar = "bar" // ktlint-disable some-rule-id
-                """.trimIndent()
-            maxLineLengthRuleAssertThat(code)
-                .setMaxLineLength()
-                .hasNoLintViolations()
-        }
-
-        @Test
         fun `Given code that is wrapped into a ktlint-disable block then do no return lint errors for lines in this block`() {
             val code =
                 """
-                // $MAX_LINE_LENGTH_MARKER          $EOL_CHAR
+                // $MAX_LINE_LENGTH_MARKER                     $EOL_CHAR
                 fun foo() {
-                    println("teeeeeeeeeeeeeeeeeeeext")
-                    /* ktlint-disable max-line-length */
-                    println("teeeeeeeeeeeeeeeeeeeext")
-                    println("teeeeeeeeeeeeeeeeeeeext")
-                    /* ktlint-enable max-line-length */
-                    println("teeeeeeeeeeeeeeeeeeeext")
+                    println("teeeeeeeeeeeeeeeeeeeeeeeeeeeeeeext")
+                    @Suppress("ktlint:standard:max-line-length")
+                    println("teeeeeeeeeeeeeeeeeeeeeeeeeeeeeeext")
+                    println("teeeeeeeeeeeeeeeeeeeeeeeeeeeeeeext")
                 }
                 """.trimIndent()
             maxLineLengthRuleAssertThat(code)
                 .setMaxLineLength()
                 .hasLintViolationsWithoutAutoCorrect(
-                    LintViolation(3, 1, "Exceeded max line length (37)"),
-                    LintViolation(8, 1, "Exceeded max line length (37)"),
+                    LintViolation(3, 1, "Exceeded max line length (48)"),
+                    LintViolation(6, 1, "Exceeded max line length (48)"),
                 )
         }
     }

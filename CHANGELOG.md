@@ -6,11 +6,11 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Deprecation of ktlint-enable and ktlint-disable directives
 
-The `ktlint-disable` and `ktlint-enable` directives are no longer supported. Ktlint rules can now only be suppressed using the `@Suppress` or `@SuppressWarnings` annotations. A new rule, `ktlint-suppression`, is provided to replace the directives with annotations.
+The `ktlint-disable` and `ktlint-enable` directives are no longer supported. Ktlint rules can now only be suppressed using the `@Suppress` or `@SuppressWarnings` annotations. A new rule, `internal:ktlint-suppression`, is provided to replace the directives with annotations.
 
-It is recommended that API Consumers that do not provide the Ktlint `standard` rules at least provide the `DeprecatedRuleDirectiveRule` by default. If the rule is not provided, a log message will be printed for each `ktlint-disable` and `ktlint-enable` directive that is found and violations will not be suppressed.
+API consumers do not need to provide this rule, but it does no harm when done.
 
-The `ktlint-suppression` rule can not be disabled via the `.editorconfig`.
+The `internal:ktlint-suppression` rule can not be disabled via the `.editorconfig` nor via `@Suppress` or `@SuppressWarnings` annotations.
 
 ### Custom Rule Providers need to prepare for Kotlin 1.9
 

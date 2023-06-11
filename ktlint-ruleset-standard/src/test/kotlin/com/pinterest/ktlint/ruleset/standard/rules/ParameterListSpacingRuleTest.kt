@@ -48,12 +48,12 @@ class ParameterListSpacingRuleTest {
     }
 
     @Test
-    fun `Given a function signature without parameters but containing an comment (for example to disable a ktlint rule) in the parameter list then do not reformat`() {
+    fun `Given a function signature without parameters but containing an EOL comment in the parameter list then do not reformat`() {
         val code =
             """
-            data class Foo @JvmOverloads constructor( // ktlint-disable annotation
+            data class Foo @JvmOverloads constructor( // some comment
             )
-            @JvmOverloads fun foo1( // ktlint-disable annotation
+            @JvmOverloads fun foo1( // some comment
             )
             fun foo2(
                 // some comment
@@ -69,7 +69,7 @@ class ParameterListSpacingRuleTest {
     fun `Given a function signature without parameters but containing an EOL comment not preceded by a whitespace then avoid conflict with comment spacing rule`() {
         val code =
             """
-            data class Foo @JvmOverloads constructor(// ktlint-disable annotation
+            data class Foo @JvmOverloads constructor(// some comment
             )
             """.trimIndent()
         parameterListSpacingRuleAssertThat(code)

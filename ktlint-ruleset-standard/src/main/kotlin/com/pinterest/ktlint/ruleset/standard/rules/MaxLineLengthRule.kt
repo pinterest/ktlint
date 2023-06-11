@@ -79,23 +79,18 @@ public class MaxLineLengthRule :
                                 // fixme:
                                 // normally we would emit here but due to API limitations we need to hold off until
                                 // node spanning the same offset is 'visit'ed
-                                // (for ktlint-disable directive to have effect (when applied))
                                 // this will be rectified in the upcoming release(s)
                                 errorOffset.add(parsedLine.offset)
                             }
                         } else {
-                            // Allow ktlint-disable comments to exceed max line length
-                            if (!el.text.startsWith("// ktlint-disable")) {
-                                // if comment is the only thing on the line - fine, otherwise emit an error
-                                val prevLeaf = el.prevCodeSibling()
-                                if (prevLeaf != null && prevLeaf.startOffset >= parsedLine.offset) {
-                                    // fixme:
-                                    // normally we would emit here but due to API limitations we need to hold off until
-                                    // node spanning the same offset is 'visit'ed
-                                    // (for ktlint-disable directive to have effect (when applied))
-                                    // this will be rectified in the upcoming release(s)
-                                    errorOffset.add(parsedLine.offset)
-                                }
+                            // if comment is the only thing on the line - fine, otherwise emit an error
+                            val prevLeaf = el.prevCodeSibling()
+                            if (prevLeaf != null && prevLeaf.startOffset >= parsedLine.offset) {
+                                // fixme:
+                                // normally we would emit here but due to API limitations we need to hold off until
+                                // node spanning the same offset is 'visit'ed
+                                // this will be rectified in the upcoming release(s)
+                                errorOffset.add(parsedLine.offset)
                             }
                         }
                     }
