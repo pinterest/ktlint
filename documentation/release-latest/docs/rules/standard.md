@@ -103,8 +103,8 @@ When wrapping chained calls `.`, `?.` and `?:` should be placed on the next line
         .filter { it > 2 }!!
         .takeIf { it.count() > 100 }
         ?.sum()
-    val foobar = foo() ?:
-        bar
+    val foobar = foo()
+        ?: bar
     ```
 === "[:material-heart-off-outline:](#) Disallowed"
 
@@ -113,8 +113,8 @@ When wrapping chained calls `.`, `?.` and `?:` should be placed on the next line
         filter { it > 2 }!!.
         takeIf { it.count() > 100 }?.
         sum()
-    val foobar = foo()
-        ?: bar
+    val foobar = foo() ?:
+        bar
     ```
 
 Rule id: `chain-wrapping` (`standard` rule set)
