@@ -556,7 +556,7 @@ private data class KtLintDirective(
         class InvalidSuppressionId(
             val originalRuleId: String,
             val offsetOriginalRuleId: Int,
-        )  : SuppressionIdChange()
+        ) : SuppressionIdChange()
     }
 }
 
@@ -609,7 +609,7 @@ private fun String.toSuppressionIdChanges(ruleIdValidator: (String) -> Boolean) 
                     prefixedRuleId
                         .prefixIfNot(KTLINT_SUPPRESSION_ID_PREFIX)
                         .surroundWith(DOUBLE_QUOTE),
-                    )
+                )
             } else {
                 InvalidSuppressionId(
                     originalRuleId,
