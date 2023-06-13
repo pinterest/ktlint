@@ -158,7 +158,7 @@ Rule id: `class-naming` (`standard` rule set)
 
 ## Enum entry
 
-Enum entry names should be uppercase underscore-separated names.
+Enum entry names should be uppercase underscore-separated or upper camel-case separated.
 
 === "[:material-heart:](#) Ktlint"
 
