@@ -789,6 +789,13 @@ You're not viewing the latest version.
 </li>
       
         <li class="md-nav__item">
+  <a href="#can-a-new-toggle-be-added-to-optionally-enabledisable-format-code-in-a-particular-way" class="md-nav__link">
+    Can a new toggle be added to optionally (enable/disable) format code in a particular way?
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#can-i-use-ktlint-to-directly-format-the-code-im-generating-with-kotlinpoet" class="md-nav__link">
     Can I use KtLint to directly format the code I'm generating with KotlinPoet?
   </a>
@@ -970,6 +977,13 @@ You're not viewing the latest version.
 </li>
       
         <li class="md-nav__item">
+  <a href="#can-a-new-toggle-be-added-to-optionally-enabledisable-format-code-in-a-particular-way" class="md-nav__link">
+    Can a new toggle be added to optionally (enable/disable) format code in a particular way?
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#can-i-use-ktlint-to-directly-format-the-code-im-generating-with-kotlinpoet" class="md-nav__link">
     Can I use KtLint to directly format the code I'm generating with KotlinPoet?
   </a>
@@ -1121,6 +1135,14 @@ You're not viewing the latest version.
 </div>
 <h2 id="why-is-wildcard-import-javautil-not-reported-by-the-no-wildcard-imports-rule">Why is wildcard import <code>java.util.*</code> not reported by the <code>no-wildcard-imports</code> rule?<a class="headerlink" href="#why-is-wildcard-import-javautil-not-reported-by-the-no-wildcard-imports-rule" title="Permanent link">&para;</a></h2>
 <p>The <code>no-wildcard-imports</code> rule forbids wildcard imports, except for imports defined in <code>.editorconfig</code> property <code>ij_kotlin_packages_to_use_import_on_demand</code>. If this property is not explicitly set, it allows wildcards imports like <code>java.util.*</code> by default to keep in sync with IntelliJ IDEA behavior.</p>
+<h2 id="can-a-new-toggle-be-added-to-optionally-enabledisable-format-code-in-a-particular-way">Can a new toggle be added to optionally (enable/disable) format code in a particular way?<a class="headerlink" href="#can-a-new-toggle-be-added-to-optionally-enabledisable-format-code-in-a-particular-way" title="Permanent link">&para;</a></h2>
+<p>Ktlint can be configured by enabling and disabling rules. Some rules can be configured in more details with additional <code>.editorconfig</code> properties. Regularly, a new configuration option is requested to modify behavior in existing rules.</p>
+<p>Ktlint is restrictive with adding additional configuration settings to customize behavior in rules. Each configuration option that Ktlint offers comes with complexity that has to be maintained by only a couple of maintainers. As of that, we cannot provide tens or even hundreds of such options.</p>
+<p>Less configuration options also means less discussions in teams about settings to use. Unfortunately this means that you cannot tweak Ktlint exactly to the format you prefer.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Any idea for a new configuration option is valuable. Please create an issue for it so that it can be considered to incorporate it in Ktlint.</p>
+</div>
 <h2 id="can-i-use-ktlint-to-directly-format-the-code-im-generating-with-kotlinpoet">Can I use KtLint to directly format the code I'm generating with KotlinPoet?<a class="headerlink" href="#can-i-use-ktlint-to-directly-format-the-code-im-generating-with-kotlinpoet" title="Permanent link">&para;</a></h2>
 <p>Yes, it is possible to use KtLint to directly format the code generated with KotlinPoet. 
 To do so, you must include the dependencies <code>com.pinterest.ktlint:ktlint-core</code> and <code>com.pinterest.ktlint:ktlint-ruleset-standard</code> in your Gradle/Maven project.</p>
