@@ -166,7 +166,8 @@ Enum entry names should be uppercase underscore-separated or upper camel-case se
     enum class Bar {
         FOO,
         Foo,
-        FOO_BAR
+        FOO_BAR,
+        FooBar
     }
     ```
 === "[:material-heart-off-outline:](#) Disallowed"
