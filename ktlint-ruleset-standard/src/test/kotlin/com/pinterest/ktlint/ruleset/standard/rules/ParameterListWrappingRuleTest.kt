@@ -522,6 +522,20 @@ class ParameterListWrappingRuleTest {
         parameterListWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
+    @Test
+    fun `Given a multiline type argument list in a class property`() {
+        val code =
+            """
+            data class FooBar(
+                public val fooBar: List<
+                    Foo,
+                    Bar
+                    >,
+            )
+            """.trimIndent()
+        parameterListWrappingRuleAssertThat(code).hasNoLintViolations()
+    }
+
     @Nested
     inner class `Issue 1255 - Given a variable declaration for nullable function type` {
         @Test
