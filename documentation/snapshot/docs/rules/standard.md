@@ -656,8 +656,24 @@ When class/function signature doesn't fit on a single line, each parameter must 
         b: Any,
         c: Any
     )
+    fun foo(
+        @Bar fooBar: FooBar
+    )
     ```
-=== "[:material-heart-off-outline:](#) Disallowed"
+=== "[:material-heart-off-outline:](#) Disallowed (ktlint_official)"
+
+    ```kotlin
+    class ClassA(
+        paramA: String, paramB: String,
+        paramC: String
+    )
+    fun f(
+        a: Any,
+        b: Any, c: Any
+    )
+    fun foo(@Bar fooBar: FooBar)
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed (non ktlint_official)""
 
     ```kotlin
     class ClassA(
