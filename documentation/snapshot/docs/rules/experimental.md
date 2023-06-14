@@ -408,6 +408,11 @@ Enforce naming of property.
 
         val foo2 = "foo"
         val fooBar2 = "foo-bar"
+
+        // Backing property
+        private val _elementList = mutableListOf<Element>()
+        val elementList: List<Element>
+            get() = _elementList
     }
     ```
 === "[:material-heart-off-outline:](#) Disallowed"
@@ -424,6 +429,14 @@ Enforce naming of property.
 
         val FOO2 = "foo"
         val FOO_BAR_2 = "foo-bar"
+
+        // Incomplete backing property as public property 'elementList1' is missing
+        private val _elementList1 = mutableListOf<Element>()
+
+        // Invalid backing property as '_elementList2' is not a private property
+        val _elementList2 = mutableListOf<Element>()
+        val elementList2: List<Element>
+            get() = _elementList2
     }
     ```
 
