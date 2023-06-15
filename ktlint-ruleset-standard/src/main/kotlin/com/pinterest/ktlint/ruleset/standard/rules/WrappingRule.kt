@@ -546,7 +546,18 @@ public class WrappingRule :
             return
         }
         if (noNewLineInClosedRange(previousCodeLeaf, nextCodeLeaf)) {
-            requireNewlineAfterLeaf(node, autoCorrect, emit, indent = previousCodeLeaf.indent())
+            requireNewlineAfterLeaf(node, autoCorrect, emit, previousCodeLeaf.indent())
+            node
+                .treeParent
+                .takeIf { it.elementType == BLOCK }
+                ?.let { block ->
+                    beforeVisitBlock(block, autoCorrect, emit)
+                    block
+                        .treeParent
+                        .takeIf { it.elementType == FUNCTION_LITERAL }
+                        ?.findChildByType(ARROW)
+                        ?.let { arrow -> rearrangeArrow(arrow, autoCorrect, emit) }
+                }
         }
     }
 

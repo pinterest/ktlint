@@ -2522,6 +2522,56 @@ internal class WrappingRuleTest {
                     .hasNoLintViolations()
             }
         }
+
+        @Test
+        fun `Given a single line block containing multiple statements then reformat block after wrapping the statement`() {
+            val code =
+                """
+                val fooBar =
+                    fooBar()
+                        .map { foo(); bar() }
+                """.trimIndent()
+            val formattedCode =
+                """
+                val fooBar =
+                    fooBar()
+                        .map {
+                            foo()
+                            bar()
+                        }
+                """.trimIndent()
+            wrappingRuleAssertThat(code)
+                .addAdditionalRuleProvider { NoSemicolonsRule() }
+                .addAdditionalRuleProvider { IndentationRule() }
+                .hasLintViolations(
+                    LintViolation(3, 22, "Missing newline after \";\""),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given a single line lambda expression containing multiple statements then reformat block after wrapping the statement`() {
+            val code =
+                """
+                val fooBar =
+                    fooBar()
+                        .map { foo, bar -> print(foo); print(bar) }
+                """.trimIndent()
+            val formattedCode =
+                """
+                val fooBar =
+                    fooBar()
+                        .map { foo, bar ->
+                            print(foo)
+                            print(bar)
+                        }
+                """.trimIndent()
+            wrappingRuleAssertThat(code)
+                .addAdditionalRuleProvider { NoSemicolonsRule() }
+                .addAdditionalRuleProvider { IndentationRule() }
+                .hasLintViolations(
+                    LintViolation(3, 39, "Missing newline after \";\""),
+                ).isFormattedAs(formattedCode)
+        }
     }
 }
 
