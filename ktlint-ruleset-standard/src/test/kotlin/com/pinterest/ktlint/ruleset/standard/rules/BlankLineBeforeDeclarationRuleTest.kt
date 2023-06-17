@@ -4,6 +4,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERT
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.test.KtLintAssertThat
 import com.pinterest.ktlint.test.LintViolation
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class BlankLineBeforeDeclarationRuleTest {
@@ -244,15 +245,77 @@ class BlankLineBeforeDeclarationRuleTest {
             .hasNoLintViolations()
     }
 
-    @Test
-    fun `Given a function as first code sibling inside a class body then do not insert a blank line between the class signature and this function`() {
-        val code =
-            """
-            class Foo {
-                fun Bar() {}
-            }
-            """.trimIndent()
-        blankLineBeforeDeclarationRuleAssertThat(code).hasNoLintViolations()
+    @Nested
+    inner class `Given some nested declaration` {
+        @Test
+        fun `Given a class as first code sibling inside a class body then do not insert a blank line between the class signature and this function`() {
+            val code =
+                """
+                class Foo {
+                    class Bar
+                }
+                """.trimIndent()
+            blankLineBeforeDeclarationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `Given a function as first code sibling inside a class body then do not insert a blank line between the class signature and this function`() {
+            val code =
+                """
+                class Foo {
+                    fun bar() {}
+                }
+                """.trimIndent()
+            blankLineBeforeDeclarationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `Given a class as first code sibling inside a function body then do not insert a blank line between the class signature and this function`() {
+            val code =
+                """
+                fun foo() {
+                    class Bar
+                }
+                """.trimIndent()
+            blankLineBeforeDeclarationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `Given a function as first code sibling inside a function body then do not insert a blank line between the class signature and this function`() {
+            val code =
+                """
+                fun foo() {
+                    fun bar() {}
+                }
+                """.trimIndent()
+            blankLineBeforeDeclarationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `Given a function as first code sibling inside a function literal without parameters then do not insert a blank line the declaration`() {
+            val code =
+                """
+                val foo = {
+                    fun bar() {}
+
+                    bar()
+                }
+                """.trimIndent()
+            blankLineBeforeDeclarationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `Given a function as first code sibling inside a function literal with parameters then do not insert a blank line the declaration`() {
+            val code =
+                """
+                val foo = { _ ->
+                    fun bar() {}
+
+                    bar()
+                }
+                """.trimIndent()
+            blankLineBeforeDeclarationRuleAssertThat(code).hasNoLintViolations()
+        }
     }
 
     @Test
@@ -280,17 +343,6 @@ class BlankLineBeforeDeclarationRuleTest {
                 bar()
                 val bar = "bar"
             }
-            """.trimIndent()
-        blankLineBeforeDeclarationRuleAssertThat(code).hasNoLintViolations()
-    }
-
-    @Test
-    fun `xx`() {
-        val code =
-            """
-            fun foo(
-                emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-            ) {}
             """.trimIndent()
         blankLineBeforeDeclarationRuleAssertThat(code).hasNoLintViolations()
     }
@@ -342,5 +394,31 @@ class BlankLineBeforeDeclarationRuleTest {
                 LintViolation(10, 5, "Expected a blank line for this declaration"),
                 LintViolation(12, 5, "Expected a blank line for this declaration"),
             ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a class followed by EOL comment followed by a class`() {
+        val code =
+            """
+            class Foo
+            // Some comment
+
+            class Bar
+            """.trimIndent()
+        blankLineBeforeDeclarationRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a when statement with a property declaration `() {
+        val code =
+            """
+            val foo =
+                when (val foobar = FooBar()) {
+                    is Bar -> foobar.bar()
+                    is Foo -> foobar.foo()
+                    else -> foobar
+                }
+            """.trimIndent()
+        blankLineBeforeDeclarationRuleAssertThat(code).hasNoLintViolations()
     }
 }

@@ -212,7 +212,7 @@ public class StringTemplateIndentRule :
                         }
                     if (currentIndent.contains(wrongIndentChar)) {
                         checkAndFixWrongIndentationChar(
-                            it = it,
+                            node = it,
                             oldIndent = currentIndent,
                             newIndent = newIndent,
                             newContent = currentContent,
@@ -249,15 +249,15 @@ public class StringTemplateIndentRule :
                 true,
             )
             if (autoCorrect) {
-                (firstNodeAfterOpeningQuotes as LeafPsiElement).rawReplaceWithText(
-                    "\n" + indent + firstNodeAfterOpeningQuotes.text,
+                (firstNodeAfterOpeningQuotes as LeafPsiElement).rawInsertBeforeMe(
+                    LeafPsiElement(REGULAR_STRING_PART, "\n" + indent),
                 )
             }
         }
     }
 
     private fun checkAndFixWrongIndentationChar(
-        it: ASTNode,
+        node: ASTNode,
         oldIndent: String,
         newIndent: String,
         newContent: String,
@@ -265,12 +265,12 @@ public class StringTemplateIndentRule :
         autoCorrect: Boolean,
     ) {
         emit(
-            it.startOffset + oldIndent.indexOf(wrongIndentChar),
+            node.startOffset + oldIndent.indexOf(wrongIndentChar),
             "Unexpected '$wrongIndentDescription' character(s) in margin of multiline string",
             true,
         )
         if (autoCorrect) {
-            (it.firstChildNode as LeafPsiElement).rawReplaceWithText(
+            (node.firstChildNode as LeafPsiElement).rawReplaceWithText(
                 newIndent + newContent,
             )
         }
@@ -316,8 +316,8 @@ public class StringTemplateIndentRule :
                 true,
             )
             if (autoCorrect) {
-                (lastNodeBeforeClosingQuotes as LeafPsiElement).rawReplaceWithText(
-                    lastNodeBeforeClosingQuotes.text + "\n" + indent,
+                (lastNodeBeforeClosingQuotes as LeafPsiElement).rawInsertAfterMe(
+                    LeafPsiElement(REGULAR_STRING_PART, "\n" + indent),
                 )
             }
         }

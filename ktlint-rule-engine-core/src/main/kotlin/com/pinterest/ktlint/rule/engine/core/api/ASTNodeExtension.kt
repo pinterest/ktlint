@@ -429,3 +429,32 @@ public fun ASTNode.leavesIncludingSelf(forward: Boolean = true): Sequence<ASTNod
         }
     return sequence.plus(leaves(forward))
 }
+
+/**
+ * Get all leaves on the same line as the given node including the whitespace indentation. Note that the whitespace indentation may start
+ * with zero or more newline characters.
+ */
+public fun ASTNode.leavesOnLine(): Sequence<ASTNode> {
+    val lastLeafOnLineOrNull = getLastLeafOnLineOrNull()
+    return getFirstLeafOnLineOrSelf()
+        .leavesIncludingSelf()
+        .takeWhile { lastLeafOnLineOrNull == null || it.prevLeaf() != lastLeafOnLineOrNull }
+}
+
+internal fun ASTNode.getFirstLeafOnLineOrSelf() = prevLeaf { it.textContains('\n') || it.prevLeaf() == null }!!
+
+internal fun ASTNode.getLastLeafOnLineOrNull() = nextLeaf { it.textContains('\n') }?.prevLeaf()
+
+/**
+ * Get the total length of all leaves on the same line as the given node including the whitespace indentation but excluding all leading
+ * newline characters in the whitespace indentation.
+ */
+public fun ASTNode.lineLengthWithoutNewlinePrefix(): Int =
+    leavesOnLine()
+        .joinToString(separator = "") { it.text }
+        // If a line is preceded by a blank line then the ident contains multiple newline chars
+        .dropWhile { it == '\n' }
+        // In case the last element on the line would contain a newline then only include chars before that newline. Note that this should
+        // not occur if the AST is parsed correctly
+        .takeWhile { it != '\n' }
+        .length
