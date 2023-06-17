@@ -2543,9 +2543,8 @@ internal class WrappingRuleTest {
             wrappingRuleAssertThat(code)
                 .addAdditionalRuleProvider { NoSemicolonsRule() }
                 .addAdditionalRuleProvider { IndentationRule() }
-                .hasLintViolations(
-                    LintViolation(3, 22, "Missing newline after \";\""),
-                ).isFormattedAs(formattedCode)
+                .hasLintViolation(3, 22, "Missing newline after \";\"")
+                .isFormattedAs(formattedCode)
         }
 
         @Test
@@ -2568,10 +2567,67 @@ internal class WrappingRuleTest {
             wrappingRuleAssertThat(code)
                 .addAdditionalRuleProvider { NoSemicolonsRule() }
                 .addAdditionalRuleProvider { IndentationRule() }
+                .hasLintViolation(3, 39, "Missing newline after \";\"")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given a single line when entry block containing multiple statements then reformat block after wrapping the statement`() {
+            val code =
+                """
+                val foo =
+                    when (value) {
+                        0 -> { foo(); true }
+                        else -> { bar(); false }
+                    }
+                """.trimIndent()
+            val formattedCode =
+                """
+                val foo =
+                    when (value) {
+                        0 -> {
+                            foo()
+                            true
+                        }
+                        else -> {
+                            bar()
+                            false
+                        }
+                    }
+                """.trimIndent()
+            wrappingRuleAssertThat(code)
+                .addAdditionalRuleProvider { NoSemicolonsRule() }
+                .addAdditionalRuleProvider { IndentationRule() }
                 .hasLintViolations(
-                    LintViolation(3, 39, "Missing newline after \";\""),
+                    LintViolation(3, 22, "Missing newline after \";\""),
+                    LintViolation(4, 25, "Missing newline after \";\""),
                 ).isFormattedAs(formattedCode)
         }
+    }
+
+    @Test
+    fun `Given a lambda expression containing a function literal`() {
+        val code =
+            """
+            val foo = {
+                Foo { "foo" }
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `if else with comments after curly braces`() {
+        val code =
+            """
+            val foo =
+                if (true) { // comment 1
+                    "foo"
+                } else { // comment 2
+                    "bar"
+                }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 }
 
