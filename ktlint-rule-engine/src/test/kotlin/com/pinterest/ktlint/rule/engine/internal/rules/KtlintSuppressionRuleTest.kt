@@ -482,9 +482,11 @@ class KtlintSuppressionRuleTest {
                 """.trimIndent()
             val formattedCode =
                 """
-                @file:Suppress(${expectedSuppressionIdString
-                    .split(',')
-                    .joinToString { "\"$it\"" }})
+                @file:Suppress(${
+                    expectedSuppressionIdString
+                        .split(',')
+                        .joinToString { "\"$it\"" }
+                })
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
                 .hasLintViolation(1, 4, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
@@ -1062,7 +1064,12 @@ class KtlintSuppressionRuleTest {
             @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
             ktlintSuppressionRuleAssertThat(code)
                 .hasLintViolations(
-                    LintViolation(2, 8, "Directive 'ktlint-disable' is deprecated. The matching 'ktlint-enable' directive is not found in same scope. Replace with @Suppress annotation", false),
+                    LintViolation(
+                        2,
+                        8,
+                        "Directive 'ktlint-disable' is deprecated. The matching 'ktlint-enable' directive is not found in same scope. Replace with @Suppress annotation",
+                        false,
+                    ),
                     LintViolation(6, 8, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations"),
                 ).isFormattedAs(formattedCode)
         }
@@ -1110,6 +1117,23 @@ class KtlintSuppressionRuleTest {
                 LintViolation(7, 43, "Ktlint rule with id 'standard:SOME-INVALID-RULE-ID-4' is unknown or not loaded", false),
                 LintViolation(9, 8, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations"),
             )
+    }
+
+    @Test
+    fun `Given an unknown ktlint rule id then do not create an empty @Suppress annotation`() {
+        val code =
+            """
+            val foo = "foo" // ktlint-disable standard:unknown-rule-id
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo = "foo"
+            """.trimIndent()
+        ktlintSuppressionRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 20, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
+                LintViolation(1, 35, "Ktlint rule with id 'standard:unknown-rule-id' is unknown or not loaded", false),
+            ).isFormattedAs(formattedCode)
     }
 }
 

@@ -280,6 +280,10 @@ public class KtlintSuppressionRule(private val allowedRuleIds: List<RuleId>) : I
                 .filterIsInstance<ValidSuppressionId>()
                 .map { it.suppressionId }
                 .toSet()
+        if (ktlintRuleSuppressions.isEmpty()) {
+            // Do not add or alter the @Suppress / @SuppressWarnings
+            return
+        }
         val suppressionAnnotations = findSuppressionAnnotations()
         // Add ktlint rule suppressions:
         //   - To the @Suppress annotation if found
