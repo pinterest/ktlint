@@ -45,7 +45,7 @@ See [adding a custom rule set](../api/custom-rule-set/) for more information.
 
 To disable a specific rule you'll need the fully qualified rule identifier. This identifier is displayed at the end of the lint error. In case your code was autocorrected, you need to revert the code and run the `lint` task instead of the `format` to find the rule identifier.
 
-As of Ktlint 0.50, an error can only be suppressed using @Suppress or @SuppressWarning annotations
+As of Ktlint 0.50, an error can only be suppressed using @Suppress or @SuppressWarnings annotations
 
 === "[:material-heart:](#) Allowed"
 
