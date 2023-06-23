@@ -200,12 +200,8 @@ public class KtlintSuppressionRule(private val allowedRuleIds: List<RuleId>) : I
     ) {
         emit(offset, "Directive 'ktlint-disable' in EOL comment is ignored as it is not preceded by a code element", true)
         if (autoCorrect) {
-            node
-                .prevLeaf()
-                .takeIf { it.isWhiteSpace() }
-                ?.remove()
-            node
-                .remove()
+            node.removePrecedingWhitespace()
+            node.remove()
         }
     }
 
@@ -237,20 +233,14 @@ public class KtlintSuppressionRule(private val allowedRuleIds: List<RuleId>) : I
         if (autoCorrect) {
             findParentDeclarationOrExpression().addKtlintRuleSuppression(suppressionIdChanges)
             if (node.elementType == EOL_COMMENT) {
-                node
-                    .prevLeaf()
-                    .takeIf { it.isWhiteSpace() }
-                    ?.remove()
+                node.removePrecedingWhitespace()
             } else {
                 if (node.nextLeaf().isWhiteSpaceWithNewline()) {
                     node
                         .nextLeaf()
                         ?.remove()
                 } else {
-                    node
-                        .prevLeaf()
-                        .takeIf { it.isWhiteSpace() }
-                        ?.remove()
+                    node.removePrecedingWhitespace()
                 }
             }
             node.remove()
@@ -276,6 +266,12 @@ public class KtlintSuppressionRule(private val allowedRuleIds: List<RuleId>) : I
 
     private fun ASTNode.remove() {
         treeParent.removeChild(this)
+    }
+
+    private fun ASTNode.removePrecedingWhitespace() {
+        prevLeaf()
+            .takeIf { it.isWhiteSpace() }
+            ?.remove()
     }
 
     private fun ASTNode.addKtlintRuleSuppression(suppressionIdChanges: Set<KtLintDirective.SuppressionIdChange>) {
@@ -476,10 +472,7 @@ public class KtlintSuppressionRule(private val allowedRuleIds: List<RuleId>) : I
     ) {
         emit(offset, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations", true)
         if (autoCorrect) {
-            node
-                .prevLeaf()
-                .takeIf { it.isWhiteSpace() }
-                ?.remove()
+            node.removePrecedingWhitespace()
             node.remove()
         }
     }
