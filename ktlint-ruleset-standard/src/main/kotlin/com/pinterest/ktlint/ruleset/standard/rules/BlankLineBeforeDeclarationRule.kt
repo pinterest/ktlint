@@ -3,6 +3,7 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_INITIALIZER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
@@ -40,6 +41,7 @@ public class BlankLineBeforeDeclarationRule :
     ) {
         when (node.elementType) {
             CLASS,
+            CLASS_INITIALIZER,
             FUN,
             PROPERTY,
             PROPERTY_ACCESSOR,
@@ -110,10 +112,11 @@ public class BlankLineBeforeDeclarationRule :
             return
         }
 
-        (node.psi as KtDeclaration)
-            .firstChild
-            .node
-            .takeIf {
+        node
+            .takeIf { it.psi is KtDeclaration }
+//        (node.psi as KtDeclaration)
+//            .node
+            ?.takeIf {
                 val prevLeaf = it.prevLeaf()
                 prevLeaf != null && (!prevLeaf.isWhiteSpace() || !prevLeaf.text.startsWith("\n\n"))
             }?.let { insertBeforeNode ->

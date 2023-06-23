@@ -409,7 +409,7 @@ class BlankLineBeforeDeclarationRuleTest {
     }
 
     @Test
-    fun `Given a when statement with a property declaration `() {
+    fun `Given a when statement with a property declaration`() {
         val code =
             """
             val foo =
@@ -420,5 +420,31 @@ class BlankLineBeforeDeclarationRuleTest {
                 }
             """.trimIndent()
         blankLineBeforeDeclarationRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a class with a class initializer after another declaration`() {
+        val code =
+            """
+            class Foo {
+                val foo = "foo"
+                init {
+                    // do something
+                }
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            class Foo {
+                val foo = "foo"
+
+                init {
+                    // do something
+                }
+            }
+            """.trimIndent()
+        blankLineBeforeDeclarationRuleAssertThat(code)
+            .hasLintViolation(3, 5, "Expected a blank line for this declaration")
+            .isFormattedAs(formattedCode)
     }
 }
