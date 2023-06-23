@@ -25,7 +25,7 @@ internal class InternalRuleProvidersFilter(private val ktLintRuleEngine: KtLintR
     override fun filter(ruleProviders: Set<RuleProvider>): Set<RuleProvider> {
         val internalRuleIds = internalRuleProviders.map { it.ruleId }
         return ruleProviders
-            .mapNotNull {
+            .mapNotNullTo(mutableSetOf()) {
                 if (it.ruleId in internalRuleIds) {
                     LOGGER.error { "The provided rule with id '${it.ruleId}' is ignored in favour of Ktlint's rule with same id" }
                     null
