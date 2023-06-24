@@ -54,6 +54,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY_OFF
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.hasNewLineInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
@@ -151,52 +152,52 @@ public class WrappingRule :
     ) {
         require(node.elementType == BLOCK)
 
-        val startOfBlock = node.prevLeaf { !it.isPartOfComment() && !it.isWhiteSpace() }
-        if (startOfBlock?.elementType != LBRACE) {
+        val lbrace =
+            node
+                .getStartOfBlock()
+                ?.takeIf { it.elementType == LBRACE }
+                ?: return
+        if (lbrace.followedByNewline() ||
+            lbrace.followedByEolComment() ||
+            lbrace.isPartOf(LONG_STRING_TEMPLATE_ENTRY)
+        ) {
+            // String template inside raw string literal may exceed the maximum line length
             return
         }
-        val blockIsPrecededByWhitespaceContainingNewline = startOfBlock.nextLeaf().isWhiteSpaceWithNewline()
-        val endOfBlock = node.lastChildLeafOrSelf().nextLeaf { !it.isPartOfComment() && !it.isWhiteSpace() }
-        val blockIsFollowedByWhitespaceContainingNewline = endOfBlock?.prevLeaf().isWhiteSpaceWithNewline()
-        val wrapBlock =
-            when {
-                startOfBlock.isPartOf(LONG_STRING_TEMPLATE_ENTRY) -> {
-                    // String template inside raw string literal may exceed the maximum line length
-                    false
+
+        node
+            .takeUnless { it.firstChildLeafOrSelf().elementType == EOL_COMMENT }
+            ?.getEndOfBlock()
+            ?.takeIf { it.elementType == RBRACE }
+            ?.let { rbrace ->
+                if (hasNewLineInClosedRange(lbrace, rbrace)) {
+                    requireNewlineAfterLeaf(lbrace, autoCorrect, emit)
                 }
-                blockIsPrecededByWhitespaceContainingNewline -> false
-                node.textContains('\n') || blockIsFollowedByWhitespaceContainingNewline -> {
-                    // A multiline block should always be wrapped unless it starts with an EOL comment
-                    node.firstChildLeafOrSelf().elementType != EOL_COMMENT
-                }
-                maxLineLength != MAX_LINE_LENGTH_PROPERTY_OFF -> {
-                    val lengthUntilBeginOfLine =
-                        node
-                            .leaves(false)
-                            .takeWhile { !it.isWhiteSpaceWithNewline() }
-                            .sumOf { it.textLength }
-                    val lengthUntilEndOfLine =
-                        node
-                            .firstChildLeafOrSelf()
-                            .leavesIncludingSelf()
-                            .takeWhile { !it.isWhiteSpaceWithNewline() }
-                            .sumOf { it.textLength }
-                    lengthUntilBeginOfLine + lengthUntilEndOfLine > maxLineLength
-                }
-                else -> false
             }
-        if (wrapBlock) {
-            startOfBlock
-                .takeIf { !it.nextLeaf().isWhiteSpaceWithNewline() }
-                ?.let { leafNodeBeforeBlock ->
-                    requireNewlineAfterLeaf(
-                        leafNodeBeforeBlock,
-                        autoCorrect,
-                        emit,
-                    )
-                }
+
+        if (maxLineLength != MAX_LINE_LENGTH_PROPERTY_OFF) {
+            val lengthUntilBeginOfLine =
+                node
+                    .leaves(false)
+                    .takeWhile { !it.isWhiteSpaceWithNewline() }
+                    .sumOf { it.textLength }
+            val lengthUntilEndOfLine =
+                node
+                    .firstChildLeafOrSelf()
+                    .leavesIncludingSelf()
+                    .takeWhile { !it.isWhiteSpaceWithNewline() }
+                    .sumOf { it.textLength }
+            if (lengthUntilBeginOfLine + lengthUntilEndOfLine > maxLineLength) {
+                requireNewlineAfterLeaf(lbrace, autoCorrect, emit)
+            }
         }
     }
+
+    private fun ASTNode.followedByEolComment() =
+        null !=
+            leaves()
+                .takeWhile { it.isWhiteSpaceWithoutNewline() || it.elementType == EOL_COMMENT }
+                .firstOrNull { it.elementType == EOL_COMMENT }
 
     private fun rearrangeBlock(
         node: ASTNode,
@@ -546,7 +547,18 @@ public class WrappingRule :
             return
         }
         if (noNewLineInClosedRange(previousCodeLeaf, nextCodeLeaf)) {
-            requireNewlineAfterLeaf(node, autoCorrect, emit, indent = previousCodeLeaf.indent())
+            requireNewlineAfterLeaf(node, autoCorrect, emit, previousCodeLeaf.indent())
+            node
+                .treeParent
+                .takeIf { it.elementType == BLOCK }
+                ?.let { block ->
+                    beforeVisitBlock(block, autoCorrect, emit)
+                    block
+                        .treeParent
+                        .takeIf { it.elementType == FUNCTION_LITERAL }
+                        ?.findChildByType(ARROW)
+                        ?.let { arrow -> rearrangeArrow(arrow, autoCorrect, emit) }
+                }
         }
     }
 
@@ -659,27 +671,54 @@ public class WrappingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == BLOCK) {
-            val startOfBlock = node.prevLeaf { !it.isPartOfComment() && !it.isWhiteSpace() }
-            if (startOfBlock?.elementType != LBRACE) {
-                return
-            }
-            val blockIsPrecededByWhitespaceContainingNewline = startOfBlock.nextLeaf().isWhiteSpaceWithNewline()
-            val endOfBlock = node.lastChildLeafOrSelf().nextLeaf { !it.isPartOfComment() && !it.isWhiteSpace() }
-            val blockIsFollowedByWhitespaceContainingNewline = endOfBlock?.prevLeaf().isWhiteSpaceWithNewline()
-            val wrapBlock =
-                !blockIsFollowedByWhitespaceContainingNewline && (
-                    blockIsPrecededByWhitespaceContainingNewline || node.textContains('\n')
-                    )
-            if (wrapBlock && endOfBlock != null) {
-                requireNewlineBeforeLeaf(
-                    endOfBlock,
-                    autoCorrect,
-                    emit,
-                    indentConfig.parentIndentOf(node),
-                )
-            }
+            val lbrace =
+                node
+                    .getStartOfBlock()
+                    ?.takeIf { it.elementType == LBRACE }
+                    ?: return
+            node
+                .getEndOfBlock()
+                ?.takeUnless { it.isPrecededByNewline() }
+                ?.let { rbrace ->
+                    if (hasNewLineInClosedRange(lbrace, rbrace)) {
+                        requireNewlineBeforeLeaf(
+                            rbrace,
+                            autoCorrect,
+                            emit,
+                            indentConfig.parentIndentOf(node),
+                        )
+                    }
+                }
         }
     }
+
+    private fun ASTNode.followedByNewline() = nextLeaf().isWhiteSpaceWithNewline()
+
+    private fun ASTNode.isPrecededByNewline() = prevLeaf().isWhiteSpaceWithNewline()
+
+    private fun ASTNode.getStartOfBlock() =
+        firstChildLeafOrSelf()
+            .let { node ->
+                if (node.elementType == LBRACE) {
+                    // WHEN-entry block have LBRACE and RBRACE as first and last elements
+                    node
+                } else {
+                    // Other blocks have LBRACE and RBRACE as siblings of the block
+                    node.prevLeaf { !it.isPartOfComment() && !it.isWhiteSpace() }
+                }
+            }
+
+    private fun ASTNode.getEndOfBlock() =
+        lastChildLeafOrSelf()
+            .let { node ->
+                if (node.elementType == RBRACE && treeParent.elementType != FUNCTION_LITERAL) {
+                    // WHEN-entry block have LBRACE and RBRACE as first and last elements
+                    node
+                } else {
+                    // Other blocks have LBRACE and RBRACE as siblings of the block
+                    node.nextLeaf { !it.isPartOfComment() && !it.isWhiteSpace() }
+                }
+            }
 
     private companion object {
         private val LTOKEN_SET = TokenSet.create(LPAR, LBRACE, LBRACKET, LT)

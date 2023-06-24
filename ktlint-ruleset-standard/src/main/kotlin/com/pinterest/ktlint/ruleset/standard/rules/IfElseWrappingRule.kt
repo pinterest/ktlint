@@ -6,6 +6,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.ELSE_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IF
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IF_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.THEN
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.Rule
@@ -16,15 +17,20 @@ import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
+import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.psi.psiUtil.parents
+import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 
 /**
  * Enforce that single line if statements are kept simple. A single line if statement is allowed only when it has at most one else branch.
@@ -139,24 +145,44 @@ public class IfElseWrappingRule :
         }
 
         with(node.findFirstNodeInBlockToBeIndented() ?: node) {
-            val expectedIndent = indentConfig.siblingIndentOf(node)
-            if (text != expectedIndent) {
-                emit(startOffset, "Expected a newline", true)
-                if (autoCorrect) {
-                    upsertWhitespaceBeforeMe(expectedIndent)
+            val expectedIndent =
+                if (nextSibling()?.elementType == RBRACE) {
+                    node.indent()
+                } else {
+                    indentConfig.siblingIndentOf(node)
                 }
-            }
+
+            applyIf(elementType == THEN || elementType == ELSE || elementType == ELSE_KEYWORD) { prevLeaf()!! }
+                .takeUnless { it.isWhiteSpaceWithNewline() }
+                ?.let {
+                    // Expected a newline with indent. Leave it up to the IndentationRule to determine exact indent
+                    emit(startOffset, "Expected a newline", true)
+                    if (autoCorrect) {
+                        upsertWhitespaceBeforeMe(expectedIndent)
+                    }
+                }
         }
     }
 
-    private fun ASTNode.findFirstNodeInBlockToBeIndented() =
-        findChildByType(BLOCK)
+//         private fun ASTNode.findFirstNodeInBlockToBeIndented(): ASTNode? {
+//            val blockOrSelf = findChildByType(BLOCK) ?: this
+//            return blockOrSelf
+//                .children()
+//                .find {
+//                    it.elementType != LBRACE &&
+//                        !it.isWhitespaceBeforeComment() &&
+//                        !it.isPartOfComment()
+//                }
+//        }
+    private fun ASTNode.findFirstNodeInBlockToBeIndented(): ASTNode? {
+        return findChildByType(BLOCK)
             ?.children()
             ?.first {
                 it.elementType != LBRACE &&
                     !it.isWhitespaceBeforeComment() &&
                     !it.isPartOfComment()
             }
+    }
 
     private fun ASTNode.isWhitespaceBeforeComment() = isWhiteSpaceWithoutNewline() && nextLeaf()?.isPartOfComment() == true
 

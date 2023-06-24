@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_TYPE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.NULLABLE_TYPE
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.PRIMARY_CONSTRUCTOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
@@ -26,7 +26,6 @@ import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -34,9 +33,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
-import org.jetbrains.kotlin.psi.KtTypeArgumentList
 import org.jetbrains.kotlin.psi.psiUtil.children
-import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 
 public class ParameterListWrappingRule :
@@ -207,7 +204,7 @@ public class ParameterListWrappingRule :
             //         param1: T
             //         param2: R
             //     )
-            child.treeParent.hasTypeParameterListInFront() -> -1
+            child.treeParent.isFunWithTypeParameterListInFront() -> -1
 
             else -> 0
         }.let {
@@ -306,20 +303,13 @@ public class ParameterListWrappingRule :
             else -> throw UnsupportedOperationException()
         }
 
-    private fun ASTNode.hasTypeParameterListInFront(): Boolean {
-        val parent = this.treeParent
-        val typeParameterList =
-            if (parent.elementType == PRIMARY_CONSTRUCTOR) {
-                parent.prevSibling { it.elementType == TYPE_PARAMETER_LIST }
-            } else {
-                parent.children().firstOrNull { it.elementType == TYPE_PARAMETER_LIST }
-            }
-        val typeListNode =
-            typeParameterList
-                ?: parent.psi.collectDescendantsOfType<KtTypeArgumentList>().firstOrNull()?.node
-                ?: return false
-        return typeListNode.children().any { it.isWhiteSpaceWithNewline() }
-    }
+    private fun ASTNode.isFunWithTypeParameterListInFront() =
+        treeParent
+            .takeIf { elementType == FUN }
+            ?.findChildByType(TYPE_PARAMETER_LIST)
+            ?.children()
+            ?.any { it.isWhiteSpaceWithNewline() }
+            ?: false
 }
 
 public val PARAMETER_LIST_WRAPPING_RULE_ID: RuleId = ParameterListWrappingRule().ruleId

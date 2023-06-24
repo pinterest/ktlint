@@ -88,7 +88,7 @@ Requires a blank line before any class or function declaration. No blank line is
 Rule id: `blank-line-before-declaration` (`standard` rule set)
 
 !!! Note
-This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
+    This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
 
 ## Discouraged comment location
 

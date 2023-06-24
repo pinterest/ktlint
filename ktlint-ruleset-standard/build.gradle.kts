@@ -9,4 +9,5 @@ dependencies {
     api(projects.ktlintRuleEngineCore)
 
     testImplementation(projects.ktlintTest)
+    testRuntimeOnly(libs.logback)
 }

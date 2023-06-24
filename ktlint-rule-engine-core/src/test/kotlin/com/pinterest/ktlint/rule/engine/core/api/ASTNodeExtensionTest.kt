@@ -516,6 +516,68 @@ class ASTNodeExtensionTest {
         )
     }
 
+    @Test
+    fun `Given some line containing identifiers at different indentation levels then check that all leaves on those line are found`() {
+        val code =
+            """
+            class Foo1 {
+                val foo2 = "foo2"
+
+                fun foo3() {
+                    val foo4 = "foo4"
+                }
+            }
+            """.trimIndent()
+
+        val actual =
+            transformCodeToAST(code)
+                .firstChildLeafOrSelf()
+                .leaves()
+                .filter { it.elementType == IDENTIFIER }
+                .map { identifier ->
+                    identifier
+                        .leavesOnLine()
+                        .joinToString(separator = "") { it.text }
+                }.toList()
+
+        assertThat(actual).contains(
+            "class Foo1 {",
+            "\n    val foo2 = \"foo2\"",
+            "\n\n    fun foo3() {",
+            "\n        val foo4 = \"foo4\"",
+        )
+    }
+
+    @Test
+    fun `Given some line containing identifiers at different indentation levels then get line length exclusive the leading newline characters`() {
+        val code =
+            """
+            class Foo1 {
+                val foo2 = "foo2"
+
+                fun foo3() {
+                    val foo4 = "foo4"
+                }
+            }
+            """.trimIndent()
+
+        val actual =
+            transformCodeToAST(code)
+                .firstChildLeafOrSelf()
+                .leaves()
+                .filter { it.elementType == IDENTIFIER }
+                .map { newLine ->
+                    newLine.lineLengthWithoutNewlinePrefix()
+                }.toList()
+
+        assertThat(actual).contains(
+            "class Foo1 {".length,
+            "    val foo2 = \"foo2\"".length,
+            "    fun foo3() {".length,
+            "        val foo4 = \"foo4\"".length,
+        )
+    }
+
     private inline fun String.transformAst(block: FileASTNode.() -> Unit): FileASTNode =
         transformCodeToAST(this)
             .apply(block)

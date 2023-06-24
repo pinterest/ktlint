@@ -576,7 +576,7 @@ class ArgumentListWrappingRuleTest {
             """.trimIndent()
         argumentListWrappingRuleAssertThat(code)
             // TODO:to be fixed by https://github.com/pinterest/ktlint/issues/1861
-            .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 44)
+            .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 45)
             .hasNoLintViolations()
     }
 
@@ -838,5 +838,24 @@ class ArgumentListWrappingRuleTest {
                 LintViolation(8, 122, "Missing newline before \")\""),
             )
             .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a property assignment with a binary expression for which the left hand side operator is a function call`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER         $EOL_CHAR
+            val foo1 = foobar(foo * bar) + "foo"
+            val foo2 = foobar("foo", foo * bar) + "foo"
+            val foo3 = foobar("fooo", foo * bar) + "foo"
+            """.trimIndent()
+        argumentListWrappingRuleAssertThat(code)
+            .setMaxLineLength()
+            .addAdditionalRuleProvider { BinaryExpressionWrappingRule() }
+            .addAdditionalRuleProvider { WrappingRule() }
+            // Although the argument-list-wrapping runs before binary-expression-wrapping, it may not wrap the argument values of a
+            // function call in case that call is part of a binary expression. It might be better to break the line at the operation
+            // reference instead.
+            .hasNoLintViolationsExceptInAdditionalRules()
     }
 }
