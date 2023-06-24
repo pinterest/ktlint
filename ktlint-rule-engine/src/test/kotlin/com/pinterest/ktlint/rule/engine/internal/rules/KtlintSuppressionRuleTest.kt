@@ -1135,6 +1135,36 @@ class KtlintSuppressionRuleTest {
                 LintViolation(1, 35, "Ktlint rule with id 'standard:unknown-rule-id' is unknown or not loaded", false),
             ).isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Given a setter with multiple ktlint directives`() {
+        val code =
+            """
+            class Foo {
+                var foo: Int = 1
+                    set(value) { // ktlint-disable standard:foo
+                        field = value // ktlint-disable standard:bar
+                        field = value
+                    }
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            class Foo {
+                var foo: Int = 1
+                    @Suppress("ktlint:standard:bar", "ktlint:standard:foo")
+                    set(value) {
+                        field = value
+                        field = value
+                    }
+            }
+            """.trimIndent()
+        ktlintSuppressionRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(3, 25, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
+                LintViolation(4, 30, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
+            ).isFormattedAs(formattedCode)
+    }
 }
 
 private class DummyRule(id: String) : Rule(RuleId(id), About())

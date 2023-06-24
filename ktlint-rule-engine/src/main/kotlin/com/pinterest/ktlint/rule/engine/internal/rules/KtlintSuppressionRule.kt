@@ -12,6 +12,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PACKAGE_DIRECTIVE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY_ACCESSOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
@@ -231,7 +232,8 @@ public class KtlintSuppressionRule(private val allowedRuleIds: List<RuleId>) : I
                 )
             }
         if (autoCorrect) {
-            findParentDeclarationOrExpression().addKtlintRuleSuppression(suppressionIdChanges)
+            findParentDeclarationOrExpression()
+                .addKtlintRuleSuppression(suppressionIdChanges)
             if (node.elementType == EOL_COMMENT) {
                 node.removePrecedingWhitespace()
             } else {
@@ -403,7 +405,7 @@ public class KtlintSuppressionRule(private val allowedRuleIds: List<RuleId>) : I
                             .getChildOfType<KtAnnotationEntry>()!!
                             .node,
                     )
-                CLASS, FUN, PROPERTY -> {
+                CLASS, FUN, PROPERTY, PROPERTY_ACCESSOR -> {
                     this.addChild(PsiWhiteSpaceImpl(indent()), this.firstChildNode)
                     this.addChild(modifierListWithAnnotation.node, this.firstChildNode)
                 }
