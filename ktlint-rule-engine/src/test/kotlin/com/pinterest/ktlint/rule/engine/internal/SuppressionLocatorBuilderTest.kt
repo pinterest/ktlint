@@ -2,6 +2,7 @@ package com.pinterest.ktlint.rule.engine.internal
 
 import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
+import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.plus
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.LintError
@@ -16,6 +17,7 @@ import com.pinterest.ktlint.rule.engine.internal.FormatterTags.Companion.FORMATT
 import com.pinterest.ktlint.rule.engine.internal.FormatterTags.Companion.FORMATTER_TAG_OFF_ENABLED_PROPERTY
 import com.pinterest.ktlint.rule.engine.internal.FormatterTags.Companion.FORMATTER_TAG_ON_ENABLED_PROPERTY
 import com.pinterest.ktlint.rule.engine.internal.rules.KTLINT_SUPPRESSION_RULE_ID
+import com.pinterest.ktlint.ruleset.standard.rules.IndentationRule
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.junit.jupiter.api.Nested
@@ -321,6 +323,49 @@ class SuppressionLocatorBuilderTest {
                 LintError(1, 35, KTLINT_SUPPRESSION_RULE_ID, "Ktlint rule with id 'internal:ktlint-suppression' is unknown or not loaded", false),
             )
         }
+    }
+
+    @Test
+    fun `Given a suppression of a rule which alphabetically comes before rule id ktlint-suppression`() {
+        val code =
+            """
+            fun bar() {
+                /* ktlint-disable standard:indent */
+                return mapOf(
+                       1 to "   1 ms",
+                      10 to "  10 ms",
+                     999 to " 999 ms",
+                    1000 to "   1 sec",
+                )
+                /* ktlint-enable standard:indent */
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            @Suppress("ktlint:standard:indent")
+            fun bar() {
+                return mapOf(
+                       1 to "   1 ms",
+                      10 to "  10 ms",
+                     999 to " 999 ms",
+                    1000 to "   1 sec",
+                )
+            }
+            """.trimIndent()
+
+        val actual =
+            KtLintRuleEngine(
+                ruleProviders = setOf(
+                    RuleProvider { IndentationRule() },
+                ),
+                editorConfigOverride =
+                EMPTY_EDITOR_CONFIG_OVERRIDE
+                    .plus(
+                        STANDARD_NO_FOO_IDENTIFIER_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled,
+                    ),
+            ).format(Code.fromSnippet(code)) { _, _ -> }
+
+        assertThat(actual).isEqualTo(formattedCode)
     }
 
     private class NoFooIdentifierRule(id: RuleId) : Rule(
