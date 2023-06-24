@@ -46,6 +46,8 @@ import org.jetbrains.kotlin.psi.KtDeclarationModifierList
 import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtFileAnnotationList
+import org.jetbrains.kotlin.psi.KtFunctionLiteral
+import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtLiteralStringTemplateEntry
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtPrimaryConstructor
@@ -267,6 +269,9 @@ public class KtlintSuppressionRule(private val allowedRuleIds: List<RuleId>) : I
             targetNode is KtClassInitializer ||
             targetNode is KtBlockExpression ||
             targetNode is KtPrimaryConstructor ||
+            targetNode is KtFunctionLiteral ||
+            targetNode is KtLambdaExpression ||
+            (targetNode is KtExpression && targetNode.parent is KtExpression && targetNode.parent !is KtDeclaration) ||
             (targetNode !is KtDeclaration && targetNode !is KtExpression)
         ) {
             if (targetNode.parent == null) {
@@ -589,7 +594,6 @@ private data class KtLintDirective(
                 ?: false
         }
     }
-
 
     enum class KtlintDirectiveType(val id: String) {
         KTLINT_DISABLE("ktlint-disable"),

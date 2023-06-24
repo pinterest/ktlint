@@ -1280,6 +1280,50 @@ class KtlintSuppressionRuleTest {
             .hasLintViolation(2, 20, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
             .isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Given a property delegate with a ktlint-disable directive`() {
+        val code =
+            """
+            val foo by lazy(LazyThreadSafetyMode.PUBLICATION) { // ktlint-disable standard:foo
+                // do something
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo by @Suppress("ktlint:standard:foo")
+            lazy(LazyThreadSafetyMode.PUBLICATION) {
+                // do something
+            }
+            """.trimIndent()
+        ktlintSuppressionRuleAssertThat(code)
+            .hasLintViolation(1, 56, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a nested expression with a ktlint-disable directive`() {
+        val code =
+            """
+            val foo =
+                setOf("a")
+                    .map {
+                        bar(it) // ktlint-disable standard:foo
+                    }
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo =
+                @Suppress("ktlint:standard:foo")
+                setOf("a")
+                    .map {
+                        bar(it)
+                    }
+            """.trimIndent()
+        ktlintSuppressionRuleAssertThat(code)
+            .hasLintViolation(4, 24, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
+            .isFormattedAs(formattedCode)
+    }
 }
 
 private class DummyRule(id: String) : Rule(RuleId(id), About())
