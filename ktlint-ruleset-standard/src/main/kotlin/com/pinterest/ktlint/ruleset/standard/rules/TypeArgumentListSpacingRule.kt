@@ -77,13 +77,11 @@ public class TypeArgumentListSpacingRule :
                 //    fun foo(): List<Foo> { ... }
                 //    var bar: List<Bar> = emptyList()
                 it.isPartOfCompositeElementOfType(ElementType.TYPE_REFERENCE)
-            }
-            ?.takeUnless {
+            }?.takeUnless {
                 // unless it is part of a call expression followed by lambda:
                 //    bar<Foo> { ... }
                 it.isPartOfCallExpressionFollowedByLambda()
-            }
-            ?.lastChildNode
+            }?.lastChildNode
             ?.nextLeaf(includeEmpty = true)
             ?.takeIf { it.elementType == ElementType.WHITE_SPACE }
             ?.let { noWhitespaceExpected(it, autoCorrect, emit) }

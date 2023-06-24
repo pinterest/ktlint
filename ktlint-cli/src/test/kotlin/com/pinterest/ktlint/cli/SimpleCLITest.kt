@@ -131,8 +131,7 @@ class SimpleCLITest {
                         assertThat(normalOutput)
                             .containsLineMatching("Enable default patterns")
                             .containsLineMatching("1 file(s) scanned / 0 error(s)")
-                    }
-                    .assertAll()
+                    }.assertAll()
             }
     }
 
