@@ -22,6 +22,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isRoot
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.internal.rules.KtLintDirective.KtlintDirectiveType.KTLINT_DISABLE
@@ -252,7 +253,14 @@ public class KtlintSuppressionRule(private val allowedRuleIds: List<RuleId>) : I
 
     private fun KtLintDirective.findParentDeclarationOrExpression(): ASTNode {
         val shouldBeConvertedToFileAnnotation = shouldBeConvertedToFileAnnotation()
-        var targetNode = node.psi
+        var targetNode =
+            if (node.elementType == BLOCK_COMMENT &&
+                shouldBePromotedToParentDeclaration(ruleIdValidator)
+            ) {
+                node.treeParent.treeParent.psi
+            } else {
+                node.psi
+            }
         while (
             shouldBeConvertedToFileAnnotation ||
             targetNode is KtClassInitializer ||
@@ -518,17 +526,20 @@ private data class KtLintDirective(
         return if (shouldBeConvertedToFileAnnotation()) {
             false
         } else {
-            null ==
-                node
-                    .applyIf(node.isSuppressibleDeclaration()) { node.treeParent }
-                    .siblings()
-                    .firstOrNull {
-                        it
-                            .ktlintDirectiveOrNull(ruleIdValidator)
-                            ?.ktlintDirectives == ktlintDirectives
-                    }
+            findMatchingKtlintEnableDirective(ruleIdValidator) == null
         }
     }
+
+    private fun findMatchingKtlintEnableDirective(ruleIdValidator: (String) -> Boolean) =
+        node
+            .applyIf(node.isSuppressibleDeclaration()) { node.treeParent }
+            .siblings()
+            .firstOrNull {
+                it
+                    .ktlintDirectiveOrNull(ruleIdValidator)
+                    ?.takeIf { it.ktlintDirectiveType == KTLINT_ENABLE }
+                    ?.ktlintDirectives == ktlintDirectives
+            }
 
     fun shouldBeConvertedToFileAnnotation() =
         node.isTopLevel() ||
@@ -545,6 +556,28 @@ private data class KtLintDirective(
             this
                 .treeParent
                 .elementType
+
+    fun shouldBePromotedToParentDeclaration(ruleIdValidator: (String) -> Boolean): Boolean {
+        require(ktlintDirectiveType == KTLINT_DISABLE && node.elementType == BLOCK_COMMENT)
+
+        return if (shouldBeConvertedToFileAnnotation()) {
+            false
+        } else {
+            node
+                .takeIf { it.isSuppressibleDeclaration() }
+                ?.let { findMatchingKtlintEnableDirective(ruleIdValidator) }
+                ?.let { matchingKtlintEnabledDirective ->
+                    // In case the node is part of a suppressible declaration and the next sibling matches the enable directive then the
+                    // block directive should be match with this declaration only and not be moved to the parent.
+                    matchingKtlintEnabledDirective !=
+                        node
+                            .treeParent
+                            .nextSibling { !it.isWhiteSpace() }
+                }
+                ?: false
+        }
+    }
+
 
     enum class KtlintDirectiveType(val id: String) {
         KTLINT_DISABLE("ktlint-disable"),
