@@ -378,8 +378,7 @@ internal class KtlintCommandLine {
         logger =
             KotlinLogging
                 .logger {}
-                .setDefaultLoggerModifier { logger -> logger.level = minLogLevel }
-                .initKtLintKLogger()
+                .setDefaultLoggerModifier { logger -> logger.level = minLogLevel }.initKtLintKLogger()
     }
 
     private var KLogger.level: Level?
