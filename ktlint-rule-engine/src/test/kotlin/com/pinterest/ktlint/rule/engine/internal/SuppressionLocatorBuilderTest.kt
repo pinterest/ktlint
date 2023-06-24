@@ -355,14 +355,15 @@ class SuppressionLocatorBuilderTest {
 
         val actual =
             KtLintRuleEngine(
-                ruleProviders = setOf(
-                    RuleProvider { IndentationRule() },
-                ),
-                editorConfigOverride =
-                EMPTY_EDITOR_CONFIG_OVERRIDE
-                    .plus(
-                        STANDARD_NO_FOO_IDENTIFIER_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled,
+                ruleProviders =
+                    setOf(
+                        RuleProvider { IndentationRule() },
                     ),
+                editorConfigOverride =
+                    EMPTY_EDITOR_CONFIG_OVERRIDE
+                        .plus(
+                            STANDARD_NO_FOO_IDENTIFIER_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled,
+                        ),
             ).format(Code.fromSnippet(code)) { _, _ -> }
 
         assertThat(actual).isEqualTo(formattedCode)
