@@ -9,6 +9,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.ArgumentListWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.BinaryExpressionWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.BlankLineBeforeDeclarationRule
 import com.pinterest.ktlint.ruleset.standard.rules.BlockCommentInitialStarAlignmentRule
+import com.pinterest.ktlint.ruleset.standard.rules.ChainMethodContinuation
 import com.pinterest.ktlint.ruleset.standard.rules.ChainWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ClassNamingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ClassSignatureRule
@@ -96,6 +97,7 @@ public class StandardRuleSetProvider : RuleSetProviderV3(RuleSetId.STANDARD) {
             RuleProvider { BinaryExpressionWrappingRule() },
             RuleProvider { BlankLineBeforeDeclarationRule() },
             RuleProvider { BlockCommentInitialStarAlignmentRule() },
+            RuleProvider { ChainMethodContinuation() },
             RuleProvider { ChainWrappingRule() },
             RuleProvider { ClassNamingRule() },
             RuleProvider { ClassSignatureRule() },
