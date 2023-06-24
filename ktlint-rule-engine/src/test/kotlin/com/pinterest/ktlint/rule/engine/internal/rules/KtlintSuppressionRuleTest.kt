@@ -1165,6 +1165,53 @@ class KtlintSuppressionRuleTest {
                 LintViolation(4, 30, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
             ).isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Given a primary constructor with multiple ktlint directives`() {
+        val code =
+            """
+            class Foo constructor(bar: Bar) {
+                /* ktlint-disable standard:bar standard:foo */
+
+                /* ktlint-enable standard:bar standard:foo */
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            @Suppress("ktlint:standard:bar", "ktlint:standard:foo")
+            class Foo constructor(bar: Bar) {
+            }
+            """.trimIndent()
+        ktlintSuppressionRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 8, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
+                LintViolation(4, 8, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations"),
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a class parameter with multiple ktlint directives`() {
+        val code =
+            """
+            class Foo(
+                /* ktlint-disable standard:bar standard:foo */
+                val bar: Bar
+                /* ktlint-enable standard:bar standard:foo */
+            )
+            """.trimIndent()
+        val formattedCode =
+            """
+            @Suppress("ktlint:standard:bar", "ktlint:standard:foo")
+            class Foo(
+                val bar: Bar
+            )
+            """.trimIndent()
+        ktlintSuppressionRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 8, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
+                LintViolation(4, 8, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations"),
+            ).isFormattedAs(formattedCode)
+    }
 }
 
 private class DummyRule(id: String) : Rule(RuleId(id), About())

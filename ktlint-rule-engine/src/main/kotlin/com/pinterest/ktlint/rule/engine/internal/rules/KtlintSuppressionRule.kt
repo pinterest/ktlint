@@ -46,6 +46,7 @@ import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtFileAnnotationList
 import org.jetbrains.kotlin.psi.KtLiteralStringTemplateEntry
 import org.jetbrains.kotlin.psi.KtNamedFunction
+import org.jetbrains.kotlin.psi.KtPrimaryConstructor
 import org.jetbrains.kotlin.psi.KtScript
 import org.jetbrains.kotlin.psi.KtScriptInitializer
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
@@ -256,6 +257,7 @@ public class KtlintSuppressionRule(private val allowedRuleIds: List<RuleId>) : I
             shouldBeConvertedToFileAnnotation ||
             targetNode is KtClassInitializer ||
             targetNode is KtBlockExpression ||
+            targetNode is KtPrimaryConstructor ||
             (targetNode !is KtDeclaration && targetNode !is KtExpression)
         ) {
             if (targetNode.parent == null) {
