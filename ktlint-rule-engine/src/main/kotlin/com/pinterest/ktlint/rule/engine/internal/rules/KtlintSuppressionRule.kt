@@ -40,6 +40,7 @@ import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtClassInitializer
+import org.jetbrains.kotlin.psi.KtCollectionLiteralExpression
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtDeclarationModifierList
 import org.jetbrains.kotlin.psi.KtExpression
@@ -317,7 +318,7 @@ public class KtlintSuppressionRule(private val allowedRuleIds: List<RuleId>) : I
         suppressType: SuppressAnnotationType,
     ) {
         annotationNode
-            .getValueArguments()
+            .existingSuppressions()
             .plus(this)
             .let { suppressions ->
                 if (suppressions.contains(KTLINT_SUPPRESSION_ID_ALL_RULES)) {
@@ -332,6 +333,17 @@ public class KtlintSuppressionRule(private val allowedRuleIds: List<RuleId>) : I
             .toSet()
             .let { suppressions -> annotationNode.createSuppressAnnotation(suppressType, suppressions) }
     }
+
+    private fun ASTNode.existingSuppressions() =
+        existingSuppressionsFromNamedArgumentOrNull()
+            ?: getValueArguments()
+
+    private fun ASTNode.existingSuppressionsFromNamedArgumentOrNull() =
+        psi
+            .findDescendantOfType<KtCollectionLiteralExpression>()
+            ?.children
+            ?.map { it.text }
+            ?.toSet()
 
     private fun ASTNode.findSuppressionAnnotations(): Map<SuppressAnnotationType, ASTNode> =
         if (this.isRoot()) {

@@ -1263,6 +1263,23 @@ class KtlintSuppressionRuleTest {
                 LintViolation(6, 8, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations"),
             ).isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Given a declaration with a @Suppress annotation using a named argument and a ktlint-disable directive`() {
+        val code =
+            """
+            @Suppress(names = ["unused"])
+            val foo = "foo" // ktlint-disable standard:foo
+            """.trimIndent()
+        val formattedCode =
+            """
+            @Suppress("ktlint:standard:foo", "unused")
+            val foo = "foo"
+            """.trimIndent()
+        ktlintSuppressionRuleAssertThat(code)
+            .hasLintViolation(2, 20, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
+            .isFormattedAs(formattedCode)
+    }
 }
 
 private class DummyRule(id: String) : Rule(RuleId(id), About())
