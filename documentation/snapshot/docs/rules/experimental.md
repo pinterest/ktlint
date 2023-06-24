@@ -1220,3 +1220,55 @@ A function, class/object body or other block body statement has to be placed on 
     ```
 
 Rule id: `statement-wrapping`
+
+
+### Chain method continuation
+
+In multi line method chain, this rule requires a chain operators(`.` or `?.`) to be aligned with the next method or in case when previous ending brace is `}` then it should also be aligned with chain operator method call.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val foo1 = listOf(1, 2, 3).
+                filter { it > 2 }!!.
+                takeIf { it > 2 }.
+                map {
+                    it * it
+                }?.
+                map {
+                    it * it
+                }
+    val foo2 = listOf(1, 2, 3)
+                .filter {
+                    it > 2
+                }
+                .map {
+                    2 * it
+                }
+                ?.map {
+                    2 * it
+                }
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val foo1 = listOf(1, 2, 3)
+                .filter { it > 2 }!!
+                .takeIf { it > 2 }
+                .map {
+                    it * it
+                }?.map {
+                    it * it
+                }
+    val foo2 = listOf(1, 2, 3)
+                .filter {
+                    it > 2
+                }.map {
+                    2 * it
+                }?.map {
+                    2 * it
+                }
+    ```
+
+Rule id: `chain-method-continuation` (`standard` rule set)

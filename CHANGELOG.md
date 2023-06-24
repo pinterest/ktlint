@@ -78,6 +78,7 @@ At this point in time, it is not yet decided what the next steps will be. Ktlint
 * Wrap multiple statements on same line `wrapping` ([#1078](https://github.com/pinterest/ktlint/issues/1078))
 * Add new rule `ktlint-suppression` to replace the `ktlint-disable` and `ktlint-enable` directives with annotations. This rule can not be disabled via the `.editorconfig` ([#1947](https://github.com/pinterest/ktlint/issues/1947))
 * Inform user about using `--format` option of KtLint CLI when finding a violation that can be autocorrected ([#1071](https://github.com/pinterest/ktlint/issues/1071))
+* Add new experimental rule `chain-method-continuation`. This rule requires a chain operators(`.` or `?.`) to be aligned with the next method in case of multiline chain or in case when previous ending brace is `}` then it should also be aligned with chain operator ([#1953](https://github.com/pinterest/ktlint/issues/1953))
 
 ### Removed
 
