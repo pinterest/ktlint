@@ -39,6 +39,7 @@ At this point in time, it is not yet decided what the next steps will be. Ktlint
 * Add new experimental rule `no-empty-file` for all code styles. A kotlin (script) file may not be empty ([#1074](https://github.com/pinterest/ktlint/issues/1074))
 * Add new experimental rule `statement-wrapping` which ensures function, class, or other blocks statement body doesn't start or end at starting or ending braces of the block ([#1938](https://github.com/pinterest/ktlint/issues/1938))
 * Add new experimental rule `blank-line-before-declaration`. This rule requires a blank line before class, function or property declarations ([#1939](https://github.com/pinterest/ktlint/issues/1939))
+* Wrap multiple statements on same line `wrapping` ([#1078](https://github.com/pinterest/ktlint/issues/1078))
 * Add new rule `ktlint-suppression` to replace the `ktlint-disable` and `ktlint-enable` directives with annotations. This rule can not be disabled via the `.editorconfig` ([#1947](https://github.com/pinterest/ktlint/issues/1947))
 
 ### Removed
@@ -49,14 +50,17 @@ At this point in time, it is not yet decided what the next steps will be. Ktlint
 * Do not merge an annotated expression body with the function signature even if it fits on a single line ([#2043](https://github.com/pinterest/ktlint/issues/2043))
 * Ignore property with name `serialVersionUID` in `property-naming` ([#2045](https://github.com/pinterest/ktlint/issues/2045))
 * Prevent incorrect reporting of violations in case a nullable function type reference exceeds the maximum line length `parameter-list-wrapping` ([#1324](https://github.com/pinterest/ktlint/issues/1324)) 
+* Prevent false negative on `else` branch when body contains only chained calls or binary expression ([#2057](https://github.com/pinterest/ktlint/issues/2057))
 
 ### Changed
 
 * Fix Java interoperability issues with `RuleId` and `RuleSetId` classes. Those classes were defined as value classes in `0.49.0` and `0.49.1`. Although the classes were marked with `@JvmInline` it seems that it is not possible to uses those classes from Java base API Consumers like Spotless. The classes have now been replaced with data classes ([#2041](https://github.com/pinterest/ktlint/issues/2041))
-* Update dependency `info.picocli:picocli` to v4.7.3
+* Update dependency `info.picocli:picocli` to v4.7.4
 * Update dependency `org.junit.jupiter:junit-jupiter` to v5.9.3
-* Update Kotlin development version to `1.8.21` and Kotlin version to `1.8.21`.
+* Update Kotlin development version to `1.8.22` and Kotlin version to `1.8.22`.
 * Update dependency io.github.detekt.sarif4k:sarif4k to v0.4.0
+* Update dependency org.jetbrains.dokka:dokka-gradle-plugin to v1.8.20
+* Run format up to 3 times in case formatting introduces changes which also can be autocorrected ([#2084](https://github.com/pinterest/ktlint/issues/2084))
 
 ## [0.49.1] - 2023-05-12
 
@@ -76,6 +80,7 @@ At this point in time, it is not yet decided what the next steps will be. Ktlint
 * Extract rule `no-single-line-block-comment` from `comment-wrapping` rule. The `no-single-line-block-comment` rule is added as experimental rule to the `ktlint_official` code style, but it can be enabled explicitly for the other code styles as well. ([#1980](https://github.com/pinterest/ktlint/issues/1980))
 * Clean-up unwanted logging dependencies ([#1998](https://github.com/pinterest/ktlint/issues/1998))
 * Fix directory traversal for patterns referring to paths outside of current working directory or any of it child directories ([#2002](https://github.com/pinterest/ktlint/issues/2002))
+* Prevent multiple expressions on same line separated by semicolon ([#1078](https://github.com/pinterest/ktlint/issues/1078))
 
 ### Changed
 

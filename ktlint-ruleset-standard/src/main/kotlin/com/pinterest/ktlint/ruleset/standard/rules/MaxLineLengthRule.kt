@@ -172,7 +172,10 @@ internal class RangeTree(seq: List<Int> = emptyList()) {
 
     init {
         if (arr.isNotEmpty()) {
-            arr.reduce { p, n -> require(p <= n) { "Input must be sorted" }; n }
+            arr.reduce { p, n ->
+                require(p <= n) { "Input must be sorted" }
+                n
+            }
         }
     }
 

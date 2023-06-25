@@ -1,27 +1,34 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_INITIALIZER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY_ACCESSOR
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
+import com.pinterest.ktlint.rule.engine.core.util.safeAs
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.psi.psiUtil.siblings
+import org.jetbrains.kotlin.psi.KtDeclaration
+import org.jetbrains.kotlin.psi.KtFunctionLiteral
 
 /**
- * Insert a blank line before declarations. No blank line is inserted before between the class signature and the first declaration in the
- * class. Also, no blank lines are inserted between consecutive properties.
+ * Insert a blank line before declarations. No blank line is inserted before between a class or method signature and the first declaration
+ * in the class or method respectively. Also, no blank lines are inserted between consecutive properties.
  */
 public class BlankLineBeforeDeclarationRule :
     StandardRule("blank-line-before-declaration"),
@@ -34,6 +41,7 @@ public class BlankLineBeforeDeclarationRule :
     ) {
         when (node.elementType) {
             CLASS,
+            CLASS_INITIALIZER,
             FUN,
             PROPERTY,
             PROPERTY_ACCESSOR,
@@ -47,9 +55,34 @@ public class BlankLineBeforeDeclarationRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        if (node == node.firstCodeSiblingInClassBodyOrNull()) {
-            // Allow missing blank line between class signature and first code sibling in class body:
-            //   Class Foo {
+        if (node.isFirstCodeSiblingInClassBody()) {
+            // No blank line between class signature and first declaration in class body:
+            //   class Foo {
+            //      fun bar() {}
+            //   }
+            //   class Foo {
+            //      class bar
+            //   }
+            return
+        }
+
+        if (node.isFirstCodeSiblingInBlock()) {
+            // No blank line between opening brace of block and first code sibling in class body:
+            //   fun foo() {
+            //      class Bar
+            //   }
+            //   val foo = {
+            //      fun bar() {}
+            //   }
+            return
+        }
+
+        if (node.isFirstCodeSiblingInBodyOfFunctionLiteral()) {
+            // No blank line between opening brace of function literal and declaration as first code sibling:
+            //   val foo = {
+            //      fun bar() {}
+            //   }
+            //   val foo = { _ ->
             //      fun bar() {}
             //   }
             return
@@ -71,29 +104,54 @@ public class BlankLineBeforeDeclarationRule :
             return
         }
 
+        if (node.elementType == PROPERTY && node.treeParent.elementType == WHEN) {
+            // Allow:
+            //   when(val foo = foo()) {
+            //       ...
+            //   }
+            return
+        }
+
         node
-            .siblings(false)
-            .takeWhile { it.isWhiteSpace() || it.isPartOfComment() }
-            .lastOrNull()
-            ?.let { previous ->
-                when {
-                    !previous.isWhiteSpace() -> previous
-                    !previous.text.startsWith("\n\n") -> node
-                    else -> null
-                }?.let { insertBeforeNode ->
-                    emit(insertBeforeNode.startOffset, "Expected a blank line for this declaration", true)
-                    if (autoCorrect) {
-                        insertBeforeNode.upsertWhitespaceBeforeMe("\n".plus(node.indent()))
-                    }
+            .takeIf { it.psi is KtDeclaration }
+//        (node.psi as KtDeclaration)
+//            .node
+            ?.takeIf {
+                val prevLeaf = it.prevLeaf()
+                prevLeaf != null && (!prevLeaf.isWhiteSpace() || !prevLeaf.text.startsWith("\n\n"))
+            }?.let { insertBeforeNode ->
+                emit(insertBeforeNode.startOffset, "Expected a blank line for this declaration", true)
+                if (autoCorrect) {
+                    insertBeforeNode.upsertWhitespaceBeforeMe("\n".plus(node.indent()))
                 }
             }
     }
 
-    private fun ASTNode.firstCodeSiblingInClassBodyOrNull() =
-        treeParent
-            .takeIf { it.elementType == ElementType.CLASS_BODY }
-            ?.findChildByType(LBRACE)
-            ?.nextCodeSibling()
+    private fun ASTNode.isFirstCodeSiblingInClassBody() =
+        this ==
+            treeParent
+                .takeIf { it.elementType == CLASS_BODY }
+                ?.findChildByType(LBRACE)
+                ?.nextCodeSibling()
+
+    private fun ASTNode.isFirstCodeSiblingInBlock() =
+        this ==
+            treeParent
+                .takeIf { it.elementType == BLOCK }
+                ?.findChildByType(LBRACE)
+                ?.nextCodeSibling()
+
+    private fun ASTNode.isFirstCodeSiblingInBodyOfFunctionLiteral() =
+        this ==
+            treeParent
+                .takeIf { it.elementType == BLOCK && it.treeParent.elementType == FUNCTION_LITERAL }
+                ?.treeParent
+                ?.psi
+                ?.safeAs<KtFunctionLiteral>()
+                ?.bodyExpression
+                ?.node
+                ?.children()
+                ?.firstOrNull { !it.isWhiteSpace() && !it.isPartOfComment() }
 
     private fun ASTNode.isConsecutiveProperty() =
         takeIf { it.propertyRelated() }

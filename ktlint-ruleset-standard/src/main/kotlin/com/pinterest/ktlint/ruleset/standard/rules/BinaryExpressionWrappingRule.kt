@@ -1,12 +1,18 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BINARY_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EQ
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.LAMBDA_ARGUMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.LONG_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule
+import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
@@ -14,14 +20,11 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.indent
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
-import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
-import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.noNewLineInClosedRange
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
-import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -40,6 +43,10 @@ public class BinaryExpressionWrappingRule :
                 INDENT_SIZE_PROPERTY,
                 INDENT_STYLE_PROPERTY,
                 MAX_LINE_LENGTH_PROPERTY,
+            ),
+        visitorModifiers =
+            setOf(
+                RunAfterRule(ARGUMENT_LIST_WRAPPING_RULE_ID, REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED),
             ),
     ),
     Rule.Experimental {
@@ -80,7 +87,7 @@ public class BinaryExpressionWrappingRule :
                     .prevSibling { it.elementType == EQ }
                     ?.let { noNewLineInClosedRange(it, binaryExpression.firstChildLeafOrSelf()) }
                     ?: false
-            }?.takeIf { textLengthWithoutNewlinePrefix(it.getFirstLeafOnLineOrSelf(), it.getLastLeafOnLineOrNull()) > maxLineLength }
+            }?.takeIf { it.isOnLineExceedingMaxLineLength() }
             ?.let { expression ->
                 emit(
                     expression.startOffset,
@@ -105,10 +112,15 @@ public class BinaryExpressionWrappingRule :
         node
             .takeIf { it.elementType == OPERATION_REFERENCE }
             ?.takeIf { it.treeParent.elementType == BINARY_EXPRESSION }
-            ?.takeIf { textLengthWithoutNewlinePrefix(it.getFirstLeafOnLineOrSelf(), it.getLastLeafOnLineOrNull()) > maxLineLength }
+            ?.takeIf { binaryExpression ->
+                // Ignore binary expression inside raw string literals. Raw string literals are allowed to exceed max-line-length. Wrapping
+                // (each) binary expression inside such a literal seems to create more chaos than it resolves.
+                binaryExpression.parent { it.elementType == LONG_STRING_TEMPLATE_ENTRY } == null
+            }?.takeIf { it.isOnLineExceedingMaxLineLength() }
             ?.let { operationReference ->
-                if (cannotBeWrappedAtOperationReference(operationReference)) {
-                    // Wrapping after operation reference won't work as the left hand side still does not fit on a single line
+                if (node.isCallExpressionFollowedByLambdaArgument() || cannotBeWrappedAtOperationReference(operationReference)) {
+                    // Wrapping after operation reference might not be the best place in case of a call expression or just won't work as
+                    // the left hand side still does not fit on a single line
                     emit(operationReference.startOffset, "Line is exceeding max line length", false)
                 } else {
                     operationReference
@@ -116,7 +128,7 @@ public class BinaryExpressionWrappingRule :
                         ?.let { nextSibling ->
                             emit(
                                 nextSibling.startOffset,
-                                "Line is exceeding max line length. Break line after operator of binary expression",
+                                "Line is exceeding max line length. Break line after operator in binary expression",
                                 true,
                             )
                             if (autoCorrect) {
@@ -127,25 +139,31 @@ public class BinaryExpressionWrappingRule :
             }
     }
 
+    private fun ASTNode.isCallExpressionFollowedByLambdaArgument() =
+        parent { it.elementType == VALUE_ARGUMENT_LIST }
+            ?.takeIf { it.treeParent.elementType == CALL_EXPRESSION }
+            ?.nextCodeSibling()
+            .let { it?.elementType == LAMBDA_ARGUMENT }
+
     private fun cannotBeWrappedAtOperationReference(operationReference: ASTNode) =
         operationReference
-            .takeUnless { it.prevCodeSibling()?.elementType == BINARY_EXPRESSION }
-            ?.let { textLengthWithoutNewlinePrefix(it.getFirstLeafOnLineOrSelf(), it.lastChildLeafOrSelf()) > maxLineLength }
+            .takeUnless { it.nextCodeSibling()?.elementType == BINARY_EXPRESSION }
+            ?.let {
+                val stopAtOperationReferenceLeaf = operationReference.firstChildLeafOrSelf()
+                maxLineLength <=
+                    it
+                        .leavesOnLine()
+                        .takeWhile { leaf -> leaf != stopAtOperationReferenceLeaf }
+                        .lengthWithoutNewlinePrefix()
+            }
             ?: false
 
-    private fun textLengthWithoutNewlinePrefix(
-        fromNode: ASTNode,
-        toNode: ASTNode?,
-    ) = fromNode
-        .leavesIncludingSelf()
-        .takeWhile { it.prevLeaf() != toNode }
-        .joinToString(separator = "") { it.text }
-        .removePrefix("\n")
-        .length
+    private fun ASTNode.isOnLineExceedingMaxLineLength() = leavesOnLine().lengthWithoutNewlinePrefix() > maxLineLength
 
-    private fun ASTNode.getLastLeafOnLineOrNull() = nextLeaf { it.isWhiteSpaceWithNewline() }?.prevLeaf()
-
-    private fun ASTNode.getFirstLeafOnLineOrSelf() = prevLeaf { it.isWhiteSpaceWithNewline() || it.prevLeaf() == null }!!
+    private fun Sequence<ASTNode>.lengthWithoutNewlinePrefix() =
+        joinToString(separator = "") { it.text }
+            .dropWhile { it == '\n' }
+            .length
 }
 
 private fun IElementType.anyOf(vararg elementType: IElementType): Boolean = elementType.contains(this)

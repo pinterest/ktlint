@@ -1,20 +1,22 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.BINARY_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ELSE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.column
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.lineLengthWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -45,10 +47,6 @@ public class ArgumentListWrappingRule :
                 // ArgumentListWrapping should only be used in case the max_line_length is still violated after running rules below:
                 VisitorModifier.RunAfterRule(
                     ruleId = WRAPPING_RULE_ID,
-                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
-                ),
-                VisitorModifier.RunAfterRule(
-                    ruleId = BINARY_EXPRESSION_WRAPPING_RULE_ID,
                     mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
                 ),
             ),
@@ -96,7 +94,10 @@ public class ArgumentListWrappingRule :
             // skip lambda arguments
             node.treeParent?.elementType != ElementType.FUNCTION_LITERAL &&
             // skip if number of arguments is big (we assume it with a magic number of 8)
-            node.children().count { it.elementType == ElementType.VALUE_ARGUMENT } <= 8
+            node.children().count { it.elementType == ElementType.VALUE_ARGUMENT } <= 8 &&
+            // skip if part of a value argument list. It depends on the situation whether it is better to wrap the arguments in the list
+            // or the operators in the binary expression
+            !node.isPartOf(BINARY_EXPRESSION)
         ) {
             // each argument should be on a separate line if
             // - at least one of the arguments is
@@ -107,7 +108,7 @@ public class ArgumentListWrappingRule :
             false
         }
 
-    private fun ASTNode.exceedsMaxLineLength() = (column - 1 + textLength) > maxLineLength && !textContains('\n')
+    private fun ASTNode.exceedsMaxLineLength() = lineLengthWithoutNewlinePrefix() > maxLineLength && !textContains('\n')
 
     private fun intendedIndent(child: ASTNode): String =
         when {

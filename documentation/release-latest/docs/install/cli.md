@@ -219,4 +219,4 @@ Options `--stdin` and `--patterns-from-stdin` are mutually exclusive, only one o
 ### Microsoft Windows users
 
 !!! tip "Microsoft Windows"
-    On Microsoft Windows you'll have to use `java -jar ktlint ...`.
+    On Microsoft Windows you'll have to use `java -jar ktlint ...`

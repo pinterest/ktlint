@@ -141,73 +141,55 @@ public class KtLintRuleEngine(
         val hasUTF8BOM = code.content.startsWith(UTF8_BOM)
         val ruleExecutionContext = createRuleExecutionContext(this, code)
 
-        var tripped = false
-        var mutated = false
-        val errors = mutableSetOf<Pair<LintError, Boolean>>()
         val visitorProvider = VisitorProvider(ruleExecutionContext.ruleProviders)
-        visitorProvider
-            .visitor()
-            .invoke { rule ->
-                ruleExecutionContext.executeRule(rule, true) { offset, errorMessage, canBeAutoCorrected ->
-                    tripped = true
-                    if (canBeAutoCorrected) {
-                        mutated = true
-                        /**
-                         * Rebuild the suppression locator after each change in the AST as the offsets of the
-                         * suppression hints might have changed.
-                         */
-                        ruleExecutionContext.rebuildSuppressionLocator()
-                    }
-                    val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
-                    LintError(line, col, rule.ruleId, errorMessage, canBeAutoCorrected)
-                        .let { lintError ->
-                            errors.add(
-                                Pair(
-                                    lintError,
-                                    // It is assumed that a rule that emits that an error can be autocorrected, also does correct the error.
-                                    canBeAutoCorrected,
-                                ),
-                            )
-                            // In trace mode report the violation immediately. The order in which violations are actually found might be
-                            // different from the order in which they are reported. For debugging purposes it can be helpful to know the
-                            // exact order in which violations are being solved.
-                            LOGGER.trace { "Format violation: ${lintError.logMessage(code)}" }
-                        }
-                }
-            }
-        if (tripped) {
+        var formatRunCount = 0
+        var mutated: Boolean
+        val errors = mutableSetOf<Pair<LintError, Boolean>>()
+        do {
+            mutated = false
+            formatRunCount++
             visitorProvider
                 .visitor()
                 .invoke { rule ->
-                    ruleExecutionContext.executeRule(
-                        rule,
-                        false,
-                    ) { offset, errorMessage, canBeAutoCorrected ->
+                    ruleExecutionContext.executeRule(rule, true) { offset, errorMessage, canBeAutoCorrected ->
+                        if (canBeAutoCorrected) {
+                            mutated = true
+                            /**
+                             * Rebuild the suppression locator after each change in the AST as the offsets of the
+                             * suppression hints might have changed.
+                             */
+                            ruleExecutionContext.rebuildSuppressionLocator()
+                        }
                         val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
                         LintError(line, col, rule.ruleId, errorMessage, canBeAutoCorrected)
                             .let { lintError ->
                                 errors.add(
                                     Pair(
                                         lintError,
-                                        // It is assumed that a rule only corrects an error after it has emitted an error and indicating
-                                        // that it actually can be autocorrected.
-                                        false,
+                                        // It is assumed that a rule that emits that an error can be autocorrected, also does correct the error.
+                                        canBeAutoCorrected,
                                     ),
                                 )
                                 // In trace mode report the violation immediately. The order in which violations are actually found might be
                                 // different from the order in which they are reported. For debugging purposes it can be helpful to know the
                                 // exact order in which violations are being solved.
-                                LOGGER.trace { "Lint violation after format: ${lintError.logMessage(code)}" }
+                                LOGGER.trace { "Format violation: ${lintError.logMessage(code)}" }
                             }
                     }
                 }
+        } while (mutated && formatRunCount < MAX_FORMAT_RUNS_PER_FILE)
+        if (formatRunCount == MAX_FORMAT_RUNS_PER_FILE && mutated) {
+            LOGGER.warn {
+                "Format was not able to resolve all violations which (theoretically) can be autocorrected in file " +
+                    "${code.filePathOrStdin()} in $MAX_FORMAT_RUNS_PER_FILE consecutive runs of format."
+            }
         }
 
         errors
             .sortedWith { (l), (r) -> if (l.line != r.line) l.line - r.line else l.col - r.col }
             .forEach { (e, corrected) -> callback(e, corrected) }
 
-        if (!mutated) {
+        if (!mutated && formatRunCount == 1) {
             return code.content
         }
 
@@ -305,5 +287,7 @@ public class KtLintRuleEngine(
         internal const val UTF8_BOM = "\uFEFF"
 
         public const val STDIN_FILE: String = "<stdin>"
+
+        private const val MAX_FORMAT_RUNS_PER_FILE = 3
     }
 }

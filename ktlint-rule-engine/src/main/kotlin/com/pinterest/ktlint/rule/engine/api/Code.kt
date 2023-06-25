@@ -23,6 +23,13 @@ public class Code private constructor(
             fileName.orEmpty()
         }
 
+    public fun filePathOrStdin(): String =
+        if (isStdIn) {
+            STDIN_FILE
+        } else {
+            filePath?.pathString.orEmpty()
+        }
+
     public companion object {
         /**
          * Create [Code] from a [file] containing valid Kotlin code or script. The '.editorconfig' files on the path to [file] are taken

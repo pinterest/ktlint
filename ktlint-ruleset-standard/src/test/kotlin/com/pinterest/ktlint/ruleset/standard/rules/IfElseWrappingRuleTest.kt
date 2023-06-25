@@ -208,4 +208,34 @@ class IfElseWrappingRuleTest {
                 .hasLintViolationWithoutAutoCorrect(2, 26, "A single line if-statement should be kept simple. The 'ELSE' may not be wrapped in a block.")
         }
     }
+
+    @Test
+    fun `Given an if-else with empty branches`() {
+        val code =
+            """
+            val foo = if (true) {
+            } else {
+            }
+            """.trimIndent()
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+        ifElseWrappingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given an if-else statement inside a string template which is correctly indented then do not report a violation`() {
+        val code =
+            """
+            fun foo() {
+                logger.log(
+                    "<-- ${'$'}{if (true)
+                        ""
+                    else
+                        ' ' +
+                            "bar"}",
+                )
+            }
+            """.trimIndent()
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+        ifElseWrappingRuleAssertThat(code).hasNoLintViolations()
+    }
 }

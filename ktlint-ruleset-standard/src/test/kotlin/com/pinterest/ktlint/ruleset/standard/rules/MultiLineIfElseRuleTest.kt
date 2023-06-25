@@ -574,8 +574,16 @@ class MultiLineIfElseRuleTest {
     fun `Issue 1904 - Given an nested if else statement followed by an elvis operator`() {
         val code =
             """
-            val foo = if (bar1) {
+            val foo1 = if (bar1) {
                 "bar1"
+            } else {
+                null
+            } ?: "something-else"
+
+            val foo2 = if (bar1) {
+                "bar1"
+            } else if (bar2) {
+                null
             } else {
                 null
             } ?: "something-else"
@@ -584,10 +592,38 @@ class MultiLineIfElseRuleTest {
     }
 
     @Test
-    fun `Issue 1904 - Given an nested if else statement and else which is part of a dot qualified expression`() {
+    fun `Issue 2057 - Given an else condition with single line binary expression`() {
         val code =
             """
             val foo = if (bar1) {
+                "bar1"
+            } else bar2 ?: "something-else"
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo = if (bar1) {
+                "bar1"
+            } else {
+                bar2 ?: "something-else"
+            }
+            """.trimIndent()
+        multiLineIfElseRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(3, 8, "Missing { ... }"),
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 1904 - Given an nested if else statement and else which is part of a dot qualified expression`() {
+        val code =
+            """
+            val foo1 = if (bar1) {
+                "bar1"
+            } else {
+                "bar2"
+            }.plus("foo")
+
+            val foo2 = if (bar1) {
                 "bar1"
             } else if (bar2) {
                 "bar2"
@@ -596,5 +632,50 @@ class MultiLineIfElseRuleTest {
             }.plus("foo")
             """.trimIndent()
         multiLineIfElseRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 2057 - Given an else with chained condition`() {
+        val code =
+            """
+            val foo = if (System.currentTimeMillis() % 2 == 0L) {
+                0
+            } else System.currentTimeMillis().toInt()
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo = if (System.currentTimeMillis() % 2 == 0L) {
+                0
+            } else {
+                System.currentTimeMillis().toInt()
+            }
+            """.trimIndent()
+        multiLineIfElseRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(3, 8, "Missing { ... }"),
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 2057 - Given an if with chained condition`() {
+        val code =
+            """
+            val foo = if (System.currentTimeMillis() % 2 == 0L) System.currentTimeMillis().toInt()
+            else {
+                System.currentTimeMillis().toInt()
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo = if (System.currentTimeMillis() % 2 == 0L) {
+                System.currentTimeMillis().toInt()
+            } else {
+                System.currentTimeMillis().toInt()
+            }
+            """.trimIndent()
+        multiLineIfElseRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 53, "Missing { ... }"),
+            ).isFormattedAs(formattedCode)
     }
 }

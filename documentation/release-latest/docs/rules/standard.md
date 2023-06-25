@@ -103,8 +103,8 @@ When wrapping chained calls `.`, `?.` and `?:` should be placed on the next line
         .filter { it > 2 }!!
         .takeIf { it.count() > 100 }
         ?.sum()
-    val foobar = foo() ?:
-        bar
+    val foobar = foo()
+        ?: bar
     ```
 === "[:material-heart-off-outline:](#) Disallowed"
 
@@ -113,8 +113,8 @@ When wrapping chained calls `.`, `?.` and `?:` should be placed on the next line
         filter { it > 2 }!!.
         takeIf { it.count() > 100 }?.
         sum()
-    val foobar = foo()
-        ?: bar
+    val foobar = foo() ?:
+        bar
     ```
 
 Rule id: `chain-wrapping` (`standard` rule set)
@@ -158,7 +158,7 @@ Rule id: `class-naming` (`standard` rule set)
 
 ## Enum entry
 
-Enum entry names should be uppercase underscore-separated names.
+Enum entry names should be uppercase underscore-separated or upper camel-case separated.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -167,7 +167,7 @@ Enum entry names should be uppercase underscore-separated names.
         FOO,
         Foo,
         FOO_BAR,
-        Foo_Bar
+        FooBar
     }
     ```
 === "[:material-heart-off-outline:](#) Disallowed"
@@ -657,8 +657,24 @@ When class/function signature doesn't fit on a single line, each parameter must 
         b: Any,
         c: Any
     )
+    fun foo(
+        @Bar fooBar: FooBar
+    )
     ```
-=== "[:material-heart-off-outline:](#) Disallowed"
+=== "[:material-heart-off-outline:](#) Disallowed (ktlint_official)"
+
+    ```kotlin
+    class ClassA(
+        paramA: String, paramB: String,
+        paramC: String
+    )
+    fun f(
+        a: Any,
+        b: Any, c: Any
+    )
+    fun foo(@Bar fooBar: FooBar)
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed (non ktlint_official)""
 
     ```kotlin
     class ClassA(
