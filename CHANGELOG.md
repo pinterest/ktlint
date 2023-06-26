@@ -41,6 +41,7 @@ At this point in time, it is not yet decided what the next steps will be. Ktlint
 * Add new experimental rule `blank-line-before-declaration`. This rule requires a blank line before class, function or property declarations ([#1939](https://github.com/pinterest/ktlint/issues/1939))
 * Wrap multiple statements on same line `wrapping` ([#1078](https://github.com/pinterest/ktlint/issues/1078))
 * Add new rule `ktlint-suppression` to replace the `ktlint-disable` and `ktlint-enable` directives with annotations. This rule can not be disabled via the `.editorconfig` ([#1947](https://github.com/pinterest/ktlint/issues/1947))
+* Inform user about using `--format` option of KtLint CLI when finding a violation that can be autocorrected ([#1071](https://github.com/pinterest/ktlint/issues/1071))
 
 ### Removed
 
