@@ -242,6 +242,7 @@ internal class KtlintCommandLine {
     private val tripped = AtomicBoolean()
     private val fileNumber = AtomicInteger()
     private val errorNumber = AtomicInteger()
+    private val adviseToUseFormat = AtomicBoolean()
 
     internal var debug: Boolean = false
         get() = Level.DEBUG.isGreaterOrEqual(minLogLevel)
@@ -329,6 +330,13 @@ internal class KtlintCommandLine {
                 baseline.lintErrorsPerFile,
                 aggregatedReporter,
             )
+            if (adviseToUseFormat.get()) {
+                if (format) {
+                    logger.error { "Format was not able to autocorrect all errors that theoretically can be autocorrected." }
+                } else {
+                    logger.warn { "Lint has found errors than can be autocorrected using 'ktlint --format'" }
+                }
+            }
         }
         aggregatedReporter.afterAll()
 
@@ -454,6 +462,9 @@ internal class KtlintCommandLine {
         fileNumber.incrementAndGet()
         val errListLimit = minOf(ktlintCliErrors.size, maxOf(limit - errorNumber.get(), 0))
         errorNumber.addAndGet(errListLimit)
+        if (!adviseToUseFormat.get() && ktlintCliErrors.containsErrorThatCanBeAutocorrected()) {
+            adviseToUseFormat.set(true)
+        }
 
         reporter.before(relativeRoute)
         ktlintCliErrors
@@ -461,6 +472,8 @@ internal class KtlintCommandLine {
             .forEach { reporter.onLintError(relativeRoute, it) }
         reporter.after(relativeRoute)
     }
+
+    private fun List<KtlintCliError>.containsErrorThatCanBeAutocorrected() = any { it.status == LINT_CAN_BE_AUTOCORRECTED }
 
     private fun process(
         ktLintRuleEngine: KtLintRuleEngine,

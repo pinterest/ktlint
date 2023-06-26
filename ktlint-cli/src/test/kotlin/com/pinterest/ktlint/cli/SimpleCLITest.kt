@@ -79,6 +79,24 @@ class SimpleCLITest {
     }
 
     @Test
+    fun `Given some code with an error then return from lint with the error exit code and warning to use --format`(
+        @TempDir
+        tempDir: Path,
+    ) {
+        CommandLineTestRunner(tempDir)
+            .run(
+                "too-many-empty-lines",
+                listOf("**/*.test"),
+            ) {
+                SoftAssertions().apply {
+                    assertErrorExitCode()
+                    assertThat(normalOutput)
+                        .containsLineMatching(Regex(".* WARN .* Lint has found errors than can be autocorrected using 'ktlint --format'"))
+                }.assertAll()
+            }
+    }
+
+    @Test
     fun `Given some code with an error but a glob which does not select the file`(
         @TempDir
         tempDir: Path,
