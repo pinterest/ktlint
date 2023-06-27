@@ -91,7 +91,7 @@ class NoSingleLineBlockCommentRuleTest {
                 """
                 val foo = "foo" // Some comment
                 """.trimIndent()
-            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
             noSingleLineBlockCommentRuleAssertThat(code)
                 .hasLintViolation(1, 16, "Replace the block comment with an EOL comment")
                 .isFormattedAs(formattedCode)
@@ -107,7 +107,7 @@ class NoSingleLineBlockCommentRuleTest {
                 """
                 fun foo() = "foo" // Some comment
                 """.trimIndent()
-            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
             noSingleLineBlockCommentRuleAssertThat(code)
                 .hasLintViolation(1, 19, "Replace the block comment with an EOL comment")
                 .isFormattedAs(formattedCode)
@@ -158,19 +158,6 @@ class NoSingleLineBlockCommentRuleTest {
         val code =
             """
             val foo = { /* no-op */ }
-            """.trimIndent()
-        noSingleLineBlockCommentRuleAssertThat(code)
-            .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
-            .hasNoLintViolations()
-    }
-
-    @Test
-    fun `Given single line block comments to disable or enable ktlint then do not reformat`() {
-        val code =
-            """
-            /* ktlint-disable foo-rule-id bar-rule-id */
-            val foo = "foo"
-            /* ktlint-enable foo-rule-id bar-rule-id */
             """.trimIndent()
         noSingleLineBlockCommentRuleAssertThat(code)
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)

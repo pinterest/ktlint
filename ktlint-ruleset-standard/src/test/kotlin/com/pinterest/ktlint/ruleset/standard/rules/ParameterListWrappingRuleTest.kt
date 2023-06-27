@@ -150,7 +150,7 @@ class ParameterListWrappingRuleTest {
                 c: Any
             )
             """.trimIndent()
-        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
         parameterListWrappingRuleAssertThat(code)
             .hasLintViolation(3, 13, "Parameter should start on a newline")
             .isFormattedAs(formattedCode)
@@ -311,7 +311,7 @@ class ParameterListWrappingRuleTest {
                 }
             }
             """.trimIndent()
-        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
         parameterListWrappingRuleAssertThat(code)
             .hasLintViolation(2, 11, "Parameter should start on a newline")
             .isFormattedAs(formattedCode)

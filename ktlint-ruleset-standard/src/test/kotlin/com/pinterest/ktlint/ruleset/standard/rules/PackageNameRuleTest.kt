@@ -67,7 +67,7 @@ class PackageNameRuleTest {
     @ParameterizedTest(name = "Suppression annotation: {0}")
     @ValueSource(
         strings = [
-            "ktlint:package-name",
+            "ktlint:standard:package-name",
             "PackageName", // IntelliJ IDEA suppression
         ],
     )
@@ -76,15 +76,6 @@ class PackageNameRuleTest {
             """
             @file:Suppress("$suppressionName")
             package foo.foo_bar
-            """.trimIndent()
-        packageNameRuleAssertThat(code).hasNoLintViolations()
-    }
-
-    @Test
-    fun `Given a package name containing an forbidden character and the rule is suppressed via ktlint directive in comment then do not emit`() {
-        val code =
-            """
-            package foo.foo_bar // ktlint-disable package-name
             """.trimIndent()
         packageNameRuleAssertThat(code).hasNoLintViolations()
     }

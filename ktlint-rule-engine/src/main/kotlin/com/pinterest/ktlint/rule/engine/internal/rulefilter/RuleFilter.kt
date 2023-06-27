@@ -7,7 +7,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
  * Gets the rule provider for the [KtLintRuleEngine] by applying the [ruleFilters] in the given order on the set of [RuleProvider]s provided
  * by the previous (or the initial list of [RuleProvider]s).
  */
-internal fun KtLintRuleEngine.ruleProviders(vararg ruleFilters: RuleFilter): Set<RuleProvider> {
+internal fun KtLintRuleEngine.applyRuleFilters(vararg ruleFilters: RuleFilter): Set<RuleProvider> {
     var ruleProviders = initialRuleProviders()
     val ruleFilterIterator = ruleFilters.iterator()
     while (ruleFilterIterator.hasNext()) {

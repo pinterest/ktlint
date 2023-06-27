@@ -29,7 +29,7 @@ class EnumEntryNameCaseRuleTest {
                 _FOO
             }
             """.trimIndent()
-        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
         enumEntryNameCaseRuleAssertThat(code)
             .hasLintViolationWithoutAutoCorrect(2, 5, "Enum entry name should be uppercase underscore-separated names like \"ENUM_ENTRY\" or upper camel-case like \"EnumEntry\"")
     }
@@ -55,7 +55,7 @@ class EnumEntryNameCaseRuleTest {
                 Foo_Bar,
             }
             """.trimIndent()
-        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
         enumEntryNameCaseRuleAssertThat(code)
             .hasLintViolationsWithoutAutoCorrect(
                 LintViolation(2, 5, "Enum entry name should be uppercase underscore-separated names like \"ENUM_ENTRY\" or upper camel-case like \"EnumEntry\""),

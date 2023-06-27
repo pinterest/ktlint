@@ -39,7 +39,7 @@ class FunctionNamingRuleTest {
                 """
                 fun `Some name`() {}
                 """.trimIndent()
-            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
             functionNamingRuleAssertThat(code)
                 .hasLintViolationWithoutAutoCorrect(1, 5, "Function name should start with a lowercase letter (except factory methods) and use camel case")
         }
@@ -75,7 +75,7 @@ class FunctionNamingRuleTest {
                 """
                 fun do_something() {}
                 """.trimIndent()
-            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
             functionNamingRuleAssertThat(code)
                 .hasLintViolationWithoutAutoCorrect(1, 5, "Function name should start with a lowercase letter (except factory methods) and use camel case")
         }
@@ -117,7 +117,7 @@ class FunctionNamingRuleTest {
             """
             fun $functionName() = "foo"
             """.trimIndent()
-        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
         functionNamingRuleAssertThat(code)
             .hasLintViolationWithoutAutoCorrect(1, 5, "Function name should start with a lowercase letter (except factory methods) and use camel case")
     }
@@ -125,7 +125,7 @@ class FunctionNamingRuleTest {
     @ParameterizedTest(name = "Suppression annotation: {0}")
     @ValueSource(
         strings = [
-            "ktlint:function-naming",
+            "ktlint:standard:function-naming",
             "FunctionName", // IntelliJ IDEA suppression
         ],
     )

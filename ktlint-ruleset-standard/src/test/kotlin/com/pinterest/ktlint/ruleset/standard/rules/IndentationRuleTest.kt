@@ -3204,7 +3204,7 @@ internal class IndentationRuleTest {
                 ${TAB}line2
                     $MULTILINE_STRING_QUOTE.trimIndent()
                 """.trimIndent()
-            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
             indentationRuleAssertThat(code)
                 .hasLintViolationWithoutAutoCorrect(1, 11, "Indentation of multiline string should not contain both tab(s) and space(s)")
         }
@@ -4238,17 +4238,16 @@ internal class IndentationRuleTest {
     @Nested
     inner class `Issue 631 - Given some suppression directive in the middle of a file` {
         @Test
-        fun `Issue 631 - Given some code for which indentation is disabled with ktlint-disable-enable-block then do not fix indentation of that block only`() {
+        fun `Issue 631 - Given some code for which indentation is disabled with ktlint-suppression then do not fix indentation of that block only`() {
             val code =
                 """
                 val fooWithIndentationFixing1: String =
                     "foo" +
                         "bar"
-                // ktlint-disable indent
+                @Suppress("ktlint:standard:indent")
                 val fooWithIndentationFixingSuppressed: String =
                     "foo" +
                     "bar"
-                // ktlint-enable indent
                 val fooWithIndentationFixing2: String =
                     "foo" +
                         "bar"
@@ -4263,7 +4262,7 @@ internal class IndentationRuleTest {
                 val fooWithIndentationFixing1: String =
                     "foo" +
                         "bar"
-                @Suppress("ktlint:indent")
+                @Suppress("ktlint:standard:indent")
                 val fooWithIndentationFixingSuppressed: String =
                     "foo" +
                     "bar"
@@ -4672,13 +4671,13 @@ internal class IndentationRuleTest {
     }
 
     @Test
-    fun `Issue 1644 - Given multiple nested brackets and some of them have ktlint-disable`() {
+    fun `Issue 1644 - Given multiple nested brackets and some of them have EOL comments`() {
         val code =
             """
             fun fooBar() {
                 fun foo() {
                     // some code
-                } // ktlint-disable indent
+                } // some comment
 
                 fun bar() {
                     // some code

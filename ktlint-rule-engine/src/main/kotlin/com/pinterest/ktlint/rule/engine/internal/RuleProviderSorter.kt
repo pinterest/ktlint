@@ -5,6 +5,7 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
+import com.pinterest.ktlint.rule.engine.internal.rules.KTLINT_SUPPRESSION_RULE_ID
 import mu.KotlinLogging
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
@@ -104,6 +105,14 @@ internal class RuleProviderSorter {
         // The sort order below should guarantee a stable order of the rule between multiple invocations of KtLint given
         // the same set of input parameters. There should be no dependency on data ordering outside this class.
         compareBy<RuleProvider> {
+            if (it.ruleId == KTLINT_SUPPRESSION_RULE_ID) {
+                // This rule replaces the old ktlint-disable directives with @Suppress or @SuppressWarnings annotations. It should run as
+                // first rule as the SuppressionLocatorBuilder no longer transforms the ktlint-disable directives to suppressions.
+                0
+            } else {
+                1
+            }
+        }.thenBy {
             if (it.runAsLateAsPossible) {
                 1
             } else {

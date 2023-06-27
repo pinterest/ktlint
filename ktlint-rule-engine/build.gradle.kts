@@ -11,4 +11,5 @@ dependencies {
 
     testImplementation(projects.ktlintTest)
     testImplementation(projects.ktlintRulesetStandard)
+    testRuntimeOnly(libs.logback)
 }

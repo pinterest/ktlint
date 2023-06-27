@@ -12,7 +12,7 @@ class RuleFilterKtTest {
     fun `Given an empty list of rule filters then the list of rule providers contains provider for all rule ids initially provided by the ktlint engine`() {
         val actual =
             createKtLintRuleEngine(arrayOf(RULE_SET_A_RULE_A, RULE_SET_A_RULE_B, RULE_SET_B_RULE_A, RULE_SET_B_RULE_B))
-                .ruleProviders()
+                .applyRuleFilters()
                 .map { it.ruleId }
 
         assertThat(actual).containsExactlyInAnyOrder(RULE_SET_A_RULE_A, RULE_SET_A_RULE_B, RULE_SET_B_RULE_A, RULE_SET_B_RULE_B)
@@ -22,7 +22,7 @@ class RuleFilterKtTest {
     fun `Given a single rule filter then the list of rule providers contains only rule ids that match that filter`() {
         val actual =
             createKtLintRuleEngine(arrayOf(RULE_SET_A_RULE_A, RULE_SET_A_RULE_B, RULE_SET_B_RULE_A, RULE_SET_B_RULE_B))
-                .ruleProviders(RuleIdRuleFilter(RULE_SET_A))
+                .applyRuleFilters(RuleIdRuleFilter(RULE_SET_A))
                 .map { it.ruleId }
 
         assertThat(actual).containsExactlyInAnyOrder(RULE_SET_A_RULE_A, RULE_SET_A_RULE_B)
@@ -32,7 +32,7 @@ class RuleFilterKtTest {
     fun `Given multiple rule filters then the list of rule providers contains only rule ids that match all filters`() {
         val actual =
             createKtLintRuleEngine(arrayOf(RULE_SET_A_RULE_A, RULE_SET_A_RULE_B, RULE_SET_B_RULE_B))
-                .ruleProviders(
+                .applyRuleFilters(
                     RuleIdRuleFilter(RULE_SET_A),
                     RuleIdRuleFilter(RULE_B),
                 ).map { it.ruleId }
@@ -44,7 +44,7 @@ class RuleFilterKtTest {
     fun `Given multiple rule filters that exclude each other then the list of rule providers is empty`() {
         val actual =
             createKtLintRuleEngine(arrayOf(RULE_SET_A_RULE_A))
-                .ruleProviders(
+                .applyRuleFilters(
                     RuleIdRuleFilter(RULE_A),
                     RuleIdRuleFilter(RULE_SET_B),
                 ).map { it.ruleId }

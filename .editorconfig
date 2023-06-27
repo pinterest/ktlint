@@ -4,6 +4,7 @@ root = true
 [*]
 indent_style = space
 indent_size = 2
+max_line_length = 140
 
 end_of_line = lf
 charset = utf-8
@@ -26,8 +27,13 @@ ktlint_experimental = enabled
 # Don't allow any wildcard imports
 ij_kotlin_packages_to_use_import_on_demand = unset
 
+# Prevent wildcard imports
+ij_kotlin_name_count_to_use_star_import = 99
+ij_kotlin_name_count_to_use_star_import_for_members = 99
+
 [*.md]
 trim_trailing_whitespace = false
+max_line_length = unset
 
 [gradle/verification-metadata.xml]
 indent_size = 3

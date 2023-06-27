@@ -157,13 +157,13 @@ class HtmlReporterTest {
         val out = ByteArrayOutputStream()
         val reporter = HtmlReporter(PrintStream(out, true))
 
-        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
         reporter.onLintError(
             "/file1.kt",
             KtlintCliError(1, 1, "rule-1", "Error message contains a generic type like List<Int> (cannot be auto-corrected)", LINT_CAN_BE_AUTOCORRECTED),
         )
 
-        @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
         reporter.onLintError(
             "/file1.kt",
             KtlintCliError(2, 1, "rule-2", "Error message contains special html symbols like a<b>c\"d'e&f (cannot be auto-corrected)", LINT_CAN_BE_AUTOCORRECTED),

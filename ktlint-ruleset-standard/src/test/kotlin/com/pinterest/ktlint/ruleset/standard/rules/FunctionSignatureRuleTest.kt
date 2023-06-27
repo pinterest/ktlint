@@ -516,6 +516,7 @@ class FunctionSignatureRuleTest {
     inner class CleanUpByRelatedRules {
         @Test
         fun `Given a nullable type with a space before the quest then remove this space`() {
+            @Suppress("ktlint:standard:string-template")
             val code =
                 """
                 fun String$UNEXPECTED_SPACES?.f1() = "some-result"
@@ -525,7 +526,7 @@ class FunctionSignatureRuleTest {
                 fun f5(): String$UNEXPECTED_SPACES? = "some-result"
                 fun f6(): List<String$UNEXPECTED_SPACES?> = listOf("some-result", null)
                 fun f7(): List<String>$UNEXPECTED_SPACES? = null
-                """.trimIndent() // ktlint-disable string-template
+                """.trimIndent()
             val formattedCode =
                 """
                 fun String?.f1() = "some-result"
@@ -608,7 +609,7 @@ class FunctionSignatureRuleTest {
                 fun f28(block: (T) -> String) = "some-result"
                 fun f29(block: (T) -> String) = "some-result"
                 """.trimIndent()
-            @Suppress("ktlint:argument-list-wrapping", "ktlint:max-line-length")
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
             functionSignatureWrappingRuleAssertThat(code)
                 .addAdditionalRuleProviders(
                     { NoMultipleSpacesRule() },

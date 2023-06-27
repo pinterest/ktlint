@@ -465,10 +465,6 @@ A single line block comment should be replaced with an EOL comment when possible
      */
     val foo = "foo" // Some comment
     val foo = { /* no-op */ }
-
-    /* ktlint-disable foo-rule-id bar-rule-id */
-    val foo = "foo"
-    /* ktlint-enable foo-rule-id bar-rule-id */
     ```
 === "[:material-heart-off-outline:](#) Disallowed"
 

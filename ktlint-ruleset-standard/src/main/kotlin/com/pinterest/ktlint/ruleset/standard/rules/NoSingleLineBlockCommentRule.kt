@@ -47,7 +47,6 @@ public class NoSingleLineBlockCommentRule :
                     ?: node.lastChildLeafOrSelf()
 
             if (!node.textContains('\n') &&
-                !node.isKtlintSuppressionDirective() &&
                 afterBlockComment.nextLeaf().isWhitespaceWithNewlineOrNull()
             ) {
                 emit(node.startOffset, "Replace the block comment with an EOL comment", true)
@@ -66,16 +65,6 @@ public class NoSingleLineBlockCommentRule :
     }
 
     private fun ASTNode?.isWhitespaceWithNewlineOrNull() = this == null || this.isWhiteSpaceWithNewline()
-
-    // TODO: Remove when ktlint suppression directive in comments are no longer supported
-    private fun ASTNode?.isKtlintSuppressionDirective() =
-        this
-            ?.text
-            ?.removePrefix("/*")
-            ?.removeSuffix("*/")
-            ?.trim()
-            ?.let { it.startsWith("ktlint-enable") || it.startsWith("ktlint-disable") }
-            ?: false
 }
 
 public val NO_SINGLE_LINE_BLOCK_COMMENT_RULE_ID: RuleId = NoSingleLineBlockCommentRule().ruleId

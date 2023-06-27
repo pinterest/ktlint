@@ -10,9 +10,10 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
+import com.pinterest.ktlint.rule.engine.internal.rulefilter.InternalRuleProvidersFilter
 import com.pinterest.ktlint.rule.engine.internal.rulefilter.RuleExecutionRuleFilter
 import com.pinterest.ktlint.rule.engine.internal.rulefilter.RunAfterRuleFilter
-import com.pinterest.ktlint.rule.engine.internal.rulefilter.ruleProviders
+import com.pinterest.ktlint.rule.engine.internal.rulefilter.applyRuleFilters
 import mu.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
@@ -180,7 +181,8 @@ internal class RuleExecutionContext private constructor(
 
             val ruleProviders =
                 ktLintRuleEngine
-                    .ruleProviders(
+                    .applyRuleFilters(
+                        InternalRuleProvidersFilter(ktLintRuleEngine),
                         RuleExecutionRuleFilter(editorConfig),
                         RunAfterRuleFilter(),
                     )
