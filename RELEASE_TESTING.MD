@@ -69,6 +69,9 @@ Before releasing a new version of KtLint, the release candidate is tested on a s
 Pre-requisites:
 * All changes have been merged to master.
 * Latest version of master has been pulled to the local machine.
+* Deprecated code of previous release is removed when applicable
+* TODO markers have been checked and removed when no longer applicable
+* Experimental rules are promoted when they are stable
 * The latest released version of ktlint matches with command `ktlint`:
    ```shell
    ktlint-prev --version

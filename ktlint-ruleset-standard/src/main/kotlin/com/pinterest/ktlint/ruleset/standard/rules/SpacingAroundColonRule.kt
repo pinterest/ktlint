@@ -37,7 +37,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
         if (node.elementType == COLON) {
             val psiParent = node.psi.parent
             if (node.isPartOf(ANNOTATION) || node.isPartOf(ANNOTATION_ENTRY)) {
-                // todo: enforce "no spacing"
+                // TODO: https://github.com/pinterest/ktlint/issues/2093 Enforce no spacing
                 return
             }
             val prevLeaf = node.prevLeaf()

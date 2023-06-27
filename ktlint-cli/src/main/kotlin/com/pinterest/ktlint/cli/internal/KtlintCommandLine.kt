@@ -135,10 +135,9 @@ internal class KtlintCommandLine {
     )
     var disabledRules: String = ""
 
-    // TODO: this should have been a command, not a flag (consider changing in 1.0.0)
     @Option(
         names = ["--format", "-F"],
-        description = ["Fix any deviations from the code style"],
+        description = ["Fix deviations from the code style when possible"],
     )
     private var format: Boolean = false
 

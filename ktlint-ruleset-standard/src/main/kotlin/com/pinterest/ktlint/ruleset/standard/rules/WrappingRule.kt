@@ -133,11 +133,10 @@ public class WrappingRule :
     ) {
         when (node.elementType) {
             BLOCK -> beforeVisitBlock(node, autoCorrect, emit)
-            LPAR, LBRACKET -> rearrangeBlock(node, autoCorrect, emit) // TODO: LT
+            LPAR, LBRACKET -> rearrangeBlock(node, autoCorrect, emit)
             SUPER_TYPE_LIST -> rearrangeSuperTypeList(node, autoCorrect, emit)
             VALUE_PARAMETER_LIST, VALUE_ARGUMENT_LIST -> rearrangeValueList(node, autoCorrect, emit)
             TYPE_ARGUMENT_LIST, TYPE_PARAMETER_LIST -> rearrangeTypeArgumentList(node, autoCorrect, emit)
-//            TYPE_PARAMETER_LIST -> rearrangeTypeParameterList(node, autoCorrect, emit)
             ARROW -> rearrangeArrow(node, autoCorrect, emit)
             WHITE_SPACE -> line += node.text.count { it == '\n' }
             CLOSING_QUOTE -> rearrangeClosingQuote(node, autoCorrect, emit)
@@ -315,7 +314,6 @@ public class WrappingRule :
                 }
             }
             // put entries on separate lines
-            // TODO: group emit()s below with the one above into one (similar to ParameterListWrappingRule)
             for (c in node.children()) {
                 if (c.elementType == COMMA &&
                     !c.treeNext.isWhiteSpaceWithNewline() &&
