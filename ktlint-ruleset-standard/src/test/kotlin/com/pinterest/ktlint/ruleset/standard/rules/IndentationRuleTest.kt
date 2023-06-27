@@ -1877,7 +1877,7 @@ internal class IndentationRuleTest {
         @ParameterizedTest(name = "As Kotlin script: {0}")
         @ValueSource(booleans = [true, false])
         fun `Given a file with blanks only on the first line then do not report unexpected indentation for that first line`(
-            asKotlinScript: Boolean,
+            kotlinScript: Boolean,
         ) {
             val code =
                 """
@@ -1890,6 +1890,7 @@ internal class IndentationRuleTest {
                 |// comment
                 """.trimMargin()
             indentationRuleAssertThat(code)
+                .asKotlinScript(kotlinScript)
                 // Note that no LintError is created for the first line as it does not contain any code
                 .hasLintViolation(2, 1, "Unexpected indentation (2) (should be 0)")
                 .isFormattedAs(formattedCode)

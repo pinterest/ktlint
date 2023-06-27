@@ -8,14 +8,18 @@ class CodeStyleEditorConfigPropertyTest {
     @ParameterizedTest(name = "Value: [{0}], result: [{1}]")
     @CsvSource(
         value = [
-            "official,official",
-            " official,official",
-            "official ,official",
-            " official ,official",
-            "android,android",
-            " android,android",
-            "android ,android",
-            " android ,android",
+            "ktlint_official,ktlint_official",
+            " ktlint_official,ktlint_official",
+            "ktlint_official ,ktlint_official",
+            " ktlint_official ,ktlint_official",
+            "intellij_idea,intellij_idea",
+            " intellij_idea,intellij_idea",
+            "intellij_idea ,intellij_idea",
+            " intellij_idea ,intellij_idea",
+            "android_studio,android_studio",
+            " android_studio,android_studio",
+            "android_studio ,android_studio",
+            " android_studio ,android_studio",
         ],
         ignoreLeadingAndTrailingWhitespace = false,
     )

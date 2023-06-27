@@ -19,31 +19,6 @@ public data class EditorConfigDefaults(
 ) {
     public companion object {
         /**
-         * Loads properties from [path]. [path] may either locate a file (also allows specifying a file with a name other
-         * than ".editorconfig") or a directory in which a file with name ".editorconfig" is expected to exist. Properties
-         * from all globs are returned.
-         *
-         * If [path] is not valid then the [EMPTY_EDITOR_CONFIG_DEFAULTS] is returned.
-         *
-         * The property "root" which denotes whether the parent directory is to be checked for the existence of a fallback
-         * ".editorconfig" is ignored entirely.
-         */
-        @Deprecated(
-            message =
-                "Marked for removal in Ktlint 0.50. This method causes class cast exceptions in case the '.editorconfig' file contains " +
-                    "properties having an EditorConfigProperty with a custom type (e.g. a type not defined in the ec4j library)",
-            replaceWith = ReplaceWith("load(path, propertyTypes)"),
-        )
-        public fun load(path: Path?): EditorConfigDefaults =
-            if (path == null) {
-                EMPTY_EDITOR_CONFIG_DEFAULTS
-            } else {
-                EditorConfigDefaultsLoader(
-                    EditorConfigLoaderEc4j(emptySet()),
-                ).load(path)
-            }
-
-        /**
          * Loads properties from [path]. [path] may either locate a file (also allows specifying a file with a name other than
          * ".editorconfig") or a directory in which a file with name ".editorconfig" is expected to exist. Properties from all globs are
          * returned. If [path] is not valid then the [EMPTY_EDITOR_CONFIG_DEFAULTS] is returned.

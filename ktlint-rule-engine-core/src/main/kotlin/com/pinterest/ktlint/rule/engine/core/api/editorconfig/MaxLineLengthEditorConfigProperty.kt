@@ -68,9 +68,7 @@ public val MAX_LINE_LENGTH_PROPERTY: EditorConfigProperty<Int> =
 
 private fun CodeStyleValue.defaultValue() =
     when (this) {
-        CodeStyleValue.android -> MAX_LINE_LENGTH_PROPERTY_ANDROID_STUDIO_CODE_STYLE
         CodeStyleValue.android_studio -> MAX_LINE_LENGTH_PROPERTY_ANDROID_STUDIO_CODE_STYLE
-        CodeStyleValue.official -> MAX_LINE_LENGTH_PROPERTY_OFF
         CodeStyleValue.intellij_idea -> MAX_LINE_LENGTH_PROPERTY_OFF
         CodeStyleValue.ktlint_official -> MAX_LINE_LENGTH_PROPERTY_KTLINT_OFFICIAL_CODE_STYLE
     }

@@ -59,7 +59,7 @@ internal class EditorConfigGeneratorTest {
     }
 
     @Test
-    fun `Should use default Android code style value if value is missing and android code style is active`() {
+    fun `Given that android studio code style value is active and value is missing`() {
         val generatedEditorConfig =
             editorConfigGenerator.generateEditorconfig(
                 rules = rules,

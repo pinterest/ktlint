@@ -83,8 +83,6 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                                         if (it.first().isWhiteSpace()) {
                                             blockElement.treeParent.removeChild(it.first())
                                             it.drop(1)
-                                        } else {
-                                            it
                                         }
                                         if (it.last().isWhiteSpaceWithNewline()) {
                                             blockElement.treeParent.removeChild(it.last())

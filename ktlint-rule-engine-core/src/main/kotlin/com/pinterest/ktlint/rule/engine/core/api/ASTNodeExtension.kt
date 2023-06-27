@@ -168,24 +168,6 @@ public fun ASTNode.parent(
     return null
 }
 
-@Deprecated(
-    message = "Marked for removal in KtLint 0.50",
-    replaceWith = ReplaceWith("parent(strict, p)"),
-)
-public fun ASTNode.parent(
-    p: (ASTNode) -> Boolean,
-    strict: Boolean = true,
-): ASTNode? {
-    var n: ASTNode? = if (strict) this.treeParent else this
-    while (n != null) {
-        if (p(n)) {
-            return n
-        }
-        n = n.treeParent
-    }
-    return null
-}
-
 public fun ASTNode.parent(
     strict: Boolean = true,
     predicate: (ASTNode) -> Boolean,
@@ -221,10 +203,6 @@ public fun ASTNode.isPartOfCompositeElementOfType(iElementType: IElementType): B
 
 public fun ASTNode.findCompositeParentElementOfType(iElementType: IElementType): ASTNode? =
     parent { it.elementType == iElementType || it !is CompositeElement }
-
-@Deprecated("Marked for removal in KtLint 0.50")
-public fun findCompositeElementOfType(iElementType: IElementType): (ASTNode) -> Boolean =
-    { it.elementType == iElementType || it !is CompositeElement }
 
 public fun ASTNode.isPartOfString(): Boolean = parent(STRING_TEMPLATE, strict = false) != null
 
@@ -319,23 +297,6 @@ public val ASTNode.column: Int
         }
         return offsetToTheLeft + 1
     }
-
-@Deprecated(
-    message =
-        "Marked for removal in Ktlint 0.50. Replace with 'indent' but do note that it automatically includes a newline character as " +
-            "prefix.",
-    replaceWith = ReplaceWith("indent"),
-)
-public fun ASTNode.lineIndent(): String {
-    var leaf = this.prevLeaf()
-    while (leaf != null) {
-        if (leaf.elementType == WHITE_SPACE && leaf.textContains('\n')) {
-            return leaf.text.substring(leaf.text.lastIndexOf('\n') + 1)
-        }
-        leaf = leaf.prevLeaf()
-    }
-    return ""
-}
 
 /**
  * Get the current indentation of the line containing the [ASTNode]. By default, this indentation starts with a newline (\n) character.

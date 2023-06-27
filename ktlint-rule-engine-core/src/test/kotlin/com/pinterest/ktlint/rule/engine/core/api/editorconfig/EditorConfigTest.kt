@@ -43,9 +43,7 @@ class EditorConfigTest {
     @ParameterizedTest(name = "Code style: {0}, expected result: {1}")
     @CsvSource(
         value = [
-            "android, $SOME_PROPERTY_VALUE_ANDROID",
-            "android_studio, $SOME_PROPERTY_VALUE_ANDROID",
-            "official, $SOME_PROPERTY_VALUE_INTELLIJ_IDEA",
+            "android_studio, $SOME_PROPERTY_VALUE_ANDROID_STUDIO",
             "intellij_idea, $SOME_PROPERTY_VALUE_INTELLIJ_IDEA",
             "ktlint_official, $SOME_PROPERTY_VALUE_OFFICIAL",
         ],
@@ -138,7 +136,7 @@ class EditorConfigTest {
         assertThatThrownBy {
             EditorConfig()
                 .addPropertiesWithDefaultValueIfMissing(
-                    SOME_EDITOR_CONFIG_PROPERTY.copy(defaultValue = SOME_PROPERTY_VALUE_ANDROID),
+                    SOME_EDITOR_CONFIG_PROPERTY.copy(defaultValue = SOME_PROPERTY_VALUE_ANDROID_STUDIO),
                     SOME_EDITOR_CONFIG_PROPERTY.copy(defaultValue = SOME_PROPERTY_VALUE_INTELLIJ_IDEA),
                 )
         }.isInstanceOf(IllegalArgumentException::class.java)
@@ -153,7 +151,7 @@ class EditorConfigTest {
             EditorConfig()
                 .filterBy(
                     setOf(
-                        SOME_EDITOR_CONFIG_PROPERTY.copy(defaultValue = SOME_PROPERTY_VALUE_ANDROID),
+                        SOME_EDITOR_CONFIG_PROPERTY.copy(defaultValue = SOME_PROPERTY_VALUE_ANDROID_STUDIO),
                         SOME_EDITOR_CONFIG_PROPERTY.copy(defaultValue = SOME_PROPERTY_VALUE_INTELLIJ_IDEA),
                     ),
                 )
@@ -166,14 +164,14 @@ class EditorConfigTest {
     @Test
     fun `Given an editorconfig containing a property and a filterBy for a property with the same name is given but with different identity then the existing property is not overwritten`() {
         val editorConfig =
-            EditorConfig(SOME_EDITOR_CONFIG_PROPERTY.toPropertyWithValue(SOME_PROPERTY_VALUE_ANDROID))
+            EditorConfig(SOME_EDITOR_CONFIG_PROPERTY.toPropertyWithValue(SOME_PROPERTY_VALUE_ANDROID_STUDIO))
                 .filterBy(
                     setOf(SOME_EDITOR_CONFIG_PROPERTY.copy(defaultValue = SOME_PROPERTY_VALUE_INTELLIJ_IDEA)),
                 )
 
         val actual = editorConfig[SOME_EDITOR_CONFIG_PROPERTY]
 
-        assertThat(actual).isEqualTo(SOME_PROPERTY_VALUE_ANDROID)
+        assertThat(actual).isEqualTo(SOME_PROPERTY_VALUE_ANDROID_STUDIO)
     }
 
     @Test
@@ -184,7 +182,7 @@ class EditorConfigTest {
             EditorConfig(
                 SOME_EDITOR_CONFIG_PROPERTY
                     .copy(name = property1)
-                    .toPropertyWithValue(SOME_PROPERTY_VALUE_ANDROID),
+                    .toPropertyWithValue(SOME_PROPERTY_VALUE_ANDROID_STUDIO),
                 SOME_EDITOR_CONFIG_PROPERTY
                     .copy(name = property2)
                     .toPropertyWithValue(SOME_PROPERTY_VALUE_INTELLIJ_IDEA),
@@ -323,7 +321,7 @@ class EditorConfigTest {
     private companion object {
         const val SOME_PROPERTY_NAME = "some-property-name"
         const val SOME_PROPERTY_VALUE = "some-property-value"
-        const val SOME_PROPERTY_VALUE_ANDROID = "some-property-value-android"
+        const val SOME_PROPERTY_VALUE_ANDROID_STUDIO = "some-property-value-android"
         const val SOME_PROPERTY_VALUE_DEFAULT = "some-property-value-default"
         const val SOME_PROPERTY_VALUE_INTELLIJ_IDEA = "some-property-value-intellij-idea"
         const val SOME_PROPERTY_VALUE_OFFICIAL = "some-property-value-official"
@@ -335,10 +333,10 @@ class EditorConfigTest {
                         SOME_PROPERTY_NAME,
                         "",
                         PropertyType.PropertyValueParser.IDENTITY_VALUE_PARSER,
-                        setOf(SOME_PROPERTY_VALUE_ANDROID, SOME_PROPERTY_VALUE_INTELLIJ_IDEA),
+                        setOf(SOME_PROPERTY_VALUE_ANDROID_STUDIO, SOME_PROPERTY_VALUE_INTELLIJ_IDEA),
                     ),
                 defaultValue = SOME_PROPERTY_VALUE_DEFAULT,
-                androidStudioCodeStyleDefaultValue = SOME_PROPERTY_VALUE_ANDROID,
+                androidStudioCodeStyleDefaultValue = SOME_PROPERTY_VALUE_ANDROID_STUDIO,
                 ktlintOfficialCodeStyleDefaultValue = SOME_PROPERTY_VALUE_OFFICIAL,
                 intellijIdeaCodeStyleDefaultValue = SOME_PROPERTY_VALUE_INTELLIJ_IDEA,
             )

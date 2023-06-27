@@ -15,10 +15,8 @@ class MaxLineLengthEditorConfigPropertyTest {
         @ParameterizedTest(name = "Code style: {0}, default value: {1}")
         @CsvSource(
             value = [
-                "android, 100",
                 "android_studio, 100",
                 "intellij_idea, ${Int.MAX_VALUE}",
-                "official, ${Int.MAX_VALUE}",
                 "ktlint_official, 140",
             ],
         )
@@ -34,10 +32,8 @@ class MaxLineLengthEditorConfigPropertyTest {
         @ParameterizedTest(name = "Code style: {0}, default value: {1}")
         @CsvSource(
             value = [
-                "android, 100",
                 "android_studio, 100",
                 "intellij_idea, ${Int.MAX_VALUE}",
-                "official, ${Int.MAX_VALUE}",
                 "ktlint_official, 140",
             ],
         )
@@ -90,10 +86,8 @@ class MaxLineLengthEditorConfigPropertyTest {
         @ParameterizedTest(name = "Code style: {0}, default value: {1}")
         @CsvSource(
             value = [
-                "android, 100",
                 "android_studio, 100",
                 "intellij_idea, ${Int.MAX_VALUE}",
-                "official, ${Int.MAX_VALUE}",
                 "ktlint_official, 140",
             ],
         )

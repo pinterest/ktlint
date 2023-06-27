@@ -102,14 +102,6 @@ internal class KtlintCommandLine {
     @CommandLine.Spec
     private lateinit var commandSpec: CommandLine.Model.CommandSpec
 
-    @Deprecated(message = "Marked for removal in KtLint 0.50")
-    @Option(
-        names = ["--android", "-a"],
-        description = ["Turn on Android Kotlin Style Guide compatibility"],
-        hidden = true,
-    )
-    var android: Boolean = false
-
     @Option(
         // Ensure that the code-style can be set on sub commands and is visible in the help documentation
         scope = CommandLine.ScopeType.INHERIT,
@@ -268,7 +260,7 @@ internal class KtlintCommandLine {
                 }.applyIf(disabledRules.isNotBlank()) {
                     logger.debug { "Add editor config override to disable rules: '$disabledRules'" }
                     plus(*disabledRulesEditorConfigOverrides())
-                }.applyIf(android || codeStyle == CodeStyleValue.android || codeStyle == CodeStyleValue.android_studio) {
+                }.applyIf(codeStyle == CodeStyleValue.android_studio) {
                     logger.debug { "Add editor config override to set code style to 'android_studio'" }
                     plus(CODE_STYLE_PROPERTY to CodeStyleValue.android_studio)
                 }.applyIf(stdin) {
@@ -279,13 +271,6 @@ internal class KtlintCommandLine {
                     plus(FILENAME_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.disabled)
                 }
 
-        if (android) {
-            logger.error {
-                "Option '--android' / '-a' is deprecated and replaced with option '--code-style=android_studio'. Setting '.editorconfig' " +
-                    "property 'ktlint_code_style=android_studio' might be a better idea for a project that is always to formatted with " +
-                    "this code style."
-            }
-        }
         assertStdinAndPatternsFromStdinOptionsMutuallyExclusive()
         patterns = patterns.replaceWithPatternsFromStdinOrDefaultPatternsWhenEmpty()
 

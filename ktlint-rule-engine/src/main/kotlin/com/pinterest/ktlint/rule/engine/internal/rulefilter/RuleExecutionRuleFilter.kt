@@ -35,10 +35,10 @@ internal class RuleExecutionRuleFilter(
             ruleExecutionPropertyNames(ruleProviders)
                 .plus(ruleSetExecutionPropertyNames(ruleProviders))
                 .plus(EXPERIMENTAL_RULES_EXECUTION_PROPERTY.name)
-        return map { it.name to RULE_EXECUTION_PROPERTY_TYPE.parse(it.sourceValue).parsed }
+        return map { it.name to it.sourceValue }
             .toMap()
-            .filterValues { it != null }
             .filterKeys { it in ruleExecutionPropertyNames }
+            .mapValues { RULE_EXECUTION_PROPERTY_TYPE.parse(it.value).parsed }
     }
 
     private fun ruleExecutionPropertyNames(ruleProviders: Set<RuleProvider>) =

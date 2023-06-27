@@ -45,6 +45,8 @@ At this point in time, it is not yet decided what the next steps will be. Ktlint
 
 ### Removed
 
+* Code which was deprecated in `0.49.x` is removed. Consult changelog of 0.49.x` released for more information. Summary of removed code: 
+
 ### Fixed
 
 * Do not flag a (potential) mutable extension property in case the getter is annotated or prefixed with a modifier `property-naming` ([#2024](https://github.com/pinterest/ktlint/issues/2024))
