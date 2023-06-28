@@ -54,6 +54,7 @@ At this point in time, it is not yet decided what the next steps will be. Ktlint
 * Ignore property with name `serialVersionUID` in `property-naming` ([#2045](https://github.com/pinterest/ktlint/issues/2045))
 * Prevent incorrect reporting of violations in case a nullable function type reference exceeds the maximum line length `parameter-list-wrapping` ([#1324](https://github.com/pinterest/ktlint/issues/1324)) 
 * Prevent false negative on `else` branch when body contains only chained calls or binary expression ([#2057](https://github.com/pinterest/ktlint/issues/2057))
+* Fix indent when property value is wrapped to next line ([#2095](https://github.com/pinterest/ktlint/issues/2095)) 
 
 ### Changed
 

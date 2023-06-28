@@ -146,7 +146,7 @@ public class PropertyWrappingRule :
         )
         LOGGER.trace { "$line: " + ((if (!autoCorrect) "would have " else "") + "inserted newline before ${node.text}") }
         if (autoCorrect) {
-            node.upsertWhitespaceBeforeMe(node.indent())
+            node.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
         }
     }
 
