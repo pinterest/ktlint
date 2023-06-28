@@ -9,6 +9,8 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RULE_EXECUTION_PROPERTY_TYPE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
+import com.pinterest.ktlint.rule.engine.internal.rules.KTLINT_SUPPRESSION_RULE_ID
+import com.pinterest.ktlint.rule.engine.internal.rules.KtlintSuppressionRule
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.model.Property
 import org.junit.jupiter.api.Test
@@ -156,6 +158,22 @@ class RuleExecutionRuleFilterTest {
             ).toRuleIds()
 
         assertThat(actual).isEmpty()
+    }
+
+    @Test
+    fun `Given that the ktlint-suppression is disabled in the editorconfig properties then ignore that property`() {
+        val actual =
+            runWithRuleExecutionRuleFilter(
+                RuleProvider { NormalRule(STANDARD_RULE_A) },
+                RuleProvider { KtlintSuppressionRule(listOf(STANDARD_RULE_A)) },
+                editorConfig =
+                    EditorConfig(
+                        ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_A, RuleExecution.disabled),
+                        ktLintRuleExecutionEditorConfigProperty(KTLINT_SUPPRESSION_RULE_ID, RuleExecution.disabled),
+                    ),
+            ).toRuleIds()
+
+        assertThat(actual).containsExactly(KTLINT_SUPPRESSION_RULE_ID)
     }
 
     /**
