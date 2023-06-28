@@ -17,7 +17,7 @@
         <link rel="next" href="../custom-reporter/">
       
       <link rel="icon" href="../../assets/images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.15">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.17">
     
     
       
@@ -895,7 +895,7 @@ You're not viewing the latest version.
 <p class="admonition-title">Tip</p>
 <p>See <a href="https://medium.com/@vanniktech/writing-your-first-ktlint-rule-5a1707f4ca5b">Writing your first ktlint rule</a> by <a href="https://github.com/vanniktech">Niklas Baudy</a>.</p>
 </div>
-<p>In a nutshell: a "rule set" is a JAR containing one or more <a href="https://github.com/pinterest/ktlint/blob/master/ktlint-rule-engine-core/src/main/kotlin/com/pinterest/ktlint/rule/engine/core/api/Rule.kt">Rule</a>s. <code>ktlint</code> is relying on the <a href="https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html">ServiceLoader</a> to discover all available "RuleSet"s on the classpath. As a ruleset author, all you need to do is to include a <code>META-INF/services/RuleSetProviderV3</code> file containing a fully qualified name of your <a href="https://github.com/pinterest/ktlint/blob/master/ktlint-cli-core/src/main/kotlin/com/pinterest/ktlint/ruleset/core/api/RuleSetProviderV3.kt">RuleSetProviderV3</a> implementation.</p>
+<p>In a nutshell: a "rule set" is a JAR containing one or more <a href="https://github.com/pinterest/ktlint/blob/master/ktlint-rule-engine-core/src/main/kotlin/com/pinterest/ktlint/rule/engine/core/api/Rule.kt">Rule</a>s. <code>ktlint</code> is relying on the <a href="https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html">ServiceLoader</a> to discover all available "RuleSet"s on the classpath. As a ruleset author, all you need to do is to include a <code>META-INF/services/RuleSetProviderV3</code> file containing a fully qualified name of your <a href="https://github.com/pinterest/ktlint/blob/master/ktlint-cli-ruleset-core/src/main/kotlin/com/pinterest/ktlint/cli/ruleset/core/api/RuleSetProviderV3.kt">RuleSetProviderV3</a> implementation.</p>
 <h2 id="ktlint-ruleset-template">ktlint-ruleset-template<a class="headerlink" href="#ktlint-ruleset-template" title="Permanent link">&para;</a></h2>
 <p>A complete sample project (with tests and build files) is included in this repo under the <a href="https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-template">ktlint-ruleset-template</a> directory (make sure to check <a href="https://github.com/pinterest/ktlint/blob/master/ktlint-ruleset-template/src/test/kotlin/yourpkgname/NoVarRuleTest.kt">NoVarRuleTest</a> as it contains some useful information).</p>
 <div class="highlight"><span class="filename">Building the ktlint-ruleset-template</span><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>ktlint-ruleset-template/
@@ -953,7 +953,7 @@ You're not viewing the latest version.
 <p>Multiple custom rule sets can be loaded at the same time.</p>
 </div>
 <h2 id="abstract-syntax-tree-ast">Abstract Syntax Tree (AST)<a class="headerlink" href="#abstract-syntax-tree-ast" title="Permanent link">&para;</a></h2>
-<p>While writing/debugging <a href="https://github.com/pinterest/ktlint/blob/master/ktlint-rule-engine-core/src/main/kotlin/com/pinterest/ktlint/ruleset/core/api/Rule.kt">Rule</a>s it's often helpful to inspect the Abstract Syntax Tree (AST) of the code snippet that is to be linted / formatted. The <a href="https://github.com/JetBrains/psiviewer">Jetbrain PsiViewer plugin for IntelliJ IDEA</a> is a convenient tool to inspect code as shown below:</p>
+<p>While writing/debugging <a href="https://github.com/pinterest/ktlint/blob/master/ktlint-rule-engine-core/src/main/kotlin/com/pinterest/ktlint/rule/engine/core/api/Rule.kt">Rule</a>s it's often helpful to inspect the Abstract Syntax Tree (AST) of the code snippet that is to be linted / formatted. The <a href="https://github.com/JetBrains/psiviewer">Jetbrain PsiViewer plugin for IntelliJ IDEA</a> is a convenient tool to inspect code as shown below:</p>
 <p><img alt="Image" src="../../assets/images/psi-viewer.png" /></p>
 
 
@@ -995,7 +995,7 @@ You're not viewing the latest version.
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "search.suggest", "search.share"], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.b4d07000.min.js"></script>
+      <script src="../../assets/javascripts/bundle.b425cdc4.min.js"></script>
       
     
   </body>
