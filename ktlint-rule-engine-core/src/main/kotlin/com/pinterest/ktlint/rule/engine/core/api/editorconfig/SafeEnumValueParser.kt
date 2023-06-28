@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.rule.engine.core.api.editorconfig
 
-import com.pinterest.ktlint.rule.engine.core.util.safeAs
 import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.PropertyType.PropertyValueParser
 import java.util.Locale

@@ -4,6 +4,8 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.ruleset.standard.rules.ArgumentListWrappingRule
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.KtlintDocumentationTest
 import com.pinterest.ktlint.test.LintViolation
@@ -1323,6 +1325,44 @@ class KtlintSuppressionRuleTest {
         ktlintSuppressionRuleAssertThat(code)
             .hasLintViolation(4, 24, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation")
             .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given an expression containing a ktlint block directive then change the expression to an annotated expression with an @Suppress annotation`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER                          $EOL_CHAR
+            fun optionalInputTestArguments(): Stream<Arguments> =
+                Stream.of(
+                    Arguments.of(
+                        "foo",
+                        "bar"
+                    ),
+                    /* ktlint-disable */
+                    Arguments.of("fooooooooooooooooooooooo","bar"),
+                    /* ktlint-enable */
+                )
+            """.trimIndent()
+        val formattedCode =
+            """
+            // $MAX_LINE_LENGTH_MARKER                          $EOL_CHAR
+            fun optionalInputTestArguments(): Stream<Arguments> =
+                @Suppress("ktlint")
+                Stream.of(
+                    Arguments.of(
+                        "foo",
+                        "bar"
+                    ),
+                    Arguments.of("fooooooooooooooooooooooo","bar"),
+                )
+            """.trimIndent()
+        ktlintSuppressionRuleAssertThat(code)
+            .setMaxLineLength()
+            .addAdditionalRuleProvider { ArgumentListWrappingRule() }
+            .hasLintViolations(
+                LintViolation(8, 12, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
+                LintViolation(10, 12, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations"),
+            ).isFormattedAs(formattedCode)
     }
 }
 
