@@ -24,7 +24,6 @@ internal class PropertyWrappingRuleTest {
             """.trimIndent()
         propertyWrappingRuleAssertThat(code)
             .setMaxLineLength()
-            .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolation(2, 34, "Missing newline after \":\"")
             .isFormattedAs(formattedCode)
     }
@@ -46,7 +45,6 @@ internal class PropertyWrappingRuleTest {
             """.trimIndent()
         propertyWrappingRuleAssertThat(code)
             .setMaxLineLength()
-            .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolation(2, 30, "Missing newline before \"TypeWithALongName\"")
             .isFormattedAs(formattedCode)
     }
@@ -69,7 +67,6 @@ internal class PropertyWrappingRuleTest {
             """.trimIndent()
         propertyWrappingRuleAssertThat(code)
             .setMaxLineLength()
-            .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolations(
                 LintViolation(2, 50, "Missing newline after \"=\""),
                 LintViolation(3, 49, "Missing newline before \"TypeWithALongName(123)\""),
@@ -93,7 +90,6 @@ internal class PropertyWrappingRuleTest {
             """.trimIndent()
         propertyWrappingRuleAssertThat(code)
             .setMaxLineLength()
-            .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolation(2, 50, "Missing newline before \"TypeWithALongName(123)\"")
             .isFormattedAs(formattedCode)
     }
