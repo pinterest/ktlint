@@ -27,7 +27,7 @@ internal class SafeEnumValueParser<T : Enum<*>?>(enumType: Class<out T?>) : Prop
         value: String?,
     ): PropertyType.PropertyValue<T> =
         if (value == null) {
-            PropertyType.PropertyValue.invalid(value, "Cannot make enum " + enumType.name + " out of null")
+            PropertyType.PropertyValue.invalid(null, "Cannot make enum " + enumType.name + " out of null")
         } else {
             try {
                 PropertyType.PropertyValue.valid(

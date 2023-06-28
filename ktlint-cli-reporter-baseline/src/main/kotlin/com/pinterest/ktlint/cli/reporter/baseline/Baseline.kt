@@ -10,15 +10,11 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import mu.KotlinLogging
 import org.w3c.dom.Element
 import org.xml.sax.SAXException
-import java.io.File
 import java.io.IOException
 import java.io.InputStream
-import java.nio.file.Path
 import java.nio.file.Paths
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.parsers.ParserConfigurationException
-import kotlin.io.path.pathString
-import kotlin.io.path.relativeToOrSelf
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -190,16 +186,3 @@ private fun KtlintCliError.isSameAs(lintError: KtlintCliError) =
  * is not available in the baseline file and a normal equality check on the [KtlintCliError] fails.
  */
 public fun List<KtlintCliError>.doesNotContain(ktlintCliError: KtlintCliError): Boolean = none { it.isSameAs(ktlintCliError) }
-
-/**
- * Gets the relative route of the path. Also adjusts the slashes for uniformity between file systems.
- */
-@Deprecated("Marked for removal from public API in KtLint 0.50")
-public val Path.relativeRoute: String
-    get() {
-        val rootPath = Paths.get("").toAbsolutePath()
-        return this
-            .relativeToOrSelf(rootPath)
-            .pathString
-            .replace(File.separatorChar, '/')
-    }

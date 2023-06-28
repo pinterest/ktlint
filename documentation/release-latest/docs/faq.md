@@ -152,7 +152,7 @@ Less configuration options also means less discussions in teams about settings t
 ## Can I use KtLint to directly format the code I'm generating with KotlinPoet?
 
 Yes, it is possible to use KtLint to directly format the code generated with KotlinPoet. 
-To do so, you must include the dependencies `com.pinterest.ktlint:ktlint-core` and `com.pinterest.ktlint:ktlint-ruleset-standard` in your Gradle/Maven project.
+To do so, you must include the dependencies `com.pinterest.ktlint:ktlint-rule-engine` and `com.pinterest.ktlint:ktlint-ruleset-standard` in your Gradle/Maven project.
 
 !!! warning
     Do not include the dependency `com.pinterest:ktlint` as that would import the entire ktlint project including unwanted dependencies. Besides a much bigger artifact, it might also result in problems regarding logging.

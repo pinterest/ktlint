@@ -69,6 +69,9 @@ Before releasing a new version of KtLint, the release candidate is tested on a s
 Pre-requisites:
 * All changes have been merged to master.
 * Latest version of master has been pulled to the local machine.
+* Deprecated code of previous release is removed when applicable
+* TODO markers have been checked and removed when no longer applicable
+* Experimental rules are promoted when they are stable
 * The latest released version of ktlint matches with command `ktlint`:
    ```shell
    ktlint-prev --version
@@ -160,4 +163,4 @@ Formatting projects in which ktlint is not used may result in a huge amount of f
 
 ## Checking documentation
 [The documentation for KtLint](https://pinterest.github.io/ktlint/) should be checked for dead links.
-Follow the instructions for building the documentation in `/docs/readme.md`, and use a tool such as [Broken Link Checker Tool](https://www.deadlinkchecker.com/website-dead-link-checker.asp) to find broken links.
+Follow the instructions for building the documentation in `/documentation/readme.md`, and use a tool such as [Broken Link Checker Tool](https://www.deadlinkchecker.com/website-dead-link-checker.asp) to find broken links.

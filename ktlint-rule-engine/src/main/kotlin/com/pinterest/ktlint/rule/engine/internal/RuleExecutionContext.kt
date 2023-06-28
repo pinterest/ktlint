@@ -90,26 +90,7 @@ internal class RuleExecutionContext private constructor(
         val suppressHandler = SuppressHandler(suppressionLocator, autoCorrect, emit)
         if (rule.shouldContinueTraversalOfAST()) {
             try {
-                suppressHandler.handle(node, rule.ruleId) { autoCorrect, emit ->
-                    rule.beforeVisitChildNodes(node, autoCorrect, emit)
-                }
-                if (rule.shouldContinueTraversalOfAST()) {
-                    node
-                        .getChildren(null)
-                        .forEach { childNode ->
-                            suppressHandler.handle(childNode, rule.ruleId) { autoCorrect, emit ->
-                                this.executeRuleOnNodeRecursively(
-                                    childNode,
-                                    rule,
-                                    autoCorrect,
-                                    emit,
-                                )
-                            }
-                        }
-                }
-                suppressHandler.handle(node, rule.ruleId) { autoCorrect, emit ->
-                    rule.afterVisitChildNodes(node, autoCorrect, emit)
-                }
+                executeRuleOnNodeRecursively(node, rule, suppressHandler)
             } catch (e: Exception) {
                 if (autoCorrect) {
                     // line/col cannot be reliably mapped as exception might originate from a node not present in the
@@ -132,6 +113,33 @@ internal class RuleExecutionContext private constructor(
                     )
                 }
             }
+        }
+    }
+
+    private fun executeRuleOnNodeRecursively(
+        node: ASTNode,
+        rule: Rule,
+        suppressHandler: SuppressHandler,
+    ) {
+        suppressHandler.handle(node, rule.ruleId) { autoCorrect, emit ->
+            rule.beforeVisitChildNodes(node, autoCorrect, emit)
+        }
+        if (rule.shouldContinueTraversalOfAST()) {
+            node
+                .getChildren(null)
+                .forEach { childNode ->
+                    suppressHandler.handle(childNode, rule.ruleId) { autoCorrect, emit ->
+                        this.executeRuleOnNodeRecursively(
+                            childNode,
+                            rule,
+                            autoCorrect,
+                            emit,
+                        )
+                    }
+                }
+        }
+        suppressHandler.handle(node, rule.ruleId) { autoCorrect, emit ->
+            rule.afterVisitChildNodes(node, autoCorrect, emit)
         }
     }
 

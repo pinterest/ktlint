@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.cli
 
 import org.assertj.core.api.SoftAssertions
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
@@ -30,6 +31,7 @@ class RuleSetsLoaderCLITest {
             }
     }
 
+    @Disabled("Keep test around as example if the current ruleset provider is deprecated in the future")
     @Test
     fun `Given a custom ruleset jar that contains the deprecated RuleSetProviderV2 then display an error and exit`(
         @TempDir

@@ -33,8 +33,7 @@ import org.junit.jupiter.api.Test
 
 class KtLintTest {
     /**
-     * API Consumers directly use the ktlint-core module. Tests in this module should guarantee that the API is kept
-     * stable.
+     * API Consumers directly use the ktlint-rule-engine module. Tests in this module should guarantee that the API is kept stable.
      */
     @Nested
     inner class `Given an API consumer` {

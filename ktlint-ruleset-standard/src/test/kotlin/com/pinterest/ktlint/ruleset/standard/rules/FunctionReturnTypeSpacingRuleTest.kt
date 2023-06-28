@@ -121,11 +121,6 @@ class FunctionReturnTypeSpacingRuleTest {
             fun foo():
                 String = "some-result"
             """.trimIndent()
-        val formattedCode =
-            """
-            // $MAX_LINE_LENGTH_MARKER     $EOL_CHAR
-            fun foo(): String = "some-result"
-            """.trimIndent()
         functionReturnTypeSpacingRuleAssertThat(code)
             .setMaxLineLength()
             .hasNoLintViolations()

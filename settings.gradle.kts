@@ -31,8 +31,6 @@ enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include(
-    // ktlint-core module is no longer used internally in the ktlint project except for backwards compatibility
-    ":ktlint-core",
     ":ktlint-api-consumer",
     ":ktlint-bom",
     ":ktlint-cli",
@@ -52,5 +50,4 @@ include(
     ":ktlint-ruleset-standard",
     ":ktlint-ruleset-template",
     ":ktlint-test",
-    ":ktlint-test-ruleset-provider-v2-deprecated",
 )

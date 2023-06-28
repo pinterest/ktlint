@@ -8,12 +8,6 @@ import org.ec4j.core.model.PropertyType.PropertyValueParser.EnumValueParser
  */
 @Suppress("EnumEntryName")
 public enum class CodeStyleValue {
-    @Deprecated(
-        message = "Marked for removal in KtLint 0.50. Value is renamed to 'android_studio'.",
-        replaceWith = ReplaceWith("android_studio"),
-    )
-    android,
-
     /**
      * Code formatting based on Android's Kotlin styleguide (https://developer.android.com/kotlin/style-guide). This
      * code style aims to be compatible with code formatting in Android Studio.
@@ -38,12 +32,6 @@ public enum class CodeStyleValue {
      * In the long run, this code style becomes the default code style provided by KtLint.
      */
     ktlint_official,
-
-    @Deprecated(
-        message = "Marked for removal in KtLint 0.50. Value is renamed to 'intellij_idea'.",
-        replaceWith = ReplaceWith("intellij_idea"),
-    )
-    official,
 }
 
 public val CODE_STYLE_PROPERTY_TYPE: PropertyType.LowerCasingPropertyType<CodeStyleValue> =

@@ -4,14 +4,12 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
-import com.pinterest.ktlint.rule.engine.core.util.safeAs
 import com.pinterest.ktlint.rule.engine.internal.SuppressionLocatorBuilder.CommentSuppressionHint.Type.BLOCK_END
 import com.pinterest.ktlint.rule.engine.internal.SuppressionLocatorBuilder.CommentSuppressionHint.Type.BLOCK_START
 import com.pinterest.ktlint.rule.engine.internal.SuppressionLocatorBuilder.CommentSuppressionHint.Type.EOL
 import com.pinterest.ktlint.rule.engine.internal.rules.KTLINT_SUPPRESSION_RULE_ID
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
-import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.psi.KtAnnotated
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.ValueArgument
@@ -83,17 +81,17 @@ internal object SuppressionLocatorBuilder {
         val suppressionHints = ArrayList<SuppressionHint>()
         val commentSuppressionsHints = mutableListOf<CommentSuppressionHint>()
         rootNode.collect { node ->
-            node
-                .takeIf { it is PsiComment }
-                ?.createSuppressionHintFromComment(formatterTags)
-                ?.let { commentSuppressionsHints.add(it) }
+            when (val psi = node.psi) {
+                is PsiComment ->
+                    node
+                        .createSuppressionHintFromComment(formatterTags)
+                        ?.let { commentSuppressionsHints.add(it) }
 
-            // Extract all Suppress annotations and create SuppressionHints
-            node
-                .psi
-                .safeAs<KtAnnotated>()
-                ?.createSuppressionHintFromAnnotations()
-                ?.let { suppressionHints.add(it) }
+                is KtAnnotated ->
+                    psi
+                        .createSuppressionHintFromAnnotations()
+                        ?.let { suppressionHints.add(it) }
+            }
         }
 
         return suppressionHints.plus(
@@ -208,37 +206,30 @@ internal object SuppressionLocatorBuilder {
 
     private fun <T> List<T>.tail() = this.subList(1, this.size)
 
-    /**
-     * Creates [SuppressionHint] from annotations of given [PsiElement]. Returns null if no targetAnnotations are
-     * present or no mapping exists between annotations' values and ktlint rules
-     */
-    private fun PsiElement.createSuppressionHintFromAnnotations(): SuppressionHint? =
-        (this as? KtAnnotated)?.let { ktAnnotated ->
-            ktAnnotated
-                .annotationEntries
-                .filter {
-                    it.calleeExpression
-                        ?.constructorReferenceExpression
-                        ?.getReferencedName() in SUPPRESS_ANNOTATIONS
-                }.flatMap(KtAnnotationEntry::getValueArguments)
-                .mapNotNull { it.toRuleId(SUPPRESS_ANNOTATION_RULE_MAP) }
-                .let { suppressedRuleIds ->
-                    when {
-                        suppressedRuleIds.isEmpty() -> null
-                        suppressedRuleIds.contains(ALL_KTLINT_RULES_SUPPRESSION_ID) ->
-                            SuppressionHint(
-                                IntRange(ktAnnotated.startOffset, ktAnnotated.endOffset - 1),
-                                emptySet(),
-                            )
+    private fun KtAnnotated.createSuppressionHintFromAnnotations(): SuppressionHint? =
+        annotationEntries
+            .filter {
+                it.calleeExpression
+                    ?.constructorReferenceExpression
+                    ?.getReferencedName() in SUPPRESS_ANNOTATIONS
+            }.flatMap(KtAnnotationEntry::getValueArguments)
+            .mapNotNull { it.toRuleId(SUPPRESS_ANNOTATION_RULE_MAP) }
+            .let { suppressedRuleIds ->
+                when {
+                    suppressedRuleIds.isEmpty() -> null
+                    suppressedRuleIds.contains(ALL_KTLINT_RULES_SUPPRESSION_ID) ->
+                        SuppressionHint(
+                            IntRange(startOffset, endOffset - 1),
+                            emptySet(),
+                        )
 
-                        else ->
-                            SuppressionHint(
-                                IntRange(ktAnnotated.startOffset, ktAnnotated.endOffset - 1),
-                                suppressedRuleIds.toSet(),
-                            )
-                    }
+                    else ->
+                        SuppressionHint(
+                            IntRange(startOffset, endOffset - 1),
+                            suppressedRuleIds.toSet(),
+                        )
                 }
-        }
+            }
 
     private fun ValueArgument.toRuleId(annotationValueToRuleMapping: Map<String, String>): String? =
         getArgumentExpression()

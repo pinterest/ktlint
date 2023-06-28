@@ -28,7 +28,6 @@ public val EXPERIMENTAL_RULES_EXECUTION_PROPERTY: EditorConfigProperty<RuleExecu
         name = "ktlint_experimental",
         type = RULE_EXECUTION_PROPERTY_TYPE,
         defaultValue = RuleExecution.disabled,
-        // TODO: Enable by default in official code style?
     )
 
 /**

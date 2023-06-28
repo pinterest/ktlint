@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.rule.engine.internal.rulefilter
 
+import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
@@ -12,6 +13,10 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RULE_EXECUTION_PRO
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.ktLintRuleExecutionPropertyName
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.ktLintRuleSetExecutionPropertyName
+import com.pinterest.ktlint.rule.engine.internal.rules.KTLINT_SUPPRESSION_RULE_ID
+import mu.KotlinLogging
+
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
  * Filters the [RuleProvider]s defined in the [KtLintRuleEngine] for [Rule]s which are enabled for the given [EditorConfig].
@@ -35,10 +40,10 @@ internal class RuleExecutionRuleFilter(
             ruleExecutionPropertyNames(ruleProviders)
                 .plus(ruleSetExecutionPropertyNames(ruleProviders))
                 .plus(EXPERIMENTAL_RULES_EXECUTION_PROPERTY.name)
-        return map { it.name to RULE_EXECUTION_PROPERTY_TYPE.parse(it.sourceValue).parsed }
+        return map { it.name to it.sourceValue }
             .toMap()
-            .filterValues { it != null }
             .filterKeys { it in ruleExecutionPropertyNames }
+            .mapValues { RULE_EXECUTION_PROPERTY_TYPE.parse(it.value).parsed }
     }
 
     private fun ruleExecutionPropertyNames(ruleProviders: Set<RuleProvider>) =
@@ -70,7 +75,14 @@ private class RuleExecutionFilter(
          * the experimental and/or ktlint_official code style rules are enabled.
          */
         ruleExecution(rule.ruleId.ktLintRuleExecutionPropertyName())
-            ?.let { it == RuleExecution.enabled }
+            ?.let {
+                if (rule.ruleId == KTLINT_SUPPRESSION_RULE_ID && it == RuleExecution.disabled) {
+                    LOGGER.warn { "Rule '${rule.ruleId.value}' can not be disabled via the '.editorconfig'" }
+                    true
+                } else {
+                    it == RuleExecution.enabled
+                }
+            }
             ?: isRuleConditionallyEnabled(rule)
 
     private fun isRuleConditionallyEnabled(rule: Rule) =
