@@ -11,9 +11,9 @@ Note: These steps should be done directly in the pinterest/ktlint repository, no
 5. Push your changes to the branch, and merge it to `master`.
 6. Update your local `pinterest/ktlint` `master` branch; verify you see the `gradle.properties` and `CHANGELOG.md` changes locally.
 7. Add a tag with the new release version, and push it directly to remote (e.g. `git tag 0.50.0 && git push origin 0.50.0`). This will kick off the [Release workflow](https://github.com/pinterest/ktlint/actions/workflows/release.yml).
-9. Close and release the repo on Sonatype. (Only Pinterest employees can do this.)
-10. Find the `<release>-update-refs` branch in the repo (created by the `.announce` script) and merge it.
-11. Update `gradle.properties` with the new `SNAPSHOT` version, and add the section below to the top of `CHANGELOG.md` and commit. (This can be done directly in the main repo or in your fork.)
+8. Close and release the repo on Sonatype. (Only Pinterest employees can do this.)
+9. Find the `<release>-update-refs` branch in the repo (created by the `.announce` script) and merge it.
+10. Update `gradle.properties` with the new `SNAPSHOT` version, and add the section below to the top of `CHANGELOG.md` and commit. (This can be done directly in the main repo or in your fork.)
 ```markdown
 ## Unreleased
 
@@ -25,3 +25,8 @@ Note: These steps should be done directly in the pinterest/ktlint repository, no
 
 ### Changed
 ```
+
+## After release of documentation
+
+[The documentation for KtLint](https://pinterest.github.io/ktlint/) should be checked for dead links.
+Follow the instructions for building the documentation in `/documentation/readme.md`, and use a tool such as [Broken Link Checker Tool](https://www.deadlinkchecker.com/website-dead-link-checker.asp) to find broken links.

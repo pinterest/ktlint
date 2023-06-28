@@ -163,4 +163,4 @@ Formatting projects in which ktlint is not used may result in a huge amount of f
 
 ## Checking documentation
 [The documentation for KtLint](https://pinterest.github.io/ktlint/) should be checked for dead links.
-Follow the instructions for building the documentation in `/docs/readme.md`, and use a tool such as [Broken Link Checker Tool](https://www.deadlinkchecker.com/website-dead-link-checker.asp) to find broken links.
+Follow the instructions for building the documentation in `/documentation/readme.md`, and use a tool such as [Broken Link Checker Tool](https://www.deadlinkchecker.com/website-dead-link-checker.asp) to find broken links.
