@@ -43,69 +43,28 @@ See [adding a custom rule set](../api/custom-rule-set/) for more information.
 !!! tip
     Suppressing a `ktlint` violation is meant primarily as an escape latch for the rare cases when **ktlint** is not able to produce the correct result. Please report any such instances using [GitHub Issues](https://github.com/pinterest/ktlint/issues)).
 
-To disable a specific rule you'll need the rule identifier which is displayed at the end of the lint error.
+To disable a specific rule you'll need the fully qualified rule identifier. This identifier is displayed at the end of the lint error. In case your code was autocorrected, you need to revert the code and run the `lint` task instead of the `format` to find the rule identifier.
 
-An error can be suppressed using:
+As of Ktlint 0.50, an error can only be suppressed using @Suppress or @SuppressWarnings annotations
 
-* EOL comments
-* Block comments
-* @Suppress annotations
-
-=== "[:material-heart:](#) Suppress annotation"
+=== "[:material-heart:](#) Allowed"
 
     ```kotlin
     // Suppressing all rules for the entire file
     @file:Suppress("ktlint")
 
-    // Suppress a single rule for the annotated construct
-    @Suppress("ktlint:standard:no-wildcard-imports")
-    import foo.*
+    // Suppress a single rule (with id 'rule-id', defined in rule set with id 'rule-set-id') in the scope of the annotated construct
+    @Suppress("ktlint:rule-set-id:rule-id")
+    class Foo {}
 
     // Suppress multiple rules for the annotated construct
-    @Suppress("ktlint:standard:no-wildcard-imports", "ktlint:standard:other-rule-id")
+    @Suppress("ktlint:standard:no-wildcard-imports", "ktlint:custom-rule-set-id:custom-rule-id")
     import foo.*
 
     // Suppress all rules for the annotated construct
     @Suppress("ktlint")
     import foo.*
     ```
-=== "[:material-heart:](#) EOL comments"
-
-    ```kotlin
-    // Suppress a single rule for the commented line
-    import foo.* // ktlint-disable standard_no-wildcard-imports
-
-    // Suppress multiple rules for the commented line
-    import foo.* // ktlint-disable standard_no-wildcard-imports standard_other-rule-id
-
-    // Suppress all rules for the commented line
-    import foo.* // ktlint-disable
-    ```
-
-=== "[:material-heart-off-outline:](#) Block comments"
-
-    ```kotlin
-    // Suppress a single rule for all code between the start and end tag
-    /* ktlint-disable standard_no-wildcard-imports */
-    import foo.*
-    /* ktlint-disable standard_no-wildcard-imports */
-
-    // Suppress multiple rules for all code between the start and end tag
-    /* ktlint-disable standard_no-wildcard-imports standard_no-wildcard-imports */
-    import foo.*
-    /* ktlint-enable standard_no-wildcard-imports standard_no-wildcard-imports */
-
-    // Suppress all rules for all code between the start and end tag
-    /* ktlint-disable */
-    import foo.*
-    /* ktlint-enable */
-    ```
-
-!!! important
-    When using the block comments, the `ktlint-enable` directive needs to specify the exact same rule-id's and in the same order as the `ktlint-disable` directive.
-
-!!! warning
-    From a consistency perspective seen, it might be best to **not** mix the (EOL/Block) comment style with the annotation style in the same project.
 
 ## How do I globally disable a rule without `.editorconfig`?
 
@@ -152,7 +111,7 @@ Less configuration options also means less discussions in teams about settings t
 ## Can I use KtLint to directly format the code I'm generating with KotlinPoet?
 
 Yes, it is possible to use KtLint to directly format the code generated with KotlinPoet. 
-To do so, you must include the dependencies `com.pinterest.ktlint:ktlint-rule-engine` and `com.pinterest.ktlint:ktlint-ruleset-standard` in your Gradle/Maven project.
+To do so, you must include the dependencies `com.pinterest.ktlint:ktlint-core` and `com.pinterest.ktlint:ktlint-ruleset-standard` in your Gradle/Maven project.
 
 !!! warning
     Do not include the dependency `com.pinterest:ktlint` as that would import the entire ktlint project including unwanted dependencies. Besides a much bigger artifact, it might also result in problems regarding logging.

@@ -251,6 +251,54 @@ Indentation formatting - respects `.editorconfig` `indent_size` with no continua
 
 Rule id: `indent` (`standard` rule set)
 
+## Ktlint-suppression rule
+
+The `ktlint-disable` and `ktlint-enable` directives are no longer supported as of ktlint version `0.50.0`. This rule migrates the directives to Suppress or SuppressWarnings annotations.
+
+Identifiers in the @Suppress and @SuppressWarnings annotations to suppress ktlint rules are checked for validity and autocorrected when possible. 
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    @file:Suppress("ktlint:standard:no-wildcard-imports")
+
+    class FooBar {
+        @Suppress("ktlint:standard:max-line-length")
+        val foo = "some longggggggggggggggggggg text"
+
+        fun bar() =
+            @Suppress("ktlint:standard:no-multi-spaces")
+            listOf(
+                "1   One", 
+                "10  Ten", 
+                "100 Hundred", 
+            )
+    }
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    /* ktlint-disable standard:no-wildcard-imports */
+
+    class FooBar {
+        val foo = "some longggggggggggggggggggg text" // ktlint-disable standard:max-line-length
+
+        fun bar() =
+            listOf(
+                /* ktlint-disable standard:no-multi-spaces */
+                "1   One", 
+                "10  Ten", 
+                "100 Hundred", 
+                /* ktlint-enable standard:no-multi-spaces */
+            )
+    }
+    ```
+
+Rule id: `ktlint-suppression` (`standard` rule set)
+
+!!! note
+    This rule can not be disabled in the `.editorconfig`.
+
 ## Max line length
 
 Ensures that lines do not exceed the given length of `.editorconfig` property `max_line_length` (see [EditorConfig](../configuration-ktlint/) section for more). This rule does not apply in a number of situations. For example, in the case a line exceeds the maximum line length due to a comment that disables ktlint rules then that comment is being ignored when validating the length of the line. The `.editorconfig` property `ktlint_ignore_back_ticked_identifier` can be set to ignore identifiers which are enclosed in backticks, which for example is very useful when you want to allow longer names for unit tests.
