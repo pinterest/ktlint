@@ -12,7 +12,7 @@ All releases of `ktlint` can be downloaded from the [releases](https://github.co
 A particular version of `ktlint` can be downloaded with next command which also changes the file to an executable in directory `/usr/local/bin`:
 
 ```sh title="Download"
-curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.49.1/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
+curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.50.0/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
 ```
 
 !!! tip "Curl not installed or behind proxy"
@@ -198,6 +198,8 @@ ktlint installGitPrePushHook
 
 ### Miscellaneous flags and commands
 
+`-a` or `--android`: Turn on Android Kotlin Style Guide compatibility. This flag is most likely to be removed in a future version. Use [`.editorconfig ktlint_code_style`](../../rules/configuration-ktlint/#code-style). 
+
 `--color` and `--color-name=<colorName>`: Make output colorful and optionally set the color name to use.
 
 `--disabled_rules=<disabledRules>`: A comma-separated list of rules to globally disable. To disable the standard ktlint rule-set use `--disabled_rules=standard`.  This flag is most likely to be removed in a future version. Use [`.editorconfig disabled_rules`](../../rules/configuration-ktlint/#disabled-rules).
@@ -216,5 +218,8 @@ Options `--stdin` and `--patterns-from-stdin` are mutually exclusive, only one o
 
 ### Microsoft Windows users
 
-!!! tip "Microsoft Windows"
-    On Microsoft Windows you'll have to use `java -jar ktlint ...`
+Microsoft Windows is not able to run the `ktlint` command directly. Ktlint can be run in following ways on Microsoft Windows:
+
+1. Use the `ktlint.bat` batch file provided as part of the [release](https://github.com/pinterest/ktlint/releases/tag/0.50.0). Add the batch file to your `%PATH%` environment variable for easy access
+2. Run `ktlint` using Git Bash
+3. Run as `java -jar ktlint`
