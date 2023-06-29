@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## [0.50.0] - 2023-06-29
 
 ### Deprecation of ktlint-enable and ktlint-disable directives
 
@@ -1938,6 +1938,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[0.49.1]: https://github.com/pinterest/ktlint/compare/0.49.1...0.50.0
 [0.49.1]: https://github.com/pinterest/ktlint/compare/0.49.0...0.49.1
 [0.49.0]: https://github.com/pinterest/ktlint/compare/0.48.2...0.49.0
 [0.48.2]: https://github.com/pinterest/ktlint/compare/0.48.1...0.48.2
