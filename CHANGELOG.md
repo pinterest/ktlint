@@ -2,6 +2,16 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+
+### Removed
+
+### Fixed
+
+### Changed
+
 ## [0.50.0] - 2023-06-29
 
 ### Deprecation of ktlint-enable and ktlint-disable directives
