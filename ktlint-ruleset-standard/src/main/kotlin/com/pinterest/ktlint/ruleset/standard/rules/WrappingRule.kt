@@ -158,6 +158,7 @@ public class WrappingRule :
                 ?: return
         if (lbrace.followedByNewline() ||
             lbrace.followedByEolComment() ||
+            lbrace.followedByFunctionLiteralParameterList() ||
             lbrace.isPartOf(LONG_STRING_TEMPLATE_ENTRY)
         ) {
             // String template inside raw string literal may exceed the maximum line length
@@ -197,6 +198,12 @@ public class WrappingRule :
             leaves()
                 .takeWhile { it.isWhiteSpaceWithoutNewline() || it.elementType == EOL_COMMENT }
                 .firstOrNull { it.elementType == EOL_COMMENT }
+
+    private fun ASTNode.followedByFunctionLiteralParameterList() =
+        VALUE_PARAMETER_LIST ==
+            takeIf { treeParent.elementType == FUNCTION_LITERAL }
+                ?.nextCodeSibling()
+                ?.elementType
 
     private fun rearrangeBlock(
         node: ASTNode,
@@ -425,8 +432,6 @@ public class WrappingRule :
                         }
                     }
                 }
-
-            Unit
         }
     }
 
@@ -676,6 +681,7 @@ public class WrappingRule :
                     ?: return
             node
                 .getEndOfBlock()
+                ?.takeIf { it.elementType == RBRACE }
                 ?.takeUnless { it.isPrecededByNewline() }
                 ?.let { rbrace ->
                     if (hasNewLineInClosedRange(lbrace, rbrace)) {
@@ -695,28 +701,36 @@ public class WrappingRule :
     private fun ASTNode.isPrecededByNewline() = prevLeaf().isWhiteSpaceWithNewline()
 
     private fun ASTNode.getStartOfBlock() =
-        firstChildLeafOrSelf()
-            .let { node ->
-                if (node.elementType == LBRACE) {
-                    // WHEN-entry block have LBRACE and RBRACE as first and last elements
-                    node
-                } else {
-                    // Other blocks have LBRACE and RBRACE as siblings of the block
-                    node.prevLeaf { !it.isPartOfComment() && !it.isWhiteSpace() }
+        if (treeParent.elementType == FUNCTION_LITERAL) {
+            treeParent.findChildByType(LBRACE)
+        } else {
+            firstChildLeafOrSelf()
+                .let { node ->
+                    if (node.elementType == LBRACE) {
+                        // WHEN-entry block have LBRACE and RBRACE as first and last elements
+                        node
+                    } else {
+                        // Other blocks have LBRACE and RBRACE as siblings of the block
+                        node.prevSibling { !it.isPartOfComment() && !it.isWhiteSpace() }
+                    }
                 }
-            }
+        }
 
     private fun ASTNode.getEndOfBlock() =
-        lastChildLeafOrSelf()
-            .let { node ->
-                if (node.elementType == RBRACE && treeParent.elementType != FUNCTION_LITERAL) {
-                    // WHEN-entry block have LBRACE and RBRACE as first and last elements
-                    node
-                } else {
-                    // Other blocks have LBRACE and RBRACE as siblings of the block
-                    node.nextLeaf { !it.isPartOfComment() && !it.isWhiteSpace() }
+        if (treeParent.elementType == FUNCTION_LITERAL) {
+            treeParent.findChildByType(RBRACE)
+        } else {
+            lastChildLeafOrSelf()
+                .let { node ->
+                    if (node.elementType == RBRACE) {
+                        // WHEN-entry block have LBRACE and RBRACE as first and last elements
+                        node
+                    } else {
+                        // Other blocks have LBRACE and RBRACE as siblings of the block
+                        node.nextSibling { !it.isPartOfComment() && !it.isWhiteSpace() }
+                    }
                 }
-            }
+        }
 
     private companion object {
         private val LTOKEN_SET = TokenSet.create(LPAR, LBRACE, LBRACKET, LT)

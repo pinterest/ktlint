@@ -2629,6 +2629,18 @@ internal class WrappingRuleTest {
             """.trimIndent()
         wrappingRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Given a nested function literal`() {
+        val code =
+            """
+            val foo =
+                bar {
+                    { Foobar() }
+                }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
+    }
 }
 
 // Replace the "$." placeholder with an actual "$" so that string "$.{expression}" is transformed to a String template
