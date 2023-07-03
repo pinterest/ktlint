@@ -144,7 +144,9 @@ private fun MockProject.registerFormatPomModel() {
     registerService(PomModel::class.java, FormatPomModel())
 }
 
-private class FormatPomModel : UserDataHolderBase(), PomModel {
+private class FormatPomModel :
+    UserDataHolderBase(),
+    PomModel {
     override fun runTransaction(transaction: PomTransaction) {
         (transaction as PomTransactionBase).run()
     }

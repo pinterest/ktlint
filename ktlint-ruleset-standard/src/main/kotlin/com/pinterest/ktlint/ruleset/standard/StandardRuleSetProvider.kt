@@ -11,6 +11,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.BlankLineBeforeDeclarationRul
 import com.pinterest.ktlint.ruleset.standard.rules.BlockCommentInitialStarAlignmentRule
 import com.pinterest.ktlint.ruleset.standard.rules.ChainWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ClassNamingRule
+import com.pinterest.ktlint.ruleset.standard.rules.ClassSignatureRule
 import com.pinterest.ktlint.ruleset.standard.rules.CommentSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.CommentWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ContextReceiverWrappingRule
@@ -84,8 +85,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.TypeParameterListSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.UnnecessaryParenthesesBeforeTrailingLambdaRule
 import com.pinterest.ktlint.ruleset.standard.rules.WrappingRule
 
-public class StandardRuleSetProvider :
-    RuleSetProviderV3(RuleSetId.STANDARD) {
+public class StandardRuleSetProvider : RuleSetProviderV3(RuleSetId.STANDARD) {
     override fun getRuleProviders(): Set<RuleProvider> =
         setOf(
             RuleProvider { AnnotationRule() },
@@ -96,6 +96,7 @@ public class StandardRuleSetProvider :
             RuleProvider { BlockCommentInitialStarAlignmentRule() },
             RuleProvider { ChainWrappingRule() },
             RuleProvider { ClassNamingRule() },
+            RuleProvider { ClassSignatureRule() },
             RuleProvider { CommentSpacingRule() },
             RuleProvider { CommentWrappingRule() },
             RuleProvider { ContextReceiverWrappingRule() },

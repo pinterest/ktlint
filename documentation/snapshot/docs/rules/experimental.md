@@ -90,6 +90,183 @@ Rule id: `blank-line-before-declaration` (`standard` rule set)
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
 
+## Class signature
+
+Rewrites the class signature to a consistent format respecting the `.editorconfig` property `max_line_length` if set. In the `ktlint_official` code style all class parameters are wrapped by default. Set `.editorconfig` property `ktlint_class_signature_wrapping_rule_always_with_minimum_parameters` to a value greater than 1 to allow class with a few parameters to be placed on a single line.
+The other code styles allow an infinite amount of parameters on the same line (as long as the `max_line_length` is not exceeded) unless `.editorconfig` property `ktlint_class_signature_wrapping_rule_always_with_minimum_parameters` is set explicitly.
+
+=== "[:material-heart:](#) Ktlint (ktlint_official)"
+
+    ```kotlin
+    // Assume that max_line_length is not exceeded when written as single line
+    class Foo0
+    class Foo1(
+        a: Any
+    )
+    class Foo2(
+        a: Any,
+        b: Any
+    )
+    class Foo3(
+        @Foo a: Any,
+        b: Any,
+        c: Any
+    )
+    class Foo4(
+        a: Any,
+        b: Any,
+        c: Any
+    ) : FooBar(a, c)
+    class Foo5 :
+        FooBar(
+            "bar1",
+            "bar2",
+        ) {
+        // body
+    }
+    class Foo6(
+        val bar1: Bar,
+        val bar2: Bar
+    ) : FooBar(
+            bar1,
+            bar2
+        ) {
+        // body
+    }
+    class Foo7(
+        val bar1: Bar,
+        val bar2: Bar
+    ) : FooBar(
+            bar1,
+            bar2
+        ),
+        BarFoo1,
+        BarFoo2 {
+        // body
+    }
+    class Foo8
+        constructor(
+            val bar1: Bar,
+            val bar2: Bar,
+        ) : FooBar(bar1, bar2),
+            BarFoo1,
+            BarFoo2 {
+        // body
+    }
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed (ktlint_official)"
+
+    ```kotlin
+    // Assume that max_line_length is not exceeded when written as single line
+    class Foo0()
+    class Foo1(a: Any)
+    class Foo2(a: Any, b: Any)
+    class Foo3(@Foo a: Any, b: Any, c: Any)
+    class Foo4(a: Any, b: Any, c: Any) : FooBar(a, c)
+    class Foo5 : FooBar(
+        "bar1",
+        "bar2",
+    ) {
+        // body
+    }
+    class Foo6(
+        val bar1: Bar,
+        val bar2: Bar
+    ) : FooBar(
+        bar1,
+        bar2
+    ) {
+        // body
+    }
+    class Foo7(
+        val bar1: Bar,
+        val bar2: Bar
+    ) : FooBar(
+        bar1,
+        bar2
+    ),
+        BarFoo1,
+        BarFoo2 {
+        // body
+    }
+    class Foo8
+    constructor(
+        val bar1: Bar,
+        val bar2: Bar,
+    ) : FooBar(bar1, bar2),
+        BarFoo1,
+        BarFoo2 {
+        // body
+    }
+    ```
+
+=== "[:material-heart:](#) Ktlint (non ktlint_official)"
+
+    ```kotlin
+    // Assume that the last allowed character is
+    // at the X character on the right           X
+    class Foo0
+    class Foo1(
+        a: Any
+    )
+    class Foo2(a: Any)
+    class Foo3(
+        a: Any,
+        b: Any
+    )
+    class Foo4(a: Any, b: Any)
+    class Foo5(@Foo a: Any, b: Any, c: Any)
+    class Foo6(a: Any, b: Any, c: Any) :
+        FooBar(a, c)
+    class Foo7 : FooBar(
+        "bar1",
+        "bar2",
+    ) {
+        // body
+    }
+    class Foo8(
+        val bar1: Bar,
+        val bar2: Bar
+    ) : FooBar(
+        bar1,
+        bar2
+    ) {
+        // body
+    }
+    class Foo9(
+        val bar1: Bar,
+        val bar2: Bar
+    ) : FooBar(
+        bar1,
+        bar2
+    ),
+        BarFoo1,
+        BarFoo2 {
+        // body
+    }
+    class Foo10
+    constructor(
+        val bar1: Bar,
+        val bar2: Bar,
+    ) : FooBar(bar1, bar2),
+        BarFoo1,
+        BarFoo2 {
+        // body
+    }
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed (non ktlint_official)"
+
+    ```kotlin
+    // Assume that the last allowed character is
+    // at the X character on the right           X
+    class Foo0()
+    class Foo6(a: Any, b: Any, c: Any) : FooBar(a, c)
+    ```
+
+Rule id: `class-signature` (`standard` rule set)
+
 ## Discouraged comment location
 
 Detect discouraged comment locations (no autocorrect).

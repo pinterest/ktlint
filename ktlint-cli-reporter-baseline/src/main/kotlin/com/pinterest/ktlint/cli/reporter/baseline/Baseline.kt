@@ -63,7 +63,9 @@ public class Baseline(
  */
 public fun loadBaseline(path: String): Baseline = BaselineLoader(path).load()
 
-private class BaselineLoader(private val path: String) {
+private class BaselineLoader(
+    private val path: String,
+) {
     var ruleReferenceWithoutRuleSetIdPrefix = 0
 
     fun load(): Baseline {

@@ -17,7 +17,9 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 /**
  * Load all properties from an ".editorconfig" file without filtering on a glob.
  */
-internal class EditorConfigDefaultsLoader(private val editorConfigLoaderEc4j: EditorConfigLoaderEc4j) {
+internal class EditorConfigDefaultsLoader(
+    private val editorConfigLoaderEc4j: EditorConfigLoaderEc4j,
+) {
     /**
      * Loads properties from [path]. [path] may either locate a file (also allows specifying a file with a name other
      * than ".editorconfig") or a directory in which a file with name ".editorconfig" is expected to exist. Properties

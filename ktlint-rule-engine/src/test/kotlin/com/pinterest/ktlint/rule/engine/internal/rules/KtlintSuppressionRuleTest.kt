@@ -1366,4 +1366,6 @@ class KtlintSuppressionRuleTest {
     }
 }
 
-private class DummyRule(id: String) : Rule(RuleId(id), About())
+private class DummyRule(
+    id: String,
+) : Rule(RuleId(id), About())

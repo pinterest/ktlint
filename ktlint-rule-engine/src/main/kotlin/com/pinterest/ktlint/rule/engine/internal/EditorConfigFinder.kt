@@ -19,7 +19,9 @@ import kotlin.system.measureTimeMillis
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
-internal class EditorConfigFinder(private val editorConfigLoaderEc4j: EditorConfigLoaderEc4j) {
+internal class EditorConfigFinder(
+    private val editorConfigLoaderEc4j: EditorConfigLoaderEc4j,
+) {
     /**
      * Finds all relevant ".editorconfig" files for the given path.
      */

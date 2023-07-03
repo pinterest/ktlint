@@ -24,7 +24,9 @@ import kotlin.io.path.relativeToOrSelf
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
-class CommandLineTestRunner(private val tempDir: Path) {
+class CommandLineTestRunner(
+    private val tempDir: Path,
+) {
     private val ktlintCli: String = System.getProperty("ktlint-cli")
 
     /**

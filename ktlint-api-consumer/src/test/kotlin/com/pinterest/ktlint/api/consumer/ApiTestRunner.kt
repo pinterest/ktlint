@@ -14,7 +14,9 @@ import kotlin.io.path.relativeToOrSelf
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
-class ApiTestRunner(private val tempDir: Path) {
+class ApiTestRunner(
+    private val tempDir: Path,
+) {
     fun prepareTestProject(testProjectName: String): Path {
         val testProjectPath = TEST_PROJECTS_PATHS.resolve(testProjectName)
         assert(Files.exists(testProjectPath)) {
