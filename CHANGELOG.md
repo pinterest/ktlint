@@ -10,6 +10,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+* Fix wrapping of nested function literals `wrapping` ([#2106](https://github.com/pinterest/ktlint/issues/2106))
+
 ### Changed
 
 ## [0.50.0] - 2023-06-29
