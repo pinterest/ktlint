@@ -12,6 +12,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+* Update dependency gradle to v8.2 ([#2105](https://github.com/pinterest/ktlint/pull/2105))
+
 ## [0.50.0] - 2023-06-29
 
 ### Deprecation of ktlint-enable and ktlint-disable directives
