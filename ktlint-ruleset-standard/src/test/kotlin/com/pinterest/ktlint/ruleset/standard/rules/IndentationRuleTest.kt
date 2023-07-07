@@ -4958,22 +4958,13 @@ internal class IndentationRuleTest {
         indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
-    @Test
-    fun `Issue 1916 - Given a class declaration with an annotation before the constructor`() {
-        val code =
-            """
-            class Foo
-            @Bar1 @Bar2
-            constructor(
-                foo1: Foo1,
-                foo2: Foo2,
-            ) {
-                fun foo() = "foo"
-            }
-            """.trimIndent()
-        val formattedCode =
-            """
-            class Foo
+    @Nested
+    inner class `Issue 1916, issue 2115 - Given the ktlint_official code style and a class declaration with an annotated constructor` {
+        @Test
+        fun `Issue 1916, issue 2115 - Given a class declaration with an annotation before the constructor keyword`() {
+            val code =
+                """
+                class Foo
                 @Bar1 @Bar2
                 constructor(
                     foo1: Foo1,
@@ -4981,39 +4972,36 @@ internal class IndentationRuleTest {
                 ) {
                     fun foo() = "foo"
                 }
-            """.trimIndent()
-        indentationRuleAssertThat(code)
-            .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
-            .hasLintViolations(
-                LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
-                LintViolation(3, 1, "Unexpected indentation (0) (should be 4)"),
-                LintViolation(4, 1, "Unexpected indentation (4) (should be 8)"),
-                LintViolation(5, 1, "Unexpected indentation (4) (should be 8)"),
-                LintViolation(6, 1, "Unexpected indentation (0) (should be 4)"),
-                LintViolation(7, 1, "Unexpected indentation (4) (should be 8)"),
-                LintViolation(8, 1, "Unexpected indentation (0) (should be 4)"),
-            ).isFormattedAs(formattedCode)
-    }
+                """.trimIndent()
+            val formattedCode =
+                """
+                class Foo
+                    @Bar1 @Bar2
+                    constructor(
+                        foo1: Foo1,
+                        foo2: Foo2,
+                    ) {
+                        fun foo() = "foo"
+                    }
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasLintViolations(
+                    LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
+                    LintViolation(3, 1, "Unexpected indentation (0) (should be 4)"),
+                    LintViolation(4, 1, "Unexpected indentation (4) (should be 8)"),
+                    LintViolation(5, 1, "Unexpected indentation (4) (should be 8)"),
+                    LintViolation(6, 1, "Unexpected indentation (0) (should be 4)"),
+                    LintViolation(7, 1, "Unexpected indentation (4) (should be 8)"),
+                    LintViolation(8, 1, "Unexpected indentation (0) (should be 4)"),
+                ).isFormattedAs(formattedCode)
+        }
 
-    @Test
-    fun `Issue 1916 - Given a class declaration with an annotation before the constructor nad having a super type list`() {
-        val code =
-            """
-            class Foo
-            @Bar1 @Bar2
-            constructor(
-                foo1: Foo1,
-                foo2: Foo2,
-            ) : Foobar(
-                "foobar1",
-                "foobar2",
-            ) {
-                fun foo() = "foo"
-            }
-            """.trimIndent()
-        val formattedCode =
-            """
-            class Foo
+        @Test
+        fun `Issue 1916, issue 2115 - Given a class declaration with an annotation before the constructor and having a single super type`() {
+            val code =
+                """
+                class Foo
                 @Bar1 @Bar2
                 constructor(
                     foo1: Foo1,
@@ -5024,21 +5012,96 @@ internal class IndentationRuleTest {
                 ) {
                     fun foo() = "foo"
                 }
-            """.trimIndent()
-        indentationRuleAssertThat(code)
-            .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
-            .hasLintViolations(
-                LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
-                LintViolation(3, 1, "Unexpected indentation (0) (should be 4)"),
-                LintViolation(4, 1, "Unexpected indentation (4) (should be 8)"),
-                LintViolation(5, 1, "Unexpected indentation (4) (should be 8)"),
-                LintViolation(6, 1, "Unexpected indentation (0) (should be 4)"),
-                LintViolation(7, 1, "Unexpected indentation (4) (should be 8)"),
-                LintViolation(8, 1, "Unexpected indentation (4) (should be 8)"),
-                LintViolation(9, 1, "Unexpected indentation (0) (should be 4)"),
-                LintViolation(10, 1, "Unexpected indentation (4) (should be 8)"),
-                LintViolation(11, 1, "Unexpected indentation (0) (should be 4)"),
-            ).isFormattedAs(formattedCode)
+                """.trimIndent()
+            val formattedCode =
+                """
+                class Foo
+                    @Bar1 @Bar2
+                    constructor(
+                        foo1: Foo1,
+                        foo2: Foo2,
+                    ) : Foobar(
+                        "foobar1",
+                        "foobar2",
+                    ) {
+                    fun foo() = "foo"
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasLintViolations(
+                    LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
+                    LintViolation(3, 1, "Unexpected indentation (0) (should be 4)"),
+                    LintViolation(4, 1, "Unexpected indentation (4) (should be 8)"),
+                    LintViolation(5, 1, "Unexpected indentation (4) (should be 8)"),
+                    LintViolation(6, 1, "Unexpected indentation (0) (should be 4)"),
+                    LintViolation(7, 1, "Unexpected indentation (4) (should be 8)"),
+                    LintViolation(8, 1, "Unexpected indentation (4) (should be 8)"),
+                    LintViolation(9, 1, "Unexpected indentation (0) (should be 4)"),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Issue 1916, issue 2115 - Given a class declaration with an annotation before the constructor and having multiple super types`() {
+            val code =
+                """
+                class Foo
+                @Bar1 @Bar2
+                constructor(
+                    foo1: Foo1,
+                    foo2: Foo2,
+                ) : Foobar1(
+                    "foobar1",
+                    "foobar2",
+                ), FooBar2 {
+                    fun foo() = "foo"
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                class Foo
+                    @Bar1 @Bar2
+                    constructor(
+                        foo1: Foo1,
+                        foo2: Foo2,
+                    ) : Foobar1(
+                        "foobar1",
+                        "foobar2",
+                    ), FooBar2 {
+                    fun foo() = "foo"
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasLintViolations(
+                    LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
+                    LintViolation(3, 1, "Unexpected indentation (0) (should be 4)"),
+                    LintViolation(4, 1, "Unexpected indentation (4) (should be 8)"),
+                    LintViolation(5, 1, "Unexpected indentation (4) (should be 8)"),
+                    LintViolation(6, 1, "Unexpected indentation (0) (should be 4)"),
+                    LintViolation(7, 1, "Unexpected indentation (4) (should be 8)"),
+                    LintViolation(8, 1, "Unexpected indentation (4) (should be 8)"),
+                    LintViolation(9, 1, "Unexpected indentation (0) (should be 4)"),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Issue 2115 - Given a class without an explicit constructor and with a long super type list then do not indent the class body`() {
+            val code =
+                """
+                class Foo(
+                    val bar1: Bar,
+                    val bar2: Bar,
+                ) : FooBar(bar1, bar2),
+                    BarFoo1,
+                    BarFoo2 {
+                    // body
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasNoLintViolations()
+        }
     }
 
     @Test
