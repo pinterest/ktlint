@@ -17,6 +17,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLOSING_QUOTE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLON
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONDITION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONSTRUCTOR_DELEGATION_CALL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONSTRUCTOR_KEYWORD
@@ -206,13 +207,41 @@ public class IndentationRule :
             node.elementType == CLASS_BODY ||
                 node.elementType == CONTEXT_RECEIVER_LIST ||
                 node.elementType == LONG_STRING_TEMPLATE_ENTRY ||
-                node.elementType == SUPER_TYPE_CALL_ENTRY ||
                 node.elementType == STRING_TEMPLATE ||
                 node.elementType == VALUE_ARGUMENT_LIST ->
                 startIndentContext(
                     fromAstNode = node,
                     lastChildIndent = "",
                 )
+
+            node.elementType == SUPER_TYPE_CALL_ENTRY -> {
+                if (codeStyle == ktlint_official &&
+                    node
+                        .parent { it.elementType == CLASS }
+                        ?.findChildByType(PRIMARY_CONSTRUCTOR) != null
+                ) {
+                    // Contrary to the default IntelliJ IDEA formatter, indent the super type call entry so that it looks better in case it
+                    // is followed by another super type:
+                    //      class Foo(
+                    //          val bar1: Bar,
+                    //          val bar2: Bar,
+                    //      ) : FooBar(
+                    //              bar1,
+                    //              bar2
+                    //          ),
+                    //          BarFoo,
+                    startIndentContext(
+                        fromAstNode = node,
+                        childIndent = indentConfig.indent,
+                        activated = true,
+                    )
+                } else {
+                    startIndentContext(
+                        fromAstNode = node,
+                        lastChildIndent = "",
+                    )
+                }
+            }
 
             node.elementType == VALUE_ARGUMENT ->
                 visitValueArgument(node)
@@ -608,16 +637,52 @@ public class IndentationRule :
         val primaryConstructor = node.findChildByType(PRIMARY_CONSTRUCTOR)
         val containsConstructorKeyword = primaryConstructor?.findChildByType(CONSTRUCTOR_KEYWORD) != null
         if (codeStyle == ktlint_official && primaryConstructor != null && containsConstructorKeyword) {
-            // Indent both constructor and super type list
+            // Contrary to the default IntelliJ IDEA formatter, ident both constructor and super type list as follows:
+            //     class Foo
+            //        @Bar1 @Bar2
+            //        constructor(
+            //            foo1: Foo1,
+            //            foo2: Foo2,
+            //        ) : Foobar1(
+            //                "foobar1",
+            //                "foobar2",
+            //            ),
+            //            FooBar2,
+            val superTypeList = node.findChildByType(SUPER_TYPE_LIST)
             nextToAstNode =
                 startIndentContext(
                     fromAstNode = primaryConstructor.getPrecedingLeadingCommentsAndWhitespaces(),
                     toAstNode =
-                        node
-                            .findChildByType(SUPER_TYPE_LIST)
+                        superTypeList
                             ?.lastChildLeafOrSelf()
                             ?: nextToAstNode,
                 ).prevCodeLeaf()
+
+            superTypeList
+                ?.findChildByType(COMMA)
+                ?.let { comma ->
+                    // In case of a multiline primary constructor the first super type is merged with the closing parenthesis of the
+                    // constructor. The start of the super type list does not activate the indent because it is not preceded by a newline.
+                    // To fix this, the super type entries on the next line (e.g. after the comma) have to be double indented.
+                    // Allow:
+                    //     class Foo(
+                    //         val bar1: Bar,
+                    //         val bar2: Bar,
+                    //     ) : FooBar(
+                    //             bar1,
+                    //             bar2
+                    //         ),
+                    //         BarFoo1
+                    val prevCodeLeaf = startIndentContext(
+                        fromAstNode = comma,
+                        toAstNode = superTypeList.lastChildLeafOrSelf(),
+                        childIndent = indentConfig.indent.repeat(2),
+                    ).prevCodeLeaf()
+                    startIndentContext(
+                        fromAstNode = primaryConstructor.getPrecedingLeadingCommentsAndWhitespaces(),
+                        toAstNode = prevCodeLeaf,
+                    ).prevCodeLeaf()
+                }
         } else {
             node
                 .findChildByType(SUPER_TYPE_LIST)
@@ -922,6 +987,7 @@ public class IndentationRule :
         childIndent: String = indentConfig.indent,
         firstChildIndent: String = childIndent,
         lastChildIndent: String = childIndent,
+        activated: Boolean = false,
     ): IndentContext =
         IndentContext(
             fromASTNode = fromAstNode,
@@ -930,6 +996,7 @@ public class IndentationRule :
             firstChildIndent = firstChildIndent,
             childIndent = childIndent,
             lastChildIndent = lastChildIndent,
+            activated = activated,
         ).also { newIndentContext ->
             LOGGER.trace {
                 val nodeIndentLevel = indentConfig.indentLevelFrom(newIndentContext.nodeIndent)

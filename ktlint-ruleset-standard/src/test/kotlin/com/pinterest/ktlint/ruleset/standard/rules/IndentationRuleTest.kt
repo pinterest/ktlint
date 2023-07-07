@@ -5021,9 +5021,9 @@ internal class IndentationRuleTest {
                         foo1: Foo1,
                         foo2: Foo2,
                     ) : Foobar(
-                        "foobar1",
-                        "foobar2",
-                    ) {
+                            "foobar1",
+                            "foobar2",
+                        ) {
                     fun foo() = "foo"
                 }
                 """.trimIndent()
@@ -5035,9 +5035,9 @@ internal class IndentationRuleTest {
                     LintViolation(4, 1, "Unexpected indentation (4) (should be 8)"),
                     LintViolation(5, 1, "Unexpected indentation (4) (should be 8)"),
                     LintViolation(6, 1, "Unexpected indentation (0) (should be 4)"),
-                    LintViolation(7, 1, "Unexpected indentation (4) (should be 8)"),
-                    LintViolation(8, 1, "Unexpected indentation (4) (should be 8)"),
-                    LintViolation(9, 1, "Unexpected indentation (0) (should be 4)"),
+                    LintViolation(7, 1, "Unexpected indentation (4) (should be 12)"),
+                    LintViolation(8, 1, "Unexpected indentation (4) (should be 12)"),
+                    LintViolation(9, 1, "Unexpected indentation (0) (should be 8)"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -5053,7 +5053,9 @@ internal class IndentationRuleTest {
                 ) : Foobar1(
                     "foobar1",
                     "foobar2",
-                ), FooBar2 {
+                ),
+                    FooBar2,
+                    FooBar3 {
                     fun foo() = "foo"
                 }
                 """.trimIndent()
@@ -5065,9 +5067,11 @@ internal class IndentationRuleTest {
                         foo1: Foo1,
                         foo2: Foo2,
                     ) : Foobar1(
-                        "foobar1",
-                        "foobar2",
-                    ), FooBar2 {
+                            "foobar1",
+                            "foobar2",
+                        ),
+                        FooBar2,
+                        FooBar3 {
                     fun foo() = "foo"
                 }
                 """.trimIndent()
@@ -5079,9 +5083,11 @@ internal class IndentationRuleTest {
                     LintViolation(4, 1, "Unexpected indentation (4) (should be 8)"),
                     LintViolation(5, 1, "Unexpected indentation (4) (should be 8)"),
                     LintViolation(6, 1, "Unexpected indentation (0) (should be 4)"),
-                    LintViolation(7, 1, "Unexpected indentation (4) (should be 8)"),
-                    LintViolation(8, 1, "Unexpected indentation (4) (should be 8)"),
-                    LintViolation(9, 1, "Unexpected indentation (0) (should be 4)"),
+                    LintViolation(7, 1, "Unexpected indentation (4) (should be 12)"),
+                    LintViolation(8, 1, "Unexpected indentation (4) (should be 12)"),
+                    LintViolation(9, 1, "Unexpected indentation (0) (should be 8)"),
+                    LintViolation(10, 1, "Unexpected indentation (4) (should be 8)"),
+                    LintViolation(11, 1, "Unexpected indentation (4) (should be 8)"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -5089,10 +5095,20 @@ internal class IndentationRuleTest {
         fun `Issue 2115 - Given a class without an explicit constructor and with a long super type list then do not indent the class body`() {
             val code =
                 """
-                class Foo(
+                class Foo1 :
+                    FooBar(
+                        "bar1",
+                        "bar2",
+                    ) {
+                    // body
+                }
+                class Foo2(
                     val bar1: Bar,
                     val bar2: Bar,
-                ) : FooBar(bar1, bar2),
+                ) : FooBar(
+                        bar1,
+                        bar2
+                    ),
                     BarFoo1,
                     BarFoo2 {
                     // body
