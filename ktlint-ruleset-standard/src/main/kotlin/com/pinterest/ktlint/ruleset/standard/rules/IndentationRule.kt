@@ -19,6 +19,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLOSING_QUOTE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONDITION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONSTRUCTOR_DELEGATION_CALL
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONSTRUCTOR_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONTEXT_RECEIVER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DELEGATED_SUPER_TYPE_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DESTRUCTURING_DECLARATION
@@ -605,12 +606,17 @@ public class IndentationRule :
             }
 
         val primaryConstructor = node.findChildByType(PRIMARY_CONSTRUCTOR)
-        if (codeStyle == ktlint_official && primaryConstructor != null) {
+        val containsConstructorKeyword = primaryConstructor?.findChildByType(CONSTRUCTOR_KEYWORD) != null
+        if (codeStyle == ktlint_official && primaryConstructor != null && containsConstructorKeyword) {
             // Indent both constructor and super type list
             nextToAstNode =
                 startIndentContext(
                     fromAstNode = primaryConstructor.getPrecedingLeadingCommentsAndWhitespaces(),
-                    toAstNode = nextToAstNode,
+                    toAstNode =
+                        node
+                            .findChildByType(SUPER_TYPE_LIST)
+                            ?.lastChildLeafOrSelf()
+                            ?: nextToAstNode,
                 ).prevCodeLeaf()
         } else {
             node
