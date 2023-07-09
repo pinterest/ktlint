@@ -54,7 +54,7 @@ tasks.withType<Test>().configureEach {
             (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
         }
 
-    if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_16)) {
+    if (javaLauncher.get().metadata.languageVersion.canCompileOrRun(JavaLanguageVersion.of(16))) {
         // https://docs.gradle.org/7.5/userguide/upgrading_version_7.html#removes_implicit_add_opens_for_test_workers
         jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
     }

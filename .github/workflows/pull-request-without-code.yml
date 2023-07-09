@@ -25,12 +25,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        # When changing the list of JDK versions, the build configuration has to be changed by a repository admin. See
-        # https://github.com/pinterest/ktlint/pull/1787#issuecomment-1409074092
-        jdk: [8, 11, 17, 20]
-        exclude: # windows with JDK8 are *really* flaky
-          - os: windows-latest
-            jdk: 8
     runs-on: ${{ matrix.os }}
     steps:
       - run: 'echo "No build required"'
