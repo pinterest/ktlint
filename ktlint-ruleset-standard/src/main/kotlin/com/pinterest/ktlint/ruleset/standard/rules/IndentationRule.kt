@@ -674,11 +674,12 @@ public class IndentationRule :
                     //             bar2
                     //         ),
                     //         BarFoo1
-                    val prevCodeLeaf = startIndentContext(
-                        fromAstNode = comma,
-                        toAstNode = superTypeList.lastChildLeafOrSelf(),
-                        childIndent = indentConfig.indent.repeat(2),
-                    ).prevCodeLeaf()
+                    val prevCodeLeaf =
+                        startIndentContext(
+                            fromAstNode = comma,
+                            toAstNode = superTypeList.lastChildLeafOrSelf(),
+                            childIndent = indentConfig.indent.repeat(2),
+                        ).prevCodeLeaf()
                     startIndentContext(
                         fromAstNode = primaryConstructor.getPrecedingLeadingCommentsAndWhitespaces(),
                         toAstNode = prevCodeLeaf,

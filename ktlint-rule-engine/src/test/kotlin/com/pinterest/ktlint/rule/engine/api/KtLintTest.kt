@@ -473,9 +473,9 @@ class KtLintTest {
 private open class DummyRule(
     val block: (node: ASTNode) -> Unit = {},
 ) : Rule(
-    ruleId = RuleId("test:dummy"),
-    about = About(),
-) {
+        ruleId = RuleId("test:dummy"),
+        about = About(),
+    ) {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -536,10 +536,10 @@ private class SimpleTestRule(
     private val stopTraversalInAfterVisitChildNodes: (ASTNode) -> Boolean = { false },
     private val stopTraversalInAfterLastNode: Boolean = false,
 ) : Rule(
-    ruleId = ruleId,
-    about = About(),
-    visitorModifiers,
-) {
+        ruleId = ruleId,
+        about = About(),
+        visitorModifiers,
+    ) {
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         ruleExecutionCalls.add(RuleExecutionCall(ruleId, BEFORE_FIRST))
         if (stopTraversalInBeforeFirstNode) {

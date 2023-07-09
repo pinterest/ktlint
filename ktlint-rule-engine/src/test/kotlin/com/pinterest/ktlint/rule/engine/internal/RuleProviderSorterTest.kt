@@ -450,10 +450,10 @@ class RuleProviderSorterTest {
         ruleId: RuleId,
         visitorModifiers: Set<VisitorModifier> = emptySet(),
     ) : Rule(
-        ruleId = ruleId,
-        about = About(),
-        visitorModifiers,
-    ) {
+            ruleId = ruleId,
+            about = About(),
+            visitorModifiers,
+        ) {
         constructor(ruleId: RuleId, visitorModifier: VisitorModifier) : this(ruleId, setOf(visitorModifier))
 
         override fun beforeVisitChildNodes(

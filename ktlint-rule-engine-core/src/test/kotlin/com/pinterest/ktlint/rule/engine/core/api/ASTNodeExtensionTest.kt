@@ -159,10 +159,11 @@ class ASTNodeExtensionTest {
                 """.trimIndent()
             val enumClass = code.transformAst(::toEnumClassSequence)
 
-            val actual = hasNewLineInClosedRange(
-                enumClass.first { it.isWhiteSpaceWithNewline() },
-                enumClass.last()
-            )
+            val actual =
+                hasNewLineInClosedRange(
+                    enumClass.first { it.isWhiteSpaceWithNewline() },
+                    enumClass.last(),
+                )
 
             assertThat(actual).isTrue
         }
@@ -193,10 +194,11 @@ class ASTNodeExtensionTest {
                 """.trimIndent()
             val enumBodyClass = code.transformAst(::toEnumClassBodySequence)
 
-            val actual = hasNewLineInClosedRange(
-                enumBodyClass.first(),
-                enumBodyClass.last { it.isWhiteSpaceWithNewline() }
-            )
+            val actual =
+                hasNewLineInClosedRange(
+                    enumBodyClass.first(),
+                    enumBodyClass.last { it.isWhiteSpaceWithNewline() },
+                )
 
             assertThat(actual).isTrue
         }
@@ -644,9 +646,9 @@ class ASTNodeExtensionTest {
     private open class DummyRule(
         val block: (node: ASTNode) -> Unit = {},
     ) : Rule(
-        ruleId = RuleId("test:dummy-rule"),
-        about = About(),
-    ) {
+            ruleId = RuleId("test:dummy-rule"),
+            about = About(),
+        ) {
         override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,
