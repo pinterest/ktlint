@@ -191,20 +191,7 @@ public class ClassSignatureRule :
                 }
                 rewriteToSingleLineClassSignature
             }
-        val countSuperTypes = node.countSuperTypes()
-        val wrapFirstSuperType =
-            !wrappedPrimaryConstructor &&
-                (
-                    countSuperTypes > 1 ||
-                        node.hasMultilineSuperTypeList() ||
-                        // In case the class has exactly one super type, it may be placed on the same line if it fits
-                        (
-                            countSuperTypes == 1 &&
-                                !node.hasMultilineSuperTypeList() &&
-                                calculateLengthOfClassSignaturesIncludingFirstSuperType(node, emit, autoCorrect) > maxLineLength
-                            )
-                    )
-        fixWhitespacesInSuperTypeList(node, emit, autoCorrect, wrapFirstSuperType, dryRun = false)
+        fixWhitespacesInSuperTypeList(node, emit, autoCorrect, wrappedPrimaryConstructor, dryRun = false)
         fixClassBody(node, emit, autoCorrect)
     }
 
@@ -224,7 +211,7 @@ public class ClassSignatureRule :
                 node,
                 emit,
                 autoCorrect,
-                wrapFirstSuperType = false,
+                wrappedPrimaryConstructor = true,
                 dryRun = true,
             )
     }
@@ -507,7 +494,7 @@ public class ClassSignatureRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
-        wrapFirstSuperType: Boolean,
+        wrappedPrimaryConstructor: Boolean,
         dryRun: Boolean,
     ): Int {
         var whiteSpaceCorrection = 0
@@ -549,7 +536,13 @@ public class ClassSignatureRule :
                         ?.prevLeaf()
                         ?.takeIf { it.elementType == WHITE_SPACE }
                         .let { whiteSpaceBeforeIdentifier ->
-                            if (wrapFirstSuperType && !node.hasMultilinePrimaryConstructor()) {
+                            val wrapFirstSuperType =
+                                !wrappedPrimaryConstructor &&
+                                    !node.hasMultilinePrimaryConstructor() &&
+                                    (node.hasMultilineSuperTypeList() ||
+                                        calculateLengthOfClassSignaturesIncludingFirstSuperType(node, emit, autoCorrect) > maxLineLength
+                                        )
+                            if (wrapFirstSuperType) {
                                 if (whiteSpaceBeforeIdentifier == null ||
                                     !whiteSpaceBeforeIdentifier.textContains('\n')
                                 ) {
