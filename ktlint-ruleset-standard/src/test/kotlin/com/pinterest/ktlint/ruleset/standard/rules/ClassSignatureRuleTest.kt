@@ -1486,6 +1486,170 @@ class ClassSignatureRuleTest {
     }
 
     @Nested
+    inner class `Given a comment or kdoc in the class header` {
+        @Test
+        fun `Given an EOL comment in the class parameter list then allow to rewrite the class signature`() {
+            // EOL comments in the parameter list are siblings of the value parameters
+            val code =
+                """
+                class Foo(
+                    // before first value parameter
+                    foo: Any,
+                    // between value parameters
+                    bar: Any
+                    // after last value parameter
+                ) : FooBar1, FooBar2
+                """.trimIndent()
+            val formattedCode =
+                """
+                class Foo(
+                    // before first value parameter
+                    foo: Any,
+                    // between value parameters
+                    bar: Any
+                    // after last value parameter
+                ) : FooBar1,
+                    FooBar2
+                """.trimIndent()
+            classSignatureWrappingRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasLintViolation(7, 14, "Super type should start on a newline")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given a block comment in the class parameter list then allow to rewrite the class signature`() {
+            // Block comments in the parameter list are siblings of the value parameters
+            val code =
+                """
+                class Foo(
+                    /* before first value parameter */
+                    foo: Any,
+                    /* between value parameters */
+                    bar: Any
+                    /* after last value parameter */
+                ) : FooBar1, FooBar2
+                """.trimIndent()
+            val formattedCode =
+                """
+                class Foo(
+                    /* before first value parameter */
+                    foo: Any,
+                    /* between value parameters */
+                    bar: Any
+                    /* after last value parameter */
+                ) : FooBar1,
+                    FooBar2
+                """.trimIndent()
+            classSignatureWrappingRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasLintViolation(7, 14, "Super type should start on a newline")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given a KDoc in the class parameter list then allow to rewrite the class signature`() {
+            // KDoc before a value parameter is contained as inner node in the VALUE_PARAMETER. A KDoc after the last value parameter is a
+            // siblings of the value parameters
+            val code =
+                """
+                class Foo(
+                    /** before first value parameter */
+                    foo: Any,
+                    /** between value parameters */
+                    bar: Any
+                    /** after last value parameter */
+                ) : FooBar1, FooBar2
+                """.trimIndent()
+            val formattedCode =
+                """
+                class Foo(
+                    /** before first value parameter */
+                    foo: Any,
+                    /** between value parameters */
+                    bar: Any
+                    /** after last value parameter */
+                ) : FooBar1,
+                    FooBar2
+                """.trimIndent()
+            classSignatureWrappingRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasLintViolation(7, 14, "Super type should start on a newline")
+                .isFormattedAs(formattedCode)
+        }
+
+        @ParameterizedTest(name = "{0}")
+        @ValueSource(
+            strings = [
+                """
+                class // some comment
+                    Foo: FooBar1, FooBar2
+                """,
+                """
+                class /* some comment */ Foo: FooBar1, FooBar2
+                """,
+                """
+                class /** some kdoc */ Foo: FooBar1, FooBar2
+                """,
+                """
+                class Foo // some comment
+                    : FooBar1, FooBar2
+                """,
+                """
+                class Foo /* some comment */ : FooBar1, FooBar2
+                """,
+                """
+                class Foo /** some kdoc */ : FooBar1, FooBar2
+                """,
+                """
+                class Foo : // some comment
+                    FooBar1, FooBar2
+                """,
+                """
+                class Foo : /* some comment */ FooBar1, FooBar2
+                """,
+                """
+                class Foo : /** some kdoc */ FooBar1, FooBar2
+                """,
+                """
+                class Foo : FooBar1 // some comment
+                    , FooBar2
+                """,
+                """
+                class Foo : FooBar1 /* some comment */, FooBar2
+                """,
+                """
+                class Foo : FooBar1 /* some comment */, FooBar2
+                """,
+                """
+                class Foo : FooBar1, // some comment
+                    FooBar2
+                """,
+                """
+                class Foo : FooBar1, /* some comment */ FooBar2
+                """,
+                """
+                class Foo : FooBar1, /* some comment */ FooBar2
+                """,
+                """
+                class Foo : FooBar1, FooBar2 // some comment
+                """,
+                """
+                class Foo : FooBar1,  FooBar2 /* some comment */
+                """,
+                """
+                class Foo : FooBar1,  FooBar2 /* some comment */
+                """,
+            ],
+        )
+        fun `Given a comment or kdoc at an unexpected location then do not rewrite the class signature`(code: String) {
+            classSignatureWrappingRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasLintViolationWithoutAutoCorrect(7, 14, "Super type should start on a newline")
+        }
+    }
+
+    @Nested
     inner class `Property ktlint_class_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than` {
         val propertyMapper = FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY.propertyMapper!!
 

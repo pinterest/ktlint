@@ -8,6 +8,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PRIMARY_CONSTRUCTOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
@@ -44,7 +45,6 @@ import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
-import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 
 /**
  * Formats the class signature according to https://kotlinlang.org/docs/coding-conventions.html#class-headers
@@ -91,21 +91,25 @@ public class ClassSignatureRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == CLASS) {
-            node
-                .classSignatureNodes(excludeSuperTypes = false)
-                .any { it.elementType == EOL_COMMENT || it.elementType == BLOCK_COMMENT }
-                .ifTrue {
-                    // Rewriting class signatures in a consistent manner is hard or sometimes even impossible. For example a multiline
-                    // signature which could fit on one line can not be rewritten in case it contains an EOL comment. Rewriting a single
-                    // line signature which exceeds the max line length to a multiline signature is hard when it contains block comments.
-                    // For now, it does not seem worth the effort to attempt it.
-                    // TODO: reconsider this as it is quite common to document class parameters
-                    return
-                }
-
-            visitPrimaryConstructor(node, emit, autoCorrect)
+            val forbiddenComments =
+                node
+                    .classSignatureNodes(excludeSuperTypes = true)
+                    .filter { it.isCommentOrKdoc() }
+                    .filterNot { it.treeParent.elementType == VALUE_PARAMETER || it.treeParent.elementType == VALUE_PARAMETER_LIST }
+            if (forbiddenComments.isEmpty()) {
+                visitClass(node, emit, autoCorrect)
+            } else {
+                forbiddenComments
+                    .forEach {
+                        // Rewriting class signatures in a consistent manner is hard or sometimes even impossible if a comment or kdocs is found
+                        // at an unusual location.
+                        emit(it.startOffset, "No comment or kdoc expected at this location in the class header", false)
+                    }
+            }
         }
     }
+
+    private fun ASTNode.isCommentOrKdoc() = elementType == EOL_COMMENT || elementType == BLOCK_COMMENT || elementType == KDOC
 
     private fun ASTNode.classSignatureNodes(excludeSuperTypes: Boolean): List<ASTNode> {
         // Find the nodes that are to be placed on the same line if no max line length is set
@@ -159,7 +163,7 @@ public class ClassSignatureRule :
         return nextCodeLeaf()
     }
 
-    private fun visitPrimaryConstructor(
+    private fun visitClass(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
@@ -267,17 +271,15 @@ public class ClassSignatureRule :
     ): Int {
         var whiteSpaceCorrection = 0
 
-        val valueParameterList = node.getPrimaryConstructorParameterListOrNull()
-        val firstParameterInList =
-            valueParameterList
+        val primaryConstructorParameterList = node.getPrimaryConstructorParameterListOrNull()
+        val hasNoValueParameters =
+            primaryConstructorParameterList
                 ?.children()
                 .orEmpty()
-                .firstOrNull { it.elementType == VALUE_PARAMETER }
+                .none { it.elementType == VALUE_PARAMETER }
 
         whiteSpaceCorrection +=
-            if (firstParameterInList == null) {
-                // Classes with comments in the value parameter list are excluded from processing before. So the parameter list at this
-                // point is empty or only contains a single whitespace element
+            if (hasNoValueParameters) {
                 fixWhiteSpacesInEmptyValueParameterList(node, emit, autoCorrect, dryRun)
             } else {
                 fixWhiteSpacesBeforeFirstParameterInValueParameterList(node, emit, autoCorrect, multiline, dryRun) +
@@ -287,6 +289,13 @@ public class ClassSignatureRule :
 
         return whiteSpaceCorrection
     }
+
+    private fun ASTNode.hasPrimaryConstructorWithEmptyParameterList() =
+        getPrimaryConstructorParameterListOrNull()
+            ?.children()
+            .orEmpty()
+            .filterNot { it.isWhiteSpace() }
+            .count() == 0
 
     private fun fixWhiteSpacesInEmptyValueParameterList(
         node: ASTNode,
@@ -298,6 +307,7 @@ public class ClassSignatureRule :
 
         node
             .getPrimaryConstructorParameterListOrNull()
+            ?.takeUnless { it.containsComment() }
             ?.let { parameterList ->
                 if (!dryRun) {
                     emit(parameterList.startOffset, "No parenthesis expected", true)
@@ -311,6 +321,8 @@ public class ClassSignatureRule :
 
         return whiteSpaceCorrection
     }
+
+    private fun ASTNode.containsComment() = children().any { it.isPartOfComment() }
 
     private fun fixWhiteSpacesBeforeFirstParameterInValueParameterList(
         node: ASTNode,
@@ -539,8 +551,9 @@ public class ClassSignatureRule :
                             val wrapFirstSuperType =
                                 !wrappedPrimaryConstructor &&
                                     !node.hasMultilinePrimaryConstructor() &&
-                                    (node.hasMultilineSuperTypeList() ||
-                                        calculateLengthOfClassSignaturesIncludingFirstSuperType(node, emit, autoCorrect) > maxLineLength
+                                    (
+                                        node.hasMultilineSuperTypeList() ||
+                                            calculateLengthOfClassSignaturesIncludingFirstSuperType(node, emit, autoCorrect) > maxLineLength
                                         )
                             if (wrapFirstSuperType) {
                                 if (whiteSpaceBeforeIdentifier == null ||
