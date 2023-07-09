@@ -5118,6 +5118,21 @@ internal class IndentationRuleTest {
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
                 .hasNoLintViolations()
         }
+
+        @Test
+        fun `Issue 2115 - xxx`() {
+            val code =
+                """
+                class Foo(bar: Bar) :
+                    FooBar(
+                        "foo",
+                        bar,
+                    )
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasNoLintViolations()
+        }
     }
 
     @Test

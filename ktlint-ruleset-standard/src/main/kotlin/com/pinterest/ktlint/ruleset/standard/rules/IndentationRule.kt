@@ -215,11 +215,7 @@ public class IndentationRule :
                 )
 
             node.elementType == SUPER_TYPE_CALL_ENTRY -> {
-                if (codeStyle == ktlint_official &&
-                    node
-                        .parent { it.elementType == CLASS }
-                        ?.findChildByType(PRIMARY_CONSTRUCTOR) != null
-                ) {
+                if (codeStyle == ktlint_official && node.isPartOfClassWithAMultilinePrimaryConstructor()) {
                     // Contrary to the default IntelliJ IDEA formatter, indent the super type call entry so that it looks better in case it
                     // is followed by another super type:
                     //      class Foo(
@@ -370,6 +366,11 @@ public class IndentationRule :
             }
         }
     }
+
+    private fun ASTNode.isPartOfClassWithAMultilinePrimaryConstructor() =
+        parent { it.elementType == CLASS }
+            ?.findChildByType(PRIMARY_CONSTRUCTOR)
+            ?.textContains('\n') == true
 
     private fun visitValueArgument(node: ASTNode) {
         if (codeStyle == ktlint_official) {
