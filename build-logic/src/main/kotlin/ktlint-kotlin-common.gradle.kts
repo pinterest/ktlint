@@ -54,8 +54,8 @@ tasks.withType<Test>().configureEach {
             (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
         }
 
-    if (javaLauncher.get().metadata.languageVersion.canCompileOrRun(JavaLanguageVersion.of(16))) {
-        // https://docs.gradle.org/7.5/userguide/upgrading_version_7.html#removes_implicit_add_opens_for_test_workers
+    if (javaLauncher.get().metadata.languageVersion.canCompileOrRun(JavaLanguageVersion.of(11))) {
+        // workaround for https://github.com/pinterest/ktlint/issues/1618. Java 11 started printing warning logs. Java 16 throws an error
         jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
     }
 }
