@@ -52,6 +52,36 @@ class ASTNodeExtensionTest {
         )
     }
 
+    @Test
+    fun `Given an enum class body then get all leaves in the closed range of the class body`() {
+        val code =
+            """
+            enum class Shape {
+                FOO, FOOBAR, BAR
+            }
+            """.trimIndent()
+        val enumClassBody = code.transformAst(::toEnumClassBodySequence)
+
+        val actual =
+            leavesInClosedRange(enumClassBody.first(), enumClassBody.last())
+                .map { it.text }
+                .toList()
+
+        assertThat(actual).containsExactly(
+            "{",
+            "\n    ",
+            "FOO",
+            ",",
+            " ",
+            "FOOBAR",
+            ",",
+            " ",
+            "BAR",
+            "\n",
+            "}",
+        )
+    }
+
     @Nested
     inner class NoNewLineInOpenRange {
         @Test
@@ -111,14 +141,9 @@ class ASTNodeExtensionTest {
         fun `Given an enum class with no whitespace leaf containing a newline between the first and last enum entry`() {
             val code =
                 """
-                enum class Shape {
-                    FOO, FOOBAR, BAR
-                }
+                enum class Shape { FOO, FOOBAR, BAR }
                 """.trimIndent()
-            val enumEntries =
-                code
-                    .transformAst(::toEnumClassBodySequence)
-                    .filter { it.elementType == ENUM_ENTRY }
+            val enumEntries = code.transformAst(::toEnumClassBodySequence)
 
             val actual = hasNewLineInClosedRange(enumEntries.first(), enumEntries.last())
 
@@ -129,12 +154,16 @@ class ASTNodeExtensionTest {
         fun `Given a range of nodes starting with a whitespace leaf containing a newline but other whitespace leaves not containing a newline`() {
             val code =
                 """
-                enum class Shape {
-                    FOO, FOOBAR, BAR } // Malformed on purpose for test
+                enum class Shape
+                    { FOO, FOOBAR, BAR } // Malformed on purpose for test
                 """.trimIndent()
-            val enumClassBody = code.transformAst(::toEnumClassBodySequence)
+            val enumClass = code.transformAst(::toEnumClassSequence)
 
-            val actual = hasNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
+            val actual =
+                hasNewLineInClosedRange(
+                    enumClass.first { it.isWhiteSpaceWithNewline() },
+                    enumClass.last(),
+                )
 
             assertThat(actual).isTrue
         }
@@ -163,9 +192,13 @@ class ASTNodeExtensionTest {
                 enum class Shape { FOO, FOOBAR, BAR
                 } // Malformed on purpose for test
                 """.trimIndent()
-            val enumClassBody = code.transformAst(::toEnumClassBodySequence)
+            val enumBodyClass = code.transformAst(::toEnumClassBodySequence)
 
-            val actual = hasNewLineInClosedRange(enumClassBody.first(), enumClassBody.last())
+            val actual =
+                hasNewLineInClosedRange(
+                    enumBodyClass.first(),
+                    enumBodyClass.last { it.isWhiteSpaceWithNewline() },
+                )
 
             assertThat(actual).isTrue
         }
@@ -601,15 +634,21 @@ class ASTNodeExtensionTest {
             ?.children()
             .orEmpty()
 
+    private fun toEnumClassSequence(fileASTNode: FileASTNode) =
+        fileASTNode
+            .findChildByType(CLASS)
+            ?.children()
+            .orEmpty()
+
     /**
      * A dummy rule for testing. Optionally the rule can be created with a lambda to be executed for each node visited.
      */
     private open class DummyRule(
         val block: (node: ASTNode) -> Unit = {},
     ) : Rule(
-        ruleId = RuleId("test:dummy-rule"),
-        about = About(),
-    ) {
+            ruleId = RuleId("test:dummy-rule"),
+            about = About(),
+        ) {
         override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,

@@ -333,10 +333,7 @@ private fun String.replaceTabAndNewline(): String = replace("\t", "\\t").replace
 public fun hasNewLineInClosedRange(
     from: ASTNode,
     to: ASTNode,
-): Boolean =
-    from.isWhiteSpaceWithNewline() ||
-        leavesInOpenRange(from, to).any { it.textContains('\n') } ||
-        to.isWhiteSpaceWithNewline()
+): Boolean = leavesInClosedRange(from, to).any { it.textContains('\n') }
 
 /**
  * Verifies that no leaf contains a newline in the closed range [from] - [to]. Also, the boundary nodes [from] and [to]
@@ -345,10 +342,7 @@ public fun hasNewLineInClosedRange(
 public fun noNewLineInClosedRange(
     from: ASTNode,
     to: ASTNode,
-): Boolean =
-    !from.isWhiteSpaceWithNewline() &&
-        noNewLineInOpenRange(from, to) &&
-        !to.isWhiteSpaceWithNewline()
+): Boolean = leavesInClosedRange(from, to).none { it.textContains('\n') }
 
 /**
  * Verifies that no leaf contains a newline in the open range [from] - [to]. This means that the boundary nodes are excluded from the range
@@ -373,7 +367,27 @@ public fun leavesInOpenRange(
 ): Sequence<ASTNode> =
     from
         .leaves()
-        .takeWhile { it != to && it != to.firstChildNode }
+        .takeWhile { it != to && it != to.lastChildLeafOrSelf() }
+
+/**
+ * Creates a sequence of leaf nodes in the closed range [from] - [to]. This means that the boundary nodes are included from the range in
+ * case they would happen to be a leaf node. In case [from] is a [CompositeElement] than the first leaf node in the sequence is the first
+ * leaf node in this [CompositeElement]. In case [to] is a [CompositeElement] than the last node in the sequence is the last leaf node of
+ * this [CompositeElement].
+ */
+public fun leavesInClosedRange(
+    from: ASTNode,
+    to: ASTNode,
+): Sequence<ASTNode> {
+    val stopAtLeaf =
+        to
+            .lastChildLeafOrSelf()
+            .nextLeaf()
+    return from
+        .firstChildLeafOrSelf()
+        .leavesIncludingSelf()
+        .takeWhile { it != stopAtLeaf }
+}
 
 public fun ASTNode.isValOrVarKeyword(): Boolean = elementType == VAL_KEYWORD || elementType == VAR_KEYWORD || elementType == VARARG_KEYWORD
 
