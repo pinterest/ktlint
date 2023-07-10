@@ -2,13 +2,10 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PRIMARY_CONSTRUCTOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
@@ -20,6 +17,9 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.Companion.DEFAULT_INDENT_CONFIG
 import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule
+import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
+import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAsLateAsPossible
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
@@ -58,7 +58,8 @@ public class ClassSignatureRule :
         visitorModifiers =
             setOf(
                 // Run after wrapping and spacing rules
-                VisitorModifier.RunAsLateAsPossible,
+                RunAsLateAsPossible,
+                RunAfterRule(DISCOURAGED_COMMENT_LOCATION_RULE_ID, ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED),
             ),
         usesEditorConfigProperties =
             setOf(
@@ -91,25 +92,9 @@ public class ClassSignatureRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == CLASS) {
-            val forbiddenComments =
-                node
-                    .classSignatureNodes(excludeSuperTypes = true)
-                    .filter { it.isCommentOrKdoc() }
-                    .filterNot { it.treeParent.elementType == VALUE_PARAMETER || it.treeParent.elementType == VALUE_PARAMETER_LIST }
-            if (forbiddenComments.isEmpty()) {
-                visitClass(node, emit, autoCorrect)
-            } else {
-                forbiddenComments
-                    .forEach {
-                        // Rewriting class signatures in a consistent manner is hard or sometimes even impossible if a comment or kdocs is found
-                        // at an unusual location.
-                        emit(it.startOffset, "No comment or kdoc expected at this location in the class header", false)
-                    }
-            }
+            visitClass(node, emit, autoCorrect)
         }
     }
-
-    private fun ASTNode.isCommentOrKdoc() = elementType == EOL_COMMENT || elementType == BLOCK_COMMENT || elementType == KDOC
 
     private fun ASTNode.classSignatureNodes(excludeSuperTypes: Boolean): List<ASTNode> {
         // Find the nodes that are to be placed on the same line if no max line length is set
@@ -131,11 +116,6 @@ public class ClassSignatureRule :
                 endASTNodePredicate = { it == lastNodeInPrimaryClassSignatureLine },
             )
     }
-
-    private fun ASTNode.countSuperTypes() =
-        superTypes()
-            .orEmpty()
-            .count()
 
     private fun ASTNode.superTypes() =
         findChildByType(SUPER_TYPE_LIST)
@@ -173,52 +153,33 @@ public class ClassSignatureRule :
         val wrapPrimaryConstructorParameters =
             node.hasMinimumNumberOfParameters() ||
                 node.containsMultilineParameter() ||
-                (codeStyle == ktlint_official && node.containsAnnotatedParameter())
-        val wrappedPrimaryConstructor =
-            if (isMaxLineLengthSet()) {
-                val multilinePrimaryConstructor =
-                    wrapPrimaryConstructorParameters ||
-                        calculateLengthOfClassSignatureExcludingSuperTypes(node, emit, autoCorrect) > maxLineLength
-                fixWhiteSpacesInValueParameterList(node, emit, autoCorrect, multiline = multilinePrimaryConstructor, dryRun = false)
-                multilinePrimaryConstructor
-            } else {
-                // When max line length is not set then keep it as single line class signature only when the original signature already was a
-                // single line signature. Otherwise, rewrite the entire signature as a multiline signature.
-                val rewriteToSingleLineClassSignature =
-                    node
-                        .classSignatureNodes(excludeSuperTypes = false)
-                        .none { it.textContains('\n') }
-                if (!wrapPrimaryConstructorParameters && rewriteToSingleLineClassSignature) {
-                    fixWhiteSpacesInValueParameterList(node, emit, autoCorrect, multiline = false, dryRun = false)
-                } else {
-                    fixWhiteSpacesInValueParameterList(node, emit, autoCorrect, multiline = true, dryRun = false)
-                }
-                rewriteToSingleLineClassSignature
-            }
-        fixWhitespacesInSuperTypeList(node, emit, autoCorrect, wrappedPrimaryConstructor, dryRun = false)
+                (codeStyle == ktlint_official && node.containsAnnotatedParameter()) ||
+                (isMaxLineLengthSet() && classSignatureExcludingSuperTypesExceedsMaxLineLength(node, emit, autoCorrect)) ||
+                (!isMaxLineLengthSet() && node.classSignatureExcludingSuperTypesIsMultiline())
+        fixWhiteSpacesInValueParameterList(node, emit, autoCorrect, multiline = wrapPrimaryConstructorParameters, dryRun = false)
+        fixWhitespacesInSuperTypeList(node, emit, autoCorrect, wrappedPrimaryConstructor = wrapPrimaryConstructorParameters, dryRun = false)
         fixClassBody(node, emit, autoCorrect)
     }
 
-    private fun calculateLengthOfClassSignaturesIncludingFirstSuperType(
+    private fun classSignatureExcludingSuperTypesExceedsMaxLineLength(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
-    ): Int {
-        val actualClassSignatureLength = node.getClassSignatureLength(excludeSuperTypes = false)
-        // Calculate the length of the class signature in case it, including the super types, would be rewritten as single
+    ): Boolean {
+        val actualClassSignatureLength = node.getClassSignatureLength(excludeSuperTypes = true)
+        // Calculate the length of the class signature in case it, excluding the super types, would be rewritten as single
         // line (and without a maximum line length). The white space correction will be calculated via a dry run of the
         // actual fix.
-        return actualClassSignatureLength +
-            // Calculate the white space correction in case the signature would be rewritten to a single line
-            fixWhiteSpacesInValueParameterList(node, emit, autoCorrect, multiline = false, dryRun = true) +
-            fixWhitespacesInSuperTypeList(
-                node,
-                emit,
-                autoCorrect,
-                wrappedPrimaryConstructor = true,
-                dryRun = true,
-            )
+        val length =
+            actualClassSignatureLength +
+                // Calculate the white space correction in case the signature would be rewritten to a single line
+                fixWhiteSpacesInValueParameterList(node, emit, autoCorrect, multiline = false, dryRun = true)
+        return length > maxLineLength
     }
+
+    private fun ASTNode.classSignatureExcludingSuperTypesIsMultiline() =
+        classSignatureNodes(excludeSuperTypes = true)
+            .any { it.textContains('\n') }
 
     private fun ASTNode.getClassSignatureLength(excludeSuperTypes: Boolean) =
         indent(false).length + getClassSignatureNodesLength(excludeSuperTypes)
@@ -227,20 +188,6 @@ public class ClassSignatureRule :
         classSignatureNodes(excludeSuperTypes)
             .joinTextToString()
             .length
-
-    private fun calculateLengthOfClassSignatureExcludingSuperTypes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
-    ): Int {
-        val actualClassSignatureLength = node.getClassSignatureLength(excludeSuperTypes = true)
-        // Calculate the length of the class signature in case it, excluding the super types, would be rewritten as single
-        // line (and without a maximum line length). The white space correction will be calculated via a dry run of the
-        // actual fix.
-        return actualClassSignatureLength +
-            // Calculate the white space correction in case the signature would be rewritten to a single line
-            fixWhiteSpacesInValueParameterList(node, emit, autoCorrect, multiline = false, dryRun = true)
-    }
 
     private fun ASTNode.containsMultilineParameter(): Boolean =
         getPrimaryConstructorParameterListOrNull()
@@ -289,13 +236,6 @@ public class ClassSignatureRule :
 
         return whiteSpaceCorrection
     }
-
-    private fun ASTNode.hasPrimaryConstructorWithEmptyParameterList() =
-        getPrimaryConstructorParameterListOrNull()
-            ?.children()
-            .orEmpty()
-            .filterNot { it.isWhiteSpace() }
-            .count() == 0
 
     private fun fixWhiteSpacesInEmptyValueParameterList(
         node: ASTNode,
@@ -553,7 +493,7 @@ public class ClassSignatureRule :
                                     !node.hasMultilinePrimaryConstructor() &&
                                     (
                                         node.hasMultilineSuperTypeList() ||
-                                            calculateLengthOfClassSignaturesIncludingFirstSuperType(node, emit, autoCorrect) > maxLineLength
+                                            classSignaturesIncludingFirstSuperTypeExceedsMaxLineLength(node, emit, autoCorrect)
                                         )
                             if (wrapFirstSuperType) {
                                 if (whiteSpaceBeforeIdentifier == null ||
@@ -630,6 +570,29 @@ public class ClassSignatureRule :
         }
 
         return whiteSpaceCorrection
+    }
+
+    private fun classSignaturesIncludingFirstSuperTypeExceedsMaxLineLength(
+        node: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        autoCorrect: Boolean,
+    ): Boolean {
+        val actualClassSignatureLength = node.getClassSignatureLength(excludeSuperTypes = false)
+        // Calculate the length of the class signature in case it, including the super types, would be rewritten as single
+        // line (and without a maximum line length). The white space correction will be calculated via a dry run of the
+        // actual fix.
+        val length =
+            actualClassSignatureLength +
+                // Calculate the white space correction in case the signature would be rewritten to a single line
+                fixWhiteSpacesInValueParameterList(node, emit, autoCorrect, multiline = false, dryRun = true) +
+                fixWhitespacesInSuperTypeList(
+                    node,
+                    emit,
+                    autoCorrect,
+                    wrappedPrimaryConstructor = true,
+                    dryRun = true,
+                )
+        return length > maxLineLength
     }
 
     private fun ASTNode.hasMultilinePrimaryConstructor() =

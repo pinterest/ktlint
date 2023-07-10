@@ -447,10 +447,11 @@ public class IndentationRule :
                         toAstNode = nextToAstNode,
                     ).prevCodeLeaf()
             }
+        // No indent for the RPAR
         startIndentContext(
             fromAstNode = node,
             toAstNode = nextToAstNode,
-            lastChildIndent = "", // No indent for the RPAR
+            lastChildIndent = "",
         )
     }
 
@@ -531,8 +532,10 @@ public class IndentationRule :
 
     private fun visitLparBeforeCondition(node: ASTNode) {
         startIndentContext(
-            fromAstNode = requireNotNull(node.nextLeaf()), // Allow to pickup whitespace before condition
-            toAstNode = requireNotNull(node.nextCodeSibling()).lastChildLeafOrSelf(), // Ignore whitespace after condition but before rpar
+            // Allow to pickup whitespace before condition
+            fromAstNode = requireNotNull(node.nextLeaf()),
+            // Ignore whitespace after condition but before rpar
+            toAstNode = requireNotNull(node.nextCodeSibling()).lastChildLeafOrSelf(),
             nodeIndent = currentIndent() + indentConfig.indent,
             childIndent = "",
         )

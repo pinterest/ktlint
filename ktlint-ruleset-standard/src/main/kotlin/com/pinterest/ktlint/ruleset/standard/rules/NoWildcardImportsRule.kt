@@ -89,7 +89,7 @@ public class NoWildcardImportsRule :
                         "Defines allowed wildcard imports",
                         PACKAGES_TO_USE_ON_DEMAND_IMPORT_PROPERTY_PARSER,
                     ),
-                /**
+                /*
                  * Default IntelliJ IDEA style: Use wildcard imports for packages in "java.util", "kotlin.android.synthetic" and
                  * it's subpackages.
                  *

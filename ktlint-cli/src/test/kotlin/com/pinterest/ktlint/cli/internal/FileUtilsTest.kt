@@ -344,7 +344,8 @@ internal class FileUtilsTest {
                 patterns =
                     listOf(
                         pattern,
-                        "/some/non/existing/file", // This prevents the default patterns to be added
+                        // Prevents the default patterns to be added by specifying a file
+                        "/some/non/existing/file",
                     ),
                 rootDir = ktlintTestFileSystem.resolve("project1"),
             )
@@ -386,7 +387,8 @@ internal class FileUtilsTest {
                 patterns =
                     listOf(
                         pattern,
-                        "/some/non/existing/file", // This prevents the default patterns to be added
+                        // Prevents the default patterns to be added by specifying a file
+                        "/some/non/existing/file",
                     ),
                 rootDir = ktlintTestFileSystem.resolve("project1"),
             )

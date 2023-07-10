@@ -47,7 +47,7 @@ public val CODE_STYLE_PROPERTY_TYPE: PropertyType.LowerCasingPropertyType<CodeSt
 public val CODE_STYLE_PROPERTY: EditorConfigProperty<CodeStyleValue> =
     EditorConfigProperty(
         type = CODE_STYLE_PROPERTY_TYPE,
-        /**
+        /*
          * Once the [CodeStyleValue.ktlint_official] is matured, it will become the default code style of ktlint. Until
          * then the [CodeStyleValue.intellij_idea] is used to remain backwards compatible.
          */

@@ -887,6 +887,7 @@ class ArgumentListWrappingRuleTest {
         argumentListWrappingRuleAssertThat(code)
             .setMaxLineLength()
             .addAdditionalRuleProvider { ClassSignatureRule() }
+            .addAdditionalRuleProvider { DiscouragedCommentLocationRule() }
             .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to 4)
             .hasLintViolationForAdditionalRule(5, 37, "Super type should start on a newline")
             .hasLintViolations(

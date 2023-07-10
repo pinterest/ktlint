@@ -167,7 +167,8 @@ private class BaselineLoader(
                                 }
                             }
                     },
-            detail = "", // Not available in the baseline
+            // Detail is not available in the baseline
+            detail = "",
             status = BASELINE_IGNORED,
         )
 }
