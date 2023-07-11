@@ -17,6 +17,10 @@ on:
       - '**/*.toml'
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+
 env:
   ORG_GRADLE_PROJECT_signingKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEY }}
   ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID }}
@@ -32,20 +36,20 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
+
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: |
-            8
-            11
-            17
-            20
+          java-version: 20
+
       - uses: gradle/gradle-build-action@v2
         with:
           gradle-home-cache-cleanup: true
+
       - name: Build with release Kotlin version
         run: ./gradlew build ktlintCheck --no-configuration-cache
-      - name: Build with dev Kotlin version
+
+      - name: Build with assemble Kotlin version
         run: ./gradlew -PkotlinDev build ktlintCheck --no-configuration-cache
 
       - name: Check `data class`es are not part of public API
@@ -68,3 +72,41 @@ jobs:
               exit 1
           fi
         shell: bash
+
+  build-dev:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    name: "[build] OS=${{ matrix.os }}, Kotlin=dev"
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: ./.github/actions/setup-gradle-build
+
+      - name: Build with assemble Kotlin version
+        run: ./gradlew -PkotlinDev ktlintCheck build
+
+  tests:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        jdk: [ 8, 11, 17 ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: |
+            8
+            11
+            17
+            20
+
+      - uses: gradle/gradle-build-action@v2
+        with:
+          gradle-home-cache-cleanup: true
+
+      - run: ./gradlew testJdk${{ matrix.jdk }}
