@@ -10,11 +10,11 @@ java {
 
 tasks.dokkaJavadoc {
     notCompatibleWithConfigurationCache("https://github.com/Kotlin/dokka/issues/1217")
-    outputDirectory.set(buildDir.resolve("javadoc"))
+    outputDirectory = buildDir.resolve("javadoc")
 }
 
 tasks.named<Jar>("javadocJar") {
     dependsOn(tasks.dokkaJavadoc)
-    archiveClassifier.set("javadoc")
+    archiveClassifier = "javadoc"
     from(tasks.dokkaJavadoc)
 }
