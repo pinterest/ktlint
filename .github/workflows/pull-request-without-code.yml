@@ -26,6 +26,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    name: "[build] OS: ${{ matrix.os }}"
     steps:
       - run: 'echo "No build required"'
 

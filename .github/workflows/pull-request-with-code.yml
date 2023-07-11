@@ -34,6 +34,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    name: "[build] OS: ${{ matrix.os }}"
     steps:
       - uses: actions/checkout@v3
 
@@ -93,6 +94,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         jdk: [ 8, 11, 17 ]
     runs-on: ${{ matrix.os }}
+    name: "[tests] OS: ${{ matrix.os }}, Java: ${{ matrix.jdk }}"
     steps:
       - uses: actions/checkout@v3
 
