@@ -1206,7 +1206,7 @@ class ClassSignatureRuleTest {
         }
 
         @Test
-        fun `Given a class explicit constructor, a multiline super type call entry starting on a separate line but indented as non-ktlint_official and at least one other super type entry`() {
+        fun `Given a class with an explicit multiline constructor, a multiline super type call entry starting on a separate line but indented as non-ktlint_official and at least one other super type entry`() {
             val code =
                 """
                 class Foo
@@ -1246,6 +1246,62 @@ class ClassSignatureRuleTest {
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to intellij_idea)
                 .addAdditionalRuleProvider { IndentationRule() }
                 .hasNoLintViolations()
+        }
+
+        @Test
+        fun `Given a class with an explicit multiline constructor, a multiline super type call entry starting on a separate line below the colon and at least one other super type entry`() {
+            val code =
+                """
+                class Foo
+                constructor(
+                    val bar1: Bar,
+                    val bar2: Bar,
+                ) :
+                    FooBar(bar1, bar2),
+                    BarFoo1,
+                    BarFoo2 {
+                    // body
+                }
+                """.trimIndent()
+            val formattedCodeKtlintOfficial =
+                """
+                class Foo
+                    constructor(
+                        val bar1: Bar,
+                        val bar2: Bar,
+                    ) : FooBar(bar1, bar2),
+                        BarFoo1,
+                        BarFoo2 {
+                    // body
+                }
+                """.trimIndent()
+            val formattedCodeNonKtlintOfficial =
+                """
+                class Foo
+                constructor(
+                    val bar1: Bar,
+                    val bar2: Bar,
+                ) : FooBar(bar1, bar2),
+                    BarFoo1,
+                    BarFoo2 {
+                    // body
+                }
+                """.trimIndent()
+            classSignatureWrappingRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .addAdditionalRuleProvider { IndentationRule() }
+                .isFormattedAs(formattedCodeKtlintOfficial)
+
+            // non-ktlint_official code style
+            classSignatureWrappingRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to intellij_idea)
+                .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to 1)
+                .addAdditionalRuleProvider { IndentationRule() }
+                .isFormattedAs(formattedCodeNonKtlintOfficial)
+            classSignatureWrappingRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to intellij_idea)
+                .addAdditionalRuleProvider { IndentationRule() }
+                .isFormattedAs(formattedCodeNonKtlintOfficial)
         }
     }
 
