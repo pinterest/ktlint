@@ -10,12 +10,15 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+* Allow to disable ktlint in `.editorconfig` for a glob ([#2100](https://github.com/pinterest/ktlint/issues/2100))
 * Fix wrapping of nested function literals `wrapping` ([#2106](https://github.com/pinterest/ktlint/issues/2106))
 * Do not indent class body for classes having a long super type list in code style `ktlint_official` as it is inconsistent compared to other class bodies `indent` [#2115](https://github.com/pinterest/ktlint/issues/2115) 
 
 ### Changed
 
 * Update dependency gradle to v8.2.1 ([#2122](https://github.com/pinterest/ktlint/pull/2122))
+* Update dependency org.codehaus.janino:janino to v3.1.10  ([#2110](https://github.com/pinterest/ktlint/pull/2110))
+* Update dependency com.google.jimfs:jimfs to v1.3.0 ([#2112](https://github.com/pinterest/ktlint/pull/2112))
 
 ## [0.50.0] - 2023-06-29
 
