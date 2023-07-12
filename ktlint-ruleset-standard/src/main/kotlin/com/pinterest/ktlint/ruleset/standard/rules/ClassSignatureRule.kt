@@ -289,11 +289,11 @@ public class ClassSignatureRule :
                     if (whiteSpaceBeforeIdentifier == null ||
                         !whiteSpaceBeforeIdentifier.textContains('\n')
                     ) {
-                        // Let indent rule determine the exact indent
-                        val expectedParameterIndent = indentConfig.childIndentOf(node)
                         if (!dryRun) {
                             emit(firstParameterInList.startOffset, "Newline expected after opening parenthesis", true)
                         }
+                        // Let indent rule determine the exact indent
+                        val expectedParameterIndent = indentConfig.childIndentOf(node)
                         if (autoCorrect && !dryRun) {
                             valueParameterList.firstChildNode.upsertWhitespaceAfterMe(expectedParameterIndent)
                         } else {
@@ -351,11 +351,11 @@ public class ClassSignatureRule :
                             if (whiteSpaceBeforeIdentifier == null ||
                                 !whiteSpaceBeforeIdentifier.textContains('\n')
                             ) {
-                                // Let IndentationRule determine the exact indent
-                                val expectedParameterIndent = indentConfig.childIndentOf(node)
                                 if (!dryRun) {
                                     emit(valueParameter.startOffset, "Parameter should start on a newline", true)
                                 }
+                                // Let IndentationRule determine the exact indent
+                                val expectedParameterIndent = indentConfig.childIndentOf(node)
                                 if (autoCorrect && !dryRun) {
                                     firstChildNodeInValueParameter.upsertWhitespaceBeforeMe(expectedParameterIndent)
                                 } else {
@@ -365,11 +365,7 @@ public class ClassSignatureRule :
                         } else {
                             if (whiteSpaceBeforeIdentifier == null || whiteSpaceBeforeIdentifier.text != " ") {
                                 if (!dryRun) {
-                                    emit(
-                                        firstChildNodeInValueParameter!!.startOffset,
-                                        "Single whitespace expected before parameter",
-                                        true,
-                                    )
+                                    emit(firstChildNodeInValueParameter!!.startOffset, "Single whitespace expected before parameter", true)
                                 }
                                 if (autoCorrect && !dryRun) {
                                     firstChildNodeInValueParameter.upsertWhitespaceBeforeMe(" ")
@@ -405,15 +401,11 @@ public class ClassSignatureRule :
                     if (whiteSpaceBeforeClosingParenthesis == null ||
                         !whiteSpaceBeforeClosingParenthesis.textContains('\n')
                     ) {
+                        if (!dryRun) {
+                            emit(closingParenthesisPrimaryConstructor!!.startOffset, "Newline expected before closing parenthesis", true)
+                        }
                         // Let IndentationRule determine the exact indent
                         val expectedParameterIndent = node.indent()
-                        if (!dryRun) {
-                            emit(
-                                closingParenthesisPrimaryConstructor!!.startOffset,
-                                "Newline expected before closing parenthesis",
-                                true,
-                            )
-                        }
                         if (autoCorrect && !dryRun) {
                             closingParenthesisPrimaryConstructor!!.upsertWhitespaceBeforeMe(expectedParameterIndent)
                         } else {
@@ -524,11 +516,7 @@ public class ClassSignatureRule :
                                 if (whiteSpaceBeforeIdentifier == null ||
                                     whiteSpaceBeforeIdentifier.text != expectedWhitespace
                                 ) {
-                                    emit(
-                                        firstChildNodeInSuperType.startOffset,
-                                        "Expected single space before the first super type",
-                                        true,
-                                    )
+                                    emit(firstChildNodeInSuperType.startOffset, "Expected single space before the first super type", true)
                                     if (autoCorrect) {
                                         firstChildNodeInSuperType.upsertWhitespaceBeforeMe(expectedWhitespace)
                                     }
