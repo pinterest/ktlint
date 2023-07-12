@@ -35,6 +35,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IF
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.IS_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC_END
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC_LEADING_ASTERISK
@@ -50,6 +51,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_DECLARATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPEN_QUOTE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PARENTHESIZED
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.POSTFIX_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.PREFIX_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PRIMARY_CONSTRUCTOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY_ACCESSOR
@@ -254,6 +257,11 @@ public class IndentationRule :
                 node.elementType == TYPE_ARGUMENT_LIST ||
                 node.elementType == TYPE_PARAMETER_LIST ||
                 node.elementType == USER_TYPE ->
+                startIndentContext(node)
+
+            node.elementType == IS_EXPRESSION ||
+                node.elementType == PREFIX_EXPRESSION ||
+                node.elementType == POSTFIX_EXPRESSION ->
                 startIndentContext(node)
 
             node.elementType == DELEGATED_SUPER_TYPE_ENTRY ||
