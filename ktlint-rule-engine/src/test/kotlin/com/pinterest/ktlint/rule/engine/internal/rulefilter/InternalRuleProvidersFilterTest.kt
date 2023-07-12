@@ -43,10 +43,10 @@ class InternalRuleProvidersFilterTest {
         ruleId: RuleId,
         visitorModifiers: Set<VisitorModifier> = emptySet(),
     ) : Rule(
-        ruleId = ruleId,
-        about = About(),
-        visitorModifiers,
-    ) {
+            ruleId = ruleId,
+            about = About(),
+            visitorModifiers,
+        ) {
         override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,
