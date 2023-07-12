@@ -15,7 +15,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
-* Update dependency gradle to v8.2 ([#2105](https://github.com/pinterest/ktlint/pull/2105))
+* Update dependency gradle to v8.2.1 ([#2122](https://github.com/pinterest/ktlint/pull/2122))
 
 ## [0.50.0] - 2023-06-29
 
