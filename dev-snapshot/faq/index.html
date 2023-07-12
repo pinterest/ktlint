@@ -17,7 +17,7 @@
         <link rel="next" href="../contributing/overview/">
       
       <link rel="icon" href="../assets/images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.17">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.18">
     
     
       
@@ -813,6 +813,13 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#how-do-i-disable-ktlint-for-generated-code" class="md-nav__link">
+    How do I disable ktlint for generated code?
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1001,6 +1008,13 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#how-do-i-disable-ktlint-for-generated-code" class="md-nav__link">
+    How do I disable ktlint for generated code?
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1143,6 +1157,15 @@ and send the generated code as <code>String</code> to KtLint inside a <code>Code
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>ij_formatter_on_tag = some-custom-on-tag # Defaults to &#39;@formatter:on&#39;
 </code></pre></div></p>
 <p>When enabled, the ktlint rule checking is disabled for all code surrounded by the formatter tags.</p>
+<h1 id="how-do-i-disable-ktlint-for-generated-code">How do I disable ktlint for generated code?<a class="headerlink" href="#how-do-i-disable-ktlint-for-generated-code" title="Permanent link">&para;</a></h1>
+<p>Running ktlint on generated code is not useful. Fixing lint and format errors on generated code is a waste of time as errors will be re-introduced once that code is generated again. Given that generated code is located in a separate directory, you can disable ktlint for such directory by adding a glob for that directory:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>[some/path/to/generated/code/**/*]
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>ktlint = disabled
+</code></pre></div></p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The <code>ec4j</code> library used by ktlint does not seem to work with globs starting with <code>**</code> followed by a chain of multiple directories (for example <code>**/path/to/generated/**/*</code>). But both <code>some/path/to/generated/**/*</code> and <code>**/generated/**/*</code> work fine.</p>
+</div>
 
 
 
@@ -1180,10 +1203,10 @@ and send the generated code as <code>String</code> to KtLint inside a <code>Code
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "search.suggest", "search.share"], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "search.suggest", "search.share"], "search": "../assets/javascripts/workers/search.74e28a9f.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.b425cdc4.min.js"></script>
+      <script src="../assets/javascripts/bundle.220ee61c.min.js"></script>
       
     
   </body>
