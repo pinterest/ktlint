@@ -1,6 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK_COMMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.EXCLEXCL
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.SAFE_ACCESS
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.hasNewLineInClosedRange
@@ -9,7 +16,9 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.noNewLineInOpenRange
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
@@ -24,55 +33,46 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 public class ChainMethodContinuation :
     StandardRule("chain-method-continuation"),
     Rule.Experimental {
-    private val chainOperators =
-        TokenSet.create(
-            ElementType.DOT_QUALIFIED_EXPRESSION,
-            ElementType.SAFE_ACCESS_EXPRESSION,
-        )
+    private val chainOperators = TokenSet.create(DOT, SAFE_ACCESS)
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        node.takeIf {
-            it.elementType in chainOperators
-        }?.let {
-            visitChains(node, autoCorrect, emit)
-        }
+        node
+            .takeIf { it.elementType in chainOperators }
+            ?.let { visitChainOperator(node, autoCorrect, emit) }
     }
 
-    private fun visitChains(
-        node: ASTNode,
+    private fun visitChainOperator(
+        chainOperator: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        val chainOperator = node.findChildByType(ElementType.SAFE_ACCESS) ?: node.findChildByType(ElementType.DOT)
-        chainOperator ?: return
         val rightExpression = chainOperator.nextCodeSibling()?.firstChildLeafOrSelf() ?: return
-        val leftExpressionEndBrace =
-            chainOperator.prevLeaf { !it.isWhiteSpace() && it.elementType != ElementType.EXCLEXCL }
+        val previousEndBrace =
+            chainOperator
+                .prevLeaf { !it.isWhiteSpace() && it.elementType != EXCLEXCL && it.elementType != EOL_COMMENT && it.elementType != BLOCK_COMMENT }
                 ?.lastChildLeafOrSelf() ?: return
-        val leftExpressionBeforeEndBrace = leftExpressionEndBrace.prevCodeSibling()?.lastChildLeafOrSelf() ?: return
-        val isLeftExpressionEndBraceInSeparateLine =
-            leftExpressionEndBrace.elementType == ElementType.RBRACE &&
-                hasNewLineInClosedRange(leftExpressionBeforeEndBrace, leftExpressionEndBrace)
-        if (!noNewLineInOpenRange(chainOperator, rightExpression)) {
+        val previousExpressionBeforeBrace = previousEndBrace.prevCodeSibling()?.lastChildLeafOrSelf() ?: return
+        val isPreviousChainElementMultiline =
+            previousEndBrace.elementType == RBRACE &&
+                hasNewLineInClosedRange(previousExpressionBeforeBrace, previousEndBrace)
+        if (hasNewLineInClosedRange(chainOperator, rightExpression)) {
             emit(
                 chainOperator.textRange.endOffset,
                 "${
-                    if (isLeftExpressionEndBraceInSeparateLine) {
-                        leftExpressionEndBrace.leavesIncludingSelf()
-                            .takeWhile { it != chainOperator && !it.isWhiteSpace() }.map { it.text }
-                            .joinToString(separator = "")
-                    } else {
-                        ""
-                    }
+                    getLeftAlighingTextAfterAligningBrace(
+                        isPreviousChainElementMultiline,
+                        previousEndBrace,
+                        chainOperator
+                    )
                 }${chainOperator.text} must merge at the start of next call",
                 true,
             )
             if (autoCorrect) {
-                if (isLeftExpressionEndBraceInSeparateLine) {
+                if (isPreviousChainElementMultiline) {
                     /*
                         Detects code like below
                         bar {
@@ -80,16 +80,23 @@ public class ChainMethodContinuation :
                         }.
                         foo() // this should align with previous line }
                      */
-                    chainOperator.upsertWhitespaceAfterMe("")
+                    chainOperator.treeParent.addChild(
+                        rightExpression.parent(ElementType.CALL_EXPRESSION)!!,
+                        chainOperator.nextLeaf()
+                    )
+                    rightExpression.parent(ElementType.CALL_EXPRESSION)!!.upsertWhitespaceAfterMe("")
                 } else {
-                    chainOperator.upsertWhitespaceBeforeMe(rightExpression.indent())
-                    rightExpression.upsertWhitespaceBeforeMe("")
+                    val indent = rightExpression.indent()
+//                    chainOperator.upsertWhitespaceBeforeMe(rightExpression.indent())
+                    val chainParent = rightExpression.prevLeaf(includeEmpty = true)!!.treeParent
+                    chainParent.replaceChild(rightExpression.prevLeaf(includeEmpty = true)!!, chainOperator)
+                    chainOperator.upsertWhitespaceBeforeMe(indent)
                 }
             }
-        } else if (leftExpressionEndBrace.elementType == ElementType.RBRACE &&
-            isLeftExpressionEndBraceInSeparateLine &&
+        } else if (previousEndBrace.elementType == RBRACE &&
+            isPreviousChainElementMultiline &&
             !noNewLineInOpenRange(
-                leftExpressionEndBrace,
+                previousEndBrace,
                 chainOperator,
             )
         ) {
@@ -107,7 +114,35 @@ public class ChainMethodContinuation :
             )
             if (autoCorrect) {
                 chainOperator.upsertWhitespaceBeforeMe("")
+                var t = false
+                val list =
+                    chainOperator.leavesIncludingSelf().takeWhile {
+                        it.also {
+                            if (it.elementType !in listOf(EOL_COMMENT, BLOCK_COMMENT) && it != chainOperator) {
+                                t = true
+                            }
+                        }.elementType !in listOf(WHITE_SPACE, EOL_COMMENT, BLOCK_COMMENT) || !t
+                    }.toList()
+                val rightExpCode = list.joinToString("") { it.text }
+                list.forEach { it.treeParent.removeChild(it) }
+                val text = previousEndBrace.nextLeaf().takeIf { it?.elementType == WHITE_SPACE }?.text.orEmpty().split("\n")
+                    .joinToString("\n")
+                previousEndBrace.upsertWhitespaceAfterMe(rightExpCode + text)
             }
         }
+    }
+
+    private fun getLeftAlighingTextAfterAligningBrace(
+        isLeftExpressionEndBraceInSeparateLine: Boolean,
+        leftExpressionEndBrace: ASTNode,
+        chainOperator: ASTNode
+    ) = if (isLeftExpressionEndBraceInSeparateLine) {
+        leftExpressionEndBrace
+            .leavesIncludingSelf()
+            .takeWhile { it != chainOperator && !it.isWhiteSpace() }
+            .map { it.text }
+            .joinToString(separator = "")
+    } else {
+        ""
     }
 }
