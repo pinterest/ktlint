@@ -20,7 +20,7 @@ slf4j = "org.slf4j:slf4j-simple:2.0.7"
 # Use logback-classic as the logger for kotlin-logging / slf4j as it allow changing the log level at runtime.
 logback = "ch.qos.logback:logback-classic:1.3.5"
 # Required for logback.xml conditional configuration
-janino = "org.codehaus.janino:janino:3.1.9"
+janino = "org.codehaus.janino:janino:3.1.10"
 # Testing libraries
 junit5 = "org.junit.jupiter:junit-jupiter:5.9.3"
 assertj = "org.assertj:assertj-core:3.24.2"
