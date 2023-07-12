@@ -154,3 +154,16 @@ ij_formatter_on_tag = some-custom-on-tag # Defaults to '@formatter:on'
 ```
 
 When enabled, the ktlint rule checking is disabled for all code surrounded by the formatter tags.
+
+# How do I disable ktlint for generated code?
+
+Running ktlint on generated code is not useful. Fixing lint and format errors on generated code is a waste of time as errors will be re-introduced once that code is generated again. Given that generated code is located in a separate directory, you can disable ktlint for such directory by adding a glob for that directory:
+```editorconfig
+[some/path/to/generated/code/**/*]
+ktlint = disabled
+```
+
+!!! warning
+    The `ec4j` library used by ktlint does not seem to work with globs starting with `**` followed by a chain of multiple directories (for example `**/path/to/generated/**/*`). But both `some/path/to/generated/**/*` and `**/generated/**/*` work fine.
+
+
