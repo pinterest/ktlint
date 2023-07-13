@@ -44,7 +44,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
     private fun removeUnexpectedNewlineBefore(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         val psiParent = node.psi.parent
         val prevLeaf = node.prevLeaf()
@@ -130,7 +130,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
     private fun removeUnexpectedSpacingAround(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         if (node.prevSibling().isWhiteSpaceWithoutNewline() && node.noSpacingBefore) {
             emit(node.startOffset, "Unexpected spacing before \":\"", true)
@@ -157,7 +157,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
     private fun addMissingSpacingAround(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         val missingSpacingBefore = !node.prevSibling().isWhiteSpace() && node.spacingBefore
         val missingSpacingAfter = !node.nextSibling().isWhiteSpace() && node.noSpacingAfter
@@ -187,33 +187,35 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
     }
 
     private inline val ASTNode.spacingBefore: Boolean
-        get() = when {
-            psi.parent is KtClassOrObject -> true
+        get() =
+            when {
+                psi.parent is KtClassOrObject -> true
 
-            psi.parent is KtConstructor<*> -> {
-                // constructor : this/super
-                true
+                psi.parent is KtConstructor<*> -> {
+                    // constructor : this/super
+                    true
+                }
+
+                psi.parent is KtTypeConstraint -> {
+                    // where T : S
+                    true
+                }
+
+                psi.parent.parent is KtTypeParameterList ->
+                    true
+
+                else -> false
             }
-
-            psi.parent is KtTypeConstraint -> {
-                // where T : S
-                true
-            }
-
-            psi.parent.parent is KtTypeParameterList ->
-                true
-
-            else -> false
-        }
 
     private inline val ASTNode.noSpacingBefore: Boolean
         get() = !spacingBefore
 
     private inline val ASTNode.spacingAfter: Boolean
-        get() = when (psi.parent) {
-            is KtAnnotation, is KtAnnotationEntry -> true
-            else -> false
-        }
+        get() =
+            when (psi.parent) {
+                is KtAnnotation, is KtAnnotationEntry -> true
+                else -> false
+            }
 
     private inline val ASTNode.noSpacingAfter: Boolean
         get() = !spacingAfter
