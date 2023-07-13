@@ -42,11 +42,11 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
                                 // Super keyword needs special-casing
                                 prevLeaf.prevLeaf()?.elementType == SUPER_KEYWORD ||
                                 prevLeaf.prevLeaf()?.treeParent?.elementType == PRIMARY_CONSTRUCTOR
-                            ) &&
+                        ) &&
                         (
                             node.treeParent?.elementType == VALUE_PARAMETER_LIST ||
                                 node.treeParent?.elementType == VALUE_ARGUMENT_LIST
-                            )
+                        )
                 } else {
                     prevLeaf is PsiWhiteSpace && !prevLeaf.textContains('\n') &&
                         prevLeaf.prevLeaf()?.elementType != LPAR

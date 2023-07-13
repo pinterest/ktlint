@@ -159,7 +159,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
     ) {
-        val missingSpacingBefore = !node.prevSibling().isWhiteSpace() && node.spacingBefore
+                    val missingSpacingBefore = !node.prevSibling().isWhiteSpace() && node.spacingBefore
         val missingSpacingAfter = !node.nextSibling().isWhiteSpace() && node.noSpacingAfter
         when {
             missingSpacingBefore && missingSpacingAfter -> {

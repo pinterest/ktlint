@@ -63,7 +63,7 @@ public class StringTemplateRule : StandardRule("string-template") {
                         (
                             nextSibling.elementType == LITERAL_STRING_TEMPLATE_ENTRY &&
                                 !nextSibling.text.substring(0, 1).isPartOfIdentifier()
-                            )
+                        )
                 }
             ) {
                 emit(node.treePrev.startOffset + 2, "Redundant curly braces", true)

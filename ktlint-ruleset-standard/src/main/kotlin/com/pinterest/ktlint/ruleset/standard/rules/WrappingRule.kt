@@ -239,7 +239,7 @@ public class WrappingRule :
                 numberOfArgs == 1 &&
                     firstArg?.firstChildNode?.elementType
                         ?.let { it == OBJECT_LITERAL || it == LAMBDA_EXPRESSION } == true
-                )
+            )
         ) {
             return
         }
@@ -308,7 +308,7 @@ public class WrappingRule :
             !(
                 entries.dropLast(1).all { it.elementType == SUPER_TYPE_ENTRY } &&
                     entries.last().elementType == SUPER_TYPE_CALL_ENTRY
-                )
+            )
         ) {
             // put space after :
             if (!node.prevLeaf().isWhiteSpaceWithNewline()) {

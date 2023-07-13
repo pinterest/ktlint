@@ -250,7 +250,7 @@ public class IndentationRule :
                     // Contrary to the IntelliJ IDEA default formatter, do not indent the closing RPAR
                     startIndentContext(
                         fromAstNode = node,
-                        lastChildIndent = ""
+                        lastChildIndent = "",
                     )
                 } else if (node.treeParent.treeParent.elementType != IF) {
                     startIndentContext(node)
@@ -1373,7 +1373,7 @@ private class StringTemplateIndenter(
                                 it.isLiteralStringTemplateEntry() ||
                                     it.isVariableStringTemplateEntry() ||
                                     it.isClosingQuote()
-                                )
+                            )
                         ) {
                             val (actualIndent, actualContent) =
                                 if (it.isIndentBeforeClosingQuote()) {
