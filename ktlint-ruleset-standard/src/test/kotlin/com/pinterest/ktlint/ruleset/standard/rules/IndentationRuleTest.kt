@@ -5322,6 +5322,24 @@ internal class IndentationRuleTest {
             .isFormattedAs(formattedCode)
     }
 
+    @Test
+    fun `Issue 920 - Given ktlint_official codestyle and a PARENTHESIZED expression`() {
+        val code =
+            """
+            val foobar =
+                if (true) {
+                    (
+                        foo()
+                    )
+                } else {
+                    bar()
+                }
+            """.trimIndent()
+        indentationRuleAssertThat(code)
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+            .hasNoLintViolations()
+    }
+
     private companion object {
         val INDENT_STYLE_TAB =
             INDENT_STYLE_PROPERTY to PropertyType.IndentStyleValue.tab
