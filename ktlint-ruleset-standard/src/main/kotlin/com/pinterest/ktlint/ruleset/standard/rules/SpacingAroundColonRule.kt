@@ -131,7 +131,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                     (
                         psiParent is KtClassOrObject || psiParent is KtConstructor<*> ||
                             psiParent is KtTypeConstraint || psiParent.parent is KtTypeParameterList
-                        )
+                    )
             val missingSpacingAfter = !node.nextSibling().isWhiteSpace()
             when {
                 missingSpacingBefore && missingSpacingAfter -> {
