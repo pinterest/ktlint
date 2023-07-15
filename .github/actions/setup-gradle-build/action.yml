@@ -1,0 +1,32 @@
+name: Setup Gradle
+description: Sets up the environment to run Gradle
+
+inputs:
+  gradle-jvm-args:
+    description: "JVM args to pass to Gradle"
+    required: true
+    default: "-Xmx1g"
+  additional-java-versions:
+    description: "Java versions installed on the side of the default Java version required by the build"
+    required: false
+
+runs:
+  using: composite
+
+  steps:
+    - uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: | # last version (set as default) should match all `jvmToolchain(xxx)` calls in the project
+          ${{ inputs.additional-java-versions }}
+          20
+
+    - name: Write Gradle build properties to local `gradle.properties`
+      run: |
+        mkdir -p ~/.gradle
+        printf "org.gradle.jvmargs=${{ inputs.gradle-jvm-args }}\n" >> ~/.gradle/gradle.properties
+      shell: bash
+
+    - uses: gradle/gradle-build-action@v2
+      with:
+        gradle-home-cache-cleanup: true

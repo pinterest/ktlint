@@ -38,14 +38,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: 20 # This should match all `jvmToolchain(xxx)` calls in the project
-
-      - uses: gradle/gradle-build-action@v2
-        with:
-          gradle-home-cache-cleanup: true
+      - uses: ./.github/actions/setup-gradle-build
 
       - name: Build with release Kotlin version
         run: ./gradlew build ktlintCheck --no-configuration-cache
@@ -99,15 +92,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/setup-java@v3
+      - uses: ./.github/actions/setup-gradle-build
         with:
-          distribution: 'zulu'
-          java-version: | # last version (set as default) should match all `jvmToolchain(xxx)` calls in the project
-            ${{ matrix.jdk }}
-            20
-
-      - uses: gradle/gradle-build-action@v2
-        with:
-          gradle-home-cache-cleanup: true
+          additional-java-versions: ${{ matrix.jdk }}
 
       - run: ./gradlew testOnJdk${{ matrix.jdk }} -PtestJdkVersion=${{ matrix.jdk }}
