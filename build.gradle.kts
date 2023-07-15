@@ -7,12 +7,16 @@ plugins {
     alias(libs.plugins.kotlinx.binary.compatibiltiy.validator)
 }
 
-apiValidation {
-    ignoredProjects += setOf(
+val internalNonPublishableProjects by extra(
+    setOf(
         "ktlint-api-consumer",
         "ktlint-bom",
         "ktlint-ruleset-template",
-    )
+    ),
+)
+
+apiValidation {
+    ignoredProjects += internalNonPublishableProjects
 }
 
 val ktlint: Configuration by configurations.creating
