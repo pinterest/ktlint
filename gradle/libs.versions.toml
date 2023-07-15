@@ -1,4 +1,6 @@
 [versions]
+java-compilation = "20" # `actions/setup-java` should install the same version
+java-target = "8"
 kotlin = "1.8.22"
 kotlinDev = "1.8.22"
 

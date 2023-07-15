@@ -41,7 +41,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: 20
+          java-version: 20 # This should match all `jvmToolchain(xxx)` calls in the project
 
       - uses: gradle/gradle-build-action@v2
         with:
@@ -90,9 +90,10 @@ jobs:
 
   tests:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        jdk: [ 8, 11, 17 ]
+        jdk: [ 8, 11, 17 ] # list of Java versions to run tests against
     runs-on: ${{ matrix.os }}
     name: "[tests] OS: ${{ matrix.os }}, Java: ${{ matrix.jdk }}"
     steps:
@@ -102,13 +103,11 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: |
-            8
-            11
-            17
+            ${{ matrix.jdk }}
             20
 
       - uses: gradle/gradle-build-action@v2
         with:
           gradle-home-cache-cleanup: true
 
-      - run: ./gradlew testJdk${{ matrix.jdk }}
+      - run: ./gradlew testOnJdk -PtestJdkVersion=${{ matrix.jdk }}

@@ -17,7 +17,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: 20
+          java-version: 20 # This should match all `jvmToolchain(xxx)` calls in the project
       - uses: gradle/gradle-build-action@v2
         with:
           gradle-home-cache-cleanup: true

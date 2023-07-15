@@ -6,36 +6,33 @@ plugins {
     id("dev.drewhamilton.poko")
 }
 
+val projectLibs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+val javaCompilationVersion = JavaLanguageVersion.of(projectLibs.findVersion("java-compilation").get().requiredVersion)
+val javaTargetVersion = JavaLanguageVersion.of(projectLibs.findVersion("java-target").get().requiredVersion)
+
 kotlin {
     // All modules, the CLI included, must have an explicit API
     explicitApi()
-    jvmToolchain(20)
+    jvmToolchain(jdkVersion = javaCompilationVersion.asInt())
 }
 
-val targetJavaVersion = JavaVersion.VERSION_1_8
 tasks.withType<JavaCompile>().configureEach {
-    options.release.set(targetJavaVersion.majorVersion.toInt())
+    options.release.set(javaTargetVersion.asInt())
 }
 tasks.withType<KotlinCompile>().configureEach {
-    compilerOptions.jvmTarget.set(JvmTarget.fromTarget(targetJavaVersion.toString()))
+    compilerOptions.jvmTarget.set(JvmTarget.fromTarget(JavaVersion.toVersion(javaTargetVersion).toString()))
 }
 
-listOf(8, 11, 17).forEach { version ->
-    val jdkTest =
-        tasks.register<Test>("testJdk$version") {
-            javaLauncher =
-                javaToolchains.launcherFor {
-                    languageVersion = JavaLanguageVersion.of(version)
-                }
+val requestedJdkVersion = project.findProperty("testJdkVersion")?.toString()?.toInt()
+if (requestedJdkVersion != null) {
+    tasks.register<Test>("testOnJdk") {
+        javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(requestedJdkVersion) }
 
-            description = "Runs the test suite on Jdk$version"
-            group = LifecycleBasePlugin.VERIFICATION_GROUP
-
-            // Copy inputs from normal Test task.
-            val testTask = tasks.test.get()
-            classpath = testTask.classpath
-            testClassesDirs = testTask.testClassesDirs
-        }
+        // Copy inputs from normal Test task.
+        val testTask = tasks.test.get()
+        classpath = testTask.classpath
+        testClassesDirs = testTask.testClassesDirs
+    }
 }
 
 val skipTests: String = providers.systemProperty("skipTests").getOrElse("false")
