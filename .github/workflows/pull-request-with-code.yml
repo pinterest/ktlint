@@ -110,4 +110,4 @@ jobs:
         with:
           gradle-home-cache-cleanup: true
 
-      - run: ./gradlew testOnJdk -PtestJdkVersion=${{ matrix.jdk }}
+      - run: ./gradlew testOnJdk${{ matrix.jdk }} -PtestJdkVersion=${{ matrix.jdk }}

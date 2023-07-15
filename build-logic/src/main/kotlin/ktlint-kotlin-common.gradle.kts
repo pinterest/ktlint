@@ -25,9 +25,13 @@ tasks.withType<KotlinCompile>().configureEach {
 }
 
 val requestedJdkVersion = project.findProperty("testJdkVersion")?.toString()?.toInt()
-if (requestedJdkVersion != null) {
-    tasks.register<Test>("testOnJdk") {
-        javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(requestedJdkVersion) }
+// List all non-current Java versions the developers may want to run via IDE click
+setOfNotNull(8, 11, 17, requestedJdkVersion).forEach { version ->
+    tasks.register<Test>("testOnJdk$version") {
+        javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(version) }
+
+        description = "Runs the test suite on JDK $version"
+        group = LifecycleBasePlugin.VERIFICATION_GROUP
 
         // Copy inputs from normal Test task.
         val testTask = tasks.test.get()
