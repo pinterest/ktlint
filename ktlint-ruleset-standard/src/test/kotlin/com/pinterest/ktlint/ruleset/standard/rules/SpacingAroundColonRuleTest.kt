@@ -92,14 +92,46 @@ class SpacingAroundColonRuleTest {
         val code =
             """
             @file:JvmName("Foo")
+            @file : JvmName("Foo")
+            class Example(@field:Ann val foo: String, @get:Ann val bar: String)
+            class Example(@field : Ann val foo: String, @get : Ann val bar: String)
+            class Example {
+                @set:[Inject VisibleForTesting]
+                public var collaborator: Collaborator
+                @set : [Inject VisibleForTesting]
+                public var collaborator: Collaborator
+            }
+            fun @receiver:Fancy String.myExtension() { }
+            fun @receiver : Fancy String.myExtension() { }
+            """.trimIndent()
+        val formattedCode =
+            """
+            @file:JvmName("Foo")
+            @file:JvmName("Foo")
+            class Example(@field:Ann val foo: String, @get:Ann val bar: String)
             class Example(@field:Ann val foo: String, @get:Ann val bar: String)
             class Example {
                 @set:[Inject VisibleForTesting]
                 public var collaborator: Collaborator
+                @set:[Inject VisibleForTesting]
+                public var collaborator: Collaborator
             }
             fun @receiver:Fancy String.myExtension() { }
+            fun @receiver:Fancy String.myExtension() { }
             """.trimIndent()
-        spacingAroundColonRuleAssertThat(code).hasNoLintViolations()
+        spacingAroundColonRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 7, "Unexpected spacing before \":\""),
+                LintViolation(2, 7, "Unexpected spacing after \":\""),
+                LintViolation(4, 22, "Unexpected spacing before \":\""),
+                LintViolation(4, 22, "Unexpected spacing after \":\""),
+                LintViolation(4, 50, "Unexpected spacing before \":\""),
+                LintViolation(4, 50, "Unexpected spacing after \":\""),
+                LintViolation(8, 10, "Unexpected spacing before \":\""),
+                LintViolation(8, 10, "Unexpected spacing after \":\""),
+                LintViolation(12, 15, "Unexpected spacing before \":\""),
+                LintViolation(12, 15, "Unexpected spacing after \":\""),
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
