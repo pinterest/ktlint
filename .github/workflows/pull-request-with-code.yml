@@ -27,7 +27,7 @@ env:
   ORG_GRADLE_PROJECT_signingKeyPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
   CLI_TEST_MAX_DURATION_IN_SECONDS: 10
 
-# Note that "jobs.build.strategy" and "jobs.build.runs-on" should be kept in sync with "pull-request-wth-code"
+# Note that all "jobs" (build, tests) including "jobs.build.runs-on" should be kept in sync with "pull-request-without-code"
 jobs:
   build:
     strategy:
@@ -93,7 +93,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        jdk: [ 8, 11, 17 ] # list of Java versions to run tests against
+        jdk: [ 8, 11, 17 ] # list of Java versions to run tests against (excluding `java-compilation` version for which tests already have run during `build` job)
     runs-on: ${{ matrix.os }}
     name: "[tests] OS: ${{ matrix.os }}, Java: ${{ matrix.jdk }}"
     steps:
@@ -102,7 +102,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: |
+          java-version: | # last version (set as default) should match all `jvmToolchain(xxx)` calls in the project
             ${{ matrix.jdk }}
             20
 

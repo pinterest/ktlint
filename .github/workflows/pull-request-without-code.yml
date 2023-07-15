@@ -19,7 +19,7 @@ on:
       - '!**/*.toml'
 
 # Add a dummy job that return true so that a PR not containing any code can be merged to master
-# Note that "jobs.build.strategy" and "jobs.build.runs-on" should be kept in sync with "pull-request-wth-code"
+# Note that all "jobs" (build, tests) including "jobs.build.runs-on" should be kept in sync with "pull-request-with-code"
 jobs:
   build:
     strategy:

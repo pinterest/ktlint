@@ -1,5 +1,7 @@
 [versions]
-java-compilation = "20" # `actions/setup-java` should install the same version
+# The java-compilation version is the latest supported (not necessarily LTS) version of Java. It should be identical to Java-version used in `actions/setup-java`
+java-compilation = "20"
+# The java-target version is the lowest supported LTS version of Java. Jar's produced are bytecode compatible with this version.
 java-target = "8"
 kotlin = "1.8.22"
 kotlinDev = "1.8.22"
