@@ -25,6 +25,7 @@ runs:
       run: |
         mkdir -p ~/.gradle
         printf "org.gradle.jvmargs=${{ inputs.gradle-jvm-args }}\n" >> ~/.gradle/gradle.properties
+        printf "org.gradle.vfs.watch=false\n" >> ~/.gradle/gradle.properties
       shell: bash
 
     - uses: gradle/gradle-build-action@v2
