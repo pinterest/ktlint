@@ -245,9 +245,16 @@ public class IndentationRule :
             node.elementType == SECONDARY_CONSTRUCTOR ->
                 visitSecondaryConstructor(node)
 
-            node.elementType == PARENTHESIZED &&
-                node.treeParent.treeParent.elementType != IF ->
-                startIndentContext(node)
+            node.elementType == PARENTHESIZED ->
+                if (codeStyle == ktlint_official) {
+                    // Contrary to the IntelliJ IDEA default formatter, do not indent the closing RPAR
+                    startIndentContext(
+                        fromAstNode = node,
+                        lastChildIndent = "",
+                    )
+                } else if (node.treeParent.treeParent.elementType != IF) {
+                    startIndentContext(node)
+                }
 
             node.elementType == BINARY_WITH_TYPE ||
                 node.elementType == SUPER_TYPE_ENTRY ||
@@ -1366,7 +1373,7 @@ private class StringTemplateIndenter(
                                 it.isLiteralStringTemplateEntry() ||
                                     it.isVariableStringTemplateEntry() ||
                                     it.isClosingQuote()
-                                )
+                            )
                         ) {
                             val (actualIndent, actualContent) =
                                 if (it.isIndentBeforeClosingQuote()) {
