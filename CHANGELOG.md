@@ -14,6 +14,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 * Fix wrapping of nested function literals `wrapping` ([#2106](https://github.com/pinterest/ktlint/issues/2106))
 * Do not indent class body for classes having a long super type list in code style `ktlint_official` as it is inconsistent compared to other class bodies `indent` [#2115](https://github.com/pinterest/ktlint/issues/2115)
 * In code style `ktlint_official` do not indent the closing parenthesis of a PARENTHESIZED expression `indent` [#920](https://github.com/pinterest/ktlint/issues/920) 
+* Log message `Format was not able to resolve all violations which (theoretically) can be autocorrected in file ... in 3 consecutive runs of format` is now only displayed in case a new ktlint rule is actually needed. [#2129](https://github.com/pinterest/ktlint/issues/2129)
+* Fix wrapping of function signature in case the opening brace of the function body block exceeds the maximum line length. Fix upsert of whitespace into composite nodes. `function-signature` [#2130](https://github.com/pinterest/ktlint/issues/2130)
+* Fix spacing around colon in annotations `spacing-around-colon` ([#2093](https://github.com/pinterest/ktlint/issues/2093))
 
 ### Changed
 
