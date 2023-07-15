@@ -179,9 +179,30 @@ public class KtLintRuleEngine(
                 }
         } while (mutated && formatRunCount < MAX_FORMAT_RUNS_PER_FILE)
         if (formatRunCount == MAX_FORMAT_RUNS_PER_FILE && mutated) {
-            LOGGER.warn {
-                "Format was not able to resolve all violations which (theoretically) can be autocorrected in file " +
-                    "${code.filePathOrStdin()} in $MAX_FORMAT_RUNS_PER_FILE consecutive runs of format."
+            // It is unknown if the last format run introduces new lint violations which can be autocorrected. So run lint once more so that
+            // the user can be informed about this correctly.
+            var hasErrorsWhichCanBeAutocorrected = false
+            visitorProvider
+                .visitor()
+                .invoke { rule ->
+                    ruleExecutionContext.executeRule(rule, false) { offset, message, canBeAutoCorrected ->
+                        if (canBeAutoCorrected) {
+                            ruleExecutionContext.rebuildSuppressionLocator()
+                            val formattedCode =
+                                ruleExecutionContext
+                                    .rootNode
+                                    .text
+                                    .replace("\n", ruleExecutionContext.determineLineSeparator(code.content))
+                            val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
+                            hasErrorsWhichCanBeAutocorrected = true
+                        }
+                    }
+                }
+            if (hasErrorsWhichCanBeAutocorrected) {
+                LOGGER.warn {
+                    "Format was not able to resolve all violations which (theoretically) can be autocorrected in file " +
+                        "${code.filePathOrStdin()} in $MAX_FORMAT_RUNS_PER_FILE consecutive runs of format."
+                }
             }
         }
 

@@ -245,11 +245,23 @@ public fun ASTNode.upsertWhitespaceBeforeMe(text: String) {
             }
         }
     } else {
-        val prevLeaf =
-            requireNotNull(prevLeaf()) {
-                "Can not upsert a whitespace if the first node is a non-leaf node"
+        when (val prevSibling = prevSibling()) {
+            null -> {
+                // Never insert a whitespace element as first child node in a composite node. Instead, upsert just before the composite node
+                treeParent.upsertWhitespaceBeforeMe(text)
             }
-        prevLeaf.upsertWhitespaceAfterMe(text)
+
+            is LeafElement -> {
+                prevSibling.upsertWhitespaceAfterMe(text)
+            }
+
+            else -> {
+                // Insert in between two composite nodes
+                PsiWhiteSpaceImpl(text).also { psiWhiteSpace ->
+                    treeParent.addChild(psiWhiteSpace.node, this)
+                }
+            }
+        }
     }
 }
 
@@ -279,7 +291,23 @@ public fun ASTNode.upsertWhitespaceAfterMe(text: String) {
             }
         }
     } else {
-        lastChildLeafOrSelf().upsertWhitespaceAfterMe(text)
+        when (val nextSibling = nextSibling()) {
+            null -> {
+                // Never insert a whitespace element as last child node in a composite node. Instead, upsert just after the composite node
+                treeParent.upsertWhitespaceAfterMe(text)
+            }
+
+            is LeafElement -> {
+                nextSibling.upsertWhitespaceBeforeMe(text)
+            }
+
+            else -> {
+                // Insert in between two composite nodes
+                PsiWhiteSpaceImpl(text).also { psiWhiteSpace ->
+                    treeParent.addChild(psiWhiteSpace.node, nextSibling)
+                }
+            }
+        }
     }
 }
 
