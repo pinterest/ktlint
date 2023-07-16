@@ -7,13 +7,14 @@ plugins {
     signing
 }
 
-if (providers.gradleProperty("isKotlinDev").orNull.toBoolean()) {
-    val definedVersion = ext["VERSION_NAME"].toString().removeSuffix("-SNAPSHOT")
-    ext["VERSION_NAME"] = "$definedVersion-kotlin-dev-SNAPSHOT"
-}
+val definedVersion: String = providers.gradleProperty("VERSION_NAME").get()
 
-project.version = providers.gradleProperty("VERSION_NAME").orNull
-    ?: throw GradleException("Project version property is missing")
+project.version =
+    if (hasProperty("kotlinDev")) {
+        "${definedVersion.removeSuffix("-SNAPSHOT")}-kotlin-dev-SNAPSHOT"
+    } else {
+        definedVersion
+    }
 // TODO: Remove `localGradleProperty` once https://github.com/gradle/gradle/issues/23572 or https://github.com/pinterest/ktlint/issues/1931 is fixed.
 project.group = localGradleProperty("GROUP").orNull ?: providers.gradleProperty("GROUP").orNull
     ?: throw GradleException("Project group property is missing")
