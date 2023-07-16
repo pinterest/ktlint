@@ -30,7 +30,8 @@ public class RuleId(
     }
 }
 
-public data class RuleSetId(
+@Poko
+public class RuleSetId(
     public val value: String,
 ) {
     init {
@@ -183,19 +184,20 @@ public open class Rule(
      * API consumers to provide more detailed information about the rule. Please provide all details below, so that users of your rule set
      * can easily get up-to-date information about the rule.
      */
-    public data class About(
+    @Poko
+    public class About(
         /**
          * Name of person, organisation or group maintaining the rule.
          */
-        val maintainer: String = "Not specified (and not maintained by the Ktlint project)",
+        public val maintainer: String = "Not specified (and not maintained by the Ktlint project)",
         /**
          * Url to the repository containing the rule.
          */
-        val repositoryUrl: String = "Not specified",
+        public val repositoryUrl: String = "Not specified",
         /**
          * Url to the issue tracker of the project which provides the rule.
          */
-        val issueTrackerUrl: String = "Not specified",
+        public val issueTrackerUrl: String = "Not specified",
     )
 
     public sealed class VisitorModifier {
@@ -203,16 +205,17 @@ public open class Rule(
          * Defines that the [Rule] that declares this [VisitorModifier] will be run after the [Rule] with rule id
          * [VisitorModifier.RunAfterRule.ruleId].
          */
-        public data class RunAfterRule(
+        @Poko
+        public class RunAfterRule(
             /**
              * The [RuleId] of the [Rule] which should run before the [Rule] that declares the [VisitorModifier.RunAfterRule].
              */
-            val ruleId: RuleId,
+            public val ruleId: RuleId,
             /**
              * The [Mode] determines whether the [Rule] that declares this [VisitorModifier] can be run in case the [Rule] with rule id
              * [VisitorModifier.RunAfterRule.ruleId] is not loaded or enabled.
              */
-            val mode: Mode,
+            public val mode: Mode,
         ) : VisitorModifier() {
             public enum class Mode {
                 /**
