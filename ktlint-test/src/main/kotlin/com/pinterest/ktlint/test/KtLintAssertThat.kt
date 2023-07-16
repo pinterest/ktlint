@@ -18,6 +18,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleSetExecutionEditorConfigProperty
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
+import dev.drewhamilton.poko.Poko
 import mu.KotlinLogging
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions.assertThat
@@ -653,12 +654,15 @@ internal class MissingEolMarker :
  * Expectation of the [LintError]. Contrary to the [LintError] it does not contain the ruleId. The ruleId will be derived from the rule for
  * which the AssertThat was created.
  */
-public data class LintViolation(
-    val line: Int,
-    val col: Int,
-    val detail: String,
-    val canBeAutoCorrected: Boolean = true,
-)
+@Poko
+public class LintViolation
+    @JvmOverloads
+    constructor(
+        public val line: Int,
+        public val col: Int,
+        public val detail: String,
+        public val canBeAutoCorrected: Boolean = true,
+    )
 
 /**
  * Enables the rule sets for the given set of [ruleProviders] unless the rule execution of that rule set was already provided.
