@@ -27,7 +27,7 @@ tasks.withType<KotlinCompile>().configureEach {
 
 dependencies {
     val kotlinPlugin =
-        if (providers.gradleProperty("kotlinDev").orNull.toBoolean()) {
+        if (hasProperty("kotlinDev")) {
             // Pass '-PkotlinDev' to command line to enable kotlin-in-development version
             logger.warn("Enabling kotlin dev version!")
             libs.kotlin.plugin.dev
