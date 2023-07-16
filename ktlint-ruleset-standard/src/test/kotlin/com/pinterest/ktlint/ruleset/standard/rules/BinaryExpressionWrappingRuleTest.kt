@@ -176,9 +176,9 @@ class BinaryExpressionWrappingRuleTest {
                 // When linting, a violation is reported for each operation reference. While when formatting, the nested binary expression
                 // is evaluated (working from outside to inside). After wrapping an outer binary expression, the inner binary expressions
                 // are evaluated and only wrapped again at the operation reference when needed.
+                LintViolation(3, 1, "Line is exceeding max line length", canBeAutoCorrected = false),
                 LintViolation(3, 35, "Line is exceeding max line length. Break line after operator in binary expression"),
                 LintViolation(3, 63, "Line is exceeding max line length. Break line after operator in binary expression"),
-                LintViolation(3, 92, "Line is exceeding max line length", canBeAutoCorrected = false),
             ).isFormattedAs(formattedCode)
     }
 
@@ -194,7 +194,7 @@ class BinaryExpressionWrappingRuleTest {
             """.trimIndent()
         binaryExpressionWrappingRuleAssertThat(code)
             .setMaxLineLength()
-            .hasLintViolationWithoutAutoCorrect(3, 36, "Line is exceeding max line length")
+            .hasLintViolationWithoutAutoCorrect(3, 1, "Line is exceeding max line length")
     }
 
     @Test
@@ -211,10 +211,9 @@ class BinaryExpressionWrappingRuleTest {
             """.trimIndent()
         binaryExpressionWrappingRuleAssertThat(code)
             .setMaxLineLength()
-            .hasLintViolationsWithoutAutoCorrect(
+            .hasLintViolations(
+                LintViolation(2, 1, "Line is exceeding max line length", canBeAutoCorrected = false),
                 LintViolation(2, 12, "Line is exceeding max line length. Break line between assignment and expression"),
-                LintViolation(2, 20, "Line is exceeding max line length. Break line after operator in binary expression"),
-                LintViolation(2, 36, "Line is exceeding max line length"),
             )
     }
 
@@ -307,6 +306,23 @@ class BinaryExpressionWrappingRuleTest {
             .setMaxLineLength()
             .addAdditionalRuleProvider { ArgumentListWrappingRule() }
             .addAdditionalRuleProvider { WrappingRule() }
-            .hasLintViolationWithoutAutoCorrect(3, 17, "Line is exceeding max line length")
+            .hasLintViolationWithoutAutoCorrect(3, 1, "Line is exceeding max line length")
+    }
+
+    @Test
+    fun `Issue 2128 - Given an elvis expression exceeding the line length`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER                            $EOL_CHAR
+            val foo =
+                bar
+                    ?: throw UnsupportedOperationException("foobar")
+            """.trimIndent()
+        binaryExpressionWrappingRuleAssertThat(code)
+            .setMaxLineLength()
+            .addAdditionalRuleProvider { ArgumentListWrappingRule() }
+            .addAdditionalRuleProvider { WrappingRule() }
+            .addAdditionalRuleProvider { MaxLineLengthRule() }
+            .hasLintViolationWithoutAutoCorrect(4, 1, "Line is exceeding max line length")
     }
 }

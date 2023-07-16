@@ -2,6 +2,7 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BINARY_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ELVIS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EQ
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LAMBDA_ARGUMENT
@@ -20,11 +21,13 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.noNewLineInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.parent
+import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -121,7 +124,16 @@ public class BinaryExpressionWrappingRule :
                 if (node.isCallExpressionFollowedByLambdaArgument() || cannotBeWrappedAtOperationReference(operationReference)) {
                     // Wrapping after operation reference might not be the best place in case of a call expression or just won't work as
                     // the left hand side still does not fit on a single line
-                    emit(operationReference.startOffset, "Line is exceeding max line length", false)
+                    val offset =
+                        operationReference
+                            .prevLeaf { it.isWhiteSpaceWithNewline() }
+                            ?.let { previousNewlineNode ->
+                                previousNewlineNode.startOffset +
+                                    previousNewlineNode.text.indexOfLast { it == '\n' } +
+                                    1
+                            }
+                            ?: operationReference.startOffset
+                    emit(offset, "Line is exceeding max line length", false)
                 } else {
                     operationReference
                         .nextSibling()
@@ -146,17 +158,21 @@ public class BinaryExpressionWrappingRule :
             .let { it?.elementType == LAMBDA_ARGUMENT }
 
     private fun cannotBeWrappedAtOperationReference(operationReference: ASTNode) =
-        operationReference
-            .takeUnless { it.nextCodeSibling()?.elementType == BINARY_EXPRESSION }
-            ?.let {
-                val stopAtOperationReferenceLeaf = operationReference.firstChildLeafOrSelf()
-                maxLineLength <=
-                    it
-                        .leavesOnLine()
-                        .takeWhile { leaf -> leaf != stopAtOperationReferenceLeaf }
-                        .lengthWithoutNewlinePrefix()
-            }
-            ?: false
+        if (operationReference.firstChildNode.elementType == ELVIS) {
+            true
+        } else {
+            operationReference
+                .takeUnless { it.nextCodeSibling()?.elementType == BINARY_EXPRESSION }
+                ?.let {
+                    val stopAtOperationReferenceLeaf = operationReference.firstChildLeafOrSelf()
+                    maxLineLength <=
+                        it
+                            .leavesOnLine()
+                            .takeWhile { leaf -> leaf != stopAtOperationReferenceLeaf }
+                            .lengthWithoutNewlinePrefix()
+                }
+                ?: false
+        }
 
     private fun ASTNode.isOnLineExceedingMaxLineLength() = leavesOnLine().lengthWithoutNewlinePrefix() > maxLineLength
 
