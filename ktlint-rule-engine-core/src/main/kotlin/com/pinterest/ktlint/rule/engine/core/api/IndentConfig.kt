@@ -4,15 +4,17 @@ import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.IndentStyle.SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.IndentStyle.TAB
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import dev.drewhamilton.poko.Poko
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
-public data class IndentConfig(
-    val indentStyle: IndentStyle,
+@Poko
+public class IndentConfig(
+    public val indentStyle: IndentStyle,
     /**
      * The number of spaces that is equivalent to one tab
      */
-    val tabWidth: Int,
+    public val tabWidth: Int,
 ) {
     /**
      * To use the [IndentConfig] in a rule, the following needs to be done:
