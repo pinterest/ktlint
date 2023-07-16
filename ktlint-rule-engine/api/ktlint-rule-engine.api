@@ -1,0 +1,123 @@
+public final class com/pinterest/ktlint/rule/engine/api/Code {
+	public static final field Companion Lcom/pinterest/ktlint/rule/engine/api/Code$Companion;
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/nio/file/Path;ZZLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun fileNameOrStdin ()Ljava/lang/String;
+	public final fun filePathOrStdin ()Ljava/lang/String;
+	public final fun getContent ()Ljava/lang/String;
+	public final fun getFileName ()Ljava/lang/String;
+	public final fun getFilePath ()Ljava/nio/file/Path;
+	public final fun getScript ()Z
+	public final fun isStdIn ()Z
+}
+
+public final class com/pinterest/ktlint/rule/engine/api/Code$Companion {
+	public final fun fromFile (Ljava/io/File;)Lcom/pinterest/ktlint/rule/engine/api/Code;
+	public final fun fromPath (Ljava/nio/file/Path;)Lcom/pinterest/ktlint/rule/engine/api/Code;
+	public final fun fromSnippet (Ljava/lang/String;Z)Lcom/pinterest/ktlint/rule/engine/api/Code;
+	public static synthetic fun fromSnippet$default (Lcom/pinterest/ktlint/rule/engine/api/Code$Companion;Ljava/lang/String;ZILjava/lang/Object;)Lcom/pinterest/ktlint/rule/engine/api/Code;
+	public final fun fromStdin ()Lcom/pinterest/ktlint/rule/engine/api/Code;
+}
+
+public final class com/pinterest/ktlint/rule/engine/api/EditorConfigDefaults {
+	public static final field Companion Lcom/pinterest/ktlint/rule/engine/api/EditorConfigDefaults$Companion;
+	public fun <init> (Lorg/ec4j/core/model/EditorConfig;)V
+	public final fun component1 ()Lorg/ec4j/core/model/EditorConfig;
+	public final fun copy (Lorg/ec4j/core/model/EditorConfig;)Lcom/pinterest/ktlint/rule/engine/api/EditorConfigDefaults;
+	public static synthetic fun copy$default (Lcom/pinterest/ktlint/rule/engine/api/EditorConfigDefaults;Lorg/ec4j/core/model/EditorConfig;ILjava/lang/Object;)Lcom/pinterest/ktlint/rule/engine/api/EditorConfigDefaults;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()Lorg/ec4j/core/model/EditorConfig;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/pinterest/ktlint/rule/engine/api/EditorConfigDefaults$Companion {
+	public final fun getEMPTY_EDITOR_CONFIG_DEFAULTS ()Lcom/pinterest/ktlint/rule/engine/api/EditorConfigDefaults;
+	public final fun load (Ljava/nio/file/Path;Ljava/util/Set;)Lcom/pinterest/ktlint/rule/engine/api/EditorConfigDefaults;
+}
+
+public final class com/pinterest/ktlint/rule/engine/api/EditorConfigOverride {
+	public static final field Companion Lcom/pinterest/ktlint/rule/engine/api/EditorConfigOverride$Companion;
+	public fun <init> ()V
+	public final fun getProperties ()Ljava/util/Map;
+}
+
+public final class com/pinterest/ktlint/rule/engine/api/EditorConfigOverride$Companion {
+	public final fun from ([Lkotlin/Pair;)Lcom/pinterest/ktlint/rule/engine/api/EditorConfigOverride;
+	public final fun getEMPTY_EDITOR_CONFIG_OVERRIDE ()Lcom/pinterest/ktlint/rule/engine/api/EditorConfigOverride;
+	public final fun plus (Lcom/pinterest/ktlint/rule/engine/api/EditorConfigOverride;[Lkotlin/Pair;)Lcom/pinterest/ktlint/rule/engine/api/EditorConfigOverride;
+}
+
+public final class com/pinterest/ktlint/rule/engine/api/KtLintParseException : java/lang/RuntimeException {
+	public fun <init> (IILjava/lang/String;)V
+	public final fun getCol ()I
+	public final fun getLine ()I
+}
+
+public final class com/pinterest/ktlint/rule/engine/api/KtLintRuleEngine {
+	public static final field Companion Lcom/pinterest/ktlint/rule/engine/api/KtLintRuleEngine$Companion;
+	public static final field STDIN_FILE Ljava/lang/String;
+	public fun <init> ()V
+	public fun <init> (Ljava/util/Set;Lcom/pinterest/ktlint/rule/engine/api/EditorConfigDefaults;Lcom/pinterest/ktlint/rule/engine/api/EditorConfigOverride;ZZLjava/nio/file/FileSystem;)V
+	public synthetic fun <init> (Ljava/util/Set;Lcom/pinterest/ktlint/rule/engine/api/EditorConfigDefaults;Lcom/pinterest/ktlint/rule/engine/api/EditorConfigOverride;ZZLjava/nio/file/FileSystem;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun editorConfigFilePaths (Ljava/nio/file/Path;)Ljava/util/List;
+	public final fun format (Lcom/pinterest/ktlint/rule/engine/api/Code;Lkotlin/jvm/functions/Function2;)Ljava/lang/String;
+	public static synthetic fun format$default (Lcom/pinterest/ktlint/rule/engine/api/KtLintRuleEngine;Lcom/pinterest/ktlint/rule/engine/api/Code;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ljava/lang/String;
+	public final fun generateKotlinEditorConfigSection (Ljava/nio/file/Path;)Ljava/lang/String;
+	public final fun getEditorConfigDefaults ()Lcom/pinterest/ktlint/rule/engine/api/EditorConfigDefaults;
+	public final fun getEditorConfigOverride ()Lcom/pinterest/ktlint/rule/engine/api/EditorConfigOverride;
+	public final fun getEnableKotlinCompilerExtensionPoint ()Z
+	public final fun getFileSystem ()Ljava/nio/file/FileSystem;
+	public final fun getRuleProviders ()Ljava/util/Set;
+	public final fun isInvokedFromCli ()Z
+	public final fun lint (Lcom/pinterest/ktlint/rule/engine/api/Code;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun lint$default (Lcom/pinterest/ktlint/rule/engine/api/KtLintRuleEngine;Lcom/pinterest/ktlint/rule/engine/api/Code;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public final fun reloadEditorConfigFile (Ljava/nio/file/Path;)V
+	public final fun transformToAst (Lcom/pinterest/ktlint/rule/engine/api/Code;)Lorg/jetbrains/kotlin/com/intellij/lang/FileASTNode;
+	public final fun trimMemory ()V
+}
+
+public final class com/pinterest/ktlint/rule/engine/api/KtLintRuleEngine$Companion {
+}
+
+public final class com/pinterest/ktlint/rule/engine/api/KtLintRuleException : java/lang/RuntimeException {
+	public fun <init> (IILjava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun getCause ()Ljava/lang/Throwable;
+	public final fun getCol ()I
+	public final fun getLine ()I
+	public fun getMessage ()Ljava/lang/String;
+	public final fun getRuleId ()Ljava/lang/String;
+}
+
+public final class com/pinterest/ktlint/rule/engine/api/LintError {
+	public fun <init> (IILcom/pinterest/ktlint/rule/engine/core/api/RuleId;Ljava/lang/String;Z)V
+	public final fun component1 ()I
+	public final fun component2 ()I
+	public final fun component3 ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Z
+	public final fun copy (IILcom/pinterest/ktlint/rule/engine/core/api/RuleId;Ljava/lang/String;Z)Lcom/pinterest/ktlint/rule/engine/api/LintError;
+	public static synthetic fun copy$default (Lcom/pinterest/ktlint/rule/engine/api/LintError;IILcom/pinterest/ktlint/rule/engine/core/api/RuleId;Ljava/lang/String;ZILjava/lang/Object;)Lcom/pinterest/ktlint/rule/engine/api/LintError;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCanBeAutoCorrected ()Z
+	public final fun getCol ()I
+	public final fun getDetail ()Ljava/lang/String;
+	public final fun getLine ()I
+	public final fun getRuleId ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public class com/pinterest/ktlint/rule/engine/internal/rules/InternalRule : com/pinterest/ktlint/rule/engine/core/api/Rule {
+	public fun getUsesEditorConfigProperties ()Ljava/util/Set;
+	public fun getVisitorModifiers ()Ljava/util/Set;
+}
+
+public final class com/pinterest/ktlint/rule/engine/internal/rules/KtlintSuppressionRule : com/pinterest/ktlint/rule/engine/internal/rules/InternalRule {
+	public fun <init> (Ljava/util/List;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+}
+
+public final class com/pinterest/ktlint/rule/engine/internal/rules/KtlintSuppressionRuleKt {
+	public static final fun getKTLINT_SUPPRESSION_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+}
+
