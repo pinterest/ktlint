@@ -5322,6 +5322,81 @@ internal class IndentationRuleTest {
             .isFormattedAs(formattedCode)
     }
 
+    @Test
+    fun `Issue 920 - Given ktlint_official codestyle and a PARENTHESIZED expression`() {
+        val code =
+            """
+            val foobar =
+                if (true) {
+                    (
+                        foo()
+                    )
+                } else {
+                    bar()
+                }
+            """.trimIndent()
+        indentationRuleAssertThat(code)
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+            .hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 2094 - Given a malformed IS_EXPRESSION`() {
+        val code =
+            """
+            fun foo(any: Any) =
+                any is
+                Foo
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo(any: Any) =
+                any is
+                    Foo
+            """.trimIndent()
+        indentationRuleAssertThat(code)
+            .hasLintViolation(3, 1, "Unexpected indentation (4) (should be 8)")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 2094 - Given a malformed PREFIX_EXPRESSION`() {
+        val code =
+            """
+            fun foo(value: Int) =
+                ++
+                value
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo(value: Int) =
+                ++
+                    value
+            """.trimIndent()
+        indentationRuleAssertThat(code)
+            .hasLintViolation(3, 1, "Unexpected indentation (4) (should be 8)")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 2094 - Given a malformed POSTFIX_EXPRESSION`() {
+        val code =
+            """
+            fun foo(value: Int) =
+                --
+                value
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo(value: Int) =
+                --
+                    value
+            """.trimIndent()
+        indentationRuleAssertThat(code)
+            .hasLintViolation(3, 1, "Unexpected indentation (4) (should be 8)")
+            .isFormattedAs(formattedCode)
+    }
+
     private companion object {
         val INDENT_STYLE_TAB =
             INDENT_STYLE_PROPERTY to PropertyType.IndentStyleValue.tab

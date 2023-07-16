@@ -76,8 +76,8 @@ public class KtLintAssertThat(
      */
     private val code: String,
     /**
-     * Providers of rules which have to be executed in addition to the main rule when linting/formatting the code. Note
-     * that lint errors for those rules are suppressed.
+     * Providers of rules which have to be executed in addition to the main rule when linting/formatting the code. Note that lint errors for
+     * those rules are suppressed.
      */
     private val additionalRuleProviders: MutableSet<RuleProvider>,
     /**
@@ -89,8 +89,8 @@ public class KtLintAssertThat(
     private var kotlinScript = false
 
     /**
-     * Set the [EditorConfigOverride] properties to be used by the rule. This function can be called multiple times.
-     * Properties which have been set before, are silently overwritten with the new vale.
+     * Set the [EditorConfigOverride] properties to be used by the rule. This function can be called multiple times. Properties which have
+     * been set before, are silently overwritten with the new vale.
      */
     public fun withEditorConfigOverride(vararg properties: Pair<EditorConfigProperty<*>, *>): KtLintAssertThat {
         editorConfigProperties.addAll(properties)
@@ -99,9 +99,8 @@ public class KtLintAssertThat(
     }
 
     /**
-     * Set the [EditorConfigOverride] "max_line_length" property based on the EOL Marker which is places at the first
-     * line of the code sample. If the property has been set before via [withEditorConfigOverride] then that value is
-     * silently overwritten.
+     * Set the [EditorConfigOverride] "max_line_length" property based on the EOL Marker which is places at the first line of the code
+     * sample. If the property has been set before via [withEditorConfigOverride] then that value is silently overwritten.
      *
      * Example of usage:
      * ```
@@ -145,16 +144,15 @@ public class KtLintAssertThat(
     }
 
     /**
-     * Adds a single provider of an additional rule to be executed when linting/formatting the code. This can to be used
-     * to unit test rules which are best to be tested in conjunction with other rules, for example wrapping and
-     * indenting.
+     * Adds a single provider of an additional rule to be executed when linting/formatting the code. This can to be used to unit test rules
+     * which are best to be tested in conjunction with other rules, for example wrapping and indenting.
      *
      * Caution:
-     * An additional rule provider for a rule which actually is executed before the rule under test, might result in
-     * unexpected [LintViolation] in case that additional rule is modifying the AST. During the [lint] phase, all rules
-     * are executed in parallel and as of that both the rule under test and the additional rule are using the exact same
-     * version of the AST. When, in the [format] stage the additional rule is run first, and if it modifies the AST,
-     * this could result in a [LintViolation] for the rule under test which is executed later than the additional rule.
+     * An additional rule provider for a rule which actually is executed before the rule under test, might result in unexpected
+     * [LintViolation] in case that additional rule is modifying the AST. During the [lint] phase, all rules are executed in parallel and as
+     * of that both the rule under test and the additional rule are using the exact same version of the AST. When, in the [format] stage the
+     * additional rule is run first, and if it modifies the AST, this could result in a [LintViolation] for the rule under test which is
+     * executed later than the additional rule.
      *
      * Prefer to use [addAdditionalRuleProviders] when adding multiple providers of rules.
      */
@@ -165,16 +163,15 @@ public class KtLintAssertThat(
     }
 
     /**
-     * Adds a single provider of an additional rule to be executed when linting/formatting the code. This can to be used
-     * to unit test rules which are best to be tested in conjunction with other rules, for example wrapping and
-     * indenting.
+     * Adds a single provider of an additional rule to be executed when linting/formatting the code. This can to be used to unit test rules
+     * which are best to be tested in conjunction with other rules, for example wrapping and indenting.
      *
      * Caution:
-     * An additional rule provider for a rule which actually is executed before the rule under test, might result in
-     * unexpected [LintViolation] in case that additional rule is modifying the AST. During the [lint] phase, all rules
-     * are executed in parallel and as of that both the rule under test and the additional rule are using the exact same
-     * version of the AST. When, in the [format] stage the additional rule is run first, and if it modifies the AST,
-     * this could result in a [LintViolation] for the rule under test which is executed later than the additional rule.
+     * An additional rule provider for a rule which actually is executed before the rule under test, might result in unexpected
+     * [LintViolation] in case that additional rule is modifying the AST. During the [lint] phase, all rules are executed in parallel and as
+     * of that both the rule under test and the additional rule are using the exact same version of the AST. When, in the [format] stage the
+     * additional rule is run first, and if it modifies the AST, this could result in a [LintViolation] for the rule under test which is
+     * executed later than the additional rule.
      *
      * Prefer to use [addAdditionalRuleProvider] when only a singe provider of a rule is to be added.
      */
@@ -208,8 +205,8 @@ public class KtLintAssertThat(
         ktLintAssertThatAssertable().hasNoLintViolationsExceptInAdditionalRules()
 
     /**
-     * Asserts that the code does contain given [LintViolation] which automatically can be corrected. This is a sugar
-     * coated version of [hasLintViolations] for the case that the code contains exactly one lint violation.
+     * Asserts that the code does contain given [LintViolation] which automatically can be corrected. This is a sugar-coated version of
+     * [hasLintViolations] for the case that the code contains exactly one lint violation.
      */
     public fun hasLintViolation(
         line: Int,
@@ -218,16 +215,15 @@ public class KtLintAssertThat(
     ): KtLintAssertThatAssertable = ktLintAssertThatAssertable().hasLintViolation(line, col, detail)
 
     /**
-     * Asserts that the code does contain given [LintViolation]s which can be automatically corrected. Note that tests
-     * resulting in only one (type of) [LintViolation] are usually easier to comprehend.
+     * Asserts that the code does contain given [LintViolation]s which can be automatically corrected. Note that tests resulting in only one
+     * (type of) [LintViolation] are usually easier to comprehend.
      */
     public fun hasLintViolations(vararg expectedErrors: LintViolation): KtLintAssertThatAssertable =
         ktLintAssertThatAssertable().hasLintViolations(*expectedErrors)
 
     /**
-     * Asserts that the code does contain given [LintViolation] caused by an additional rule which automatically can be
-     * corrected. This is a sugar coated version of [hasLintViolations] for the case that the code contains exactly one
-     * lint violation.
+     * Asserts that the code does contain given [LintViolation] caused by an additional rule which automatically can be corrected. This is a
+     * sugar-coated version of [hasLintViolations] for the case that the code contains exactly one lint violation.
      */
     public fun hasLintViolationForAdditionalRule(
         line: Int,
@@ -236,9 +232,8 @@ public class KtLintAssertThat(
     ): KtLintAssertThatAssertable = ktLintAssertThatAssertable().hasLintViolationForAdditionalRule(line, col, detail)
 
     /**
-     * Asserts that the code does contain given [LintViolation]s caused by an additional rules which can be
-     * automatically corrected. Note that tests resulting in only one (type of) [LintViolation] are usually easier to
-     * comprehend.
+     * Asserts that the code does contain given [LintViolation]s caused by an additional rules which can be automatically corrected. Note
+     * that tests resulting in only one (type of) [LintViolation] are usually easier to comprehend.
      */
     public fun hasLintViolationsForAdditionalRule(vararg expectedErrors: LintViolation): KtLintAssertThatAssertable =
         ktLintAssertThatAssertable().hasLintViolationsForAdditionalRules(*expectedErrors)
@@ -258,8 +253,8 @@ public class KtLintAssertThat(
     ): Unit = ktLintAssertThatAssertable().hasLintViolationWithoutAutoCorrect(line, col, detail)
 
     /**
-     * Asserts that the code does contain the given [LintViolation]s which can not be automatically corrected. Note that
-     * tests resulting in only one [LintViolation] are usually easier to comprehend.
+     * Asserts that the code does contain the given [LintViolation]s which can not be automatically corrected. Note that tests resulting in
+     * only one [LintViolation] are usually easier to comprehend.
      */
     public fun hasLintViolationsWithoutAutoCorrect(vararg expectedErrors: LintViolation): Unit =
         ktLintAssertThatAssertable().hasLintViolationsWithoutAutocorrect(*expectedErrors)
@@ -292,17 +287,17 @@ public class KtLintAssertThat(
 
     public companion object {
         /**
-         * Creates an assertThat assertion function for the rule provided by [provider]. This assertion function has
-         * extensions specifically for testing KtLint rules.
+         * Creates an assertThat assertion function for the rule provided by [provider]. This assertion function has extensions specifically
+         * for testing KtLint rules.
          */
         public fun assertThatRule(provider: () -> Rule): (String) -> KtLintAssertThat = RuleProvider { provider() }.assertThat()
 
         /**
-         * Creates an assertThat assertion function for the rule provided by [provider]. This assertion function has
-         * extensions specifically for testing KtLint rules. The rules provided via [additionalRuleProviders] are only
-         * executed during the format phase of the test. This means that the unit test only has to check the lint
-         * violations thrown by the rule for which the assertThat is created. But the code is formatted by both the rule
-         * and the rules provided by [additionalRuleProviders] in the order as defined by the rule definitions.
+         * Creates an assertThat assertion function for the rule provided by [provider]. This assertion function has extensions specifically
+         * for testing KtLint rules. The rules provided via [additionalRuleProviders] are only executed during the format phase of the test.
+         * This means that the unit test only has to check the lint violations thrown by the rule for which the assertThat is created. But
+         * the code is formatted by both the rule and the rules provided by [additionalRuleProviders] in the order as defined by the rule
+         * definitions.
          */
 
         public fun assertThatRule(
@@ -353,9 +348,8 @@ public class KtLintAssertThat(
 }
 
 /**
- * Immutable assertable. Once the first assertion is made on [KtLintAssertThat] it is converted to the
- * [KtLintAssertThatAssertable] which allows no further modifications of the internal state. This guarantees that all
- * assertions operate on the same state.
+ * Immutable assertable. Once the first assertion is made on [KtLintAssertThat] it is converted to the [KtLintAssertThatAssertable] which
+ * allows no further modifications of the internal state. This guarantees that all assertions operate on the same state.
  */
 public class KtLintAssertThatAssertable(
     /** The provider of the rule which is the subject of the test, e.g. the rule for which the AssertThat is created. */
@@ -371,8 +365,7 @@ public class KtLintAssertThatAssertable(
     private val ruleId = ruleProvider.createNewRuleInstance().ruleId
 
     /**
-     * Asserts that the code does not contain any [LintViolation]s caused by the rule associated with the
-     * KtLintAssertThat.
+     * Asserts that the code does not contain any [LintViolation]s caused by the rule associated with the KtLintAssertThat.
      *
      * Note: When linting succeeds without errors, formatting is also checked.
      */
@@ -428,13 +421,11 @@ public class KtLintAssertThatAssertable(
     /**
      * Asserts that the code does not contain any [LintViolation]s except in the additional formatting rules.
      *
-     * Note that this method can and should be chained with [isFormattedAs] to verify whether the code is correctly
-     * formatted.
+     * Note that this method can and should be chained with [isFormattedAs] to verify whether the code is correctly formatted.
      *
-     * This method can be used when the rule which is associated with the KtLintAssertThat is not violated by the sample
-     * code, but the code is reformatted by the additional formatting rules. In case that rules are dependent on each
-     * other, a unit test cal still verify that code is formatted correctly even when the rule under test is not
-     * violated.
+     * This method can be used when the rule which is associated with the KtLintAssertThat is not violated by the sample code, but the code
+     * is reformatted by the additional formatting rules. In case that rules are dependent on each other, a unit test cal still verify that
+     * code is formatted correctly even when the rule under test is not violated.
      */
     public fun hasNoLintViolationsExceptInAdditionalRules(): KtLintAssertThatAssertable {
         check(additionalRuleProviders.isNotEmpty()) {
@@ -449,8 +440,8 @@ public class KtLintAssertThatAssertable(
     }
 
     /**
-     * Asserts that the code does contain given [LintViolation]. This is a sugar coated version of
-     * [hasLintViolation] for the case that the code contains exactly one lint violation.
+     * Asserts that the code does contain given [LintViolation]. This is a sugar-coated version of [hasLintViolation] for the case that the
+     * code contains exactly one lint violation.
      */
     public fun hasLintViolation(
         line: Int,
@@ -466,8 +457,8 @@ public class KtLintAssertThatAssertable(
         )
 
     /**
-     * Asserts that the code does contain given [LintViolation] caused by an additional rule. This is a sugar coated
-     * version of [hasLintViolationsForAdditionalRules] for the case that the code contains exactly one lint violation.
+     * Asserts that the code does contain given [LintViolation] caused by an additional rule. This is a sugar-coated version of
+     * [hasLintViolationsForAdditionalRules] for the case that the code contains exactly one lint violation.
      */
     public fun hasLintViolationForAdditionalRule(
         line: Int,
@@ -499,8 +490,7 @@ public class KtLintAssertThatAssertable(
     }
 
     /**
-     * Asserts that the code does contain given [LintViolation]s caused by additional rules and which can be
-     * automatically corrected.
+     * Asserts that the code does contain given [LintViolation]s caused by additional rules and which can be automatically corrected.
      */
     public fun hasLintViolationsForAdditionalRules(vararg expectedErrors: LintViolation): KtLintAssertThatAssertable {
         check(expectedErrors.isNotEmpty())
@@ -550,8 +540,7 @@ public class KtLintAssertThatAssertable(
         )
 
     /**
-     * Asserts that the code does contain the given [LintViolation]s and that those violations can not be automatically
-     * corrected.
+     * Asserts that the code does contain the given [LintViolation]s and that those violations can not be automatically corrected.
      */
     public fun hasLintViolationsWithoutAutocorrect(vararg expectedLintViolations: LintViolation) {
         check(expectedLintViolations.isNotEmpty())
@@ -591,14 +580,15 @@ public class KtLintAssertThatAssertable(
                 detail = it.detail,
                 canBeAutoCorrected = it.canBeAutoCorrected,
             )
-        }.toTypedArray()
+        }.distinct()
+            .toTypedArray()
     }
 
-    private fun List<LintError>.filterAdditionalRulesOnly() = filter { it.ruleId != ruleId }
+    private fun Set<LintError>.filterAdditionalRulesOnly() = filter { it.ruleId != ruleId }.toSet()
 
-    private fun List<LintError>.filterCurrentRuleOnly() = filter { it.ruleId == ruleId }
+    private fun Set<LintError>.filterCurrentRuleOnly() = filter { it.ruleId == ruleId }.toSet()
 
-    private fun List<LintError>.toLintViolationsFields(): Array<LintViolationFields> =
+    private fun Set<LintError>.toLintViolationsFields(): Array<LintViolationFields> =
         map {
             LintViolationFields(
                 line = it.line,
@@ -606,13 +596,14 @@ public class KtLintAssertThatAssertable(
                 detail = it.detail,
                 canBeAutoCorrected = it.canBeAutoCorrected,
             )
-        }.toTypedArray()
+        }.distinct()
+            .toTypedArray()
 
     private fun createKtLintRuleEngine(): KtLintRuleEngine {
         val ruleProviders =
             setOf(ruleProvider)
-                // Also run the additional rules as the main rule might have a VisitorModifier which requires one or more of
-                // the additional rules to be loaded and enabled as well.
+                // Also run the additional rules as the main rule might have a VisitorModifier which requires one or more of the additional
+                // rules to be loaded and enabled as well.
                 .plus(additionalRuleProviders)
         val editorConfigOverride =
             editorConfigOverride
@@ -625,20 +616,21 @@ public class KtLintAssertThatAssertable(
         )
     }
 
-    private fun lint(): List<LintError> {
-        val lintErrors = ArrayList<LintError>()
+    private fun lint(): Set<LintError> {
+        val lintErrors = mutableSetOf<LintError>()
         createKtLintRuleEngine().lint(code) { lintError -> lintErrors.add(lintError) }
         return lintErrors
     }
 
-    private fun format(): Pair<String, List<LintError>> {
-        val lintErrors = ArrayList<LintError>()
+    private fun format(): Pair<String, Set<LintError>> {
+        val lintErrors = mutableSetOf<LintError>()
         val formattedCode = createKtLintRuleEngine().format(code) { lintError, _ -> lintErrors.add(lintError) }
         return Pair(formattedCode, lintErrors)
     }
 
-    /* Representation of the field of the [LintError] that should be identical. Note that no comparison can be made
-     * against the original [LintError] as the [canBeAutoCorrected] flag is excluded from the hashcode.
+    /**
+     * Representation of the field of the [LintError] that should be identical. Note that no comparison can be made against the original
+     * [LintError] as the [canBeAutoCorrected] flag is excluded from the hashcode.
      */
     private data class LintViolationFields(
         val line: Int,
@@ -658,8 +650,8 @@ internal class MissingEolMarker :
     )
 
 /**
- * Expectation of the [LintError]. Contrary to the [LintError] it does not contain the ruleId. The ruleId will be
- * derived from the rule for which the AssertThat was created.
+ * Expectation of the [LintError]. Contrary to the [LintError] it does not contain the ruleId. The ruleId will be derived from the rule for
+ * which the AssertThat was created.
  */
 public data class LintViolation(
     val line: Int,
@@ -669,8 +661,7 @@ public data class LintViolation(
 )
 
 /**
- * Enables the rule sets for the given set of [ruleProviders] unless the rule execution of that rule set was already
- * provided.
+ * Enables the rule sets for the given set of [ruleProviders] unless the rule execution of that rule set was already provided.
  */
 private fun EditorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProviders: Set<RuleProvider>): EditorConfigOverride {
     val ruleSetRuleExecutions =

@@ -63,8 +63,13 @@ class FunctionSignatureRuleTest {
         functionSignatureWrappingRuleAssertThat(code)
             .setMaxLineLength()
             .addAdditionalRuleProvider { FunctionStartOfBodySpacingRule() }
-            .hasLintViolation(2, 38, "Expected a single space before body block")
-            .isFormattedAs(formattedCode)
+            .hasLintViolations(
+                LintViolation(2, 7, "Newline expected after opening parenthesis"),
+                LintViolation(2, 15, "Parameter should start on a newline"),
+                LintViolation(2, 23, "Parameter should start on a newline"),
+                LintViolation(2, 29, "Newline expected before closing parenthesis"),
+                LintViolation(2, 38, "Expected a single space before body block"),
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
