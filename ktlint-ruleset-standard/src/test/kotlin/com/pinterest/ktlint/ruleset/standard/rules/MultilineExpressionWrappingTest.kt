@@ -574,12 +574,11 @@ class MultilineExpressionWrappingTest {
             fun foo(any: Any) = any is
                 Foo
             """.trimIndent()
-        // TODO: https://github.com/pinterest/ktlint/issues/2094 Fix formatting by indent rule
         val formattedCode =
             """
             fun foo(any: Any) =
                 any is
-                Foo
+                    Foo
             """.trimIndent()
         multilineExpressionWrappingAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
@@ -615,12 +614,11 @@ class MultilineExpressionWrappingTest {
             fun foo(any: Int) = ++
                 42
             """.trimIndent()
-        // TODO: https://github.com/pinterest/ktlint/issues/2094 Fix formatting by indent rule
         val formattedCode =
             """
             fun foo(any: Int) =
                 ++
-                42
+                    42
             """.trimIndent()
         multilineExpressionWrappingAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
