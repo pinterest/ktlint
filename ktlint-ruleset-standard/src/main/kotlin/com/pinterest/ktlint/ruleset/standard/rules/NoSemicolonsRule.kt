@@ -67,26 +67,25 @@ public class NoSemicolonsRule :
         }
     }
 
-    private fun ASTNode?.doesNotRequirePreSemi(): Boolean {
-        if (this == null) {
-            return true
-        }
-        if (this is PsiWhiteSpace) {
-            val nextLeaf =
+    private fun ASTNode?.doesNotRequirePreSemi() =
+        when {
+            this == null -> true
+
+            this is PsiWhiteSpace -> {
                 nextLeaf {
                     val psi = it.psi
                     it !is PsiWhiteSpace &&
                         it !is PsiComment &&
                         psi.getStrictParentOfType<KDoc>() == null &&
                         psi.getStrictParentOfType<KtAnnotationEntry>() == null
+                }.let { nextLeaf ->
+                    nextLeaf == null || // \s+ and then eof
+                        (textContains('\n') && nextLeaf.elementType != KtTokens.LBRACE)
                 }
-            return (
-                nextLeaf == null || // \s+ and then eof
-                    textContains('\n') && nextLeaf.elementType != KtTokens.LBRACE
-                )
+            }
+
+            else -> false
         }
-        return false
-    }
 
     private fun isNoSemicolonRequiredAfter(node: ASTNode): Boolean {
         val prevCodeLeaf =

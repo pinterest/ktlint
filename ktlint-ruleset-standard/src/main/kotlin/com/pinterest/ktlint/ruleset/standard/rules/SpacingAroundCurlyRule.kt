@@ -51,7 +51,7 @@ public class SpacingAroundCurlyRule : StandardRule("curly-spacing") {
                     (
                         prevLeaf?.elementType == LPAR &&
                             ((node as LeafPsiElement).parent is KtLambdaExpression || node.parent.parent is KtLambdaExpression)
-                        )
+                    )
                 spacingAfter = nextLeaf is PsiWhiteSpace || nextLeaf?.elementType == RBRACE
                 if (prevLeaf is PsiWhiteSpace &&
                     !prevLeaf.textContains('\n') &&
@@ -69,7 +69,7 @@ public class SpacingAroundCurlyRule : StandardRule("curly-spacing") {
                         prevLeaf.prevLeaf()?.let { it.elementType == RPAR || KtTokens.KEYWORDS.contains(it.elementType) } == true ||
                             node.treeParent.elementType == CLASS_BODY ||
                             (prevLeaf.treeParent.elementType == FUN && prevLeaf.treeNext.elementType != LAMBDA_EXPRESSION)
-                        ) // allow newline for lambda return type
+                    ) // allow newline for lambda return type
                 ) {
                     emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
                     if (autoCorrect) {
@@ -141,7 +141,7 @@ public class SpacingAroundCurlyRule : StandardRule("curly-spacing") {
                 nextElementType == LBRACKET ||
                 nextElementType == LPAR ||
                 nextElementType == COLONCOLON
-            )
+        )
     }
 }
 

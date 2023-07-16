@@ -5323,6 +5323,24 @@ internal class IndentationRuleTest {
     }
 
     @Test
+    fun `Issue 920 - Given ktlint_official codestyle and a PARENTHESIZED expression`() {
+        val code =
+            """
+            val foobar =
+                if (true) {
+                    (
+                        foo()
+                    )
+                } else {
+                    bar()
+                }
+            """.trimIndent()
+        indentationRuleAssertThat(code)
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+            .hasNoLintViolations()
+    }
+
+    @Test
     fun `Issue 2094 - Given a malformed IS_EXPRESSION`() {
         val code =
             """
