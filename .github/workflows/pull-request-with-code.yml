@@ -27,24 +27,21 @@ env:
   ORG_GRADLE_PROJECT_signingKeyPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
   CLI_TEST_MAX_DURATION_IN_SECONDS: 10
 
-# Note that all "jobs" (build, tests) including "jobs.build.runs-on" should be kept in sync with "pull-request-without-code"
+# Note that all "jobs" (build, tests) including "jobs.*.runs-on" should be kept in sync with "pull-request-without-code"
 jobs:
   build:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-    name: "[build] OS: ${{ matrix.os }}"
+    name: "[build] OS=${{ matrix.os }} Kotlin=stable"
     steps:
       - uses: actions/checkout@v3
 
       - uses: ./.github/actions/setup-gradle-build
 
       - name: Build with release Kotlin version
-        run: ./gradlew build ktlintCheck --no-configuration-cache
-
-      - name: Build with assemble Kotlin version
-        run: ./gradlew -PkotlinDev build ktlintCheck --no-configuration-cache
+        run: ./gradlew ktlintCheck build
 
       - name: Check `data class`es are not part of public API
         run: |
@@ -86,9 +83,9 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        jdk: [ 8, 11, 17 ] # list of Java versions to run tests against (excluding `java-compilation` version for which tests already have run during `build` job)
+        jdk: [8, 11, 17] # list of Java versions to run tests against (excluding `java-compilation` version for which tests already have run during `build` job)
     runs-on: ${{ matrix.os }}
-    name: "[tests] OS: ${{ matrix.os }}, Java: ${{ matrix.jdk }}"
+    name: "[tests] OS=${{ matrix.os }}, Java=${{ matrix.jdk }}"
     steps:
       - uses: actions/checkout@v3
 
