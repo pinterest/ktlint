@@ -33,8 +33,10 @@ public class BaselineReporter(
             // checking out this repository on a different path, the baseline will still be respected.
             val relativeFile = Paths.get(file).relativeLocation()
             out.println("""    <file name="${relativeFile.escapeXMLAttrValue()}">""")
-            for ((line, col, ruleId, _) in errList) {
-                out.println("""        <error line="$line" column="$col" source="$ruleId" />""")
+            for (err in errList) {
+                with(err) {
+                    out.println("""        <error line="$line" column="$col" source="$ruleId" />""")
+                }
             }
             out.println("""    </file>""")
         }

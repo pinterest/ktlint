@@ -78,8 +78,10 @@ public class HtmlReporter(
                     acc.forEach { (file: String, ktlintCliErrors: MutableList<KtlintCliError>) ->
                         h3 { text(file) }
                         ul {
-                            ktlintCliErrors.forEach { (line, col, ruleId, detail) ->
-                                item("($line, $col): $detail  ($ruleId)")
+                            ktlintCliErrors.forEach { err ->
+                                with(err) {
+                                    item("($line, $col): $detail  ($ruleId)")
+                                }
                             }
                         }
                     }
