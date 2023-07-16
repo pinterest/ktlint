@@ -3,9 +3,11 @@ package com.pinterest.ktlint.rule.engine.core.api
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.internal.IdNamingPolicy
+import dev.drewhamilton.poko.Poko
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
-public data class RuleId(
+@Poko
+public class RuleId(
     public val value: String,
 ) {
     init {
@@ -97,7 +99,8 @@ public open class Rule(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-    ) {}
+    ) {
+    }
 
     /**
      * This method is called on a node in AST after all its child nodes have been visited.
@@ -107,7 +110,8 @@ public open class Rule(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-    ) {}
+    ) {
+    }
 
     /**
      * This method is called once after the last node in the AST is visited. It can be used for teardown of the state
