@@ -2,6 +2,7 @@ package com.pinterest.ktlint.rule.engine.core.api.editorconfig
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.core.api.Rule
+import dev.drewhamilton.poko.Poko
 import mu.KotlinLogging
 import org.ec4j.core.model.Property
 import org.ec4j.core.model.PropertyType
@@ -12,7 +13,8 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 /**
  * Loaded [Property]s from `.editorconfig` files.
  */
-public data class EditorConfig(
+@Poko
+public class EditorConfig(
     private val properties: Map<String, Property> = emptyMap(),
 ) {
     public constructor(vararg properties: Property) : this(
