@@ -469,40 +469,65 @@ public class ClassSignatureRule :
         }
 
         if (superTypes.count() == 1) {
-            superTypes
-                .takeIf { !wrappedPrimaryConstructor && !node.hasMultilinePrimaryConstructor() }
-                ?.first()
-                ?.firstChildNode
-                ?.let { superTypeFirstChildNode ->
-                    superTypeFirstChildNode
-                        .prevLeaf()
-                        ?.takeIf { it.elementType == WHITE_SPACE }
-                        .let { whiteSpaceBeforeIdentifier ->
-                            if (node.hasMultilineSuperTypeList() ||
-                                classSignaturesIncludingFirstSuperTypeExceedsMaxLineLength(node, emit, autoCorrect)
-                            ) {
-                                if (whiteSpaceBeforeIdentifier == null ||
-                                    !whiteSpaceBeforeIdentifier.textContains('\n')
-                                ) {
-                                    emit(superTypeFirstChildNode.startOffset, "Super type should start on a newline", true)
-                                    if (autoCorrect) {
-                                        // Let IndentationRule determine the exact indent
-                                        superTypeFirstChildNode.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
-                                    }
-                                }
-                            } else {
+            if (wrappedPrimaryConstructor) {
+                // Format
+                //     class ClassWithPrimaryConstructorWhichWillBeWrapped(...) :
+                //         SomeSuperTypeEntry
+                // to
+                //     class ClassWithPrimaryConstructorWhichWillBeWrapped(
+                //         ...
+                //     ) : SomeSuperTypeEntry
+                superTypes
+                    .first()
+                    .let { firstSuperType ->
+                        firstSuperType
+                            .prevLeaf()
+                            .takeIf { it.isWhiteSpaceWithNewline() }
+                            ?.let { whiteSpaceBeforeSuperType ->
                                 val expectedWhitespace = " "
-                                if (whiteSpaceBeforeIdentifier == null ||
-                                    whiteSpaceBeforeIdentifier.text != expectedWhitespace
-                                ) {
-                                    emit(superTypeFirstChildNode.startOffset, "Expected single space before the super type", true)
+                                if (whiteSpaceBeforeSuperType.text != expectedWhitespace) {
+                                    emit(firstSuperType.startOffset, "Expected single space before the super type", true)
                                     if (autoCorrect) {
-                                        superTypeFirstChildNode.upsertWhitespaceBeforeMe(expectedWhitespace)
+                                        firstSuperType.upsertWhitespaceBeforeMe(expectedWhitespace)
                                     }
                                 }
                             }
-                        }
-                }
+                    }
+            } else {
+                superTypes
+                    .first()
+                    .firstChildNode
+                    ?.let { superTypeFirstChildNode ->
+                        superTypeFirstChildNode
+                            .prevLeaf()
+                            ?.takeIf { it.elementType == WHITE_SPACE }
+                            .let { whiteSpaceBeforeIdentifier ->
+                                if (node.hasMultilineSuperTypeList() ||
+                                    classSignaturesIncludingFirstSuperTypeExceedsMaxLineLength(node, emit, autoCorrect)
+                                ) {
+                                    if (whiteSpaceBeforeIdentifier == null ||
+                                        !whiteSpaceBeforeIdentifier.textContains('\n')
+                                    ) {
+                                        emit(superTypeFirstChildNode.startOffset, "Super type should start on a newline", true)
+                                        if (autoCorrect) {
+                                            // Let IndentationRule determine the exact indent
+                                            superTypeFirstChildNode.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
+                                        }
+                                    }
+                                } else {
+                                    val expectedWhitespace = " "
+                                    if (whiteSpaceBeforeIdentifier == null ||
+                                        whiteSpaceBeforeIdentifier.text != expectedWhitespace
+                                    ) {
+                                        emit(superTypeFirstChildNode.startOffset, "Expected single space before the super type", true)
+                                        if (autoCorrect) {
+                                            superTypeFirstChildNode.upsertWhitespaceBeforeMe(expectedWhitespace)
+                                        }
+                                    }
+                                }
+                            }
+                    }
+            }
         } else {
             superTypes
                 .forEachIndexed { index, superType ->

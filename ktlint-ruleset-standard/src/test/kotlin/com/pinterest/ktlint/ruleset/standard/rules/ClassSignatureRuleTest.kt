@@ -1228,9 +1228,10 @@ class ClassSignatureRuleTest {
                     ) : FooBar(bar1, bar2),
                         BarFoo1,
                         BarFoo2 {
-                    // body
-                }
+                        // body
+                    }
                 """.trimIndent()
+
             classSignatureWrappingRuleAssertThat(code)
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
                 .addAdditionalRuleProvider { IndentationRule() }
@@ -1272,8 +1273,8 @@ class ClassSignatureRuleTest {
                     ) : FooBar(bar1, bar2),
                         BarFoo1,
                         BarFoo2 {
-                    // body
-                }
+                        // body
+                    }
                 """.trimIndent()
             val formattedCodeNonKtlintOfficial =
                 """
@@ -1639,6 +1640,33 @@ class ClassSignatureRuleTest {
 
             assertThat(actual).isEqualTo(expectedOutputValue)
         }
+    }
+
+    @Test
+    fun `Given a single line primary constructor which needs to be wrapped followed by a super type on the next line then merge supertype with line containing the closing parenthesis of the constructor`() {
+        val code =
+            """
+            class Foo(bar: Bar) :
+                FooBar(bar) {
+                    fun doSomething() {}
+                }
+            """.trimIndent()
+        val formattedCode =
+            """
+            class Foo(
+                bar: Bar
+            ) : FooBar(bar) {
+                fun doSomething() {}
+            }
+            """.trimIndent()
+        classSignatureWrappingRuleAssertThat(code)
+            .addAdditionalRuleProvider { IndentationRule() }
+            .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to 1)
+            .hasLintViolations(
+                LintViolation(1, 11, "Newline expected after opening parenthesis"),
+                LintViolation(1, 19, "Newline expected before closing parenthesis"),
+                LintViolation(2, 5, "Expected single space before the super type"),
+            ).isFormattedAs(formattedCode)
     }
 
     private companion object {
