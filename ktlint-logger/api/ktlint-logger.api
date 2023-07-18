@@ -1,0 +1,5 @@
+public final class com/pinterest/ktlint/logger/api/KtLintKLoggerInitializerKt {
+	public static final fun initKtLintKLogger (Lmu/KLogger;)Lmu/KLogger;
+	public static final fun setDefaultLoggerModifier (Lmu/KLogger;Lkotlin/jvm/functions/Function1;)Lmu/KLogger;
+}
+

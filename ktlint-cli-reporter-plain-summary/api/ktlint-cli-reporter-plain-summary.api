@@ -1,0 +1,19 @@
+public final class com/pinterest/ktlint/cli/reporter/plainsummary/PlainSummaryReporter : com/pinterest/ktlint/cli/reporter/core/api/ReporterV2 {
+	public static final field KOTLIN_PARSE_EXCEPTION_MESSAGE Ljava/lang/String;
+	public static final field KTLINT_RULE_ENGINE_EXCEPTION_MESSAGE Ljava/lang/String;
+	public static final field UNKNOWN_CAUSE_MESSAGE Ljava/lang/String;
+	public fun <init> (Ljava/io/PrintStream;)V
+	public fun after (Ljava/lang/String;)V
+	public fun afterAll ()V
+	public fun before (Ljava/lang/String;)V
+	public fun beforeAll ()V
+	public fun onLintError (Ljava/lang/String;Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError;)V
+}
+
+public final class com/pinterest/ktlint/cli/reporter/plainsummary/PlainSummaryReporterProvider : com/pinterest/ktlint/cli/reporter/core/api/ReporterProviderV2 {
+	public fun <init> ()V
+	public synthetic fun get (Ljava/io/PrintStream;Ljava/util/Map;)Lcom/pinterest/ktlint/cli/reporter/core/api/ReporterV2;
+	public fun get (Ljava/io/PrintStream;Ljava/util/Map;)Lcom/pinterest/ktlint/cli/reporter/plainsummary/PlainSummaryReporter;
+	public fun getId ()Ljava/lang/String;
+}
+

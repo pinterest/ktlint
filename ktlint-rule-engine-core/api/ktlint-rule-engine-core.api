@@ -1,0 +1,599 @@
+public final class com/pinterest/ktlint/rule/engine/core/api/ASTNodeExtensionKt {
+	public static final fun children (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lkotlin/sequences/Sequence;
+	public static final fun findCompositeParentElementOfType (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun firstChildLeafOrSelf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun getColumn (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)I
+	public static final fun hasNewLineInClosedRange (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
+	public static final fun indent (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Z)Ljava/lang/String;
+	public static synthetic fun indent$default (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZILjava/lang/Object;)Ljava/lang/String;
+	public static final fun isCodeLeaf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
+	public static final fun isLeaf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
+	public static final fun isPartOf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/reflect/KClass;)Z
+	public static final fun isPartOf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;)Z
+	public static final fun isPartOfComment (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
+	public static final fun isPartOfCompositeElementOfType (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;)Z
+	public static final fun isPartOfString (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
+	public static final fun isRoot (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
+	public static final fun isValOrVarKeyword (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
+	public static final fun isWhiteSpace (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
+	public static final fun isWhiteSpaceWithNewline (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
+	public static final fun isWhiteSpaceWithoutNewline (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
+	public static final fun lastChildLeafOrSelf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun leavesInClosedRange (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lkotlin/sequences/Sequence;
+	public static final fun leavesInOpenRange (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lkotlin/sequences/Sequence;
+	public static final fun leavesIncludingSelf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Z)Lkotlin/sequences/Sequence;
+	public static synthetic fun leavesIncludingSelf$default (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZILjava/lang/Object;)Lkotlin/sequences/Sequence;
+	public static final fun leavesOnLine (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lkotlin/sequences/Sequence;
+	public static final fun lineLengthWithoutNewlinePrefix (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)I
+	public static final fun logStructure (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun nextCodeLeaf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZZ)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static synthetic fun nextCodeLeaf$default (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZZILjava/lang/Object;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun nextCodeSibling (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun nextLeaf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun nextLeaf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZZ)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static synthetic fun nextLeaf$default (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZZILjava/lang/Object;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun nextSibling (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static synthetic fun nextSibling$default (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun noNewLineInClosedRange (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
+	public static final fun noNewLineInOpenRange (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
+	public static final fun parent (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;Z)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun parent (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function1;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static synthetic fun parent$default (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;ZILjava/lang/Object;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static synthetic fun parent$default (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun prevCodeLeaf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Z)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static synthetic fun prevCodeLeaf$default (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZILjava/lang/Object;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun prevCodeSibling (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun prevLeaf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun prevLeaf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Z)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static synthetic fun prevLeaf$default (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZILjava/lang/Object;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun prevSibling (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static synthetic fun prevSibling$default (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun upsertWhitespaceAfterMe (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Ljava/lang/String;)V
+	public static final fun upsertWhitespaceBeforeMe (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Ljava/lang/String;)V
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/ElementType {
+	public static final field INSTANCE Lcom/pinterest/ktlint/rule/engine/core/api/ElementType;
+	public final fun getABSTRACT_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getACTUAL_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getANDAND ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getANNOTATED_EXPRESSION ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getANNOTATION ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getANNOTATION_ENTRY ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getANNOTATION_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getANNOTATION_TARGET ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getARRAY_ACCESS_EXPRESSION ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getARROW ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getAS_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getAS_SAFE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getAT ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getBINARY_EXPRESSION ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getBINARY_WITH_TYPE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getBLOCK ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getBLOCK_CODE_FRAGMENT ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getBLOCK_COMMENT ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getBODY ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getBOOLEAN_CONSTANT ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getBREAK ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getBREAK_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getBY_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCALLABLE_REFERENCE_EXPRESSION ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCALL_EXPRESSION ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCATCH ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCATCH_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCHARACTER_CONSTANT ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCHARACTER_LITERAL ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCLASS ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCLASS_BODY ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCLASS_INITIALIZER ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCLASS_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCLASS_LITERAL_EXPRESSION ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCLOSING_QUOTE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCOLLECTION_LITERAL_EXPRESSION ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCOLON ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCOLONCOLON ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCOMMA ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCOMPANION_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCONDITION ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCONSTRUCTOR_CALLEE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCONSTRUCTOR_DELEGATION_CALL ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCONSTRUCTOR_DELEGATION_REFERENCE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCONSTRUCTOR_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCONST_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCONTEXT_RECEIVER ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCONTEXT_RECEIVER_LIST ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCONTINUE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCONTINUE_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCROSSINLINE_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getDANGLING_NEWLINE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getDATA_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getDEFAULT_VISIBILITY_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getDELEGATED_SUPER_TYPE_ENTRY ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getDELEGATE_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getDESTRUCTURING_DECLARATION ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getDESTRUCTURING_DECLARATION_ENTRY ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getDIV ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getDIVEQ ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getDOT ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getDOT_QUALIFIED_EXPRESSION ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getDOUBLE_ARROW ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getDOUBLE_SEMICOLON ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getDO_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getDO_WHILE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getDYNAMIC_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getDYNAMIC_TYPE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getELSE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getELSE_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getELVIS ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getENUM_ENTRY ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getENUM_ENTRY_SUPERCLASS_REFERENCE_EXPRESSION ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getENUM_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getEOF ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getEOL_COMMENT ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getEOL_OR_SEMICOLON ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getEQ ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getEQEQ ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getEQEQEQ ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getESCAPE_SEQUENCE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getESCAPE_STRING_TEMPLATE_ENTRY ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getEXCL ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getEXCLEQ ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getEXCLEQEQEQ ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getEXCLEXCL ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getEXPECT_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getEXPRESSION_CODE_FRAGMENT ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getEXTERNAL_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getFALSE_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getFIELD_IDENTIFIER ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getFIELD_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getFILE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getFILE_ANNOTATION_LIST ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getFILE_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getFINALLY ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getFINALLY_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getFINAL_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getFLOAT_CONSTANT ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getFLOAT_LITERAL ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getFOR ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getFOR_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getFUN ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getFUNCTION_LITERAL ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getFUNCTION_TYPE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getFUNCTION_TYPE_RECEIVER ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getFUN_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getGET_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getGT ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getGTEQ ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getHASH ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getHEADER_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getIDENTIFIER ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getIF ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getIF_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getIMPL_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getIMPORT_ALIAS ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getIMPORT_DIRECTIVE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getIMPORT_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getIMPORT_LIST ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getINDICES ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getINFIX_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getINITIALIZER_LIST ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getINIT_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getINLINE_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getINNER_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getINTEGER_CONSTANT ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getINTEGER_LITERAL ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getINTERFACE_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getINTERNAL_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getIN_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getIS_EXPRESSION ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getIS_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getKDOC ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getKDOC_CODE_BLOCK_TEXT ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getKDOC_END ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getKDOC_LEADING_ASTERISK ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getKDOC_MARKDOWN_ESCAPED_CHAR ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getKDOC_MARKDOWN_INLINE_LINK ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getKDOC_MARKDOWN_LINK ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getKDOC_NAME ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getKDOC_SECTION ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getKDOC_START ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getKDOC_TAG ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getKDOC_TAG_NAME ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getKDOC_TEXT ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getLABEL ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getLABELED_EXPRESSION ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getLABEL_QUALIFIER ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getLAMBDA_ARGUMENT ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getLAMBDA_EXPRESSION ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getLATEINIT_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getLBRACE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getLBRACKET ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getLITERAL_STRING_TEMPLATE_ENTRY ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getLONG_STRING_TEMPLATE_ENTRY ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getLONG_TEMPLATE_ENTRY_END ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getLONG_TEMPLATE_ENTRY_START ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getLOOP_RANGE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getLPAR ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getLT ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getLTEQ ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getMINUS ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getMINUSEQ ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getMINUSMINUS ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getMODIFIER_LIST ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getMUL ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getMULTEQ ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getNOINLINE_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getNOT_IN ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getNOT_IS ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getNULL ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getNULLABLE_TYPE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getNULL_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getOBJECT_DECLARATION ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getOBJECT_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getOBJECT_LITERAL ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getOPEN_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getOPEN_QUOTE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getOPERATION_REFERENCE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getOPERATOR_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getOROR ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getOUT_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getOVERRIDE_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getPACKAGE_DIRECTIVE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getPACKAGE_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getPARAM_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getPARENTHESIZED ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getPERC ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getPERCEQ ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getPLUS ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getPLUSEQ ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getPLUSPLUS ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getPOSTFIX_EXPRESSION ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getPREFIX_EXPRESSION ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getPRIMARY_CONSTRUCTOR ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getPRIVATE_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getPROPERTY ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getPROPERTY_ACCESSOR ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getPROPERTY_DELEGATE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getPROPERTY_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getPROTECTED_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getPUBLIC_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getQUEST ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getRANGE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getRANGE_UNTIL ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getRBRACE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getRBRACKET ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getRECEIVER_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getREFERENCE_EXPRESSION ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getREGULAR_STRING_PART ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getREIFIED_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getRESERVED ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getRETURN ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getRETURN_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getRPAR ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getSAFE_ACCESS ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getSAFE_ACCESS_EXPRESSION ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getSCRIPT ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getSCRIPT_INITIALIZER ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getSEALED_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getSECONDARY_CONSTRUCTOR ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getSEMICOLON ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getSETPARAM_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getSET_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getSHEBANG_COMMENT ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getSHORT_STRING_TEMPLATE_ENTRY ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getSHORT_TEMPLATE_ENTRY_START ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getSTRING_TEMPLATE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getSUPER_EXPRESSION ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getSUPER_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getSUPER_TYPE_CALL_ENTRY ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getSUPER_TYPE_ENTRY ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getSUPER_TYPE_LIST ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getSUSPEND_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getTAILREC_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getTHEN ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getTHIS_EXPRESSION ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getTHIS_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getTHROW ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getTHROW_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getTRUE_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getTRY ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getTRY_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getTYPEALIAS ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getTYPEALIAS_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getTYPEOF_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getTYPE_ARGUMENT_LIST ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getTYPE_CODE_FRAGMENT ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getTYPE_CONSTRAINT ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getTYPE_CONSTRAINT_LIST ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getTYPE_PARAMETER ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getTYPE_PARAMETER_LIST ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getTYPE_PROJECTION ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getTYPE_REFERENCE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getUSER_TYPE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getVALUE_ARGUMENT ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getVALUE_ARGUMENT_LIST ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getVALUE_ARGUMENT_NAME ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getVALUE_PARAMETER ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getVALUE_PARAMETER_LIST ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getVAL_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getVARARG_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getVAR_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getWHEN ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getWHEN_CONDITION_IN_RANGE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getWHEN_CONDITION_IS_PATTERN ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getWHEN_CONDITION_WITH_EXPRESSION ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getWHEN_ENTRY ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getWHEN_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getWHERE_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getWHILE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getWHILE_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getWHITE_SPACE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+}
+
+public abstract interface annotation class com/pinterest/ktlint/rule/engine/core/api/FeatureInAlphaState : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class com/pinterest/ktlint/rule/engine/core/api/FeatureInBetaState : java/lang/annotation/Annotation {
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/IndentConfig {
+	public static final field Companion Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$Companion;
+	public fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle;I)V
+	public fun <init> (Lorg/ec4j/core/model/PropertyType$IndentStyleValue;I)V
+	public final fun childIndentOf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Ljava/lang/String;
+	public final fun component1 ()Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle;
+	public final fun component2 ()I
+	public final fun containsUnexpectedIndentChar (Ljava/lang/String;)Z
+	public final fun copy (Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle;I)Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig;
+	public static synthetic fun copy$default (Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig;Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle;IILjava/lang/Object;)Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDisabled ()Z
+	public final fun getIndent ()Ljava/lang/String;
+	public final fun getIndentStyle ()Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle;
+	public final fun getTabWidth ()I
+	public final fun getUnexpectedIndentCharDescription ()Ljava/lang/String;
+	public fun hashCode ()I
+	public final fun indentLevelFrom (Ljava/lang/String;)I
+	public final fun indexOfFirstUnexpectedIndentChar (Ljava/lang/String;)I
+	public final fun parentIndentOf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Ljava/lang/String;
+	public final fun siblingIndentOf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Ljava/lang/String;
+	public final fun toNormalizedIndent (Ljava/lang/String;)Ljava/lang/String;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/IndentConfig$Companion {
+	public final fun getDEFAULT_INDENT_CONFIG ()Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig;
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle : java/lang/Enum {
+	public static final field SPACE Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle;
+	public static final field TAB Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle;
+	public static fun valueOf (Ljava/lang/String;)Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle;
+	public static fun values ()[Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle;
+}
+
+public class com/pinterest/ktlint/rule/engine/core/api/Rule {
+	public fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lcom/pinterest/ktlint/rule/engine/core/api/Rule$About;Ljava/util/Set;Ljava/util/Set;)V
+	public synthetic fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lcom/pinterest/ktlint/rule/engine/core/api/Rule$About;Ljava/util/Set;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun afterLastNode ()V
+	public fun afterVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun getAbout ()Lcom/pinterest/ktlint/rule/engine/core/api/Rule$About;
+	public fun getRuleId ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+	public fun getUsesEditorConfigProperties ()Ljava/util/Set;
+	public fun getVisitorModifiers ()Ljava/util/Set;
+	public final fun isUsedForTraversalOfAST ()Z
+	public final fun shouldContinueTraversalOfAST ()Z
+	public final fun startTraversalOfAST ()V
+	public final fun stopTraversalOfAST ()V
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/Rule$About {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/pinterest/ktlint/rule/engine/core/api/Rule$About;
+	public static synthetic fun copy$default (Lcom/pinterest/ktlint/rule/engine/core/api/Rule$About;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/pinterest/ktlint/rule/engine/core/api/Rule$About;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getIssueTrackerUrl ()Ljava/lang/String;
+	public final fun getMaintainer ()Ljava/lang/String;
+	public final fun getRepositoryUrl ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/pinterest/ktlint/rule/engine/core/api/Rule$Experimental {
+}
+
+public abstract interface class com/pinterest/ktlint/rule/engine/core/api/Rule$OfficialCodeStyle {
+}
+
+public abstract class com/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier {
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule : com/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier {
+	public fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;)V
+	public final fun component1 ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+	public final fun component2 ()Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;
+	public final fun copy (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;)Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule;
+	public static synthetic fun copy$default (Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule;Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;ILjava/lang/Object;)Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getMode ()Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;
+	public final fun getRuleId ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode : java/lang/Enum {
+	public static final field ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;
+	public static final field REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;
+	public static fun valueOf (Ljava/lang/String;)Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;
+	public static fun values ()[Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAsLateAsPossible : com/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier {
+	public static final field INSTANCE Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAsLateAsPossible;
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/RuleId {
+	public static final field Companion Lcom/pinterest/ktlint/rule/engine/core/api/RuleId$Companion;
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+	public static synthetic fun copy$default (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Ljava/lang/String;ILjava/lang/Object;)Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getRuleSetId ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleSetId;
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/RuleId$Companion {
+	public final fun prefixWithStandardRuleSetIdWhenMissing (Ljava/lang/String;)Ljava/lang/String;
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/RuleProvider {
+	public static final field Companion Lcom/pinterest/ktlint/rule/engine/core/api/RuleProvider$Companion;
+	public synthetic fun <init> (Lkotlin/jvm/functions/Function0;Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;ZLjava/util/List;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun createNewRuleInstance ()Lcom/pinterest/ktlint/rule/engine/core/api/Rule;
+	public final fun getRuleId ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+	public final fun getRunAfterRules ()Ljava/util/List;
+	public final fun getRunAsLateAsPossible ()Z
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/RuleProvider$Companion {
+	public final fun invoke (Lkotlin/jvm/functions/Function0;)Lcom/pinterest/ktlint/rule/engine/core/api/RuleProvider;
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/RuleProviderKt {
+	public static final fun propertyTypes (Ljava/util/Collection;)Ljava/util/Set;
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/RuleSetId {
+	public static final field Companion Lcom/pinterest/ktlint/rule/engine/core/api/RuleSetId$Companion;
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lcom/pinterest/ktlint/rule/engine/core/api/RuleSetId;
+	public static synthetic fun copy$default (Lcom/pinterest/ktlint/rule/engine/core/api/RuleSetId;Ljava/lang/String;ILjava/lang/Object;)Lcom/pinterest/ktlint/rule/engine/core/api/RuleSetId;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/RuleSetId$Companion {
+	public final fun getSTANDARD ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleSetId;
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/CodeStyleEditorConfigPropertyKt {
+	public static final fun getCODE_STYLE_PROPERTY ()Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
+	public static final fun getCODE_STYLE_PROPERTY_TYPE ()Lorg/ec4j/core/model/PropertyType$LowerCasingPropertyType;
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/CodeStyleValue : java/lang/Enum {
+	public static final field android_studio Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/CodeStyleValue;
+	public static final field intellij_idea Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/CodeStyleValue;
+	public static final field ktlint_official Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/CodeStyleValue;
+	public static fun valueOf (Ljava/lang/String;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/CodeStyleValue;
+	public static fun values ()[Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/CodeStyleValue;
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig {
+	public fun <init> ()V
+	public fun <init> (Ljava/util/Map;)V
+	public synthetic fun <init> (Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> ([Lorg/ec4j/core/model/Property;)V
+	public final fun addPropertiesWithDefaultValueIfMissing ([Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;
+	public final fun contains (Ljava/lang/String;)Z
+	public final fun copy (Ljava/util/Map;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;
+	public static synthetic fun copy$default (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;Ljava/util/Map;ILjava/lang/Object;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun filterBy (Ljava/util/Set;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;
+	public final fun get (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;)Ljava/lang/Object;
+	public final fun getEditorConfigValueOrNull (Lorg/ec4j/core/model/PropertyType;Ljava/lang/String;)Ljava/lang/Object;
+	public fun hashCode ()I
+	public final fun map (Lkotlin/jvm/functions/Function1;)Ljava/util/Collection;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty {
+	public fun <init> (Lorg/ec4j/core/model/PropertyType;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Lorg/ec4j/core/model/PropertyType;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lorg/ec4j/core/model/PropertyType;
+	public final fun component10 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/Object;
+	public final fun component3 ()Ljava/lang/Object;
+	public final fun component4 ()Ljava/lang/Object;
+	public final fun component5 ()Ljava/lang/Object;
+	public final fun component6 ()Lkotlin/jvm/functions/Function2;
+	public final fun component7 ()Lkotlin/jvm/functions/Function1;
+	public final fun component8 ()Ljava/lang/String;
+	public final fun component9 ()Ljava/lang/String;
+	public final fun copy (Lorg/ec4j/core/model/PropertyType;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
+	public static synthetic fun copy$default (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;Lorg/ec4j/core/model/PropertyType;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAndroidStudioCodeStyleDefaultValue ()Ljava/lang/Object;
+	public final fun getDefaultValue ()Ljava/lang/Object;
+	public final fun getDeprecationError ()Ljava/lang/String;
+	public final fun getDeprecationWarning ()Ljava/lang/String;
+	public final fun getIntellijIdeaCodeStyleDefaultValue ()Ljava/lang/Object;
+	public final fun getKtlintOfficialCodeStyleDefaultValue ()Ljava/lang/Object;
+	public final fun getName ()Ljava/lang/String;
+	public final fun getPropertyMapper ()Lkotlin/jvm/functions/Function2;
+	public final fun getPropertyWriter ()Lkotlin/jvm/functions/Function1;
+	public final fun getType ()Lorg/ec4j/core/model/PropertyType;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/EndOfLinePropertyKt {
+	public static final fun getEND_OF_LINE_PROPERTY ()Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/IndentSizeEditorConfigPropertyKt {
+	public static final fun getINDENT_SIZE_PROPERTY ()Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/IndentStyleEditorConfigPropertyKt {
+	public static final fun getINDENT_STYLE_PROPERTY ()Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/InsertFinalNewLineEditorConfigPropertyKt {
+	public static final fun getINSERT_FINAL_NEWLINE_PROPERTY ()Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/MaxLineLengthEditorConfigPropertyKt {
+	public static final field MAX_LINE_LENGTH_PROPERTY_OFF I
+	public static final fun getMAX_LINE_LENGTH_PROPERTY ()Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/RuleExecution : java/lang/Enum {
+	public static final field disabled Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/RuleExecution;
+	public static final field enabled Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/RuleExecution;
+	public static fun valueOf (Ljava/lang/String;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/RuleExecution;
+	public static fun values ()[Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/RuleExecution;
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/RuleExecutionEditorConfigPropertyKt {
+	public static final fun createRuleExecutionEditorConfigProperty (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/RuleExecution;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
+	public static synthetic fun createRuleExecutionEditorConfigProperty$default (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/RuleExecution;ILjava/lang/Object;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
+	public static final fun createRuleSetExecutionEditorConfigProperty (Lcom/pinterest/ktlint/rule/engine/core/api/RuleSetId;Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/RuleExecution;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
+	public static synthetic fun createRuleSetExecutionEditorConfigProperty$default (Lcom/pinterest/ktlint/rule/engine/core/api/RuleSetId;Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/RuleExecution;ILjava/lang/Object;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
+	public static final fun getALL_RULES_EXECUTION_PROPERTY ()Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
+	public static final fun getEXPERIMENTAL_RULES_EXECUTION_PROPERTY ()Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
+	public static final fun getRULE_EXECUTION_PROPERTY_TYPE ()Lorg/ec4j/core/model/PropertyType$LowerCasingPropertyType;
+	public static final fun ktLintRuleExecutionPropertyName (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;)Ljava/lang/String;
+	public static final fun ktLintRuleSetExecutionPropertyName (Lcom/pinterest/ktlint/rule/engine/core/api/RuleSetId;)Ljava/lang/String;
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/ec4j/EditorConfigPropertyKt {
+	public static final fun toPropertyBuilderWithValue (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;Ljava/lang/String;)Lorg/ec4j/core/model/Property$Builder;
+	public static final fun toPropertyBuilderWithValue (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;Lorg/ec4j/core/model/PropertyType$PropertyValue;)Lorg/ec4j/core/model/Property$Builder;
+	public static final fun toPropertyWithValue (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;Ljava/lang/String;)Lorg/ec4j/core/model/Property;
+	public static final fun toPropertyWithValue (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;Lorg/ec4j/core/model/PropertyType$PropertyValue;)Lorg/ec4j/core/model/Property;
+}
+

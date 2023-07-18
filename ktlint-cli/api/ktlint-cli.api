@@ -1,0 +1,4 @@
+public final class com/pinterest/ktlint/Main {
+	public static final fun main ([Ljava/lang/String;)V
+}
+
