@@ -163,7 +163,6 @@ Consecutive EOL comments are always allowed as they are often used instead of a 
       * ... but a KDoc can not be followed by an EOL or a block comment or another KDoc
       */
     fun bar() = "bar"
-
     ```
 
 === "[:material-heart-off-outline:](#) Disallowed"
@@ -188,6 +187,73 @@ Rule id: `no-consecutive-comments` (`standard` rule set)
 
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
+
+## Function literal
+
+Enforces the parameters of a function literal and the arrow to be written on the same line as the opening brace if the maximum line length is not exceeded. In case the parameters are wrapped to multiple lines then this is respected.
+
+If the function literal contains multiple parameter and at least one parameter other than the first parameter starts on a new line than all parameters and the arrow are wrapped to separate lines.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+            val foobar1 = { foo + bar }
+            val foobar2 =
+                {
+                    foo + bar
+                }
+            val foobar3 =
+                { foo: Foo ->
+                    foo.repeat(2)
+                }
+            val foobar4 =
+                { foo: Foo, bar: Bar ->
+                    foo + bar
+                }
+            val foobar5 = { foo: Foo, bar: Bar -> foo + bar }
+            val foobar6 =
+                {
+                        foo: Foo,
+                        bar: Bar
+                    ->
+                    foo + bar
+                }
+
+    // Assume that the last allowed character is
+    // at the X character on the right           X
+    val foobar7 =
+        barrrrrrrrrrrrrr {
+                fooooooooooooooo: Foo
+            ->
+            foo.repeat(2)
+        }
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val foobar3 =
+        {
+            foo: Foo ->
+            foo.repeat(2)
+        }
+    val foobar6 =
+        { foo: Foo,
+          bar: Bar ->
+            foo + bar
+        }
+    // Assume that the last allowed character is
+    // at the X character on the right           X
+    val foobar7 =
+        barrrrrrrrrrrrrr { fooooooooooooooo: Foo ->
+            foo.repeat(2)
+        }
+    ```
+
+Rule id: `function-literal` (`standard` rule set)
+
+!!! Note
+This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
 
 ## Function signature
 

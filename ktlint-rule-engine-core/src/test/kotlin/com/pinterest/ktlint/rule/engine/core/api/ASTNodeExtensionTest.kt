@@ -661,7 +661,7 @@ class ASTNodeExtensionTest {
     }
 
     @Test
-    fun `Given some line containing identifiers at different indentation levels then get line length exclusive the leading newline characters`() {
+    fun `Given some lines containing identifiers at different indentation levels then get line length exclusive the leading newline characters`() {
         val code =
             """
             class Foo1 {
@@ -678,15 +678,47 @@ class ASTNodeExtensionTest {
                 .firstChildLeafOrSelf()
                 .leaves()
                 .filter { it.elementType == IDENTIFIER }
-                .map { newLine ->
-                    newLine.lineLengthWithoutNewlinePrefix()
-                }.toList()
+                .map { identifier -> identifier.lineLengthWithoutNewlinePrefix() }
+                .toList()
 
         assertThat(actual).contains(
             "class Foo1 {".length,
             "    val foo2 = \"foo2\"".length,
             "    fun foo3() {".length,
             "        val foo4 = \"foo4\"".length,
+        )
+    }
+
+    @Test
+    fun `Given some lines containing identifiers at different indentation levels then get line length exclusive the leading newline characters until and including the identifier`() {
+        val code =
+            """
+            class Foo1 {
+                val foo2 = "foo2"
+
+                fun foo3() {
+                    val foo4 = "foo4"
+                }
+            }
+            """.trimIndent()
+
+        val actual =
+            transformCodeToAST(code)
+                .firstChildLeafOrSelf()
+                .leaves()
+                .filter { it.elementType == IDENTIFIER }
+                .map { identifier ->
+                    identifier
+                        .leavesOnLine()
+                        .takeWhile { it.prevLeaf() != identifier }
+                        .lineLengthWithoutNewlinePrefix()
+                }.toList()
+
+        assertThat(actual).contains(
+            "class Foo1".length,
+            "    val foo2".length,
+            "    fun foo3".length,
+            "        val foo4".length,
         )
     }
 
