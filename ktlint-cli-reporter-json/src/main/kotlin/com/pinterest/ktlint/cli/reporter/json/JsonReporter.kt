@@ -7,7 +7,9 @@ import java.io.PrintStream
 import java.util.ArrayList
 import java.util.concurrent.ConcurrentHashMap
 
-public class JsonReporter(private val out: PrintStream) : ReporterV2 {
+public class JsonReporter(
+    private val out: PrintStream,
+) : ReporterV2 {
     private val acc = ConcurrentHashMap<String, MutableList<KtlintCliError>>()
 
     override fun onLintError(

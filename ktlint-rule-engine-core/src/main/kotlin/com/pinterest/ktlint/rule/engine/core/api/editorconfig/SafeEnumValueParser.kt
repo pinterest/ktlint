@@ -15,7 +15,9 @@ import java.util.Locale
  * @param <T> the type of the value <T>
  *
  */
-internal class SafeEnumValueParser<T : Enum<*>?>(enumType: Class<out T?>) : PropertyValueParser<T> {
+internal class SafeEnumValueParser<T : Enum<*>?>(
+    enumType: Class<out T?>,
+) : PropertyValueParser<T> {
     private val enumType: Class<out Enum<*>?>
 
     init {

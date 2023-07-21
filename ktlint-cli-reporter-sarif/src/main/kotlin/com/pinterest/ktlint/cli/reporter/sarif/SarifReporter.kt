@@ -30,7 +30,9 @@ internal fun String.sanitize(): String =
             if (it.endsWith('/')) it else "$it/"
         }
 
-public class SarifReporter(private val out: PrintStream) : ReporterV2 {
+public class SarifReporter(
+    private val out: PrintStream,
+) : ReporterV2 {
     private val results: MutableList<Result> = mutableListOf()
     private var workingDirectory: File? = null
 

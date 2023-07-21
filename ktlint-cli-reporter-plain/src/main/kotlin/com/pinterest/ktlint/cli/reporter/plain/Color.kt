@@ -3,7 +3,9 @@ package com.pinterest.ktlint.cli.reporter.plain
 /**
  * Stripped down version of https://github.com/ziggy42/kolor (ziggy42/kolor#6).
  */
-public enum class Color(public val code: Int) {
+public enum class Color(
+    public val code: Int,
+) {
     BLACK(30),
     RED(31),
     GREEN(32),

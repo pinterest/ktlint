@@ -259,7 +259,10 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
 
     private fun String.removeBackticksAndTrim() = replace("`", "").trim()
 
-    private data class Reference(val text: String, val inDotQualifiedExpression: Boolean)
+    private data class Reference(
+        val text: String,
+        val inDotQualifiedExpression: Boolean,
+    )
 
     private companion object {
         val COMPONENT_N_REGEX = Regex("^component\\d+$")

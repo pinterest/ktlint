@@ -184,7 +184,9 @@ internal class ReporterAggregator(
         val output: String?,
     )
 
-    private class AggregatedReporter(val reporters: List<ReporterV2>) : ReporterV2 {
+    private class AggregatedReporter(
+        val reporters: List<ReporterV2>,
+    ) : ReporterV2 {
         override fun beforeAll() = reporters.forEach(ReporterV2::beforeAll)
 
         override fun before(file: String) = reporters.forEach { it.before(file) }

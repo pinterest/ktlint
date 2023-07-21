@@ -9,7 +9,9 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
-public class NoEmptyFileRule : StandardRule(id = "no-empty-file"), Rule.Experimental {
+public class NoEmptyFileRule :
+    StandardRule(id = "no-empty-file"),
+    Rule.Experimental {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,

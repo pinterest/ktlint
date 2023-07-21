@@ -166,7 +166,9 @@ private data class ParsedLine(
     }
 }
 
-internal class RangeTree(seq: List<Int> = emptyList()) {
+internal class RangeTree(
+    seq: List<Int> = emptyList(),
+) {
     private var emptyArrayView = ArrayView(0, 0)
     private var arr: IntArray = seq.toIntArray()
 
@@ -219,7 +221,10 @@ internal class RangeTree(seq: List<Int> = emptyList()) {
 
     fun isEmpty(): Boolean = arr.isEmpty()
 
-    inner class ArrayView(private var l: Int, private val r: Int) {
+    inner class ArrayView(
+        private var l: Int,
+        private val r: Int,
+    ) {
         val size: Int = r - l
 
         fun get(i: Int): Int {

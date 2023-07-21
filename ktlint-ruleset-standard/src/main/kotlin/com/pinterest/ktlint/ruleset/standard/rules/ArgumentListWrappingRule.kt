@@ -49,6 +49,10 @@ public class ArgumentListWrappingRule :
                     ruleId = WRAPPING_RULE_ID,
                     mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
                 ),
+                VisitorModifier.RunAfterRule(
+                    ruleId = CLASS_SIGNATURE_RULE_ID,
+                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                ),
             ),
         usesEditorConfigProperties =
             setOf(

@@ -63,7 +63,9 @@ public class Baseline(
  */
 public fun loadBaseline(path: String): Baseline = BaselineLoader(path).load()
 
-private class BaselineLoader(private val path: String) {
+private class BaselineLoader(
+    private val path: String,
+) {
     var ruleReferenceWithoutRuleSetIdPrefix = 0
 
     fun load(): Baseline {
@@ -165,7 +167,8 @@ private class BaselineLoader(private val path: String) {
                                 }
                             }
                     },
-            detail = "", // Not available in the baseline
+            // Detail is not available in the baseline
+            detail = "",
             status = BASELINE_IGNORED,
         )
 }

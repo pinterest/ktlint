@@ -241,14 +241,16 @@ class RuleExecutionRuleFilterTest {
         val CUSTOM_RULE_C = RuleId("$CUSTOM:rule-c")
     }
 
-    private open class NormalRule(ruleId: RuleId) :
-        Rule(
+    private open class NormalRule(
+        ruleId: RuleId,
+    ) : Rule(
             ruleId = ruleId,
             about = About(),
         )
 
-    private open class ExperimentalRule(ruleId: RuleId) :
-        Rule(
+    private open class ExperimentalRule(
+        ruleId: RuleId,
+    ) : Rule(
             ruleId = ruleId,
             about = About(),
         ),

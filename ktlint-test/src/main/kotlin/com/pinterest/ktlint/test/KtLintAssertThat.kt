@@ -640,13 +640,14 @@ public class KtLintAssertThatAssertable(
     )
 }
 
-internal class MissingEolMarker : RuntimeException(
-    """
-    The first line of the provide code sample should contain text '$MAX_LINE_LENGTH_MARKER' which is provided by the
-    constant '${::MAX_LINE_LENGTH_MARKER.name}' and ends with the EOL_CHAR'$EOL_CHAR' provided by the constant
-    '${::EOL_CHAR.name}' which indicates the last position that is allowed.
-    """.trimIndent(),
-)
+internal class MissingEolMarker :
+    RuntimeException(
+        """
+        The first line of the provide code sample should contain text '$MAX_LINE_LENGTH_MARKER' which is provided by the
+        constant '${::MAX_LINE_LENGTH_MARKER.name}' and ends with the EOL_CHAR'$EOL_CHAR' provided by the constant
+        '${::EOL_CHAR.name}' which indicates the last position that is allowed.
+        """.trimIndent(),
+    )
 
 /**
  * Expectation of the [LintError]. Contrary to the [LintError] it does not contain the ruleId. The ruleId will be derived from the rule for

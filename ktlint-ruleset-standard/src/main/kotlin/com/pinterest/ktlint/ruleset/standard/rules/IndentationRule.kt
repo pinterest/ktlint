@@ -14,10 +14,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CATCH
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLOSING_QUOTE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLON
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONDITION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONSTRUCTOR_DELEGATION_CALL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONSTRUCTOR_KEYWORD
@@ -65,8 +63,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.SAFE_ACCESS_EXPRESS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SECONDARY_CONSTRUCTOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SHORT_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_TYPE_CALL_ENTRY
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_TYPE_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_TYPE_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.THEN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TRY
@@ -135,6 +131,10 @@ public class IndentationRule :
         visitorModifiers =
             setOf(
                 VisitorModifier.RunAsLateAsPossible,
+                VisitorModifier.RunAfterRule(
+                    ruleId = CLASS_SIGNATURE_RULE_ID,
+                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                ),
                 VisitorModifier.RunAfterRule(
                     ruleId = FUNCTION_SIGNATURE_RULE_ID,
                     mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
@@ -207,8 +207,7 @@ public class IndentationRule :
                 visitNewLineIndentation(node, autoCorrect, emit)
             }
 
-            node.elementType == CLASS_BODY ||
-                node.elementType == CONTEXT_RECEIVER_LIST ||
+            node.elementType == CONTEXT_RECEIVER_LIST ||
                 node.elementType == LONG_STRING_TEMPLATE_ENTRY ||
                 node.elementType == STRING_TEMPLATE ||
                 node.elementType == VALUE_ARGUMENT_LIST ->
@@ -217,7 +216,7 @@ public class IndentationRule :
                     lastChildIndent = "",
                 )
 
-            node.elementType == SUPER_TYPE_CALL_ENTRY -> {
+            node.elementType == SUPER_TYPE_LIST -> {
                 if (codeStyle == ktlint_official && node.isPartOfClassWithAMultilinePrimaryConstructor()) {
                     // Contrary to the default IntelliJ IDEA formatter, indent the super type call entry so that it looks better in case it
                     // is followed by another super type:
@@ -231,13 +230,7 @@ public class IndentationRule :
                     //          BarFoo,
                     startIndentContext(
                         fromAstNode = node,
-                        childIndent = indentConfig.indent,
                         activated = true,
-                    )
-                } else {
-                    startIndentContext(
-                        fromAstNode = node,
-                        lastChildIndent = "",
                     )
                 }
             }
@@ -260,7 +253,6 @@ public class IndentationRule :
                 }
 
             node.elementType == BINARY_WITH_TYPE ||
-                node.elementType == SUPER_TYPE_ENTRY ||
                 node.elementType == TYPE_ARGUMENT_LIST ||
                 node.elementType == TYPE_PARAMETER_LIST ||
                 node.elementType == USER_TYPE ->
@@ -458,10 +450,11 @@ public class IndentationRule :
                         toAstNode = nextToAstNode,
                     ).prevCodeLeaf()
             }
+        // No indent for the RPAR
         startIndentContext(
             fromAstNode = node,
             toAstNode = nextToAstNode,
-            lastChildIndent = "", // No indent for the RPAR
+            lastChildIndent = "",
         )
     }
 
@@ -542,8 +535,10 @@ public class IndentationRule :
 
     private fun visitLparBeforeCondition(node: ASTNode) {
         startIndentContext(
-            fromAstNode = requireNotNull(node.nextLeaf()), // Allow to pickup whitespace before condition
-            toAstNode = requireNotNull(node.nextCodeSibling()).lastChildLeafOrSelf(), // Ignore whitespace after condition but before rpar
+            // Allow to pickup whitespace before condition
+            fromAstNode = requireNotNull(node.nextLeaf()),
+            // Ignore whitespace after condition but before rpar
+            toAstNode = requireNotNull(node.nextCodeSibling()).lastChildLeafOrSelf(),
             nodeIndent = currentIndent() + indentConfig.indent,
             childIndent = "",
         )
@@ -640,9 +635,9 @@ public class IndentationRule :
                     requireNotNull(
                         where.nextCodeSibling(),
                     ) { "Can not find code sibling after WHERE in CLASS" }
-                require(
-                    typeConstraintList.elementType == TYPE_CONSTRAINT_LIST,
-                ) { "Code sibling after WHERE in CLASS is not a TYPE_CONSTRAINT_LIST" }
+                require(typeConstraintList.elementType == TYPE_CONSTRAINT_LIST) {
+                    "Code sibling after WHERE in CLASS is not a TYPE_CONSTRAINT_LIST"
+                }
                 nextToAstNode =
                     startIndentContext(
                         fromAstNode = where.getPrecedingLeadingCommentsAndWhitespaces(),
@@ -653,53 +648,12 @@ public class IndentationRule :
         val primaryConstructor = node.findChildByType(PRIMARY_CONSTRUCTOR)
         val containsConstructorKeyword = primaryConstructor?.findChildByType(CONSTRUCTOR_KEYWORD) != null
         if (codeStyle == ktlint_official && primaryConstructor != null && containsConstructorKeyword) {
-            // Contrary to the default IntelliJ IDEA formatter, ident both constructor and super type list as follows:
-            //     class Foo
-            //        @Bar1 @Bar2
-            //        constructor(
-            //            foo1: Foo1,
-            //            foo2: Foo2,
-            //        ) : Foobar1(
-            //                "foobar1",
-            //                "foobar2",
-            //            ),
-            //            FooBar2,
-            val superTypeList = node.findChildByType(SUPER_TYPE_LIST)
             nextToAstNode =
                 startIndentContext(
                     fromAstNode = primaryConstructor.getPrecedingLeadingCommentsAndWhitespaces(),
-                    toAstNode =
-                        superTypeList
-                            ?.lastChildLeafOrSelf()
-                            ?: nextToAstNode,
+                    toAstNode = nextToAstNode,
+//                    activated = true,
                 ).prevCodeLeaf()
-
-            superTypeList
-                ?.findChildByType(COMMA)
-                ?.let { comma ->
-                    // In case of a multiline primary constructor the first super type is merged with the closing parenthesis of the
-                    // constructor. The start of the super type list does not activate the indent because it is not preceded by a newline.
-                    // To fix this, the super type entries on the next line (e.g. after the comma) have to be double indented.
-                    // Allow:
-                    //     class Foo(
-                    //         val bar1: Bar,
-                    //         val bar2: Bar,
-                    //     ) : FooBar(
-                    //             bar1,
-                    //             bar2
-                    //         ),
-                    //         BarFoo1
-                    val prevCodeLeaf =
-                        startIndentContext(
-                            fromAstNode = comma,
-                            toAstNode = superTypeList.lastChildLeafOrSelf(),
-                            childIndent = indentConfig.indent.repeat(2),
-                        ).prevCodeLeaf()
-                    startIndentContext(
-                        fromAstNode = primaryConstructor.getPrecedingLeadingCommentsAndWhitespaces(),
-                        toAstNode = prevCodeLeaf,
-                    ).prevCodeLeaf()
-                }
         } else {
             node
                 .findChildByType(SUPER_TYPE_LIST)

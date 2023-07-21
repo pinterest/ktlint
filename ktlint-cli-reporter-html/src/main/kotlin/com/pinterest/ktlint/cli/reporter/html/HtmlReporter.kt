@@ -30,7 +30,9 @@ import com.pinterest.ktlint.cli.reporter.core.api.ReporterV2
 import java.io.PrintStream
 import java.util.concurrent.ConcurrentHashMap
 
-public class HtmlReporter(private val out: PrintStream) : ReporterV2 {
+public class HtmlReporter(
+    private val out: PrintStream,
+) : ReporterV2 {
     private val acc = ConcurrentHashMap<String, MutableList<KtlintCliError>>()
     private var issueCount = 0
     private var correctedCount = 0

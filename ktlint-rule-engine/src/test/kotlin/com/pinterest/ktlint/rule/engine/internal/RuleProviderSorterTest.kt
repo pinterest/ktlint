@@ -424,20 +424,28 @@ class RuleProviderSorterTest {
         val CUSTOM_RULE_SET_B_RULE_B = RuleId("$CUSTOM_RULE_SET_B:rule-b")
     }
 
-    private open class NormalRule(ruleId: RuleId) : R(ruleId)
+    private open class NormalRule(
+        ruleId: RuleId,
+    ) : R(ruleId)
 
-    private open class ExperimentalRule(ruleId: RuleId) : R(ruleId), Rule.Experimental
+    private open class ExperimentalRule(
+        ruleId: RuleId,
+    ) : R(ruleId),
+        Rule.Experimental
 
-    private class RunAsLateAsPossibleRule(ruleId: RuleId) : R(
-        ruleId = ruleId,
-        visitorModifiers =
-            setOf(
-                VisitorModifier.RunAsLateAsPossible,
-            ),
-    )
+    private class RunAsLateAsPossibleRule(
+        ruleId: RuleId,
+    ) : R(
+            ruleId = ruleId,
+            visitorModifiers =
+                setOf(
+                    VisitorModifier.RunAsLateAsPossible,
+                ),
+        )
 
-    private class RunAsLateAsPossibleExperimentalRule(ruleId: RuleId) :
-        R(
+    private class RunAsLateAsPossibleExperimentalRule(
+        ruleId: RuleId,
+    ) : R(
             ruleId = ruleId,
             visitorModifiers =
                 setOf(

@@ -6,7 +6,9 @@ import com.pinterest.ktlint.cli.reporter.core.api.ReporterV2
 import java.io.PrintStream
 import java.util.concurrent.ConcurrentHashMap
 
-public class BaselineReporter(private val out: PrintStream) : ReporterV2 {
+public class BaselineReporter(
+    private val out: PrintStream,
+) : ReporterV2 {
     private val acc = ConcurrentHashMap<String, MutableList<KtlintCliError>>()
 
     override fun onLintError(

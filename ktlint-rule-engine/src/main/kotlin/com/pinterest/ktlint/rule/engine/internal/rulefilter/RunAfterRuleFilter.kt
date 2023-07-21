@@ -211,9 +211,14 @@ internal class RunAfterRuleFilter : RuleFilter {
         }
     }
 
-    private data class RunAfterRuleRequiredButNotLoaded(val ruleId: RuleId, val runAfterRuleId: RuleId)
+    private data class RunAfterRuleRequiredButNotLoaded(
+        val ruleId: RuleId,
+        val runAfterRuleId: RuleId,
+    )
 
-    private enum class RunAfterRuleOrderModifier(val severity: Int) {
+    private enum class RunAfterRuleOrderModifier(
+        val severity: Int,
+    ) {
         /**
          *  This rule does not depend on any other rule which will be loaded, or it depends on rule which was already added to the new list
          *  of rule which will be loaded before the current rule.

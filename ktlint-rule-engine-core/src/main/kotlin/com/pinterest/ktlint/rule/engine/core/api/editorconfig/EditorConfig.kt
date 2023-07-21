@@ -220,4 +220,6 @@ public data class EditorConfig(
         filterKeys { it in editorConfigProperties }
 }
 
-private class DeprecatedEditorConfigPropertyException(message: String) : RuntimeException(message)
+private class DeprecatedEditorConfigPropertyException(
+    message: String,
+) : RuntimeException(message)

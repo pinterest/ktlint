@@ -10,7 +10,9 @@ import java.io.Serializable
  * `META-INF/services/com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3` (see `ktlint-ruleset-standard/src/main/resources`
  * for an example).
  */
-public abstract class RuleSetProviderV3(public val id: RuleSetId) : Serializable {
+public abstract class RuleSetProviderV3(
+    public val id: RuleSetId,
+) : Serializable {
     /**
      * Gets a group of related [RuleProvider]s. A provided rule is not guaranteed to be run as rules can be disabled,
      * for example via ".editorconfig" properties.

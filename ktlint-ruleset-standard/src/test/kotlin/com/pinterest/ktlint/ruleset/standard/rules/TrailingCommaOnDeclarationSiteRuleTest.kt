@@ -941,7 +941,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
                 additionalRuleProviders =
                     setOf(
                         RuleProvider { TrailingCommaOnDeclarationSiteRule() },
-                        RuleProvider { WrappingRule() }, // Required for TrailingCommaOnDeclarationSiteRule
+                        RuleProvider { WrappingRule() },
                     ),
             )
 

@@ -168,15 +168,16 @@ internal class EditorConfigGeneratorTest {
             .contains("$PROPERTY_1_NAME = $rootEditorConfigPropertyValue1")
     }
 
-    private class TestRule : Rule(
-        ruleId = RuleId("test:test-rule"),
-        about = About(),
-        usesEditorConfigProperties =
-            setOf(
-                EDITOR_CONFIG_PROPERTY_2,
-                EDITOR_CONFIG_PROPERTY_1,
-            ),
-    )
+    private class TestRule :
+        Rule(
+            ruleId = RuleId("test:test-rule"),
+            about = About(),
+            usesEditorConfigProperties =
+                setOf(
+                    EDITOR_CONFIG_PROPERTY_2,
+                    EDITOR_CONFIG_PROPERTY_1,
+                ),
+        )
 
     private companion object {
         //language=
