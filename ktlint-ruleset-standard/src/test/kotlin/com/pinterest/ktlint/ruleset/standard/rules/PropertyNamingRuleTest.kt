@@ -260,6 +260,7 @@ class PropertyNamingRuleTest {
                     get() = _elementList2
             }
             """.trimIndent()
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
         propertyNamingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 11, "Property name should use the screaming snake case notation when the value can not be changed", canBeAutoCorrected = false),
