@@ -21,6 +21,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 * Fix spacing around colon in annotations `spacing-around-colon` ([#2093](https://github.com/pinterest/ktlint/issues/2093))
 * Do not wrap a binary expression after an elvis operator in case the max line length is exceeded ([#2128](https://github.com/pinterest/ktlint/issues/2128))
 * Fix indent of IS_EXPRESSION, PREFIX_EXPRESSION and POSTFIX_EXPRESSION in case it contains a linebreak `indent` [#2094](https://github.com/pinterest/ktlint/issues/2094)
+* Fix false positive regarding property that potentially can contain data which is mutable. `property-name` [#2140](https://github.com/pinterest/ktlint/issues/2140)
 
 ### Changed
 

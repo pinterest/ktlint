@@ -571,20 +571,26 @@ Rule id: `package-naming` (`standard` rule set)
 
 Enforce naming of property.
 
+!!! note
+    This rule can not reliably detect all situations in which incorrect property naming is used. So it only detects in which it is certain that naming is incorrect.
+
 === "[:material-heart:](#) Ktlint"
 
     ```kotlin
-    val FOO_1 = Foo()
-    val FOO_BAR_1 = "FOO-BAR"
+    val foo1 = Foo() // In case developer want to communicate that Foo is mutable
+    val FOO1 = Foo() // In case developer want to communicate that Foo is deeply immutable
 
-    var foo1: Foo = Foo()
+    const val FOO_BAR = "FOO-BAR" // By definition deeply immutable
+
+    var foo2: Foo = Foo() // By definition not immutable
 
     class Bar {
-        const val FOO_2 = "foo"
-        const val FOO_BAR_2 = "FOO-BAR"
+        val foo1 = Foo() // In case developer want to communicate that Foo is mutable
+        val FOO1 = Foo() // In case developer want to communicate that Foo is deeply immutable
 
-        val foo2 = "foo"
-        val fooBar2 = "foo-bar"
+        const val FOO_BAR = "FOO-BAR" // By definition deeply immutable
+
+        var foo2: Foo = Foo() // By definition not immutable
 
         // Backing property
         private val _elementList = mutableListOf<Element>()
@@ -595,17 +601,12 @@ Enforce naming of property.
 === "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
-    val Foo1 = Foo()
-    val FooBar1 = "FOO-BAR"
+    const val fooBar = "FOO-BAR" // By definition deeply immutable
 
-    var FOO_1: Foo = Foo()
+    var FOO2: Foo = Foo() // By definition not immutable
 
     class Bar {
-        const val foo2 = "foo"
-        const val fooBar2 = "FOO-BAR"
-
-        val FOO2 = "foo"
-        val FOO_BAR_2 = "foo-bar"
+        val FOO_BAR = "FOO-BAR" // Class properties always start with lowercase, const is not allowed
 
         // Incomplete backing property as public property 'elementList1' is missing
         private val _elementList1 = mutableListOf<Element>()
@@ -616,9 +617,6 @@ Enforce naming of property.
             get() = _elementList2
     }
     ```
-
-!!! note
-    Top level `val` properties and `const val` properties have to be written in screaming snake notation. Local `val` and `const val` are written in lower camel case.
 
 This rule can also be suppressed with the IntelliJ IDEA inspection suppression `PropertyName`.
 
