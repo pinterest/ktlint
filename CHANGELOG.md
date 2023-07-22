@@ -22,6 +22,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 * Do not wrap a binary expression after an elvis operator in case the max line length is exceeded ([#2128](https://github.com/pinterest/ktlint/issues/2128))
 * Fix indent of IS_EXPRESSION, PREFIX_EXPRESSION and POSTFIX_EXPRESSION in case it contains a linebreak `indent` [#2094](https://github.com/pinterest/ktlint/issues/2094)
 * Add new experimental rule `function-literal`. This rule enforces the parameter list of a function literal to be formatted consistently. `function-literal` [#2121](https://github.com/pinterest/ktlint/issues/2121)
+* Fix null pointer exception for if-else statement with empty THEN block `if-else-bracing` [#2135](https://github.com/pinterest/ktlint/issues/2135)
 
 ### Changed
 
