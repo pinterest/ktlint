@@ -22,17 +22,15 @@ internal class ParameterWrappingRuleTest {
             )
             """.trimIndent()
         val formattedCode =
-            // TODO: fix test when changing the default code style to 'ktlint_official'. The variable type is not indented for the
-            //  current default code style.
             """
             // $MAX_LINE_LENGTH_MARKER      $EOL_CHAR
             class Bar(
                 val foooooooooooooooooTooLong:
-                Foo,
+                    Foo,
             )
             fun bar(
                 foooooooooooooooooooooTooLong:
-                Foo,
+                    Foo,
             )
             """.trimIndent()
         parameterWrappingRuleAssertThat(code)
@@ -59,18 +57,16 @@ internal class ParameterWrappingRuleTest {
             )
             """.trimIndent()
         val formattedCode =
-            // TODO: fix test when changing the default code style to 'ktlint_official'. The variable type is not indented for the
-            //  current default code style.
             """
             // $MAX_LINE_LENGTH_MARKER           $EOL_CHAR
             class Bar(
                 val foooooooooooooooooTooLong:
-                Foo,
+                    Foo,
                 val foooooooooooooNotTooLong: Foo,
             )
             fun bar(
                 foooooooooooooooooooooTooLong:
-                Foo,
+                    Foo,
                 foooooooooooooooooNotTooLong: Foo,
             )
             """.trimIndent()

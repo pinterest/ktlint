@@ -36,8 +36,7 @@ class EditorConfigTest {
 
         val actual = editorConfig[SOME_EDITOR_CONFIG_PROPERTY]
 
-        // Note that IntelliJ IDEA is the default code style for now, this will change to KTLINT_OFFICIAL in the future
-        assertThat(actual).isEqualTo(SOME_PROPERTY_VALUE_INTELLIJ_IDEA)
+        assertThat(actual).isEqualTo(SOME_PROPERTY_VALUE_KTLINT_OFFICIAL)
     }
 
     @ParameterizedTest(name = "Code style: {0}, expected result: {1}")
@@ -45,7 +44,7 @@ class EditorConfigTest {
         value = [
             "android_studio, $SOME_PROPERTY_VALUE_ANDROID_STUDIO",
             "intellij_idea, $SOME_PROPERTY_VALUE_INTELLIJ_IDEA",
-            "ktlint_official, $SOME_PROPERTY_VALUE_OFFICIAL",
+            "ktlint_official, $SOME_PROPERTY_VALUE_KTLINT_OFFICIAL",
         ],
     )
     fun `Given an EditorConfig with a defined code style and add a property with default value then the default value can be retrieved for the default code style`(
@@ -119,8 +118,8 @@ class EditorConfigTest {
         val editorConfig =
             EditorConfig()
                 .addPropertiesWithDefaultValueIfMissing(
-                    SOME_EDITOR_CONFIG_PROPERTY.copy(name = propertyName1, intellijIdeaCodeStyleDefaultValue = propertyValue1),
-                    SOME_EDITOR_CONFIG_PROPERTY.copy(name = propertyName2, intellijIdeaCodeStyleDefaultValue = propertyValue2),
+                    SOME_EDITOR_CONFIG_PROPERTY.copy(name = propertyName1, ktlintOfficialCodeStyleDefaultValue = propertyValue1),
+                    SOME_EDITOR_CONFIG_PROPERTY.copy(name = propertyName2, ktlintOfficialCodeStyleDefaultValue = propertyValue2),
                 )
 
         val actual = editorConfig.map { property -> property.name.uppercase() to property.sourceValue.uppercase() }
@@ -198,7 +197,7 @@ class EditorConfigTest {
         val editorConfigPropertyWithPropertyMapper =
             SOME_EDITOR_CONFIG_PROPERTY
                 .copy(
-                    propertyMapper = { _, _ -> SOME_PROPERTY_VALUE_OFFICIAL },
+                    propertyMapper = { _, _ -> SOME_PROPERTY_VALUE_KTLINT_OFFICIAL },
                     defaultValue = SOME_PROPERTY_VALUE,
                     androidStudioCodeStyleDefaultValue = null,
                     intellijIdeaCodeStyleDefaultValue = null,
@@ -208,7 +207,7 @@ class EditorConfigTest {
 
         val actual = editorConfig[editorConfigPropertyWithPropertyMapper]
 
-        assertThat(actual).isEqualTo(SOME_PROPERTY_VALUE_OFFICIAL)
+        assertThat(actual).isEqualTo(SOME_PROPERTY_VALUE_KTLINT_OFFICIAL)
     }
 
     @Test
@@ -220,7 +219,7 @@ class EditorConfigTest {
 
         val actual = editorConfig[SOME_EDITOR_CONFIG_PROPERTY]
 
-        assertThat(actual).isEqualTo(SOME_PROPERTY_VALUE_INTELLIJ_IDEA)
+        assertThat(actual).isEqualTo(SOME_PROPERTY_VALUE_KTLINT_OFFICIAL)
     }
 
     @Test
@@ -324,7 +323,7 @@ class EditorConfigTest {
         const val SOME_PROPERTY_VALUE_ANDROID_STUDIO = "some-property-value-android"
         const val SOME_PROPERTY_VALUE_DEFAULT = "some-property-value-default"
         const val SOME_PROPERTY_VALUE_INTELLIJ_IDEA = "some-property-value-intellij-idea"
-        const val SOME_PROPERTY_VALUE_OFFICIAL = "some-property-value-official"
+        const val SOME_PROPERTY_VALUE_KTLINT_OFFICIAL = "some-property-value-ktlint-official"
         val SOME_EDITOR_CONFIG_PROPERTY =
             EditorConfigProperty(
                 name = SOME_PROPERTY_NAME,
@@ -337,7 +336,7 @@ class EditorConfigTest {
                     ),
                 defaultValue = SOME_PROPERTY_VALUE_DEFAULT,
                 androidStudioCodeStyleDefaultValue = SOME_PROPERTY_VALUE_ANDROID_STUDIO,
-                ktlintOfficialCodeStyleDefaultValue = SOME_PROPERTY_VALUE_OFFICIAL,
+                ktlintOfficialCodeStyleDefaultValue = SOME_PROPERTY_VALUE_KTLINT_OFFICIAL,
                 intellijIdeaCodeStyleDefaultValue = SOME_PROPERTY_VALUE_INTELLIJ_IDEA,
             )
     }

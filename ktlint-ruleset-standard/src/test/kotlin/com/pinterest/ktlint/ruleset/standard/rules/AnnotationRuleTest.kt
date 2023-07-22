@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
@@ -806,12 +807,14 @@ class AnnotationRuleTest {
     @Nested
     inner class `Given a class with a primary constructor` {
         @Test
-        fun `Issue 628 - Given an annotation followed by other modifier before the primary constructor (non ktlint_official code style)`() {
+        fun `Issue 628 - Given a non-ktlint_official code style and an annotation followed by other modifier before the primary constructor (non ktlint_official code style)`() {
             val code =
                 """
                 class Foo @Inject internal constructor()
                 """.trimIndent()
-            annotationRuleAssertThat(code).hasNoLintViolations()
+            annotationRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.intellij_idea)
+                .hasNoLintViolations()
         }
 
         @Nested
