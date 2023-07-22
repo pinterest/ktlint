@@ -37,9 +37,8 @@ public enum class CodeStyleValue {
 public val CODE_STYLE_PROPERTY_TYPE: PropertyType.LowerCasingPropertyType<CodeStyleValue> =
     PropertyType.LowerCasingPropertyType(
         "ktlint_code_style",
-        "The code style ('intellij_idea', 'android_studio' or 'ktlint_official') to be applied. Currently, the " +
-            "value is defaulted to 'intellij_idea' when not set. However, in the future the default code style " +
-            "will be changed to 'ktlint_official'.",
+        "The code style ('ktlint_official', 'intellij_idea' or 'android_studio') to be applied. By default the 'ktlint_official' code " +
+            "style is used",
         SafeEnumValueParser(CodeStyleValue::class.java),
         CodeStyleValue.values().map { it.name }.toSet(),
     )
@@ -47,11 +46,7 @@ public val CODE_STYLE_PROPERTY_TYPE: PropertyType.LowerCasingPropertyType<CodeSt
 public val CODE_STYLE_PROPERTY: EditorConfigProperty<CodeStyleValue> =
     EditorConfigProperty(
         type = CODE_STYLE_PROPERTY_TYPE,
-        /*
-         * Once the [CodeStyleValue.ktlint_official] is matured, it will become the default code style of ktlint. Until
-         * then the [CodeStyleValue.intellij_idea] is used to remain backwards compatible.
-         */
-        defaultValue = CodeStyleValue.intellij_idea,
+        defaultValue = CodeStyleValue.ktlint_official,
         androidStudioCodeStyleDefaultValue = CodeStyleValue.android_studio,
         intellijIdeaCodeStyleDefaultValue = CodeStyleValue.intellij_idea,
         ktlintOfficialCodeStyleDefaultValue = CodeStyleValue.ktlint_official,

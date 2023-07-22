@@ -1494,7 +1494,7 @@ internal class IndentationRuleTest {
     @Nested
     inner class `Given a nested conditional` {
         @Test
-        fun `Given a simple nested conditional`() {
+        fun `Given a non-ktlint_official code style and a simple nested conditional`() {
             val code =
                 """
                 val foo =
@@ -1514,6 +1514,7 @@ internal class IndentationRuleTest {
                             )
                 """.trimIndent()
             indentationRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to intellij_idea)
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),
@@ -1524,7 +1525,7 @@ internal class IndentationRuleTest {
         }
 
         @Test
-        fun `Given a method chain combined with nested conditionals`() {
+        fun `Given a non-ktlint_official code style and a method chain combined with nested conditionals`() {
             val code =
                 """
                 val foo =
@@ -1558,6 +1559,7 @@ internal class IndentationRuleTest {
                         false
                 """.trimIndent()
             indentationRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to intellij_idea)
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),
@@ -1575,7 +1577,7 @@ internal class IndentationRuleTest {
         }
 
         @Test
-        fun `Given a while statement with method chain combined with nested conditionals`() {
+        fun `Given a non-ktlint_official code style and a while statement with method chain combined with nested conditionals`() {
             val code =
                 """
                 fun foo() {
@@ -1619,6 +1621,7 @@ internal class IndentationRuleTest {
                 }
                 """.trimIndent()
             indentationRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to intellij_idea)
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),
@@ -1640,7 +1643,7 @@ internal class IndentationRuleTest {
         }
 
         @Test
-        fun `Given an if-statement with method chain combined with nested conditionals`() {
+        fun `Given a non-ktlint_official code style and an if-statement with method chain combined with nested conditionals`() {
             val code =
                 """
                 fun foo() {
@@ -1684,6 +1687,7 @@ internal class IndentationRuleTest {
                 }
                 """.trimIndent()
             indentationRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to intellij_idea)
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),
@@ -2171,7 +2175,7 @@ internal class IndentationRuleTest {
     }
 
     @Test
-    fun `Given if-else-statement for which branches are wrapped between parenthesis`() {
+    fun `Given non-ktlint_official code style and if-else-statement for which branches are wrapped between parenthesis`() {
         val code =
             """
             val foo = if (true) (
@@ -2180,7 +2184,9 @@ internal class IndentationRuleTest {
                 3 + 4
                 ) // IDEA quirk
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        indentationRuleAssertThat(code)
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to intellij_idea)
+            .hasNoLintViolations()
     }
 
     @Test
@@ -3579,7 +3585,7 @@ internal class IndentationRuleTest {
     }
 
     @Test
-    fun `Issue 1003 - Given multiple interfaces`() {
+    fun `Issue 1003 - Given non-ktlint_official code style and multiple interfaces`() {
         val code =
             """
             abstract class Parent(a: Int, b: Int)
@@ -3595,7 +3601,9 @@ internal class IndentationRuleTest {
             ),
                 Parent2
             """.trimIndent()
-        indentationRuleAssertThat(code).hasNoLintViolations()
+        indentationRuleAssertThat(code)
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to intellij_idea)
+            .hasNoLintViolations()
     }
 
     @Test
