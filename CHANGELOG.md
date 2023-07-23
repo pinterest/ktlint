@@ -308,10 +308,10 @@ The rule id's in `com.pinterest.ktlint.ruleset.core.api.Rule` have been changed 
 
 When wrapping a rule from the ktlint project and modifying its behavior, please change the `ruleId` and `about` fields in the wrapped rule, so that it is clear to users whenever they use the original rule provided by KtLint versus a modified version which is not maintained by the KtLint project.
 
-The typealias `com.pinterest.ktlint.core.api.EditorConfigProperties` has been replaced with `com.pinterest.ktlint.rule.engine.core.api.EditorConfig`. The interface `com.pinterest.ktlint.core.api.UsesEditorConfigProperties` has been removed. Instead, the Rule property `usesEditorConfigProperties` needs to be set. As a result of those changes, the `beforeFirstNode` function in each rule has to changed to something like below: 
+The typealias `com.pinterest.ktlint.core.api.EditorConfigProperties` has been replaced with `com.pinterest.ktlint.rule.engine.core.api.EditorConfig`. The interface `com.pinterest.ktlint.core.api.UsesEditorConfigProperties` has been removed. Instead, the Rule property `usesEditorConfigProperties` needs to be set. As a result of those changes, the `beforeFirstNode` function in each rule has to changed to something like below:
 
 ```kotlin
-public class SomeRule : Rule(
+ class SomeRule : Rule(
   ruleId = RuleId("some-rule-set:some-rule"),
   usesEditorConfigProperties = setOf(MY_EDITOR_CONFIG_PROPERTY),
 ) {
@@ -348,7 +348,7 @@ When wrapping a rule from the ktlint project and modifying its behavior, please 
 The typealias `com.pinterest.ktlint.core.api.EditorConfigProperties` has been replaced with `com.pinterest.ktlint.rule.engine.core.api.EditorConfig`. The interface `com.pinterest.ktlint.core.api.UsesEditorConfigProperties` has been removed. Instead, the Rule property `usesEditorConfigProperties` needs to be set. As a result of those changes, the `beforeFirstNode` function in each rule has to changed to something like below:
 
 ```kotlin
-public class SomeRule : Rule(
+ class SomeRule : Rule(
   ruleId = RuleId("some-rule-set:some-rule"),
   usesEditorConfigProperties = setOf(MY_EDITOR_CONFIG_PROPERTY),
 ) {
@@ -357,7 +357,7 @@ public class SomeRule : Rule(
   override fun beforeFirstNode(editorConfig: EditorConfig) {
     myEditorConfigProperty = editorConfig[MY_EDITOR_CONFIG_PROPERTY]
   }
-  
+
   ...
 }
 ```

@@ -749,15 +749,3 @@ internal fun exitKtLintProcess(status: Int): Nothing {
     logger.debug { "Exit ktlint with exit code: $status" }
     exitProcess(status)
 }
-
-/**
- * Gets the relative route of the path. Also adjusts the slashes for uniformity between file systems.
- */
-internal val Path.relativeRoute: String
-    get() {
-        val rootPath = Paths.get("").toAbsolutePath()
-        return this
-            .relativeToOrSelf(rootPath)
-            .pathString
-            .replace(File.separatorChar, '/')
-    }

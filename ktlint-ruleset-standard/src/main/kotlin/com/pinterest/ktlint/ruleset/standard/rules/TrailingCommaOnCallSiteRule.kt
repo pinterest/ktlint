@@ -218,7 +218,7 @@ public class TrailingCommaOnCallSiteRule :
             } else {
                 prevCodeLeaf()
             }
-        return codeLeaf?.takeIf { it.elementType == ElementType.COMMA }
+        return codeLeaf?.takeIf { it.elementType == COMMA }
     }
 
     private enum class TrailingCommaState {

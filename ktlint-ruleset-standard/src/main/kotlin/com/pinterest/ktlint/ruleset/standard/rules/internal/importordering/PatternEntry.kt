@@ -65,9 +65,7 @@ public class PatternEntry(
 
         if (withSubpackages != other.withSubpackages) return false
         if (hasAlias != other.hasAlias) return false
-        if (packageName != other.packageName) return false
-
-        return true
+        return packageName == other.packageName
     }
 
     override fun hashCode(): Int {
