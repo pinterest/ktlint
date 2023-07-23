@@ -23,6 +23,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 * Fix indent of IS_EXPRESSION, PREFIX_EXPRESSION and POSTFIX_EXPRESSION in case it contains a linebreak `indent` [#2094](https://github.com/pinterest/ktlint/issues/2094)
 * Fix false positive regarding property that potentially can contain data which is mutable. `property-naming` [#2140](https://github.com/pinterest/ktlint/issues/2140)
 * Add new experimental rule `function-literal`. This rule enforces the parameter list of a function literal to be formatted consistently. `function-literal` [#2121](https://github.com/pinterest/ktlint/issues/2121)
+* Store relative path of file in baseline file [#2146](https://github.com/pinterest/ktlint/issues/2146)
 * Fix null pointer exception for if-else statement with empty THEN block `if-else-bracing` [#2135](https://github.com/pinterest/ktlint/issues/2135)
 
 ### Changed
