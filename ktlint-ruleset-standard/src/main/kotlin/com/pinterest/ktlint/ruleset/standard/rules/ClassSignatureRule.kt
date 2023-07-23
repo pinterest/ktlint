@@ -151,7 +151,7 @@ public class ClassSignatureRule :
         require(node.elementType == CLASS)
 
         val wrapPrimaryConstructorParameters =
-            node.hasMinimumNumberOfParameters() ||
+            node.hasTooManyParameters() ||
                 node.containsMultilineParameter() ||
                 (codeStyle == ktlint_official && node.containsAnnotatedParameter()) ||
                 (isMaxLineLengthSet() && classSignatureExcludingSuperTypesExceedsMaxLineLength(node, emit, autoCorrect)) ||
@@ -648,7 +648,7 @@ public class ClassSignatureRule :
 
     private fun List<ASTNode>.joinTextToString(): String = collectLeavesRecursively().joinToString(separator = "") { it.text }
 
-    private fun ASTNode.hasMinimumNumberOfParameters(): Boolean = countParameters() >= classSignatureWrappingMinimumParameters
+    private fun ASTNode.hasTooManyParameters(): Boolean = countParameters() >= classSignatureWrappingMinimumParameters
 
     private fun ASTNode.countParameters() =
         getPrimaryConstructorParameterListOrNull()

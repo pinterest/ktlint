@@ -41,6 +41,7 @@ class ClassSignatureRuleTest {
                 """.trimIndent()
             classSignatureWrappingRuleAssertThat(code)
                 .setMaxLineLength()
+                .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
                 .hasNoLintViolations()
         }
 
@@ -81,6 +82,7 @@ class ClassSignatureRuleTest {
             classSignatureWrappingRuleAssertThat(code)
                 .setMaxLineLength()
                 .addAdditionalRuleProvider { FunctionStartOfBodySpacingRule() }
+                .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
                 .hasLintViolation(2, 34, "Expected a single space before class body")
                 .isFormattedAs(formattedCode)
         }
@@ -357,6 +359,7 @@ class ClassSignatureRuleTest {
             """.trimIndent()
         classSignatureWrappingRuleAssertThat(code)
             .setMaxLineLength()
+            .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
             .hasLintViolations(
                 LintViolation(3, 5, "No whitespace expected between opening parenthesis and first parameter name"),
                 LintViolation(4, 5, "Single whitespace expected before parameter"),
@@ -485,6 +488,7 @@ class ClassSignatureRuleTest {
             """.trimIndent()
         classSignatureWrappingRuleAssertThat(code)
             .setMaxLineLength()
+            .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
             .hasNoLintViolations()
     }
 
@@ -515,6 +519,7 @@ class ClassSignatureRuleTest {
                 """.trimIndent()
             classSignatureWrappingRuleAssertThat(code)
                 .addAdditionalRuleProvider { NullableTypeSpacingRule() }
+                .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
                 .hasNoLintViolationsExceptInAdditionalRules()
                 .isFormattedAs(formattedCode)
         }
@@ -583,7 +588,8 @@ class ClassSignatureRuleTest {
                     { SpacingAroundParensRule() },
                     { SpacingAroundCommaRule() },
                     { SpacingAroundColonRule() },
-                ).hasLintViolations(
+                ).withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
+                .hasLintViolations(
                     LintViolation(3, 14, "No whitespace expected between opening parenthesis and first parameter name"),
                     LintViolation(7, 21, "Single whitespace expected before parameter"),
                     LintViolation(8, 26, "No whitespace expected between last parameter and closing parenthesis"),
@@ -625,7 +631,8 @@ class ClassSignatureRuleTest {
                     { SpacingAroundColonRule() },
                     { SpacingAroundCommaRule() },
                     { SpacingAroundOperatorsRule() },
-                ).hasLintViolations(
+                ).withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
+                .hasLintViolations(
                     LintViolation(2, 19, "Single whitespace expected before parameter"),
                     LintViolation(4, 13, "Expected single space before the super type"),
                 ).isFormattedAs(formattedCode)
@@ -725,6 +732,7 @@ class ClassSignatureRuleTest {
             """.trimIndent()
         classSignatureWrappingRuleAssertThat(code)
             .setMaxLineLength()
+            .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
             .hasNoLintViolations()
     }
 
@@ -743,6 +751,7 @@ class ClassSignatureRuleTest {
             """.trimIndent()
         classSignatureWrappingRuleAssertThat(code)
             .setMaxLineLength()
+            .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
             .hasLintViolation(2, 37, "Super type should start on a newline")
             .isFormattedAs(formattedCode)
     }
@@ -1324,6 +1333,7 @@ class ClassSignatureRuleTest {
             """.trimIndent()
         classSignatureWrappingRuleAssertThat(code)
             .setMaxLineLength()
+            .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
             .hasLintViolations(
                 LintViolation(3, 5, "No whitespace expected between opening parenthesis and first parameter name"),
                 LintViolation(4, 5, "Single whitespace expected before parameter"),
@@ -1355,6 +1365,7 @@ class ClassSignatureRuleTest {
                 """.trimIndent()
             classSignatureWrappingRuleAssertThat(code)
                 .setMaxLineLength()
+                .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
                 .hasLintViolations(
                     LintViolation(2, 37, "Super type should start on a newline"),
                     LintViolation(2, 49, "Super type should start on a newline"),
@@ -1383,6 +1394,7 @@ class ClassSignatureRuleTest {
                 """.trimIndent()
             classSignatureWrappingRuleAssertThat(code)
                 .setMaxLineLength()
+                .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
                 .hasLintViolations(
                     LintViolation(2, 37, "Super type should start on a newline"),
                     LintViolation(2, 43, "Super type call must be first super type"),
@@ -1412,6 +1424,7 @@ class ClassSignatureRuleTest {
                 """.trimIndent()
             classSignatureWrappingRuleAssertThat(code)
                 .setMaxLineLength()
+                .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
                 .hasLintViolations(
                     LintViolation(2, 37, "Super type should start on a newline"),
                     LintViolation(2, 43, "Super type should start on a newline"),
@@ -1440,6 +1453,7 @@ class ClassSignatureRuleTest {
             """.trimIndent()
         classSignatureWrappingRuleAssertThat(code)
             .setMaxLineLength()
+            .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
             .hasLintViolation(2, 23, "Super type should start on a newline")
             .isFormattedAs(formattedCode)
     }
@@ -1470,6 +1484,7 @@ class ClassSignatureRuleTest {
         classSignatureWrappingRuleAssertThat(code)
             .setMaxLineLength()
             .addAdditionalRuleProvider { IndentationRule() }
+            .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
             .hasLintViolation(2, 37, "Super type should start on a newline")
             .isFormattedAs(formattedCode)
     }
@@ -1494,9 +1509,9 @@ class ClassSignatureRuleTest {
                 b: Any,
                 c: Any
             ) : Bar(
-                a,
-                c
-            ) {
+                    a,
+                    c
+                ) {
                 // body
             }
             """.trimIndent()

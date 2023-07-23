@@ -24,6 +24,7 @@ public final class com/pinterest/ktlint/rule/engine/core/api/ASTNodeExtensionKt 
 	public static final fun leavesIncludingSelf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Z)Lkotlin/sequences/Sequence;
 	public static synthetic fun leavesIncludingSelf$default (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZILjava/lang/Object;)Lkotlin/sequences/Sequence;
 	public static final fun leavesOnLine (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lkotlin/sequences/Sequence;
+	public static final fun lineLengthWithoutNewlinePrefix (Lkotlin/sequences/Sequence;)I
 	public static final fun lineLengthWithoutNewlinePrefix (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)I
 	public static final fun logStructure (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
 	public static final fun nextCodeLeaf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZZ)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
