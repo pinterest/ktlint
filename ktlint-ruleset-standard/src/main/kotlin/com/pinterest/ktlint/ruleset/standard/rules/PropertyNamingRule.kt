@@ -45,16 +45,14 @@ public class PropertyNamingRule :
             .findChildByType(IDENTIFIER)
             ?.let { identifier ->
                 when {
-                    property.hasCustomGetter() -> {
+                    property.hasConstModifier() -> {
+                        visitConstProperty(identifier, emit)
+                    }
+                    property.hasCustomGetter() || property.isTopLevelValue() || property.isObjectValue() -> {
                         // Can not reliably determine whether the value is immutable or not
                     }
                     property.isBackingProperty() -> {
                         visitBackingProperty(identifier, emit)
-                    }
-                    property.hasConstModifier() ||
-                        property.isTopLevelValue() ||
-                        property.isObjectValue() -> {
-                        visitConstProperty(identifier, emit)
                     }
                     else -> {
                         visitNonConstProperty(identifier, emit)
