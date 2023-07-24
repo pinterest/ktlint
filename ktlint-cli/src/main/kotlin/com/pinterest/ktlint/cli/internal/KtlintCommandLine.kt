@@ -41,7 +41,6 @@ import picocli.CommandLine.ParameterException
 import picocli.CommandLine.Parameters
 import java.io.File
 import java.nio.file.FileSystems
-import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.Locale
 import java.util.concurrent.ArrayBlockingQueue
@@ -52,8 +51,6 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
-import kotlin.io.path.pathString
-import kotlin.io.path.relativeToOrSelf
 import kotlin.system.exitProcess
 
 private lateinit var logger: KLogger
