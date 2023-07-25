@@ -491,10 +491,7 @@ public class WrappingRule :
             val rToken = lToken.nextSibling { it.elementType == rElementType }
             return rToken?.treeParent == lToken.treeParent
         }
-        if (nextCodeSibling?.textContains('\n') == false) {
-            return true
-        }
-        return false
+        return nextCodeSibling?.textContains('\n') == false
     }
 
     private fun rearrangeArrow(

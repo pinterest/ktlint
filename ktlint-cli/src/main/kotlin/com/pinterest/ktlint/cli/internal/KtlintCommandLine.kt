@@ -41,7 +41,6 @@ import picocli.CommandLine.ParameterException
 import picocli.CommandLine.Parameters
 import java.io.File
 import java.nio.file.FileSystems
-import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.Locale
 import java.util.concurrent.ArrayBlockingQueue
@@ -52,8 +51,6 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
-import kotlin.io.path.pathString
-import kotlin.io.path.relativeToOrSelf
 import kotlin.system.exitProcess
 
 private lateinit var logger: KLogger
@@ -749,15 +746,3 @@ internal fun exitKtLintProcess(status: Int): Nothing {
     logger.debug { "Exit ktlint with exit code: $status" }
     exitProcess(status)
 }
-
-/**
- * Gets the relative route of the path. Also adjusts the slashes for uniformity between file systems.
- */
-internal val Path.relativeRoute: String
-    get() {
-        val rootPath = Paths.get("").toAbsolutePath()
-        return this
-            .relativeToOrSelf(rootPath)
-            .pathString
-            .replace(File.separatorChar, '/')
-    }

@@ -244,7 +244,7 @@ public class ArgumentListWrappingRule :
             ?.any { it.isWhiteSpaceWithNewline() } == true
 
     private fun ASTNode.isPartOfDotQualifiedAssignmentExpression(): Boolean =
-        treeParent?.treeParent?.elementType == ElementType.BINARY_EXPRESSION &&
+        treeParent?.treeParent?.elementType == BINARY_EXPRESSION &&
             treeParent?.treeParent?.children()?.find { it.elementType == ElementType.DOT_QUALIFIED_EXPRESSION } != null
 
     private fun ASTNode.prevWhiteSpaceWithNewLine(): ASTNode? {

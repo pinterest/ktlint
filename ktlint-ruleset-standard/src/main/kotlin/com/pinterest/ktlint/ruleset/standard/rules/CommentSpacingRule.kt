@@ -23,7 +23,7 @@ public class CommentSpacingRule : StandardRule("comment-spacing") {
                     node.upsertWhitespaceBeforeMe(" ")
                 }
             }
-            val text = node.getText()
+            val text = node.text
             if (text.length != 2 &&
                 !text.startsWith("// ") &&
                 !text.startsWith("//noinspection") &&

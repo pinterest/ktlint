@@ -251,7 +251,7 @@ public class TrailingCommaOnDeclarationSiteRule :
         children()
             .lastOrNull { it.psi is KtEnumEntry }
             ?.children()
-            ?.singleOrNull { it.elementType == ElementType.SEMICOLON }
+            ?.singleOrNull { it.elementType == SEMICOLON }
             ?: lastChildNode
 
     private fun ASTNode.reportAndCorrectTrailingCommaNodeBefore(
@@ -424,7 +424,7 @@ public class TrailingCommaOnDeclarationSiteRule :
             } else {
                 prevCodeLeaf()
             }
-        return codeLeaf?.takeIf { it.elementType == ElementType.COMMA }
+        return codeLeaf?.takeIf { it.elementType == COMMA }
     }
 
     private fun containsLineBreakInLeavesRange(

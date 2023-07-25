@@ -243,9 +243,7 @@ public class FunctionLiteralRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
     ) {
-        require(arrow.elementType == ARROW) {
-            Unit
-        }
+        require(arrow.elementType == ARROW)
         arrow
             .nextLeaf()
             .takeIf { it.isWhiteSpace() }

@@ -388,7 +388,7 @@ class SuppressionLocatorBuilderTest {
 
     private fun lint(
         code: String,
-        editorConfigOverride: EditorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
+        editorConfigOverride: EditorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
         ruleProviders: Set<RuleProvider> = emptySet(),
         ignoreKtlintSuppressionRule: Boolean = true,
     ) = ArrayList<LintError>().apply {
