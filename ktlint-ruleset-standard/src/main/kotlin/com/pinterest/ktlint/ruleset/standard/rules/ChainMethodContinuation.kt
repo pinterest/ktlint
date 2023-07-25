@@ -1,27 +1,23 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EXCLEXCL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SAFE_ACCESS
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.hasNewLineInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
-import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.noNewLineInOpenRange
-import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
-import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -52,47 +48,31 @@ public class ChainMethodContinuation :
     ) {
         val rightExpression = chainOperator.nextCodeSibling()?.firstChildLeafOrSelf() ?: return
         val previousEndBrace =
-            chainOperator
-                .prevLeaf { !it.isWhiteSpace() && it.elementType != EXCLEXCL && it.elementType != EOL_COMMENT && it.elementType != BLOCK_COMMENT }
-                ?.lastChildLeafOrSelf() ?: return
+            chainOperator.getPrevChainEndBrace() ?: return
         val previousExpressionBeforeBrace = previousEndBrace.prevCodeSibling()?.lastChildLeafOrSelf() ?: return
         val isPreviousChainElementMultiline =
             previousEndBrace.elementType == RBRACE &&
                 hasNewLineInClosedRange(previousExpressionBeforeBrace, previousEndBrace)
         if (hasNewLineInClosedRange(chainOperator, rightExpression)) {
-            emit(
-                chainOperator.textRange.endOffset,
-                "${
-                    getLeftAlighingTextAfterAligningBrace(
-                        isPreviousChainElementMultiline,
-                        previousEndBrace,
-                        chainOperator
-                    )
-                }${chainOperator.text} must merge at the start of next call",
-                true,
+            /*
+                Detects code like below
+                bar {
+                    ...
+                }.
+                foo() // unexpected new line after .
+
+                or
+                bar(). // expected newline before .
+                foo()
+             */
+            fixMisalignedChainOperator(
+                emit,
+                chainOperator,
+                isPreviousChainElementMultiline,
+                previousEndBrace,
+                autoCorrect,
+                rightExpression,
             )
-            if (autoCorrect) {
-                if (isPreviousChainElementMultiline) {
-                    /*
-                        Detects code like below
-                        bar {
-                            ...
-                        }.
-                        foo() // this should align with previous line }
-                     */
-                    chainOperator.treeParent.addChild(
-                        rightExpression.parent(ElementType.CALL_EXPRESSION)!!,
-                        chainOperator.nextLeaf()
-                    )
-                    rightExpression.parent(ElementType.CALL_EXPRESSION)!!.upsertWhitespaceAfterMe("")
-                } else {
-                    val indent = rightExpression.indent()
-//                    chainOperator.upsertWhitespaceBeforeMe(rightExpression.indent())
-                    val chainParent = rightExpression.prevLeaf(includeEmpty = true)!!.treeParent
-                    chainParent.replaceChild(rightExpression.prevLeaf(includeEmpty = true)!!, chainOperator)
-                    chainOperator.upsertWhitespaceBeforeMe(indent)
-                }
-            }
         } else if (previousEndBrace.elementType == RBRACE &&
             isPreviousChainElementMultiline &&
             !noNewLineInOpenRange(
@@ -107,42 +87,109 @@ public class ChainMethodContinuation :
                 }
                 .foo() // this should align with previous line }
              */
-            emit(
-                chainOperator.textRange.endOffset,
-                "${chainOperator.text} must must merge at the end of previous call",
-                true,
-            )
-            if (autoCorrect) {
-                chainOperator.upsertWhitespaceBeforeMe("")
-                var t = false
-                val list =
-                    chainOperator.leavesIncludingSelf().takeWhile {
-                        it.also {
-                            if (it.elementType !in listOf(EOL_COMMENT, BLOCK_COMMENT) && it != chainOperator) {
-                                t = true
-                            }
-                        }.elementType !in listOf(WHITE_SPACE, EOL_COMMENT, BLOCK_COMMENT) || !t
-                    }.toList()
-                val rightExpCode = list.joinToString("") { it.text }
-                list.forEach { it.treeParent.removeChild(it) }
-                val text = previousEndBrace.nextLeaf().takeIf { it?.elementType == WHITE_SPACE }?.text.orEmpty().split("\n")
-                    .joinToString("\n")
-                previousEndBrace.upsertWhitespaceAfterMe(rightExpCode + text)
-            }
+            fixMisalignedChain(emit, chainOperator, autoCorrect)
         }
     }
 
-    private fun getLeftAlighingTextAfterAligningBrace(
-        isLeftExpressionEndBraceInSeparateLine: Boolean,
+    private fun fixMisalignedChain(
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        chainOperator: ASTNode,
+        autoCorrect: Boolean,
+    ) {
+        emit(
+            chainOperator.textRange.endOffset,
+            getMisAlignedChainErrorMessage(chainOperator),
+            true,
+        )
+        if (autoCorrect) {
+            val prevMultilineWhiteSpace =
+                chainOperator.leafWithMultilineWhiteSpace(forward = false)
+            prevMultilineWhiteSpace.treeParent.removeChild(prevMultilineWhiteSpace)
+        }
+    }
+
+    private fun fixMisalignedChainOperator(
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        chainOperator: ASTNode,
+        isPreviousChainElementMultiline: Boolean,
+        previousEndBrace: ASTNode,
+        autoCorrect: Boolean,
+        rightExpression: ASTNode,
+    ) {
+        emit(
+            chainOperator.textRange.endOffset,
+            getWhenMisAlignedChainOperatorErrorMessage(
+                isPreviousChainElementMultiline,
+                previousEndBrace,
+                chainOperator,
+            ),
+            true,
+        )
+        if (autoCorrect) {
+            if (!isPreviousChainElementMultiline) {
+                val indent = rightExpression.indent()
+                chainOperator.upsertWhitespaceBeforeMe(indent)
+            }
+            val nextMultilineWhiteSpace =
+                chainOperator.leafWithMultilineWhiteSpace(forward = true)
+            nextMultilineWhiteSpace.treeParent.removeChild(nextMultilineWhiteSpace)
+        }
+    }
+
+    private fun getWhenMisAlignedChainOperatorErrorMessage(
+        isPreviousChainElementMultiline: Boolean,
         leftExpressionEndBrace: ASTNode,
-        chainOperator: ASTNode
-    ) = if (isLeftExpressionEndBraceInSeparateLine) {
-        leftExpressionEndBrace
-            .leavesIncludingSelf()
-            .takeWhile { it != chainOperator && !it.isWhiteSpace() }
-            .map { it.text }
-            .joinToString(separator = "")
-    } else {
-        ""
+        chainOperator: ASTNode,
+    ): String {
+        val expressionText =
+            if (isPreviousChainElementMultiline) {
+                leftExpressionEndBrace
+                    .leavesTillMultilineWhiteSpace(forward = true)
+                    .toList()
+                    .dropLast(1)
+                    .joinToString(separator = "") { it.text }
+            } else {
+                chainOperator.text
+            }
+
+        return if (isPreviousChainElementMultiline) {
+            "Unexpected newline after '$expressionText'"
+        } else {
+            "Expected newline before '$expressionText'"
+        }
+    }
+
+    private fun getMisAlignedChainErrorMessage(chainOperator: ASTNode): String {
+        val expressionText =
+            chainOperator
+                .leavesTillMultilineWhiteSpace(forward = false)
+                .toList()
+                .dropLast(1)
+                .reversed()
+                .joinToString(separator = "") { it.text }
+
+        return "Unexpected newline before '$expressionText'"
+    }
+
+    private fun ASTNode.leafWithMultilineWhiteSpace(forward: Boolean): ASTNode {
+        return leavesTillMultilineWhiteSpace(forward).last()
+    }
+
+    private fun ASTNode.leavesTillMultilineWhiteSpace(forward: Boolean) =
+        this.leavesIncludingSelf(forward)
+            .takeTill { it.isWhiteSpaceWithNewline() }
+
+    private fun ASTNode.getPrevChainEndBrace() =
+        prevLeaf { !it.isWhiteSpace() && it.elementType != EXCLEXCL && it.elementType != EOL_COMMENT && it.elementType != BLOCK_COMMENT }
+            ?.lastChildLeafOrSelf()
+
+    private fun <T> Sequence<T>.takeTill(predicate: (T) -> Boolean): Sequence<T> {
+        var conditionMet = false
+        return this.takeWhile { conditionMet.not() }.map {
+            if (predicate(it)) {
+                conditionMet = true
+            }
+            it
+        }
     }
 }

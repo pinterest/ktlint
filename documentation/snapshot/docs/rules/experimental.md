@@ -1224,7 +1224,7 @@ Rule id: `statement-wrapping`
 
 ### Chain method continuation
 
-In a multiline method chain, the chain operators (.or?.) have to be aligned with each other.
+In a multiline method chain, the chain operators (`.` or `?.`) have to be aligned with each other.
 
 === "[:material-heart:](#) Ktlint"
 
