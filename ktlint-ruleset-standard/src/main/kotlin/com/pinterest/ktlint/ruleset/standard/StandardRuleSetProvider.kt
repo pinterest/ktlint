@@ -21,6 +21,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.EnumWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.FilenameRule
 import com.pinterest.ktlint.ruleset.standard.rules.FinalNewlineRule
 import com.pinterest.ktlint.ruleset.standard.rules.FunKeywordSpacingRule
+import com.pinterest.ktlint.ruleset.standard.rules.FunctionExpressionBodyRule
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionLiteralRule
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionNamingRule
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionReturnTypeSpacingRule
@@ -106,6 +107,7 @@ public class StandardRuleSetProvider : RuleSetProviderV3(RuleSetId.STANDARD) {
             RuleProvider { EnumWrappingRule() },
             RuleProvider { FilenameRule() },
             RuleProvider { FinalNewlineRule() },
+            RuleProvider { FunctionExpressionBodyRule() },
             RuleProvider { FunctionLiteralRule() },
             RuleProvider { FunctionNamingRule() },
             RuleProvider { FunctionReturnTypeSpacingRule() },

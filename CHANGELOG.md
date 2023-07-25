@@ -6,7 +6,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
-* Add rule `class-signature`. This rule rewrites the class header to a consistent format. In code style `ktlint_official`, super types are always wrapped to a separate line. In other code styles, super types are only wrapped in classes having multiple super types. Especially for code style `ktlint_official` the class headers are rewritten in a more consistent format. See [examples in documentation](https://pinterest.github.io/ktlint/latest/rules/experimental/#class-signature). `class-signature` [#875](https://github.com/pinterest/ktlint/issues/1349), [#1349](https://github.com/pinterest/ktlint/issues/875)
+* Add experimental rule `class-signature`. This rule rewrites the class header to a consistent format. In code style `ktlint_official`, super types are always wrapped to a separate line. In other code styles, super types are only wrapped in classes having multiple super types. Especially for code style `ktlint_official` the class headers are rewritten in a more consistent format. See [examples in documentation](https://pinterest.github.io/ktlint/latest/rules/experimental/#class-signature). `class-signature` [#875](https://github.com/pinterest/ktlint/issues/1349), [#1349](https://github.com/pinterest/ktlint/issues/875)
+* Add experimental rule `function-expression-body`. This rule rewrites function bodies only contain a `return` or `throw` expression to an expression body. [#2150](https://github.com/pinterest/ktlint/issues/2150)
 
 ### Removed
 
@@ -34,7 +35,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 * Update dependency com.google.jimfs:jimfs to v1.3.0 ([#2112](https://github.com/pinterest/ktlint/pull/2112))
 * As a part of public API stabilization, configure `binary-compatibility-validator` plugin for compile-time verification of binary compatibility with previous `ktlint` versions ([#2131](https://github.com/pinterest/ktlint/pull/2131))
 * Update dependency org.junit.jupiter:junit-jupiter to v5.10.0 ([#2148](https://github.com/pinterest/ktlint/pull/2148))
-* 
+
 ## [0.50.0] - 2023-06-29
 
 ### Deprecation of ktlint-enable and ktlint-disable directives
