@@ -29,9 +29,7 @@ public class PatternEntry(
         return false
     }
 
-    internal fun matches(import: ImportPath): Boolean {
-        return matchesPackageName(import.pathStr.removeSuffix(".*"))
-    }
+    internal fun matches(import: ImportPath): Boolean = matchesPackageName(import.pathStr.removeSuffix(".*"))
 
     internal fun isBetterMatchForPackageThan(
         entry: PatternEntry?,

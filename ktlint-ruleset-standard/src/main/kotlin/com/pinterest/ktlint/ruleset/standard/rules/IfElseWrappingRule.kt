@@ -164,25 +164,14 @@ public class IfElseWrappingRule :
         }
     }
 
-//         private fun ASTNode.findFirstNodeInBlockToBeIndented(): ASTNode? {
-//            val blockOrSelf = findChildByType(BLOCK) ?: this
-//            return blockOrSelf
-//                .children()
-//                .find {
-//                    it.elementType != LBRACE &&
-//                        !it.isWhitespaceBeforeComment() &&
-//                        !it.isPartOfComment()
-//                }
-//        }
-    private fun ASTNode.findFirstNodeInBlockToBeIndented(): ASTNode? {
-        return findChildByType(BLOCK)
+    private fun ASTNode.findFirstNodeInBlockToBeIndented(): ASTNode? =
+        findChildByType(BLOCK)
             ?.children()
             ?.first {
                 it.elementType != LBRACE &&
                     !it.isWhitespaceBeforeComment() &&
                     !it.isPartOfComment()
             }
-    }
 
     private fun ASTNode.isWhitespaceBeforeComment() = isWhiteSpaceWithoutNewline() && nextLeaf()?.isPartOfComment() == true
 

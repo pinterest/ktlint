@@ -456,8 +456,8 @@ public class KtlintSuppressionRule(
     private fun ASTNode.createFileAnnotation(
         suppressType: SuppressAnnotationType,
         suppressions: Set<String>,
-    ): ASTNode {
-        return suppressions
+    ): ASTNode =
+        suppressions
             .sorted()
             .joinToString()
             .let { sortedSuppressions -> "@file:${suppressType.annotationName}($sortedSuppressions)" }
@@ -468,7 +468,6 @@ public class KtlintSuppressionRule(
                     ?.firstChild
                     ?: throw IllegalStateException("Can not create annotation '$annotation'")
             }.node
-    }
 
     private fun ASTNode.createFileAnnotationList(annotation: ASTNode) {
         require(isRoot()) { "File annotation list can only be created for root node" }

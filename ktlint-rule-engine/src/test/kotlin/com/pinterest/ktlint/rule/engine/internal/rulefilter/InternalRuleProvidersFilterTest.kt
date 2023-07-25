@@ -51,11 +51,10 @@ class InternalRuleProvidersFilterTest {
             node: ASTNode,
             autoCorrect: Boolean,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        ) {
+        ): Unit =
             throw UnsupportedOperationException(
                 "Rule should never be really invoked because that is not the aim of this unit test.",
             )
-        }
     }
 
     private fun Set<RuleProvider>.toRuleId() = map { it.ruleId }

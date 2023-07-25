@@ -204,12 +204,11 @@ internal class RuleExecutionContext private constructor(
             )
         }
 
-        private fun normalizeText(text: String): String {
-            return text
+        private fun normalizeText(text: String): String =
+            text
                 .replace("\r\n", "\n")
                 .replace("\r", "\n")
                 .replaceFirst(UTF8_BOM, "")
-        }
 
         private fun PsiElement.findErrorElement(): PsiErrorElement? {
             if (this is PsiErrorElement) {

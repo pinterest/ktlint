@@ -228,14 +228,13 @@ public class ArgumentListWrappingRule :
             else -> throw UnsupportedOperationException()
         }
 
-    private fun ASTNode.textContainsIgnoringLambda(char: Char): Boolean {
-        return children().any { child ->
+    private fun ASTNode.textContainsIgnoringLambda(char: Char): Boolean =
+        children().any { child ->
             val elementType = child.elementType
             elementType == ElementType.WHITE_SPACE && child.textContains(char) ||
                 elementType == ElementType.COLLECTION_LITERAL_EXPRESSION && child.textContains(char) ||
                 elementType == ElementType.VALUE_ARGUMENT && child.children().any { it.textContainsIgnoringLambda(char) }
         }
-    }
 
     private fun ASTNode.hasTypeArgumentListInFront(): Boolean =
         treeParent.children()

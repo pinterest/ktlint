@@ -143,10 +143,9 @@ public class ChainWrappingRule :
 
     private fun ASTNode.isInPrefixPosition() = treeParent?.treeParent?.elementType == PREFIX_EXPRESSION
 
-    private fun ASTNode.isElvisOperatorAndComment(): Boolean {
-        return elementType == ELVIS &&
+    private fun ASTNode.isElvisOperatorAndComment(): Boolean =
+        elementType == ELVIS &&
             leaves().takeWhile { it.isWhiteSpaceWithoutNewline() || it.isPartOfComment() }.any()
-    }
 }
 
 public val CHAIN_WRAPPING_RULE_ID: RuleId = ChainWrappingRule().ruleId

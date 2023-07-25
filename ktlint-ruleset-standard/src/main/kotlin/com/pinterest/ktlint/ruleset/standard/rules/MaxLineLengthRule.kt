@@ -146,20 +146,18 @@ private data class ParsedLine(
     val offset: Int,
     val elements: List<ASTNode>,
 ) {
-    fun lineLength(ignoreBackTickedIdentifier: Boolean): Int {
-        return if (ignoreBackTickedIdentifier) {
+    fun lineLength(ignoreBackTickedIdentifier: Boolean): Int =
+        if (ignoreBackTickedIdentifier) {
             line.length - totalLengthBacktickedElements()
         } else {
             line.length
         }
-    }
 
-    private fun totalLengthBacktickedElements(): Int {
-        return elements
+    private fun totalLengthBacktickedElements(): Int =
+        elements
             .filterIsInstance(PsiElement::class.java)
             .filter { it.text.matches(BACKTICKED_IDENTIFIER_REGEX) }
             .sumOf(PsiElement::getTextLength)
-    }
 
     private companion object {
         val BACKTICKED_IDENTIFIER_REGEX = Regex("`.*`")

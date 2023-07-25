@@ -198,13 +198,12 @@ public data class EditorConfig(
         }
     }
 
-    private fun Set<EditorConfigProperty<*>>.defaultProperties(): Map<String, Property> {
-        return associate { editorConfigProperty ->
+    private fun Set<EditorConfigProperty<*>>.defaultProperties(): Map<String, Property> =
+        associate { editorConfigProperty ->
             editorConfigProperty
                 .writeDefaultValue()
                 .let { editorConfigProperty.name to editorConfigProperty.toPropertyWithValue(it) }
         }
-    }
 
     private fun <T> EditorConfigProperty<T>.writeDefaultValue() = propertyWriter(getDefaultValue())
 

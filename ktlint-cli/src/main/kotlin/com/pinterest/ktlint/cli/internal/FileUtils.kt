@@ -134,15 +134,14 @@ internal fun FileSystem.fileSequence(
                     override fun preVisitDirectory(
                         dirPath: Path,
                         dirAttr: BasicFileAttributes,
-                    ): FileVisitResult {
-                        return if (Files.isHidden(dirPath)) {
+                    ): FileVisitResult =
+                        if (Files.isHidden(dirPath)) {
                             LOGGER.trace { "- Dir: $dirPath: Ignore" }
                             FileVisitResult.SKIP_SUBTREE
                         } else {
                             LOGGER.trace { "- Dir: $dirPath: Traverse" }
                             FileVisitResult.CONTINUE
                         }
-                    }
                 },
             )
         }

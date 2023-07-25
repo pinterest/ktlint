@@ -150,8 +150,8 @@ internal class RunAfterRuleFilter : RuleFilter {
     private fun Set<RuleProvider>.canRunWith(loadedRuleProviders: Set<RuleProvider>): Set<RuleProvider> =
         canRunWithRuleIds(loadedRuleProviders.map { it.ruleId }.toSet())
 
-    private fun Set<RuleProvider>.canRunWithRuleIds(loadedRuleIds: Set<RuleId>): Set<RuleProvider> {
-        return this
+    private fun Set<RuleProvider>.canRunWithRuleIds(loadedRuleIds: Set<RuleId>): Set<RuleProvider> =
+        this
             .filter { it.canRunWith(loadedRuleIds) }
             .let { unblockedRuleProviders ->
                 if (unblockedRuleProviders.isEmpty()) {
@@ -165,7 +165,6 @@ internal class RunAfterRuleFilter : RuleFilter {
                         .plus(unblockedRuleProviders)
                 }
             }.toSet()
-    }
 
     private fun RuleProvider.canRunWith(loadedRuleIds: Set<RuleId>): Boolean =
         this

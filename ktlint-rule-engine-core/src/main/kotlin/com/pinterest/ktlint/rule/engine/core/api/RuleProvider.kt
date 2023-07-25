@@ -28,9 +28,7 @@ public class RuleProvider private constructor(
     /**
      * Creates a new [Rule] instance.
      */
-    public fun createNewRuleInstance(): Rule {
-        return provider()
-    }
+    public fun createNewRuleInstance(): Rule = provider()
 
     /**
      * Lambda which creates a new instance of the [Rule]. Important: to ensure that a [Rule] can keep internal state and that processing of
