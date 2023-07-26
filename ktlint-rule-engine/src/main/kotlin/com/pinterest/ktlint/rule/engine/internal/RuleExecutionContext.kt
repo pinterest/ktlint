@@ -139,7 +139,7 @@ internal class RuleExecutionContext private constructor(
                 }
         }
         suppressHandler.handle(node, rule.ruleId) { autoCorrect, emit ->
-            rule.afterVisitChildNodes(node, autoCorrect, emit)
+            rule.afterNode(node, autoCorrect, emit)
         }
     }
 
