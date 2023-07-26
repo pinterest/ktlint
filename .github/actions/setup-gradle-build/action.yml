@@ -5,6 +5,9 @@ inputs:
   gradle-jvm-args:
     description: "JVM args to pass to Gradle"
     required: true
+    # Github-Hosted nodes have only 7GB of RAM available. Looking at build scans Gradle process requires slightly more than 0.5GB.
+    # Keeping this setting low, allows other, forked JVM processes (like tests) to use remaining memory.
+    # Increase this value, only if GC time visible in build scans will take more than a few seconds.
     default: "-Xmx1g"
   additional-java-versions:
     description: "Java versions installed on the side of the default Java version required by the build"
@@ -21,7 +24,11 @@ runs:
           ${{ inputs.additional-java-versions }}
           20
 
-    - name: Write Gradle build properties to local `gradle.properties`
+      # Please note these settings will override the ones set via `gradle.properties` committed to the repository - https://docs.gradle.org/current/userguide/build_environment.html#sec:gradle_configuration_properties
+      # List of optimizations:
+      # - `jvm-args` fine-tuned to the CI runner & tasks being invoked
+      # - disabled File System Watching to improve Windows build times. CI runs don't modify source files, hence they don't need to pay extra cost to efficiently track changed files.
+    - name: Optimize Gradle build properties for CI
       run: |
         mkdir -p ~/.gradle
         printf "org.gradle.jvmargs=${{ inputs.gradle-jvm-args }}\n" >> ~/.gradle/gradle.properties
