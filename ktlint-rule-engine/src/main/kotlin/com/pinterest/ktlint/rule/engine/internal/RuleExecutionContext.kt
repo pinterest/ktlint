@@ -122,7 +122,7 @@ internal class RuleExecutionContext private constructor(
         suppressHandler: SuppressHandler,
     ) {
         suppressHandler.handle(node, rule.ruleId) { autoCorrect, emit ->
-            rule.beforeVisitChildNodes(node, autoCorrect, emit)
+            rule.beforeNode(node, autoCorrect, emit)
         }
         if (rule.shouldContinueTraversalOfAST()) {
             node

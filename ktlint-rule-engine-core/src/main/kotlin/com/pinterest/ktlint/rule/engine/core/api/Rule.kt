@@ -1,9 +1,14 @@
 package com.pinterest.ktlint.rule.engine.core.api
 
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.IF
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.internal.IdNamingPolicy
+import com.pinterest.ktlint.rule.engine.core.util.safeAs
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.psi.KtIfExpression
+import org.jetbrains.kotlin.psi.KtWhenExpression
 
 public data class RuleId(
     public val value: String,
@@ -86,8 +91,62 @@ public open class Rule(
     public open fun beforeFirstNode(editorConfig: EditorConfig) {}
 
     /**
-     * This method is called on a node in AST before visiting the child nodes. This is repeated recursively for the
-     * child nodes resulting in a depth first traversal of the AST.
+     * This method is called on a node in AST before visiting the child nodes. This is repeated recursively for the child nodes resulting in
+     * a depth first traversal of the AST. If the node can be transformed to a known Kt-type (for example [KtIfExpression], the call is
+     * dispatched to the visit method [beforeIfExpression] for that specific type. Otherwise, the node is dispatched to the default handler
+     * [beforeVisitChildNodes].
+     *
+     * This method is not `open` as it dispatches the visit of a node based on its element type.
+     *
+     * @param node AST node
+     * @param autoCorrect indicates whether rule should attempt autocorrection
+     * @param emit a way for rule to notify about a violation (lint error)
+     */
+    public fun beforeNode(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+    ) {
+        when(node.elementType) {
+            IF ->
+                node.psi.safeAs<KtIfExpression>()?.let { return beforeIfExpression(it, autoCorrect, emit) }
+            WHEN ->
+                node.psi.safeAs<KtWhenExpression>()?.let { return beforeWhen(it, autoCorrect, emit) }
+        }
+        // In case no mapping exists for the element type, or if the PSI of the node could not safely be cast to the Kt-type, then fall back
+        // on the generic handler.
+        beforeVisitChildNodes(node, autoCorrect, emit)
+    }
+
+    /**
+     * This method is called on a node in AST before visiting the child nodes. This is repeated recursively for the child nodes resulting in
+     * a depth first traversal of the AST. Note: this method won't be called for a node for which the visit method of the type of that node
+     * has been overridden in the rule.
+     *
+     * ```
+     * class ExampleRule(...) {
+     *     override fun beforeIfExpression(
+     *         ktIfExpression: KtIfExpression,
+     *         autoCorrect: Boolean,
+     *         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+     *     ) {
+     *         // Only called for nodes having element type 'IF'
+     *     }
+
+     *     override fun beforeWhenExpression(...) {
+     *         // Only called for nodes having element type 'WHEN'
+     *     }
+     *
+     *     override fun beforeVisitChildNodes(
+     *         node: ASTNode,
+     *         autoCorrect: Boolean,
+     *         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+     *     ) {
+     *         // Called for nodes of other types than 'IF' and 'WHEN' because the 'beforeIfExpression' and 'beforeWhenExpression' are
+     *         // overridden.
+     *     }
+     * }
+     * ```
      *
      * @param node AST node
      * @param autoCorrect indicates whether rule should attempt autocorrection
@@ -98,6 +157,36 @@ public open class Rule(
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {}
+
+    /**
+     * This method is called on a node of element type 'IF' in the AST before visiting the child nodes.
+     *
+     * @param ktIfExpression the [KtIfExpression] of a node with element type 'WHEN'
+     * @param autoCorrect indicates whether rule should attempt autocorrection
+     * @param emit a way for rule to notify about a violation (lint error)
+     */
+    @Suppress("unused")
+    public open fun beforeIfExpression(
+        ktIfExpression: KtIfExpression,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+    ): Unit =
+        beforeVisitChildNodes(ktIfExpression.node, autoCorrect, emit)
+
+    /**
+     * This method is called on a node of element type 'WHEN' in the AST before visiting the child nodes.
+     *
+     * @param ktWhenExpression the [KtWhenExpression] of a node with element type 'WHEN'
+     * @param autoCorrect indicates whether rule should attempt autocorrection
+     * @param emit a way for rule to notify about a violation (lint error)
+     */
+    @Suppress("unused")
+    public open fun beforeWhen(
+        ktWhenExpression: KtWhenExpression,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+    ): Unit =
+        beforeVisitChildNodes(ktWhenExpression.node, autoCorrect, emit)
 
     /**
      * This method is called on a node in AST after all its child nodes have been visited.
