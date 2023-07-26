@@ -49,3 +49,24 @@ jobs:
         run: ./gradlew build ktlintCheck --no-configuration-cache
       - name: Build with dev Kotlin version
         run: ./gradlew -PkotlinDev build ktlintCheck --no-configuration-cache
+
+      - name: Check `data class`es are not part of public API
+        run: |
+          found=0
+
+          # Loop through all .api files in the current directory and subdirectories
+          for file in $(find . -type f -name "*.api" ! -path "*/build/*"); do
+              # Check if the file contains the 'data class' specific text
+              if grep -q "public static synthetic fun copy$default" "$file"; then
+                  echo "public 'data class' found in: $file"
+                  found=1
+              fi
+          done
+
+          if [ $found -eq 0 ]; then
+              exit 0
+          else
+              echo "data classes found in one or more .api files. Visit https://github.com/pinterest/ktlint/issues/2133 for more details"
+              exit 1
+          fi
+        shell: bash
