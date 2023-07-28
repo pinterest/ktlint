@@ -173,9 +173,11 @@ public class ImportOrderingRule :
 
     private fun isCustomLayout() = importsLayout != IDEA_PATTERN && importsLayout != ASCII_PATTERN
 
-    private fun hasTooMuchWhitespace(nodes: Array<ASTNode>): Boolean {
-        return nodes.any { it is PsiWhiteSpace && (it as PsiWhiteSpace).text != "\n" }
-    }
+    private fun hasTooMuchWhitespace(nodes: Array<ASTNode>): Boolean =
+        nodes.any {
+            it is PsiWhiteSpace &&
+                (it as PsiWhiteSpace).text != "\n"
+        }
 
     public companion object {
         /**

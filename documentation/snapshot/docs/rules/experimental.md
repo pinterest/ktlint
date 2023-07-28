@@ -434,6 +434,55 @@ This rule is only run when `ktlint_code_style` is set to `ktlint_official` or wh
 
 ## Function signature
 
+Rewrites a function body only containing a `return` or `throw` expression to an expression body.
+
+!!! note:
+    If the function body contains a comment, it is not rewritten to an expression body.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun foo1() = "foo"
+    fun foo2(): String = "foo"
+    fun foo3(): Unit = throw IllegalArgumentException("some message")
+    fun foo4(): Foo = throw IllegalArgumentException("some message")
+    fun foo5() {
+        return "foo" // some comment
+    }
+    fun foo6(): String {
+        /* some comment */
+        return "foo"
+    }
+    fun foo7() {
+        throw IllegalArgumentException("some message")
+        /* some comment */
+    }
+    fun foo8(): Foo {
+        throw IllegalArgumentException("some message")
+        // some comment
+    }
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun foo1() {
+        return "foo"
+    }
+    fun foo2(): String {
+        return "foo"
+    }
+    fun foo3() {
+        throw IllegalArgumentException("some message")
+    }
+    fun foo4(): Foo {
+        throw IllegalArgumentException("some message")
+    }
+    ```
+
+Rule id: `function-expression-body` (`standard` rule set)
+
+## Function signature
+
 Rewrites the function signature to a single line when possible (e.g. when not exceeding the `max_line_length` property) or a multiline signature otherwise. In case of function with a body expression, the body expression is placed on the same line as the function signature when not exceeding the `max_line_length` property. Optionally the function signature can be forced to be written as a multiline signature in case the function has more than a specified number of parameters (`.editorconfig` property `ktlint_function_signature_wrapping_rule_always_with_minimum_parameters`)
 
 === "[:material-heart:](#) Ktlint"

@@ -253,8 +253,8 @@ public class ParameterListSpacingRule :
         }
     }
 
-    private fun ASTNode.getPrecedingModifier(): ASTNode? {
-        return prevCodeSibling()
+    private fun ASTNode.getPrecedingModifier(): ASTNode? =
+        prevCodeSibling()
             ?.let { prevCodeSibling ->
                 if (prevCodeSibling.elementType == MODIFIER_LIST) {
                     prevCodeSibling.lastChildNode
@@ -263,7 +263,6 @@ public class ParameterListSpacingRule :
                     prevCodeSibling
                 }
             }
-    }
 
     private fun ASTNode?.isTypeReferenceWithModifierList() =
         null !=

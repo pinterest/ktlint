@@ -468,10 +468,9 @@ class RuleProviderSorterTest {
             node: ASTNode,
             autoCorrect: Boolean,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        ) {
+        ): Unit =
             throw UnsupportedOperationException(
                 "Rule should never be really invoked because that is not the aim of this unit test.",
             )
-        }
     }
 }

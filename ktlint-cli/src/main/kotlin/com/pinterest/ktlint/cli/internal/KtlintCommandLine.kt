@@ -651,28 +651,18 @@ internal class KtlintCommandLine {
     ) {
         val pill =
             object : Future<T> {
-                override fun isDone(): Boolean {
-                    throw UnsupportedOperationException()
-                }
+                override fun isDone(): Boolean = throw UnsupportedOperationException()
 
                 override fun get(
                     timeout: Long,
                     unit: TimeUnit,
-                ): T {
-                    throw UnsupportedOperationException()
-                }
+                ): T = throw UnsupportedOperationException()
 
-                override fun get(): T {
-                    throw UnsupportedOperationException()
-                }
+                override fun get(): T = throw UnsupportedOperationException()
 
-                override fun cancel(mayInterruptIfRunning: Boolean): Boolean {
-                    throw UnsupportedOperationException()
-                }
+                override fun cancel(mayInterruptIfRunning: Boolean): Boolean = throw UnsupportedOperationException()
 
-                override fun isCancelled(): Boolean {
-                    throw UnsupportedOperationException()
-                }
+                override fun isCancelled(): Boolean = throw UnsupportedOperationException()
             }
         val q = ArrayBlockingQueue<Future<T>>(numberOfThreads)
         val producer =

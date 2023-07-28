@@ -573,8 +573,8 @@ public class KtLintAssertThatAssertable(
             .containsExactlyInAnyOrder(*expectedLintViolationFields.toTypedArray())
     }
 
-    private fun Array<out LintViolation>.toLintViolationsFields(): Array<LintViolationFields> {
-        return map {
+    private fun Array<out LintViolation>.toLintViolationsFields(): Array<LintViolationFields> =
+        map {
             LintViolationFields(
                 line = it.line,
                 col = it.col,
@@ -583,7 +583,6 @@ public class KtLintAssertThatAssertable(
             )
         }.distinct()
             .toTypedArray()
-    }
 
     private fun Set<LintError>.filterAdditionalRulesOnly() = filter { it.ruleId != ruleId }.toSet()
 
