@@ -17,4 +17,5 @@ dependencies {
         }
     implementation(kotlinPlugin)
     implementation(libs.dokka)
+    implementation(libs.poko)
 }

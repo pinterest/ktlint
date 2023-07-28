@@ -342,11 +342,7 @@ public final class com/pinterest/ktlint/rule/engine/core/api/IndentConfig {
 	public fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle;I)V
 	public fun <init> (Lorg/ec4j/core/model/PropertyType$IndentStyleValue;I)V
 	public final fun childIndentOf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Ljava/lang/String;
-	public final fun component1 ()Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle;
-	public final fun component2 ()I
 	public final fun containsUnexpectedIndentChar (Ljava/lang/String;)Z
-	public final fun copy (Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle;I)Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig;
-	public static synthetic fun copy$default (Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig;Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle;IILjava/lang/Object;)Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getDisabled ()Z
 	public final fun getIndent ()Ljava/lang/String;
@@ -394,11 +390,6 @@ public final class com/pinterest/ktlint/rule/engine/core/api/Rule$About {
 	public fun <init> ()V
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/lang/String;
-	public final fun component3 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/pinterest/ktlint/rule/engine/core/api/Rule$About;
-	public static synthetic fun copy$default (Lcom/pinterest/ktlint/rule/engine/core/api/Rule$About;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/pinterest/ktlint/rule/engine/core/api/Rule$About;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getIssueTrackerUrl ()Ljava/lang/String;
 	public final fun getMaintainer ()Ljava/lang/String;
@@ -418,10 +409,6 @@ public abstract class com/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModi
 
 public final class com/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule : com/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier {
 	public fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;)V
-	public final fun component1 ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
-	public final fun component2 ()Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;
-	public final fun copy (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;)Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule;
-	public static synthetic fun copy$default (Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule;Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;ILjava/lang/Object;)Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getMode ()Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;
 	public final fun getRuleId ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
@@ -443,9 +430,6 @@ public final class com/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifie
 public final class com/pinterest/ktlint/rule/engine/core/api/RuleId {
 	public static final field Companion Lcom/pinterest/ktlint/rule/engine/core/api/RuleId$Companion;
 	public fun <init> (Ljava/lang/String;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;)Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
-	public static synthetic fun copy$default (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Ljava/lang/String;ILjava/lang/Object;)Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getRuleSetId ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleSetId;
 	public final fun getValue ()Ljava/lang/String;
@@ -477,9 +461,6 @@ public final class com/pinterest/ktlint/rule/engine/core/api/RuleProviderKt {
 public final class com/pinterest/ktlint/rule/engine/core/api/RuleSetId {
 	public static final field Companion Lcom/pinterest/ktlint/rule/engine/core/api/RuleSetId$Companion;
 	public fun <init> (Ljava/lang/String;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;)Lcom/pinterest/ktlint/rule/engine/core/api/RuleSetId;
-	public static synthetic fun copy$default (Lcom/pinterest/ktlint/rule/engine/core/api/RuleSetId;Ljava/lang/String;ILjava/lang/Object;)Lcom/pinterest/ktlint/rule/engine/core/api/RuleSetId;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getValue ()Ljava/lang/String;
 	public fun hashCode ()I
@@ -510,8 +491,6 @@ public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/Editor
 	public fun <init> ([Lorg/ec4j/core/model/Property;)V
 	public final fun addPropertiesWithDefaultValueIfMissing ([Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;
 	public final fun contains (Ljava/lang/String;)Z
-	public final fun copy (Ljava/util/Map;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;
-	public static synthetic fun copy$default (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;Ljava/util/Map;ILjava/lang/Object;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun filterBy (Ljava/util/Set;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;
 	public final fun get (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;)Ljava/lang/Object;
@@ -524,18 +503,6 @@ public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/Editor
 public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty {
 	public fun <init> (Lorg/ec4j/core/model/PropertyType;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 	public synthetic fun <init> (Lorg/ec4j/core/model/PropertyType;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Lorg/ec4j/core/model/PropertyType;
-	public final fun component10 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/lang/Object;
-	public final fun component3 ()Ljava/lang/Object;
-	public final fun component4 ()Ljava/lang/Object;
-	public final fun component5 ()Ljava/lang/Object;
-	public final fun component6 ()Lkotlin/jvm/functions/Function2;
-	public final fun component7 ()Lkotlin/jvm/functions/Function1;
-	public final fun component8 ()Ljava/lang/String;
-	public final fun component9 ()Ljava/lang/String;
-	public final fun copy (Lorg/ec4j/core/model/PropertyType;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
-	public static synthetic fun copy$default (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;Lorg/ec4j/core/model/PropertyType;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getAndroidStudioCodeStyleDefaultValue ()Ljava/lang/Object;
 	public final fun getDefaultValue ()Ljava/lang/Object;

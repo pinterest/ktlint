@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 * Add rule `class-signature`. This rule rewrites the class header to a consistent format. In code style `ktlint_official`, super types are always wrapped to a separate line. In other code styles, super types are only wrapped in classes having multiple super types. Especially for code style `ktlint_official` the class headers are rewritten in a more consistent format. See [examples in documentation](https://pinterest.github.io/ktlint/latest/rules/experimental/#class-signature). `class-signature` [#875](https://github.com/pinterest/ktlint/issues/1349), [#1349](https://github.com/pinterest/ktlint/issues/875)
 
 ### Removed
+* As a part of public API stabilization, data classes are no longer used in the public API. As of that, functions like `copy()` or `componentN()` (used for destructuring declarations) are not available anymore. This is a binary incompatible change, breaking backwards compatibility. ([#2133](https://github.com/pinterest/ktlint/issues/2133))
 
 ### Fixed
 

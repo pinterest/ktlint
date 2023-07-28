@@ -1,12 +1,5 @@
 public final class com/pinterest/ktlint/cli/reporter/core/api/KtlintCliError : java/io/Serializable {
 	public fun <init> (IILjava/lang/String;Ljava/lang/String;Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError$Status;)V
-	public final fun component1 ()I
-	public final fun component2 ()I
-	public final fun component3 ()Ljava/lang/String;
-	public final fun component4 ()Ljava/lang/String;
-	public final fun component5 ()Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError$Status;
-	public final fun copy (IILjava/lang/String;Ljava/lang/String;Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError$Status;)Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError;
-	public static synthetic fun copy$default (Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError;IILjava/lang/String;Ljava/lang/String;Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError$Status;ILjava/lang/Object;)Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getCol ()I
 	public final fun getDetail ()Ljava/lang/String;

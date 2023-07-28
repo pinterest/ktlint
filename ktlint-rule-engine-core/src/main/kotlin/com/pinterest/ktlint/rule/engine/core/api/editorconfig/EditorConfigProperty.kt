@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.rule.engine.core.api.editorconfig
 
+import dev.drewhamilton.poko.Poko
 import org.ec4j.core.model.Property
 import org.ec4j.core.model.PropertyType
 
@@ -14,7 +15,8 @@ import org.ec4j.core.model.PropertyType
  * - Kotlin specific properties defined
  *   [here](https://github.com/JetBrains/kotlin/blob/master/idea/formatter/src/org/jetbrains/kotlin/idea/core/formatter/KotlinCodeStyleSettings.java)
  */
-public data class EditorConfigProperty<T>(
+@Poko
+public class EditorConfigProperty<T>(
     /**
      * Type of property. Could be one of default ones (see [PropertyType.STANDARD_TYPES]) or custom one.
      */
@@ -71,11 +73,11 @@ public data class EditorConfigProperty<T>(
     /**
      * Optional message to be displayed whenever the value of the property is being retrieved while it has been deprecated.
      */
-    val deprecationWarning: String? = null,
+    public val deprecationWarning: String? = null,
     /**
      * Optional message to be displayed whenever the value of the property is being retrieved while it has been deprecated.
      */
-    val deprecationError: String? = null,
+    public val deprecationError: String? = null,
     /**
      * Name of the property. A property must be named in case multiple properties are defined for the same type.
      * Defaults to the name of the type when not set.

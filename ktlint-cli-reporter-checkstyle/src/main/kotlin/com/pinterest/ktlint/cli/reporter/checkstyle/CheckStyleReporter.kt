@@ -26,11 +26,13 @@ public class CheckStyleReporter(
         out.println("""<checkstyle version="8.0">""")
         for ((file, errList) in acc.entries.sortedBy { it.key }) {
             out.println("""    <file name="${file.escapeXMLAttrValue()}">""")
-            for ((line, col, ruleId, detail) in errList) {
-                val message = detail.escapeXMLAttrValue()
-                out.println(
-                    """        <error line="$line" column="$col" severity="error" message="$message" source="$ruleId" />""",
-                )
+            for (err in errList) {
+                with(err) {
+                    val message = detail.escapeXMLAttrValue()
+                    out.println(
+                        """        <error line="$line" column="$col" severity="error" message="$message" source="$ruleId" />""",
+                    )
+                }
             }
             out.println("""    </file>""")
         }

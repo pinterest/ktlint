@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.cli.reporter.core.api
 
+import dev.drewhamilton.poko.Poko
 import java.io.Serializable
 
 /**
@@ -11,12 +12,13 @@ import java.io.Serializable
  * [detail]: error message
  * [status]: status of error
  */
-public data class KtlintCliError(
-    val line: Int,
-    val col: Int,
-    val ruleId: String,
-    val detail: String,
-    val status: Status,
+@Poko
+public class KtlintCliError(
+    public val line: Int,
+    public val col: Int,
+    public val ruleId: String,
+    public val detail: String,
+    public val status: Status,
 ) : Serializable {
     public enum class Status {
         /**
