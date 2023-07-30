@@ -73,7 +73,7 @@ When using Ktlint CLI, you may pass a list of disabled rules via the `--disabled
 
 ## Why is `.editorconfig` property `disabled_rules` deprecated and how do I resolve this?
 
-The `.editorconfig` properties `disabled_rules` and `ktlint_disabled_rules` are deprecated as of KtLint version `0.48` and are removed in version `0.49`. Those properties contain a comma separated list of rules which are disabled. Using a comma separated list of values has some disadvantages.
+The `.editorconfig` properties `disabled_rules` and `ktlint_disabled_rules` have been removed in version `0.49`. Those properties contain a comma separated list of rules which are disabled. Using a comma separated list of values has some disadvantages.
 
 A big disadvantage is that it is not possible to override the property partially in an `.editorconfig` file in a subpackage. Another disadvantage is that it is not possible to express explicitly that a rule is enabled. Lastly, (qualified) rule ids can be 20 characters or longer, which makes a list with multiple entries hard to read.
 
@@ -146,7 +146,7 @@ kotlinFile.writeText(
 
 # Are formatter tags respected?
 
-As of version `0.49.x` the formatter tags of IntelliJ IDEA are respected. By default, those formatter tags are disabled. The formatter tags can be enabled with `.editorconfig` properties below:
+The formatter tags of IntelliJ IDEA are respected. By default, those formatter tags are disabled. The formatter tags can be enabled with `.editorconfig` properties below:
 ```editorconfig
 ij_formatter_tags_enabled = true # Defaults to 'false'
 ij_formatter_off_tag = some-custom-off-tag # Defaults to '@formatter:off'
