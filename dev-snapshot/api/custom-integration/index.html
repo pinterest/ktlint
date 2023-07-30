@@ -954,10 +954,6 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 
 
 <h1 id="custom-integration">Custom integration<a class="headerlink" href="#custom-integration" title="Permanent link">&para;</a></h1>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>This page is based on Ktlint <code>0.49.x</code> which has to be released. Most concepts are also applicable for <code>0.48.x</code>.  </p>
-</div>
 <h2 id="ktlint-rule-engine">Ktlint Rule Engine<a class="headerlink" href="#ktlint-rule-engine" title="Permanent link">&para;</a></h2>
 <p>The <code>Ktlint Rule Engine</code> is the central entry point for custom integrations with the <code>Ktlint API</code>. See <a href="https://github.com/pinterest/ktlint/blob/master/ktlint-api-consumer/src/main/kotlin/com/example/ktlint/api/consumer/KtlintApiConsumer.kt">basic API Consumer</a> for a basic example on how to invoke the <code>Ktlint Rule Engine</code>. This example also explains how the logging of the <code>Ktlint Rule Engine</code> can be configured to your needs.</p>
 <p>The <code>KtLintRuleEngine</code> instance only needs to be created once for the entire lifetime of your application. Reusing the same instance results in better performance due to caching. </p>

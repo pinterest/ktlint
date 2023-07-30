@@ -832,7 +832,7 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 
   <h1>Code styles</h1>
 
-<p>In ktlint <code>0.49</code> the new code style <code>ktlint_official</code> is introduced. This code style is work in progress but will become the default code style in the <code>1.0</code> release. Please try out the new code style and provide your feedback via the <a href="https://github.com/pinterest/ktlint/issues">issue tracker</a>.</p>
+<p>The code style <code>ktlint_official</code> is first introduced in version <code>0.49</code>. This code style is work in progress but will become the default code style in the <code>1.0</code> release. Please try out the new code style and provide your feedback via the <a href="https://github.com/pinterest/ktlint/issues">issue tracker</a>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">[*.{kt,kts}]</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="na">ktlint_code_style</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">ktlint_official</span>
 </code></pre></div>
@@ -844,7 +844,7 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 <p>The existing code styles have been renamed to make more clear what the basis of the code style is.</p>
 <ul>
 <li>
-<p>The <code>official</code> code style has been renamed to <code>intellij_idea</code>. Code formatted with this code style aims to be compatible with default formatter of IntelliJ IDEA. This code style is based on <a href="https://kotlinlang.org/docs/coding-conventions.html">Kotlin Coding conventions</a>. If <code>.editorconfig</code> property <code>ktlint_code_style</code> has been set to <code>official</code> then do not forget to change the value of that property to <code>intellij_idea</code>. When not set, this is still the default code style of ktlint <code>0.49</code>. Be aware that the default code style will be changed to <code>ktlint_official</code> in the <code>1.0</code> release.</p>
+<p>The <code>official</code> code style has been renamed to <code>intellij_idea</code>. Code formatted with this code style aims to be compatible with default formatter of IntelliJ IDEA. This code style is based on <a href="https://kotlinlang.org/docs/coding-conventions.html">Kotlin Coding conventions</a>. If <code>.editorconfig</code> property <code>ktlint_code_style</code> has been set to <code>official</code> then do not forget to change the value of that property to <code>intellij_idea</code>. When not set, this is the default code style. Be aware that the default code style will be changed to <code>ktlint_official</code> in the <code>1.0</code> release.</p>
 </li>
 <li>
 <p>Code style <code>android</code> has been renamed to <code>android_studio</code>. Code formatted with this code style aims to be compatible with default formatter of Android Studio. This code style is based on <a href="https://developer.android.com/kotlin/style-guide">Android's Kotlin styleguide</a>. If <code>.editorconfig</code> property <code>ktlint_code_style</code> has been set to <code>android</code> then do not forget to change the value of that property to <code>android_studio</code>.</p>
