@@ -18,9 +18,6 @@ ktlint_code_style = ktlint_official
 
 ## Disabled rules
 
-!!! note
-    Support of properties `disabled_rules` and `ktlint_disabled_rules` has been removed in KtLint `0.49`.
-
 Rule sets and individual rules can be disabled / enabled with a separate property per rule (set).
 
 All rules in a rule set can be enabled or disabled with a rule set property. The name of the rule set property consists of the `ktlint_` prefix followed by the rule set id. Examples:
