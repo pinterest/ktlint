@@ -1,8 +1,5 @@
 # Custom integration
 
-!!! warning
-    This page is based on Ktlint `0.49.x` which has to be released. Most concepts are also applicable for `0.48.x`.  
-
 ## Ktlint Rule Engine
 
 The `Ktlint Rule Engine` is the central entry point for custom integrations with the `Ktlint API`. See [basic API Consumer](https://github.com/pinterest/ktlint/blob/master/ktlint-api-consumer/src/main/kotlin/com/example/ktlint/api/consumer/KtlintApiConsumer.kt) for a basic example on how to invoke the `Ktlint Rule Engine`. This example also explains how the logging of the `Ktlint Rule Engine` can be configured to your needs.
