@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.cli.internal
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.kotlin.util.prefixIfNot
 import java.io.File
 import java.nio.file.FileSystem

@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.rule.engine.internal
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.ec4j.core.Resource
 import org.ec4j.core.ResourcePropertiesService
 import org.jetbrains.kotlin.konan.file.File

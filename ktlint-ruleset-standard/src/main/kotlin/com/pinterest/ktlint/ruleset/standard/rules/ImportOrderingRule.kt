@@ -11,7 +11,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.ImportOrderingRule.Companion.
 import com.pinterest.ktlint.ruleset.standard.rules.internal.importordering.ImportSorter
 import com.pinterest.ktlint.ruleset.standard.rules.internal.importordering.PatternEntry
 import com.pinterest.ktlint.ruleset.standard.rules.internal.importordering.parseImportsLayout
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
