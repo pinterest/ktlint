@@ -17,7 +17,7 @@
         <link rel="next" href="../contributing/overview/">
       
       <link rel="icon" href="../assets/images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.17">
+      <meta name="generator" content="mkdocs-1.5.1, mkdocs-material-9.1.21">
     
     
       
@@ -25,7 +25,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.26e3688c.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.eebd395e.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.ecc896b0.min.css">
@@ -809,6 +809,13 @@ You're not viewing the latest version.
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#how-do-i-disable-ktlint-for-generated-code" class="md-nav__link">
+    How do I disable ktlint for generated code?
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -997,6 +1004,13 @@ You're not viewing the latest version.
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#how-do-i-disable-ktlint-for-generated-code" class="md-nav__link">
+    How do I disable ktlint for generated code?
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1074,7 +1088,7 @@ You're not viewing the latest version.
 <h2 id="how-do-i-globally-disable-a-rule-without-editorconfig">How do I globally disable a rule without <code>.editorconfig</code>?<a class="headerlink" href="#how-do-i-globally-disable-a-rule-without-editorconfig" title="Permanent link">&para;</a></h2>
 <p>When using Ktlint CLI, you may pass a list of disabled rules via the <code>--disabled_rules</code> command line flag. The value is a comma separated list of rule id's that have to be disabled. The rule id must be fully qualified (e.g. must be prefixed with the rule set id). </p>
 <h2 id="why-is-editorconfig-property-disabled_rules-deprecated-and-how-do-i-resolve-this">Why is <code>.editorconfig</code> property <code>disabled_rules</code> deprecated and how do I resolve this?<a class="headerlink" href="#why-is-editorconfig-property-disabled_rules-deprecated-and-how-do-i-resolve-this" title="Permanent link">&para;</a></h2>
-<p>The <code>.editorconfig</code> properties <code>disabled_rules</code> and <code>ktlint_disabled_rules</code> are deprecated as of KtLint version <code>0.48</code> and are removed in version <code>0.49</code>. Those properties contain a comma separated list of rules which are disabled. Using a comma separated list of values has some disadvantages.</p>
+<p>The <code>.editorconfig</code> properties <code>disabled_rules</code> and <code>ktlint_disabled_rules</code> have been removed in version <code>0.49</code>. Those properties contain a comma separated list of rules which are disabled. Using a comma separated list of values has some disadvantages.</p>
 <p>A big disadvantage is that it is not possible to override the property partially in an <code>.editorconfig</code> file in a subpackage. Another disadvantage is that it is not possible to express explicitly that a rule is enabled. Lastly, (qualified) rule ids can be 20 characters or longer, which makes a list with multiple entries hard to read.</p>
 <p>Starting with KtLint <code>0.48</code> entire rule sets and individual rules can be disabled / enabled with a separate property per rule (set). Examples:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>ktlint_standard = disabled # Disable all rules from the `standard` rule set provided by KtLint
@@ -1133,12 +1147,21 @@ and send the generated code as <code>String</code> to KtLint inside a <code>Code
 <a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="p">)</span>
 </code></pre></div></p>
 <h1 id="are-formatter-tags-respected">Are formatter tags respected?<a class="headerlink" href="#are-formatter-tags-respected" title="Permanent link">&para;</a></h1>
-<p>As of version <code>0.49.x</code> the formatter tags of IntelliJ IDEA are respected. By default, those formatter tags are disabled. The formatter tags can be enabled with <code>.editorconfig</code> properties below:
+<p>The formatter tags of IntelliJ IDEA are respected. By default, those formatter tags are disabled. The formatter tags can be enabled with <code>.editorconfig</code> properties below:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>ij_formatter_tags_enabled = true # Defaults to &#39;false&#39;
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>ij_formatter_off_tag = some-custom-off-tag # Defaults to &#39;@formatter:off&#39;
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>ij_formatter_on_tag = some-custom-on-tag # Defaults to &#39;@formatter:on&#39;
 </code></pre></div></p>
 <p>When enabled, the ktlint rule checking is disabled for all code surrounded by the formatter tags.</p>
+<h1 id="how-do-i-disable-ktlint-for-generated-code">How do I disable ktlint for generated code?<a class="headerlink" href="#how-do-i-disable-ktlint-for-generated-code" title="Permanent link">&para;</a></h1>
+<p>Running ktlint on generated code is not useful. Fixing lint and format errors on generated code is a waste of time as errors will be re-introduced once that code is generated again. Given that generated code is located in a separate directory, you can disable ktlint for such directory by adding a glob for that directory:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>[some/path/to/generated/code/**/*]
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>ktlint = disabled
+</code></pre></div></p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The <code>ec4j</code> library used by ktlint does not seem to work with globs starting with <code>**</code> followed by a chain of multiple directories (for example <code>**/path/to/generated/**/*</code>). But both <code>some/path/to/generated/**/*</code> and <code>**/generated/**/*</code> work fine.</p>
+</div>
 
 
 
@@ -1176,10 +1199,10 @@ and send the generated code as <code>String</code> to KtLint inside a <code>Code
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "search.suggest", "search.share"], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "search.suggest", "search.share"], "search": "../assets/javascripts/workers/search.74e28a9f.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.b425cdc4.min.js"></script>
+      <script src="../assets/javascripts/bundle.220ee61c.min.js"></script>
       
     
   </body>
