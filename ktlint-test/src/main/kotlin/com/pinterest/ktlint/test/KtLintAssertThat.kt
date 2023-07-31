@@ -33,7 +33,7 @@ private val LOGGER =
     KotlinLogging
         .logger {}
         .setDefaultLoggerModifier { logger ->
-            if (!logger.isTraceEnabled || !logger.isDebugEnabled) {
+            if (!logger.isTraceEnabled() || !logger.isDebugEnabled()) {
                 logger.info {
                     """
                     Additional information can be printed during running of unit tests, by setting environment variable below:

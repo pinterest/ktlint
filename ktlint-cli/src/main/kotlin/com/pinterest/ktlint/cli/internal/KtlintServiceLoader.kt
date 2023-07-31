@@ -42,7 +42,7 @@ internal fun <T> Class<T>.loadFromJarFiles(
                         .filterNot { providerIdsFromKtlintJars.contains(providerId(it)) }
                 if (providers.isEmpty()) {
                     if (customJarProviderCheck == ERROR_WHEN_REQUIRED_PROVIDER_IS_MISSING) {
-                        if (LOGGER.isDebugEnabled) {
+                        if (LOGGER.isDebugEnabled()) {
                             LOGGER.error {
                                 """
                                 JAR file '${url.path}' is missing a class implementing interface '$canonicalName'
@@ -70,7 +70,7 @@ internal fun <T> Class<T>.loadFromJarFiles(
                     providers
                         .mapNotNull {
                             if (customJarProviderCheck == ERROR_WHEN_DEPRECATED_PROVIDER_IS_FOUND) {
-                                if (LOGGER.isDebugEnabled) {
+                                if (LOGGER.isDebugEnabled()) {
                                     LOGGER.error {
                                         """
                                         JAR file '${url.path}' contains a class implementing an unsupported interface '$canonicalName'
