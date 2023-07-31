@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.api.consumer
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
 import java.nio.file.Path

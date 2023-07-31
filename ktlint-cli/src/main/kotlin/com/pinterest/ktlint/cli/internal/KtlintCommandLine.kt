@@ -31,8 +31,9 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
 import com.pinterest.ktlint.ruleset.standard.rules.FILENAME_RULE_ID
-import mu.KLogger
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.DelegatingKLogger
+import io.github.oshai.kotlinlogging.KLogger
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 import picocli.CommandLine
 import picocli.CommandLine.Command
@@ -377,11 +378,18 @@ internal class KtlintCommandLine {
         logger =
             KotlinLogging
                 .logger {}
-                .setDefaultLoggerModifier { logger ->
-                    (logger.underlyingLogger as Logger).level = minLogLevel
-                }
+                .setDefaultLoggerModifier { logger -> logger.level = minLogLevel }
                 .initKtLintKLogger()
     }
+
+    private var KLogger.level: Level?
+        get() = underlyingLogger()?.level
+        set(value) { underlyingLogger()?.level = value }
+
+    private fun KLogger.underlyingLogger(): Logger? =
+        @Suppress("UNCHECKED_CAST")
+        (this as? DelegatingKLogger<Logger>)
+            ?.underlyingLogger
 
     private fun assertStdinAndPatternsFromStdinOptionsMutuallyExclusive() {
         if (stdin && stdinDelimiter != null) {
@@ -595,7 +603,7 @@ internal class KtlintCommandLine {
                         status = KOTLIN_PARSE_EXCEPTION,
                     )
                 is KtLintRuleException -> {
-                    logger.debug("Internal Error (${e.ruleId}) in ${code.fileNameOrStdin()} at position '${e.line}:${e.col}", e)
+                    logger.debug(e) { "Internal Error (${e.ruleId}) in ${code.fileNameOrStdin()} at position '${e.line}:${e.col}" }
                     KtlintCliError(
                         line = e.line,
                         col = e.col,

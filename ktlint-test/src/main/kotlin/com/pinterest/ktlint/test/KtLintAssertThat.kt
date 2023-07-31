@@ -19,7 +19,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleSetExecu
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import dev.drewhamilton.poko.Poko
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.assertAll
@@ -33,7 +33,7 @@ private val LOGGER =
     KotlinLogging
         .logger {}
         .setDefaultLoggerModifier { logger ->
-            if (!logger.isTraceEnabled || !logger.isDebugEnabled) {
+            if (!logger.isTraceEnabled() || !logger.isDebugEnabled()) {
                 logger.info {
                     """
                     Additional information can be printed during running of unit tests, by setting environment variable below:

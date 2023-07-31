@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.logger.api
 
-import mu.KLogger
+import io.github.oshai.kotlinlogging.KLogger
 
 /**
  * Default modifier for the KLogger. It can be set only once via [setDefaultLoggerModifier] but it should be set before the first invocation

@@ -6,7 +6,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import com.pinterest.ktlint.rule.engine.internal.rules.KTLINT_SUPPRESSION_RULE_ID
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -25,7 +25,7 @@ internal class RuleProviderSorter {
         ruleProviders
             .sort()
             .also { sortedRuleProviders ->
-                if (LOGGER.isDebugEnabled) {
+                if (LOGGER.isDebugEnabled()) {
                     logSortedRuleProviders(sortedRuleProviders)
                 }
             }
@@ -39,7 +39,7 @@ internal class RuleProviderSorter {
                     sortedRuleProviders
                         .joinToString(prefix = "Rules will be executed in order below:") {
                             "\n           - ${it.ruleId.value}"
-                        }.also { LOGGER.debug(it) }
+                        }.also { LOGGER.debug { it } }
                 }
             }
     }
