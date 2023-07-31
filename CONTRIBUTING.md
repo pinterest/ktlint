@@ -1,1 +1,1 @@
-See [Contributing guidelines](docs/contributing/guidelines.md).
+See [Contributing guidelines](documentation/release-latest/docs/contributing/guidelines.md).
