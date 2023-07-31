@@ -2,7 +2,7 @@ package com.pinterest.ktlint.cli.internal
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.test.KtlintTestFileSystem
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach

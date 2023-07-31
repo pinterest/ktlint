@@ -74,7 +74,7 @@ import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement

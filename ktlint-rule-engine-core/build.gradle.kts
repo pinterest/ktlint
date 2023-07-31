@@ -10,4 +10,5 @@ dependencies {
 
     testImplementation(projects.ktlintTest)
     testImplementation(projects.ktlintRuleEngine)
+    testRuntimeOnly(libs.slf4j)
 }

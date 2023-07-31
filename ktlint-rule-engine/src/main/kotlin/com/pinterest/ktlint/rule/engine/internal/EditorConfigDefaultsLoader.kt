@@ -4,7 +4,7 @@ import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
 import com.pinterest.ktlint.rule.engine.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFE_EDITOR_CONFIG_CACHE
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.ec4j.core.Resource
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path

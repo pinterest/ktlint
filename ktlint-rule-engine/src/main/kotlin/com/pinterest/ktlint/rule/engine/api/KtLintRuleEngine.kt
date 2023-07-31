@@ -20,7 +20,7 @@ import com.pinterest.ktlint.rule.engine.internal.RuleExecutionContext
 import com.pinterest.ktlint.rule.engine.internal.RuleExecutionContext.Companion.createRuleExecutionContext
 import com.pinterest.ktlint.rule.engine.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFE_EDITOR_CONFIG_CACHE
 import com.pinterest.ktlint.rule.engine.internal.VisitorProvider
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.ec4j.core.Resource
 import org.ec4j.core.model.PropertyType.EndOfLineValue.crlf
 import org.ec4j.core.model.PropertyType.EndOfLineValue.lf

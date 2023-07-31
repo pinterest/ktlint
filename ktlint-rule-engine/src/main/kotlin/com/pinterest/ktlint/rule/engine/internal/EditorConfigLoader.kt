@@ -17,7 +17,7 @@ import com.pinterest.ktlint.rule.engine.internal.FormatterTags.Companion.FORMATT
 import com.pinterest.ktlint.rule.engine.internal.FormatterTags.Companion.FORMATTER_TAG_OFF_ENABLED_PROPERTY
 import com.pinterest.ktlint.rule.engine.internal.FormatterTags.Companion.FORMATTER_TAG_ON_ENABLED_PROPERTY
 import com.pinterest.ktlint.rule.engine.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFE_EDITOR_CONFIG_CACHE
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.ec4j.core.EditorConfigLoader
 import org.ec4j.core.PropertyTypeRegistry
 import org.ec4j.core.Resource

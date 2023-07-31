@@ -3,7 +3,7 @@ package com.pinterest.ktlint.test
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.kotlin.util.suffixIfNot
 import java.nio.file.FileSystem
 import java.nio.file.Files

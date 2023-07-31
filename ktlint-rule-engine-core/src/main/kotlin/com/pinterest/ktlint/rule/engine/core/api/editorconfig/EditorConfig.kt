@@ -3,7 +3,7 @@ package com.pinterest.ktlint.rule.engine.core.api.editorconfig
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import dev.drewhamilton.poko.Poko
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.ec4j.core.model.Property
 import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.PropertyType.PropertyValue
