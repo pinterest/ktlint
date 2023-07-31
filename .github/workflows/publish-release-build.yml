@@ -1,8 +1,8 @@
 name: Publish release build
 
-on :
-  push :
-    tags :
+on:
+  push:
+    tags:
       - '*.*.*'
 
 jobs:
@@ -14,26 +14,23 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: 'master'
-      - uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: 19
-      - uses: gradle/gradle-build-action@v2
-        with:
-          gradle-home-cache-cleanup: true
+
+
+      - uses: ./.github/actions/setup-gradle-build
+
       - name: Build executable and publish to Maven
         run: ./gradlew clean shadowJarExecutable publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel --no-configuration-cache
         env:
           SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
           SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
-          ORG_GRADLE_PROJECT_signingKey : ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEY }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEY }}
           ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID }}
-          ORG_GRADLE_PROJECT_signingKeyPassword : ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
+          ORG_GRADLE_PROJECT_signingKeyPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
 
-      - name : Extract release notes
-        id : release_notes
+      - name: Extract release notes
+        id: release_notes
         if: ${{ success() }}
-        uses : ffurrer2/extract-release-notes@v1
+        uses: ffurrer2/extract-release-notes@v1
 
       - name: Get version
         id: get_version
@@ -49,18 +46,18 @@ jobs:
           cp ktlint ktlint-${{ env.version }}/bin
           zip -rm ktlint-${{ env.version }}.zip ktlint-${{ env.version }}
 
-      - name : Create release
+      - name: Create release
         id: github_release
         if: ${{ success() }}
-        uses : softprops/action-gh-release@v1
-        with :
+        uses: softprops/action-gh-release@v1
+        with:
           draft: false
           prerelease: false
-          body : ${{ steps.release_notes.outputs.release_notes }}
+          body: ${{ steps.release_notes.outputs.release_notes }}
           files: |
             ktlint-cli/build/run/*
-        env :
-          GITHUB_TOKEN : ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Bump Homebrew Formula
         if: ${{ success() }}
