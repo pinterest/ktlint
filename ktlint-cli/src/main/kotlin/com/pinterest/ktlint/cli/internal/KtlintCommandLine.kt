@@ -378,12 +378,18 @@ internal class KtlintCommandLine {
         logger =
             KotlinLogging
                 .logger {}
-                .setDefaultLoggerModifier { logger ->
-                    @Suppress("UNCHECKED_CAST")
-                    ((logger as DelegatingKLogger<Logger>).underlyingLogger).level = minLogLevel
-                }
+                .setDefaultLoggerModifier { logger -> logger.level = minLogLevel }
                 .initKtLintKLogger()
     }
+
+    private var KLogger.level: Level?
+        get() = underlyingLogger()?.level
+        set(value) { underlyingLogger()?.level = value }
+
+    private fun KLogger.underlyingLogger(): Logger? =
+        @Suppress("UNCHECKED_CAST")
+        (this as? DelegatingKLogger<Logger>)
+            ?.underlyingLogger
 
     private fun assertStdinAndPatternsFromStdinOptionsMutuallyExclusive() {
         if (stdin && stdinDelimiter != null) {
@@ -597,7 +603,7 @@ internal class KtlintCommandLine {
                         status = KOTLIN_PARSE_EXCEPTION,
                     )
                 is KtLintRuleException -> {
-                    logger.debug(e) {"Internal Error (${e.ruleId}) in ${code.fileNameOrStdin()} at position '${e.line}:${e.col}"}
+                    logger.debug(e) { "Internal Error (${e.ruleId}) in ${code.fileNameOrStdin()} at position '${e.line}:${e.col}" }
                     KtlintCliError(
                         line = e.line,
                         col = e.col,
