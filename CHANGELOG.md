@@ -36,6 +36,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 * Update dependency com.google.jimfs:jimfs to v1.3.0 ([#2112](https://github.com/pinterest/ktlint/pull/2112))
 * As a part of public API stabilization, configure `binary-compatibility-validator` plugin for compile-time verification of binary compatibility with previous `ktlint` versions ([#2131](https://github.com/pinterest/ktlint/pull/2131))
 * Update dependency org.junit.jupiter:junit-jupiter to v5.10.0 ([#2148](https://github.com/pinterest/ktlint/pull/2148))
+* Build the project with Java 20, run test on Java 8, 11, 17 and 20 ([#1888](https://github.com/pinterest/ktlint/issues/1888))
 
 ## [0.50.0] - 2023-06-29
 

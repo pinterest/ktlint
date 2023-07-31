@@ -37,3 +37,6 @@ max_line_length = unset
 
 [gradle/verification-metadata.xml]
 indent_size = 3
+
+[*.yml]
+ij_yaml_spaces_within_brackets = false
