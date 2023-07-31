@@ -25,7 +25,7 @@ internal class RuleProviderSorter {
         ruleProviders
             .sort()
             .also { sortedRuleProviders ->
-                if (LOGGER.isDebugEnabled) {
+                if (LOGGER.isDebugEnabled()) {
                     logSortedRuleProviders(sortedRuleProviders)
                 }
             }
@@ -39,7 +39,7 @@ internal class RuleProviderSorter {
                     sortedRuleProviders
                         .joinToString(prefix = "Rules will be executed in order below:") {
                             "\n           - ${it.ruleId.value}"
-                        }.also { LOGGER.debug(it) }
+                        }.also { LOGGER.debug { it } }
                 }
             }
     }
