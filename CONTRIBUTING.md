@@ -1,1 +1,1 @@
-See [Contributing guidelines](documentation/release-latest/docs/contributing/guidelines.md).
+See [Contributing guidelines](https://pinterest.github.io/ktlint/latest/contributing/overview/)
