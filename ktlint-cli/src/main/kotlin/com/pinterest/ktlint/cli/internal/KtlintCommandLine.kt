@@ -31,6 +31,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
 import com.pinterest.ktlint.ruleset.standard.rules.FILENAME_RULE_ID
+import io.github.oshai.kotlinlogging.DelegatingKLogger
 import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
@@ -378,7 +379,7 @@ internal class KtlintCommandLine {
             KotlinLogging
                 .logger {}
                 .setDefaultLoggerModifier { logger ->
-                    (logger.underlyingLogger as Logger).level = minLogLevel
+                    ((logger as DelegatingKLogger<Logger>).underlyingLogger).level = minLogLevel
                 }
                 .initKtLintKLogger()
     }
