@@ -19,18 +19,32 @@ on:
       - '!**/*.toml'
 
 # Add a dummy job that return true so that a PR not containing any code can be merged to master
-# Note that "jobs.build.strategy" and "jobs.build.runs-on" should be kept in sync with "pull-request-wth-code"
+# Note that all "jobs" (build, tests) including "jobs.*.runs-on" should be kept in sync with "pull-request-with-code"
 jobs:
   build:
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest ]
-        # When changing the list of JDK versions, the build configuration has to be changed by a repository admin. See
-        # https://github.com/pinterest/ktlint/pull/1787#issuecomment-1409074092
-        jdk: [ 8, 11, 17, 19 ]
-        exclude: # windows with JDK8 are *really* flaky
-          - os: windows-latest
-            jdk: 8
+        os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    name: "[build] OS=${{ matrix.os }} Kotlin=stable"
+    steps:
+      - run: 'echo "No build required"'
+
+  build-dev:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    name: "[build] OS=${{ matrix.os }}, Kotlin=dev"
+    steps:
+      - run: 'echo "No build required"'
+
+  tests:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        jdk: [ 8, 11, 17 ]
+    runs-on: ${{ matrix.os }}
+    name: "[tests] OS=${{ matrix.os }}, Java=${{ matrix.jdk }}"
     steps:
       - run: 'echo "No build required"'

@@ -6,22 +6,38 @@ plugins {
     id("dev.drewhamilton.poko")
 }
 
+val projectLibs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+val javaCompilationVersion = JavaLanguageVersion.of(projectLibs.findVersion("java-compilation").get().requiredVersion)
+val javaTargetVersion = JavaLanguageVersion.of(projectLibs.findVersion("java-target").get().requiredVersion)
+
 kotlin {
     // All modules, the CLI included, must have an explicit API
     explicitApi()
+    jvmToolchain(jdkVersion = javaCompilationVersion.asInt())
 }
 
-tasks.withType<KotlinCompile>().configureEach {
-    compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_1_8)
-    }
-}
-
-// compileJava task and compileKotlin task jvm target compatibility should be set to the same Java version.
-// For some reason, we fallback from toolchain using, see https://github.com/pinterest/ktlint/pull/1787
 tasks.withType<JavaCompile>().configureEach {
-    sourceCompatibility = JavaVersion.VERSION_1_8.toString()
-    targetCompatibility = JavaVersion.VERSION_1_8.toString()
+    options.release.set(javaTargetVersion.asInt())
+}
+tasks.withType<KotlinCompile>().configureEach {
+    // Convert Java version (e.g. "1.8" or "11") to Kotlin JvmTarget ("8" resp. "11")
+    compilerOptions.jvmTarget.set(JvmTarget.fromTarget(JavaVersion.toVersion(javaTargetVersion).toString()))
+}
+
+val requestedJdkVersion = project.findProperty("testJdkVersion")?.toString()?.toInt()
+// List all non-current Java versions the developers may want to run via IDE click
+setOfNotNull(8, 11, 17, requestedJdkVersion).forEach { version ->
+    tasks.register<Test>("testOnJdk$version") {
+        javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(version) }
+
+        description = "Runs the test suite on JDK $version"
+        group = LifecycleBasePlugin.VERIFICATION_GROUP
+
+        // Copy inputs from normal Test task.
+        val testTask = tasks.test.get()
+        classpath = testTask.classpath
+        testClassesDirs = testTask.testClassesDirs
+    }
 }
 
 val skipTests: String = providers.systemProperty("skipTests").getOrElse("false")
@@ -40,8 +56,8 @@ tasks.withType<Test>().configureEach {
             (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
         }
 
-    if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_16)) {
-        // https://docs.gradle.org/7.5/userguide/upgrading_version_7.html#removes_implicit_add_opens_for_test_workers
+    if (javaLauncher.get().metadata.languageVersion.canCompileOrRun(JavaLanguageVersion.of(11))) {
+        // workaround for https://github.com/pinterest/ktlint/issues/1618. Java 11 started printing warning logs. Java 16 throws an error
         jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
     }
 }

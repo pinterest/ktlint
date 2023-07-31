@@ -1,4 +1,4 @@
-import java.net.URL
+import java.net.URI
 
 plugins {
     alias(libs.plugins.kotlin.jvm) apply false
@@ -57,6 +57,6 @@ tasks.register<JavaExec>("ktlintFormat") {
 
 tasks.wrapper {
     distributionSha256Sum =
-        URL("$distributionUrl.sha256")
+        URI.create("$distributionUrl.sha256").toURL()
             .openStream().use { it.reader().readText().trim() }
 }
