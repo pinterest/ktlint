@@ -171,9 +171,7 @@ public class ChainMethodContinuation :
         return "Unexpected newline before '$expressionText'"
     }
 
-    private fun ASTNode.leafWithMultilineWhiteSpace(forward: Boolean): ASTNode {
-        return leavesTillMultilineWhiteSpace(forward).last()
-    }
+    private fun ASTNode.leafWithMultilineWhiteSpace(forward: Boolean): ASTNode = leavesTillMultilineWhiteSpace(forward).last()
 
     private fun ASTNode.leavesTillMultilineWhiteSpace(forward: Boolean) =
         this.leavesIncludingSelf(forward)
