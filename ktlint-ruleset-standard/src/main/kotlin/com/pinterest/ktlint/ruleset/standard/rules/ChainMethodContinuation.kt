@@ -15,7 +15,6 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
-import com.pinterest.ktlint.rule.engine.core.api.noNewLineInOpenRange
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -75,7 +74,7 @@ public class ChainMethodContinuation :
             )
         } else if (previousEndBrace.elementType == RBRACE &&
             isPreviousChainElementMultiline &&
-            !noNewLineInOpenRange(
+            hasNewLineInClosedRange(
                 previousEndBrace,
                 chainOperator,
             )
@@ -183,11 +182,13 @@ public class ChainMethodContinuation :
 
     private fun <T> Sequence<T>.takeTill(predicate: (T) -> Boolean): Sequence<T> {
         var conditionMet = false
-        return this.takeWhile { conditionMet.not() }.map {
-            if (predicate(it)) {
-                conditionMet = true
+        return this
+            .takeWhile { conditionMet.not() }
+            .map {
+                if (predicate(it)) {
+                    conditionMet = true
+                }
+                it
             }
-            it
-        }
     }
 }
