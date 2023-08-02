@@ -20,7 +20,7 @@ kotlin-plugin-dev = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", vers
 dokka = "org.jetbrains.dokka:dokka-gradle-plugin:1.8.20"
 ec4j = "org.ec4j.core:ec4j-core:0.3.0"
 picocli = "info.picocli:picocli:4.7.4"
-logging = "io.github.oshai:kotlin-logging-jvm:5.0.1"
+logging = "io.github.oshai:kotlin-logging-jvm:5.0.2"
 slf4j = "org.slf4j:slf4j-simple:2.0.7"
 # TODO: update to 0.14.0 after upgrade to Kotlin Gradle Plugin 1.9
 poko = "dev.drewhamilton.poko:poko-gradle-plugin:0.14.0"
