@@ -1,11 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK_COMMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ELSE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ELSE_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.SAFE_ACCESS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.THEN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER
@@ -61,7 +63,9 @@ public class DiscouragedCommentLocationRule :
             if (node.afterNodeOfElementType(TYPE_PARAMETER_LIST) ||
                 node.betweenNodesOfElementType(RPAR, THEN) ||
                 node.betweenNodesOfElementType(THEN, ELSE_KEYWORD) ||
-                node.betweenNodesOfElementType(ELSE_KEYWORD, ELSE)
+                node.betweenNodesOfElementType(ELSE_KEYWORD, ELSE) ||
+                node.afterNodeOfElementType(DOT) ||
+                node.afterNodeOfElementType(SAFE_ACCESS)
             ) {
                 emit(node.startOffset, "No comment expected at this location", false)
             }

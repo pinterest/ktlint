@@ -737,4 +737,87 @@ class DiscouragedCommentLocationRuleTest {
             discouragedCommentLocationRuleAssertThat(code).hasNoLintViolations()
         }
     }
+
+    @Nested
+    inner class `Given a DOT operator in a method chain` {
+        @Test
+        fun `Given a comment between the DOT and the next expression on same line`() {
+            val code =
+                """
+                val foo1 = listOf("foo")./** some comment */size
+                val foo2 = listOf("foo")./** some comment */single()
+                val foo3 = listOf("foo")./* some comment */size
+                val foo4 = listOf("foo")./* some comment */single()
+                """.trimIndent()
+            discouragedCommentLocationRuleAssertThat(code)
+                .hasLintViolationsWithoutAutoCorrect(
+                    LintViolation(1, 26, "No comment expected at this location"),
+                    LintViolation(2, 26, "No comment expected at this location"),
+                    LintViolation(3, 26, "No comment expected at this location"),
+                    LintViolation(4, 26, "No comment expected at this location"),
+                )
+        }
+
+        @Test
+        fun `Given a comment between the DOT and the next expression on a separate line`() {
+            val code =
+                """
+                val foo1 = listOf("foo").
+                    /** some comment */
+                    size
+                val foo2 = listOf("foo").
+                    /** some comment */
+                    single()
+                val foo3 = listOf("foo").
+                    /* some comment */
+                    size
+                val foo4 = listOf("foo").
+                    /* some comment */
+                    single()
+                val foo5 = listOf("foo").
+                    // some comment
+                    size
+                val foo6 = listOf("foo").
+                    // some comment
+                    single()
+                """.trimIndent()
+            discouragedCommentLocationRuleAssertThat(code)
+                .hasLintViolationsWithoutAutoCorrect(
+                    LintViolation(2, 5, "No comment expected at this location"),
+                    LintViolation(5, 5, "No comment expected at this location"),
+                    LintViolation(8, 5, "No comment expected at this location"),
+                    LintViolation(11, 5, "No comment expected at this location"),
+                    LintViolation(14, 5, "No comment expected at this location"),
+                    LintViolation(17, 5, "No comment expected at this location"),
+                )
+        }
+
+        @Test
+        fun `Given a comment after the DOT and the next expression on a separate line`() {
+            val code =
+                """
+                val foo1 = listOf("foo"). /** some comment */
+                    size
+                val foo2 = listOf("foo"). /** some comment */
+                    single()
+                val foo3 = listOf("foo"). /* some comment */
+                    size
+                val foo4 = listOf("foo"). /* some comment */
+                    single()
+                val foo5 = listOf("foo"). // some comment
+                    size
+                val foo6 = listOf("foo"). // some comment
+                    single()
+                """.trimIndent()
+            discouragedCommentLocationRuleAssertThat(code)
+                .hasLintViolationsWithoutAutoCorrect(
+                    LintViolation(1, 27, "No comment expected at this location"),
+                    LintViolation(3, 27, "No comment expected at this location"),
+                    LintViolation(5, 27, "No comment expected at this location"),
+                    LintViolation(7, 27, "No comment expected at this location"),
+                    LintViolation(9, 27, "No comment expected at this location"),
+                    LintViolation(11, 27, "No comment expected at this location"),
+                )
+        }
+    }
 }

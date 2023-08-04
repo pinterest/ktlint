@@ -66,6 +66,16 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/BlockCommentIniti
 	public static final fun getBLOCK_COMMENT_INITIAL_STAR_ALIGNMENT_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
 }
 
+public final class com/pinterest/ktlint/ruleset/standard/rules/ChainMethodContinuation : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$Experimental, com/pinterest/ktlint/rule/engine/core/api/Rule$OfficialCodeStyle {
+	public fun <init> ()V
+	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+}
+
+public final class com/pinterest/ktlint/ruleset/standard/rules/ChainMethodContinuationKt {
+	public static final fun getCHAIN_METHOD_CONTINUATION_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+}
+
 public final class com/pinterest/ktlint/ruleset/standard/rules/ChainWrappingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
