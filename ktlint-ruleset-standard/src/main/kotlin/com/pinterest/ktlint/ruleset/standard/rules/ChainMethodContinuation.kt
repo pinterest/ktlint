@@ -1,16 +1,27 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.BINARY_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_LITERAL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLOSING_QUOTE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.IMPORT_DIRECTIVE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.LAMBDA_ARGUMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.LAMBDA_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.LONG_STRING_TEMPLATE_ENTRY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.PACKAGE_DIRECTIVE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.POSTFIX_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PREFIX_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACKET
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.REFERENCE_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SAFE_ACCESS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SAFE_ACCESS_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule
@@ -22,15 +33,20 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.hasNewLineInClosedRange
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
 import com.pinterest.ktlint.rule.engine.core.api.lineLengthWithoutNewlinePrefix
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -50,20 +66,20 @@ public class ChainMethodContinuation : // TODO: Rename to ChainMethodContinuatio
     StandardRule(
         id = "chain-method-continuation",
         visitorModifiers =
-            setOf(
-                RunAfterRule(DISCOURAGED_COMMENT_LOCATION_RULE_ID, ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED)
-            ),
+        setOf(
+            RunAfterRule(DISCOURAGED_COMMENT_LOCATION_RULE_ID, ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED),
+            RunAfterRule(ARGUMENT_LIST_WRAPPING_RULE_ID, ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED),
+        ),
         usesEditorConfigProperties =
-            setOf(
-                CODE_STYLE_PROPERTY,
-                INDENT_SIZE_PROPERTY,
-                INDENT_STYLE_PROPERTY,
-                MAX_LINE_LENGTH_PROPERTY,
-            ),
+        setOf(
+            CODE_STYLE_PROPERTY,
+            INDENT_SIZE_PROPERTY,
+            INDENT_STYLE_PROPERTY,
+            MAX_LINE_LENGTH_PROPERTY,
+        ),
     ),
     Rule.Experimental,
-    Rule.OfficialCodeStyle
-{
+    Rule.OfficialCodeStyle {
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
     private var maxLineLength: Int = MAX_LINE_LENGTH_PROPERTY.defaultValue
 
@@ -85,33 +101,127 @@ public class ChainMethodContinuation : // TODO: Rename to ChainMethodContinuatio
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         node
-            .takeIf { it.elementType in chainOperators }
-           ?.let { chainOperator ->
-                val forceMultiline =
-                    chainOperator.isPartOfMultilineExpression() ||
-                        chainOperator.lineLengthWithoutNewlinePrefix() > maxLineLength
-                if (forceMultiline || chainOperator.isPrecededByComment()) {
-                    fixWhiteSpaceBeforeChainOperator(chainOperator, emit, autoCorrect)
-                }
-                if (forceMultiline) {
-                    fixWhiteSpaceAfterChainOperator(chainOperator, emit, autoCorrect)
-                }
+            .takeIf { it.elementType in chainOperatorTokenSet }
+            .takeIf { it?.treeParent?.elementType in chainOperatorExpressionConverterTokenSet }
+            ?.let { chainOperator ->
+                // Chained methods which have to be aligned vertically live at different levels in the AST hierarchy. To ease the processing
+                // the AST hierarchy for nodes contains a chain operator are restructured in a ChainedExpression.
+                ChainedExpression
+                    .createFrom(chainOperator)
+                    .takeIf { chainedExpression ->
+                        // When the first chain operator of the expression is found, all other chains operators of that same expression are
+                        // processed as well. So when the chain operator is not the first operator of the expression, it should be
+                        // considered as being processed already.
+                        chainOperator == chainedExpression.chainOperators.first()
+                    }?.takeUnless { it.rootASTNode.treeParent.elementType == IMPORT_DIRECTIVE }
+                    ?.takeUnless { it.rootASTNode.treeParent.elementType == PACKAGE_DIRECTIVE }
+                    ?.takeUnless { it.rootASTNode.treeParent.elementType == LONG_STRING_TEMPLATE_ENTRY }
+                    ?.let { chainedExpression ->
+                        if (chainedExpression.wrapBeforeChainOperator() ||
+                            chainedExpression.exceedsMaxLineLength() ||
+                            chainOperator.isPrecededByComment()
+                        ) {
+                            chainedExpression
+                                .chainOperators
+                                .filterNot { it.isJavaClassReferenceExpression() }
+                                .forEach {
+                                    fixWhiteSpaceBeforeChainOperator(it, emit, autoCorrect)
+                                }
+                        }
+                        chainedExpression.chainOperators.forEach {
+                            fixWhiteSpaceAfterChainOperator(it, emit, autoCorrect)
+                        }
+                    }
             }
     }
 
-    private fun ASTNode.isPartOfMultilineExpression(): Boolean {
-        require(elementType in chainOperators)
-        val rootExpression = rootExpression()
-        return hasNewLineInClosedRange(rootExpression, rootExpression.lastChildLeafOrSelf())
-    }
+    private fun ASTNode.isJavaClassReferenceExpression() =
+        treeParent.elementType == DOT_QUALIFIED_EXPRESSION &&
+            prevCodeSibling()?.elementType == CLASS_LITERAL_EXPRESSION &&
+            nextCodeSibling()?.elementType == REFERENCE_EXPRESSION &&
+            nextCodeSibling()?.firstChildLeafOrSelf()?.text == "java"
 
-    private fun ASTNode.rootExpression(): ASTNode {
-        require(elementType in chainOperators)
-        var rootExpression = requireNotNull(treeParent)
-        while (rootExpression.treeParent?.elementType in chainableElementTypes) {
-            rootExpression = rootExpression.treeParent
+    private fun ChainedExpression.wrapBeforeChainOperator() =
+        when {
+            hasNewlineBetweenFirstAndLastChainOperator -> {
+                // Disallow:
+                //     listOf(1, 2, 3, 4)
+                //        .filter { it > 2 }?.filter { it > 3 }
+                //        ?.filter { it > 4 }
+                // or
+                //     listOf(1, 2, 3, 4)
+                //        .filter {
+                //            it > 2
+                //        }?.filter { it > 3 }?.filter { it > 4 }
+                // or
+                //     listOf(1, 2, 3, 4).filter {
+                //        it > 2
+                //     }?.filter { it > 3 }
+                true
+            }
+
+            chainOperators
+                .first()
+                .prevCodeSibling()
+                ?.elementType == STRING_TEMPLATE && !hasNewlineAfterLastChainOperator -> {
+                    // Allow:
+                    //     """
+                    //     some text
+                    //     """.uppercase().replace("foo bar", "bar foo").trimIndent()
+                    false
+                }
+
+            !hasNewlineBeforeFirstChainOperator && !hasNewlineAfterLastChainOperator -> {
+                // Allow:
+                //     listOf(1, 2, 3).filter { it > 2 }.filter { it > 3 }
+                // or:
+                //     listOf(1, 2, 3).filter { it > 2 }.filter {
+                //         it > 3
+                //     }
+                chainOperators.size > 5 // TODO: make configurable?
+            }
+
+            else -> false
         }
-        return rootExpression
+
+    private fun ChainedExpression.exceedsMaxLineLength() =
+        with (rootASTNode) {
+            if (treeParent.elementType == BINARY_EXPRESSION) {
+                // Chained expressions which are enclosed inside a binary expression are skipped for now. It depends on the situation
+                // whether wrapping on the binary expression takes precedence on the chained expression or vice versa.
+                // This can be illustrated with following examples:
+                //    - wrapping on chained expression first makes more sense in this case
+                //        val foo = listOf("one", "two", "three").filter { it.length > 3 }
+                //      resulting in:
+                //        val foo = listOf("one", "two", "three")
+                //            .filter { it.length > 3 }
+                //    - wrapping on binary expression first makes more sense in this case
+                //        if (someOtherExpression || listOf("one", "two", "three").any { it.length > 3 }) { ... }
+                //      resulting in:
+                //        if (someOtherExpression ||
+                //            listOf("one", "two", "three").any { it.length > 3 }
+                //        ) { ... }
+                false
+            } else {
+                val stopAtLeaf =
+                    chainOperators
+                        .last()
+                        .startOfLambdaArgumentInCallExpressionOrNull()
+                        ?: lastChildLeafOrSelf().nextLeaf()
+                leavesOnLine()
+                    .takeWhile { it != stopAtLeaf }
+                    .lineLengthWithoutNewlinePrefix() > maxLineLength
+            }
+        }
+
+    private fun ASTNode.startOfLambdaArgumentInCallExpressionOrNull(): ASTNode? {
+        require(elementType in chainOperatorTokenSet)
+        return nextCodeSibling()
+            ?.takeIf { it.elementType == CALL_EXPRESSION }
+            ?.findChildByType(LAMBDA_ARGUMENT)
+            ?.findChildByType(LAMBDA_EXPRESSION)
+            ?.findChildByType(FUNCTION_LITERAL)
+            ?.findChildByType(LBRACE)
     }
 
     private fun ASTNode.isPrecededByComment() =
@@ -190,17 +300,120 @@ public class ChainMethodContinuation : // TODO: Rename to ChainMethodContinuatio
             }
     }
 
+    private data class ChainedExpression(
+        val rootASTNode: ASTNode,
+        val chainOperators: List<ASTNode>,
+        val hasNewlineBeforeFirstChainOperator: Boolean,
+        val hasNewlineBetweenFirstAndLastChainOperator: Boolean,
+        val hasNewlineAfterLastChainOperator: Boolean,
+    ) {
+        companion object {
+            private val chainableElementTypes =
+                TokenSet.create(
+                    CALL_EXPRESSION,
+                    DOT_QUALIFIED_EXPRESSION,
+                    POSTFIX_EXPRESSION,
+                    PREFIX_EXPRESSION,
+                    SAFE_ACCESS_EXPRESSION
+                )
+
+            fun createFrom(astNode: ASTNode): ChainedExpression {
+                require(astNode.elementType in chainOperatorTokenSet)
+                var chainParent = requireNotNull(astNode.treeParent)
+                while (chainParent.treeParent?.elementType in chainableElementTypes) {
+                    chainParent = chainParent.treeParent
+                }
+                return requireNotNull(chainParent.toChainedExpression()) { "Failed to create chained expression from ${astNode.treeParent.text}" }
+            }
+
+            private fun ASTNode.toChainedExpression(): ChainedExpression? =
+                when (elementType) {
+                    DOT_QUALIFIED_EXPRESSION, SAFE_ACCESS_EXPRESSION -> {
+                        children()
+                            .find { it.elementType in chainOperatorTokenSet }
+                            ?.let { chainOperator ->
+                                createBaseChainedExpression(chainOperator).let { chainedExpression ->
+                                    when (chainedExpression.chainOperators.size) {
+                                        1 -> chainedExpression.modifyForFirstOperator(chainOperator)
+                                        2 -> chainedExpression.modifyForSecondOperator()
+                                        else -> chainedExpression
+                                    }
+                                }
+                            }
+                    }
+
+                    PREFIX_EXPRESSION, POSTFIX_EXPRESSION -> {
+                        children()
+                            .mapNotNull { it.toChainedExpression() }
+                            .singleOrNull()
+                    }
+
+                    else -> null
+                }
+
+            private fun ASTNode.createBaseChainedExpression(chainOperator: ASTNode): ChainedExpression {
+                val chainBefore = chainOperator.prevCodeSibling()?.toChainedExpression()
+                val chainAfter = chainOperator.nextCodeSibling()?.toChainedExpression()
+                val newlineAfter =
+                    chainAfter.containsNewline() ||
+                        chainOperator.nextCodeSibling()!!.textContains('\n') ||
+                        chainOperator.nextSibling { it.isWhiteSpaceWithNewline() } != null
+                val chainOperators =
+                    mutableListOf<ASTNode>()
+                        .plus(chainBefore?.chainOperators.orEmpty())
+                        .plus(chainOperator)
+                        .plus(chainAfter?.chainOperators.orEmpty())
+                val newlineBefore =
+                    chainBefore?.hasNewlineBetweenFirstAndLastChainOperator ?: false ||
+                        chainBefore?.hasNewlineAfterLastChainOperator ?: false ||
+                        chainOperator.isPrecededByNewlineSibling()
+                return ChainedExpression(
+                    rootASTNode = this,
+                    chainOperators = chainOperators,
+                    hasNewlineBeforeFirstChainOperator = chainBefore?.hasNewlineBeforeFirstChainOperator ?: false,
+                    hasNewlineBetweenFirstAndLastChainOperator = newlineBefore,
+                    hasNewlineAfterLastChainOperator = newlineAfter
+                )
+            }
+
+            private fun ChainedExpression.modifyForFirstOperator(
+                chainOperator: ASTNode
+            ): ChainedExpression =
+                copy(
+                    hasNewlineBeforeFirstChainOperator =
+                    chainOperator.prevCodeSibling()!!.textContains('\n') || chainOperator.isPrecededByNewlineSibling(),
+                    hasNewlineBetweenFirstAndLastChainOperator = false,
+                )
+
+            private fun ChainedExpression.modifyForSecondOperator(): ChainedExpression =
+                if (hasNewlineBetweenFirstAndLastChainOperator) {
+                    this
+                } else {
+                    // In case the expression before the first chain operator contains an inner newline, it is to be ignored. But a newline
+                    // between the last leaf of that expression and the chain operator has to be taken into account.
+                    // Allows:
+                    //     """
+                    //     some text
+                    //     """.uppercase().trimIndent()
+                    copy(hasNewlineBetweenFirstAndLastChainOperator = chainOperators.first().isPrecededByNewlineSibling())
+                }
+
+            private fun ASTNode.isPrecededByNewlineSibling() = prevSibling { it.isWhiteSpaceWithNewline() } != null
+
+            private fun ChainedExpression?.containsNewline() =
+                if (this == null) {
+                    false
+                } else {
+                    hasNewlineBeforeFirstChainOperator || hasNewlineBetweenFirstAndLastChainOperator || hasNewlineAfterLastChainOperator
+                }
+        }
+    }
+
     private companion object {
-        val chainOperators = TokenSet.create(DOT, SAFE_ACCESS)
-        val chainableElementTypes =
-            TokenSet.create(
-                CALL_EXPRESSION,
-                DOT_QUALIFIED_EXPRESSION,
-                POSTFIX_EXPRESSION,
-                PREFIX_EXPRESSION,
-                SAFE_ACCESS_EXPRESSION
-            )
+        val chainOperatorExpressionConverterTokenSet = TokenSet.create(DOT_QUALIFIED_EXPRESSION, SAFE_ACCESS_EXPRESSION)
+        val chainOperatorTokenSet = TokenSet.create(DOT, SAFE_ACCESS)
         val groupClosingElementType = TokenSet.create(CLOSING_QUOTE, RBRACE, RBRACKET, RPAR)
+
     }
 }
 
