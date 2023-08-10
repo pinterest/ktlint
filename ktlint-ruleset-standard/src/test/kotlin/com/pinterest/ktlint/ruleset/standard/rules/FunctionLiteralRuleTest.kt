@@ -432,7 +432,7 @@ class FunctionLiteralRuleTest {
             """.trimIndent()
         functionLiteralRuleAssertThat(code)
             .addAdditionalRuleProvider { MultilineExpressionWrapping() }
-            .addAdditionalRuleProvider { ChainMethodContinuation() }
+            .addAdditionalRuleProvider { ChainMethodContinuationRule() }
             .addAdditionalRuleProvider { ArgumentListWrappingRule() }
             .addAdditionalRuleProvider { DiscouragedCommentLocationRule() }
             .addAdditionalRuleProvider { IndentationRule() }

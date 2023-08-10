@@ -12,10 +12,10 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
-class ChainMethodContinuationTest {
-    private val chainMethodContinuationAssertThat =
+class ChainMethodContinuationRuleTest {
+    private val chainMethodContinuationRuleAssertThat =
         assertThatRule(
-            provider = { ChainMethodContinuation() },
+            provider = { ChainMethodContinuationRule() },
             additionalRuleProviders =
                 setOf(
                     RuleProvider { DiscouragedCommentLocationRule() },
@@ -29,7 +29,7 @@ class ChainMethodContinuationTest {
             """
             val foo = listOf(1, 2, 3).filter { it > 2 }!!.takeIf { it.count() > 100 }.map { it * it }?.sum()!!
             """.trimIndent()
-        chainMethodContinuationAssertThat(code).hasNoLintViolations()
+        chainMethodContinuationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -39,7 +39,7 @@ class ChainMethodContinuationTest {
             // $MAX_LINE_LENGTH_MARKER                                                                       $EOL_CHAR
             val foo = listOf(1, 2, 3).filter { it > 2 }!!.takeIf { it.count() > 100 }.map { it * it }?.sum()!!
             """.trimIndent()
-        chainMethodContinuationAssertThat(code)
+        chainMethodContinuationRuleAssertThat(code)
             .setMaxLineLength()
             .hasNoLintViolations()
     }
@@ -58,7 +58,7 @@ class ChainMethodContinuationTest {
                 .filter { it.isUpperCase() }
                 .lowercase()
             """.trimIndent()
-        chainMethodContinuationAssertThat(code)
+        chainMethodContinuationRuleAssertThat(code)
             .setMaxLineLength()
             .hasLintViolations(
                 LintViolation(2, 16, "Expected newline before '.'"),
@@ -78,7 +78,7 @@ class ChainMethodContinuationTest {
                     it * it
                 }?.sum()!!
             """.trimIndent()
-        chainMethodContinuationAssertThat(code).hasNoLintViolations()
+        chainMethodContinuationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -100,7 +100,7 @@ class ChainMethodContinuationTest {
                     it > 2
                 }.sum()
             """.trimIndent()
-        chainMethodContinuationAssertThat(code)
+        chainMethodContinuationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 26, "Expected newline before '.'"),
                 LintViolation(1, 26, "Unexpected newline after '.'"),
@@ -131,7 +131,7 @@ class ChainMethodContinuationTest {
                 }.sum()
                 .dec()
             """.trimIndent()
-        chainMethodContinuationAssertThat(code)
+        chainMethodContinuationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 29, "Expected newline before '.'"),
                 LintViolation(1, 29, "Unexpected newline after '.'"),
@@ -163,7 +163,7 @@ class ChainMethodContinuationTest {
                 }!!
                 .sum()
             """.trimIndent()
-        chainMethodContinuationAssertThat(code)
+        chainMethodContinuationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 28, "Expected newline before '.'"),
                 LintViolation(1, 28, "Unexpected newline after '.'"),
@@ -193,7 +193,7 @@ class ChainMethodContinuationTest {
                     it > 2
                 }?.sum()
             """.trimIndent()
-        chainMethodContinuationAssertThat(code)
+        chainMethodContinuationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 26, "Expected newline before '?.'"),
                 LintViolation(1, 27, "Unexpected newline after '?.'"),
@@ -229,7 +229,7 @@ class ChainMethodContinuationTest {
                     it > 2
                 }.sum()
             """.trimIndent()
-        chainMethodContinuationAssertThat(code)
+        chainMethodContinuationRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolations(
                 LintViolation(1, 27, "Expected newline before '.'"),
@@ -253,7 +253,7 @@ class ChainMethodContinuationTest {
             .filter { it > 2 }!!
                 ?.sum()
             """.trimIndent()
-        chainMethodContinuationAssertThat(code).hasNoLintViolations()
+        chainMethodContinuationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -279,7 +279,7 @@ class ChainMethodContinuationTest {
                 .filter { it > 2 }!!
                 ?.sum()
             """.trimIndent()
-        chainMethodContinuationAssertThat(code)
+        chainMethodContinuationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 27, "Expected newline before '.'"),
                 LintViolation(3, 27, "Expected newline before '.'"),
@@ -306,7 +306,7 @@ class ChainMethodContinuationTest {
                 }
             }.run()
             """.trimIndent()
-        chainMethodContinuationAssertThat(code)
+        chainMethodContinuationRuleAssertThat(code)
             .hasLintViolation(5, 2, "Unexpected newline after '.'")
             .isFormattedAs(formattedCode)
     }
@@ -323,7 +323,7 @@ class ChainMethodContinuationTest {
                     it * it
                 }
             """.trimIndent()
-        chainMethodContinuationAssertThat(code).hasNoLintViolations()
+        chainMethodContinuationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -354,7 +354,7 @@ class ChainMethodContinuationTest {
                     it * it
                 }
             """.trimIndent()
-        chainMethodContinuationAssertThat(code)
+        chainMethodContinuationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 26, "Expected newline before '.'"),
                 LintViolation(1, 26, "Unexpected newline after '.'"),
@@ -391,7 +391,7 @@ class ChainMethodContinuationTest {
                 .foo()
                 ?.fooBar()
             """.trimIndent()
-        chainMethodContinuationAssertThat(code)
+        chainMethodContinuationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(2, 11, "Expected newline before '.'"),
                 LintViolation(2, 17, "Expected newline before '?.'"),
@@ -410,7 +410,7 @@ class ChainMethodContinuationTest {
                 it.foo()
             }
             """.trimIndent()
-        chainMethodContinuationAssertThat(code).hasNoLintViolations()
+        chainMethodContinuationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -423,7 +423,7 @@ class ChainMethodContinuationTest {
                 Some text and a $.{foo.bar}
                 $MULTILINE_STRING_QUOTE
             """.trimIndent().replaceStringTemplatePlaceholder()
-        chainMethodContinuationAssertThat(code)
+        chainMethodContinuationRuleAssertThat(code)
             .setMaxLineLength()
             .hasNoLintViolations()
     }
@@ -437,7 +437,7 @@ class ChainMethodContinuationTest {
                 Some text
                 $MULTILINE_STRING_QUOTE.trimIndent().uppercase()
             """.trimIndent()
-        chainMethodContinuationAssertThat(code).hasNoLintViolations()
+        chainMethodContinuationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -456,7 +456,7 @@ class ChainMethodContinuationTest {
                 .canonicalName
                 .uppercase()
             """.trimIndent()
-        chainMethodContinuationAssertThat(code)
+        chainMethodContinuationRuleAssertThat(code)
             .setMaxLineLength()
             .hasLintViolations(
                 LintViolation(3, 27, "Expected newline before '.'"),
@@ -484,7 +484,7 @@ class ChainMethodContinuationTest {
                     bar?.filter { it == "bar" }
                 ) { "some message" }
                 """.trimIndent()
-            chainMethodContinuationAssertThat(code)
+            chainMethodContinuationRuleAssertThat(code)
                 .setMaxLineLength()
                 .hasNoLintViolationsExceptInAdditionalRules()
                 .isFormattedAs(formattedCode)
@@ -510,7 +510,7 @@ class ChainMethodContinuationTest {
                     }
                 ) { "some message" }
                 """.trimIndent()
-            chainMethodContinuationAssertThat(code)
+            chainMethodContinuationRuleAssertThat(code)
                 .setMaxLineLength()
                 .addAdditionalRuleProvider { ArgumentListWrappingRule() }
                 .addAdditionalRuleProvider { FunctionLiteralRule() }
@@ -545,7 +545,7 @@ class ChainMethodContinuationTest {
                         }
                     ) { "some message" }
                 """.trimIndent()
-            chainMethodContinuationAssertThat(code)
+            chainMethodContinuationRuleAssertThat(code)
                 .setMaxLineLength()
                 .addAdditionalRuleProvider { ArgumentListWrappingRule() }
                 .addAdditionalRuleProvider { FunctionLiteralRule() }
@@ -576,7 +576,7 @@ class ChainMethodContinuationTest {
                 .foo5()
                 .foo6()
             """.trimIndent()
-        chainMethodContinuationAssertThat(code)
+        chainMethodContinuationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 26, "Expected newline before '.'"),
                 LintViolation(1, 33, "Expected newline before '.'"),
@@ -642,7 +642,7 @@ class ChainMethodContinuationTest {
                     .takeIf { it.count() > 100 } /* 3 */
                     ?.sum()!!
                 """.trimIndent()
-            chainMethodContinuationAssertThat(code)
+            chainMethodContinuationRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(1, 35, "Expected newline before '.'"),
                     LintViolation(1, 64, "Expected newline before '.'"),
@@ -663,7 +663,7 @@ class ChainMethodContinuationTest {
                     .takeIf { it.count() > 100 } // 3
                     ?.sum()!!
                 """.trimIndent()
-            chainMethodContinuationAssertThat(code).hasNoLintViolations()
+            chainMethodContinuationRuleAssertThat(code).hasNoLintViolations()
         }
 
         @Test
@@ -682,7 +682,7 @@ class ChainMethodContinuationTest {
                     }/* 2 */
                     .sum()
                 """.trimIndent()
-            chainMethodContinuationAssertThat(code)
+            chainMethodContinuationRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(1, 33, "Expected newline before '.'"),
                     LintViolation(3, 13, "Expected newline before '.'"),
@@ -707,7 +707,7 @@ class ChainMethodContinuationTest {
                     /* 2 */
                     .sum()
                 """.trimIndent()
-            chainMethodContinuationAssertThat(code)
+            chainMethodContinuationRuleAssertThat(code)
                 .addAdditionalRuleProvider { IndentationRule() }
                 .hasLintViolations(
                     LintViolation(1, 26, "Expected newline before '.'"),
@@ -732,7 +732,7 @@ class ChainMethodContinuationTest {
                     }// 1
                     .sum()
                 """.trimIndent()
-            chainMethodContinuationAssertThat(code)
+            chainMethodContinuationRuleAssertThat(code)
                 .addAdditionalRuleProvider { IndentationRule() }
                 .hasLintViolation(1, 26, "Expected newline before '.'")
                 .isFormattedAs(formattedCode)
@@ -762,7 +762,7 @@ class ChainMethodContinuationTest {
         ],
     )
     fun `Given a chain operator not in a dot qualified or safe access expression`(code: String) {
-        chainMethodContinuationAssertThat(code.trimIndent())
+        chainMethodContinuationRuleAssertThat(code.trimIndent())
             .hasNoLintViolations()
     }
 
@@ -780,7 +780,7 @@ class ChainMethodContinuationTest {
         ],
     )
     fun `Given that max line length is set and a chain operator not in a dot qualified or safe access expression`(code: String) {
-        chainMethodContinuationAssertThat(code.trimIndent())
+        chainMethodContinuationRuleAssertThat(code.trimIndent())
             .setMaxLineLength()
             .hasNoLintViolations()
     }

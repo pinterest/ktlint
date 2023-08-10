@@ -62,7 +62,7 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
  *
  * As of that the rule is restricted to ktlint_official code style unless explicitly enabled.
  */
-public class ChainMethodContinuation : // TODO: Rename to ChainMethodContinuationRule
+public class ChainMethodContinuationRule :
     StandardRule(
         id = "chain-method-continuation",
         visitorModifiers =
@@ -415,4 +415,4 @@ public class ChainMethodContinuation : // TODO: Rename to ChainMethodContinuatio
     }
 }
 
-public val CHAIN_METHOD_CONTINUATION_RULE_ID: RuleId = ChainMethodContinuation().ruleId
+public val CHAIN_METHOD_CONTINUATION_RULE_ID: RuleId = ChainMethodContinuationRule().ruleId
