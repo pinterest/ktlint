@@ -161,7 +161,8 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
                                         whitespace.treeParent.removeChild(whitespace)
                                     } else {
                                         val textAfterFirstNewline =
-                                            whitespace.text
+                                            whitespace
+                                                .text
                                                 .substringAfter("\n")
                                         if (textAfterFirstNewline.isNotBlank()) {
                                             (whitespace as LeafElement).rawReplaceWithText(textAfterFirstNewline)

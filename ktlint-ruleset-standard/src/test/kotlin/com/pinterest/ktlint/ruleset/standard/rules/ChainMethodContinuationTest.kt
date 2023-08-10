@@ -7,7 +7,6 @@ import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import com.pinterest.ktlint.test.replaceStringTemplatePlaceholder
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -17,10 +16,11 @@ class ChainMethodContinuationTest {
     private val chainMethodContinuationAssertThat =
         assertThatRule(
             provider = { ChainMethodContinuation() },
-            additionalRuleProviders = setOf(
-                RuleProvider { DiscouragedCommentLocationRule() },
-                RuleProvider { ArgumentListWrappingRule() },
-            ),
+            additionalRuleProviders =
+                setOf(
+                    RuleProvider { DiscouragedCommentLocationRule() },
+                    RuleProvider { ArgumentListWrappingRule() },
+                ),
         )
 
     @Test

@@ -61,11 +61,12 @@ internal fun initPsiFileFactory(ktLintRuleEngine: KtLintRuleEngine): PsiFileFact
     val disposable = Disposer.newDisposable()
     try {
         val project =
-            KotlinCoreEnvironment.createForProduction(
-                disposable,
-                compilerConfiguration,
-                EnvironmentConfigFiles.JVM_CONFIG_FILES,
-            ).project as MockProject
+            KotlinCoreEnvironment
+                .createForProduction(
+                    disposable,
+                    compilerConfiguration,
+                    EnvironmentConfigFiles.JVM_CONFIG_FILES,
+                ).project as MockProject
         if (ktLintRuleEngine.enableKotlinCompilerExtensionPoint) {
             project.enableASTMutations()
         } else {

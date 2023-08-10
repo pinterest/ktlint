@@ -279,12 +279,13 @@ internal class FileUtilsTest {
                 rootDir = ktlintTestFileSystem.resolve("project1"),
             )
 
-        assertThat(foundFiles).containsExactlyInAnyOrder(
-            ktFile1InProjectSubDirectory,
-            ktFile2InProjectSubDirectory,
-        ).doesNotContain(
-            javaFileInProjectSubDirectory,
-        )
+        assertThat(foundFiles)
+            .containsExactlyInAnyOrder(
+                ktFile1InProjectSubDirectory,
+                ktFile2InProjectSubDirectory,
+            ).doesNotContain(
+                javaFileInProjectSubDirectory,
+            )
     }
 
     @EnabledOnOs(OS.WINDOWS)
@@ -412,8 +413,7 @@ internal class FileUtilsTest {
                 ktsFileRootDirectory,
                 ktsFileInProjectRootDirectory,
                 ktsFileInProjectSubDirectory,
-            )
-            .doesNotContain(
+            ).doesNotContain(
                 ktFileInProjectRootDirectory,
                 ktFile1InProjectSubDirectory,
                 ktFile2InProjectSubDirectory,

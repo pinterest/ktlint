@@ -237,7 +237,9 @@ public class WrappingRule :
             // })
             (
                 numberOfArgs == 1 &&
-                    firstArg?.firstChildNode?.elementType
+                    firstArg
+                        ?.firstChildNode
+                        ?.elementType
                         ?.let { it == OBJECT_LITERAL || it == LAMBDA_EXPRESSION } == true
             )
         ) {
@@ -258,12 +260,14 @@ public class WrappingRule :
             // ) { ... }
             return
         }
-        if (!node.nextCodeLeaf()?.prevLeaf {
-                // Skip comments, whitespace, and empty nodes
-                !it.isPartOfComment() &&
-                    !it.isWhiteSpaceWithoutNewline() &&
-                    it.textLength > 0
-            }.isWhiteSpaceWithNewline() &&
+        if (!node
+                .nextCodeLeaf()
+                ?.prevLeaf {
+                    // Skip comments, whitespace, and empty nodes
+                    !it.isPartOfComment() &&
+                        !it.isWhiteSpaceWithoutNewline() &&
+                        it.textLength > 0
+                }.isWhiteSpaceWithNewline() &&
             // IDEA quirk:
             // if (true &&
             //     true
@@ -627,7 +631,9 @@ public class WrappingRule :
     private fun KtStringTemplateExpression.isFollowedByTrimMargin() = isFollowedBy("trimMargin()")
 
     private fun KtStringTemplateExpression.isFollowedBy(callExpressionName: String) =
-        this.node.nextSibling { it.elementType != DOT }
+        this
+            .node
+            .nextSibling { it.elementType != DOT }
             .let { it?.elementType == CALL_EXPRESSION && it.text == callExpressionName }
 
     /**
@@ -733,9 +739,10 @@ public class WrappingRule :
         private val LTOKEN_SET = TokenSet.create(LPAR, LBRACE, LBRACKET, LT)
         private val RTOKEN_SET = TokenSet.create(RPAR, RBRACE, RBRACKET, GT)
         private val MATCHING_RTOKEN_MAP =
-            LTOKEN_SET.types.zip(
-                RTOKEN_SET.types,
-            ).toMap()
+            LTOKEN_SET
+                .types
+                .zip(RTOKEN_SET.types)
+                .toMap()
     }
 }
 

@@ -57,7 +57,9 @@ internal object GitHookInstaller {
         val gitDir =
             try {
                 val root =
-                    Runtime.getRuntime().exec("git rev-parse --show-toplevel")
+                    Runtime
+                        .getRuntime()
+                        .exec("git rev-parse --show-toplevel")
                         .inputStream
                         .bufferedReader()
                         .readText()
@@ -76,7 +78,9 @@ internal object GitHookInstaller {
 
     private fun getHooksDirName() =
         try {
-            Runtime.getRuntime().exec("git config --get core.hooksPath")
+            Runtime
+                .getRuntime()
+                .exec("git config --get core.hooksPath")
                 .inputStream
                 .bufferedReader()
                 .readText()

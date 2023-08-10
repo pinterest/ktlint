@@ -175,7 +175,8 @@ public class StringTemplateIndentRule :
         // one single position. Note that the way of counting should be in sync with the way this is done by the trimIndent
         // function.
         val prefixLength =
-            node.text
+            node
+                .text
                 .split("\n")
                 .asSequence()
                 .filterNot {

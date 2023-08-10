@@ -70,9 +70,9 @@ public class FunctionLiteralRule :
     StandardRule(
         id = "function-literal",
         visitorModifiers =
-        setOf(
-            VisitorModifier.RunAfterRule(CHAIN_METHOD_CONTINUATION_RULE_ID, REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED)
-        ),
+            setOf(
+                VisitorModifier.RunAfterRule(CHAIN_METHOD_CONTINUATION_RULE_ID, REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED),
+            ),
         usesEditorConfigProperties =
             setOf(
                 CODE_STYLE_PROPERTY,
@@ -158,10 +158,10 @@ public class FunctionLiteralRule :
     private fun ASTNode.doesNotFitOnSameLineAsStartOfFunctionLiteral(): Boolean {
         require(elementType == VALUE_PARAMETER_LIST && treeParent.elementType == FUNCTION_LITERAL)
         val lineLength =
-            lineLengthIncludingLbrace() +
-                1 /* space before parameter list */ +
-                lengthOfParameterListWhenOnSingleLine() +
-                3 // space after parameter list followed by ->
+            lineLengthIncludingLbrace()
+                .plus(1) // space before parameter list
+                .plus(lengthOfParameterListWhenOnSingleLine())
+                .plus(3) // space after parameter list followed by ->
         return lineLength > maxLineLength
     }
 

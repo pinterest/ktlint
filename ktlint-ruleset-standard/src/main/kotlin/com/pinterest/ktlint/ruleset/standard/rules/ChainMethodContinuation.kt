@@ -66,17 +66,17 @@ public class ChainMethodContinuation : // TODO: Rename to ChainMethodContinuatio
     StandardRule(
         id = "chain-method-continuation",
         visitorModifiers =
-        setOf(
-            RunAfterRule(DISCOURAGED_COMMENT_LOCATION_RULE_ID, ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED),
-            RunAfterRule(ARGUMENT_LIST_WRAPPING_RULE_ID, ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED),
-        ),
+            setOf(
+                RunAfterRule(DISCOURAGED_COMMENT_LOCATION_RULE_ID, ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED),
+                RunAfterRule(ARGUMENT_LIST_WRAPPING_RULE_ID, ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED),
+            ),
         usesEditorConfigProperties =
-        setOf(
-            CODE_STYLE_PROPERTY,
-            INDENT_SIZE_PROPERTY,
-            INDENT_STYLE_PROPERTY,
-            MAX_LINE_LENGTH_PROPERTY,
-        ),
+            setOf(
+                CODE_STYLE_PROPERTY,
+                INDENT_SIZE_PROPERTY,
+                INDENT_STYLE_PROPERTY,
+                MAX_LINE_LENGTH_PROPERTY,
+            ),
     ),
     Rule.Experimental,
     Rule.OfficialCodeStyle {
@@ -164,12 +164,12 @@ public class ChainMethodContinuation : // TODO: Rename to ChainMethodContinuatio
                 .first()
                 .prevCodeSibling()
                 ?.elementType == STRING_TEMPLATE && !hasNewlineAfterLastChainOperator -> {
-                    // Allow:
-                    //     """
-                    //     some text
-                    //     """.uppercase().replace("foo bar", "bar foo").trimIndent()
-                    false
-                }
+                // Allow:
+                //     """
+                //     some text
+                //     """.uppercase().replace("foo bar", "bar foo").trimIndent()
+                false
+            }
 
             !hasNewlineBeforeFirstChainOperator && !hasNewlineAfterLastChainOperator -> {
                 // Allow:
@@ -185,7 +185,7 @@ public class ChainMethodContinuation : // TODO: Rename to ChainMethodContinuatio
         }
 
     private fun ChainedExpression.exceedsMaxLineLength() =
-        with (rootASTNode) {
+        with(rootASTNode) {
             if (treeParent.elementType == BINARY_EXPRESSION) {
                 // Chained expressions which are enclosed inside a binary expression are skipped for now. It depends on the situation
                 // whether wrapping on the binary expression takes precedence on the chained expression or vice versa.
@@ -224,13 +224,12 @@ public class ChainMethodContinuation : // TODO: Rename to ChainMethodContinuatio
             ?.findChildByType(LBRACE)
     }
 
-    private fun ASTNode.isPrecededByComment() =
-        treeParent.children().any { it.isPartOfComment() }
+    private fun ASTNode.isPrecededByComment() = treeParent.children().any { it.isPartOfComment() }
 
     private fun fixWhiteSpaceBeforeChainOperator(
         chainOperator: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         chainOperator
             .prevLeaf()
@@ -287,7 +286,7 @@ public class ChainMethodContinuation : // TODO: Rename to ChainMethodContinuatio
     private fun fixWhiteSpaceAfterChainOperator(
         chainOperator: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         chainOperator
             .nextLeaf()
@@ -314,7 +313,7 @@ public class ChainMethodContinuation : // TODO: Rename to ChainMethodContinuatio
                     DOT_QUALIFIED_EXPRESSION,
                     POSTFIX_EXPRESSION,
                     PREFIX_EXPRESSION,
-                    SAFE_ACCESS_EXPRESSION
+                    SAFE_ACCESS_EXPRESSION,
                 )
 
             fun createFrom(astNode: ASTNode): ChainedExpression {
@@ -323,7 +322,9 @@ public class ChainMethodContinuation : // TODO: Rename to ChainMethodContinuatio
                 while (chainParent.treeParent?.elementType in chainableElementTypes) {
                     chainParent = chainParent.treeParent
                 }
-                return requireNotNull(chainParent.toChainedExpression()) { "Failed to create chained expression from ${astNode.treeParent.text}" }
+                return requireNotNull(
+                    chainParent.toChainedExpression(),
+                ) { "Failed to create chained expression from ${astNode.treeParent.text}" }
             }
 
             private fun ASTNode.toChainedExpression(): ChainedExpression? =
@@ -372,16 +373,14 @@ public class ChainMethodContinuation : // TODO: Rename to ChainMethodContinuatio
                     chainOperators = chainOperators,
                     hasNewlineBeforeFirstChainOperator = chainBefore?.hasNewlineBeforeFirstChainOperator ?: false,
                     hasNewlineBetweenFirstAndLastChainOperator = newlineBefore,
-                    hasNewlineAfterLastChainOperator = newlineAfter
+                    hasNewlineAfterLastChainOperator = newlineAfter,
                 )
             }
 
-            private fun ChainedExpression.modifyForFirstOperator(
-                chainOperator: ASTNode
-            ): ChainedExpression =
+            private fun ChainedExpression.modifyForFirstOperator(chainOperator: ASTNode): ChainedExpression =
                 copy(
                     hasNewlineBeforeFirstChainOperator =
-                    chainOperator.prevCodeSibling()!!.textContains('\n') || chainOperator.isPrecededByNewlineSibling(),
+                        chainOperator.prevCodeSibling()!!.textContains('\n') || chainOperator.isPrecededByNewlineSibling(),
                     hasNewlineBetweenFirstAndLastChainOperator = false,
                 )
 
@@ -413,7 +412,6 @@ public class ChainMethodContinuation : // TODO: Rename to ChainMethodContinuatio
         val chainOperatorExpressionConverterTokenSet = TokenSet.create(DOT_QUALIFIED_EXPRESSION, SAFE_ACCESS_EXPRESSION)
         val chainOperatorTokenSet = TokenSet.create(DOT, SAFE_ACCESS)
         val groupClosingElementType = TokenSet.create(CLOSING_QUOTE, RBRACE, RBRACKET, RPAR)
-
     }
 }
 

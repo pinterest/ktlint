@@ -40,6 +40,10 @@ public class CheckStyleReporter(
     }
 
     private fun String.escapeXMLAttrValue() =
-        this.replace("&", "&amp;").replace("\"", "&quot;").replace("'", "&apos;")
-            .replace("<", "&lt;").replace(">", "&gt;")
+        this
+            .replace("&", "&amp;")
+            .replace("\"", "&quot;")
+            .replace("'", "&apos;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
 }

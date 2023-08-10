@@ -44,8 +44,7 @@ public open class RuleSetProviderTest(
         assertThat(missingRules)
             .withFailMessage(
                 "${ruleSetProvider::class.simpleName} is missing to provide the following rules:${NEWLINE_AND_INDENT}$missingRules",
-            )
-            .isEmpty()
+            ).isEmpty()
     }
 
     private companion object {

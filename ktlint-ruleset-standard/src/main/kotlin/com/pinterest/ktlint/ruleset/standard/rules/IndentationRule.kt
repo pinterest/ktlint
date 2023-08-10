@@ -1327,7 +1327,8 @@ private class StringTemplateIndenter(
                     } else {
                         expectedIndent
                     }
-                node.children()
+                node
+                    .children()
                     .forEach {
                         if (it.prevLeaf()?.text == "\n" &&
                             (
@@ -1421,7 +1422,9 @@ private class StringTemplateIndenter(
     private fun KtStringTemplateExpression.isFollowedByTrimMargin() = isFollowedBy("trimMargin()")
 
     private fun KtStringTemplateExpression.isFollowedBy(callExpressionName: String) =
-        this.node.nextSibling { it.elementType != DOT }
+        this
+            .node
+            .nextSibling { it.elementType != DOT }
             .let { it?.elementType == CALL_EXPRESSION && it.text == callExpressionName }
 
     private fun KtStringTemplateExpression.isMultiLine(): Boolean {

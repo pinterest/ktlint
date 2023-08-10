@@ -237,7 +237,8 @@ public class ArgumentListWrappingRule :
         }
 
     private fun ASTNode.hasTypeArgumentListInFront(): Boolean =
-        treeParent.children()
+        treeParent
+            .children()
             .firstOrNull { it.elementType == ElementType.TYPE_ARGUMENT_LIST }
             ?.children()
             ?.any { it.isWhiteSpaceWithNewline() } == true

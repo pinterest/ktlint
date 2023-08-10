@@ -132,7 +132,8 @@ public class MultilineExpressionWrapping :
                 ?.takeIf { it.elementType == EQ || it.elementType == OPERATION_REFERENCE }
                 ?.takeUnless { it.isElvisOperator() }
                 ?.takeUnless {
-                    it.closingParenthesisOfFunctionOrNull()
+                    it
+                        .closingParenthesisOfFunctionOrNull()
                         ?.prevLeaf()
                         .isWhiteSpaceWithNewline()
                 }
