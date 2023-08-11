@@ -30,6 +30,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
@@ -49,6 +50,7 @@ import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
+import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 
@@ -73,6 +75,7 @@ public class ChainMethodContinuationRule :
         usesEditorConfigProperties =
             setOf(
                 CODE_STYLE_PROPERTY,
+                FORCE_MULTILINE_WHEN_CHAIN_OPERATOR_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY,
                 INDENT_SIZE_PROPERTY,
                 INDENT_STYLE_PROPERTY,
                 MAX_LINE_LENGTH_PROPERTY,
@@ -82,6 +85,8 @@ public class ChainMethodContinuationRule :
     Rule.OfficialCodeStyle {
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
     private var maxLineLength: Int = MAX_LINE_LENGTH_PROPERTY.defaultValue
+    private var forceMultilineWhenChainOperatorCountGreaterOrEqualThanProperty =
+        FORCE_MULTILINE_WHEN_CHAIN_OPERATOR_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY.defaultValue
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         indentConfig =
@@ -93,6 +98,8 @@ public class ChainMethodContinuationRule :
             stopTraversalOfAST()
         }
         maxLineLength = editorConfig[MAX_LINE_LENGTH_PROPERTY]
+        forceMultilineWhenChainOperatorCountGreaterOrEqualThanProperty =
+            editorConfig[FORCE_MULTILINE_WHEN_CHAIN_OPERATOR_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY]
     }
 
     override fun beforeVisitChildNodes(
@@ -178,7 +185,7 @@ public class ChainMethodContinuationRule :
                 //     listOf(1, 2, 3).filter { it > 2 }.filter {
                 //         it > 3
                 //     }
-                chainOperators.size > 5 // TODO: make configurable?
+                chainOperators.size >= forceMultilineWhenChainOperatorCountGreaterOrEqualThanProperty
             }
 
             else -> false
@@ -408,10 +415,38 @@ public class ChainMethodContinuationRule :
         }
     }
 
-    private companion object {
-        val chainOperatorExpressionConverterTokenSet = TokenSet.create(DOT_QUALIFIED_EXPRESSION, SAFE_ACCESS_EXPRESSION)
-        val chainOperatorTokenSet = TokenSet.create(DOT, SAFE_ACCESS)
-        val groupClosingElementType = TokenSet.create(CLOSING_QUOTE, RBRACE, RBRACKET, RPAR)
+    public companion object {
+        private val chainOperatorExpressionConverterTokenSet = TokenSet.create(DOT_QUALIFIED_EXPRESSION, SAFE_ACCESS_EXPRESSION)
+        private val chainOperatorTokenSet = TokenSet.create(DOT, SAFE_ACCESS)
+        private val groupClosingElementType = TokenSet.create(CLOSING_QUOTE, RBRACE, RBRACKET, RPAR)
+
+        private const val FORCE_MULTILINE_WHEN_CHAIN_OPERATOR_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY_UNSET = 4
+        public val FORCE_MULTILINE_WHEN_CHAIN_OPERATOR_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY: EditorConfigProperty<Int> =
+            EditorConfigProperty(
+                type =
+                    PropertyType.LowerCasingPropertyType(
+                        "ktlint_chain_method_rule_force_multiline_when_chain_operator_count_greater_or_equal_than",
+                        "Force wrapping of chained methods in case and expression contains at least the specified number of chain " +
+                            "operators. By default this parameter is set to 4.",
+                        PropertyType.PropertyValueParser.POSITIVE_INT_VALUE_PARSER,
+                        setOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "unset"),
+                    ),
+                defaultValue = FORCE_MULTILINE_WHEN_CHAIN_OPERATOR_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY_UNSET,
+                propertyMapper = { property, _ ->
+                    if (property?.isUnset == true) {
+                        FORCE_MULTILINE_WHEN_CHAIN_OPERATOR_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY_UNSET
+                    } else {
+                        property?.getValueAs<Int>()
+                    }
+                },
+                propertyWriter = { property ->
+                    if (property == FORCE_MULTILINE_WHEN_CHAIN_OPERATOR_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY_UNSET) {
+                        "unset"
+                    } else {
+                        property.toString()
+                    }
+                },
+            )
     }
 }
 

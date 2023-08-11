@@ -92,7 +92,16 @@ Rule id: `blank-line-before-declaration` (`standard` rule set)
 
 ### Chain method continuation
 
-In a multiline method chain, the chain operators (`.` or `?.`) have to be aligned with each other.
+In a multiline method chain, the chain operators (`.` or `?.`) have to be aligned with each other. 
+
+Multiple chained methods on a single line are allowed as long as the maximum line length, and the maximum number of chain operators are not exceeded. Under certain conditions, it is allowed that the expression before the first and/or the expression after the last chain operator is a multiline expression.
+
+The `.` in `java.class` is ignored when wrapping on chain operators.
+
+This rule can be configured with `.editorconfig` property [`ktlint_chain_method_rule_force_multiline_when_chain_operator_count_greater_or_equal_than`](../configuration-ktlint/#force-multiline-chained-methods-based-on-number-of-chain-operators).
+
+!!! warning
+    Binary expression for which the left and/or right operand consist of method chain are currently being ignored by this rule. Please reach out, if you can help to determine what the best strategy is to deal with such kind of expressions.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -115,6 +124,13 @@ In a multiline method chain, the chain operators (`.` or `?.`) have to be aligne
             }?.map {
                 2 * it
             }
+    val foo3 = foo().bar().map {
+        it.foobar()
+    }
+    val foo4 =
+        """
+        Some text
+        """.trimIndent().foo().bar()
     ```
 
 === "[:material-heart-off-outline:](#) Disallowed"
@@ -141,9 +157,21 @@ In a multiline method chain, the chain operators (`.` or `?.`) have to be aligne
             ?.map {
                 2 * it
             }
+    val foo3 = foo()
+        .bar().map {
+            it.foobar()
+        }
+    val foo4 =
+        """
+        Some text
+        """.trimIndent().foo()
+            .bar()
     ```
 
 Rule id: `chain-method-continuation` (`standard` rule set)
+
+!!! Note
+    This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
 
 ## Class signature
 

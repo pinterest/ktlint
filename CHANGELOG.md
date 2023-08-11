@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 * Add experimental rule `class-signature`. This rule rewrites the class header to a consistent format. In code style `ktlint_official`, super types are always wrapped to a separate line. In other code styles, super types are only wrapped in classes having multiple super types. Especially for code style `ktlint_official` the class headers are rewritten in a more consistent format. See [examples in documentation](https://pinterest.github.io/ktlint/latest/rules/experimental/#class-signature). `class-signature` [#875](https://github.com/pinterest/ktlint/issues/1349), [#1349](https://github.com/pinterest/ktlint/issues/875)
 * Add experimental rule `function-expression-body`. This rule rewrites function bodies only contain a `return` or `throw` expression to an expression body. [#2150](https://github.com/pinterest/ktlint/issues/2150)
+* Add experimental rule `chain-method-continuation` to the `ktlint_official` code style, but it can be enabled explicitly for the other code styles as well. This rule requires the operators (`.` or `?.`) for chaining method calls, to be aligned with each other. This rule is enabled by ([#1953](https://github.com/pinterest/ktlint/issues/1953))
 
 ### Removed
 * As a part of public API stabilization, data classes are no longer used in the public API. As of that, functions like `copy()` or `componentN()` (used for destructuring declarations) are not available anymore. This is a binary incompatible change, breaking backwards compatibility. ([#2133](https://github.com/pinterest/ktlint/issues/2133))
@@ -78,7 +79,6 @@ At this point in time, it is not yet decided what the next steps will be. Ktlint
 * Wrap multiple statements on same line `wrapping` ([#1078](https://github.com/pinterest/ktlint/issues/1078))
 * Add new rule `ktlint-suppression` to replace the `ktlint-disable` and `ktlint-enable` directives with annotations. This rule can not be disabled via the `.editorconfig` ([#1947](https://github.com/pinterest/ktlint/issues/1947))
 * Inform user about using `--format` option of KtLint CLI when finding a violation that can be autocorrected ([#1071](https://github.com/pinterest/ktlint/issues/1071))
-* Add new experimental rule `chain-method-continuation` . This rule requires the operators (`.` or `?.`) for chaining method calls, to be aligned with each other ([#1953](https://github.com/pinterest/ktlint/issues/1953))
 
 ### Removed
 

@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.ruleset.standard.rules.ChainMethodContinuationRule.Companion.FORCE_MULTILINE_WHEN_CHAIN_OPERATOR_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
@@ -24,16 +25,38 @@ class ChainMethodContinuationRuleTest {
         )
 
     @Test
-    fun `Given that no maximum line length is set, and a single line method chain then do not wrap`() {
+    fun `Given that no maximum line length is set, and a single line method chain does not exceed the maximum number of chain operators then do not wrap`() {
         val code =
             """
-            val foo = listOf(1, 2, 3).filter { it > 2 }!!.takeIf { it.count() > 100 }.map { it * it }?.sum()!!
+            val foo = listOf(1, 2, 3).filter { it > 2 }!!.takeIf { it.count() > 100 }?.sum()!!
             """.trimIndent()
         chainMethodContinuationRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
-    fun `Given that maximum line length is set, and a single line method chain does not exceed the maximum line length then do not wrap`() {
+    fun `Given that no maximum line length is set, and a single line method chain does exceed the maximum number of chain operators then wrap`() {
+        val code =
+            """
+            val foo = listOf(1, 2, 3).filter { it > 2 }!!.takeIf { it.count() > 100 }?.sum()!!
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo = listOf(1, 2, 3)
+                .filter { it > 2 }!!
+                .takeIf { it.count() > 100 }
+                ?.sum()!!
+            """.trimIndent()
+        chainMethodContinuationRuleAssertThat(code)
+            .withEditorConfigOverride(FORCE_MULTILINE_WHEN_CHAIN_OPERATOR_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to 3)
+            .hasLintViolations(
+                LintViolation(1, 26, "Expected newline before '.'"),
+                LintViolation(1, 46, "Expected newline before '.'"),
+                LintViolation(1, 74, "Expected newline before '?.'"),
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given that maximum line length is set but not exceeded, and a single line method chain does not exceed the maximum line length then do not wrap`() {
         val code =
             """
             // $MAX_LINE_LENGTH_MARKER                                                                       $EOL_CHAR
@@ -41,6 +64,7 @@ class ChainMethodContinuationRuleTest {
             """.trimIndent()
         chainMethodContinuationRuleAssertThat(code)
             .setMaxLineLength()
+            .withEditorConfigOverride(FORCE_MULTILINE_WHEN_CHAIN_OPERATOR_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to 5)
             .hasNoLintViolations()
     }
 
