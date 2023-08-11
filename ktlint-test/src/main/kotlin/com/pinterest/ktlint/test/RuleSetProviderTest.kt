@@ -24,7 +24,12 @@ public open class RuleSetProviderTest(
 
     @Test
     public fun checkAllRulesInPackageAreProvidedByRuleSetProvider() {
-        val srcLocation = rulesetClass.protectionDomain.codeSource.location.path
+        val srcLocation =
+            rulesetClass
+                .protectionDomain
+                .codeSource
+                .location
+                .path
         val rulesDir = File(srcLocation + packageName.replace(".", "/"))
         val packageRules =
             rulesDir

@@ -4,7 +4,14 @@ plugins {
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.checksum) apply false
     alias(libs.plugins.shadow) apply false
-    alias(libs.plugins.kotlinx.binary.compatibiltiy.validator)
+    alias(
+        libs
+            .plugins
+            .kotlinx
+            .binary
+            .compatibiltiy
+            .validator,
+    )
 }
 
 val internalNonPublishableProjects by extra(
