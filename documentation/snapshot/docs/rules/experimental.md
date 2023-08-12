@@ -1206,6 +1206,11 @@ A function, class/object body or other block body statement has to be placed on 
         val a = 0
         val b = 1
     }
+    enum class FooBar1 { FOO, BAR }
+    enum class FooBar2 {
+        FOO,
+        BAR,
+    }
     ```
 
 === "[:material-heart-off-outline:](#) Disallowed"
