@@ -81,11 +81,6 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://pinterest.github.io/ktlint/0.50.0/install/overview/</loc>
-         <lastmod>2023-08-12</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://pinterest.github.io/ktlint/0.50.0/install/snapshot-build/</loc>
          <lastmod>2023-08-12</lastmod>
          <changefreq>daily</changefreq>
