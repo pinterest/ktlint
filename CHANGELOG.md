@@ -46,12 +46,13 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Changed
 
 * Change default code style to `ktlint_official` ([#2143](https://github.com/pinterest/ktlint/pull/2143))
-* Update dependency gradle to v8.2.1 ([#2122](https://github.com/pinterest/ktlint/pull/2122))
-* Update dependency org.codehaus.janino:janino to v3.1.10  ([#2110](https://github.com/pinterest/ktlint/pull/2110))
-* Update dependency com.google.jimfs:jimfs to v1.3.0 ([#2112](https://github.com/pinterest/ktlint/pull/2112))
+* Update dependency `gradle` to `v8.2.1` ([#2122](https://github.com/pinterest/ktlint/pull/2122))
+* Update dependency `org.codehaus.janino:janino` to `v3.1.10`  ([#2110](https://github.com/pinterest/ktlint/pull/2110))
+* Update dependency `com.google.jimfs:jimfs` to `v1.3.0` ([#2112](https://github.com/pinterest/ktlint/pull/2112))
 * As a part of public API stabilization, configure `binary-compatibility-validator` plugin for compile-time verification of binary compatibility with previous `ktlint` versions ([#2131](https://github.com/pinterest/ktlint/pull/2131))
-* Update dependency org.junit.jupiter:junit-jupiter to v5.10.0 ([#2148](https://github.com/pinterest/ktlint/pull/2148))
+* Update dependency `org.junit.jupiter:junit-jupiter` to `v5.10.0` ([#2148](https://github.com/pinterest/ktlint/pull/2148))
 * Build the project with Java 20, run test on Java 8, 11, 17 and 20 ([#1888](https://github.com/pinterest/ktlint/issues/1888))
+* Update dependency `io.github.oshai:kotlin-logging-jvm` to `v5.1.0` ([#2174](https://github.com/pinterest/ktlint/pull/2174))
 
 ## [0.50.0] - 2023-06-29
 
@@ -110,11 +111,11 @@ At this point in time, it is not yet decided what the next steps will be. Ktlint
 ### Changed
 
 * Fix Java interoperability issues with `RuleId` and `RuleSetId` classes. Those classes were defined as value classes in `0.49.0` and `0.49.1`. Although the classes were marked with `@JvmInline` it seems that it is not possible to uses those classes from Java base API Consumers like Spotless. The classes have now been replaced with data classes ([#2041](https://github.com/pinterest/ktlint/issues/2041))
-* Update dependency `info.picocli:picocli` to v4.7.4
-* Update dependency `org.junit.jupiter:junit-jupiter` to v5.9.3
+* Update dependency `info.picocli:picocli` to `v4.7.4`
+* Update dependency `org.junit.jupiter:junit-jupiter` to `v5.9.3`
 * Update Kotlin development version to `1.8.22` and Kotlin version to `1.8.22`.
-* Update dependency io.github.detekt.sarif4k:sarif4k to v0.4.0
-* Update dependency org.jetbrains.dokka:dokka-gradle-plugin to v1.8.20
+* Update dependency `io.github.detekt.sarif4k:sarif4k` to `v0.4.0`
+* Update dependency `org.jetbrains.dokka:dokka-gradle-plugin` to `v1.8.20`
 * Run format up to 3 times in case formatting introduces changes which also can be autocorrected ([#2084](https://github.com/pinterest/ktlint/issues/2084))
 
 ## [0.49.1] - 2023-05-12
