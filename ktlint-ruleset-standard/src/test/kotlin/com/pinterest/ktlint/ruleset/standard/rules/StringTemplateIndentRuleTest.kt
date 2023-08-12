@@ -18,7 +18,7 @@ class StringTemplateIndentRuleTest {
             provider = { StringTemplateIndentRule() },
             additionalRuleProviders =
                 setOf(
-                    RuleProvider { MultilineExpressionWrapping() },
+                    RuleProvider { MultilineExpressionWrappingRule() },
                     RuleProvider { IndentationRule() },
                 ),
             editorConfigProperties = setOf(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official),
