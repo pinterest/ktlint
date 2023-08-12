@@ -40,7 +40,6 @@ theme:
 nav:
   - Home: index.md
   - Installation:
-    - Overview: install/overview.md
     - Command line: install/cli.md
     - Integrations: install/integrations.md
 #    - API: install/api.md  TODO: properly document
