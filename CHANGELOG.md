@@ -4,13 +4,27 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+### API changes
+
+* As a part of public API stabilization, data classes are no longer used in the public API. As of that, functions like `copy()` or `componentN()` (used for destructuring declarations) are not available anymore. This is a binary incompatible change, breaking backwards compatibility. ([#2133](https://github.com/pinterest/ktlint/issues/2133))
+
+* Align names of Rule classes, file and `RULE_ID` constants ([#2176](https://github.com/pinterest/ktlint/issues/2176)). Rule class `MultilineExpressionWrapping` has been renamed to `MultilineExpressionWrappingRule`. Rule class `StatementWrapping` has been renamed to `StatementWrappingRule`. `RULE_ID` constants below are moved to a different Java class at compile time. Each rule provided by Ktlint is to be accompanied by a `RULE_ID` constant that can be used in the `VisitorModifier.RunAfter`. Filenames did not comply with standard that it should end with `Rule` suffix.
+
+| RULE ID                               | Old Java class name           | New Java class name               |
+|---------------------------------------|-------------------------------|-----------------------------------|
+| FUNCTION_EXPRESSION_BODY_RULE_ID      | FunctionExpressionBodyKt      | FunctionExpressionBodyRuleKt      |
+| FUNCTION_LITERAL_RULE_ID              | FunctionLiteralKt             | FunctionLiteralRuleKt             |
+| MULTILINE_EXPRESSION_WRAPPING_RULE_ID | MultilineExpressionWrappingKt | MultilineExpressionWrappingRuleKt |
+| NO_BLANK_LINE_IN_LIST_RULE_ID         | NoBlankLineInListKt           | NoBlankLineInListRuleKt           |
+| NO_EMPTY_FILE_RULE_ID                 | (not applicable)              | NoEmptyFileRuleKt                 |
+
 ### Added
 
 * Add experimental rule `class-signature`. This rule rewrites the class header to a consistent format. In code style `ktlint_official`, super types are always wrapped to a separate line. In other code styles, super types are only wrapped in classes having multiple super types. Especially for code style `ktlint_official` the class headers are rewritten in a more consistent format. See [examples in documentation](https://pinterest.github.io/ktlint/latest/rules/experimental/#class-signature). `class-signature` [#875](https://github.com/pinterest/ktlint/issues/1349), [#1349](https://github.com/pinterest/ktlint/issues/875)
 * Add experimental rule `function-expression-body`. This rule rewrites function bodies only contain a `return` or `throw` expression to an expression body. [#2150](https://github.com/pinterest/ktlint/issues/2150)
+* Add new experimental rule `statement-wrapping` which ensures function, class, or other blocks statement body doesn't start or end at starting or ending braces of the block ([#1938](https://github.com/pinterest/ktlint/issues/1938)). This rule was added in `0.50` release, but was never executed outside the unit tests. The rule is now added to the `StandardRuleSetProvider` ([#2170](https://github.com/pinterest/ktlint/issues/2170))
 
 ### Removed
-* As a part of public API stabilization, data classes are no longer used in the public API. As of that, functions like `copy()` or `componentN()` (used for destructuring declarations) are not available anymore. This is a binary incompatible change, breaking backwards compatibility. ([#2133](https://github.com/pinterest/ktlint/issues/2133))
 
 ### Fixed
 
@@ -27,6 +41,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 * Add new experimental rule `function-literal`. This rule enforces the parameter list of a function literal to be formatted consistently. `function-literal` [#2121](https://github.com/pinterest/ktlint/issues/2121)
 * Store relative path of file in baseline file [#2146](https://github.com/pinterest/ktlint/issues/2146)
 * Fix null pointer exception for if-else statement with empty THEN block `if-else-bracing` [#2135](https://github.com/pinterest/ktlint/issues/2135)
+* Do not wrap a single line enum class `statement-wrapping` [#2177](https://github.com/pinterest/ktlint/issues/2177)
 
 ### Changed
 
@@ -73,7 +88,7 @@ At this point in time, it is not yet decided what the next steps will be. Ktlint
 * Add new experimental rule `binary-expression-wrapping`. This rule wraps a binary expression in case the max line length is exceeded ([#1940](https://github.com/pinterest/ktlint/issues/1940))
 * Add flag to disable extension point `org.jetbrains.kotlin.com.intellij.treeCopyHandler` to analyse impact on custom rules [#1981](https://github.com/pinterest/ktlint/issues/1981)
 * Add new experimental rule `no-empty-file` for all code styles. A kotlin (script) file may not be empty ([#1074](https://github.com/pinterest/ktlint/issues/1074))
-* Add new experimental rule `statement-wrapping` which ensures function, class, or other blocks statement body doesn't start or end at starting or ending braces of the block ([#1938](https://github.com/pinterest/ktlint/issues/1938))
+* Add new experimental rule `statement-wrapping` which ensures function, class, or other blocks statement body doesn't start or end at starting or ending braces of the block ([#1938](https://github.com/pinterest/ktlint/issues/1938)). Note, although this rule is added in this release, it is never executed except in unit tests.
 * Add new experimental rule `blank-line-before-declaration`. This rule requires a blank line before class, function or property declarations ([#1939](https://github.com/pinterest/ktlint/issues/1939))
 * Wrap multiple statements on same line `wrapping` ([#1078](https://github.com/pinterest/ktlint/issues/1078))
 * Add new rule `ktlint-suppression` to replace the `ktlint-disable` and `ktlint-enable` directives with annotations. This rule can not be disabled via the `.editorconfig` ([#1947](https://github.com/pinterest/ktlint/issues/1947))
