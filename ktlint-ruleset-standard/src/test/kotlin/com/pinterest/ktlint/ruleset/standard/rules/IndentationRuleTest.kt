@@ -2633,6 +2633,71 @@ internal class IndentationRuleTest {
             .isFormattedAs(formattedCode)
     }
 
+    @Nested
+    inner class `Issue 2175 - Given a function using the WHERE keyword` {
+        @Test
+        fun `Issue 2175 - Given a function without return type but with WHERE`() {
+            val code =
+                """
+                fun <TFeature, TValidated> applyToAllCloseFeaturesWithUiFlow(
+                    thisFeature: TFeature,
+                    allFeaturesOfThisKind: List<TFeature>,
+                    optionsToApply: TValidated,
+                // .. more parameters
+                ) where TFeature : Clusterable,
+                    TFeature : SupportsExternalObjectCoordinates<out Options<out Options.Validated>, out Options.Validated, *>,
+                    TValidated : Options.Validated {
+                    // do something
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun <TFeature, TValidated> applyToAllCloseFeaturesWithUiFlow(
+                    thisFeature: TFeature,
+                    allFeaturesOfThisKind: List<TFeature>,
+                    optionsToApply: TValidated,
+                // .. more parameters
+                ) where TFeature : Clusterable,
+                        TFeature : SupportsExternalObjectCoordinates<out Options<out Options.Validated>, out Options.Validated, *>,
+                        TValidated : Options.Validated {
+                    // do something
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(7, 1, "Unexpected indentation (4) (should be 8)"),
+                    LintViolation(8, 1, "Unexpected indentation (4) (should be 8)"),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Issue 2175 - Given a function with return type and WHERE on separate lines`() {
+            val code =
+                """
+                fun <T> copyWhenGreater(list: List<T>, threshold: T): List<String>
+                    where T : CharSequence,
+                          T : Comparable<T> {
+                    return list.filter { it > threshold }.map { it.toString() }
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `Issue 2175 - Given a function with return type and WHERE on same line`() {
+            val code =
+                """
+                fun <T> copyWhenGreater(
+                    list: List<T>, threshold: T
+                ): List<String> where T : CharSequence,
+                                      T : Comparable<T> {
+                    return list.filter { it > threshold }.map { it.toString() }
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+    }
+
     @Test // "https://github.com/pinterest/ktlint/issues/433"
     fun `Given a parameter list in which parameters are prefixed with a comment block`() {
         val code =

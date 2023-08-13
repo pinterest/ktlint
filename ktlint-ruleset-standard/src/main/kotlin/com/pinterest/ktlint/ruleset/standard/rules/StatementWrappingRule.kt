@@ -22,9 +22,11 @@ import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.com.intellij.psi.PsiElement
+import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 
-public class StatementWrapping :
+public class StatementWrappingRule :
     StandardRule(
         "statement-wrapping",
         usesEditorConfigProperties =
@@ -72,9 +74,16 @@ public class StatementWrapping :
             .takeUnless {
                 // Allow
                 //     val foo = {}
+                it.isBlockWithoutStatements
+            }?.takeUnless {
+                // Allow
                 //     val foo = { /* no-op */ }
                 //     val foo = { a, b -> println(a + b) }
-                it.isBlockWithoutStatements || it.isFunctionLiteralWithSingleStatementOnSingleLine
+                it.isFunctionLiteralWithSingleStatementOnSingleLine
+            }?.takeUnless {
+                // Allow
+                //     enum class FooBar { FOO, BAR }
+                it.treeParent.isEnumClassOnSingleLine
             }?.findChildByType(LBRACE)
             ?.applyIf(node.isFunctionLiteralWithParameterList) {
                 // Allow:
@@ -131,6 +140,15 @@ public class StatementWrapping :
                 ?.count { it.elementType != VALUE_PARAMETER_LIST && it.elementType != ARROW }
                 ?.let { count -> count <= 1 }
                 ?: false
+
+    private inline val ASTNode.isEnumClassOnSingleLine: Boolean
+        get() =
+            takeIf { psi.isEnumClass }
+                ?.let { !it.textContains('\n') }
+                ?: false
+
+    private inline val PsiElement.isEnumClass: Boolean
+        get() = (this as? KtClass)?.isEnum() ?: false
 
     private inline val ASTNode.indentAsChild: String
         get() = indent().plus(indentConfig.indent)

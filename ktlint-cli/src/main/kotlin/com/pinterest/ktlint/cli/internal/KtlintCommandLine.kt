@@ -384,7 +384,9 @@ internal class KtlintCommandLine {
 
     private var KLogger.level: Level?
         get() = underlyingLogger()?.level
-        set(value) { underlyingLogger()?.level = value }
+        set(value) {
+            underlyingLogger()?.level = value
+        }
 
     private fun KLogger.underlyingLogger(): Logger? =
         @Suppress("UNCHECKED_CAST")

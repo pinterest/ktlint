@@ -46,7 +46,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 /**
  * This rule wraps each multiline expression to a newline.
  */
-public class MultilineExpressionWrapping :
+public class MultilineExpressionWrappingRule :
     StandardRule(
         id = "multiline-expression-wrapping",
         usesEditorConfigProperties =
@@ -189,4 +189,4 @@ public class MultilineExpressionWrapping :
     }
 }
 
-public val MULTILINE_EXPRESSION_WRAPPING_RULE_ID: RuleId = MultilineExpressionWrapping().ruleId
+public val MULTILINE_EXPRESSION_WRAPPING_RULE_ID: RuleId = MultilineExpressionWrappingRule().ruleId

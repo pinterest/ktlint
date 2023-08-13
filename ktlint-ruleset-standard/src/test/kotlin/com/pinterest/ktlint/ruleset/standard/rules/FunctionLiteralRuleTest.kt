@@ -373,7 +373,7 @@ class FunctionLiteralRuleTest {
             }
             """.trimIndent()
         functionLiteralRuleAssertThat(code)
-            .addAdditionalRuleProvider { MultilineExpressionWrapping() }
+            .addAdditionalRuleProvider { MultilineExpressionWrappingRule() }
             .setMaxLineLength()
             .hasLintViolations(
                 LintViolation(2, 36, "Newline expected after arrow"),
@@ -399,7 +399,7 @@ class FunctionLiteralRuleTest {
             }
             """.trimIndent()
         functionLiteralRuleAssertThat(code)
-            .addAdditionalRuleProvider { MultilineExpressionWrapping() }
+            .addAdditionalRuleProvider { MultilineExpressionWrappingRule() }
             .setMaxLineLength()
             .hasLintViolation(2, 36, "Newline expected after arrow")
             .isFormattedAs(formattedCode)
