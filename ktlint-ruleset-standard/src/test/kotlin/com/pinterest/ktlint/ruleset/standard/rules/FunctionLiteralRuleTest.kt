@@ -431,7 +431,7 @@ class FunctionLiteralRuleTest {
                 ?.sum()!!
             """.trimIndent()
         functionLiteralRuleAssertThat(code)
-            .addAdditionalRuleProvider { MultilineExpressionWrapping() }
+            .addAdditionalRuleProvider { MultilineExpressionWrappingRule() }
             .addAdditionalRuleProvider { ChainMethodContinuationRule() }
             .addAdditionalRuleProvider { ArgumentListWrappingRule() }
             .addAdditionalRuleProvider { DiscouragedCommentLocationRule() }

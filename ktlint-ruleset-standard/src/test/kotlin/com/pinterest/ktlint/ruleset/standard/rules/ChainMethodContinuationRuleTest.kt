@@ -573,7 +573,7 @@ class ChainMethodContinuationRuleTest {
                 .setMaxLineLength()
                 .addAdditionalRuleProvider { ArgumentListWrappingRule() }
                 .addAdditionalRuleProvider { FunctionLiteralRule() }
-                .addAdditionalRuleProvider { MultilineExpressionWrapping() }
+                .addAdditionalRuleProvider { MultilineExpressionWrappingRule() }
                 .addAdditionalRuleProvider { IndentationRule() }
                 .isFormattedAs(formattedCode)
                 .hasLintViolations(
