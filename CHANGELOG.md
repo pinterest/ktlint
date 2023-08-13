@@ -42,6 +42,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 * Store relative path of file in baseline file [#2146](https://github.com/pinterest/ktlint/issues/2146)
 * Fix null pointer exception for if-else statement with empty THEN block `if-else-bracing` [#2135](https://github.com/pinterest/ktlint/issues/2135)
 * Do not wrap a single line enum class `statement-wrapping` [#2177](https://github.com/pinterest/ktlint/issues/2177)
+* Fix alignment of type constraints after `where` keyword in function signature `indent` [#2175](https://github.com/pinterest/ktlint/issues/2175)
 
 ### Changed
 
