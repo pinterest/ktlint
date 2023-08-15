@@ -134,7 +134,7 @@ public class ChainMethodContinuationRule :
     private fun fixWhitespaceBeforeChainOperators(
         chainedExpression: ChainedExpression,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean
+        autoCorrect: Boolean,
     ) {
         val wrapBeforeEachChainOperator = chainedExpression.wrapBeforeChainOperator()
         val exceedsMaxLineLength = chainedExpression.exceedsMaxLineLength()
