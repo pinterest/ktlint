@@ -157,7 +157,7 @@ class CommandLineTestRunner(
 
                 addAll(arguments)
             }.joinToString(separator = " ")
-            .also { LOGGER.debug("Command to be executed: $it") }
+            .also { LOGGER.debug { "Command to be executed: $it" } }
 
     private fun String?.javaVersionAsInt(): Int? {
         if (this == null) {
