@@ -784,4 +784,23 @@ class MultilineExpressionWrappingRuleTest {
             .addAdditionalRuleProvider { IndentationRule() }
             .hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 2183 - Given a multiline postfix expression then reformat`() {
+        val code =
+            """
+            val foobar = foo!!
+                .bar()
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foobar =
+                foo!!
+                    .bar()
+            """.trimIndent()
+        multilineExpressionWrappingRuleAssertThat(code)
+            .addAdditionalRuleProvider { IndentationRule() }
+            .hasLintViolation(1, 14, "A multiline expression should start on a new line")
+            .isFormattedAs(formattedCode)
+    }
 }

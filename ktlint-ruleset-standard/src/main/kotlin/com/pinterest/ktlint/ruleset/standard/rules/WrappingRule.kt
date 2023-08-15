@@ -210,23 +210,24 @@ public class WrappingRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        val rElementType = MATCHING_RTOKEN_MAP[node.elementType]
+        val closingElementType = MATCHING_RTOKEN_MAP[node.elementType]
         var newlineInBetween = false
         var parameterListInBetween = false
         var numberOfArgs = 0
         var firstArg: ASTNode? = null
         // matching ), ] or }
-        val r = node.nextSibling {
-            val isValueArgument = it.elementType == VALUE_ARGUMENT
-            val hasLineBreak = if (isValueArgument) it.hasLineBreak(LAMBDA_EXPRESSION, FUN) else it.hasLineBreak()
-            newlineInBetween = newlineInBetween || hasLineBreak
-            parameterListInBetween = parameterListInBetween || it.elementType == VALUE_PARAMETER_LIST
-            if (isValueArgument) {
-                numberOfArgs++
-                firstArg = it
-            }
-            it.elementType == rElementType
-        }!!
+        val closingElement =
+            node.nextSibling {
+                val isValueArgument = it.elementType == VALUE_ARGUMENT
+                val hasLineBreak = if (isValueArgument) it.hasLineBreak(LAMBDA_EXPRESSION, FUN) else it.hasLineBreak()
+                newlineInBetween = newlineInBetween || hasLineBreak
+                parameterListInBetween = parameterListInBetween || it.elementType == VALUE_PARAMETER_LIST
+                if (isValueArgument) {
+                    numberOfArgs++
+                    firstArg = it
+                }
+                it.elementType == closingElementType
+            }!!
         if (
             !newlineInBetween ||
             // keep { p ->
@@ -283,8 +284,8 @@ public class WrappingRule :
         ) {
             requireNewlineAfterLeaf(node, autoCorrect, emit)
         }
-        if (!r.prevLeaf().isWhiteSpaceWithNewline()) {
-            requireNewlineBeforeLeaf(r, autoCorrect, emit, indentConfig.parentIndentOf(node))
+        if (!closingElement.prevLeaf().isWhiteSpaceWithNewline()) {
+            requireNewlineBeforeLeaf(closingElement, autoCorrect, emit, indentConfig.parentIndentOf(node))
         }
     }
 

@@ -581,10 +581,11 @@ public class IndentationRule :
             node.prevSibling { it.isWhiteSpaceWithNewline() } == null &&
             node == node.treeParent.findChildByType(VALUE_PARAMETER)
         ) {
-            nextToAstNode = startIndentContext(
-                fromAstNode = fromAstNode,
-                toAstNode = nextToAstNode,
-            ).fromASTNode.prevLeaf { !it.isWhiteSpace() }!!
+            nextToAstNode =
+                startIndentContext(
+                    fromAstNode = fromAstNode,
+                    toAstNode = nextToAstNode,
+                ).fromASTNode.prevLeaf { !it.isWhiteSpace() }!!
         } else {
             startIndentContext(
                 fromAstNode = node,
