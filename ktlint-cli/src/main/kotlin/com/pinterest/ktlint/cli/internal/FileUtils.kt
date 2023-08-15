@@ -108,15 +108,16 @@ internal fun FileSystem.fileSequence(
                     ): FileVisitResult {
                         val path =
                             if (onWindowsOS) {
-                                Paths.get(
-                                    filePath
-                                        .absolutePathString()
-                                        .replace(File.separatorChar, '/'),
-                                ).also {
-                                    if (it != filePath) {
-                                        LOGGER.trace { "On WindowsOS transform '$filePath' to '$it'" }
+                                Paths
+                                    .get(
+                                        filePath
+                                            .absolutePathString()
+                                            .replace(File.separatorChar, '/'),
+                                    ).also {
+                                        if (it != filePath) {
+                                            LOGGER.trace { "On WindowsOS transform '$filePath' to '$it'" }
+                                        }
                                     }
-                                }
                             } else {
                                 filePath
                             }

@@ -19,12 +19,13 @@ class SimpleCLITest {
                 "no-code-style-error",
                 listOf("--help"),
             ) {
-                SoftAssertions().apply {
-                    assertNormalExitCode()
-                    assertThat(normalOutput).containsLineMatching("An anti-bikeshedding Kotlin linter with built-in formatter.")
-                    assertThat(normalOutput).containsLineMatching("Usage:")
-                    assertThat(normalOutput).containsLineMatching("Examples:")
-                }.assertAll()
+                SoftAssertions()
+                    .apply {
+                        assertNormalExitCode()
+                        assertThat(normalOutput).containsLineMatching("An anti-bikeshedding Kotlin linter with built-in formatter.")
+                        assertThat(normalOutput).containsLineMatching("Usage:")
+                        assertThat(normalOutput).containsLineMatching("Examples:")
+                    }.assertAll()
             }
     }
 
@@ -38,10 +39,11 @@ class SimpleCLITest {
                 "no-code-style-error",
                 listOf("--version"),
             ) {
-                SoftAssertions().apply {
-                    assertNormalExitCode()
-                    assertThat(normalOutput).contains(System.getProperty("ktlint-version"))
-                }.assertAll()
+                SoftAssertions()
+                    .apply {
+                        assertNormalExitCode()
+                        assertThat(normalOutput).contains(System.getProperty("ktlint-version"))
+                    }.assertAll()
             }
     }
 
@@ -54,10 +56,11 @@ class SimpleCLITest {
             .run(
                 "no-code-style-error",
             ) {
-                SoftAssertions().apply {
-                    assertNormalExitCode()
-                    assertErrorOutputIsEmpty()
-                }.assertAll()
+                SoftAssertions()
+                    .apply {
+                        assertNormalExitCode()
+                        assertErrorOutputIsEmpty()
+                    }.assertAll()
             }
     }
 
@@ -71,10 +74,11 @@ class SimpleCLITest {
                 "too-many-empty-lines",
                 listOf("**/*.test"),
             ) {
-                SoftAssertions().apply {
-                    assertErrorExitCode()
-                    assertThat(normalOutput).containsLineMatching("Needless blank line(s)")
-                }.assertAll()
+                SoftAssertions()
+                    .apply {
+                        assertErrorExitCode()
+                        assertThat(normalOutput).containsLineMatching("Needless blank line(s)")
+                    }.assertAll()
             }
     }
 
@@ -88,11 +92,14 @@ class SimpleCLITest {
                 "too-many-empty-lines",
                 listOf("**/*.test"),
             ) {
-                SoftAssertions().apply {
-                    assertErrorExitCode()
-                    assertThat(normalOutput)
-                        .containsLineMatching(Regex(".* WARN .* Lint has found errors than can be autocorrected using 'ktlint --format'"))
-                }.assertAll()
+                SoftAssertions()
+                    .apply {
+                        assertErrorExitCode()
+                        assertThat(normalOutput)
+                            .containsLineMatching(
+                                Regex(".* WARN .* Lint has found errors than can be autocorrected using 'ktlint --format'"),
+                            )
+                    }.assertAll()
             }
     }
 
@@ -107,10 +114,11 @@ class SimpleCLITest {
                 "too-many-empty-lines",
                 listOf(somePattern),
             ) {
-                SoftAssertions().apply {
-                    assertNormalExitCode()
-                    assertThat(normalOutput).containsLineMatching("No files matched [$somePattern]")
-                }.assertAll()
+                SoftAssertions()
+                    .apply {
+                        assertNormalExitCode()
+                        assertThat(normalOutput).containsLineMatching("No files matched [$somePattern]")
+                    }.assertAll()
             }
     }
 
@@ -131,8 +139,7 @@ class SimpleCLITest {
                         assertThat(normalOutput)
                             .containsLineMatching("Enable default patterns")
                             .containsLineMatching("1 file(s) scanned / 0 error(s)")
-                    }
-                    .assertAll()
+                    }.assertAll()
             }
     }
 
@@ -146,13 +153,14 @@ class SimpleCLITest {
                 "too-many-empty-lines",
                 listOf("-F", "**/*.test"),
             ) {
-                SoftAssertions().apply {
-                    assertNormalExitCode()
-                    // on JDK11+ contains warning about illegal reflective access operation
-                    // assertErrorOutputIsEmpty()
+                SoftAssertions()
+                    .apply {
+                        assertNormalExitCode()
+                        // on JDK11+ contains warning about illegal reflective access operation
+                        // assertErrorOutputIsEmpty()
 
-                    assertSourceFileWasFormatted("Main.kt.test")
-                }.assertAll()
+                        assertSourceFileWasFormatted("Main.kt.test")
+                    }.assertAll()
             }
     }
 
@@ -166,13 +174,14 @@ class SimpleCLITest {
                 "too-many-empty-lines",
                 listOf("--disabled_rules=no-consecutive-blank-lines,no-empty-first-line-in-method-block"),
             ) {
-                SoftAssertions().apply {
-                    assertNormalExitCode()
-                    assertThat(normalOutput).doesNotContain(
-                        "no-consecutive-blank-lines",
-                        "no-empty-first-line-in-method-block",
-                    )
-                }.assertAll()
+                SoftAssertions()
+                    .apply {
+                        assertNormalExitCode()
+                        assertThat(normalOutput).doesNotContain(
+                            "no-consecutive-blank-lines",
+                            "no-empty-first-line-in-method-block",
+                        )
+                    }.assertAll()
             }
     }
 
@@ -188,10 +197,11 @@ class SimpleCLITest {
                 listOf("--patterns-from-stdin"),
                 stdin = ByteArrayInputStream(somePatternProvidedViaStdin.toByteArray()),
             ) {
-                SoftAssertions().apply {
-                    assertNormalExitCode()
-                    assertThat(normalOutput).containsLineMatching("No files matched [$somePatternProvidedViaStdin]")
-                }.assertAll()
+                SoftAssertions()
+                    .apply {
+                        assertNormalExitCode()
+                        assertThat(normalOutput).containsLineMatching("No files matched [$somePatternProvidedViaStdin]")
+                    }.assertAll()
             }
     }
 
@@ -223,12 +233,13 @@ class SimpleCLITest {
                 "too-many-empty-lines",
                 listOf("**/*.test", "--relative", "--reporter=sarif"),
             ) {
-                SoftAssertions().apply {
-                    assertErrorExitCode()
-                    assertThat(errorOutput).doesNotContainLineMatching(
-                        "Exception in thread \"main\" java.lang.IllegalArgumentException: this and base files have different roots:",
-                    )
-                }.assertAll()
+                SoftAssertions()
+                    .apply {
+                        assertErrorExitCode()
+                        assertThat(errorOutput).doesNotContainLineMatching(
+                            "Exception in thread \"main\" java.lang.IllegalArgumentException: this and base files have different roots:",
+                        )
+                    }.assertAll()
             }
     }
 
@@ -244,14 +255,15 @@ class SimpleCLITest {
                     "too-many-empty-lines",
                     listOf("--code-style=ktlint_official", "installGitPreCommitHook"),
                 ) {
-                    SoftAssertions().apply {
-                        // The command will throw an error because the testProjectName directory does not contain a
-                        // '.git' directory. This is sufficient to know that the ktlint command was recognized.
-                        assertErrorExitCode()
-                        assertThat(errorOutput).containsLineMatching(
-                            "git directory not found. Are you sure you are inside project directory?",
-                        )
-                    }.assertAll()
+                    SoftAssertions()
+                        .apply {
+                            // The command will throw an error because the testProjectName directory does not contain a
+                            // '.git' directory. This is sufficient to know that the ktlint command was recognized.
+                            assertErrorExitCode()
+                            assertThat(errorOutput).containsLineMatching(
+                                "git directory not found. Are you sure you are inside project directory?",
+                            )
+                        }.assertAll()
                 }
         }
 
@@ -265,14 +277,15 @@ class SimpleCLITest {
                     "too-many-empty-lines",
                     listOf("installGitPreCommitHook", "--code-style=ktlint_official"),
                 ) {
-                    SoftAssertions().apply {
-                        // The command will throw an error because the testProjectName directory does not contain a
-                        // '.git' directory. This is sufficient to know that the ktlint command was recognized.
-                        assertErrorExitCode()
-                        assertThat(errorOutput).containsLineMatching(
-                            "git directory not found. Are you sure you are inside project directory?",
-                        )
-                    }.assertAll()
+                    SoftAssertions()
+                        .apply {
+                            // The command will throw an error because the testProjectName directory does not contain a
+                            // '.git' directory. This is sufficient to know that the ktlint command was recognized.
+                            assertErrorExitCode()
+                            assertThat(errorOutput).containsLineMatching(
+                                "git directory not found. Are you sure you are inside project directory?",
+                            )
+                        }.assertAll()
                 }
         }
 
@@ -286,12 +299,13 @@ class SimpleCLITest {
                     "too-many-empty-lines",
                     listOf("installGitPreCommitHook"),
                 ) {
-                    SoftAssertions().apply {
-                        assertErrorExitCode()
-                        assertThat(errorOutput).containsLineMatching(
-                            "Option --code-style must be set as to generate the git pre commit hook correctly",
-                        )
-                    }.assertAll()
+                    SoftAssertions()
+                        .apply {
+                            assertErrorExitCode()
+                            assertThat(errorOutput).containsLineMatching(
+                                "Option --code-style must be set as to generate the git pre commit hook correctly",
+                            )
+                        }.assertAll()
                 }
         }
     }
@@ -308,14 +322,15 @@ class SimpleCLITest {
                     "too-many-empty-lines",
                     listOf("--code-style=ktlint_official", "installGitPrePushHook"),
                 ) {
-                    SoftAssertions().apply {
-                        // The command will throw an error because the testProjectName directory does not contain a
-                        // '.git' directory. This is sufficient to know that the ktlint command was recognized.
-                        assertErrorExitCode()
-                        assertThat(errorOutput).containsLineMatching(
-                            "git directory not found. Are you sure you are inside project directory?",
-                        )
-                    }.assertAll()
+                    SoftAssertions()
+                        .apply {
+                            // The command will throw an error because the testProjectName directory does not contain a
+                            // '.git' directory. This is sufficient to know that the ktlint command was recognized.
+                            assertErrorExitCode()
+                            assertThat(errorOutput).containsLineMatching(
+                                "git directory not found. Are you sure you are inside project directory?",
+                            )
+                        }.assertAll()
                 }
         }
 
@@ -329,14 +344,15 @@ class SimpleCLITest {
                     "too-many-empty-lines",
                     listOf("installGitPrePushHook", "--code-style=ktlint_official"),
                 ) {
-                    SoftAssertions().apply {
-                        // The command will throw an error because the testProjectName directory does not contain a
-                        // '.git' directory. This is sufficient to know that the ktlint command was recognized.
-                        assertErrorExitCode()
-                        assertThat(errorOutput).containsLineMatching(
-                            "git directory not found. Are you sure you are inside project directory?",
-                        )
-                    }.assertAll()
+                    SoftAssertions()
+                        .apply {
+                            // The command will throw an error because the testProjectName directory does not contain a
+                            // '.git' directory. This is sufficient to know that the ktlint command was recognized.
+                            assertErrorExitCode()
+                            assertThat(errorOutput).containsLineMatching(
+                                "git directory not found. Are you sure you are inside project directory?",
+                            )
+                        }.assertAll()
                 }
         }
 
@@ -350,12 +366,13 @@ class SimpleCLITest {
                     "too-many-empty-lines",
                     listOf("installGitPrePushHook"),
                 ) {
-                    SoftAssertions().apply {
-                        assertErrorExitCode()
-                        assertThat(errorOutput).containsLineMatching(
-                            "Option --code-style must be set as to generate the git pre push hook correctly",
-                        )
-                    }.assertAll()
+                    SoftAssertions()
+                        .apply {
+                            assertErrorExitCode()
+                            assertThat(errorOutput).containsLineMatching(
+                                "Option --code-style must be set as to generate the git pre push hook correctly",
+                            )
+                        }.assertAll()
                 }
         }
     }
@@ -372,10 +389,11 @@ class SimpleCLITest {
                     "too-many-empty-lines",
                     listOf("--code-style=ktlint_official", "generateEditorConfig"),
                 ) {
-                    SoftAssertions().apply {
-                        assertNormalExitCode()
-                        assertThat(normalOutput).containsLineMatching("ktlint_code_style = ktlint_official")
-                    }.assertAll()
+                    SoftAssertions()
+                        .apply {
+                            assertNormalExitCode()
+                            assertThat(normalOutput).containsLineMatching("ktlint_code_style = ktlint_official")
+                        }.assertAll()
                 }
         }
 
@@ -389,10 +407,11 @@ class SimpleCLITest {
                     "too-many-empty-lines",
                     listOf("generateEditorConfig", "--code-style=ktlint_official"),
                 ) {
-                    SoftAssertions().apply {
-                        assertNormalExitCode()
-                        assertThat(normalOutput).containsLineMatching("ktlint_code_style = ktlint_official")
-                    }.assertAll()
+                    SoftAssertions()
+                        .apply {
+                            assertNormalExitCode()
+                            assertThat(normalOutput).containsLineMatching("ktlint_code_style = ktlint_official")
+                        }.assertAll()
                 }
         }
 
@@ -406,12 +425,13 @@ class SimpleCLITest {
                     "too-many-empty-lines",
                     listOf("generateEditorConfig"),
                 ) {
-                    SoftAssertions().apply {
-                        assertErrorExitCode()
-                        assertThat(errorOutput).containsLineMatching(
-                            "Option --code-style must be set as to generate the '.editorconfig' correctly",
-                        )
-                    }.assertAll()
+                    SoftAssertions()
+                        .apply {
+                            assertErrorExitCode()
+                            assertThat(errorOutput).containsLineMatching(
+                                "Option --code-style must be set as to generate the '.editorconfig' correctly",
+                            )
+                        }.assertAll()
                 }
         }
     }

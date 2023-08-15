@@ -124,8 +124,7 @@ class EditorConfigDefaultsLoaderTest {
                                 .name("some-property")
                                 .value("some-property-value"),
                         ),
-                )
-                .build()
+                ).build()
         val EC4J_PROPERTY_TYPES_USED_BY_KTLINT =
             setOf(
                 PropertyType.end_of_line,

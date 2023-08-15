@@ -30,8 +30,7 @@ public class FunctionNamingRule :
                 ?.pathStr
                 ?.takeIf {
                     it.startsWith(ORG_JUNIT) || it.startsWith(ORG_TESTNG) || it.startsWith(KOTLIN_TEST)
-                }
-                ?.let {
+                }?.let {
                     // Assume that each file that imports a Junit Jupiter Api class is a test class
                     isTestClass = true
                 }

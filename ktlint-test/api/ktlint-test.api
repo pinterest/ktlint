@@ -85,5 +85,7 @@ public final class com/pinterest/ktlint/test/TestLiteralsKt {
 	public static final field MULTILINE_STRING_QUOTE Ljava/lang/String;
 	public static final field SPACE Ljava/lang/String;
 	public static final field TAB Ljava/lang/String;
+	public static final fun replaceStringTemplatePlaceholder (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public static synthetic fun replaceStringTemplatePlaceholder$default (Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
 }
 

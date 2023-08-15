@@ -130,8 +130,7 @@ public class StringTemplateIndentRule :
             nonBlankLines
                 .joinToString(separator = "") {
                     it.splitIndentAt(prefixLength).first
-                }
-                .toCharArray()
+                }.toCharArray()
                 .distinct()
                 .count()
         return distinctIndentCharacters > 1
@@ -176,7 +175,8 @@ public class StringTemplateIndentRule :
         // one single position. Note that the way of counting should be in sync with the way this is done by the trimIndent
         // function.
         val prefixLength =
-            node.text
+            node
+                .text
                 .split("\n")
                 .asSequence()
                 .filterNot {
@@ -184,12 +184,10 @@ public class StringTemplateIndentRule :
                     // characters (it really looks ugly). In such a case this text should be ignored when calculating the common prefix
                     // length as otherwise it is probably set to 0.
                     it.startsWith(RAW_STRING_LITERAL_QUOTES)
-                }
-                .map {
+                }.map {
                     // Indentation before the closing quotes however is relevant to take into account
                     it.removeSuffix(RAW_STRING_LITERAL_QUOTES)
-                }
-                .filterNot { it.isBlank() }
+                }.filterNot { it.isBlank() }
                 .map { it.indentLength() }
                 .minOrNull() ?: 0
 
@@ -201,8 +199,7 @@ public class StringTemplateIndentRule :
             .filterNot {
                 // Blank lines inside the string template should not be indented
                 it.text == "\n"
-            }
-            .forEach {
+            }.forEach {
                 if (it.prevLeaf()?.text == "\n") {
                     val (currentIndent, currentContent) =
                         if (it.isIndentBeforeClosingQuote()) {

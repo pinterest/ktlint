@@ -899,4 +899,3 @@ Rule id: `multiline-expression-wrapping` (`standard` rule set)
 
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
-

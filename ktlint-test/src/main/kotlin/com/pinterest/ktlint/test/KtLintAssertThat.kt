@@ -387,8 +387,7 @@ public class KtLintAssertThatAssertable(
                                 "If this is caused by an additional rule added to the test, then remove that rule in case it " +
                                     "is always executed before the rule under test."
                             },
-                    )
-                    .isEmpty()
+                    ).isEmpty()
             },
             {
                 assertThat(actualFormattedCode)
@@ -400,8 +399,7 @@ public class KtLintAssertThatAssertable(
                                 "If this is caused by an additional rule added to the test, then remove that rule in case it " +
                                     "is always executed before the rule under test."
                             },
-                    )
-                    .isEqualTo(code.content)
+                    ).isEqualTo(code.content)
             },
         )
     }

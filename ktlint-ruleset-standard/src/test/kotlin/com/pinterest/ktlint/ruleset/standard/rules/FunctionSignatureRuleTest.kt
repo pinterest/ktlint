@@ -12,8 +12,8 @@ import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -1203,7 +1203,7 @@ class FunctionSignatureRuleTest {
             val someNegativeValue = "-1"
             val property = FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY.toPropertyWithValue(someNegativeValue)
 
-            Assertions.assertThatExceptionOfType(RuntimeException::class.java)
+            assertThatExceptionOfType(RuntimeException::class.java)
                 .isThrownBy { propertyMapper(property, codeStyleValue) }
                 .withMessage(
                     "Property 'ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than' expects a " +
@@ -1218,7 +1218,7 @@ class FunctionSignatureRuleTest {
             val property =
                 FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY.toPropertyWithValue(someValueBiggerThanMaxInt)
 
-            Assertions.assertThatExceptionOfType(RuntimeException::class.java)
+            assertThatExceptionOfType(RuntimeException::class.java)
                 .isThrownBy { propertyMapper(property, codeStyleValue) }
                 .withMessage(
                     "Property 'ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than' expects an " +
@@ -1232,7 +1232,7 @@ class FunctionSignatureRuleTest {
             val property =
                 FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY.toPropertyWithValue("some-invalid-value")
 
-            Assertions.assertThatExceptionOfType(RuntimeException::class.java)
+            assertThatExceptionOfType(RuntimeException::class.java)
                 .isThrownBy { propertyMapper(property, codeStyleValue) }
                 .withMessage(
                     "Property 'ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than' expects an " +

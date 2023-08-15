@@ -130,7 +130,12 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
 
             imports.forEach { (_, node) ->
                 val importDirective = node.psi as KtImportDirective
-                val name = importDirective.importPath?.importedName?.asString()?.removeBackticksAndTrim()
+                val name =
+                    importDirective
+                        .importPath
+                        ?.importedName
+                        ?.asString()
+                        ?.removeBackticksAndTrim()
                 val importPath = importDirective.importPath?.pathStr?.removeBackticksAndTrim()!!
                 if (importDirective.aliasName == null &&
                     (packageName.isEmpty() || importPath.startsWith("$packageName.")) &&
@@ -161,7 +166,8 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
                                         whitespace.treeParent.removeChild(whitespace)
                                     } else {
                                         val textAfterFirstNewline =
-                                            whitespace.text
+                                            whitespace
+                                                .text
                                                 .substringAfter("\n")
                                         if (textAfterFirstNewline.isNotBlank()) {
                                             (whitespace as LeafElement).rawReplaceWithText(textAfterFirstNewline)
@@ -231,7 +237,11 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
                 val count =
                     imports.count {
                         it.key.pathStr.removeBackticksAndTrim().startsWith(
-                            import.key.pathStr.removeBackticksAndTrim().substringBefore(methodCallExpression),
+                            import
+                                .key
+                                .pathStr
+                                .removeBackticksAndTrim()
+                                .substringBefore(methodCallExpression),
                         )
                     }
                 // Parent import and static import both are present
@@ -247,7 +257,11 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
     // Check if the import being checked is present in the filtered import list
     private fun isAValidImport(importPath: String) =
         imports.any {
-            it.key.pathStr.removeBackticksAndTrim().contains(importPath)
+            it
+                .key
+                .pathStr
+                .removeBackticksAndTrim()
+                .contains(importPath)
         }
 
     private fun String.isComponentN() = COMPONENT_N_REGEX.matches(this)

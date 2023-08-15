@@ -54,8 +54,7 @@ class CheckStyleReporterTest {
                 </file>
             </checkstyle>
 
-            """.trimIndent()
-                .replace("\n", System.lineSeparator()),
+            """.trimIndent().replace("\n", System.lineSeparator()),
         )
     }
 }

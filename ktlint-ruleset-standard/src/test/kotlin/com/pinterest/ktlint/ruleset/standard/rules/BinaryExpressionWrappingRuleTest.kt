@@ -255,8 +255,7 @@ class BinaryExpressionWrappingRuleTest {
                 // ArgumentListWrapping rule has wrapped the argument, there is no more need to wrap the expression as well.
                 LintViolation(2, 25, "Line is exceeding max line length. Break line after operator in binary expression"),
                 LintViolation(2, 29, "Line is exceeding max line length. Break line after operator in binary expression"),
-            )
-            .hasLintViolationsForAdditionalRules(
+            ).hasLintViolationsForAdditionalRules(
                 LintViolation(2, 18, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(2, 22, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(2, 31, "Missing newline before \")\""),

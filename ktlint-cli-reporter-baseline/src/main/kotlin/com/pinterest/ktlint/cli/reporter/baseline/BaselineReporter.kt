@@ -44,7 +44,8 @@ public class BaselineReporter(
     }
 
     private fun String.escapeXMLAttrValue() =
-        this.replace("&", "&amp;")
+        this
+            .replace("&", "&amp;")
             .replace("\"", "&quot;")
             .replace("'", "&apos;")
             .replace("<", "&lt;")

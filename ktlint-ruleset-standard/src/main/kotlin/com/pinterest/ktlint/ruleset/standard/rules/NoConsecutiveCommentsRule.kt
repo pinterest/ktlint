@@ -96,8 +96,13 @@ public class NoConsecutiveCommentsRule :
                         false
                     }
 
-                    previousComment.elementType != node.elementType && node.prevLeaf().takeIf { it.isWhiteSpace() }?.text.orEmpty()
-                        .count { it == '\n' } > 1 -> {
+                    previousComment.elementType != node.elementType &&
+                        node
+                            .prevLeaf()
+                            .takeIf { it.isWhiteSpace() }
+                            ?.text
+                            .orEmpty()
+                            .count { it == '\n' } > 1 -> {
                         // Allow different element types when separated by a blank line
                         false
                     }

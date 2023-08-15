@@ -387,8 +387,7 @@ class StatementWrappingRuleTest {
                 LintViolation(4, 23, "Expected new line before '}'"),
                 LintViolation(6, 22, "Expected new line before '}'"),
                 LintViolation(8, 21, "Expected new line before '}'"),
-            )
-            .isFormattedAs(formattedCode)
+            ).isFormattedAs(formattedCode)
     }
 
     @Test

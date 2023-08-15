@@ -148,8 +148,7 @@ public class ParameterListSpacingRule :
             .takeUnless {
                 // Ignore when the modifier is an annotation which is placed on a separate line
                 it.isIndent() && it.getPrecedingModifier()?.elementType == ANNOTATION_ENTRY
-            }
-            ?.takeIf { it.isNotSingleSpace() }
+            }?.takeIf { it.isNotSingleSpace() }
             ?.let { replaceWithSingleSpace(it, emit, autoCorrect) }
     }
 

@@ -1263,8 +1263,7 @@ internal class IndentationRuleTest {
                 LintViolation(4, 1, "Unexpected indentation (10) (should be 8)"),
                 LintViolation(5, 1, "Unexpected indentation (10) (should be 8)"),
                 LintViolation(6, 1, "Unexpected indentation (10) (should be 4)"),
-            )
-            .isFormattedAs(formattedCode)
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -1293,8 +1292,7 @@ internal class IndentationRuleTest {
                 LintViolation(3, 1, "Unexpected indentation (3) (should be 5)"),
                 LintViolation(4, 1, "Unexpected indentation (3) (should be 5)"),
                 LintViolation(5, 1, "Unexpected indentation (2) (should be 4)"),
-            )
-            .isFormattedAs(formattedCode)
+            ).isFormattedAs(formattedCode)
     }
 
     @Nested
@@ -1836,8 +1834,7 @@ internal class IndentationRuleTest {
                 .filter { it % 2 == 0 }
                 .sum()
             }"
-            """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
+            """.trimIndent().replacePlaceholderWithStringTemplate()
         val formattedCode =
             """
             fun foo1() =
@@ -1851,8 +1848,7 @@ internal class IndentationRuleTest {
                     .filter { it % 2 == 0 }
                     .sum()
             }"
-            """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
+            """.trimIndent().replacePlaceholderWithStringTemplate()
         indentationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(8, 1, "Unexpected indentation (0) (should be 4)"),
@@ -2332,8 +2328,7 @@ internal class IndentationRuleTest {
                 true
                 }")
             }
-            """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
+            """.trimIndent().replacePlaceholderWithStringTemplate()
         val formattedCode =
             """
             fun foo() {
@@ -2343,8 +2338,7 @@ internal class IndentationRuleTest {
                     }"
                 )
             }
-            """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
+            """.trimIndent().replacePlaceholderWithStringTemplate()
         indentationRuleAssertThat(code)
             .addAdditionalRuleProvider { WrappingRule() }
             .hasLintViolation(3, 1, "Unexpected indentation (4) (should be 8)")
@@ -2413,8 +2407,7 @@ internal class IndentationRuleTest {
                 ${MULTILINE_STRING_QUOTE}text$MULTILINE_STRING_QUOTE
                 )
             }
-            """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
+            """.trimIndent().replacePlaceholderWithStringTemplate()
         val formattedCode =
             """
             fun foo1() {
@@ -2429,8 +2422,7 @@ internal class IndentationRuleTest {
                     ${MULTILINE_STRING_QUOTE}text$MULTILINE_STRING_QUOTE
                 )
             }
-            """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
+            """.trimIndent().replacePlaceholderWithStringTemplate()
         indentationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(3, 1, "Unexpected indentation (4) (should be 8)"),
@@ -3442,8 +3434,7 @@ internal class IndentationRuleTest {
                 .hasLintViolations(
                     LintViolation(4, 1, "Unexpected indentation (16) (should be 12)"),
                     LintViolation(5, 1, "Unexpected indentation (20) (should be 12)"),
-                )
-                .isFormattedAs(formattedCode)
+                ).isFormattedAs(formattedCode)
         }
 
         @Test

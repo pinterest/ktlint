@@ -24,7 +24,11 @@ public class NoEmptyClassBodyRule : StandardRule("no-empty-class-body") {
                     n.nextLeaf { it.elementType != WHITE_SPACE }?.elementType == RBRACE
             } == true &&
             !node.isPartOf(KtObjectLiteralExpression::class) &&
-            node.treeParent.firstChildNode.children().none { it.text == "companion" }
+            node
+                .treeParent
+                .firstChildNode
+                .children()
+                .none { it.text == "companion" }
         ) {
             emit(node.startOffset, "Unnecessary block (\"{}\")", true)
             if (autoCorrect) {

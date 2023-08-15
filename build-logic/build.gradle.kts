@@ -10,7 +10,14 @@ repositories {
 }
 
 kotlin {
-    jvmToolchain(libs.versions.java.compilation.get().toInt())
+    jvmToolchain(
+        libs
+            .versions
+            .java
+            .compilation
+            .get()
+            .toInt(),
+    )
 }
 
 // TODO: Remove setting `options.release` and `compilerOptions.jvmTarget` after upgrade to Kotlin Gradle Plugin 1.9

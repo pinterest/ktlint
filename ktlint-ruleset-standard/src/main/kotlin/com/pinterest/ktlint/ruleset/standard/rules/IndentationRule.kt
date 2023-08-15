@@ -1271,8 +1271,7 @@ public class IndentationRule :
                     .takeWhile {
                         // The 'toAstNode' itself needs to be included as well
                         it != toASTNode.nextLeaf()
-                    }
-                    .joinToString(separator = "") { it.text }
+                    }.joinToString(separator = "") { it.text }
                     .textWithEscapedTabAndNewline()
 
         fun indent() =
@@ -1361,7 +1360,8 @@ private class StringTemplateIndenter(
                     } else {
                         expectedIndent
                     }
-                node.children()
+                node
+                    .children()
                     .forEach {
                         if (it.prevLeaf()?.text == "\n" &&
                             (
@@ -1446,8 +1446,7 @@ private class StringTemplateIndenter(
                 } else {
                     indents
                 }
-            }
-            .map { it.text.indentLength() }
+            }.map { it.text.indentLength() }
             .minOrNull()
             ?: 0
 
@@ -1456,7 +1455,9 @@ private class StringTemplateIndenter(
     private fun KtStringTemplateExpression.isFollowedByTrimMargin() = isFollowedBy("trimMargin()")
 
     private fun KtStringTemplateExpression.isFollowedBy(callExpressionName: String) =
-        this.node.nextSibling { it.elementType != DOT }
+        this
+            .node
+            .nextSibling { it.elementType != DOT }
             .let { it?.elementType == CALL_EXPRESSION && it.text == callExpressionName }
 
     private fun KtStringTemplateExpression.isMultiLine(): Boolean {
@@ -1485,8 +1486,7 @@ private class StringTemplateIndenter(
             nonBlankLines
                 .joinToString(separator = "") {
                     it.splitIndentAt(prefixLength).first
-                }
-                .toCharArray()
+                }.toCharArray()
                 .distinct()
                 .count()
         return distinctIndentCharacters > 1

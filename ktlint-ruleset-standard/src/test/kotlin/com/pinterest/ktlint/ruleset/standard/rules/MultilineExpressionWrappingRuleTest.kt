@@ -769,15 +769,6 @@ class MultilineExpressionWrappingRuleTest {
             .isFormattedAs(formattedCode)
     }
 
-    fun fooBar(foobar: String?) =
-        foobar
-            ?.lowercase()
-            ?: """
-                foo
-                """
-                .uppercase()
-                .trimIndent()
-
     @Test
     fun `Given an elvis operator followed by a multiline expression then do not reformat`() {
         val code =

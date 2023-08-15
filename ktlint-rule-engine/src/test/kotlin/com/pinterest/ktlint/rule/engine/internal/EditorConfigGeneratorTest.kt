@@ -67,13 +67,14 @@ internal class EditorConfigGeneratorTest {
                 filePath = ktlintTestFileSystem.resolve("test.kt"),
             )
 
-        assertThat(generatedEditorConfig.lines()).contains(
-            "$PROPERTY_1_NAME = $PROPERTY_1_DEFAULT_VALUE_ANDROID",
-            "$PROPERTY_2_NAME = $PROPERTY_2_DEFAULT_VALUE_ANDROID",
-        ).doesNotContain(
-            "$PROPERTY_1_NAME = $PROPERTY_1_DEFAULT_VALUE",
-            "$PROPERTY_2_NAME = $PROPERTY_2_DEFAULT_VALUE",
-        )
+        assertThat(generatedEditorConfig.lines())
+            .contains(
+                "$PROPERTY_1_NAME = $PROPERTY_1_DEFAULT_VALUE_ANDROID",
+                "$PROPERTY_2_NAME = $PROPERTY_2_DEFAULT_VALUE_ANDROID",
+            ).doesNotContain(
+                "$PROPERTY_1_NAME = $PROPERTY_1_DEFAULT_VALUE",
+                "$PROPERTY_2_NAME = $PROPERTY_2_DEFAULT_VALUE",
+            )
     }
 
     @Test

@@ -66,8 +66,10 @@ public class ImportOrderingRule :
                 val sortedImports =
                     imports
                         .asSequence()
-                        .mapNotNull { it.psi as? KtImportDirective } // sorter expects KtImportDirective, whitespaces are inserted afterwards
-                        .sortedWith(importSorter)
+                        .mapNotNull {
+                            // sorter expects KtImportDirective, whitespaces are inserted afterwards
+                            it.psi as? KtImportDirective
+                        }.sortedWith(importSorter)
                         .map { it.node } // transform back to ASTNode in order to operate over its method (addChild)
 
                 // insert blank lines wherever needed
