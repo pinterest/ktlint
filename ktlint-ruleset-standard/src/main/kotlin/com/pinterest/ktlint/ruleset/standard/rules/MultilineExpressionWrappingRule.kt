@@ -15,6 +15,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.IF
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IS_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPERATION_REFERENCE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.POSTFIX_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PREFIX_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REFERENCE_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
@@ -180,6 +181,7 @@ public class MultilineExpressionWrappingRule :
                 IS_EXPRESSION,
                 OBJECT_LITERAL,
                 PREFIX_EXPRESSION,
+                POSTFIX_EXPRESSION,
                 REFERENCE_EXPRESSION,
                 SAFE_ACCESS_EXPRESSION,
                 TRY,
