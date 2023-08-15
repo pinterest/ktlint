@@ -185,16 +185,11 @@ public class KtLintRuleEngine(
             visitorProvider
                 .visitor()
                 .invoke { rule ->
-                    ruleExecutionContext.executeRule(rule, false) { offset, message, canBeAutoCorrected ->
-                        if (canBeAutoCorrected) {
-                            ruleExecutionContext.rebuildSuppressionLocator()
-                            val formattedCode =
-                                ruleExecutionContext
-                                    .rootNode
-                                    .text
-                                    .replace("\n", ruleExecutionContext.determineLineSeparator(code.content))
-                            val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
-                            hasErrorsWhichCanBeAutocorrected = true
+                    if (!hasErrorsWhichCanBeAutocorrected) {
+                        ruleExecutionContext.executeRule(rule, false) { _, _, canBeAutoCorrected ->
+                            if (canBeAutoCorrected) {
+                                hasErrorsWhichCanBeAutocorrected = true
+                            }
                         }
                     }
                 }
