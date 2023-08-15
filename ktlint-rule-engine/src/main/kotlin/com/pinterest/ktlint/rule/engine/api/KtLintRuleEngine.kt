@@ -219,7 +219,7 @@ public class KtLintRuleEngine(
         } else {
             formattedCode
         }.also {
-            LOGGER.debug("Finished with formatting file '${code.fileNameOrStdin()}'")
+            LOGGER.debug { "Finished with formatting file '${code.fileNameOrStdin()}'" }
         }
     }
 
