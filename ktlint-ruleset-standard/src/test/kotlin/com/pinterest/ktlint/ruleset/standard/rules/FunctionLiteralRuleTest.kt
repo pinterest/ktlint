@@ -423,12 +423,13 @@ class FunctionLiteralRuleTest {
                     .bar()
                     .foobar()
             }
-            val foo = bar
-                .filter { it > 2 }!!
-                .takeIf {
-                    it.count() > 100
-                }.map { it * it }
-                ?.sum()!!
+            val foo =
+                bar
+                    .filter { it > 2 }!!
+                    .takeIf {
+                        it.count() > 100
+                    }.map { it * it }
+                    ?.sum()!!
             """.trimIndent()
         functionLiteralRuleAssertThat(code)
             .addAdditionalRuleProvider { MultilineExpressionWrappingRule() }
