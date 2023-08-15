@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ARRAY_ACCESS_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BINARY_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_LITERAL_EXPRESSION
@@ -124,21 +125,32 @@ public class ChainMethodContinuationRule :
                     ?.takeUnless { it.rootASTNode.treeParent.elementType == PACKAGE_DIRECTIVE }
                     ?.takeUnless { it.rootASTNode.treeParent.elementType == LONG_STRING_TEMPLATE_ENTRY }
                     ?.let { chainedExpression ->
-                        if (chainedExpression.wrapBeforeChainOperator() ||
-                            chainedExpression.exceedsMaxLineLength() ||
-                            chainOperator.isPrecededByComment()
-                        ) {
-                            chainedExpression
-                                .chainOperators
-                                .filterNot { it.isJavaClassReferenceExpression() }
-                                .forEach {
-                                    fixWhiteSpaceBeforeChainOperator(it, emit, autoCorrect)
-                                }
-                        }
-                        chainedExpression.chainOperators.forEach {
-                            fixWhiteSpaceAfterChainOperator(it, emit, autoCorrect)
-                        }
+                        fixWhitespaceBeforeChainOperators(chainedExpression, emit, autoCorrect)
+                        fixWhiteSpaceAfterChainOperators(chainedExpression, emit, autoCorrect)
                     }
+            }
+    }
+
+    private fun fixWhitespaceBeforeChainOperators(
+        chainedExpression: ChainedExpression,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        autoCorrect: Boolean
+    ) {
+        val wrapBeforeEachChainOperator = chainedExpression.wrapBeforeChainOperator()
+        val exceedsMaxLineLength = chainedExpression.exceedsMaxLineLength()
+        chainedExpression
+            .chainOperators
+            .filterNot { it.isJavaClassReferenceExpression() }
+            .forEach { chainOperator ->
+                if (chainOperator.shouldBeOnSameLineAsClosingElementOfPreviousExpressionInMethodChain()) {
+                    removeWhiteSpaceBeforeChainOperator(chainOperator, emit, autoCorrect)
+                } else if (
+                    wrapBeforeEachChainOperator ||
+                    exceedsMaxLineLength ||
+                    chainOperator.isPrecededByComment()
+                ) {
+                    insertWhiteSpaceBeforeChainOperator(chainOperator, emit, autoCorrect)
+                }
             }
     }
 
@@ -233,7 +245,7 @@ public class ChainMethodContinuationRule :
 
     private fun ASTNode.isPrecededByComment() = treeParent.children().any { it.isPartOfComment() }
 
-    private fun fixWhiteSpaceBeforeChainOperator(
+    private fun insertWhiteSpaceBeforeChainOperator(
         chainOperator: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
@@ -242,34 +254,19 @@ public class ChainMethodContinuationRule :
             .prevLeaf()
             .takeIf { it.isWhiteSpace() || it?.isPartOfComment() == true }
             .let { whiteSpaceOrComment ->
-                if (whiteSpaceOrComment?.isPartOfComment() == true) {
-                    // In a chained method containing comments before each method in the chain starts on a newline
-                    // Disallow:
-                    //     fooBar
-                    //         .bar { ... }.foo()
-                    emit(chainOperator.startOffset, "Expected newline before '${chainOperator.text}'", true)
-                    if (autoCorrect) {
-                        chainOperator.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(chainOperator.treeParent))
-                    }
-                } else if (chainOperator.shouldBeOnSameLineAsClosingElementOfPreviousExpressionInMethodChain()) {
-                    // Disallow:
-                    //     bar {
-                    //         ...
-                    //     }.
-                    //     foo()
-                    // or
-                    //     """
-                    //     some text
-                    //     """
-                    //         .trimIndent()
-                    if (whiteSpaceOrComment.isWhiteSpaceWithNewline()) {
-                        emit(chainOperator.startOffset, "Unexpected newline before '${chainOperator.text}'", true)
+                when {
+                    whiteSpaceOrComment?.isPartOfComment() == true -> {
+                        // In a chained method containing comments before each method in the chain starts on a newline
+                        // Disallow:
+                        //     fooBar
+                        //         .bar { ... }.foo()
+                        emit(chainOperator.startOffset, "Expected newline before '${chainOperator.text}'", true)
                         if (autoCorrect) {
-                            whiteSpaceOrComment?.treeParent?.removeChild(whiteSpaceOrComment)
+                            chainOperator.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(chainOperator.treeParent))
                         }
                     }
-                } else {
-                    if (whiteSpaceOrComment == null || whiteSpaceOrComment.isWhiteSpaceWithoutNewline()) {
+
+                    whiteSpaceOrComment == null || whiteSpaceOrComment.isWhiteSpaceWithoutNewline() -> {
                         // In a multiline chained method each method in the chain starts on a newline
                         // Disallow:
                         //     fooBar
@@ -286,23 +283,69 @@ public class ChainMethodContinuationRule :
     private fun ASTNode.shouldBeOnSameLineAsClosingElementOfPreviousExpressionInMethodChain() =
         prevLeaf { !it.isWhiteSpace() }
             ?.takeIf { it.elementType in groupClosingElementType }
-            ?.prevLeaf()
+            ?.let { closingElement ->
+                closingElement.isPrecededByNewline() ||
+                    (closingElement.elementType == CLOSING_QUOTE && closingElement.isPartOfMultilineStringTemplate())
+            }
+            ?: false
+
+    private fun ASTNode.isPrecededByNewline() =
+        prevLeaf()
             ?.isWhiteSpaceWithNewline()
             ?: false
 
-    private fun fixWhiteSpaceAfterChainOperator(
+    private fun ASTNode.isPartOfMultilineStringTemplate() =
+        treeParent
+            .takeIf { it.elementType == STRING_TEMPLATE }
+            ?.children()
+            ?.any { it.text == "\n" }
+            ?: false
+
+    private fun removeWhiteSpaceBeforeChainOperator(
         chainOperator: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
     ) {
         chainOperator
-            .nextLeaf()
-            .takeIf { it.isWhiteSpaceWithNewline() }
-            ?.let { whiteSpace ->
-                emit(whiteSpace.startOffset - 1, "Unexpected newline after '${chainOperator.text}'", true)
-                if (autoCorrect) {
-                    whiteSpace.treeParent.removeChild(whiteSpace)
+            .prevLeaf()
+            .takeIf { it.isWhiteSpace() }
+            .let { whiteSpaceOrComment ->
+                // Disallow:
+                //     bar {
+                //         ...
+                //     }.
+                //     foo()
+                // or
+                //     """
+                //     some text
+                //     """
+                //         .trimIndent()
+                if (whiteSpaceOrComment.isWhiteSpaceWithNewline()) {
+                    emit(chainOperator.startOffset, "Unexpected newline before '${chainOperator.text}'", true)
+                    if (autoCorrect) {
+                        whiteSpaceOrComment?.treeParent?.removeChild(whiteSpaceOrComment)
+                    }
                 }
+            }
+    }
+
+    private fun fixWhiteSpaceAfterChainOperators(
+        chainedExpression: ChainedExpression,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        autoCorrect: Boolean,
+    ) {
+        chainedExpression
+            .chainOperators
+            .forEach { chainOperator ->
+                chainOperator
+                    .nextLeaf()
+                    .takeIf { it.isWhiteSpaceWithNewline() }
+                    ?.let { whiteSpace ->
+                        emit(whiteSpace.startOffset - 1, "Unexpected newline after '${chainOperator.text}'", true)
+                        if (autoCorrect) {
+                            whiteSpace.treeParent.removeChild(whiteSpace)
+                        }
+                    }
             }
     }
 
@@ -316,6 +359,7 @@ public class ChainMethodContinuationRule :
         companion object {
             private val chainableElementTypes =
                 TokenSet.create(
+                    ARRAY_ACCESS_EXPRESSION,
                     CALL_EXPRESSION,
                     DOT_QUALIFIED_EXPRESSION,
                     POSTFIX_EXPRESSION,
@@ -350,7 +394,7 @@ public class ChainMethodContinuationRule :
                             }
                     }
 
-                    PREFIX_EXPRESSION, POSTFIX_EXPRESSION -> {
+                    ARRAY_ACCESS_EXPRESSION, PREFIX_EXPRESSION, POSTFIX_EXPRESSION -> {
                         children()
                             .mapNotNull { it.toChainedExpression() }
                             .singleOrNull()

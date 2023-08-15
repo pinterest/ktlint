@@ -227,40 +227,101 @@ class ChainMethodContinuationRuleTest {
             ).isFormattedAs(formattedCode)
     }
 
-    @Test
-    fun `Given method chain which is incorrectly wrapped with preceding brace`() {
-        val code =
-            """
-            val foo1 = listOf(1, 2, 3).filter {
-                it > 2
-            }
+    @Nested
+    inner class `Given a method chain which is incorrectly wrapped with preceding closing element of preceding chain` {
+        @Test
+        fun `Given that first method in chain has a closing parenthesis on a separate line`() {
+            val code =
+                """
+                val foo = listOf(
+                    1,
+                    2,
+                    3
+                )
                 .sum()
+                """.trimIndent()
+            val formattedCode =
+                """
+                val foo = listOf(
+                    1,
+                    2,
+                    3
+                ).sum()
+                """.trimIndent()
+            chainMethodContinuationRuleAssertThat(code)
+                .addAdditionalRuleProvider { IndentationRule() }
+                .hasLintViolation(6, 1, "Unexpected newline before '.'")
+                .isFormattedAs(formattedCode)
+        }
 
-            val foo2 = listOf(1, 2, 3).filter {
-                it > 2
-            }
-            .sum()
-            """.trimIndent()
-        val formattedCode =
-            """
-            val foo1 = listOf(1, 2, 3)
-                .filter {
-                    it > 2
-                }.sum()
+        @Test
+        fun `Given that first method in chain has a closing brace on a separate line`() {
+            val code =
+                """
+                val foo1 = listOf(1, 2, 3)
+                    .filter {
+                        it > 2
+                    }
+                    .sum()
+                """.trimIndent()
+            val formattedCode =
+                """
+                val foo1 = listOf(1, 2, 3)
+                    .filter {
+                        it > 2
+                    }.sum()
+                """.trimIndent()
+            chainMethodContinuationRuleAssertThat(code)
+                .addAdditionalRuleProvider { IndentationRule() }
+                .hasLintViolation(5, 5, "Unexpected newline before '.'")
+                .isFormattedAs(formattedCode)
+        }
 
-            val foo2 = listOf(1, 2, 3)
-                .filter {
-                    it > 2
-                }.sum()
-            """.trimIndent()
-        chainMethodContinuationRuleAssertThat(code)
-            .addAdditionalRuleProvider { IndentationRule() }
-            .hasLintViolations(
-                LintViolation(1, 27, "Expected newline before '.'"),
-                LintViolation(4, 5, "Unexpected newline before '.'"),
-                LintViolation(6, 27, "Expected newline before '.'"),
-                LintViolation(9, 1, "Unexpected newline before '.'"),
-            ).isFormattedAs(formattedCode)
+        @Test
+        fun `Given that first method in chain has a closing bracket on a separate line`() {
+            val code =
+                """
+                val foo =
+                    matrix[
+                        row,
+                        column,
+                    ]
+                    .foo()
+                """.trimIndent()
+            val formattedCode =
+                """
+                val foo =
+                    matrix[
+                        row,
+                        column,
+                    ].foo()
+                """.trimIndent()
+            chainMethodContinuationRuleAssertThat(code)
+                .hasLintViolation(6, 5, "Unexpected newline before '.'")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given that first method in chain has a closing quotes on a separate line`() {
+            val code =
+                """
+                val foo =
+                    $MULTILINE_STRING_QUOTE
+                    Some text
+                    $MULTILINE_STRING_QUOTE
+                    .trimIndent()
+                """.trimIndent()
+            val formattedCode =
+                """
+                val foo =
+                    $MULTILINE_STRING_QUOTE
+                    Some text
+                    $MULTILINE_STRING_QUOTE.trimIndent()
+                """.trimIndent()
+            chainMethodContinuationRuleAssertThat(code)
+                .hasLintViolation(5, 5, "Unexpected newline before '.'")
+                .isFormattedAs(formattedCode)
+        }
     }
 
     @Test
@@ -608,6 +669,29 @@ class ChainMethodContinuationRuleTest {
                 LintViolation(1, 47, "Expected newline before '.'"),
                 LintViolation(1, 54, "Expected newline before '.'"),
                 LintViolation(1, 61, "Expected newline before '.'"),
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a chained method including an array access expression`() {
+        val code =
+            """
+            val foo =
+                arrayOf(1, 2, 3).bar[0].foo()
+                    ?.foobar()
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo =
+                arrayOf(1, 2, 3)
+                    .bar[0]
+                    .foo()
+                    ?.foobar()
+            """.trimIndent()
+        chainMethodContinuationRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 21, "Expected newline before '.'"),
+                LintViolation(2, 28, "Expected newline before '.'"),
             ).isFormattedAs(formattedCode)
     }
 
