@@ -21,7 +21,7 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
  * This example uses 'slf4j-simple' as logging provider. But any logging provider that implements SLF4J API can be used depending on your
  * needs.
  */
-public fun main(args: Array<String>) {
+public fun main() {
     // The KtLint RuleEngine only needs to be instantiated once and can be reused in multiple invocations
     val ktLintRuleEngine =
         KtLintRuleEngine(
