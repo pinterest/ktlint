@@ -1263,8 +1263,7 @@ internal class IndentationRuleTest {
                 LintViolation(4, 1, "Unexpected indentation (10) (should be 8)"),
                 LintViolation(5, 1, "Unexpected indentation (10) (should be 8)"),
                 LintViolation(6, 1, "Unexpected indentation (10) (should be 4)"),
-            )
-            .isFormattedAs(formattedCode)
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -1293,8 +1292,7 @@ internal class IndentationRuleTest {
                 LintViolation(3, 1, "Unexpected indentation (3) (should be 5)"),
                 LintViolation(4, 1, "Unexpected indentation (3) (should be 5)"),
                 LintViolation(5, 1, "Unexpected indentation (2) (should be 4)"),
-            )
-            .isFormattedAs(formattedCode)
+            ).isFormattedAs(formattedCode)
     }
 
     @Nested
@@ -1836,8 +1834,7 @@ internal class IndentationRuleTest {
                 .filter { it % 2 == 0 }
                 .sum()
             }"
-            """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
+            """.trimIndent().replacePlaceholderWithStringTemplate()
         val formattedCode =
             """
             fun foo1() =
@@ -1851,8 +1848,7 @@ internal class IndentationRuleTest {
                     .filter { it % 2 == 0 }
                     .sum()
             }"
-            """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
+            """.trimIndent().replacePlaceholderWithStringTemplate()
         indentationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(8, 1, "Unexpected indentation (0) (should be 4)"),
@@ -2332,8 +2328,7 @@ internal class IndentationRuleTest {
                 true
                 }")
             }
-            """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
+            """.trimIndent().replacePlaceholderWithStringTemplate()
         val formattedCode =
             """
             fun foo() {
@@ -2343,8 +2338,7 @@ internal class IndentationRuleTest {
                     }"
                 )
             }
-            """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
+            """.trimIndent().replacePlaceholderWithStringTemplate()
         indentationRuleAssertThat(code)
             .addAdditionalRuleProvider { WrappingRule() }
             .hasLintViolation(3, 1, "Unexpected indentation (4) (should be 8)")
@@ -2413,8 +2407,7 @@ internal class IndentationRuleTest {
                 ${MULTILINE_STRING_QUOTE}text$MULTILINE_STRING_QUOTE
                 )
             }
-            """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
+            """.trimIndent().replacePlaceholderWithStringTemplate()
         val formattedCode =
             """
             fun foo1() {
@@ -2429,8 +2422,7 @@ internal class IndentationRuleTest {
                     ${MULTILINE_STRING_QUOTE}text$MULTILINE_STRING_QUOTE
                 )
             }
-            """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
+            """.trimIndent().replacePlaceholderWithStringTemplate()
         indentationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(3, 1, "Unexpected indentation (4) (should be 8)"),
@@ -2639,6 +2631,71 @@ internal class IndentationRuleTest {
         indentationRuleAssertThat(code)
             .hasLintViolation(6, 1, "Unexpected indentation (8) (should be 10)")
             .isFormattedAs(formattedCode)
+    }
+
+    @Nested
+    inner class `Issue 2175 - Given a function using the WHERE keyword` {
+        @Test
+        fun `Issue 2175 - Given a function without return type but with WHERE`() {
+            val code =
+                """
+                fun <TFeature, TValidated> applyToAllCloseFeaturesWithUiFlow(
+                    thisFeature: TFeature,
+                    allFeaturesOfThisKind: List<TFeature>,
+                    optionsToApply: TValidated,
+                // .. more parameters
+                ) where TFeature : Clusterable,
+                    TFeature : SupportsExternalObjectCoordinates<out Options<out Options.Validated>, out Options.Validated, *>,
+                    TValidated : Options.Validated {
+                    // do something
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun <TFeature, TValidated> applyToAllCloseFeaturesWithUiFlow(
+                    thisFeature: TFeature,
+                    allFeaturesOfThisKind: List<TFeature>,
+                    optionsToApply: TValidated,
+                // .. more parameters
+                ) where TFeature : Clusterable,
+                        TFeature : SupportsExternalObjectCoordinates<out Options<out Options.Validated>, out Options.Validated, *>,
+                        TValidated : Options.Validated {
+                    // do something
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(7, 1, "Unexpected indentation (4) (should be 8)"),
+                    LintViolation(8, 1, "Unexpected indentation (4) (should be 8)"),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Issue 2175 - Given a function with return type and WHERE on separate lines`() {
+            val code =
+                """
+                fun <T> copyWhenGreater(list: List<T>, threshold: T): List<String>
+                    where T : CharSequence,
+                          T : Comparable<T> {
+                    return list.filter { it > threshold }.map { it.toString() }
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `Issue 2175 - Given a function with return type and WHERE on same line`() {
+            val code =
+                """
+                fun <T> copyWhenGreater(
+                    list: List<T>, threshold: T
+                ): List<String> where T : CharSequence,
+                                      T : Comparable<T> {
+                    return list.filter { it > threshold }.map { it.toString() }
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
     }
 
     @Test // "https://github.com/pinterest/ktlint/issues/433"
@@ -3377,8 +3434,7 @@ internal class IndentationRuleTest {
                 .hasLintViolations(
                     LintViolation(4, 1, "Unexpected indentation (16) (should be 12)"),
                     LintViolation(5, 1, "Unexpected indentation (20) (should be 12)"),
-                )
-                .isFormattedAs(formattedCode)
+                ).isFormattedAs(formattedCode)
         }
 
         @Test

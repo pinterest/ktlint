@@ -116,7 +116,8 @@ internal class EditorConfigFinder(
     private fun Path?.resource() = Resource.Resources.ofPath(this, StandardCharsets.UTF_8)
 
     private fun createLoaderService() =
-        ResourcePropertiesService.builder()
+        ResourcePropertiesService
+            .builder()
             .cache(EDITOR_CONFIG_CACHE)
             .loader(editorConfigLoaderEc4j.editorConfigLoader)
             .build()

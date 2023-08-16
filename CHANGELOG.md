@@ -4,13 +4,28 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+### API changes
+
+* As a part of public API stabilization, data classes are no longer used in the public API. As of that, functions like `copy()` or `componentN()` (used for destructuring declarations) are not available anymore. This is a binary incompatible change, breaking backwards compatibility. ([#2133](https://github.com/pinterest/ktlint/issues/2133))
+
+* Align names of Rule classes, file and `RULE_ID` constants ([#2176](https://github.com/pinterest/ktlint/issues/2176)). Rule class `MultilineExpressionWrapping` has been renamed to `MultilineExpressionWrappingRule`. Rule class `StatementWrapping` has been renamed to `StatementWrappingRule`. `RULE_ID` constants below are moved to a different Java class at compile time. Each rule provided by Ktlint is to be accompanied by a `RULE_ID` constant that can be used in the `VisitorModifier.RunAfter`. Filenames did not comply with standard that it should end with `Rule` suffix.
+
+| RULE ID                               | Old Java class name           | New Java class name               |
+|---------------------------------------|-------------------------------|-----------------------------------|
+| FUNCTION_EXPRESSION_BODY_RULE_ID      | FunctionExpressionBodyKt      | FunctionExpressionBodyRuleKt      |
+| FUNCTION_LITERAL_RULE_ID              | FunctionLiteralKt             | FunctionLiteralRuleKt             |
+| MULTILINE_EXPRESSION_WRAPPING_RULE_ID | MultilineExpressionWrappingKt | MultilineExpressionWrappingRuleKt |
+| NO_BLANK_LINE_IN_LIST_RULE_ID         | NoBlankLineInListKt           | NoBlankLineInListRuleKt           |
+| NO_EMPTY_FILE_RULE_ID                 | (not applicable)              | NoEmptyFileRuleKt                 |
+
 ### Added
 
 * Add experimental rule `class-signature`. This rule rewrites the class header to a consistent format. In code style `ktlint_official`, super types are always wrapped to a separate line. In other code styles, super types are only wrapped in classes having multiple super types. Especially for code style `ktlint_official` the class headers are rewritten in a more consistent format. See [examples in documentation](https://pinterest.github.io/ktlint/latest/rules/experimental/#class-signature). `class-signature` [#875](https://github.com/pinterest/ktlint/issues/1349), [#1349](https://github.com/pinterest/ktlint/issues/875)
 * Add experimental rule `function-expression-body`. This rule rewrites function bodies only contain a `return` or `throw` expression to an expression body. [#2150](https://github.com/pinterest/ktlint/issues/2150)
+* Add new experimental rule `statement-wrapping` which ensures function, class, or other blocks statement body doesn't start or end at starting or ending braces of the block ([#1938](https://github.com/pinterest/ktlint/issues/1938)). This rule was added in `0.50` release, but was never executed outside the unit tests. The rule is now added to the `StandardRuleSetProvider` ([#2170](https://github.com/pinterest/ktlint/issues/2170))
+* Add experimental rule `chain-method-continuation` to the `ktlint_official` code style, but it can be enabled explicitly for the other code styles as well. This rule requires the operators (`.` or `?.`) for chaining method calls, to be aligned with each other. This rule is enabled by ([#1953](https://github.com/pinterest/ktlint/issues/1953))
 
 ### Removed
-* As a part of public API stabilization, data classes are no longer used in the public API. As of that, functions like `copy()` or `componentN()` (used for destructuring declarations) are not available anymore. This is a binary incompatible change, breaking backwards compatibility. ([#2133](https://github.com/pinterest/ktlint/issues/2133))
 
 ### Fixed
 
@@ -27,16 +42,20 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 * Add new experimental rule `function-literal`. This rule enforces the parameter list of a function literal to be formatted consistently. `function-literal` [#2121](https://github.com/pinterest/ktlint/issues/2121)
 * Store relative path of file in baseline file [#2146](https://github.com/pinterest/ktlint/issues/2146)
 * Fix null pointer exception for if-else statement with empty THEN block `if-else-bracing` [#2135](https://github.com/pinterest/ktlint/issues/2135)
+* Do not wrap a single line enum class `statement-wrapping` [#2177](https://github.com/pinterest/ktlint/issues/2177)
+* Fix alignment of type constraints after `where` keyword in function signature `indent` [#2175](https://github.com/pinterest/ktlint/issues/2175)
+* Fix wrapping of multiline postfix expression `multiline-expression-wrapping` [#2183](https://github.com/pinterest/ktlint/issues/2183)
 
 ### Changed
 
 * Change default code style to `ktlint_official` ([#2143](https://github.com/pinterest/ktlint/pull/2143))
-* Update dependency gradle to v8.2.1 ([#2122](https://github.com/pinterest/ktlint/pull/2122))
-* Update dependency org.codehaus.janino:janino to v3.1.10  ([#2110](https://github.com/pinterest/ktlint/pull/2110))
-* Update dependency com.google.jimfs:jimfs to v1.3.0 ([#2112](https://github.com/pinterest/ktlint/pull/2112))
+* Update dependency `gradle` to `v8.2.1` ([#2122](https://github.com/pinterest/ktlint/pull/2122))
+* Update dependency `org.codehaus.janino:janino` to `v3.1.10`  ([#2110](https://github.com/pinterest/ktlint/pull/2110))
+* Update dependency `com.google.jimfs:jimfs` to `v1.3.0` ([#2112](https://github.com/pinterest/ktlint/pull/2112))
 * As a part of public API stabilization, configure `binary-compatibility-validator` plugin for compile-time verification of binary compatibility with previous `ktlint` versions ([#2131](https://github.com/pinterest/ktlint/pull/2131))
-* Update dependency org.junit.jupiter:junit-jupiter to v5.10.0 ([#2148](https://github.com/pinterest/ktlint/pull/2148))
+* Update dependency `org.junit.jupiter:junit-jupiter` to `v5.10.0` ([#2148](https://github.com/pinterest/ktlint/pull/2148))
 * Build the project with Java 20, run test on Java 8, 11, 17 and 20 ([#1888](https://github.com/pinterest/ktlint/issues/1888))
+* Update dependency `io.github.oshai:kotlin-logging-jvm` to `v5.1.0` ([#2174](https://github.com/pinterest/ktlint/pull/2174))
 
 ## [0.50.0] - 2023-06-29
 
@@ -73,7 +92,7 @@ At this point in time, it is not yet decided what the next steps will be. Ktlint
 * Add new experimental rule `binary-expression-wrapping`. This rule wraps a binary expression in case the max line length is exceeded ([#1940](https://github.com/pinterest/ktlint/issues/1940))
 * Add flag to disable extension point `org.jetbrains.kotlin.com.intellij.treeCopyHandler` to analyse impact on custom rules [#1981](https://github.com/pinterest/ktlint/issues/1981)
 * Add new experimental rule `no-empty-file` for all code styles. A kotlin (script) file may not be empty ([#1074](https://github.com/pinterest/ktlint/issues/1074))
-* Add new experimental rule `statement-wrapping` which ensures function, class, or other blocks statement body doesn't start or end at starting or ending braces of the block ([#1938](https://github.com/pinterest/ktlint/issues/1938))
+* Add new experimental rule `statement-wrapping` which ensures function, class, or other blocks statement body doesn't start or end at starting or ending braces of the block ([#1938](https://github.com/pinterest/ktlint/issues/1938)). Note, although this rule is added in this release, it is never executed except in unit tests.
 * Add new experimental rule `blank-line-before-declaration`. This rule requires a blank line before class, function or property declarations ([#1939](https://github.com/pinterest/ktlint/issues/1939))
 * Wrap multiple statements on same line `wrapping` ([#1078](https://github.com/pinterest/ktlint/issues/1078))
 * Add new rule `ktlint-suppression` to replace the `ktlint-disable` and `ktlint-enable` directives with annotations. This rule can not be disabled via the `.editorconfig` ([#1947](https://github.com/pinterest/ktlint/issues/1947))
@@ -95,11 +114,11 @@ At this point in time, it is not yet decided what the next steps will be. Ktlint
 ### Changed
 
 * Fix Java interoperability issues with `RuleId` and `RuleSetId` classes. Those classes were defined as value classes in `0.49.0` and `0.49.1`. Although the classes were marked with `@JvmInline` it seems that it is not possible to uses those classes from Java base API Consumers like Spotless. The classes have now been replaced with data classes ([#2041](https://github.com/pinterest/ktlint/issues/2041))
-* Update dependency `info.picocli:picocli` to v4.7.4
-* Update dependency `org.junit.jupiter:junit-jupiter` to v5.9.3
+* Update dependency `info.picocli:picocli` to `v4.7.4`
+* Update dependency `org.junit.jupiter:junit-jupiter` to `v5.9.3`
 * Update Kotlin development version to `1.8.22` and Kotlin version to `1.8.22`.
-* Update dependency io.github.detekt.sarif4k:sarif4k to v0.4.0
-* Update dependency org.jetbrains.dokka:dokka-gradle-plugin to v1.8.20
+* Update dependency `io.github.detekt.sarif4k:sarif4k` to `v0.4.0`
+* Update dependency `org.jetbrains.dokka:dokka-gradle-plugin` to `v1.8.20`
 * Run format up to 3 times in case formatting introduces changes which also can be autocorrected ([#2084](https://github.com/pinterest/ktlint/issues/2084))
 
 ## [0.49.1] - 2023-05-12

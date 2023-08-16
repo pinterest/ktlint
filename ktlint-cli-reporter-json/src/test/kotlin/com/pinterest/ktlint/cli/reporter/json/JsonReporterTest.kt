@@ -74,8 +74,7 @@ class JsonReporterTest {
                 }
             ]
 
-            """.trimIndent()
-                .replace("\n", System.lineSeparator()),
+            """.trimIndent().replace("\n", System.lineSeparator()),
         )
     }
 
@@ -104,8 +103,7 @@ class JsonReporterTest {
                 }
             ]
 
-            """.trimIndent()
-                .replace("\n", System.lineSeparator()),
+            """.trimIndent().replace("\n", System.lineSeparator()),
         )
     }
 }

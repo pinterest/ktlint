@@ -15,10 +15,10 @@ import java.util.Locale
  * @param <T> the type of the value <T>
  *
  */
-internal class SafeEnumValueParser<T : Enum<*>?>(
-    enumType: Class<out T?>,
+internal class SafeEnumValueParser<T : Enum<T>>(
+    enumType: Class<T>,
 ) : PropertyValueParser<T> {
-    private val enumType: Class<out Enum<*>?>
+    private val enumType: Class<T>
 
     init {
         this.enumType = enumType
@@ -29,7 +29,7 @@ internal class SafeEnumValueParser<T : Enum<*>?>(
         value: String?,
     ): PropertyType.PropertyValue<T> =
         if (value == null) {
-            PropertyType.PropertyValue.invalid(null, "Cannot make enum " + enumType.name + " out of null")
+            PropertyType.PropertyValue.invalid(null, "Cannot make enum ${enumType.name} out of null")
         } else {
             try {
                 PropertyType.PropertyValue.valid(

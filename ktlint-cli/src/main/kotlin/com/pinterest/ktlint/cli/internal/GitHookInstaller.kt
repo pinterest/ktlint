@@ -9,6 +9,7 @@ import java.security.MessageDigest
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
+private const val DEFAULT_GIT_DIR = ".git"
 private const val DEFAULT_GIT_HOOKS_DIR = "hooks"
 
 internal object GitHookInstaller {
@@ -56,16 +57,16 @@ internal object GitHookInstaller {
     private fun getGitDir(): File {
         val gitDir =
             try {
-                val root =
-                    Runtime.getRuntime().exec("git rev-parse --show-toplevel")
-                        .inputStream
-                        .bufferedReader()
-                        .readText()
-                        .trim()
-
-                File(root).resolve(".git")
+                with(ProcessBuilder("git", "rev-parse", "--show-toplevel").start()) {
+                    val rootDir =
+                        inputStream
+                            .bufferedReader()
+                            .readLine()
+                    waitFor()
+                    File(rootDir ?: DEFAULT_GIT_DIR).resolve(".git")
+                }
             } catch (_: IOException) {
-                File(".git")
+                File(DEFAULT_GIT_DIR)
             }
         if (!gitDir.isDirectory) {
             throw IOException(".git directory not found. Are you sure you are inside project directory?")
@@ -76,12 +77,17 @@ internal object GitHookInstaller {
 
     private fun getHooksDirName() =
         try {
-            Runtime.getRuntime().exec("git config --get core.hooksPath")
-                .inputStream
-                .bufferedReader()
-                .readText()
-                .trim()
-                .ifEmpty { DEFAULT_GIT_HOOKS_DIR }
+            with(ProcessBuilder("git", "config", "--get", "core.hooksPath").start()) {
+                val hooksDir =
+                    inputStream
+                        .bufferedReader()
+                        .readLine()
+                waitFor()
+                hooksDir
+                    ?.trim()
+                    .orEmpty()
+                    .ifEmpty { DEFAULT_GIT_HOOKS_DIR }
+            }
         } catch (_: IOException) {
             DEFAULT_GIT_HOOKS_DIR
         }

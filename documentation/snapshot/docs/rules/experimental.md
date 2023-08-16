@@ -90,6 +90,89 @@ Rule id: `blank-line-before-declaration` (`standard` rule set)
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
 
+### Chain method continuation
+
+In a multiline method chain, the chain operators (`.` or `?.`) have to be aligned with each other. 
+
+Multiple chained methods on a single line are allowed as long as the maximum line length, and the maximum number of chain operators are not exceeded. Under certain conditions, it is allowed that the expression before the first and/or the expression after the last chain operator is a multiline expression.
+
+The `.` in `java.class` is ignored when wrapping on chain operators.
+
+This rule can be configured with `.editorconfig` property [`ktlint_chain_method_rule_force_multiline_when_chain_operator_count_greater_or_equal_than`](../configuration-ktlint/#force-multiline-chained-methods-based-on-number-of-chain-operators).
+
+!!! warning
+    Binary expression for which the left and/or right operand consist of method chain are currently being ignored by this rule. Please reach out, if you can help to determine what the best strategy is to deal with such kind of expressions.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val foo1 =
+        listOf(1, 2, 3)
+            .filter { it > 2 }!!
+            .takeIf { it > 2 }
+            .map {
+                it * it
+            }?.map {
+                it * it
+            }
+    val foo2 =
+        listOf(1, 2, 3)
+            .filter {
+                it > 2
+            }.map {
+                2 * it
+            }?.map {
+                2 * it
+            }
+    val foo3 = foo().bar().map {
+        it.foobar()
+    }
+    val foo4 =
+        """
+        Some text
+        """.trimIndent().foo().bar()
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val foo1 =
+        listOf(1, 2, 3).
+            filter { it > 2 }!!.
+            takeIf { it > 2 }.
+            map {
+                it * it
+            }?.
+            map {
+                it * it
+            }
+    val foo2 =
+        listOf(1, 2, 3)
+            .filter {
+                it > 2
+            }
+            .map {
+                2 * it
+            }
+            ?.map {
+                2 * it
+            }
+    val foo3 = foo()
+        .bar().map {
+            it.foobar()
+        }
+    val foo4 =
+        """
+        Some text
+        """.trimIndent().foo()
+            .bar()
+    ```
+
+Rule id: `chain-method-continuation` (`standard` rule set)
+
+!!! Note
+    This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
+
 ## Class signature
 
 Rewrites the class signature to a consistent format respecting the `.editorconfig` property `max_line_length` if set. In the `ktlint_official` code style all class parameters are wrapped by default. Set `.editorconfig` property `ktlint_class_signature_wrapping_rule_always_with_minimum_parameters` to a value greater than 1 to allow class with a few parameters to be placed on a single line.
@@ -1205,6 +1288,11 @@ A function, class/object body or other block body statement has to be placed on 
     class A {
         val a = 0
         val b = 1
+    }
+    enum class FooBar1 { FOO, BAR }
+    enum class FooBar2 {
+        FOO,
+        BAR,
     }
     ```
 

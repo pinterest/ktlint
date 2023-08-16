@@ -167,7 +167,8 @@ public class ParameterListWrappingRule :
 
     private fun ASTNode.containsAnnotatedParameter(): Boolean {
         require(elementType == VALUE_PARAMETER_LIST)
-        return this.children()
+        return this
+            .children()
             .filter { it.elementType == VALUE_PARAMETER }
             .any { it.isAnnotated() }
     }

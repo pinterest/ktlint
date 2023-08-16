@@ -26,8 +26,7 @@ internal class WrappingRuleTest {
                 true
                 }")
             }
-            """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
+            """.trimIndent().replacePlaceholderWithStringTemplate()
         val formattedCode =
             """
             fun foo() {
@@ -37,8 +36,7 @@ internal class WrappingRuleTest {
                     }"
                 )
             }
-            """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
+            """.trimIndent().replacePlaceholderWithStringTemplate()
         wrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolations(
@@ -102,8 +100,7 @@ internal class WrappingRuleTest {
             true
                 }$MULTILINE_STRING_QUOTE.trimIndent(), ${MULTILINE_STRING_QUOTE}text$MULTILINE_STRING_QUOTE)
             }
-            """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
+            """.trimIndent().replacePlaceholderWithStringTemplate()
         val formattedCode =
             """
             fun foo1() {
@@ -119,8 +116,7 @@ internal class WrappingRuleTest {
                     ${MULTILINE_STRING_QUOTE}text$MULTILINE_STRING_QUOTE
                 )
             }
-            """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
+            """.trimIndent().replacePlaceholderWithStringTemplate()
         wrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolations(
@@ -1732,8 +1728,7 @@ internal class WrappingRuleTest {
                     $MULTILINE_STRING_QUOTE
                     return q
                 }
-                """.replacePlaceholderWithStringTemplate()
-                    .trimIndent()
+                """.replacePlaceholderWithStringTemplate().trimIndent()
             wrappingRuleAssertThat(code)
                 .setMaxLineLength()
                 .hasNoLintViolations()
@@ -1752,8 +1747,7 @@ internal class WrappingRuleTest {
                     $MULTILINE_STRING_QUOTE
                     return q
                 }
-                """.replacePlaceholderWithStringTemplate()
-                    .trimIndent()
+                """.replacePlaceholderWithStringTemplate().trimIndent()
             wrappingRuleAssertThat(code)
                 .setMaxLineLength()
                 .hasNoLintViolations()
@@ -1772,8 +1766,7 @@ internal class WrappingRuleTest {
                     $MULTILINE_STRING_QUOTE
                     return q
                 }
-                """.replacePlaceholderWithStringTemplate()
-                    .trimIndent()
+                """.replacePlaceholderWithStringTemplate().trimIndent()
             wrappingRuleAssertThat(code)
                 .setMaxLineLength()
                 .hasNoLintViolations()

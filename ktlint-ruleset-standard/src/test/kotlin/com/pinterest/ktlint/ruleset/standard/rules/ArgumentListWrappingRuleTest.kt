@@ -835,8 +835,7 @@ class ArgumentListWrappingRuleTest {
                 LintViolation(8, 68, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(8, 118, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(8, 122, "Missing newline before \")\""),
-            )
-            .isFormattedAs(formattedCode)
+            ).isFormattedAs(formattedCode)
     }
 
     @Test

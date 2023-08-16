@@ -13,7 +13,8 @@ internal fun loadRuleProviders(urls: List<URL>): Set<RuleProvider> {
     // An error about finding a deprecated RuleSetProviderV2 is more important than reporting an error about a missing RuleSetProviderV3
     // RuleSetProviderV2::class.java.loadFromJarFiles(urls, providerId = { it.id }, ERROR_WHEN_DEPRECATED_PROVIDER_IS_FOUND)
 
-    return RuleSetProviderV3::class.java.loadFromJarFiles(urls, providerId = { it.id.value }, ERROR_WHEN_REQUIRED_PROVIDER_IS_MISSING)
+    return RuleSetProviderV3::class.java
+        .loadFromJarFiles(urls, providerId = { it.id.value }, ERROR_WHEN_REQUIRED_PROVIDER_IS_MISSING)
         .flatMap { it.getRuleProviders() }
         .toSet()
 }

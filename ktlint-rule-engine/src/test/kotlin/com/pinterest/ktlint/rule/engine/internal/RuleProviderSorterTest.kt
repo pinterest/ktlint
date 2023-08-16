@@ -31,8 +31,7 @@ class RuleProviderSorterTest {
                             NormalRule(STANDARD_RULE_B),
                             NormalRule(STANDARD_RULE_A),
                         ),
-                )
-                .map { it.ruleId }
+                ).map { it.ruleId }
 
         assertThat(actual).containsExactly(
             STANDARD_RULE_A,
@@ -82,8 +81,7 @@ class RuleProviderSorterTest {
                             RunAsLateAsPossibleRule(STANDARD_RULE_A),
                             NormalRule(STANDARD_RULE_B),
                         ),
-                )
-                .map { it.ruleId }
+                ).map { it.ruleId }
 
         assertThat(actual).containsExactly(
             STANDARD_RULE_B,

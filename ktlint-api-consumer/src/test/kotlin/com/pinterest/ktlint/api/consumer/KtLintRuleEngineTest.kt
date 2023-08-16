@@ -293,8 +293,7 @@ class KtLintRuleEngineTest {
                                     .properties(
                                         EXPERIMENTAL_RULES_EXECUTION_PROPERTY.toPropertyBuilderWithValue("enabled"),
                                     ),
-                            )
-                            .build(),
+                            ).build(),
                     ),
                 fileSystem = ktlintTestFileSystem.fileSystem,
             )

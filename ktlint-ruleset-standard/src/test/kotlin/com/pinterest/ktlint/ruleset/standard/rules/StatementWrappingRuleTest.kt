@@ -5,9 +5,9 @@ import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
-class StatementWrappingTest {
-    private val statementWrappingAssertThat =
-        KtLintAssertThat.assertThatRule { StatementWrapping() }
+class StatementWrappingRuleTest {
+    private val statementWrappingRuleAssertThat =
+        KtLintAssertThat.assertThatRule { StatementWrappingRule() }
 
     @Test
     fun `Given a function body with first statement at the same line as lbrace`() {
@@ -22,7 +22,7 @@ class StatementWrappingTest {
                 doSomething()
             }
             """.trimIndent()
-        statementWrappingAssertThat(code)
+        statementWrappingRuleAssertThat(code)
             .hasLintViolation(1, 13, "Expected new line after '{'")
             .isFormattedAs(formattedCode)
     }
@@ -40,7 +40,7 @@ class StatementWrappingTest {
                 doSomething()
             }
             """.trimIndent()
-        statementWrappingAssertThat(code)
+        statementWrappingRuleAssertThat(code)
             .hasLintViolation(2, 19, "Expected new line before '}'")
             .isFormattedAs(formattedCode)
     }
@@ -53,7 +53,7 @@ class StatementWrappingTest {
                 doSomething()
             }
             """.trimIndent()
-        statementWrappingAssertThat(code).hasNoLintViolations()
+        statementWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -68,7 +68,7 @@ class StatementWrappingTest {
                 doSomething()
             }
             """.trimIndent()
-        statementWrappingAssertThat(code)
+        statementWrappingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 13, "Expected new line after '{'"),
                 LintViolation(1, 27, "Expected new line before '}'"),
@@ -97,7 +97,7 @@ class StatementWrappingTest {
                 }
             }
             """.trimIndent()
-        statementWrappingAssertThat(code)
+        statementWrappingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 13, "Expected new line after '{'"),
                 LintViolation(2, 19, "Expected new line before '}'"),
@@ -114,7 +114,7 @@ class StatementWrappingTest {
             fun foo2() { }
             fun foo3() { /* no-op */ }
             """.trimIndent()
-        statementWrappingAssertThat(code).hasNoLintViolations()
+        statementWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Disabled
@@ -133,7 +133,7 @@ class StatementWrappingTest {
                 doSomething()
             }
             """.trimIndent()
-        statementWrappingAssertThat(code)
+        statementWrappingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 13, "Expected new line after '{'"),
                 LintViolation(1, 28, "Expected new line after ';'"),
@@ -151,7 +151,7 @@ class StatementWrappingTest {
             val foo4 = { doSomething() }
             val foo5 = { bar -> doSomething(bar) }
             """.trimIndent()
-        statementWrappingAssertThat(code)
+        statementWrappingRuleAssertThat(code)
             .hasNoLintViolations()
     }
 
@@ -168,7 +168,7 @@ class StatementWrappingTest {
                 doSomething()
             }
             """.trimIndent()
-        statementWrappingAssertThat(code)
+        statementWrappingRuleAssertThat(code)
             .hasLintViolation(1, 12, "Expected new line after '{'")
             .isFormattedAs(formattedCode)
     }
@@ -186,7 +186,7 @@ class StatementWrappingTest {
                 doSomething()
             }
             """.trimIndent()
-        statementWrappingAssertThat(code)
+        statementWrappingRuleAssertThat(code)
             .hasLintViolation(2, 18, "Expected new line before '}'")
             .isFormattedAs(formattedCode)
     }
@@ -209,7 +209,7 @@ class StatementWrappingTest {
                 }
             }
             """.trimIndent()
-        statementWrappingAssertThat(code)
+        statementWrappingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(2, 16, "Expected new line after '{'"),
                 LintViolation(3, 20, "Expected new line before '}'"),
@@ -234,7 +234,7 @@ class StatementWrappingTest {
                 }
             }
             """.trimIndent()
-        statementWrappingAssertThat(code)
+        statementWrappingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(2, 24, "Expected new line after '{'"),
                 LintViolation(3, 23, "Expected new line before '}'"),
@@ -259,7 +259,7 @@ class StatementWrappingTest {
                 }
             }
             """.trimIndent()
-        statementWrappingAssertThat(code)
+        statementWrappingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(2, 26, "Expected new line after '{'"),
                 LintViolation(3, 23, "Expected new line before '}'"),
@@ -284,7 +284,7 @@ class StatementWrappingTest {
                 } while (a < Int.MAX)
             }
             """.trimIndent()
-        statementWrappingAssertThat(code)
+        statementWrappingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(2, 10, "Expected new line after '{'"),
                 LintViolation(3, 23, "Expected new line before '}'"),
@@ -314,7 +314,7 @@ class StatementWrappingTest {
                 }
             }
             """.trimIndent()
-        statementWrappingAssertThat(code)
+        statementWrappingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(2, 11, "Expected new line after '{'"),
                 LintViolation(3, 30, "Expected new line after '{'"),
@@ -345,7 +345,7 @@ class StatementWrappingTest {
                 }
             }
             """.trimIndent()
-        statementWrappingAssertThat(code)
+        statementWrappingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(3, 23, "Expected new line before '}'"),
                 LintViolation(4, 23, "Expected new line before '}'"),
@@ -382,13 +382,12 @@ class StatementWrappingTest {
                 }
             }
             """.trimIndent()
-        statementWrappingAssertThat(code)
+        statementWrappingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(4, 23, "Expected new line before '}'"),
                 LintViolation(6, 22, "Expected new line before '}'"),
                 LintViolation(8, 21, "Expected new line before '}'"),
-            )
-            .isFormattedAs(formattedCode)
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -421,7 +420,7 @@ class StatementWrappingTest {
                 }
             }
             """.trimIndent()
-        statementWrappingAssertThat(code)
+        statementWrappingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 14, "Expected new line after '{'"),
                 LintViolation(6, 24, "Expected new line after '{'"),
@@ -458,7 +457,7 @@ class StatementWrappingTest {
                 }
             }
             """.trimIndent()
-        statementWrappingAssertThat(code)
+        statementWrappingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(4, 7, "Expected new line before '}'"),
                 LintViolation(8, 27, "Expected new line before '}'"),
@@ -474,7 +473,7 @@ class StatementWrappingTest {
                     doSomething(bar)
                 }
             """.trimIndent()
-        statementWrappingAssertThat(code).hasNoLintViolations()
+        statementWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -492,8 +491,17 @@ class StatementWrappingTest {
                     doSomething(bar)
                 }
             """.trimIndent()
-        statementWrappingAssertThat(code)
+        statementWrappingRuleAssertThat(code)
             .hasLintViolation(2, 18, "Expected new line after '->'")
             .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 2177 - Given a single line enumeration then do not wrap the values`() {
+        val code =
+            """
+            enum class FooBar { FOO, BAR }
+            """.trimIndent()
+        statementWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 }

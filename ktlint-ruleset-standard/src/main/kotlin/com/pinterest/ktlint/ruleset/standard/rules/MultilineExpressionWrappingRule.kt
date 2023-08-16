@@ -15,6 +15,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.IF
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IS_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPERATION_REFERENCE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.POSTFIX_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PREFIX_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REFERENCE_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
@@ -46,7 +47,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 /**
  * This rule wraps each multiline expression to a newline.
  */
-public class MultilineExpressionWrapping :
+public class MultilineExpressionWrappingRule :
     StandardRule(
         id = "multiline-expression-wrapping",
         usesEditorConfigProperties =
@@ -132,7 +133,8 @@ public class MultilineExpressionWrapping :
                 ?.takeIf { it.elementType == EQ || it.elementType == OPERATION_REFERENCE }
                 ?.takeUnless { it.isElvisOperator() }
                 ?.takeUnless {
-                    it.closingParenthesisOfFunctionOrNull()
+                    it
+                        .closingParenthesisOfFunctionOrNull()
                         ?.prevLeaf()
                         .isWhiteSpaceWithNewline()
                 }
@@ -180,6 +182,7 @@ public class MultilineExpressionWrapping :
                 IS_EXPRESSION,
                 OBJECT_LITERAL,
                 PREFIX_EXPRESSION,
+                POSTFIX_EXPRESSION,
                 REFERENCE_EXPRESSION,
                 SAFE_ACCESS_EXPRESSION,
                 TRY,
@@ -188,4 +191,4 @@ public class MultilineExpressionWrapping :
     }
 }
 
-public val MULTILINE_EXPRESSION_WRAPPING_RULE_ID: RuleId = MultilineExpressionWrapping().ruleId
+public val MULTILINE_EXPRESSION_WRAPPING_RULE_ID: RuleId = MultilineExpressionWrappingRule().ruleId

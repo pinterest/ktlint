@@ -319,8 +319,7 @@ public class FunctionSignatureRule :
                 // Functions with comments in the value parameter list are excluded from processing before. So an "empty" value
                 // parameter list should only contain a single whitespace element
                 require(elementsInValueParameterList.count() <= 1)
-            }
-            .firstOrNull()
+            }.firstOrNull()
             ?.let { whiteSpace ->
                 if (!dryRun) {
                     emit(

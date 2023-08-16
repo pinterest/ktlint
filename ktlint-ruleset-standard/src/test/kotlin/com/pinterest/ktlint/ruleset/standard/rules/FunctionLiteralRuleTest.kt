@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
@@ -8,14 +7,7 @@ import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class FunctionLiteralRuleTest {
-    private val functionLiteralRuleAssertThat =
-        assertThatRule(
-            provider = { FunctionLiteralRule() },
-            additionalRuleProviders =
-                setOf(
-                    RuleProvider { IndentationRule() },
-                ),
-        )
+    private val functionLiteralRuleAssertThat = assertThatRule { FunctionLiteralRule() }
 
     @Test
     fun `Given a single line lambda without parameters`() {
@@ -124,7 +116,7 @@ class FunctionLiteralRuleTest {
             // $MAX_LINE_LENGTH_MARKER  $EOL_CHAR
             val foobar =
                 barrrrrrrrrr {
-                        foooooooooooo: Foo
+                    foooooooooooo: Foo
                     ->
                     foo.repeat(2)
                 }
@@ -164,8 +156,8 @@ class FunctionLiteralRuleTest {
             // $MAX_LINE_LENGTH_MARKER  $EOL_CHAR
             val foobar =
                 {
-                        fooooo: Foo,
-                        bar: Bar
+                    fooooo: Foo,
+                    bar: Bar
                     ->
                     foo + bar
                 }
@@ -194,8 +186,8 @@ class FunctionLiteralRuleTest {
             // $MAX_LINE_LENGTH_MARKER  $EOL_CHAR
             val foobar =
                 {
-                        fooooooooooo: Foo,
-                        bar: Bar
+                    fooooooooooo: Foo,
+                    bar: Bar
                     ->
                     foo.repeat(2)
                 }
@@ -216,7 +208,7 @@ class FunctionLiteralRuleTest {
             // $MAX_LINE_LENGTH_MARKER  $EOL_CHAR
             val foobar =
                 { foo: Foo,
-                  bar: Bar ->
+                    bar: Bar ->
                     foo + bar
                 }
             """.trimIndent()
@@ -225,8 +217,8 @@ class FunctionLiteralRuleTest {
             // $MAX_LINE_LENGTH_MARKER  $EOL_CHAR
             val foobar =
                 {
-                        foo: Foo,
-                        bar: Bar
+                    foo: Foo,
+                    bar: Bar
                     ->
                     foo + bar
                 }
@@ -235,7 +227,7 @@ class FunctionLiteralRuleTest {
             .setMaxLineLength()
             .hasLintViolations(
                 LintViolation(3, 7, "Newline expected before parameter"),
-                LintViolation(4, 16, "Newline expected before arrow"),
+                LintViolation(4, 18, "Newline expected before arrow"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -246,8 +238,8 @@ class FunctionLiteralRuleTest {
             // $MAX_LINE_LENGTH_MARKER  $EOL_CHAR
             val foobar =
                 {
-                  foo: Foo,
-                  bar: Bar ->
+                    foo: Foo,
+                    bar: Bar ->
                     foo + bar
                 }
             """.trimIndent()
@@ -256,15 +248,15 @@ class FunctionLiteralRuleTest {
             // $MAX_LINE_LENGTH_MARKER  $EOL_CHAR
             val foobar =
                 {
-                        foo: Foo,
-                        bar: Bar
+                    foo: Foo,
+                    bar: Bar
                     ->
                     foo + bar
                 }
             """.trimIndent()
         functionLiteralRuleAssertThat(code)
             .setMaxLineLength()
-            .hasLintViolation(5, 16, "Newline expected before arrow")
+            .hasLintViolation(5, 18, "Newline expected before arrow")
             .isFormattedAs(formattedCode)
     }
 
@@ -328,8 +320,8 @@ class FunctionLiteralRuleTest {
             // $MAX_LINE_LENGTH_MARKER         $EOL_CHAR
             val foobar =
                 {
-                  foo: Foo, bar: Bar, baz: Baz
-                  ->
+                    foo: Foo, bar: Bar, baz: Baz
+                    ->
                     foo + bar
                 }
             """.trimIndent()
@@ -338,18 +330,19 @@ class FunctionLiteralRuleTest {
             // $MAX_LINE_LENGTH_MARKER         $EOL_CHAR
             val foobar =
                 {
-                        foo: Foo,
-                        bar: Bar,
-                        baz: Baz
+                    foo: Foo,
+                    bar: Bar,
+                    baz: Baz
                     ->
                     foo + bar
                 }
             """.trimIndent()
         functionLiteralRuleAssertThat(code)
             .setMaxLineLength()
+            .isFormattedAs(formattedCode)
             .hasLintViolations(
-                LintViolation(4, 7, "No newline expected before parameter"),
-                LintViolation(4, 35, "No newline expected after parameter"),
+                LintViolation(4, 19, "Newline expected before parameter"),
+                LintViolation(4, 29, "Newline expected before parameter"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -375,20 +368,14 @@ class FunctionLiteralRuleTest {
         val formattedCode =
             """
             // $MAX_LINE_LENGTH_MARKER                    $EOL_CHAR
-            val foobar = {
-                    foo: Foo,
-                    bar: Bar
-                ->
+            val foobar = { foo: Foo, bar: Bar ->
                 foo + bar
             }
             """.trimIndent()
         functionLiteralRuleAssertThat(code)
-            .addAdditionalRuleProvider { MultilineExpressionWrapping() }
+            .addAdditionalRuleProvider { MultilineExpressionWrappingRule() }
             .setMaxLineLength()
             .hasLintViolations(
-                LintViolation(2, 16, "Newline expected before parameter"),
-                LintViolation(2, 26, "Newline expected before parameter"),
-                LintViolation(2, 35, "Newline expected before arrow"),
                 LintViolation(2, 36, "Newline expected after arrow"),
                 LintViolation(2, 48, "Newline expected before closing brace"),
             ).isFormattedAs(formattedCode)
@@ -408,13 +395,58 @@ class FunctionLiteralRuleTest {
             // $MAX_LINE_LENGTH_MARKER               $EOL_CHAR
             val foobar = { foo: Foo, bar: Bar ->
                 foo +
-                    bar
+                bar
             }
             """.trimIndent()
         functionLiteralRuleAssertThat(code)
-            .addAdditionalRuleProvider { MultilineExpressionWrapping() }
+            .addAdditionalRuleProvider { MultilineExpressionWrappingRule() }
             .setMaxLineLength()
             .hasLintViolation(2, 36, "Newline expected after arrow")
             .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a single line function literal without parameters that exceeds the maximum line length`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER    $EOL_CHAR
+            val foobar = { it.foo().bar().foobar() }
+            val foo = bar.filter { it > 2 }!!.takeIf { it.count() > 100 }.map { it * it }
+                ?.sum()!!
+            """.trimIndent()
+        val formattedCode =
+            """
+            // $MAX_LINE_LENGTH_MARKER    $EOL_CHAR
+            val foobar = {
+                it
+                    .foo()
+                    .bar()
+                    .foobar()
+            }
+            val foo =
+                bar
+                    .filter { it > 2 }!!
+                    .takeIf {
+                        it.count() > 100
+                    }.map { it * it }
+                    ?.sum()!!
+            """.trimIndent()
+        functionLiteralRuleAssertThat(code)
+            .addAdditionalRuleProvider { MultilineExpressionWrappingRule() }
+            .addAdditionalRuleProvider { ChainMethodContinuationRule() }
+            .addAdditionalRuleProvider { ArgumentListWrappingRule() }
+            .addAdditionalRuleProvider { DiscouragedCommentLocationRule() }
+            .addAdditionalRuleProvider { IndentationRule() }
+            .setMaxLineLength()
+            .hasLintViolations(
+                LintViolation(2, 14, "Newline expected after opening brace"),
+                LintViolation(2, 40, "Newline expected before closing brace"),
+                LintViolation(3, 22, "Newline expected after opening brace"),
+                LintViolation(3, 31, "Newline expected before closing brace"),
+                LintViolation(3, 42, "Newline expected after opening brace"),
+                LintViolation(3, 61, "Newline expected before closing brace"),
+                LintViolation(3, 67, "Newline expected after opening brace"),
+                LintViolation(3, 77, "Newline expected before closing brace"),
+            ).isFormattedAs(formattedCode)
     }
 }

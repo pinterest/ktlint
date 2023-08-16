@@ -160,7 +160,8 @@ private class BaselineLoader(
                 getAttribute("source")
                     .let { ruleId ->
                         // Ensure backwards compatibility with baseline files in which the rule set id for standard rules is not saved
-                        RuleId.prefixWithStandardRuleSetIdWhenMissing(ruleId)
+                        RuleId
+                            .prefixWithStandardRuleSetIdWhenMissing(ruleId)
                             .also { prefixedRuleId ->
                                 if (prefixedRuleId != ruleId) {
                                     ruleReferenceWithoutRuleSetIdPrefix++

@@ -88,6 +88,7 @@ import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.IndentStyle.TAB
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.column
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
@@ -580,10 +581,11 @@ public class IndentationRule :
             node.prevSibling { it.isWhiteSpaceWithNewline() } == null &&
             node == node.treeParent.findChildByType(VALUE_PARAMETER)
         ) {
-            nextToAstNode = startIndentContext(
-                fromAstNode = fromAstNode,
-                toAstNode = nextToAstNode,
-            ).fromASTNode.prevLeaf { !it.isWhiteSpace() }!!
+            nextToAstNode =
+                startIndentContext(
+                    fromAstNode = fromAstNode,
+                    toAstNode = nextToAstNode,
+                ).fromASTNode.prevLeaf { !it.isWhiteSpace() }!!
         } else {
             startIndentContext(
                 fromAstNode = node,
@@ -606,6 +608,27 @@ public class IndentationRule :
                     toAstNode = nextToAstNode,
                 ).prevCodeLeaf()
         }
+
+        node
+            .findChildByType(WHERE_KEYWORD)
+            ?.let { where ->
+                val typeConstraintList =
+                    requireNotNull(
+                        where.nextCodeSibling(),
+                    ) { "Can not find code sibling after WHERE in FUN" }
+                require(typeConstraintList.elementType == TYPE_CONSTRAINT_LIST) {
+                    "Code sibling after WHERE in CLASS is not a TYPE_CONSTRAINT_LIST"
+                }
+                nextToAstNode =
+                    startIndentContext(
+                        fromAstNode = where.getPrecedingLeadingCommentsAndWhitespaces(),
+                        toAstNode = typeConstraintList.lastChildLeafOrSelf(),
+                        childIndent =
+                            " ".repeat(
+                                maxOf(0, where.column - 1 - node.indent(false).length),
+                            ),
+                    ).prevCodeLeaf()
+            }
 
         node
             .findChildByType(TYPE_REFERENCE)
@@ -766,6 +789,17 @@ public class IndentationRule :
     }
 
     private fun visitWhereKeywordBeforeTypeConstraintList(node: ASTNode) {
+        node
+            .prevLeaf()
+            .takeUnless { it.isWhiteSpaceWithNewline() }
+            ?.takeIf { !indentContextStack.peekLast().activated }
+            ?.let {
+                val lastIndentContext = indentContextStack.removeLast()
+                indentContextStack.addLast(
+                    lastIndentContext.copy(activated = true),
+                )
+            }
+
         startIndentContext(
             fromAstNode = node,
             toAstNode = node.nextCodeSibling()?.lastChildLeafOrSelf()!!,
@@ -1161,7 +1195,7 @@ public class IndentationRule :
                 TYPE_CONSTRAINT -> {
                     // 6 spaces (length of "where" keyword plus a separator space) to indent type constraints as below:
                     //    where A1 : RecyclerView.Adapter<V1>,
-                    //               A1 : ComposableAdapter.ViewTypeProvider,
+                    //          A1 : ComposableAdapter.ViewTypeProvider,
                     TYPE_CONSTRAINT_CONTINUATION_INDENT
                 }
 
@@ -1238,8 +1272,7 @@ public class IndentationRule :
                     .takeWhile {
                         // The 'toAstNode' itself needs to be included as well
                         it != toASTNode.nextLeaf()
-                    }
-                    .joinToString(separator = "") { it.text }
+                    }.joinToString(separator = "") { it.text }
                     .textWithEscapedTabAndNewline()
 
         fun indent() =
@@ -1328,7 +1361,8 @@ private class StringTemplateIndenter(
                     } else {
                         expectedIndent
                     }
-                node.children()
+                node
+                    .children()
                     .forEach {
                         if (it.prevLeaf()?.text == "\n" &&
                             (
@@ -1413,8 +1447,7 @@ private class StringTemplateIndenter(
                 } else {
                     indents
                 }
-            }
-            .map { it.text.indentLength() }
+            }.map { it.text.indentLength() }
             .minOrNull()
             ?: 0
 
@@ -1423,7 +1456,9 @@ private class StringTemplateIndenter(
     private fun KtStringTemplateExpression.isFollowedByTrimMargin() = isFollowedBy("trimMargin()")
 
     private fun KtStringTemplateExpression.isFollowedBy(callExpressionName: String) =
-        this.node.nextSibling { it.elementType != DOT }
+        this
+            .node
+            .nextSibling { it.elementType != DOT }
             .let { it?.elementType == CALL_EXPRESSION && it.text == callExpressionName }
 
     private fun KtStringTemplateExpression.isMultiLine(): Boolean {
@@ -1452,8 +1487,7 @@ private class StringTemplateIndenter(
             nonBlankLines
                 .joinToString(separator = "") {
                     it.splitIndentAt(prefixLength).first
-                }
-                .toCharArray()
+                }.toCharArray()
                 .distinct()
                 .count()
         return distinctIndentCharacters > 1

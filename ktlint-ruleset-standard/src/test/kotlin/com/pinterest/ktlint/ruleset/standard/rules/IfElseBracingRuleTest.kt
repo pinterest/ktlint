@@ -171,8 +171,7 @@ class IfElseBracingRuleTest {
                     2,
                     15,
                     "All branches of the if statement should be wrapped between braces if at least one branch is wrapped between braces",
-                )
-                .isFormattedAs(formattedCode)
+                ).isFormattedAs(formattedCode)
         }
 
         @Test

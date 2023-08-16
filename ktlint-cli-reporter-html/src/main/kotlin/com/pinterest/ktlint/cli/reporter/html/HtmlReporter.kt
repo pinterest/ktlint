@@ -153,6 +153,10 @@ public class HtmlReporter(
     }
 
     private fun String.escapeHTMLAttrValue() =
-        this.replace("&", "&amp;").replace("\"", "&quot;").replace("'", "&apos;")
-            .replace("<", "&lt;").replace(">", "&gt;")
+        this
+            .replace("&", "&amp;")
+            .replace("\"", "&quot;")
+            .replace("'", "&apos;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
 }

@@ -40,7 +40,8 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
         }
 
         val annotations =
-            node.children()
+            node
+                .children()
                 .mapNotNull { it.psi as? KtAnnotationEntry }
                 .toList()
         if (annotations.isEmpty()) {

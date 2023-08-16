@@ -2,6 +2,7 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isRoot
@@ -42,3 +43,5 @@ public class NoEmptyFileRule :
                         !(it.elementType == ElementType.SCRIPT && it.text.isBlank())
                 }
 }
+
+public val NO_EMPTY_FILE_RULE_ID: RuleId = NoEmptyFileRule().ruleId

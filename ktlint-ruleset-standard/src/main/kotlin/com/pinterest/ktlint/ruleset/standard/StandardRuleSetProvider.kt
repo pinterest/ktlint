@@ -9,6 +9,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.ArgumentListWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.BinaryExpressionWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.BlankLineBeforeDeclarationRule
 import com.pinterest.ktlint.ruleset.standard.rules.BlockCommentInitialStarAlignmentRule
+import com.pinterest.ktlint.ruleset.standard.rules.ChainMethodContinuationRule
 import com.pinterest.ktlint.ruleset.standard.rules.ChainWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ClassNamingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ClassSignatureRule
@@ -37,7 +38,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.MaxLineLengthRule
 import com.pinterest.ktlint.ruleset.standard.rules.ModifierListSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ModifierOrderRule
 import com.pinterest.ktlint.ruleset.standard.rules.MultiLineIfElseRule
-import com.pinterest.ktlint.ruleset.standard.rules.MultilineExpressionWrapping
+import com.pinterest.ktlint.ruleset.standard.rules.MultilineExpressionWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoBlankLineBeforeRbraceRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoBlankLineInListRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoBlankLinesInChainedMethodCallsRule
@@ -77,6 +78,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundUnaryOperatorRul
 import com.pinterest.ktlint.ruleset.standard.rules.SpacingBetweenDeclarationsWithAnnotationsRule
 import com.pinterest.ktlint.ruleset.standard.rules.SpacingBetweenDeclarationsWithCommentsRule
 import com.pinterest.ktlint.ruleset.standard.rules.SpacingBetweenFunctionNameAndOpeningParenthesisRule
+import com.pinterest.ktlint.ruleset.standard.rules.StatementWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.StringTemplateIndentRule
 import com.pinterest.ktlint.ruleset.standard.rules.StringTemplateRule
 import com.pinterest.ktlint.ruleset.standard.rules.TrailingCommaOnCallSiteRule
@@ -96,6 +98,7 @@ public class StandardRuleSetProvider : RuleSetProviderV3(RuleSetId.STANDARD) {
             RuleProvider { BinaryExpressionWrappingRule() },
             RuleProvider { BlankLineBeforeDeclarationRule() },
             RuleProvider { BlockCommentInitialStarAlignmentRule() },
+            RuleProvider { ChainMethodContinuationRule() },
             RuleProvider { ChainWrappingRule() },
             RuleProvider { ClassNamingRule() },
             RuleProvider { ClassSignatureRule() },
@@ -124,7 +127,7 @@ public class StandardRuleSetProvider : RuleSetProviderV3(RuleSetId.STANDARD) {
             RuleProvider { ModifierListSpacingRule() },
             RuleProvider { ModifierOrderRule() },
             RuleProvider { MultiLineIfElseRule() },
-            RuleProvider { MultilineExpressionWrapping() },
+            RuleProvider { MultilineExpressionWrappingRule() },
             RuleProvider { NoBlankLineBeforeRbraceRule() },
             RuleProvider { NoBlankLineInListRule() },
             RuleProvider { NoBlankLinesInChainedMethodCallsRule() },
@@ -164,6 +167,7 @@ public class StandardRuleSetProvider : RuleSetProviderV3(RuleSetId.STANDARD) {
             RuleProvider { SpacingBetweenDeclarationsWithAnnotationsRule() },
             RuleProvider { SpacingBetweenDeclarationsWithCommentsRule() },
             RuleProvider { SpacingBetweenFunctionNameAndOpeningParenthesisRule() },
+            RuleProvider { StatementWrappingRule() },
             RuleProvider { StringTemplateRule() },
             RuleProvider { StringTemplateIndentRule() },
             RuleProvider { TrailingCommaOnCallSiteRule() },
