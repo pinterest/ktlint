@@ -17,6 +17,7 @@ public final class com/pinterest/ktlint/cli/reporter/core/api/KtlintCliError$Sta
 	public static final field KTLINT_RULE_ENGINE_EXCEPTION Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError$Status;
 	public static final field LINT_CAN_BE_AUTOCORRECTED Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError$Status;
 	public static final field LINT_CAN_NOT_BE_AUTOCORRECTED Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError$Status;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError$Status;
 	public static fun values ()[Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError$Status;
 }

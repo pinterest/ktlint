@@ -365,6 +365,7 @@ public final class com/pinterest/ktlint/rule/engine/core/api/IndentConfig$Compan
 public final class com/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle : java/lang/Enum {
 	public static final field SPACE Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle;
 	public static final field TAB Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle;
 	public static fun values ()[Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle;
 }
@@ -419,6 +420,7 @@ public final class com/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifie
 public final class com/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode : java/lang/Enum {
 	public static final field ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;
 	public static final field REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;
 	public static fun values ()[Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;
 }
@@ -480,6 +482,7 @@ public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/CodeSt
 	public static final field android_studio Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/CodeStyleValue;
 	public static final field intellij_idea Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/CodeStyleValue;
 	public static final field ktlint_official Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/CodeStyleValue;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/CodeStyleValue;
 	public static fun values ()[Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/CodeStyleValue;
 }
@@ -542,6 +545,7 @@ public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/MaxLin
 public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/RuleExecution : java/lang/Enum {
 	public static final field disabled Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/RuleExecution;
 	public static final field enabled Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/RuleExecution;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/RuleExecution;
 	public static fun values ()[Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/RuleExecution;
 }
