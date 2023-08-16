@@ -1,16 +1,12 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
-import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.com.intellij.mock.MockProject
 import org.jetbrains.kotlin.com.intellij.openapi.diagnostic.DefaultLogger
-import org.jetbrains.kotlin.com.intellij.openapi.extensions.ExtensionPoint
-import org.jetbrains.kotlin.com.intellij.openapi.extensions.Extensions.getRootArea
 import org.jetbrains.kotlin.com.intellij.openapi.util.Disposer
 import org.jetbrains.kotlin.com.intellij.openapi.util.UserDataHolderBase
 import org.jetbrains.kotlin.com.intellij.pom.PomModel
@@ -19,14 +15,11 @@ import org.jetbrains.kotlin.com.intellij.pom.PomTransaction
 import org.jetbrains.kotlin.com.intellij.pom.impl.PomTransactionBase
 import org.jetbrains.kotlin.com.intellij.pom.tree.TreeAspect
 import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.TreeCopyHandler
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import sun.reflect.ReflectionFactory
 import java.nio.file.Files
 import java.nio.file.Path
 import org.jetbrains.kotlin.com.intellij.openapi.diagnostic.Logger as DiagnosticLogger
-
-private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 internal class KotlinPsiFileFactoryProvider {
     private lateinit var psiFileFactory: PsiFileFactory
@@ -67,18 +60,6 @@ internal fun initPsiFileFactory(ktLintRuleEngine: KtLintRuleEngine): PsiFileFact
                     compilerConfiguration,
                     EnvironmentConfigFiles.JVM_CONFIG_FILES,
                 ).project as MockProject
-        if (ktLintRuleEngine.enableKotlinCompilerExtensionPoint) {
-            project.enableASTMutations()
-        } else {
-            LOGGER.info {
-                """
-                *** Kotlin extension points are disabled to investigate the impact of Kotlin 1.9 in a future release.
-                *** If runtime exceptions are throw because extension point 'org.jetbrains.kotlin.com.intellij.treeCopyHandler'
-                *** is not registered then your rules will fail when ktlint starts using Kotlin 1.9 unless the extension point
-                *** will be fully supported by Jetbrains.
-                """.trimIndent()
-            }
-        }
         project.registerFormatPomModel()
 
         return PsiFileFactory.getInstance(project)
@@ -126,19 +107,6 @@ private class LoggerFactory : DiagnosticLogger.Factory {
                 vararg details: String?,
             ) {}
         }
-}
-
-/**
- * Enables AST mutations (`ktlint -F ...`).
- */
-private fun MockProject.enableASTMutations() {
-    val extensionPoint = "org.jetbrains.kotlin.com.intellij.treeCopyHandler"
-    val extensionClassName = TreeCopyHandler::class.java.name
-    for (area in arrayOf(extensionArea, getRootArea())) {
-        if (!area.hasExtensionPoint(extensionPoint)) {
-            area.registerExtensionPoint(extensionPoint, extensionClassName, ExtensionPoint.Kind.INTERFACE)
-        }
-    }
 }
 
 private fun MockProject.registerFormatPomModel() {
