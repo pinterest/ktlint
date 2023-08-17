@@ -16,7 +16,7 @@ dependencyResolutionManagement {
 
 plugins {
     `gradle-enterprise`
-    id("org.gradle.toolchains.foojay-resolver-convention") version "0.6.0"
+    id("org.gradle.toolchains.foojay-resolver-convention") version "0.7.0"
 }
 
 gradleEnterprise {
