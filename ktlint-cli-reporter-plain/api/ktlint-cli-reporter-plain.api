@@ -16,6 +16,7 @@ public final class com/pinterest/ktlint/cli/reporter/plain/Color : java/lang/Enu
 	public static final field WHITE Lcom/pinterest/ktlint/cli/reporter/plain/Color;
 	public static final field YELLOW Lcom/pinterest/ktlint/cli/reporter/plain/Color;
 	public final fun getCode ()I
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lcom/pinterest/ktlint/cli/reporter/plain/Color;
 	public static fun values ()[Lcom/pinterest/ktlint/cli/reporter/plain/Color;
 }

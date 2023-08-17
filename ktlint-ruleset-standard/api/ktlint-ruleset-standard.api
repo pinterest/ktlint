@@ -254,6 +254,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionSignature
 	public static final field always Lcom/pinterest/ktlint/ruleset/standard/rules/FunctionSignatureRule$FunctionBodyExpressionWrapping;
 	public static final field default Lcom/pinterest/ktlint/ruleset/standard/rules/FunctionSignatureRule$FunctionBodyExpressionWrapping;
 	public static final field multiline Lcom/pinterest/ktlint/ruleset/standard/rules/FunctionSignatureRule$FunctionBodyExpressionWrapping;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lcom/pinterest/ktlint/ruleset/standard/rules/FunctionSignatureRule$FunctionBodyExpressionWrapping;
 	public static fun values ()[Lcom/pinterest/ktlint/ruleset/standard/rules/FunctionSignatureRule$FunctionBodyExpressionWrapping;
 }

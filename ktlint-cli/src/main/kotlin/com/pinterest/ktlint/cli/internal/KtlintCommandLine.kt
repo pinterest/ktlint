@@ -222,12 +222,6 @@ internal class KtlintCommandLine {
     )
     private var minLogLevel: Level = Level.INFO
 
-    @Option(
-        hidden = true,
-        names = ["--disable-kotlin-extension-point"],
-    )
-    var disableKotlinExtensionPoint: Boolean = false
-
     private val tripped = AtomicBoolean()
     private val fileNumber = AtomicInteger()
     private val errorNumber = AtomicInteger()
@@ -280,7 +274,6 @@ internal class KtlintCommandLine {
                 editorConfigDefaults = editorConfigDefaults(ruleProviders),
                 editorConfigOverride = editorConfigOverride,
                 isInvokedFromCli = true,
-                enableKotlinCompilerExtensionPoint = !disableKotlinExtensionPoint,
             )
 
         val baseline =

@@ -18,6 +18,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 | NO_BLANK_LINE_IN_LIST_RULE_ID         | NoBlankLineInListKt           | NoBlankLineInListRuleKt           |
 | NO_EMPTY_FILE_RULE_ID                 | (not applicable)              | NoEmptyFileRuleKt                 |
 
+#### Custom rule providers
+
+Class "org.jetbrains.kotlin.com.intellij.treeCopyHandler" is no longer registered as extension point for the compiler as this is not supported in Kotlin 1.9. Please test your custom rules. In case of unexpected exceptions during formatting of code, see [#2044](https://github.com/pinterest/ktlint/pull/2044) for possible remediation.
+
 ### Added
 
 * Add experimental rule `class-signature`. This rule rewrites the class header to a consistent format. In code style `ktlint_official`, super types are always wrapped to a separate line. In other code styles, super types are only wrapped in classes having multiple super types. Especially for code style `ktlint_official` the class headers are rewritten in a more consistent format. See [examples in documentation](https://pinterest.github.io/ktlint/latest/rules/experimental/#class-signature). `class-signature` [#875](https://github.com/pinterest/ktlint/issues/1349), [#1349](https://github.com/pinterest/ktlint/issues/875)
@@ -45,6 +49,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 * Do not wrap a single line enum class `statement-wrapping` [#2177](https://github.com/pinterest/ktlint/issues/2177)
 * Fix alignment of type constraints after `where` keyword in function signature `indent` [#2175](https://github.com/pinterest/ktlint/issues/2175)
 * Fix wrapping of multiline postfix expression `multiline-expression-wrapping` [#2183](https://github.com/pinterest/ktlint/issues/2183)
+* Remove registration of class "org.jetbrains.kotlin.com.intellij.treeCopyHandler" as extension point for the compiler as this is not supported in the embedded Kotlin compiler version 1.9. Also remove Ktlint CLI command line flag `disable-kotlin-extension-point`, and parameter `enableKotlinCompilerExtensionPoint` from `KtLintRuleEngine` to disable the kotlin extension point  [#2061](https://github.com/pinterest/ktlint/issues/2061)
 
 ### Changed
 
@@ -56,6 +61,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 * Update dependency `org.junit.jupiter:junit-jupiter` to `v5.10.0` ([#2148](https://github.com/pinterest/ktlint/pull/2148))
 * Build the project with Java 20, run test on Java 8, 11, 17 and 20 ([#1888](https://github.com/pinterest/ktlint/issues/1888))
 * Update dependency `io.github.oshai:kotlin-logging-jvm` to `v5.1.0` ([#2174](https://github.com/pinterest/ktlint/pull/2174))
+* Update kotlin monorepo to v1.9.0 [#2113](https://github.com/pinterest/ktlint/issues/2113)
 
 ## [0.50.0] - 2023-06-29
 

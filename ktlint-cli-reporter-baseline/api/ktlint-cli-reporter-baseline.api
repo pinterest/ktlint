@@ -11,6 +11,7 @@ public final class com/pinterest/ktlint/cli/reporter/baseline/Baseline$Status : 
 	public static final field INVALID Lcom/pinterest/ktlint/cli/reporter/baseline/Baseline$Status;
 	public static final field NOT_FOUND Lcom/pinterest/ktlint/cli/reporter/baseline/Baseline$Status;
 	public static final field VALID Lcom/pinterest/ktlint/cli/reporter/baseline/Baseline$Status;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lcom/pinterest/ktlint/cli/reporter/baseline/Baseline$Status;
 	public static fun values ()[Lcom/pinterest/ktlint/cli/reporter/baseline/Baseline$Status;
 }
