@@ -722,6 +722,70 @@ class ASTNodeExtensionTest {
         )
     }
 
+    @Test
+    fun `Given some lines containing identifiers at different indentation levels then get the first leaf of each line containing an identifier`() {
+        val code =
+            """
+            class Foo1 {
+                val foo2 = "foo2"
+
+                fun foo3() {
+                    val foo4 = "foo4"
+                }
+            }
+            """.trimIndent()
+
+        val actual =
+            transformCodeToAST(code)
+                .firstChildLeafOrSelf()
+                .leaves()
+                .filter { it.elementType == IDENTIFIER }
+                .map { identifier ->
+                    identifier
+                        .findFirstLeafOnSameLineOrSelf()
+                        .text
+                }.toList()
+
+        assertThat(actual).contains(
+            "class",
+            "\n    ",
+            "\n    ",
+            "\n        ",
+        )
+    }
+
+    @Test
+    fun `Given some lines containing identifiers at different indentation levels then get the last leaf of each line containing an identifier`() {
+        val code =
+            """
+            class Foo1 {
+                val foo2 = "foo2"
+
+                fun foo3() {
+                    val foo4 = "foo4"
+                }
+            }
+            """.trimIndent()
+
+        val actual =
+            transformCodeToAST(code)
+                .firstChildLeafOrSelf()
+                .leaves()
+                .filter { it.elementType == IDENTIFIER }
+                .map { identifier ->
+                    identifier
+                        .findLastLeafOnSameLineOrNull()
+                        ?.text
+                }.toList()
+
+        assertThat(actual).contains(
+            "{",
+            "\"",
+            "{",
+            "\"",
+        )
+    }
+
     private inline fun String.transformAst(block: FileASTNode.() -> Unit): FileASTNode =
         transformCodeToAST(this)
             .apply(block)

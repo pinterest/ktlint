@@ -19,6 +19,7 @@ public final class com/pinterest/ktlint/test/KtLintAssertThat {
 	public final fun hasNoLintViolationsForRuleId (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
 	public final fun isFormattedAs (Ljava/lang/String;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
 	public final fun setMaxLineLength ()Lcom/pinterest/ktlint/test/KtLintAssertThat;
+	public final fun unsetMaxLineLength ()Lcom/pinterest/ktlint/test/KtLintAssertThat;
 	public final fun withEditorConfigOverride ([Lkotlin/Pair;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
 }
 

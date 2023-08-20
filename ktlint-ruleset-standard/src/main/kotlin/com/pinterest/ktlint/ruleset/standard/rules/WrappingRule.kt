@@ -115,6 +115,7 @@ public class WrappingRule :
     private var line = 1
     private var indentConfig = DEFAULT_INDENT_CONFIG
     private var maxLineLength: Int = MAX_LINE_LENGTH_PROPERTY.defaultValue
+    private var functionLiteralRuleEnabled = false
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         line = 1
@@ -124,6 +125,7 @@ public class WrappingRule :
                 tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
             )
         maxLineLength = editorConfig[MAX_LINE_LENGTH_PROPERTY]
+        functionLiteralRuleEnabled = editorConfig.isEnabledRule(FUNCTION_LITERAL_RULE_ID)
     }
 
     override fun beforeVisitChildNodes(
@@ -131,6 +133,10 @@ public class WrappingRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
+        if (functionLiteralRuleEnabled && node.treeParent?.elementType == FUNCTION_LITERAL) {
+            // Delegated to function-literal rule
+            return
+        }
         when (node.elementType) {
             BLOCK -> beforeVisitBlock(node, autoCorrect, emit)
             LPAR, LBRACKET -> rearrangeBlock(node, autoCorrect, emit)
@@ -504,29 +510,29 @@ public class WrappingRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        val p = node.treeParent
+        val parentNode = node.treeParent
         if (
             // check
             // `{ p -> ... }`
             // and
             // `when { m -> ... }`
             // only
-            p.elementType.let { it != FUNCTION_LITERAL && it != WHEN_ENTRY } ||
+            parentNode.elementType.let { it != FUNCTION_LITERAL && it != WHEN_ENTRY } ||
             // ... and only if expression after -> spans multiple lines
-            !p.textContains('\n') ||
+            !parentNode.textContains('\n') ||
             // permit
             // when {
             //     m -> 0 + d({
             //     })
             // }
-            (p.elementType == WHEN_ENTRY && mustBeFollowedByNewline(node)) ||
+            (parentNode.elementType == WHEN_ENTRY && mustBeFollowedByNewline(node)) ||
             // permit
             // when (this) {
             //     in 0x1F600..0x1F64F, // Emoticons
             //     0x200D // Zero-width Joiner
             //     -> true
             // }
-            (p.elementType == WHEN_ENTRY && node.prevLeaf()?.textContains('\n') == true)
+            (parentNode.elementType == WHEN_ENTRY && node.prevLeaf()?.textContains('\n') == true)
         ) {
             return
         }
@@ -677,6 +683,10 @@ public class WrappingRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
+        if (functionLiteralRuleEnabled && node.treeParent?.elementType == FUNCTION_LITERAL) {
+            // Delegated to function-literal rule
+            return
+        }
         if (node.elementType == BLOCK) {
             val lbrace =
                 node

@@ -1,6 +1,8 @@
 public final class com/pinterest/ktlint/rule/engine/core/api/ASTNodeExtensionKt {
 	public static final fun children (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lkotlin/sequences/Sequence;
 	public static final fun findCompositeParentElementOfType (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun findFirstLeafOnSameLineOrSelf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun findLastLeafOnSameLineOrNull (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
 	public static final fun firstChildLeafOrSelf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
 	public static final fun getColumn (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)I
 	public static final fun hasNewLineInClosedRange (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
@@ -491,6 +493,8 @@ public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/Editor
 	public fun <init> ()V
 	public fun <init> (Ljava/util/Map;)V
 	public synthetic fun <init> (Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/util/Map;Ljava/util/Set;)V
+	public synthetic fun <init> (Ljava/util/Map;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> ([Lorg/ec4j/core/model/Property;)V
 	public final fun addPropertiesWithDefaultValueIfMissing ([Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;
 	public final fun contains (Ljava/lang/String;)Z
@@ -499,8 +503,10 @@ public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/Editor
 	public final fun get (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;)Ljava/lang/Object;
 	public final fun getEditorConfigValueOrNull (Lorg/ec4j/core/model/PropertyType;Ljava/lang/String;)Ljava/lang/Object;
 	public fun hashCode ()I
+	public final fun isEnabledRule (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;)Z
 	public final fun map (Lkotlin/jvm/functions/Function1;)Ljava/util/Collection;
 	public fun toString ()Ljava/lang/String;
+	public final fun withRuleProviders (Ljava/util/Set;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;
 }
 
 public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty {

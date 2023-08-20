@@ -20,6 +20,8 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY_OFF
+import com.pinterest.ktlint.rule.engine.core.api.findFirstLeafOnSameLineOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
@@ -41,6 +43,7 @@ import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -105,33 +108,28 @@ public class FunctionLiteralRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType == FUNCTION_LITERAL) {
-            node
-                .findChildByType(VALUE_PARAMETER_LIST)
-                ?.let { visitValueParameterList(it, autoCorrect, emit) }
-            node
-                .findChildByType(BLOCK)
-                ?.let { visitBlock(it, autoCorrect, emit) }
+            visitFunctionLiteral(node, autoCorrect, emit)
         }
     }
 
-    private fun visitValueParameterList(
-        parameterList: ASTNode,
+    private fun visitFunctionLiteral(
+        functionLiteral: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        val valueParameters =
-            parameterList
-                .children()
-                .filter { it.elementType == VALUE_PARAMETER }
-        if (valueParameters.count() > 1 || parameterList.wrapFirstParameterToNewline()) {
-            if (parameterList.textContains('\n') || parameterList.doesNotFitOnSameLineAsStartOfFunctionLiteral()) {
-                rewriteToMultilineParameterList(parameterList, autoCorrect, emit)
-            } else {
-                rewriteToSingleLineFunctionLiteral(parameterList, emit, autoCorrect)
-            }
-        } else {
-            if (parameterList.textContains('\n')) {
+        functionLiteral
+            .findChildByType(VALUE_PARAMETER_LIST)
+            ?.takeIf { it.countValueParameters() > 1 || it.wrapFirstParameterToNewline() || it.containsMultilineValueParameter() }
+            ?.takeIf { it.textContains('\n') || it.doesNotFitOnSameLineAsStartOfFunctionLiteral() }
+            ?.let {
                 // Allow:
+                //    val foo = {
+                //            bar,
+                //            baz
+                //        ->
+                //        bar()
+                //    }
+                // or
                 //    val foo = {
                 //            bar:
                 //                @Baz("baz")
@@ -139,58 +137,12 @@ public class FunctionLiteralRule :
                 //        ->
                 //        bar()
                 //    }
-                Unit
-            } else {
-                // Disallow:
-                //    val foo = {
-                //            bar ->
-                //        bar()
-                //    }
-                //    val foo = { bar
-                //        ->
-                //        bar()
-                //    }
-                rewriteToSingleLineFunctionLiteral(parameterList, emit, autoCorrect)
+                rewriteToMultilineFunctionLiteral(functionLiteral, autoCorrect, emit)
             }
-        }
+            ?: rewriteToSingleLineFunctionLiteral(functionLiteral, autoCorrect, emit)
     }
 
-    private fun ASTNode.doesNotFitOnSameLineAsStartOfFunctionLiteral(): Boolean {
-        require(elementType == VALUE_PARAMETER_LIST && treeParent.elementType == FUNCTION_LITERAL)
-        val lineLength =
-            lineLengthIncludingLbrace()
-                .plus(1) // space before parameter list
-                .plus(lengthOfParameterListWhenOnSingleLine())
-                .plus(3) // space after parameter list followed by ->
-        return lineLength > maxLineLength
-    }
-
-    private fun ASTNode.lineLengthIncludingLbrace(): Int {
-        require(elementType == VALUE_PARAMETER_LIST && treeParent.elementType == FUNCTION_LITERAL)
-        val lbrace = treeParent.findChildByType(LBRACE)!!
-        return lbrace
-            .leavesOnLine()
-            .takeWhile { it.prevLeaf() != lbrace }
-            .lineLengthWithoutNewlinePrefix()
-    }
-
-    private fun ASTNode.lengthOfParameterListWhenOnSingleLine(): Int {
-        require(elementType == VALUE_PARAMETER_LIST)
-        val stopAtLeaf = lastChildLeafOrSelf().nextLeaf()
-        return firstChildLeafOrSelf()
-            .leavesIncludingSelf()
-            .takeWhile { it != stopAtLeaf }
-            .joinToString(separator = "") {
-                if (it.isWhiteSpace()) {
-                    // Eliminate newlines and redundant spaces
-                    " "
-                } else {
-                    it.text
-                }
-            }.length
-    }
-
-    private fun ASTNode.exceedsMaxLineLength() = lineLengthWithoutNewlinePrefix() > maxLineLength
+    private fun ASTNode.countValueParameters() = children().count { it.elementType == VALUE_PARAMETER }
 
     private fun ASTNode.wrapFirstParameterToNewline() =
         takeIf { it.treeParent.elementType == FUNCTION_LITERAL }
@@ -215,22 +167,64 @@ public class FunctionLiteralRule :
             }
             ?: false
 
-    private fun rewriteToMultilineParameterList(
-        parameterList: ASTNode,
+    private fun ASTNode.containsMultilineValueParameter() =
+        children()
+            .filter { it.elementType == VALUE_PARAMETER }
+            .any { it.textContains('\n') }
+
+    private fun ASTNode.doesNotFitOnSameLineAsStartOfFunctionLiteral(): Boolean {
+        require(elementType == VALUE_PARAMETER_LIST && treeParent.elementType == FUNCTION_LITERAL)
+        val firstLeafOnLineWhereFunctionLiteralStarts = treeParent.findFirstLeafOnSameLineOrSelf()
+        val arrowInFunctionLiteral = treeParent.findChildByType(ARROW)!!.lastChildLeafOrSelf()
+        return lengthIfRewrittenAsSingleLine(firstLeafOnLineWhereFunctionLiteralStarts, arrowInFunctionLiteral) > maxLineLength
+    }
+
+    private fun lengthIfRewrittenAsSingleLine(
+        fromASTNode: ASTNode,
+        toASTNode: ASTNode,
+    ): Int {
+        val stopAtLeaf = toASTNode.nextLeaf()
+        return fromASTNode
+            .leavesIncludingSelf()
+            .dropWhile {
+                // Remove leading whitespaces as they might contain newline characters
+                it.isWhiteSpace()
+            }.takeWhile { it != stopAtLeaf }
+            .sumOf {
+                when {
+                    it.text == "\n" -> 0
+                    it.isWhiteSpace() -> {
+                        // Eliminate newlines and redundant spaces
+                        1
+                    }
+                    else -> it.textLength
+                }
+            }.plus(
+                // Correct for first dropped whitespace only
+                fromASTNode
+                    .takeIf { it.isWhiteSpace() }
+                    ?.text
+                    ?.substringAfterLast('\n')
+                    ?.length
+                    ?: 0,
+            )
+    }
+
+    private fun rewriteToMultilineFunctionLiteral(
+        functionLiteral: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        require(parameterList.elementType == VALUE_PARAMETER_LIST)
-        parameterList
-            .children()
-            .filter { it.elementType == VALUE_PARAMETER }
-            .forEach { wrapValueParameter(it, autoCorrect, emit) }
-        parameterList
-            .treeParent
+        require(functionLiteral.elementType == FUNCTION_LITERAL)
+        functionLiteral
+            .findChildByType(VALUE_PARAMETER_LIST)
+            ?.children()
+            ?.filter { it.elementType == VALUE_PARAMETER }
+            ?.forEach { wrapValueParameter(it, autoCorrect, emit) }
+        functionLiteral
             .findChildByType(ARROW)
             ?.let { arrow -> wrapArrow(arrow, autoCorrect, emit) }
-        parameterList
-            .treeParent
+        functionLiteral
             .findChildByType(RBRACE)
             ?.let { rbrace -> wrapBeforeRbrace(rbrace, autoCorrect, emit) }
     }
@@ -329,27 +323,95 @@ public class FunctionLiteralRule :
     }
 
     private fun rewriteToSingleLineFunctionLiteral(
-        parameterList: ASTNode,
+        functionLiteral: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+    ) {
+        require(functionLiteral.elementType == FUNCTION_LITERAL)
+
+        if (maxLineLength != MAX_LINE_LENGTH_PROPERTY_OFF &&
+            functionLiteral.containsSingleExpression() &&
+            functionLiteral.fitsOnSingleLine()
+        ) {
+            functionLiteral.rewriteToSingleLineFunctionLiteralBlock(emit, autoCorrect)
+        } else {
+            functionLiteral
+                .findChildByType(VALUE_PARAMETER_LIST)
+                ?.let { parameterList ->
+                    parameterList
+                        .prevSibling { it.isWhiteSpace() }
+                        ?.takeIf { it.isWhiteSpaceWithNewline() }
+                        ?.let { whitespaceBeforeParameterList ->
+                            emit(parameterList.startOffset, "Unexpected newline before parameter", true)
+                            if (autoCorrect) {
+                                whitespaceBeforeParameterList.upsertWhitespaceBeforeMe(" ")
+                            }
+                        }
+                    parameterList
+                        .nextSibling { it.isWhiteSpace() }
+                        ?.takeIf { it.isWhiteSpaceWithNewline() }
+                        ?.let { whitespaceAfterParameterList ->
+                            emit(parameterList.startOffset + parameterList.textLength, "Unexpected newline after parameter", true)
+                            if (autoCorrect) {
+                                whitespaceAfterParameterList.upsertWhitespaceAfterMe(" ")
+                            }
+                        }
+                }
+        }
+        functionLiteral
+            .findChildByType(BLOCK)
+            ?.let { visitBlock(it, autoCorrect, emit) }
+    }
+
+    private fun ASTNode.containsSingleExpression(): Boolean {
+        require(elementType == FUNCTION_LITERAL)
+
+        return findChildByType(BLOCK)
+            ?.children()
+            ?.filterNot { it.isWhiteSpace() || it.isPartOfComment() }
+            ?.count()
+            .let { it == 1 }
+    }
+
+    private fun ASTNode.fitsOnSingleLine(): Boolean {
+        require(elementType == FUNCTION_LITERAL)
+        return lengthIfRewrittenAsSingleLine(findFirstLeafOnSameLineOrSelf(), lastChildLeafOrSelf()) <= maxLineLength
+    }
+
+    private fun ASTNode.rewriteToSingleLineFunctionLiteralBlock(
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
     ) {
-        require(parameterList.elementType == VALUE_PARAMETER_LIST)
-        parameterList
-            .prevSibling { it.isWhiteSpace() }
-            ?.takeIf { it.isWhiteSpaceWithNewline() }
-            ?.let { whitespaceBeforeParameterList ->
-                emit(parameterList.startOffset, "No newline expected before parameter", true)
+        val stopAtLeaf = lastChildLeafOrSelf().nextLeaf()
+        firstChildLeafOrSelf()
+            .leavesIncludingSelf()
+            .takeWhile { it != stopAtLeaf }
+            .filter { it.isWhiteSpaceWithNewline() }
+            .forEach { whitespaceWithNewline ->
+                val firstNewlineOffset = with(whitespaceWithNewline) { startOffset + text.indexOfFirst { it == '\n' } }
+                emit(firstNewlineOffset, "Unexpected newline as function literal fits on single line", true)
                 if (autoCorrect) {
-                    whitespaceBeforeParameterList.upsertWhitespaceBeforeMe(" ")
+                    replaceChild(whitespaceWithNewline, PsiWhiteSpaceImpl(" "))
                 }
             }
-        parameterList
-            .nextSibling { it.isWhiteSpace() }
-            ?.takeIf { it.isWhiteSpaceWithNewline() }
-            ?.let { whitespaceAfterParameterList ->
-                emit(parameterList.startOffset + parameterList.textLength, "No newline expected after parameter", true)
-                if (autoCorrect) {
-                    whitespaceAfterParameterList.upsertWhitespaceAfterMe(" ")
+        findChildByType(LBRACE)
+            ?.let { lbrace ->
+                val nextLeaf = lbrace.nextLeaf { !it.isPartOfComment() }
+                if (!nextLeaf.isWhiteSpace()) {
+                    emit(lbrace.startOffset, "Expected single space after opening curly brace", true)
+                    if (autoCorrect) {
+                        lbrace.upsertWhitespaceAfterMe(" ")
+                    }
+                }
+            }
+        findChildByType(RBRACE)
+            ?.let { rbrace ->
+                val prevLeaf = rbrace.prevLeaf { !it.isPartOfComment() }
+                if (!prevLeaf.isWhiteSpace()) {
+                    emit(rbrace.startOffset, "Expected single space before closing curly brace", true)
+                    if (autoCorrect) {
+                        rbrace.upsertWhitespaceBeforeMe(" ")
+                    }
                 }
             }
     }
@@ -377,6 +439,8 @@ public class FunctionLiteralRule :
                 ?.let { rbrace -> wrapBeforeRbrace(rbrace, autoCorrect, emit) }
         }
     }
+
+    private fun ASTNode.exceedsMaxLineLength() = lineLengthWithoutNewlinePrefix() > maxLineLength
 
     private fun wrapAfterLbrace(
         lbrace: ASTNode,

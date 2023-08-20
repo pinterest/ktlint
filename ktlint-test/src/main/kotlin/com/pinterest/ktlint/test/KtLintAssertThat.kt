@@ -14,6 +14,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY_OFF
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleSetExecutionEditorConfigProperty
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
@@ -123,6 +124,25 @@ public class KtLintAssertThat(
             ?.indexOf(EOL_CHAR)
             ?.let { index -> editorConfigProperties.add(MAX_LINE_LENGTH_PROPERTY to (index + 1).toString()) }
             ?: throw MissingEolMarker()
+
+        return this
+    }
+
+    /**
+     * Unset the [EditorConfigOverride] "max_line_length" property. Can be used when the property is set as default in a code style. Throws
+     * an exception if code contains the `MAX_LINE_LENGTH_MARKER`.
+     */
+    @Throws(UnexpectedEolMarker::class)
+    public fun unsetMaxLineLength(): KtLintAssertThat {
+        val containsMaxLineLengthMarker =
+            code
+                .split("\n")
+                .any { it.contains(MAX_LINE_LENGTH_MARKER) }
+        if (containsMaxLineLengthMarker) {
+            throw UnexpectedEolMarker()
+        } else {
+            editorConfigProperties.add(MAX_LINE_LENGTH_PROPERTY to MAX_LINE_LENGTH_PROPERTY_OFF)
+        }
 
         return this
     }
@@ -641,9 +661,17 @@ public class KtLintAssertThatAssertable(
 internal class MissingEolMarker :
     RuntimeException(
         """
-        The first line of the provide code sample should contain text '$MAX_LINE_LENGTH_MARKER' which is provided by the
+        The first line of the provided code sample should contain text '$MAX_LINE_LENGTH_MARKER' which is provided by the
         constant '${::MAX_LINE_LENGTH_MARKER.name}' and ends with the EOL_CHAR'$EOL_CHAR' provided by the constant
         '${::EOL_CHAR.name}' which indicates the last position that is allowed.
+        """.trimIndent(),
+    )
+
+internal class UnexpectedEolMarker :
+    RuntimeException(
+        """
+        The provided code sample may not contain text '$MAX_LINE_LENGTH_MARKER' which is provided by the constant
+        '${::MAX_LINE_LENGTH_MARKER.name}' when `unsetMaxLineLength()` is called.
         """.trimIndent(),
     )
 

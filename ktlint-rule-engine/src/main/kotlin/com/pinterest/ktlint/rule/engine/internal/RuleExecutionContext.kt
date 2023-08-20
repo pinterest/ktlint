@@ -199,7 +199,7 @@ internal class RuleExecutionContext private constructor(
                 code,
                 rootNode,
                 ruleProviders,
-                editorConfig,
+                editorConfig.withRuleProviders(ruleProviders.map { it.ruleId }.toSet()),
                 positionInTextLocator,
             )
         }

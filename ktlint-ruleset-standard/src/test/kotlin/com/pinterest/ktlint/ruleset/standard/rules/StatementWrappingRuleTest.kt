@@ -1,13 +1,12 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.test.KtLintAssertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 class StatementWrappingRuleTest {
-    private val statementWrappingRuleAssertThat =
-        KtLintAssertThat.assertThatRule { StatementWrappingRule() }
+    private val statementWrappingRuleAssertThat = assertThatRule { StatementWrappingRule() }
 
     @Test
     fun `Given a function body with first statement at the same line as lbrace`() {
@@ -188,6 +187,24 @@ class StatementWrappingRuleTest {
             """.trimIndent()
         statementWrappingRuleAssertThat(code)
             .hasLintViolation(2, 18, "Expected new line before '}'")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given the function literal rule enabled and a multiline line function literal with last statement on same line as rbrace`() {
+        val code =
+            """
+            val foo = {
+                doSomething()}
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo = { doSomething() }
+            """.trimIndent()
+        statementWrappingRuleAssertThat(code)
+            .addAdditionalRuleProvider { WrappingRule() }
+            .addAdditionalRuleProvider { FunctionLiteralRule() }
+            .hasNoLintViolationsExceptInAdditionalRules()
             .isFormattedAs(formattedCode)
     }
 

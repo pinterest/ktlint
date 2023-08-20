@@ -438,15 +438,23 @@ public fun ASTNode.leavesIncludingSelf(forward: Boolean = true): Sequence<ASTNod
  * with zero or more newline characters.
  */
 public fun ASTNode.leavesOnLine(): Sequence<ASTNode> {
-    val lastLeafOnLineOrNull = getLastLeafOnLineOrNull()
-    return getFirstLeafOnLineOrSelf()
+    val lastLeafOnLineOrNull = findLastLeafOnSameLineOrNull()
+    return findFirstLeafOnSameLineOrSelf()
         .leavesIncludingSelf()
         .takeWhile { lastLeafOnLineOrNull == null || it.prevLeaf() != lastLeafOnLineOrNull }
 }
 
-internal fun ASTNode.getFirstLeafOnLineOrSelf() = prevLeaf { it.textContains('\n') || it.prevLeaf() == null }!!
+/**
+ * The first leaf on the same line as [this] node. Note that if the first node is an ident node, it may start with one or more newline
+ * characters.
+ */
+public fun ASTNode.findFirstLeafOnSameLineOrSelf(): ASTNode = prevLeaf { it.textContains('\n') || it.prevLeaf() == null }!!
 
-internal fun ASTNode.getLastLeafOnLineOrNull() = nextLeaf { it.textContains('\n') }?.prevLeaf()
+/**
+ * The last leaf on the same line as [this] node. Returns 'null' in case [this] node is the last line in the file and is not followed by a
+ * final newline.
+ */
+public fun ASTNode.findLastLeafOnSameLineOrNull(): ASTNode? = nextLeaf { it.textContains('\n') }?.prevLeaf()
 
 /**
  * Get the total length of all leaves on the same line as the given node including the whitespace indentation but excluding all leading

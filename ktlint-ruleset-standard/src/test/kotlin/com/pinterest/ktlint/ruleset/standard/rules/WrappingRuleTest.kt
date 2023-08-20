@@ -2623,6 +2623,82 @@ internal class WrappingRuleTest {
         wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
+    @Nested
+    inner class `a multiline line function literal with single statement on same line as lbrace not separated with whitespace` {
+        @Test
+        fun `Given that the function literal rule is disabled`() {
+            val code =
+                """
+                val foo = {doSomething()
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                val foo = {
+                    doSomething()
+                }
+                """.trimIndent()
+            wrappingRuleAssertThat(code)
+                .hasLintViolation(1, 12, "Missing newline after \"{\"")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given that the function literal rule is enabled`() {
+            val code =
+                """
+                val foo = {doSomething()
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                val foo = { doSomething() }
+                """.trimIndent()
+            wrappingRuleAssertThat(code)
+                .addAdditionalRuleProvider { FunctionLiteralRule() }
+                .hasNoLintViolationsExceptInAdditionalRules()
+                .isFormattedAs(formattedCode)
+        }
+    }
+
+    @Nested
+    inner class `a multiline line function literal with single statement on same line as rbrace not separated with whitespace` {
+        @Test
+        fun `Given that the function literal rule is disabled`() {
+            val code =
+                """
+                val foo = {
+                    doSomething()}
+                """.trimIndent()
+            val formattedCode =
+                """
+                val foo = {
+                    doSomething()
+                }
+                """.trimIndent()
+            wrappingRuleAssertThat(code)
+                .hasLintViolation(2, 17, "Missing newline before \"}\"")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given that the function literal rule is enabled`() {
+            val code =
+                """
+                val foo = {
+                    doSomething()}
+                """.trimIndent()
+            val formattedCode =
+                """
+                val foo = { doSomething() }
+                """.trimIndent()
+            wrappingRuleAssertThat(code)
+                .addAdditionalRuleProvider { FunctionLiteralRule() }
+                .hasNoLintViolationsExceptInAdditionalRules()
+                .isFormattedAs(formattedCode)
+        }
+    }
+
     @Test
     fun `Given a nested function literal`() {
         val code =

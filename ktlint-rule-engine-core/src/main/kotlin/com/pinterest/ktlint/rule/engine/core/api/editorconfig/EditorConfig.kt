@@ -2,6 +2,7 @@ package com.pinterest.ktlint.rule.engine.core.api.editorconfig
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import dev.drewhamilton.poko.Poko
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.ec4j.core.model.Property
@@ -16,9 +17,14 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 @Poko
 public class EditorConfig(
     private val properties: Map<String, Property> = emptyMap(),
+    private val enabledRuleIds: Set<RuleId> = emptySet(),
 ) {
+    // Backward compatibility with `0.x` versions of ktlint.
+    public constructor(properties: Map<String, Property> = emptyMap()) : this(properties, emptySet())
+
     public constructor(vararg properties: Property) : this(
         properties.associateBy { property -> property.name },
+        emptySet(),
     )
 
     private val codeStyle: CodeStyleValue
@@ -150,8 +156,8 @@ public class EditorConfig(
             .map { mapper(it) }
 
     /**
-     * Adds the given [EditorConfigProperty]'s with its default value for the active code style to the [EditorConfig] if the property does
-     * not yet exist.
+     * Create new [EditorConfig] and add the given [EditorConfigProperty]'s with its default value for the active code style if the property
+     * does not yet exist.
      */
     public fun addPropertiesWithDefaultValueIfMissing(vararg defaultEditorConfigProperties: EditorConfigProperty<*>): EditorConfig {
         val editorConfigProperties = defaultEditorConfigProperties.toSet()
@@ -161,11 +167,11 @@ public class EditorConfig(
             .plus(
                 // Overwrite default properties with values that were actually already defined in the EditorConfig
                 properties,
-            ).let { EditorConfig(it) }
+            ).let { EditorConfig(it, enabledRuleIds) }
     }
 
     /**
-     * Creates an [EditorConfig] containing [editorConfigProperties] only. Retains the value of the property when defined in the original
+     * Create new [EditorConfig] containing [editorConfigProperties] only. Retains the value of the property when defined in the original
      * [EditorConfig]. If the property does not exist in the original [EditorConfig], it will be added and its value is set to the default
      * value of the active code style.
      */
@@ -176,7 +182,7 @@ public class EditorConfig(
             .plus(
                 // Overwrite default properties with values that were actually already defined in the EditorConfig
                 properties.filterBy(editorConfigProperties.map { it.name }),
-            ).let { EditorConfig(it) }
+            ).let { EditorConfig(it, enabledRuleIds) }
     }
 
     private fun requireSingularIdentities(editorConfigProperties: Set<EditorConfigProperty<*>>) {
@@ -219,6 +225,17 @@ public class EditorConfig(
 
     private fun Map<String, Property>.filterBy(editorConfigProperties: List<String>): Map<String, Property> =
         filterKeys { it in editorConfigProperties }
+
+    /**
+     * Creates a new [EditorConfig] and sets [enabledRuleIds] to the provided list of [ruleIds].
+     */
+    public fun withRuleProviders(ruleIds: Set<RuleId>): EditorConfig = EditorConfig(properties, ruleIds)
+
+    /**
+     * Checks whether the [ruleId] is enabled. Can be used in rule to conditionally disable part of a rule given that another rule is
+     * enabled or disabled.
+     */
+    public fun isEnabledRule(ruleId: RuleId): Boolean = enabledRuleIds.contains(ruleId)
 }
 
 private class DeprecatedEditorConfigPropertyException(

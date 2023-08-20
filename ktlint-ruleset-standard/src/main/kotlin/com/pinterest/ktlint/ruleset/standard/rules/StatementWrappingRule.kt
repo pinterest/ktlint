@@ -15,6 +15,8 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.noNewLineInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
@@ -37,6 +39,7 @@ public class StatementWrappingRule :
     ),
     Rule.Experimental {
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
+    private var functionLiteralRuleEnabled = false
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         indentConfig =
@@ -44,6 +47,7 @@ public class StatementWrappingRule :
                 indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
                 tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
             )
+        functionLiteralRuleEnabled = editorConfig.isEnabledRule(FUNCTION_LITERAL_RULE_ID)
     }
 
     override fun beforeVisitChildNodes(
@@ -55,7 +59,11 @@ public class StatementWrappingRule :
             BLOCK ->
                 if (node.treeParent.elementType == FUNCTION_LITERAL) {
                     // LBRACE and RBRACE are outside of BLOCK
-                    visitBlock(node.treeParent, emit, autoCorrect)
+                    if (functionLiteralRuleEnabled) {
+                        return
+                    } else {
+                        visitBlock(node.treeParent, emit, autoCorrect)
+                    }
                 } else {
                     visitBlock(node, emit, autoCorrect)
                 }
@@ -137,8 +145,12 @@ public class StatementWrappingRule :
                 ?.takeUnless { it.textContains('\n') }
                 ?.findChildByType(BLOCK)
                 ?.children()
-                ?.count { it.elementType != VALUE_PARAMETER_LIST && it.elementType != ARROW }
-                ?.let { count -> count <= 1 }
+                ?.count {
+                    it.elementType != VALUE_PARAMETER_LIST &&
+                        it.elementType != ARROW &&
+                        !it.isWhiteSpace() &&
+                        !it.isPartOfComment()
+                }?.let { count -> count <= 1 }
                 ?: false
 
     private inline val ASTNode.isEnumClassOnSingleLine: Boolean
