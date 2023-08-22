@@ -216,6 +216,14 @@ See [whirm/flycheck-kotlin](https://github.com/whirm/flycheck-kotlin).
 
 See [w0rp/ale](https://github.com/w0rp/ale).
 
+## [TCA](http://tca.tencent.com/) integration
+
+[Tencent Cloud Code Analysis](http://tca.tencent.com/) (TCA for short, code-named CodeDog inside the company early) is a comprehensive platform for code analysis and issue tracking. TCA consist of three components, server, web and client. It integrates of a number of self-developed tools, and also supports dynamic integration of code analysis tools in various programming languages.
+
+* Homepage: [http://tca.tencent.com/](http://tca.tencent.com/)
+* Source code: [https://github.com/Tencent/CodeAnalysis](https://github.com/Tencent/CodeAnalysis)
+* Documentation: [https://tencent.github.io/CodeAnalysis](https://tencent.github.io/CodeAnalysis)
+
 ## [Mega-Linter](https://nvuillam.github.io/mega-linter/) integration
 
 The [Mega-Linter](https://nvuillam.github.io/mega-linter/) integrates 70+ linters in a single tool for CI, including **ktlint** activated out of the box
