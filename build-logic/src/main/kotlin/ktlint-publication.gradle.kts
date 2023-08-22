@@ -95,7 +95,4 @@ signing {
 }
 
 // TODO: remove this once https://github.com/gradle/gradle/issues/23572 is fixed
-fun Project.localGradleProperty(name: String): Provider<String> =
-    provider {
-        if (hasProperty(name)) property(name)?.toString() else null
-    }
+fun Project.localGradleProperty(name: String): Provider<String> = provider { if (hasProperty(name)) property(name)?.toString() else null }

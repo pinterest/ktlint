@@ -1,7 +1,3 @@
-plugins {
-    id("ktlint-kotlin-common")
-}
+plugins { id("ktlint-kotlin-common") }
 
-dependencies {
-    implementation(projects.ktlintCore)
-}
+dependencies { implementation(projects.ktlintCore) }

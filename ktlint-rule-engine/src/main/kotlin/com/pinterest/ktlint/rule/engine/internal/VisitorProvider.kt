@@ -41,8 +41,6 @@ internal class VisitorProvider(
             LOGGER.debug { "Skipping file as no enabled rules are found to be executed" }
             return { _ -> }
         }
-        return { visit ->
-            ruleProvidersSorted.forEach { visit(it.createNewRuleInstance()) }
-        }
+        return { visit -> ruleProvidersSorted.forEach { visit(it.createNewRuleInstance()) } }
     }
 }

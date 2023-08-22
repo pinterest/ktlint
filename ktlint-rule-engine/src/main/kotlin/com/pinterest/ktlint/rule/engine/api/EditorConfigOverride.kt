@@ -44,9 +44,7 @@ public class EditorConfigOverride {
                 "Can not create an EditorConfigOverride without properties. Use 'emptyEditorConfigOverride' instead."
             }
             return EditorConfigOverride()
-                .apply {
-                    properties.forEach { add(it.first, it.second) }
-                }
+                .apply { properties.forEach { add(it.first, it.second) } }
         }
 
         /**
@@ -57,12 +55,8 @@ public class EditorConfigOverride {
             require(properties.isNotEmpty()) { "Can not add EditorConfigOverride without properties." }
             return EditorConfigOverride()
                 .apply {
-                    this@plus._properties.forEach {
-                        add(it.key, it.value)
-                    }
-                    properties.forEach {
-                        add(it.first, it.second)
-                    }
+                    this@plus._properties.forEach { add(it.key, it.value) }
+                    properties.forEach { add(it.first, it.second) }
                 }
         }
 

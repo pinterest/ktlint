@@ -1,7 +1,3 @@
-plugins {
-    id("ktlint-publication-library")
-}
+plugins { id("ktlint-publication-library") }
 
-dependencies {
-    api(libs.logging)
-}
+dependencies { api(libs.logging) }

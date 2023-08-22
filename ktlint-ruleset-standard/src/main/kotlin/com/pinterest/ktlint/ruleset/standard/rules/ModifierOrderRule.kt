@@ -81,9 +81,7 @@ public class ModifierOrderRule : StandardRule("modifier-order") {
                         )
                     }
                 if (autoCorrect) {
-                    modifierArr.forEachIndexed { i, n ->
-                        node.replaceChild(n, sorted[i].clone() as ASTNode)
-                    }
+                    modifierArr.forEachIndexed { i, n -> node.replaceChild(n, sorted[i].clone() as ASTNode) }
                 }
             }
         }

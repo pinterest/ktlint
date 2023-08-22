@@ -1,3 +1,1 @@
-plugins {
-    id("ktlint-publication-library")
-}
+plugins { id("ktlint-publication-library") }

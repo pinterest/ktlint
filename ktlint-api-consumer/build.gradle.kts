@@ -1,6 +1,4 @@
-plugins {
-    id("ktlint-kotlin-common")
-}
+plugins { id("ktlint-kotlin-common") }
 
 dependencies {
     // Any SLF4J compatible logging framework can be used. The "slf4j-simple" logging provider is configured in file

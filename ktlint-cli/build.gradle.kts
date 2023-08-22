@@ -15,9 +15,7 @@ tasks.jar {
     }
 }
 
-tasks.shadowJar {
-    mergeServiceFiles()
-}
+tasks.shadowJar { mergeServiceFiles() }
 
 dependencies {
     implementation(projects.ktlintLogger)
@@ -113,7 +111,7 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
             logger.lifecycle("Creating the batch file for Windows OS: $windowsBatchFileOutputPath")
             File(windowsBatchFileOutputPath)
                 .writeText(
-                    File(windowsBatchFileInputPath).readText()
+                    File(windowsBatchFileInputPath).readText(),
                 )
         }
         logger.lifecycle("Finished creating output files ktlint-cli")

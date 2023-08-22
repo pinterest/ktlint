@@ -3,9 +3,7 @@ plugins {
     id("ktlint-publication")
 }
 
-publishing.publications.named<MavenPublication>("maven") {
-    from(components["javaPlatform"])
-}
+publishing.publications.named<MavenPublication>("maven") { from(components["javaPlatform"]) }
 
 val internalNonPublishableProjects: Set<String> by rootProject.extra
 val excludeList = internalNonPublishableProjects + "ktlint-test-ruleset-provider-v2-deprecated"

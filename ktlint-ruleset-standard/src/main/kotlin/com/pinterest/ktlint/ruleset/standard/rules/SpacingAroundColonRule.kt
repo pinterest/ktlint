@@ -67,9 +67,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                             equalsSignElement
                                 .treeNext
                                 ?.let { treeNext ->
-                                    prevNonCodeElements.forEach {
-                                        node.treeParent.addChild(it, treeNext)
-                                    }
+                                    prevNonCodeElements.forEach { node.treeParent.addChild(it, treeNext) }
                                     if (treeNext.isWhiteSpace()) {
                                         equalsSignElement.treeParent.removeChild(treeNext)
                                     }

@@ -4,6 +4,4 @@ plugins {
     id("ktlint-publication")
 }
 
-publishing.publications.named<MavenPublication>("maven") {
-    from(components["java"])
-}
+publishing.publications.named<MavenPublication>("maven") { from(components["java"]) }

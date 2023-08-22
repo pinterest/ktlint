@@ -16,9 +16,7 @@ kotlin {
     jvmToolchain(jdkVersion = javaCompilationVersion.asInt())
 }
 
-tasks.withType<JavaCompile>().configureEach {
-    options.release.set(javaTargetVersion.asInt())
-}
+tasks.withType<JavaCompile>().configureEach { options.release.set(javaTargetVersion.asInt()) }
 tasks.withType<KotlinCompile>().configureEach {
     // Convert Java version (e.g. "1.8" or "11") to Kotlin JvmTarget ("8" resp. "11")
     compilerOptions.jvmTarget.set(JvmTarget.fromTarget(JavaVersion.toVersion(javaTargetVersion).toString()))

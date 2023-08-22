@@ -44,9 +44,7 @@ val ktlintCheck by tasks.registering(JavaExec::class) {
     args("--log-level=debug", "src/**/*.kt")
 }
 
-tasks.check {
-    dependsOn(ktlintCheck)
-}
+tasks.check { dependsOn(ktlintCheck) }
 
 publishing {
     publications {

@@ -17,9 +17,7 @@ class InternalRuleProvidersFilterTest {
             KtLintRuleEngine(
                 ruleProviders =
                     setOf(
-                        RuleProvider {
-                            object : R(ruleId = STANDARD_RULE_A) {}
-                        },
+                        RuleProvider { object : R(ruleId = STANDARD_RULE_A) {} },
                     ),
             )
         val actual =

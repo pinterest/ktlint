@@ -22,15 +22,11 @@ val internalNonPublishableProjects by extra(
     ),
 )
 
-apiValidation {
-    ignoredProjects += internalNonPublishableProjects
-}
+apiValidation { ignoredProjects += internalNonPublishableProjects }
 
 val ktlint: Configuration by configurations.creating
 
-dependencies {
-    ktlint(projects.ktlintCli)
-}
+dependencies { ktlint(projects.ktlintCli) }
 
 tasks.register<JavaExec>("ktlintCheck") {
     group = LifecycleBasePlugin.VERIFICATION_GROUP

@@ -1,7 +1,3 @@
-plugins {
-    id("ktlint-publication-library")
-}
+plugins { id("ktlint-publication-library") }
 
-dependencies {
-    api(projects.ktlintRuleEngineCore)
-}
+dependencies { api(projects.ktlintRuleEngineCore) }

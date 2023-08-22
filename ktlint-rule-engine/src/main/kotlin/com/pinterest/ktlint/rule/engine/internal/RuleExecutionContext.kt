@@ -121,9 +121,7 @@ internal class RuleExecutionContext private constructor(
         rule: Rule,
         suppressHandler: SuppressHandler,
     ) {
-        suppressHandler.handle(node, rule.ruleId) { autoCorrect, emit ->
-            rule.beforeVisitChildNodes(node, autoCorrect, emit)
-        }
+        suppressHandler.handle(node, rule.ruleId) { autoCorrect, emit -> rule.beforeVisitChildNodes(node, autoCorrect, emit) }
         if (rule.shouldContinueTraversalOfAST()) {
             node
                 .getChildren(null)
@@ -138,9 +136,7 @@ internal class RuleExecutionContext private constructor(
                     }
                 }
         }
-        suppressHandler.handle(node, rule.ruleId) { autoCorrect, emit ->
-            rule.afterVisitChildNodes(node, autoCorrect, emit)
-        }
+        suppressHandler.handle(node, rule.ruleId) { autoCorrect, emit -> rule.afterVisitChildNodes(node, autoCorrect, emit) }
     }
 
     companion object {
