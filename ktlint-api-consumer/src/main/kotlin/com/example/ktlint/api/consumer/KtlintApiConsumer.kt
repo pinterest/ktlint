@@ -51,8 +51,10 @@ public fun main() {
                 // FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to always
             ).plus(
                 // For properties that are defined in rules for which the dependency is provided at runtime only, the property name can be
-                // provided as String and the value as Any type.
+                // provided as String and the value as Any type. In case the property value is invalid, the KtlintRuleEngine logs a warning.
                 ruleProviders.findEditorConfigProperty("ktlint_function_signature_body_expression_wrapping") to "alwaysx",
+                // In case an unknown property would be provided, an exception is thrown by the helper method
+                // ruleProviders.findEditorConfigProperty("unknown_property") to "some-value",
             )
 
     // The KtLint RuleEngine only needs to be instantiated once and can be reused in multiple invocations
