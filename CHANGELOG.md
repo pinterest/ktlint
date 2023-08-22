@@ -54,7 +54,7 @@ Class "org.jetbrains.kotlin.com.intellij.treeCopyHandler" is no longer registere
 ### Changed
 
 * Change default code style to `ktlint_official` ([#2143](https://github.com/pinterest/ktlint/pull/2143))
-* Update dependency `gradle` to `v8.2.1` ([#2122](https://github.com/pinterest/ktlint/pull/2122))
+* Update dependency `gradle` to `v8.3` ([#2186](https://github.com/pinterest/ktlint/pull/2186))
 * Update dependency `org.codehaus.janino:janino` to `v3.1.10`  ([#2110](https://github.com/pinterest/ktlint/pull/2110))
 * Update dependency `com.google.jimfs:jimfs` to `v1.3.0` ([#2112](https://github.com/pinterest/ktlint/pull/2112))
 * As a part of public API stabilization, configure `binary-compatibility-validator` plugin for compile-time verification of binary compatibility with previous `ktlint` versions ([#2131](https://github.com/pinterest/ktlint/pull/2131))
