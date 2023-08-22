@@ -4,6 +4,23 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+IMPORTANT: Maven coordinates have been changed for some module. Be sure to update them, to get latest changes!
+
+| Old Maven coordinates                              | New Maven coordinates                                  |
+|----------------------------------------------------|--------------------------------------------------------|
+| com.pinterest.ktlint                               | com.pinterest.ktlint.ktlint-cli                        |
+| com.pinterest.ktlint.ktlint-reporter-baseline      | com.pinterest.ktlint.ktlint-cli-reporter-baseline      |
+| com.pinterest.ktlint.ktlint-reporter-checkstyle    | com.pinterest.ktlint.ktlint-cli-reporter-checkstyle    |
+| com.pinterest.ktlint.ktlint-cli-reporter           | com.pinterest.ktlint.ktlint-cli-reporter-core          |
+| com.pinterest.ktlint.ktlint-reporter-format        | com.pinterest.ktlint.ktlint-cli-reporter-format        |
+| com.pinterest.ktlint.ktlint-reporter-html          | com.pinterest.ktlint.ktlint-cli-reporter-html          |
+| com.pinterest.ktlint.ktlint-reporter-json          | com.pinterest.ktlint.ktlint-cli-reporter-json          |
+| com.pinterest.ktlint.ktlint-reporter-plain         | com.pinterest.ktlint.ktlint-cli-reporter-plain         |
+| com.pinterest.ktlint.ktlint-reporter-plain-summary | com.pinterest.ktlint.ktlint-cli-reporter-plain-summary |
+| com.pinterest.ktlint.ktlint-reporter-sarif         | com.pinterest.ktlint.ktlint-cli-reporter-sarif         |
+| com.pinterest.ktlint.                              | com.pinterest.ktlint.                                  |
+| com.pinterest.ktlint.                              | com.pinterest.ktlint.                                  |
+
 ### API changes
 
 * As a part of public API stabilization, data classes are no longer used in the public API. As of that, functions like `copy()` or `componentN()` (used for destructuring declarations) are not available anymore. This is a binary incompatible change, breaking backwards compatibility. ([#2133](https://github.com/pinterest/ktlint/issues/2133))
