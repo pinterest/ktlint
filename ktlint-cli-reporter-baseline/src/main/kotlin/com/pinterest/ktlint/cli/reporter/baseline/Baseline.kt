@@ -7,6 +7,7 @@ import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.BASELINE_IGNORED
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.util.cast
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.w3c.dom.Element
 import org.xml.sax.SAXException
@@ -140,9 +141,7 @@ private class BaselineLoader(
         with(getElementsByTagName("error")) {
             for (i in 0 until length) {
                 ktlintCliErrorsInFileElement.add(
-                    with(item(i) as Element) {
-                        parseBaselineErrorElement()
-                    },
+                    item(i).cast<Element>().parseBaselineErrorElement(),
                 )
             }
         }

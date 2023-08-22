@@ -403,9 +403,8 @@ class RuleProviderSorterTest {
 
     private fun createRuleProviders(vararg rules: Rule): Set<RuleProvider> =
         rules
-            .map {
-                RuleProvider { it }
-            }.toSet()
+            .map { RuleProvider { it } }
+            .toSet()
 
     private companion object {
         const val RULE_A = "rule-a"

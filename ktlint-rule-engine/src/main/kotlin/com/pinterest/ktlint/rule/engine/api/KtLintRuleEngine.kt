@@ -63,9 +63,7 @@ public class KtLintRuleEngine(
     public val fileSystem: FileSystem = FileSystems.getDefault(),
 ) {
     init {
-        require(ruleProviders.any()) {
-            "A non-empty set of 'ruleProviders' need to be provided"
-        }
+        require(ruleProviders.any()) { "A non-empty set of 'ruleProviders' need to be provided" }
     }
 
     internal val editorConfigLoaderEc4j = EditorConfigLoaderEc4j(ruleProviders.propertyTypes())
@@ -210,9 +208,7 @@ public class KtLintRuleEngine(
             UTF8_BOM + formattedCode
         } else {
             formattedCode
-        }.also {
-            LOGGER.debug { "Finished with formatting file '${code.fileNameOrStdin()}'" }
-        }
+        }.also { LOGGER.debug { "Finished with formatting file '${code.fileNameOrStdin()}'" } }
     }
 
     private fun RuleExecutionContext.determineLineSeparator(fileContent: String): String {

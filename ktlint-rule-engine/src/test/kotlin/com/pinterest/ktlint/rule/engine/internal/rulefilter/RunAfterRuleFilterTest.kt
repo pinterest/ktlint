@@ -389,9 +389,8 @@ class RunAfterRuleFilterTest {
 
     private fun createRuleProviders(vararg rules: Rule) =
         rules
-            .map {
-                RuleProvider { it }
-            }.toSet()
+            .map { RuleProvider { it } }
+            .toSet()
 
     private fun Set<RuleProvider>.toRuleId() = map { it.ruleId }
 }

@@ -59,15 +59,11 @@ internal class EditorConfigLoaderTest {
     fun `Given an editorconfig file in the project root and the file to be linted is in a subdirectory not containing an editorconfig file`(
         editorconfigContent: String,
     ) {
-        ktlintTestFileSystem.apply {
-            writeRootEditorConfigFile(editorconfigContent.trimIndent())
-        }
+        ktlintTestFileSystem.writeRootEditorConfigFile(editorconfigContent.trimIndent())
 
         createEditorConfigLoader()
             .load(ktlintTestFileSystem.resolve("some-subdirectory/test.kt"))
-            .run {
-                assertThat(convertToPropertyValues()).contains("indent_size = 2")
-            }
+            .run { assertThat(convertToPropertyValues()).contains("indent_size = 2") }
     }
 
     @Test

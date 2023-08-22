@@ -96,9 +96,7 @@ class EditorConfigDefaultsLoaderTest {
     @Test
     fun `Given an existing directory containing an editor config file then load all settings from it`() {
         val somePathToDirectory = "some/path/to/directory"
-        ktlintTestFileSystem.apply {
-            writeEditorConfigFile(somePathToDirectory, SOME_EDITOR_CONFIG.toString())
-        }
+        ktlintTestFileSystem.writeEditorConfigFile(somePathToDirectory, SOME_EDITOR_CONFIG.toString())
 
         val actual =
             editorConfigDefaultsLoader.load(

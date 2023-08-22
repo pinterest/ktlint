@@ -10,6 +10,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.util.safeAs
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
@@ -147,13 +148,10 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
     }
 
     private fun removeExtraLineBreaks(node: ASTNode) {
-        val next =
-            node.nextSibling {
-                it.isWhiteSpaceWithNewline()
-            } as? LeafPsiElement
-        if (next != null) {
-            rawReplaceExtraLineBreaks(next)
-        }
+        node
+            .nextSibling { it.isWhiteSpaceWithNewline() }
+            .safeAs<LeafPsiElement>()
+            ?.let { rawReplaceExtraLineBreaks(it) }
     }
 
     private fun rawReplaceExtraLineBreaks(leaf: LeafPsiElement) {

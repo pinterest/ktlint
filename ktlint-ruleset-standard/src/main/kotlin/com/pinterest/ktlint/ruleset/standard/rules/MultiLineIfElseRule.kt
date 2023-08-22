@@ -133,9 +133,7 @@ public class MultiLineIfElseRule :
         prevLeaves
             .firstOrNull()
             .takeIf { it.isWhiteSpace() }
-            ?.let {
-                (it as LeafPsiElement).rawReplaceWithText(" ")
-            }
+            ?.let { (it as LeafPsiElement).rawReplaceWithText(" ") }
         KtBlockExpression(null).apply {
             val previousChild = node.firstChildNode
             node.replaceChild(node.firstChildNode, this)

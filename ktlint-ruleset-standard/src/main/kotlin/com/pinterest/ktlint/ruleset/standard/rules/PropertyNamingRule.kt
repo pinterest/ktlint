@@ -68,9 +68,7 @@ public class PropertyNamingRule :
         identifier
             .text
             .takeUnless { it.matches(BACKING_PROPERTY_LOWER_CAMEL_CASE_REGEXP) }
-            ?.let {
-                emit(identifier.startOffset, "Backing property name should start with underscore followed by lower camel case", false)
-            }
+            ?.let { emit(identifier.startOffset, "Backing property name should start with underscore followed by lower camel case", false) }
     }
 
     private fun visitConstProperty(
@@ -102,9 +100,7 @@ public class PropertyNamingRule :
         identifier
             .text
             .takeUnless { it.matches(LOWER_CAMEL_CASE_REGEXP) }
-            ?.let {
-                emit(identifier.startOffset, "Property name should start with a lowercase letter and use camel case", false)
-            }
+            ?.let { emit(identifier.startOffset, "Property name should start with a lowercase letter and use camel case", false) }
     }
 
     private fun ASTNode.hasCustomGetter() = findChildByType(PROPERTY_ACCESSOR)?.findChildByType(GET_KEYWORD) != null
@@ -131,9 +127,7 @@ public class PropertyNamingRule :
         takeIf { hasModifier(PRIVATE_KEYWORD) }
             ?.findChildByType(IDENTIFIER)
             ?.takeIf { it.text.startsWith("_") }
-            ?.let { identifier ->
-                this.hasPublicProperty(identifier.text.removePrefix("_"))
-            }
+            ?.let { identifier -> hasPublicProperty(identifier.text.removePrefix("_")) }
             ?: false
 
     private fun ASTNode.hasPublicProperty(identifier: String) =

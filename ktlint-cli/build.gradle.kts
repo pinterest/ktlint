@@ -111,9 +111,10 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
         }
         if (isReleaseBuild) {
             logger.lifecycle("Creating the batch file for Windows OS: $windowsBatchFileOutputPath")
-            File(windowsBatchFileOutputPath).apply {
-                writeText(File(windowsBatchFileInputPath).readText())
-            }
+            File(windowsBatchFileOutputPath)
+                .writeText(
+                    File(windowsBatchFileInputPath).readText()
+                )
         }
         logger.lifecycle("Finished creating output files ktlint-cli")
     }

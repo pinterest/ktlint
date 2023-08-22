@@ -55,9 +55,7 @@ public class SpacingAroundCurlyRule : StandardRule("curly-spacing") {
                 spacingAfter = nextLeaf is PsiWhiteSpace || nextLeaf?.elementType == RBRACE
                 if (prevLeaf is PsiWhiteSpace &&
                     !prevLeaf.textContains('\n') &&
-                    prevLeaf.prevLeaf()?.let {
-                        it.elementType == LPAR || it.elementType == AT
-                    } == true
+                    prevLeaf.prevLeaf()?.let { it.elementType == LPAR || it.elementType == AT } == true
                 ) {
                     emit(node.startOffset, "Unexpected space before \"${node.text}\"", true)
                     if (autoCorrect) {

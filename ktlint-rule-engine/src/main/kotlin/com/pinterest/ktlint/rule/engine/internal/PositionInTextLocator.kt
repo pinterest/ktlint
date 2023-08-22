@@ -44,9 +44,7 @@ private class SegmentTree(
     private val segments: List<Segment> =
         sortedArray
             .dropLast(1)
-            .mapIndexed { index: Int, element: Int ->
-                Segment(element, sortedArray[index + 1] - 1)
-            }
+            .mapIndexed { index: Int, element: Int -> Segment(element, sortedArray[index + 1] - 1) }
 
     fun get(i: Int): Segment = segments[i]
 

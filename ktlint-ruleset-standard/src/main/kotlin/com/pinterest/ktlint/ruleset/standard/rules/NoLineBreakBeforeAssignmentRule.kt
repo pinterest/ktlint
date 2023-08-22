@@ -54,9 +54,7 @@ public class NoLineBreakBeforeAssignmentRule : StandardRule("no-line-break-befor
                     assignmentNode
                         .nextSibling()
                         .takeIf { it.isWhiteSpace() }
-                        ?.let { whiteSpaceAfterEquals ->
-                            parent.removeChild(whiteSpaceAfterEquals)
-                        }
+                        ?.let { whiteSpaceAfterEquals -> parent.removeChild(whiteSpaceAfterEquals) }
                     parent.removeChild(assignmentNode)
                 }
             }

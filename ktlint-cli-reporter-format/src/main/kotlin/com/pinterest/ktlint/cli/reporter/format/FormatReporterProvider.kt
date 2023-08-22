@@ -23,7 +23,8 @@ public class FormatReporterProvider : ReporterProviderV2<FormatReporter> {
     private fun String.emptyOrTrue() = this == "" || this == "true"
 
     private fun getColor(color: String?): Color =
-        Color.values().firstOrNull {
-            it.name == color
-        } ?: throw IllegalArgumentException("Invalid color parameter.")
+        Color
+            .entries
+            .firstOrNull { it.name == color }
+            ?: throw IllegalArgumentException("Invalid color parameter.")
 }

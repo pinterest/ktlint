@@ -664,9 +664,7 @@ public class WrappingRule :
         if (this.elementType != LPAR) {
             return treeParent.findChildByType(LPAR)!!.isPartOfForLoopConditionWithMultilineExpression()
         }
-        require(elementType == LPAR) {
-            "Node should be the LPAR of the FOR loop"
-        }
+        require(elementType == LPAR) { "Node should be the LPAR of the FOR loop" }
 
         var node: ASTNode? = this
         while (node != null && node.elementType != RPAR) {

@@ -620,9 +620,7 @@ internal class KtlintCommandLine {
 
         return String(System.`in`.readBytes())
             .split(delimiter)
-            .let { patterns: List<String> ->
-                patterns.filterTo(LinkedHashSet(patterns.size), String::isNotEmpty)
-            }
+            .let { patterns -> patterns.filterTo(LinkedHashSet(patterns.size), String::isNotEmpty) }
     }
 
     /**

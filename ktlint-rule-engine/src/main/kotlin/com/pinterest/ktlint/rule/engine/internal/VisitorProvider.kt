@@ -42,9 +42,7 @@ internal class VisitorProvider(
             return { _ -> }
         }
         return { visit ->
-            ruleProvidersSorted.forEach {
-                visit(it.createNewRuleInstance())
-            }
+            ruleProvidersSorted.forEach { visit(it.createNewRuleInstance()) }
         }
     }
 }

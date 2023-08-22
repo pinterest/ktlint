@@ -158,9 +158,7 @@ public class TypeParameterListSpacingRule :
         node
             .lastChildNode
             .nextLeaf(includeEmpty = true)
-            ?.let { nextSibling ->
-                singleSpaceExpected(nextSibling, autoCorrect, emit)
-            }
+            ?.let { nextSibling -> singleSpaceExpected(nextSibling, autoCorrect, emit) }
     }
 
     private fun visitInsideTypeParameterList(

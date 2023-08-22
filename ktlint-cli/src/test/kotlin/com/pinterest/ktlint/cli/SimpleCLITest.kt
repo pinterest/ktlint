@@ -446,9 +446,7 @@ class SimpleCLITest {
                 testProjectName = "too-many-empty-lines",
                 arguments = listOf("--stdin"),
                 stdin = ByteArrayInputStream("fun foo() = 42".toByteArray()),
-            ) {
-                assertThat(normalOutput).containsLineMatching(Regex(".*ktlint_standard_filename: disabled.*"))
-            }
+            ) { assertThat(normalOutput).containsLineMatching(Regex(".*ktlint_standard_filename: disabled.*")) }
     }
 
     @Test

@@ -852,9 +852,7 @@ public class IndentationRule :
             }
         node
             .findChildByType(CONDITION)
-            ?.let { fromAstNode ->
-                startIndentContext(fromAstNode)
-            }
+            ?.let { fromAstNode -> startIndentContext(fromAstNode) }
     }
 
     private fun visitLBracket(node: ASTNode) {
@@ -1485,9 +1483,8 @@ private class StringTemplateIndenter(
         val prefixLength = nonBlankLines.minOfOrNull { it.indentLength() } ?: 0
         val distinctIndentCharacters =
             nonBlankLines
-                .joinToString(separator = "") {
-                    it.splitIndentAt(prefixLength).first
-                }.toCharArray()
+                .joinToString(separator = "") { it.splitIndentAt(prefixLength).first }
+                .toCharArray()
                 .distinct()
                 .count()
         return distinctIndentCharacters > 1

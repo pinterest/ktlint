@@ -57,9 +57,7 @@ public class EnumWrappingRule :
             .takeIf { node.elementType == CLASS }
             ?.takeIf { (node.psi as KtClass).isEnum() }
             ?.findChildByType(CLASS_BODY)
-            ?.let { classBody ->
-                visitEnumClass(classBody, autoCorrect, emit)
-            }
+            ?.let { classBody -> visitEnumClass(classBody, autoCorrect, emit) }
     }
 
     private fun visitEnumClass(
@@ -127,9 +125,7 @@ public class EnumWrappingRule :
         node
             .children()
             .filter { it.elementType == ENUM_ENTRY }
-            .forEach { enumEntry ->
-                wrapEnumEntry(enumEntry, autoCorrect, emit)
-            }
+            .forEach { enumEntry -> wrapEnumEntry(enumEntry, autoCorrect, emit) }
     }
 
     private fun wrapEnumEntry(

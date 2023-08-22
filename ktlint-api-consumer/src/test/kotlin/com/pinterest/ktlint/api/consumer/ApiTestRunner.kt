@@ -18,12 +18,13 @@ class ApiTestRunner(
     private val tempDir: Path,
 ) {
     fun prepareTestProject(testProjectName: String): Path {
-        val testProjectPath = TEST_PROJECTS_PATHS.resolve(testProjectName)
-        assert(Files.exists(testProjectPath)) {
-            "Test project $testProjectName does not exist!"
-        }
-
-        return tempDir.resolve(testProjectName).also { testProjectPath.copyRecursively(it) }
+        val testProjectPath =
+            TEST_PROJECTS_PATHS
+                .resolve(testProjectName)
+                .also { require(Files.exists(it)) { "Test project $testProjectName does not exist!" } }
+        return tempDir
+            .resolve(testProjectName)
+            .also { testProjectPath.copyRecursively(it) }
     }
 
     private fun Path.copyRecursively(dest: Path) {

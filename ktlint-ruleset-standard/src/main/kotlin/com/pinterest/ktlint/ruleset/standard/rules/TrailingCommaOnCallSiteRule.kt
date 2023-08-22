@@ -175,9 +175,7 @@ public class TrailingCommaOnCallSiteRule :
                         inspectNode
                             .prevCodeSibling()
                             ?.nextSibling()
-                            ?.let { before ->
-                                before.treeParent.addChild(LeafPsiElement(COMMA, ","), before)
-                            }
+                            ?.let { before -> before.treeParent.addChild(LeafPsiElement(COMMA, ","), before) }
                     }
                 }
             TrailingCommaState.REDUNDANT -> {

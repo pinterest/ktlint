@@ -240,9 +240,7 @@ public fun ASTNode.upsertWhitespaceBeforeMe(text: String) {
         if (previous != null && previous.elementType == WHITE_SPACE) {
             previous.replaceWhitespaceWith(text)
         } else {
-            PsiWhiteSpaceImpl(text).also { psiWhiteSpace ->
-                (psi as LeafElement).rawInsertBeforeMe(psiWhiteSpace)
-            }
+            PsiWhiteSpaceImpl(text).also { psiWhiteSpace -> (psi as LeafElement).rawInsertBeforeMe(psiWhiteSpace) }
         }
     } else {
         when (val prevSibling = prevSibling()) {
@@ -257,9 +255,7 @@ public fun ASTNode.upsertWhitespaceBeforeMe(text: String) {
 
             else -> {
                 // Insert in between two composite nodes
-                PsiWhiteSpaceImpl(text).also { psiWhiteSpace ->
-                    treeParent.addChild(psiWhiteSpace.node, this)
-                }
+                PsiWhiteSpaceImpl(text).also { psiWhiteSpace -> treeParent.addChild(psiWhiteSpace.node, this) }
             }
         }
     }
@@ -286,9 +282,7 @@ public fun ASTNode.upsertWhitespaceAfterMe(text: String) {
         if (next != null && next.elementType == WHITE_SPACE) {
             next.replaceWhitespaceWith(text)
         } else {
-            PsiWhiteSpaceImpl(text).also { psiWhiteSpace ->
-                (psi as LeafElement).rawInsertAfterMe(psiWhiteSpace)
-            }
+            PsiWhiteSpaceImpl(text).also { psiWhiteSpace -> (psi as LeafElement).rawInsertAfterMe(psiWhiteSpace) }
         }
     } else {
         when (val nextSibling = nextSibling()) {
@@ -303,9 +297,7 @@ public fun ASTNode.upsertWhitespaceAfterMe(text: String) {
 
             else -> {
                 // Insert in between two composite nodes
-                PsiWhiteSpaceImpl(text).also { psiWhiteSpace ->
-                    treeParent.addChild(psiWhiteSpace.node, nextSibling)
-                }
+                PsiWhiteSpaceImpl(text).also { psiWhiteSpace -> treeParent.addChild(psiWhiteSpace.node, nextSibling) }
             }
         }
     }
@@ -347,9 +339,7 @@ public fun ASTNode.logStructure(): ASTNode =
         println("Processing ${text.replaceTabAndNewline()} : Type $elementType with parent ${treeParent?.elementType} ")
         children()
             .toList()
-            .map {
-                println("  ${it.text.replaceTabAndNewline()} : Type ${it.elementType}")
-            }
+            .map { println("  ${it.text.replaceTabAndNewline()} : Type ${it.elementType}") }
     }
 
 private fun String.replaceTabAndNewline(): String = replace("\t", "\\t").replace("\n", "\\n")

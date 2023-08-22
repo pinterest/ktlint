@@ -209,25 +209,19 @@ private fun FileSystem.toGlob(
             if (resolvedPath.isDirectory()) {
                 resolvedPath
                     .expandPathToDefaultPatterns()
-                    .also {
-                        LOGGER.trace { "Expanding resolved directory path '$resolvedPath' to patterns: [$it]" }
-                    }
+                    .also { LOGGER.trace { "Expanding resolved directory path '$resolvedPath' to patterns: [$it]" } }
             } else {
                 resolvedPath
                     .pathString
                     .expandDoubleStarPatterns()
-                    .also {
-                        LOGGER.trace { "Expanding resolved path '$resolvedPath` to patterns: [$it]" }
-                    }
+                    .also { LOGGER.trace { "Expanding resolved path '$resolvedPath` to patterns: [$it]" } }
             }
         } catch (e: InvalidPathException) {
             if (onWindowsOS) {
                 //  Windows throws an exception when passing a wildcard (*) to Path#resolve.
                 pathWithoutNegationPrefix
                     .expandDoubleStarPatterns()
-                    .also {
-                        LOGGER.trace { "On WindowsOS: expanding unresolved path '$pathWithoutNegationPrefix` to patterns: [$it]" }
-                    }
+                    .also { LOGGER.trace { "On WindowsOS: expanding unresolved path '$pathWithoutNegationPrefix` to patterns: [$it]" } }
             } else {
                 emptyList()
             }

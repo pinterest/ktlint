@@ -34,9 +34,7 @@ public class BaselineReporter(
             val relativeFile = Paths.get(file).relativeLocation()
             out.println("""    <file name="${relativeFile.escapeXMLAttrValue()}">""")
             for (err in errList) {
-                with(err) {
-                    out.println("""        <error line="$line" column="$col" source="$ruleId" />""")
-                }
+                with(err) { out.println("""        <error line="$line" column="$col" source="$ruleId" />""") }
             }
             out.println("""    </file>""")
         }

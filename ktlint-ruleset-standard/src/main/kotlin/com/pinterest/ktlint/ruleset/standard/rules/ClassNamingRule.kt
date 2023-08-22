@@ -39,9 +39,7 @@ public class ClassNamingRule : StandardRule("class-naming") {
             .takeIf { node.elementType == CLASS || node.elementType == OBJECT_DECLARATION }
             ?.findChildByType(IDENTIFIER)
             ?.takeUnless { it.isValidFunctionName() || it.isTestClass() }
-            ?.let {
-                emit(it.startOffset, "Class or object name should start with an uppercase letter and use camel case", false)
-            }
+            ?.let { emit(it.startOffset, "Class or object name should start with an uppercase letter and use camel case", false) }
     }
 
     private fun ASTNode.isValidFunctionName() = text.matches(VALID_CLASS_NAME_REGEXP)

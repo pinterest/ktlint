@@ -29,15 +29,11 @@ internal class EditorConfigFinder(
         READ_WRITE_LOCK.read {
             val cacheValue =
                 IN_MEMORY_CACHE[path]
-                    ?.also {
-                        LOGGER.info { "Retrieving EditorConfig cache entry for path $path" }
-                    }
+                    ?.also { LOGGER.info { "Retrieving EditorConfig cache entry for path $path" } }
             return cacheValue
                 ?: READ_WRITE_LOCK.write {
                     cacheEditorConfigs(path)
-                        .also { cacheValue ->
-                            LOGGER.info { "Creating cache entry for path $path with value $cacheValue" }
-                        }
+                        .also { cacheValue -> LOGGER.info { "Creating cache entry for path $path with value $cacheValue" } }
                 }
         }
     }

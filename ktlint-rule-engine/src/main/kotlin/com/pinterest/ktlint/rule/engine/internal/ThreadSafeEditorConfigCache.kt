@@ -31,9 +31,8 @@ internal class ThreadSafeEditorConfigCache : Cache {
         readWriteLock.read {
             val cachedEditConfig =
                 inMemoryMap[resource]
-                    ?.also {
-                        LOGGER.trace { "Retrieving EditorConfig cache entry for path ${resource.path}" }
-                    }?.editConfig
+                    ?.also { LOGGER.trace { "Retrieving EditorConfig cache entry for path ${resource.path}" } }
+                    ?.editConfig
             return cachedEditConfig
                 ?: readWriteLock.write {
                     CacheValue(resource, editorConfigLoader)
@@ -56,9 +55,7 @@ internal class ThreadSafeEditorConfigCache : Cache {
                         cacheValue
                             .copy(editConfig = cacheValue.editorConfigLoader.load(resource))
                             .let { cacheValue -> inMemoryMap[resource] = cacheValue }
-                            .also {
-                                LOGGER.trace { "Reload EditorConfig cache entry for path ${resource.path}" }
-                            }
+                            .also { LOGGER.trace { "Reload EditorConfig cache entry for path ${resource.path}" } }
                     }
                 }
         }
@@ -70,9 +67,8 @@ internal class ThreadSafeEditorConfigCache : Cache {
     fun clear() =
         readWriteLock.write {
             inMemoryMap
-                .also {
-                    LOGGER.trace { "Removing ${it.size} entries from the EditorConfig cache" }
-                }.clear()
+                .also { LOGGER.trace { "Removing ${it.size} entries from the EditorConfig cache" } }
+                .clear()
         }
 
     /**

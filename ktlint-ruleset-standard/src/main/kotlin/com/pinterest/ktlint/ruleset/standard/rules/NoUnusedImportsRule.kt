@@ -177,9 +177,7 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
                         } else {
                             nextSibling
                                 .takeIf { it.isWhiteSpaceWithNewline() }
-                                ?.let { whitespace ->
-                                    whitespace.treeParent.removeChild(whitespace)
-                                }
+                                ?.let { whitespace -> whitespace.treeParent.removeChild(whitespace) }
                         }
                         importDirective.delete()
                     }

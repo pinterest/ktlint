@@ -67,10 +67,7 @@ public class IfElseBracingRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        val thenNode =
-            requireNotNull(node.findChildByType(THEN)) {
-                "Can not find THEN branch in IF"
-            }
+        val thenNode = requireNotNull(node.findChildByType(THEN)) { "Can not find THEN branch in IF" }
         val elseNode = node.findChildByType(ELSE) ?: return
         val parentIfBracing =
             node
@@ -144,9 +141,7 @@ public class IfElseBracingRule :
         prevLeaves
             .firstOrNull()
             .takeIf { it.isWhiteSpace() }
-            ?.let {
-                (it as LeafPsiElement).rawReplaceWithText(" ")
-            }
+            ?.let { (it as LeafPsiElement).rawReplaceWithText(" ") }
         KtBlockExpression(null).apply {
             val previousChild = node.firstChildNode
             if (previousChild == null) {

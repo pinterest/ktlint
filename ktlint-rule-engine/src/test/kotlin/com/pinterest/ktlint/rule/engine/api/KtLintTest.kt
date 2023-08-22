@@ -646,9 +646,7 @@ private class WithStateRule :
     private var hasNotBeenVisitedYet = true
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
-        check(hasNotBeenVisitedYet) {
-            "Rule has been visited before"
-        }
+        check(hasNotBeenVisitedYet) { "Rule has been visited before" }
         hasNotBeenVisitedYet = false
     }
 

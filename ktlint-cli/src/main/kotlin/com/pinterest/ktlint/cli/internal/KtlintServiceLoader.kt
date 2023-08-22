@@ -24,9 +24,7 @@ internal fun <T> Class<T>.loadFromJarFiles(
             .also { providers ->
                 providers
                     .mapNotNull { it }
-                    .forEach {
-                        LOGGER.debug { "Discovered $simpleName with id '${providerId(it)}' in ktlint JAR" }
-                    }
+                    .forEach { LOGGER.debug { "Discovered $simpleName with id '${providerId(it)}' in ktlint JAR" } }
             }
     val providerIdsFromKtlintJars =
         providersFromKtlintJars

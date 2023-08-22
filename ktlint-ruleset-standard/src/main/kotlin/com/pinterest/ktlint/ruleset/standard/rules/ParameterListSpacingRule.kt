@@ -173,9 +173,7 @@ public class ParameterListSpacingRule :
             .findChildByType(COLON)
             ?.prevLeaf()
             ?.takeIf { it.elementType == WHITE_SPACE }
-            ?.let { whiteSpaceBeforeColon ->
-                removeUnexpectedWhiteSpace(whiteSpaceBeforeColon, emit, autoCorrect)
-            }
+            ?.let { whiteSpaceBeforeColon -> removeUnexpectedWhiteSpace(whiteSpaceBeforeColon, emit, autoCorrect) }
     }
 
     private fun fixWhiteSpaceAfterColonInParameter(

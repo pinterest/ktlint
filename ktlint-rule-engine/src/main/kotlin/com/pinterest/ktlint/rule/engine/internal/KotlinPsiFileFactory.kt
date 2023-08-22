@@ -75,20 +75,27 @@ internal fun initPsiFileFactory(ktLintRuleEngine: KtLintRuleEngine): PsiFileFact
  * Note: this only works in CLI shadowed jar! 'extensions/compiler.xml' is absent in non-shadowed jar.
  */
 private fun extractCompilerExtension(): Path {
-    KtLintRuleEngine::class.java.getResourceAsStream("/META-INF/extensions/compiler.xml").use { input ->
-        val tempDir = Files.createTempDirectory("ktlint")
-        tempDir.toFile().deleteOnExit()
+    val extensionDirName = "META-INF/extensions"
+    val extensionFileName = "compiler.xml"
+    KtLintRuleEngine::class.java
+        .getResourceAsStream("/$extensionDirName/$extensionFileName")
+        .use { input ->
+            val tempDir = Files.createTempDirectory("ktlint")
+            tempDir.toFile().deleteOnExit()
 
-        val extensionsDir =
-            tempDir.resolve("META-INF/extensions").also {
-                Files.createDirectories(it)
-            }
-        extensionsDir.resolve("compiler.xml").toFile().outputStream().buffered().use {
-            input!!.copyTo(it)
+            val extensionsDir =
+                tempDir
+                    .resolve(extensionDirName)
+                    .also { Files.createDirectories(it) }
+            extensionsDir
+                .resolve(extensionFileName)
+                .toFile()
+                .outputStream()
+                .buffered()
+                .use { input!!.copyTo(it) }
+
+            return tempDir
         }
-
-        return tempDir
-    }
 }
 
 /**

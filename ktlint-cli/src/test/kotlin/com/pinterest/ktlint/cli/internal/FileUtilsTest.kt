@@ -216,9 +216,7 @@ internal class FileUtilsTest {
     ) {
         val homeDir = System.getProperty("user.home")
         val filePath = "$homeDir/project/src/main/kotlin/One.kt"
-        ktlintTestFileSystem.apply {
-            writeFile(filePath, SOME_CONTENT)
-        }
+        ktlintTestFileSystem.writeFile(filePath, SOME_CONTENT)
 
         val foundFiles =
             getFiles(
@@ -499,11 +497,7 @@ internal class FileUtilsTest {
             .map { it.normalize().toString() }
             .toList()
             .map { ktlintTestFileSystem.unixPathStringRelativeToRootDirectoryOfFileSystem(it) }
-            .also {
-                LOGGER.info {
-                    "Getting files with [patterns = $patterns] and [rootdir = $rootDir] returns [files = $it]"
-                }
-            }
+            .also { LOGGER.info { "Getting files with [patterns = $patterns] and [rootdir = $rootDir] returns [files = $it]" } }
 
     private fun KtlintTestFileSystem.rootDirectoryPath() = resolve()
 

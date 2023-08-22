@@ -183,9 +183,7 @@ public class KtlintSuppressionRule(
             .takeIf { startsWith(KTLINT_SUPPRESSION_ID_PREFIX) }
             ?.substringAfter(KTLINT_SUPPRESSION_ID_PREFIX)
             ?.let { prefixWithRuleSetIdWhenMissing(it) }
-            ?.let { ruleId ->
-                allowedRuleIds.none { it.value == ruleId }
-            }
+            ?.let { ruleId -> allowedRuleIds.none { it.value == ruleId } }
             ?: false
 
     private fun KtLintDirective.visitKtlintDirective(

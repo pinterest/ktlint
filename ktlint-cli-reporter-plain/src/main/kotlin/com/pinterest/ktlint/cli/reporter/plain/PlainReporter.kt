@@ -41,10 +41,7 @@ public class PlainReporter(
                         "${ktlintCliError.detail} ${"(${ktlintCliError.ruleId})".colored()}",
                 )
             }
-            ruleViolationCount
-                .merge(ktlintCliError.causedBy(), 1) { previousValue, _ ->
-                    previousValue + 1
-                }
+            ruleViolationCount.merge(ktlintCliError.causedBy(), 1) { previousValue, _ -> previousValue + 1 }
         }
     }
 
@@ -104,12 +101,9 @@ public class PlainReporter(
     private companion object {
         val COUNT_DESC_AND_RULE_ID_ASC_COMPARATOR =
             kotlin
-                .Comparator<Pair<String, Long>> { left, right ->
-                    compareValuesBy(left, right) { it.second }
-                }.reversed()
-                .thenComparator { left, right ->
-                    compareValuesBy(left, right) { it.first }
-                }
+                .Comparator<Pair<String, Long>> { left, right -> compareValuesBy(left, right) { it.second } }
+                .reversed()
+                .thenComparator { left, right -> compareValuesBy(left, right) { it.first } }
 
         const val KOTLIN_PARSE_EXCEPTION_MESSAGE = "Not a valid Kotlin file"
         const val KTLINT_RULE_ENGINE_EXCEPTION_MESSAGE = "An internal error occurred in the Ktlint Rule Engine"

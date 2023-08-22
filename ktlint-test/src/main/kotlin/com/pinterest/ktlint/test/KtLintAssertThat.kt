@@ -528,9 +528,7 @@ public class KtLintAssertThatAssertable(
      * Asserts that the code is formatted as given.
      */
     public fun isFormattedAs(formattedCode: String): KtLintAssertThatAssertable {
-        check(formattedCode != code.content) {
-            "Use '.hasNoLintViolations()' instead of '.isFormattedAs(<original code>)'"
-        }
+        check(formattedCode != code.content) { "Use '.hasNoLintViolations()' instead of '.isFormattedAs(<original code>)'" }
 
         // Also format the code to be absolutely sure that codes does not get changed
         val (actualFormattedCode, _) = format()

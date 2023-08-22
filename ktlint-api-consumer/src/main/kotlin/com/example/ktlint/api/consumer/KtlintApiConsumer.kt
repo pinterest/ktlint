@@ -56,9 +56,7 @@ public fun main() {
         """.trimIndent()
     }
     ktLintRuleEngine
-        .lint(codeFile) {
-            LOGGER.info { "LintViolation reported by KtLint: $it" }
-        }
+        .lint(codeFile) { LOGGER.info { "LintViolation reported by KtLint: $it" } }
 
     LOGGER.info {
         """
@@ -70,9 +68,7 @@ public fun main() {
     }
     ktLintRuleEngine
         .format(codeFile)
-        .also {
-            LOGGER.info { "Code formatted by KtLint:\n$it" }
-        }
+        .also { LOGGER.info { "Code formatted by KtLint:\n$it" } }
 
     LOGGER.info {
         """

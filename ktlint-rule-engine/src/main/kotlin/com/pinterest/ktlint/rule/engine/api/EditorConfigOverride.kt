@@ -45,9 +45,7 @@ public class EditorConfigOverride {
             }
             return EditorConfigOverride()
                 .apply {
-                    properties.forEach {
-                        add(it.first, it.second)
-                    }
+                    properties.forEach { add(it.first, it.second) }
                 }
         }
 
@@ -56,9 +54,7 @@ public class EditorConfigOverride {
          * the original [EditorConfigOverride] silently.
          */
         public fun EditorConfigOverride.plus(vararg properties: Pair<EditorConfigProperty<*>, *>): EditorConfigOverride {
-            require(properties.isNotEmpty()) {
-                "Can not add EditorConfigOverride without properties."
-            }
+            require(properties.isNotEmpty()) { "Can not add EditorConfigOverride without properties." }
             return EditorConfigOverride()
                 .apply {
                     this@plus._properties.forEach {

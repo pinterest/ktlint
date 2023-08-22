@@ -128,9 +128,8 @@ public class StringTemplateIndentRule :
                 ?: 0
         val distinctIndentCharacters =
             nonBlankLines
-                .joinToString(separator = "") {
-                    it.splitIndentAt(prefixLength).first
-                }.toCharArray()
+                .joinToString(separator = "") { it.splitIndentAt(prefixLength).first }
+                .toCharArray()
                 .distinct()
                 .count()
         return distinctIndentCharacters > 1

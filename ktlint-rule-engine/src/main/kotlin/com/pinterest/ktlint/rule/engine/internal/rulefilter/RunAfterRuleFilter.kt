@@ -179,9 +179,7 @@ internal class RunAfterRuleFilter : RuleFilter {
                     "Skipping rule(s) which are depending on a rule which is not loaded. Please check if you need to add additional " +
                         "rule sets before creating an issue.$separator",
                 separator = separator,
-            ) {
-                "Rule with id '${it.ruleId}' requires rule with id '${it.runAfterRuleId}' to be loaded"
-            }
+            ) { "Rule with id '${it.ruleId}' requires rule with id '${it.runAfterRuleId}' to be loaded" }
     }
 
     private fun createCyclicDependencyMessage(): String {
@@ -203,9 +201,7 @@ internal class RunAfterRuleFilter : RuleFilter {
         val separator = "\n  - "
         return blockedRuleProviders.joinToString(prefix = prefix + separator, separator = separator) {
             "Rule with id '${it.ruleId.value}' should run after rule(s) with id '${
-                it.runAfterRules.joinToString(separator = ", ") {
-                    it.ruleId.value
-                }
+                it.runAfterRules.joinToString(separator = ", ") { it.ruleId.value }
             }'"
         }
     }

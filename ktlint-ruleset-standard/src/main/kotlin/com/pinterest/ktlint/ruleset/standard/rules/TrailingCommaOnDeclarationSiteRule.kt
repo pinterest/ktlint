@@ -330,9 +330,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                                 inspectNode
                                     .prevCodeLeaf()
                                     ?.nextLeaf()
-                                    ?.let { before ->
-                                        before.treeParent.addChild(PsiWhiteSpaceImpl(indent), before)
-                                    }
+                                    ?.let { before -> before.treeParent.addChild(PsiWhiteSpaceImpl(indent), before) }
                             }
                         }
 
@@ -350,9 +348,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                             inspectNode
                                 .prevCodeLeaf()
                                 ?.nextLeaf()
-                                ?.let { before ->
-                                    before.treeParent.addChild(LeafPsiElement(COMMA, ","), before)
-                                }
+                                ?.let { before -> before.treeParent.addChild(LeafPsiElement(COMMA, ","), before) }
                         }
                     }
                 }

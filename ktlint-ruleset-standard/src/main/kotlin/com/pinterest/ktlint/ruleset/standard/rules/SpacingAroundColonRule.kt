@@ -97,17 +97,13 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                                     } else {
                                         it
                                     }
-                                }.forEach {
-                                    blockElement.addChild(it, before)
-                                }
+                                }.forEach { blockElement.addChild(it, before) }
                         }
                     }
 
                     prevLeaf.prevLeaf()?.isPartOfComment() == true -> {
                         val nextLeaf = node.nextLeaf()
-                        prevNonCodeElements.forEach {
-                            node.treeParent.addChild(it, nextLeaf)
-                        }
+                        prevNonCodeElements.forEach { node.treeParent.addChild(it, nextLeaf) }
                         if (nextLeaf != null && nextLeaf.isWhiteSpace()) {
                             node.treeParent.removeChild(nextLeaf)
                         }
@@ -137,9 +133,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
             if (autoCorrect) {
                 node
                     .prevSibling()
-                    ?.let { prevSibling ->
-                        prevSibling.treeParent.removeChild(prevSibling)
-                    }
+                    ?.let { prevSibling -> prevSibling.treeParent.removeChild(prevSibling) }
             }
         }
         if (node.nextSibling().isWhiteSpaceWithoutNewline() && node.spacingAfter) {
@@ -147,9 +141,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
             if (autoCorrect) {
                 node
                     .nextSibling()
-                    ?.let { nextSibling ->
-                        nextSibling.treeParent.removeChild(nextSibling)
-                    }
+                    ?.let { nextSibling -> nextSibling.treeParent.removeChild(nextSibling) }
             }
         }
     }

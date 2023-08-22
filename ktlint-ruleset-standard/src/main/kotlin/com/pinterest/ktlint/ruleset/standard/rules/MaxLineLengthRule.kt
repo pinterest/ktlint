@@ -99,9 +99,7 @@ public class MaxLineLengthRule :
         } else if (!rangeTree.isEmpty() && node.psi is LeafPsiElement) {
             rangeTree
                 .query(node.startOffset, node.startOffset + node.textLength)
-                .forEach { offset ->
-                    emit(offset, "Exceeded max line length ($maxLineLength)", false)
-                }
+                .forEach { offset -> emit(offset, "Exceeded max line length ($maxLineLength)", false) }
         }
     }
 

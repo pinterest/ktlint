@@ -67,28 +67,20 @@ public class HtmlReporter(
                 if (!acc.isEmpty()) {
                     h1 { text("Overview") }
 
-                    paragraph {
-                        text("Issues found: $issueCount")
-                    }
+                    paragraph { text("Issues found: $issueCount") }
 
-                    paragraph {
-                        text("Issues corrected: $correctedCount")
-                    }
+                    paragraph { text("Issues corrected: $correctedCount") }
 
                     acc.forEach { (file: String, ktlintCliErrors: MutableList<KtlintCliError>) ->
                         h3 { text(file) }
                         ul {
                             ktlintCliErrors.forEach { err ->
-                                with(err) {
-                                    item("($line, $col): $detail  ($ruleId)")
-                                }
+                                with(err) { item("($line, $col): $detail  ($ruleId)") }
                             }
                         }
                     }
                 } else {
-                    paragraph {
-                        text("Congratulations, no issues found!")
-                    }
+                    paragraph { text("Congratulations, no issues found!") }
                 }
             }
         }

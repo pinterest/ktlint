@@ -36,10 +36,10 @@ internal class RuleProviderSorter {
             .also { previousValue ->
                 if (previousValue == null) {
                     // Logging was not printed for this combination of rule providers as no entry was found in the cache
-                    sortedRuleProviders
-                        .joinToString(prefix = "Rules will be executed in order below:") {
-                            "\n           - ${it.ruleId.value}"
-                        }.also { LOGGER.debug { it } }
+                    LOGGER.debug {
+                        sortedRuleProviders
+                            .joinToString(prefix = "Rules will be executed in order below:") { "\n           - ${it.ruleId.value}" }
+                    }
                 }
             }
     }
@@ -54,9 +54,7 @@ internal class RuleProviderSorter {
             .hashCode()
 
     private fun Set<RuleProvider>.sort(): List<RuleProvider> {
-        forEach { ruleProvider ->
-            ruleProvider.hasNoVisitorModifierReferringToSelf()
-        }
+        forEach { ruleProvider -> ruleProvider.hasNoVisitorModifierReferringToSelf() }
 
         val ruleIdsToBeSorted = map { it.ruleId }.toSet()
         val unprocessedRuleProviders =

@@ -102,9 +102,7 @@ class CommandLineTestRunner(
 
     private fun prepareTestProject(testProjectName: String): Path {
         val testProjectPath = TEST_PROJECTS_PATHS.resolve(testProjectName)
-        assert(Files.exists(testProjectPath)) {
-            "Test project $testProjectName does not exist!"
-        }
+        require(Files.exists(testProjectPath)) { "Test project $testProjectName does not exist!" }
 
         return tempDir.resolve(testProjectName).also { testProjectPath.copyRecursively(it) }
     }
@@ -181,14 +179,14 @@ class CommandLineTestRunner(
     private fun ProcessBuilder.prependPathWithJavaBinHome() {
         val environment = environment()
         val pathKey =
-            when {
-                isWindows() -> {
-                    // On Windows, environment keys are case-insensitive, which is not handled by the JVM
-                    environment.keys.firstOrNull { key ->
-                        key.equals(PATH, ignoreCase = true)
-                    } ?: PATH
-                }
-                else -> PATH
+            if (isWindows()) {
+                // On Windows, environment keys are case-insensitive, which is not handled by the JVM
+                environment
+                    .keys
+                    .firstOrNull { key -> key.equals(PATH, ignoreCase = true) }
+                    ?: PATH
+            } else {
+                PATH
             }
         environment[pathKey] = "$JAVA_HOME_BIN_DIR${File.pathSeparator}${OsEnvironment()[PATH]}"
     }
@@ -293,30 +291,16 @@ private fun String.followedByIndentedList(
 ): String =
     lines
         .ifEmpty { listOf("<empty>") }
-        .joinToString(prefix = "$this\n", separator = "\n") {
-            "    ".repeat(indentLevel).plus(it)
-        }
+        .joinToString(prefix = "$this\n", separator = "\n") { "    ".repeat(indentLevel).plus(it) }
 
 @Suppress("unused")
-internal fun ListAssert<String>.containsLineMatching(string: String): ListAssert<String> =
-    this.anyMatch {
-        it.contains(string)
-    }
+internal fun ListAssert<String>.containsLineMatching(string: String): ListAssert<String> = this.anyMatch { it.contains(string) }
 
 @Suppress("unused")
-internal fun ListAssert<String>.containsLineMatching(regex: Regex): ListAssert<String> =
-    this.anyMatch {
-        it.matches(regex)
-    }
+internal fun ListAssert<String>.containsLineMatching(regex: Regex): ListAssert<String> = this.anyMatch { it.matches(regex) }
 
 @Suppress("unused")
-internal fun ListAssert<String>.doesNotContainLineMatching(string: String): ListAssert<String> =
-    this.noneMatch {
-        it.contains(string)
-    }
+internal fun ListAssert<String>.doesNotContainLineMatching(string: String): ListAssert<String> = this.noneMatch { it.contains(string) }
 
 @Suppress("unused")
-internal fun ListAssert<String>.doesNotContainLineMatching(regex: Regex): ListAssert<String> =
-    this.noneMatch {
-        it.matches(regex)
-    }
+internal fun ListAssert<String>.doesNotContainLineMatching(regex: Regex): ListAssert<String> = this.noneMatch { it.matches(regex) }

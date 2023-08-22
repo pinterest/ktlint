@@ -34,9 +34,7 @@ public class NoBlankLineInListRule :
             .treeParent
             .elementType
             .takeIf { it in LIST_TYPES }
-            ?.let { treeParentElementType ->
-                visitWhiteSpace(node, emit, autoCorrect, treeParentElementType)
-            }
+            ?.let { treeParentElementType -> visitWhiteSpace(node, emit, autoCorrect, treeParentElementType) }
 
         // Note: depending on the implementation of the list type in the Kotlin language, the whitespace before the first and after the last
         // element in the list might be or not be part of the list.

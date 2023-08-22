@@ -11,16 +11,14 @@ import org.junit.jupiter.params.provider.ValueSource
 class ImportLayoutParserTest {
     @Test
     fun `blank lines in the beginning and end of import list are not allowed`() {
-        assertThatThrownBy {
-            parseImportsLayout("|,*,|")
-        }.isInstanceOf(IllegalArgumentException::class.java)
+        assertThatThrownBy { parseImportsLayout("|,*,|") }
+            .isInstanceOf(IllegalArgumentException::class.java)
     }
 
     @Test
     fun `pattern without single wildcard is not allowed`() {
-        assertThatThrownBy {
-            parseImportsLayout("java.util.List.*")
-        }.isInstanceOf(IllegalArgumentException::class.java)
+        assertThatThrownBy { parseImportsLayout("java.util.List.*") }
+            .isInstanceOf(IllegalArgumentException::class.java)
     }
 
     @ParameterizedTest(name = "Imports layout: {0}")

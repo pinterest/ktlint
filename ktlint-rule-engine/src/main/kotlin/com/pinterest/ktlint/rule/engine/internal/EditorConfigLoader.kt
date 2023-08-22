@@ -79,12 +79,9 @@ internal class EditorConfigLoader(
                 }
                 editorConfigOverride
                     .properties
-                    .forEach {
-                        properties[it.key.name] = it.key.toPropertyWithValue(it.value)
-                    }
-            }.also { properties ->
-                LOGGER.debug { properties.prettyPrint(filePath) }
-            }.let { properties ->
+                    .forEach { properties[it.key.name] = it.key.toPropertyWithValue(it.value) }
+            }.also { properties -> LOGGER.debug { properties.prettyPrint(filePath) } }
+            .let { properties ->
                 // Only add properties which are not related to rules but which are needed by the KtLint Rule Engine
                 EditorConfig(properties)
                     .addPropertiesWithDefaultValueIfMissing(
@@ -147,9 +144,8 @@ internal class EditorConfigLoader(
         .keepUnset(true)
         .cache(THREAD_SAFE_EDITOR_CONFIG_CACHE)
         .loader(editorConfigLoader)
-        .applyIf(editorConfigDefaults != EMPTY_EDITOR_CONFIG_DEFAULTS) {
-            defaultEditorConfigs(editorConfigDefaults.value)
-        }.build()
+        .applyIf(editorConfigDefaults != EMPTY_EDITOR_CONFIG_DEFAULTS) { defaultEditorConfigs(editorConfigDefaults.value) }
+        .build()
 
     companion object {
         /**
@@ -184,7 +180,6 @@ internal class EditorConfigLoaderEc4j(
         PropertyTypeRegistry
             .builder()
             .defaults()
-            .apply {
-                propertyTypes.forEach { type(it) }
-            }.build()
+            .apply { propertyTypes.forEach { type(it) } }
+            .build()
 }

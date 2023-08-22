@@ -105,9 +105,7 @@ public class SarifReporter(
                                         ),
                                 ),
                             originalURIBaseIDS =
-                                workingDirectory?.let {
-                                    mapOf(SRCROOT to ArtifactLocation(uri = "file://${it.path.sanitize()}"))
-                                },
+                                workingDirectory?.let { mapOf(SRCROOT to ArtifactLocation(uri = "file://${it.path.sanitize()}")) },
                             results = results,
                         ),
                     ),
