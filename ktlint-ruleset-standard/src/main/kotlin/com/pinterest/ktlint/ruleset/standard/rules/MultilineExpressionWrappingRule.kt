@@ -13,6 +13,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.EQ
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IF
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IS_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.MUL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.POSTFIX_EXPRESSION
@@ -74,6 +75,7 @@ public class MultilineExpressionWrappingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.elementType in CHAINABLE_EXPRESSION &&
+            !node.isPartOfSpreadOperatorExpression() &&
             (node.treeParent.elementType !in CHAINABLE_EXPRESSION || node.isRightHandSideOfBinaryExpression())
         ) {
             visitExpression(node, emit, autoCorrect)
@@ -84,6 +86,10 @@ public class MultilineExpressionWrappingRule :
             visitExpression(node, emit, autoCorrect)
         }
     }
+
+    private fun ASTNode.isPartOfSpreadOperatorExpression() =
+        prevCodeLeaf()?.elementType == MUL &&
+            treeParent.elementType == VALUE_ARGUMENT
 
     private fun visitExpression(
         node: ASTNode,

@@ -49,7 +49,8 @@ Class "org.jetbrains.kotlin.com.intellij.treeCopyHandler" is no longer registere
 * Do not wrap a single line enum class `statement-wrapping` [#2177](https://github.com/pinterest/ktlint/issues/2177)
 * Fix alignment of type constraints after `where` keyword in function signature `indent` [#2175](https://github.com/pinterest/ktlint/issues/2175)
 * Fix wrapping of multiline postfix expression `multiline-expression-wrapping` [#2183](https://github.com/pinterest/ktlint/issues/2183)
-* Remove registration of class "org.jetbrains.kotlin.com.intellij.treeCopyHandler" as extension point for the compiler as this is not supported in the embedded Kotlin compiler version 1.9. Also remove Ktlint CLI command line flag `disable-kotlin-extension-point`, and parameter `enableKotlinCompilerExtensionPoint` from `KtLintRuleEngine` to disable the kotlin extension point  [#2061](https://github.com/pinterest/ktlint/issues/2061)
+* Remove registration of class "org.jetbrains.kotlin.com.intellij.treeCopyHandler" as extension point for the compiler as this is not supported in the embedded Kotlin compiler version 1.9. Also remove Ktlint CLI command line flag `disable-kotlin-extension-point`, and parameter `enableKotlinCompilerExtensionPoint` from `KtLintRuleEngine` to disable the kotlin extension point [#2061](https://github.com/pinterest/ktlint/issues/2061)
+* Do not wrap expression after a spread operator `multiline-expression-wrapping` [#2188](https://github.com/pinterest/ktlint/issues/2188)
 
 ### Changed
 
