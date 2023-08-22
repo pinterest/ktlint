@@ -4,15 +4,14 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProper
 import org.ec4j.core.model.PropertyType.PropertyValue
 
 /**
- * The [EditorConfigOverride] allows to add or replace properties which are loaded from the ".editorconfig" file. It
- * serves two purposes.
+ * The [EditorConfigOverride] allows to add or replace properties which are loaded from the ".editorconfig" file. It serves two purposes.
  *
- * Firstly, the [EditorConfigOverride] can be used by API consumers to run a rule with values which are not actually
- * save to the ".editorconfig" file. When doing so, this should be clearly communicated to their consumers who will
- * expect the settings in that file to be respected.
+ * Firstly, the [EditorConfigOverride] can be used by API consumers to run a rule with values which are not actually saved to the
+ * ".editorconfig" file. When doing so, this should be clearly communicated to their consumers who will expect the settings in that file to
+ * be respected.
  *
- * Secondly, the [EditorConfigOverride] is used in unit tests, to test a rule with distinct values of a property without
- * having to access an ".editorconfig" file from physical storage. This also improves readability of the tests.
+ * Secondly, the [EditorConfigOverride] is used in unit tests, to test a rule with distinct values of a property without having to access an
+ * ".editorconfig" file from physical storage. This also improves readability of the tests.
  */
 public class EditorConfigOverride {
     private val _properties = mutableMapOf<EditorConfigProperty<*>, PropertyValue<*>>()

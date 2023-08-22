@@ -1,18 +1,28 @@
 package com.example.ktlint.api.consumer
 
 import com.example.ktlint.api.consumer.rules.KTLINT_API_CONSUMER_RULE_PROVIDERS
+import com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
+import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.plus
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
+import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.io.File
+import java.net.URL
+import java.net.URLClassLoader
 import java.nio.file.Paths
+import java.util.ServiceConfigurationError
+import java.util.ServiceLoader
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -22,19 +32,38 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
  * needs.
  */
 public fun main() {
+    // RuleProviders can be supplied by a custom rule provider of the API Consumer itself. This custom rule provider by definition can only
+    // provide rules that are available at compile time. But it is also possible to provide rules from jars that are loaded on runtime.
+    val ruleProviders = KTLINT_API_CONSUMER_RULE_PROVIDERS.plus(runtimeLoadedRuleProviders)
+
+    // Providing rule dependencies at compile time has the advantage that properties defined in those rules can be used to build the
+    // EditorConfigOverride using static types. However, providing the rule dependencies at runtime can offer flexibility to the API
+    // Consumer. It comes with the cost that the EditorConfigOverride can not be build with static types.
+    val editorConfigOverride =
+        EditorConfigOverride
+            .from(
+                // Property types provided by ktlint-rule-engine-core
+                INDENT_STYLE_PROPERTY to IndentConfig.IndentStyle.SPACE,
+                INDENT_SIZE_PROPERTY to 4,
+                EXPERIMENTAL_RULES_EXECUTION_PROPERTY to RuleExecution.enabled,
+                // Properties defines in the ktlint-ruleset-standard can only be used statically when that dependency is provided at compile
+                // time.
+                // FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to always
+            ).plus(
+                // For properties that are defined in rules for which the dependency is provided at runtime only, the property name can be
+                // provided as String and the value as Any type.
+                ruleProviders.findEditorConfigProperty("ktlint_function_signature_body_expression_wrapping") to "alwaysx",
+            )
+
     // The KtLint RuleEngine only needs to be instantiated once and can be reused in multiple invocations
-    val ktLintRuleEngine =
+    val apiConsumerKtLintRuleEngine =
         KtLintRuleEngine(
-            ruleProviders = KTLINT_API_CONSUMER_RULE_PROVIDERS,
-            editorConfigOverride =
-                EditorConfigOverride.from(
-                    INDENT_STYLE_PROPERTY to IndentConfig.IndentStyle.SPACE,
-                    INDENT_SIZE_PROPERTY to 4,
-                ),
+            ruleProviders = ruleProviders,
+            editorConfigOverride = editorConfigOverride,
             editorConfigDefaults =
                 EditorConfigDefaults.load(
                     path = Paths.get("/some/path/to/editorconfig/file/or/directory"),
-                    propertyTypes = KTLINT_API_CONSUMER_RULE_PROVIDERS.propertyTypes(),
+                    propertyTypes = ruleProviders.propertyTypes(),
                 ),
         )
 
@@ -55,7 +84,7 @@ public fun main() {
         ---
         """.trimIndent()
     }
-    ktLintRuleEngine
+    apiConsumerKtLintRuleEngine
         .lint(codeFile) {
             LOGGER.info { "LintViolation reported by KtLint: $it" }
         }
@@ -68,7 +97,7 @@ public fun main() {
         ---
         """.trimIndent()
     }
-    ktLintRuleEngine
+    apiConsumerKtLintRuleEngine
         .format(codeFile)
         .also {
             LOGGER.info { "Code formatted by KtLint:\n$it" }
@@ -83,3 +112,41 @@ public fun main() {
         """.trimIndent()
     }
 }
+
+private val runtimeLoadedRuleProviders =
+    try {
+        ServiceLoader
+            .load(
+                RuleSetProviderV3::class.java,
+                URLClassLoader(emptyArray<URL?>()),
+            ).flatMap { it.getRuleProviders() }
+            .toSet()
+    } catch (e: ServiceConfigurationError) {
+        LOGGER.warn { "Error while loading the rulesets:\n${e.printStackTrace()}" }
+        emptySet()
+    }
+
+/**
+ * Finds the first [EditorConfigProperty] with name [propertyName] used by any of the [RuleProvider]s.
+ */
+private fun Set<RuleProvider>.findEditorConfigProperty(propertyName: String): EditorConfigProperty<*> {
+    val properties =
+        map { it.createNewRuleInstance() }
+            .flatMap { it.usesEditorConfigProperties }
+            .distinct()
+    return properties
+        .find { it.type.name == propertyName }
+        ?: throw EditorConfigPropertyNotFoundException(
+            properties
+                .map { it.type.name }
+                .sorted()
+                .joinToString(
+                    prefix = "Property with name '$propertyName' is not found in any of given rules. Available properties:\n\t",
+                    separator = "\n\t",
+                ) { "- $it" },
+        )
+}
+
+public class EditorConfigPropertyNotFoundException(
+    message: String,
+) : RuntimeException(message)
