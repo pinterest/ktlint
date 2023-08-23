@@ -23,4 +23,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Print changelog
-        run: echo ${{steps.build_changelog.outputs.changelog}}
+        run: echo -e "${{ steps.build_changelog.outputs.changelog }}"
