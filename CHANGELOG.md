@@ -4,6 +4,23 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+IMPORTANT: Maven coordinates have been changed for some module. Be sure to update them, to get latest changes!
+
+| Old Maven coordinates                              | New Maven coordinates                                  |
+|----------------------------------------------------|--------------------------------------------------------|
+| com.pinterest.ktlint                               | com.pinterest.ktlint.ktlint-cli                        |
+| com.pinterest.ktlint.ktlint-reporter-baseline      | com.pinterest.ktlint.ktlint-cli-reporter-baseline      |
+| com.pinterest.ktlint.ktlint-reporter-checkstyle    | com.pinterest.ktlint.ktlint-cli-reporter-checkstyle    |
+| com.pinterest.ktlint.ktlint-cli-reporter           | com.pinterest.ktlint.ktlint-cli-reporter-core          |
+| com.pinterest.ktlint.ktlint-reporter-format        | com.pinterest.ktlint.ktlint-cli-reporter-format        |
+| com.pinterest.ktlint.ktlint-reporter-html          | com.pinterest.ktlint.ktlint-cli-reporter-html          |
+| com.pinterest.ktlint.ktlint-reporter-json          | com.pinterest.ktlint.ktlint-cli-reporter-json          |
+| com.pinterest.ktlint.ktlint-reporter-plain         | com.pinterest.ktlint.ktlint-cli-reporter-plain         |
+| com.pinterest.ktlint.ktlint-reporter-plain-summary | com.pinterest.ktlint.ktlint-cli-reporter-plain-summary |
+| com.pinterest.ktlint.ktlint-reporter-sarif         | com.pinterest.ktlint.ktlint-cli-reporter-sarif         |
+| com.pinterest.ktlint.                              | com.pinterest.ktlint.                                  |
+| com.pinterest.ktlint.                              | com.pinterest.ktlint.                                  |
+
 ### API changes
 
 * As a part of public API stabilization, data classes are no longer used in the public API. As of that, functions like `copy()` or `componentN()` (used for destructuring declarations) are not available anymore. This is a binary incompatible change, breaking backwards compatibility. ([#2133](https://github.com/pinterest/ktlint/issues/2133))
@@ -63,6 +80,7 @@ Class "org.jetbrains.kotlin.com.intellij.treeCopyHandler" is no longer registere
 * Build the project with Java 20, run test on Java 8, 11, 17 and 20 ([#1888](https://github.com/pinterest/ktlint/issues/1888))
 * Update dependency `io.github.oshai:kotlin-logging-jvm` to `v5.1.0` ([#2174](https://github.com/pinterest/ktlint/pull/2174))
 * Update kotlin monorepo to v1.9.10 [#2197](https://github.com/pinterest/ktlint/issues/2197)
+* Update integrations doc with TCA [#2191](https://github.com/pinterest/ktlint/pull/2191)
 
 ## [0.50.0] - 2023-06-29
 

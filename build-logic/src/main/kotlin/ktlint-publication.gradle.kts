@@ -15,14 +15,11 @@ project.version =
     } else {
         definedVersion
     }
-// TODO: Remove `localGradleProperty` once https://github.com/gradle/gradle/issues/23572 or https://github.com/pinterest/ktlint/issues/1931 is fixed.
-project.group = localGradleProperty("GROUP").orNull ?: providers.gradleProperty("GROUP").orNull
-    ?: throw GradleException("Project group property is missing")
 
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            groupId = group.toString()
+            groupId = localGradleProperty("POM_GROUP_ID").get()
             version = version.toString()
             artifactId = localGradleProperty("POM_ARTIFACT_ID").get()
 
