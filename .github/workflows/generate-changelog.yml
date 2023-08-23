@@ -22,7 +22,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Print changelog
-        env:
-          CHANGELOG: ${{ steps.build_changelog.outputs.changelog }}
-        run: echo -e "$CHANGELOG"
+      - run: |
+          echo "==== test 1 ===="
+          echo -e "${{ steps.build_changelog.outputs.changelog }}"
+          echo "==== test 2 ===="
+          echo -e ${{ steps.build_changelog.outputs.changelog }}
+          echo "==== test 3 ===="
+          echo ${{ steps.build_changelog.outputs.changelog }}
