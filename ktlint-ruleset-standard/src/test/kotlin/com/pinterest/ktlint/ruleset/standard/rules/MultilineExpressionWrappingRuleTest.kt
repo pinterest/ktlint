@@ -803,4 +803,31 @@ class MultilineExpressionWrappingRuleTest {
             .hasLintViolation(1, 14, "A multiline expression should start on a new line")
             .isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Issue 2188 - Given a multiline prefix expression then reformat but do not wrap after prefix operator`() {
+        val code =
+            """
+            val bar = bar(
+                *foo(
+                    "a",
+                    "b"
+                )
+            )
+            """.trimIndent()
+        val formattedCode =
+            """
+            val bar =
+                bar(
+                    *foo(
+                        "a",
+                        "b"
+                    )
+                )
+            """.trimIndent()
+        multilineExpressionWrappingRuleAssertThat(code)
+            .addAdditionalRuleProvider { IndentationRule() }
+            .hasLintViolation(1, 11, "A multiline expression should start on a new line")
+            .isFormattedAs(formattedCode)
+    }
 }

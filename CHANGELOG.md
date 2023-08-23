@@ -49,19 +49,20 @@ Class "org.jetbrains.kotlin.com.intellij.treeCopyHandler" is no longer registere
 * Do not wrap a single line enum class `statement-wrapping` [#2177](https://github.com/pinterest/ktlint/issues/2177)
 * Fix alignment of type constraints after `where` keyword in function signature `indent` [#2175](https://github.com/pinterest/ktlint/issues/2175)
 * Fix wrapping of multiline postfix expression `multiline-expression-wrapping` [#2183](https://github.com/pinterest/ktlint/issues/2183)
-* Remove registration of class "org.jetbrains.kotlin.com.intellij.treeCopyHandler" as extension point for the compiler as this is not supported in the embedded Kotlin compiler version 1.9. Also remove Ktlint CLI command line flag `disable-kotlin-extension-point`, and parameter `enableKotlinCompilerExtensionPoint` from `KtLintRuleEngine` to disable the kotlin extension point  [#2061](https://github.com/pinterest/ktlint/issues/2061)
+* Remove registration of class "org.jetbrains.kotlin.com.intellij.treeCopyHandler" as extension point for the compiler as this is not supported in the embedded Kotlin compiler version 1.9. Also remove Ktlint CLI command line flag `disable-kotlin-extension-point`, and parameter `enableKotlinCompilerExtensionPoint` from `KtLintRuleEngine` to disable the kotlin extension point [#2061](https://github.com/pinterest/ktlint/issues/2061)
+* Do not wrap expression after a spread operator `multiline-expression-wrapping` [#2188](https://github.com/pinterest/ktlint/issues/2188)
 
 ### Changed
 
 * Change default code style to `ktlint_official` ([#2143](https://github.com/pinterest/ktlint/pull/2143))
-* Update dependency `gradle` to `v8.2.1` ([#2122](https://github.com/pinterest/ktlint/pull/2122))
+* Update dependency `gradle` to `v8.3` ([#2186](https://github.com/pinterest/ktlint/pull/2186))
 * Update dependency `org.codehaus.janino:janino` to `v3.1.10`  ([#2110](https://github.com/pinterest/ktlint/pull/2110))
 * Update dependency `com.google.jimfs:jimfs` to `v1.3.0` ([#2112](https://github.com/pinterest/ktlint/pull/2112))
 * As a part of public API stabilization, configure `binary-compatibility-validator` plugin for compile-time verification of binary compatibility with previous `ktlint` versions ([#2131](https://github.com/pinterest/ktlint/pull/2131))
 * Update dependency `org.junit.jupiter:junit-jupiter` to `v5.10.0` ([#2148](https://github.com/pinterest/ktlint/pull/2148))
 * Build the project with Java 20, run test on Java 8, 11, 17 and 20 ([#1888](https://github.com/pinterest/ktlint/issues/1888))
 * Update dependency `io.github.oshai:kotlin-logging-jvm` to `v5.1.0` ([#2174](https://github.com/pinterest/ktlint/pull/2174))
-* Update kotlin monorepo to v1.9.0 [#2113](https://github.com/pinterest/ktlint/issues/2113)
+* Update kotlin monorepo to v1.9.10 [#2197](https://github.com/pinterest/ktlint/issues/2197)
 
 ## [0.50.0] - 2023-06-29
 
