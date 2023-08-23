@@ -19,7 +19,7 @@ project.version =
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            groupId = "com.pinterest.ktlint"
+            groupId = localGradleProperty("POM_GROUP_ID").get()
             version = version.toString()
             artifactId = localGradleProperty("POM_ARTIFACT_ID").get()
 
