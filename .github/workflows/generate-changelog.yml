@@ -1,11 +1,11 @@
-name: Snapshot Publish
+name: Generate changelog
 
-on: [ push, pull_request, workflow_dispatch ]
+on: [ workflow_dispatch ]
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-#    if: github.repository == 'pinterest/ktlint'
+    if: github.repository == 'pinterest/ktlint'
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-java@v3
