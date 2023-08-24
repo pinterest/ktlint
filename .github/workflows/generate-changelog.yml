@@ -19,13 +19,22 @@ jobs:
       - name: "Build Changelog"
         id: build_changelog
         uses: mikepenz/release-changelog-builder-action@v3
+        with:
+          fromTag: "0.49.0"
+          toTag: "0.50.0"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - run: |
           echo "==== test 1 ===="
-          echo -e "${{ steps.build_changelog.outputs.changelog }}" >> $GITHUB_OUTPUT
+          echo -e "${{ steps.build_changelog.outputs.changelog }}"
           echo "==== test 2 ===="
-          echo -e ${{ steps.build_changelog.outputs.changelog }} >> $GITHUB_OUTPUT
+          echo -e ${{ steps.build_changelog.outputs.changelog }}
           echo "==== test 3 ===="
-          echo ${{ steps.build_changelog.outputs.changelog }} >> $GITHUB_OUTPUT
+          echo ${{ steps.build_changelog.outputs.changelog }}
+          echo "==== test 4 ===="
+          echo ${{ steps.build_changelog.outputs.failed }}
+          echo "==== test 5 ===="
+          echo ${{ steps.build_changelog.outputs.pull_requests }}
+          echo "==== test 6 ===="
+          echo ${{ steps.build_changelog.outputs.pull_requests }}
