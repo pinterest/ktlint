@@ -24,8 +24,8 @@ jobs:
 
       - run: |
           echo "==== test 1 ===="
-          echo -e "${{ steps.build_changelog.outputs.changelog }}"
+          echo -e "${{ steps.build_changelog.outputs.changelog }}" >> $GITHUB_OUTPUT
           echo "==== test 2 ===="
-          echo -e ${{ steps.build_changelog.outputs.changelog }}
+          echo -e ${{ steps.build_changelog.outputs.changelog }} >> $GITHUB_OUTPUT
           echo "==== test 3 ===="
-          echo ${{ steps.build_changelog.outputs.changelog }}
+          echo ${{ steps.build_changelog.outputs.changelog }} >> $GITHUB_OUTPUT
