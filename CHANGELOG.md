@@ -79,7 +79,7 @@ Class "org.jetbrains.kotlin.com.intellij.treeCopyHandler" is no longer registere
 * Update dependency `org.junit.jupiter:junit-jupiter` to `v5.10.0` ([#2148](https://github.com/pinterest/ktlint/pull/2148))
 * Build the project with Java 20, run test on Java 8, 11, 17 and 20 ([#1888](https://github.com/pinterest/ktlint/issues/1888))
 * Update dependency `io.github.oshai:kotlin-logging-jvm` to `v5.1.0` ([#2174](https://github.com/pinterest/ktlint/pull/2174))
-* Update kotlin monorepo to v1.9.0 [#2113](https://github.com/pinterest/ktlint/issues/2113)
+* Update kotlin monorepo to v1.9.10 [#2197](https://github.com/pinterest/ktlint/issues/2197)
 * Update integrations doc with TCA [#2191](https://github.com/pinterest/ktlint/pull/2191)
 
 ## [0.50.0] - 2023-06-29
