@@ -9,12 +9,16 @@ import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.plus
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
+import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleSetExecutionEditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.io.File
@@ -49,10 +53,11 @@ public fun main() {
                 // Properties defines in the ktlint-ruleset-standard can only be used statically when that dependency is provided at compile
                 // time.
                 // FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to always
-            ).plus(
                 // For properties that are defined in rules for which the dependency is provided at runtime only, the property name can be
                 // provided as String and the value as Any type. In case the property value is invalid, the KtlintRuleEngine logs a warning.
                 ruleProviders.findEditorConfigProperty("ktlint_function_signature_body_expression_wrapping") to "alwaysx",
+                RuleId("standard:function-signature").createRuleExecutionEditorConfigProperty() to RuleExecution.disabled,
+                RuleSetId("some-custom-ruleset").createRuleSetExecutionEditorConfigProperty() to RuleExecution.enabled,
                 // In case an unknown property would be provided, an exception is thrown by the helper method
                 // ruleProviders.findEditorConfigProperty("unknown_property") to "some-value",
             )
@@ -132,12 +137,8 @@ private val runtimeLoadedRuleProviders =
  * Finds the first [EditorConfigProperty] with name [propertyName] used by any of the [RuleProvider]s.
  */
 private fun Set<RuleProvider>.findEditorConfigProperty(propertyName: String): EditorConfigProperty<*> {
-    val properties =
-        map { it.createNewRuleInstance() }
-            .flatMap { it.usesEditorConfigProperties }
-            .distinct()
-    return properties
-        .find { it.type.name == propertyName }
+    val properties = editorConfigProperties()
+    return properties.findProperty(propertyName)
         ?: throw EditorConfigPropertyNotFoundException(
             properties
                 .map { it.type.name }
@@ -145,9 +146,18 @@ private fun Set<RuleProvider>.findEditorConfigProperty(propertyName: String): Ed
                 .joinToString(
                     prefix = "Property with name '$propertyName' is not found in any of given rules. Available properties:\n\t",
                     separator = "\n\t",
+                    postfix = "Next to properties above, the properties to enable or disable rules are allowed as well."
                 ) { "- $it" },
         )
 }
+
+private fun Set<RuleProvider>.editorConfigProperties() =
+    map { it.createNewRuleInstance() }
+        .flatMap { it.usesEditorConfigProperties }
+        .distinct()
+
+private fun List<EditorConfigProperty<*>>.findProperty(propertyName: String): EditorConfigProperty<*>? =
+    find { it.type.name == propertyName }
 
 public class EditorConfigPropertyNotFoundException(
     message: String,
