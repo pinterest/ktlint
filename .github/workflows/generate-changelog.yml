@@ -31,7 +31,7 @@ jobs:
           toTag: "HEAD"
           configurationJson: |
             {
-              "template": "## Unreleased\n\n${{CHANGELOG}}",
+              "template": "## Unreleased\n\n#{{CHANGELOG}}",
               "categories": [
                 {
                   "title": "### 🚀 API Changes",
