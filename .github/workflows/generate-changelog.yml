@@ -33,29 +33,34 @@ jobs:
             {
               "categories": [
                 {
+                  "title": "### 🚀 API Changes",
+                  "labels": ["api changelog"]
+                },
+                {
                   "title": "### 🚀 Features",
-                  "labels": ["feature"],
+                  "labels": ["feature changelog"],
                   "empty_content": "None"
                 },
                 {
                   "title": "### 🐛 Fixes",
-                  "labels": ["fix"],
+                  "labels": ["fix changelog"],
                   "empty_content": "None"
                 },
                 {
                   "title": "### 📦 Dependencies",
-                  "labels": ["dependency"]
+                  "labels": ["dependency changelog"]
                 },
                 {
                   "title": "### 💬 Other",
-                  "labels": []
+                  "labels": [],
+                  "exclude_labels": ["documentation", "exclude from changelog"]
                 }
               ],
               "sort": {
                 "order": "ASC",
                 "on_property": "mergedAt"
               },
-              "template": "${{CHANGELOG}}",
+              "template": "## Unreleased\n\n${{CHANGELOG}}",
               "pr_template": "* ${{TITLE}}\n  PR [#${{NUMBER}}](${{URL}}), by @${{AUTHOR}}",
               "empty_template": "- no changes",
               "label_extractor": [
@@ -63,7 +68,7 @@ jobs:
                   "pattern": "renovate\\[bot\\]",
                   "on_property": "author",
                   "method": "replace",
-                  "target": "dependency"
+                  "target": "dependency changelog"
                 }
               ],
               "max_pull_requests": 1000,
