@@ -146,7 +146,7 @@ private fun Set<RuleProvider>.findEditorConfigProperty(propertyName: String): Ed
                 .joinToString(
                     prefix = "Property with name '$propertyName' is not found in any of given rules. Available properties:\n\t",
                     separator = "\n\t",
-                    postfix = "Next to properties above, the properties to enable or disable rules are allowed as well."
+                    postfix = "Next to properties above, the properties to enable or disable rules are allowed as well.",
                 ) { "- $it" },
         )
 }
