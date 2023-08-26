@@ -52,6 +52,12 @@ jobs:
                 {
                   "title": "### 📦 Dependencies",
                   "labels": ["dependency changelog"]
+                  "rules": [
+                    {
+                      "pattern": "renovate\\[bot\\]",
+                      "on_property": "author"
+                    }
+                  ]
                 },
                 {
                   "title": "### 💬 Other",
@@ -65,14 +71,6 @@ jobs:
                 "order": "ASC",
                 "on_property": "mergedAt"
               },
-              "label_extractor": [
-                {
-                  "pattern": "renovate\\[bot\\]",
-                  "on_property": "author",
-                  "method": "replace",
-                  "target": "dependency changelog"
-                }
-              ],
               "max_pull_requests": 1000,
               "max_back_track_time_days": 1000
             }
