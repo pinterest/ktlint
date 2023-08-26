@@ -81,4 +81,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - run: echo -e "${{ steps.build_changelog.outputs.changelog }}"
+      - name: Echo generated changelog
+        env:
+          CHANGELOG: ${{ steps.build_changelog.outputs.changelog }}
+        run: echo -e "$CHANGELOG"
