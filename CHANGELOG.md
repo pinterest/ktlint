@@ -45,6 +45,7 @@ Class "org.jetbrains.kotlin.com.intellij.treeCopyHandler" is no longer registere
 * Add experimental rule `function-expression-body`. This rule rewrites function bodies only contain a `return` or `throw` expression to an expression body. [#2150](https://github.com/pinterest/ktlint/issues/2150)
 * Add new experimental rule `statement-wrapping` which ensures function, class, or other blocks statement body doesn't start or end at starting or ending braces of the block ([#1938](https://github.com/pinterest/ktlint/issues/1938)). This rule was added in `0.50` release, but was never executed outside the unit tests. The rule is now added to the `StandardRuleSetProvider` ([#2170](https://github.com/pinterest/ktlint/issues/2170))
 * Add experimental rule `chain-method-continuation` to the `ktlint_official` code style, but it can be enabled explicitly for the other code styles as well. This rule requires the operators (`.` or `?.`) for chaining method calls, to be aligned with each other. This rule is enabled by ([#1953](https://github.com/pinterest/ktlint/issues/1953))
+* Add experimental rule `function-type-modifier-spacing`. This rule enforces a single whitespace between the modifier list and the function type. [#2202](https://github.com/pinterest/ktlint/issues/2202)
 
 ### Removed
 

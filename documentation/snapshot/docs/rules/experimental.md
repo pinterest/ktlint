@@ -850,6 +850,26 @@ Rule id: `no-single-line-block-comment` (`standard` rule set)
 
 ## Spacing
 
+### Function type modifier spacing
+
+Enforce a single whitespace between the modifier list and the function type.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val foo: suspend () -> Unit = {}
+    suspend fun bar(baz: suspend () -> Unit) = baz()
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val foo: suspend() -> Unit = {}
+    suspend fun bar(baz: suspend   () -> Unit) = baz()
+    ```
+
+Rule id: `function-type-modifier-spacing` (`standard` rule set)
+
 ### No blank lines in list
 
 Disallow blank lines to be used in lists before the first element, between elements, and after the last element.
