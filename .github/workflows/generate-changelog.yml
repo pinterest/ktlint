@@ -16,10 +16,8 @@ jobs:
         with:
           gradle-home-cache-cleanup: true
 
-      - name: Get version
-        id: get_version
-        if: ${{ success() }}
-        run: echo "version=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+      - name: Get last released version
+        run: echo "version=$(git describe --abbrev=0 --tags)" >> $GITHUB_ENV
 
       - name: "Build Changelog"
         id: build_changelog
