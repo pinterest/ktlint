@@ -51,8 +51,12 @@ jobs:
                 },
                 {
                   "title": "### 📦 Dependencies",
-                  "labels": ["dependency changelog"]
+                  "exhaustive_rules": false,
                   "rules": [
+                    {
+                      "pattern": "dependency changelog",
+                      "on_property": "labels"
+                    },
                     {
                       "pattern": "renovate\\[bot\\]",
                       "on_property": "author"
