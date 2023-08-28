@@ -26,7 +26,7 @@ public class FunctionTypeModifierSpacingRule :
             .takeIf { it.elementType == MODIFIER_LIST }
             ?.nextCodeSibling()
             ?.takeIf { it.elementType == FUNCTION_TYPE }
-            ?.takeUnless { it.prevSibling().isSingleSpace() }
+            ?.takeUnless { it.isPrecededBySingleSpace() }
             ?.let { functionTypeNode ->
                 emit(functionTypeNode.startOffset, "Expected a single space between the modifier list and the function type", true)
                 if (autoCorrect) {
@@ -35,7 +35,10 @@ public class FunctionTypeModifierSpacingRule :
             }
     }
 
-    private fun ASTNode?.isSingleSpace(): Boolean = this != null && elementType == WHITE_SPACE && text == " "
+    private fun ASTNode.isPrecededBySingleSpace(): Boolean =
+        prevSibling()
+            ?.let { it.elementType == WHITE_SPACE && it.text == " " }
+            ?: false
 }
 
 public val FUNCTION_TYPE_MODIFIER_SPACING_RULE: RuleId = FunctionTypeModifierSpacingRule().ruleId
