@@ -19,7 +19,7 @@ kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.
 kotlin-plugin-dev = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlinDev" }
 dokka = "org.jetbrains.dokka:dokka-gradle-plugin:1.8.20"
 ec4j = "org.ec4j.core:ec4j-core:0.3.0"
-picocli = "info.picocli:picocli:4.7.4"
+picocli = "info.picocli:picocli:4.7.5"
 logging = "io.github.oshai:kotlin-logging-jvm:5.1.0"
 slf4j = "org.slf4j:slf4j-simple:2.0.7"
 poko = "dev.drewhamilton.poko:poko-gradle-plugin:0.15.0"
