@@ -22,18 +22,17 @@ public class FunctionTypeModifierSpacingRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        if (node.elementType != MODIFIER_LIST) return
-        val functionTypeNode = node.nextCodeSibling()?.takeIf { it.elementType == FUNCTION_TYPE } ?: return
-        if (functionTypeNode.prevSibling().isSingleSpace()) return
-
-        emit(
-            functionTypeNode.startOffset,
-            "Expected a single space between the modifier list and the function type",
-            true,
-        )
-        if (autoCorrect) {
-            functionTypeNode.upsertWhitespaceBeforeMe(" ")
-        }
+        node
+            .takeIf { it.elementType == MODIFIER_LIST }
+            ?.nextCodeSibling()
+            ?.takeIf { it.elementType == FUNCTION_TYPE }
+            ?.takeUnless { it.prevSibling().isSingleSpace() }
+            ?.let { functionTypeNode ->
+                emit(functionTypeNode.startOffset, "Expected a single space between the modifier list and the function type", true)
+                if (autoCorrect) {
+                    functionTypeNode.upsertWhitespaceBeforeMe(" ")
+                }
+            }
     }
 
     private fun ASTNode?.isSingleSpace(): Boolean = this != null && elementType == WHITE_SPACE && text == " "
