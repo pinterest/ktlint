@@ -36,7 +36,8 @@ public class EditorConfigOverride {
 
     public companion object {
         /**
-         * Creates the [EditorConfigOverride] based on one or more property-value mappings.
+         * Creates the [EditorConfigOverride] based on one or more property-value mappings. In case rule sets are only loaded at runtime,
+         * you can use [EditorConfigPropertyRegistry] to retrieve the [EditorConfigProperty] for which a value is to be overridden.
          */
         public fun from(vararg properties: Pair<EditorConfigProperty<*>, *>): EditorConfigOverride {
             require(properties.isNotEmpty()) {

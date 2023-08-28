@@ -6,19 +6,13 @@ import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
-import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.plus
+import com.pinterest.ktlint.rule.engine.api.EditorConfigPropertyRegistry
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
-import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
-import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleSetExecutionEditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.io.File
@@ -40,25 +34,38 @@ public fun main() {
     // provide rules that are available at compile time. But it is also possible to provide rules from jars that are loaded on runtime.
     val ruleProviders = KTLINT_API_CONSUMER_RULE_PROVIDERS.plus(runtimeLoadedRuleProviders)
 
+    val editorConfigPropertyRegistry = EditorConfigPropertyRegistry(ruleProviders)
+
     // Providing rule dependencies at compile time has the advantage that properties defined in those rules can be used to build the
     // EditorConfigOverride using static types. However, providing the rule dependencies at runtime can offer flexibility to the API
     // Consumer. It comes with the cost that the EditorConfigOverride can not be build with static types.
     val editorConfigOverride =
         EditorConfigOverride
             .from(
-                // Property types provided by ktlint-rule-engine-core
+                // Properties provided by ktlint-rule-engine-core are best to be loaded statically as they are available at compile time as
+                // they are provided by the ktlint-rule-engine-core module.
                 INDENT_STYLE_PROPERTY to IndentConfig.IndentStyle.SPACE,
                 INDENT_SIZE_PROPERTY to 4,
                 EXPERIMENTAL_RULES_EXECUTION_PROPERTY to RuleExecution.enabled,
-                // Properties defines in the ktlint-ruleset-standard can only be used statically when that dependency is provided at compile
-                // time.
+                //
+                // Properties defined in the ktlint-ruleset-standard can only be loaded statically when that dependency is provided at
+                // compile time. In this example project this ruleset is loaded at runtime, so following decommenting next line results in
+                // a compilation error:
                 // FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to always
+                //
                 // For properties that are defined in rules for which the dependency is provided at runtime only, the property name can be
-                // provided as String and the value as Any type. In case the property value is invalid, the KtlintRuleEngine logs a warning.
-                ruleProviders.findEditorConfigProperty("ktlint_function_signature_body_expression_wrapping") to "alwaysx",
-                RuleId("standard:function-signature").createRuleExecutionEditorConfigProperty() to RuleExecution.disabled,
-                RuleSetId("some-custom-ruleset").createRuleSetExecutionEditorConfigProperty() to RuleExecution.enabled,
-                // In case an unknown property would be provided, an exception is thrown by the helper method
+                // provided as String and the value as Any type. As the property is not available at compile time, the value has to be
+                // specified as a String (exactly as would be done in the `.editorconfig` file).
+                // In case the property value is invalid, the KtlintRuleEngine logs a warning.
+                editorConfigPropertyRegistry.find("ktlint_function_signature_body_expression_wrapping") to "always",
+                //
+                // The properties for enabling/disabling a rule or entire rule set can be set as well. Note that the values of this
+                // property can be set via the `RuleExecution` enum which is available at compile time as it is provided by the
+                // ktlint-rule-engine-core module.
+                editorConfigPropertyRegistry.find("ktlint_standard_function-signature") to RuleExecution.disabled,
+                editorConfigPropertyRegistry.find("ktlint_standard") to RuleExecution.disabled,
+                //
+                // In case an unknown property is provided, an exception is thrown:
                 // ruleProviders.findEditorConfigProperty("unknown_property") to "some-value",
             )
 
@@ -132,33 +139,3 @@ private val runtimeLoadedRuleProviders =
         LOGGER.warn { "Error while loading the rulesets:\n${e.printStackTrace()}" }
         emptySet()
     }
-
-/**
- * Finds the first [EditorConfigProperty] with name [propertyName] used by any of the [RuleProvider]s.
- */
-private fun Set<RuleProvider>.findEditorConfigProperty(propertyName: String): EditorConfigProperty<*> {
-    val properties = editorConfigProperties()
-    return properties.findProperty(propertyName)
-        ?: throw EditorConfigPropertyNotFoundException(
-            properties
-                .map { it.type.name }
-                .sorted()
-                .joinToString(
-                    prefix = "Property with name '$propertyName' is not found in any of given rules. Available properties:\n\t",
-                    separator = "\n\t",
-                    postfix = "Next to properties above, the properties to enable or disable rules are allowed as well.",
-                ) { "- $it" },
-        )
-}
-
-private fun Set<RuleProvider>.editorConfigProperties() =
-    map { it.createNewRuleInstance() }
-        .flatMap { it.usesEditorConfigProperties }
-        .distinct()
-
-private fun List<EditorConfigProperty<*>>.findProperty(propertyName: String): EditorConfigProperty<*>? =
-    find { it.type.name == propertyName }
-
-public class EditorConfigPropertyNotFoundException(
-    message: String,
-) : RuntimeException(message)

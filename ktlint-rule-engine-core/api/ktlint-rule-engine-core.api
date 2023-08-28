@@ -440,6 +440,7 @@ public final class com/pinterest/ktlint/rule/engine/core/api/RuleId {
 }
 
 public final class com/pinterest/ktlint/rule/engine/core/api/RuleId$Companion {
+	public final fun isValid (Ljava/lang/String;)Z
 	public final fun prefixWithStandardRuleSetIdWhenMissing (Ljava/lang/String;)Ljava/lang/String;
 }
 
@@ -471,6 +472,7 @@ public final class com/pinterest/ktlint/rule/engine/core/api/RuleSetId {
 
 public final class com/pinterest/ktlint/rule/engine/core/api/RuleSetId$Companion {
 	public final fun getSTANDARD ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleSetId;
+	public final fun isValid (Ljava/lang/String;)Z
 }
 
 public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/CodeStyleEditorConfigPropertyKt {
