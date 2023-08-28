@@ -9,9 +9,20 @@ dependencies {
 
     implementation(projects.ktlintLogger)
     implementation(projects.ktlintRuleEngine)
-    // This example API Consumer also depends on ktlint-ruleset-standard as it mixes custom rules and rules from ktlint-ruleset-standard
-    // into a new rule set.
-    implementation(projects.ktlintRulesetStandard)
+
+    // If the API consumer depends on a fixed set of ruleset, it might be best to provide those dependencies at compile time. In this way
+    // statically typing can be used when defining the EditorConfigOverride for the KtlintRuleEngine. However, in this example, the
+    // dependencies are provided at runtime.
+    // implementation(projects.ktlintRulesetStandard)
+
+    // For advanced use cases, the API consumer might prefer to provide the ruleset dependencies at runtime and load them dynamically using
+    // the RuleSetProvider of ktlint-cli-ruleset-core.
+    implementation(projects.ktlintCliRulesetCore)
+    runtimeOnly(projects.ktlintRulesetStandard)
+
+    // The standard ruleset is also provided as test dependency to demonstrate that rules that are provided at compile time can also be unit
+    // tested.
+    testImplementation(projects.ktlintRulesetStandard)
 
     testImplementation(projects.ktlintTest)
 }
