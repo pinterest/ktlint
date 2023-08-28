@@ -27,6 +27,8 @@ public class RuleId(
             } else {
                 "${RuleSetId.STANDARD.value}$DELIMITER$id"
             }
+
+        public fun isValid(value: String): Boolean = IdNamingPolicy.isValidRuleId(value)
     }
 }
 
@@ -45,6 +47,8 @@ public class RuleSetId(
          * maintenance of the rule (set).
          */
         public val STANDARD: RuleSetId = RuleSetId("standard")
+
+        public fun isValid(value: String): Boolean = IdNamingPolicy.isValidRuleSetId(value)
     }
 }
 

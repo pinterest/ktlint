@@ -39,6 +39,12 @@ IMPORTANT: Maven coordinates have been changed for some module. Be sure to updat
 
 Class "org.jetbrains.kotlin.com.intellij.treeCopyHandler" is no longer registered as extension point for the compiler as this is not supported in Kotlin 1.9. Please test your custom rules. In case of unexpected exceptions during formatting of code, see [#2044](https://github.com/pinterest/ktlint/pull/2044) for possible remediation.
 
+#### EditorConfigOverride - Ktlint API Consumer example
+
+The `EditorConfigOverride` parameter of the `KtlintRuleEngine` can be defined using the factory method `EditorConfigOverride.from(vararg properties: Pair<EditorConfigProperty<*>, *>)`. This requires the `EditorConfigProperty`'s to be available at compile time. Some common `EditorConfigProperty`'s are defined in `ktlint-rule-engine-core` which is loaded as transitive dependency of `ktlint-rule-engine` and as of that are available at compile.
+
+If an `EditorConfigProperty` is defined in a `Rule` that is only provided via a runtime dependency, it gets a bit more complicated. The `ktlint-api-consumer` example has now been updated to show how the `EditorConfigProperty` can be retrieved from the `Rule`.
+
 ### Added
 
 * Add experimental rule `class-signature`. This rule rewrites the class header to a consistent format. In code style `ktlint_official`, super types are always wrapped to a separate line. In other code styles, super types are only wrapped in classes having multiple super types. Especially for code style `ktlint_official` the class headers are rewritten in a more consistent format. See [examples in documentation](https://pinterest.github.io/ktlint/latest/rules/experimental/#class-signature). `class-signature` [#875](https://github.com/pinterest/ktlint/issues/1349), [#1349](https://github.com/pinterest/ktlint/issues/875)
@@ -46,6 +52,7 @@ Class "org.jetbrains.kotlin.com.intellij.treeCopyHandler" is no longer registere
 * Add new experimental rule `statement-wrapping` which ensures function, class, or other blocks statement body doesn't start or end at starting or ending braces of the block ([#1938](https://github.com/pinterest/ktlint/issues/1938)). This rule was added in `0.50` release, but was never executed outside the unit tests. The rule is now added to the `StandardRuleSetProvider` ([#2170](https://github.com/pinterest/ktlint/issues/2170))
 * Add experimental rule `chain-method-continuation` to the `ktlint_official` code style, but it can be enabled explicitly for the other code styles as well. This rule requires the operators (`.` or `?.`) for chaining method calls, to be aligned with each other. This rule is enabled by ([#1953](https://github.com/pinterest/ktlint/issues/1953))
 * Add experimental rule `function-type-modifier-spacing`. This rule enforces a single whitespace between the modifier list and the function type. [#2202](https://github.com/pinterest/ktlint/issues/2202)
+* Add EditorConfigPropertyRegistry to assist API Consumers that load rulesets at runtime to define the EditorConfigOverride ([#2190](https://github.com/pinterest/ktlint/issues/2190))
 
 ### Removed
 
@@ -81,6 +88,7 @@ Class "org.jetbrains.kotlin.com.intellij.treeCopyHandler" is no longer registere
 * Build the project with Java 20, run test on Java 8, 11, 17 and 20 ([#1888](https://github.com/pinterest/ktlint/issues/1888))
 * Update dependency `io.github.oshai:kotlin-logging-jvm` to `v5.1.0` ([#2174](https://github.com/pinterest/ktlint/pull/2174))
 * Update kotlin monorepo to v1.9.10 [#2197](https://github.com/pinterest/ktlint/issues/2197)
+* Update dependency info.picocli:picocli to v4.7.5 [#2215](https://github.com/pinterest/ktlint/pull/2215)
 
 ## [0.50.0] - 2023-06-29
 

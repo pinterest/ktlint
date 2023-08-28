@@ -44,6 +44,15 @@ public final class com/pinterest/ktlint/rule/engine/api/EditorConfigOverride$Com
 	public final fun plus (Lcom/pinterest/ktlint/rule/engine/api/EditorConfigOverride;[Lkotlin/Pair;)Lcom/pinterest/ktlint/rule/engine/api/EditorConfigOverride;
 }
 
+public final class com/pinterest/ktlint/rule/engine/api/EditorConfigPropertyNotFoundException : java/lang/RuntimeException {
+	public fun <init> (Ljava/lang/String;)V
+}
+
+public final class com/pinterest/ktlint/rule/engine/api/EditorConfigPropertyRegistry {
+	public fun <init> (Ljava/util/Set;)V
+	public final fun find (Ljava/lang/String;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
+}
+
 public final class com/pinterest/ktlint/rule/engine/api/KtLintParseException : java/lang/RuntimeException {
 	public fun <init> (IILjava/lang/String;)V
 	public final fun getCol ()I
