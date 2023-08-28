@@ -28,6 +28,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.FunctionNamingRule
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionReturnTypeSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionStartOfBodySpacingRule
+import com.pinterest.ktlint.ruleset.standard.rules.FunctionTypeModifierSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionTypeReferenceSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.IfElseBracingRule
 import com.pinterest.ktlint.ruleset.standard.rules.IfElseWrappingRule
@@ -116,6 +117,7 @@ public class StandardRuleSetProvider : RuleSetProviderV3(RuleSetId.STANDARD) {
             RuleProvider { FunctionReturnTypeSpacingRule() },
             RuleProvider { FunctionSignatureRule() },
             RuleProvider { FunctionStartOfBodySpacingRule() },
+            RuleProvider { FunctionTypeModifierSpacingRule() },
             RuleProvider { FunctionTypeReferenceSpacingRule() },
             RuleProvider { FunKeywordSpacingRule() },
             RuleProvider { IfElseBracingRule() },

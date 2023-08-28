@@ -272,6 +272,15 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionStartOfBo
 	public static final fun getFUNCTION_START_OF_BODY_SPACING_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
 }
 
+public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionTypeModifierSpacingRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$Experimental {
+	public fun <init> ()V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+}
+
+public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionTypeModifierSpacingRuleKt {
+	public static final fun getFUNCTION_TYPE_MODIFIER_SPACING_RULE ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+}
+
 public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionTypeReferenceSpacingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
 	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
