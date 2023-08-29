@@ -475,6 +475,23 @@ public final class com/pinterest/ktlint/rule/engine/core/api/RuleSetId$Companion
 	public final fun isValid (Ljava/lang/String;)Z
 }
 
+public abstract interface annotation class com/pinterest/ktlint/rule/engine/core/api/SinceKtlint : java/lang/annotation/Annotation {
+	public abstract fun status ()Lcom/pinterest/ktlint/rule/engine/core/api/SinceKtlint$Status;
+	public abstract fun version ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/pinterest/ktlint/rule/engine/core/api/SinceKtlint$Container : java/lang/annotation/Annotation {
+	public abstract fun value ()[Lcom/pinterest/ktlint/rule/engine/core/api/SinceKtlint;
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/SinceKtlint$Status : java/lang/Enum {
+	public static final field EXPERIMENTAL Lcom/pinterest/ktlint/rule/engine/core/api/SinceKtlint$Status;
+	public static final field STABLE Lcom/pinterest/ktlint/rule/engine/core/api/SinceKtlint$Status;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/pinterest/ktlint/rule/engine/core/api/SinceKtlint$Status;
+	public static fun values ()[Lcom/pinterest/ktlint/rule/engine/core/api/SinceKtlint$Status;
+}
+
 public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/CodeStyleEditorConfigPropertyKt {
 	public static final fun getCODE_STYLE_PROPERTY ()Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
 	public static final fun getCODE_STYLE_PROPERTY_TYPE ()Lorg/ec4j/core/model/PropertyType$LowerCasingPropertyType;
