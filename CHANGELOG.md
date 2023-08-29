@@ -21,6 +21,34 @@ IMPORTANT: Maven coordinates have been changed for some module. Be sure to updat
 | com.pinterest.ktlint.                              | com.pinterest.ktlint.                                  |
 | com.pinterest.ktlint.                              | com.pinterest.ktlint.                                  |
 
+### Promote experimental rules to non-experimental
+
+The rules below have been promoted to non-experimental rules:
+* [blank-line-before-declaration](https://pinterest.github.io/ktlint/rules/standard/#blank-line-before-declarations)
+* [context-receiver-wrapping](https://pinterest.github.io/ktlint/rules/standard/#content-receiver-wrapping)
+* [discouraged-comment-location](https://pinterest.github.io/ktlint/rules/standard/#discouraged-comment-location)
+* [enum-wrapping](https://pinterest.github.io/ktlint/rules/standard/#enum-wrapping)
+* [function-naming](https://pinterest.github.io/ktlint/rules/standard/#function-naming)
+* [function-signature](https://pinterest.github.io/ktlint/rules/standard/#function-signature)
+* [if-else-bracing](https://pinterest.github.io/ktlint/rules/standard/#if-else-bracing)
+* [multiline-expression-wrapping](https://pinterest.github.io/ktlint/rules/standard/#multiline-expression-wrapping)
+* [if-else-wrapping](https://pinterest.github.io/ktlint/rules/standard/#if-else-wrapping)
+* [no-blank-line-in-list](https://pinterest.github.io/ktlint/rules/standard/#no-blank-line-in-list)
+* [no-consecutive-comments](https://pinterest.github.io/ktlint/rules/standard/#no-consecutive-comments)
+* [no-empty-file](https://pinterest.github.io/ktlint/rules/standard/#no-empty-file)
+* [no-empty-first-line-in-class-body](https://pinterest.github.io/ktlint/rules/standard/#no-empty-first-line-in-class-body)
+* [no-single-line-block-comment](https://pinterest.github.io/ktlint/rules/standard/#no-single-line-block-comment)
+* [parameter-list-spacing](https://pinterest.github.io/ktlint/rules/standard/#parameter-list-spacing)
+* [property-naming](https://pinterest.github.io/ktlint/rules/standard/#property-naming)
+* [statement-wrapping](https://pinterest.github.io/ktlint/rules/standard/#statement-wrapping)
+* [string-template-indent](https://pinterest.github.io/ktlint/rules/standard/#string-template-indent)
+* [try-catch-finally-spacing](https://pinterest.github.io/ktlint/rules/standard/#try-catch-finally-spacing)
+* [type-argument-list-spacing](https://pinterest.github.io/ktlint/rules/standard/#type-argument-list-spacing)
+* [type-parameter-list-spacing](https://pinterest.github.io/ktlint/rules/standard/#type-parameter-list-spacing)
+* [unnecessary-parentheses-before-trailing-lambda](https://pinterest.github.io/ktlint/rules/standard/#unnecessary-parentheses-before-trailing-lambda)
+
+Note that this only affects users that have enabled the `standard` ruleset while having the `experimental` rules disabled.
+
 ### API changes
 
 * As a part of public API stabilization, data classes are no longer used in the public API. As of that, functions like `copy()` or `componentN()` (used for destructuring declarations) are not available anymore. This is a binary incompatible change, breaking backwards compatibility. ([#2133](https://github.com/pinterest/ktlint/issues/2133))

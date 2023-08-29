@@ -11,6 +11,9 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.THEN
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
@@ -31,6 +34,8 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
  * All branches of the if-statement should be wrapped between braces if at least one branch is wrapped between braces. Consistent bracing
  * makes statements easier to read.
  */
+@SinceKtlint("0.49", EXPERIMENTAL)
+@SinceKtlint("1.0", STABLE)
 public class IfElseBracingRule :
     StandardRule(
         id = "if-else-bracing",
@@ -40,7 +45,6 @@ public class IfElseBracingRule :
                 INDENT_STYLE_PROPERTY,
             ),
     ),
-    Rule.Experimental,
     Rule.OfficialCodeStyle {
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 

@@ -5,8 +5,10 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.LAMBDA_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
@@ -16,9 +18,9 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 /**
  * Ensures there are no unnecessary parentheses before a trailing lambda.
  */
-public class UnnecessaryParenthesesBeforeTrailingLambdaRule :
-    StandardRule("unnecessary-parentheses-before-trailing-lambda"),
-    Rule.Experimental {
+@SinceKtlint("0.44", EXPERIMENTAL)
+@SinceKtlint("1.0", STABLE)
+public class UnnecessaryParenthesesBeforeTrailingLambdaRule : StandardRule("unnecessary-parentheses-before-trailing-lambda") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
