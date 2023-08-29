@@ -18,8 +18,6 @@ IMPORTANT: Maven coordinates have been changed for some module. Be sure to updat
 | com.pinterest.ktlint.ktlint-reporter-plain         | com.pinterest.ktlint.ktlint-cli-reporter-plain         |
 | com.pinterest.ktlint.ktlint-reporter-plain-summary | com.pinterest.ktlint.ktlint-cli-reporter-plain-summary |
 | com.pinterest.ktlint.ktlint-reporter-sarif         | com.pinterest.ktlint.ktlint-cli-reporter-sarif         |
-| com.pinterest.ktlint.                              | com.pinterest.ktlint.                                  |
-| com.pinterest.ktlint.                              | com.pinterest.ktlint.                                  |
 
 ### API changes
 

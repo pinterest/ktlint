@@ -7,6 +7,7 @@ import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import com.pinterest.ktlint.test.TAB
+import com.pinterest.ktlint.test.replaceStringTemplatePlaceholder
 import org.ec4j.core.model.PropertyType.IndentStyleValue.tab
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -26,7 +27,7 @@ internal class WrappingRuleTest {
                 true
                 }")
             }
-            """.trimIndent().replacePlaceholderWithStringTemplate()
+            """.trimIndent().replaceStringTemplatePlaceholder()
         val formattedCode =
             """
             fun foo() {
@@ -36,7 +37,7 @@ internal class WrappingRuleTest {
                     }"
                 )
             }
-            """.trimIndent().replacePlaceholderWithStringTemplate()
+            """.trimIndent().replaceStringTemplatePlaceholder()
         wrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolations(
@@ -100,7 +101,7 @@ internal class WrappingRuleTest {
             true
                 }$MULTILINE_STRING_QUOTE.trimIndent(), ${MULTILINE_STRING_QUOTE}text$MULTILINE_STRING_QUOTE)
             }
-            """.trimIndent().replacePlaceholderWithStringTemplate()
+            """.trimIndent().replaceStringTemplatePlaceholder()
         val formattedCode =
             """
             fun foo1() {
@@ -116,7 +117,7 @@ internal class WrappingRuleTest {
                     ${MULTILINE_STRING_QUOTE}text$MULTILINE_STRING_QUOTE
                 )
             }
-            """.trimIndent().replacePlaceholderWithStringTemplate()
+            """.trimIndent().replaceStringTemplatePlaceholder()
         wrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolations(
@@ -1728,7 +1729,7 @@ internal class WrappingRuleTest {
                     $MULTILINE_STRING_QUOTE
                     return q
                 }
-                """.replacePlaceholderWithStringTemplate().trimIndent()
+                """.replaceStringTemplatePlaceholder().trimIndent()
             wrappingRuleAssertThat(code)
                 .setMaxLineLength()
                 .hasNoLintViolations()
@@ -1747,7 +1748,7 @@ internal class WrappingRuleTest {
                     $MULTILINE_STRING_QUOTE
                     return q
                 }
-                """.replacePlaceholderWithStringTemplate().trimIndent()
+                """.trimIndent().replaceStringTemplatePlaceholder()
             wrappingRuleAssertThat(code)
                 .setMaxLineLength()
                 .hasNoLintViolations()
@@ -1766,7 +1767,7 @@ internal class WrappingRuleTest {
                     $MULTILINE_STRING_QUOTE
                     return q
                 }
-                """.replacePlaceholderWithStringTemplate().trimIndent()
+                """.trimIndent().replaceStringTemplatePlaceholder()
             wrappingRuleAssertThat(code)
                 .setMaxLineLength()
                 .hasNoLintViolations()
@@ -2635,7 +2636,3 @@ internal class WrappingRuleTest {
         wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 }
-
-// Replace the "$." placeholder with an actual "$" so that string "$.{expression}" is transformed to a String template
-// "${expression}".
-private fun String.replacePlaceholderWithStringTemplate() = replace("$.", "${'$'}")
