@@ -1684,6 +1684,17 @@ class ClassSignatureRuleTest {
             ).isFormattedAs(formattedCode)
     }
 
+    @Test
+    fun `Given a class with an explicit constructor not having arguments`() {
+        val code =
+            """
+            class Foo constructor() {
+                fun bar()
+            }
+            """.trimIndent()
+        classSignatureWrappingRuleAssertThat(code).hasNoLintViolations()
+    }
+
     private companion object {
         const val UNEXPECTED_SPACES = "  "
         const val NO_SPACE = ""
