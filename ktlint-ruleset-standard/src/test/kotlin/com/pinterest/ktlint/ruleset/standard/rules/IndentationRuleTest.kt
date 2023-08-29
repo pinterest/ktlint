@@ -13,6 +13,7 @@ import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import com.pinterest.ktlint.test.SPACE
 import com.pinterest.ktlint.test.TAB
+import com.pinterest.ktlint.test.replaceStringTemplatePlaceholder
 import org.ec4j.core.model.PropertyType
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
@@ -1834,7 +1835,7 @@ internal class IndentationRuleTest {
                 .filter { it % 2 == 0 }
                 .sum()
             }"
-            """.trimIndent().replacePlaceholderWithStringTemplate()
+            """.trimIndent().replaceStringTemplatePlaceholder()
         val formattedCode =
             """
             fun foo1() =
@@ -1848,7 +1849,7 @@ internal class IndentationRuleTest {
                     .filter { it % 2 == 0 }
                     .sum()
             }"
-            """.trimIndent().replacePlaceholderWithStringTemplate()
+            """.trimIndent().replaceStringTemplatePlaceholder()
         indentationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(8, 1, "Unexpected indentation (0) (should be 4)"),
@@ -2328,7 +2329,7 @@ internal class IndentationRuleTest {
                 true
                 }")
             }
-            """.trimIndent().replacePlaceholderWithStringTemplate()
+            """.trimIndent().replaceStringTemplatePlaceholder()
         val formattedCode =
             """
             fun foo() {
@@ -2338,7 +2339,7 @@ internal class IndentationRuleTest {
                     }"
                 )
             }
-            """.trimIndent().replacePlaceholderWithStringTemplate()
+            """.trimIndent().replaceStringTemplatePlaceholder()
         indentationRuleAssertThat(code)
             .addAdditionalRuleProvider { WrappingRule() }
             .hasLintViolation(3, 1, "Unexpected indentation (4) (should be 8)")
@@ -2407,7 +2408,7 @@ internal class IndentationRuleTest {
                 ${MULTILINE_STRING_QUOTE}text$MULTILINE_STRING_QUOTE
                 )
             }
-            """.trimIndent().replacePlaceholderWithStringTemplate()
+            """.trimIndent().replaceStringTemplatePlaceholder()
         val formattedCode =
             """
             fun foo1() {
@@ -2422,7 +2423,7 @@ internal class IndentationRuleTest {
                     ${MULTILINE_STRING_QUOTE}text$MULTILINE_STRING_QUOTE
                 )
             }
-            """.trimIndent().replacePlaceholderWithStringTemplate()
+            """.trimIndent().replaceStringTemplatePlaceholder()
         indentationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(3, 1, "Unexpected indentation (4) (should be 8)"),
@@ -5552,7 +5553,3 @@ internal class IndentationRuleTest {
             INDENT_STYLE_PROPERTY to PropertyType.IndentStyleValue.tab
     }
 }
-
-// Replace the "$." placeholder with an actual "$" so that string "$.{expression}" is transformed to a String template
-// "${expression}".
-private fun String.replacePlaceholderWithStringTemplate() = replace("$.", "${'$'}")

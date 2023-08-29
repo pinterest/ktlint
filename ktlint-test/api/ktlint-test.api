@@ -75,6 +75,11 @@ public final class com/pinterest/ktlint/test/LintViolation {
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class com/pinterest/ktlint/test/ReplaceStringTemplatePlaceholderKt {
+	public static final fun replaceStringTemplatePlaceholder (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public static synthetic fun replaceStringTemplatePlaceholder$default (Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
+}
+
 public class com/pinterest/ktlint/test/RuleSetProviderTest {
 	public static final field NEWLINE_AND_INDENT Ljava/lang/String;
 	public fun <init> (Ljava/lang/Class;Ljava/lang/String;)V
@@ -85,7 +90,5 @@ public final class com/pinterest/ktlint/test/TestLiteralsKt {
 	public static final field MULTILINE_STRING_QUOTE Ljava/lang/String;
 	public static final field SPACE Ljava/lang/String;
 	public static final field TAB Ljava/lang/String;
-	public static final fun replaceStringTemplatePlaceholder (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-	public static synthetic fun replaceStringTemplatePlaceholder$default (Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
 }
 
