@@ -2,6 +2,9 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
@@ -25,6 +28,8 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
  *
  * https://kotlinlang.org/docs/reference/coding-conventions.html#annotation-formatting
  */
+@SinceKtlint("0.39", EXPERIMENTAL)
+@SinceKtlint("0.46", STABLE)
 public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
     private companion object {
         const val ERROR_MESSAGE = "Annotations should occur immediately before the annotated construct"

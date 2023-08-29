@@ -17,8 +17,10 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
@@ -49,9 +51,9 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
  *         foo(t: T) = "some-result"
  * ```
  */
-public class DiscouragedCommentLocationRule :
-    StandardRule("discouraged-comment-location"),
-    Rule.Experimental {
+@SinceKtlint("0.45", EXPERIMENTAL)
+@SinceKtlint("1.0", STABLE)
+public class DiscouragedCommentLocationRule : StandardRule("discouraged-comment-location") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,

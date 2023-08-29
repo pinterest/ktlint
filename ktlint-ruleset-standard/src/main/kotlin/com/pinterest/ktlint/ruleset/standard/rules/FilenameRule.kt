@@ -9,6 +9,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPEALIAS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.isRoot
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -41,6 +42,7 @@ import org.jetbrains.kotlin.psi.KtFile
  * - file without `.kt` extension
  * - file with name `package.kt`
  */
+@SinceKtlint("0.23", SinceKtlint.Status.STABLE)
 public class FilenameRule : StandardRule("filename") {
     override fun beforeVisitChildNodes(
         node: ASTNode,

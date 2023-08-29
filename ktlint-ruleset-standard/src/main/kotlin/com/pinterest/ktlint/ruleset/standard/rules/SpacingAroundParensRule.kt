@@ -12,6 +12,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -23,6 +25,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
  *
  * See https://kotlinlang.org/docs/reference/coding-conventions.html#horizontal-whitespace
  */
+@SinceKtlint("0.24", STABLE)
 public class SpacingAroundParensRule : StandardRule("paren-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
