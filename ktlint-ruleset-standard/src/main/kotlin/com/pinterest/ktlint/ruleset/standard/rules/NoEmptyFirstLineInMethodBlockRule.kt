@@ -4,6 +4,9 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -11,6 +14,8 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
+@SinceKtlint("0.34", EXPERIMENTAL)
+@SinceKtlint("0.46", STABLE)
 public class NoEmptyFirstLineInMethodBlockRule : StandardRule("no-empty-first-line-in-method-block") {
     override fun beforeVisitChildNodes(
         node: ASTNode,

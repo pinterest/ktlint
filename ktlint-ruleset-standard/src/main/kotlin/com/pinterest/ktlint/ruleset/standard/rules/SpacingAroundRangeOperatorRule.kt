@@ -3,6 +3,8 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RANGE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RANGE_UNTIL
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -10,6 +12,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.lexer.KtSingleValueToken
 
+@SinceKtlint("0.13", STABLE)
 public class SpacingAroundRangeOperatorRule : StandardRule("range-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,

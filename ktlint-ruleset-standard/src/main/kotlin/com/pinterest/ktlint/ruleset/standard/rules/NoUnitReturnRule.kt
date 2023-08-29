@@ -5,10 +5,13 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
+@SinceKtlint("0.7", STABLE)
 public class NoUnitReturnRule : StandardRule("no-unit-return") {
     override fun beforeVisitChildNodes(
         node: ASTNode,

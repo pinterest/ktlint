@@ -7,6 +7,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VAL_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VAR_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -14,6 +16,7 @@ import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 
+@SinceKtlint("0.30", STABLE)
 public class SpacingAroundAngleBracketsRule : StandardRule("spacing-around-angle-brackets") {
     override fun beforeVisitChildNodes(
         node: ASTNode,

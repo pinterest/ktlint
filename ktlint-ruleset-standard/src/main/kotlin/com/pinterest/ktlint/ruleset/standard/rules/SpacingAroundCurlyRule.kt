@@ -18,6 +18,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SAFE_ACCESS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SEMICOLON
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.isLeaf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfString
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -33,6 +35,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.TreeElement
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtLambdaExpression
 
+@SinceKtlint("0.1", STABLE)
 public class SpacingAroundCurlyRule : StandardRule("curly-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,

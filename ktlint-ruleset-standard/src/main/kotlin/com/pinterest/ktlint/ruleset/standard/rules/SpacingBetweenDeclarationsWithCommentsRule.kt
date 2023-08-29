@@ -3,6 +3,9 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -17,6 +20,8 @@ import org.jetbrains.kotlin.psi.psiUtil.startOffset
 /**
  * @see https://youtrack.jetbrains.com/issue/KT-35088
  */
+@SinceKtlint("0.37", EXPERIMENTAL)
+@SinceKtlint("0.46", STABLE)
 public class SpacingBetweenDeclarationsWithCommentsRule : StandardRule("spacing-between-declarations-with-comments") {
     override fun beforeVisitChildNodes(
         node: ASTNode,

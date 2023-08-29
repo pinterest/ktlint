@@ -4,6 +4,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.ELSE_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IF_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -11,6 +13,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
+@SinceKtlint("0.15", STABLE)
 public class NoLineBreakAfterElseRule : StandardRule("no-line-break-after-else") {
     override fun beforeVisitChildNodes(
         node: ASTNode,

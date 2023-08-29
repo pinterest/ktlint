@@ -4,6 +4,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PRIMARY_CONSTRUCTOR
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -11,6 +13,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
+@SinceKtlint("0.1", STABLE)
 public class NoConsecutiveBlankLinesRule : StandardRule("no-consecutive-blank-lines") {
     override fun beforeVisitChildNodes(
         node: ASTNode,

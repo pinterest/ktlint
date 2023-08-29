@@ -47,6 +47,8 @@ import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.Companion.DEFAULT_
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
@@ -95,6 +97,7 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
  * is fixed with respect to indentation of the parent. This is just a simple best effort for the case that the
  * indentation rule is not run.
  */
+@SinceKtlint("0.45", STABLE)
 public class WrappingRule :
     StandardRule(
         id = "wrapping",

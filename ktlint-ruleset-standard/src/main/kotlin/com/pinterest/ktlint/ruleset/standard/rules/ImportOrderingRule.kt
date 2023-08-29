@@ -3,6 +3,8 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -37,6 +39,7 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
  *
  * In case the custom property is not provided, the rule defaults to alphabetical order in case of "android" flag supplied, or to idea otherwise.
  */
+@SinceKtlint("0.10", STABLE)
 public class ImportOrderingRule :
     StandardRule(
         id = "import-ordering",

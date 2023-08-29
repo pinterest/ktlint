@@ -6,10 +6,14 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
+@SinceKtlint("0.45", EXPERIMENTAL)
+@SinceKtlint("0.49", EXPERIMENTAL)
 public class FunctionTypeReferenceSpacingRule : StandardRule("function-type-reference-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,

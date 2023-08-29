@@ -8,6 +8,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.LONG_TEMPLATE_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LONG_TEMPLATE_ENTRY_START
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -17,6 +19,7 @@ import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 import org.jetbrains.kotlin.psi.KtSuperExpression
 import org.jetbrains.kotlin.psi.KtThisExpression
 
+@SinceKtlint("0.9", STABLE)
 public class StringTemplateRule : StandardRule("string-template") {
     override fun beforeVisitChildNodes(
         node: ASTNode,

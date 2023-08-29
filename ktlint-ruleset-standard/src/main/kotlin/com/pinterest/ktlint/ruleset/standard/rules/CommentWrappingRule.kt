@@ -4,6 +4,9 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
@@ -22,6 +25,8 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
 /**
  * Checks external wrapping of block comments. Wrapping inside the comment is not altered.
  */
+@SinceKtlint("0.45", EXPERIMENTAL)
+@SinceKtlint("0.49", STABLE)
 public class CommentWrappingRule :
     StandardRule(
         id = "comment-wrapping",
