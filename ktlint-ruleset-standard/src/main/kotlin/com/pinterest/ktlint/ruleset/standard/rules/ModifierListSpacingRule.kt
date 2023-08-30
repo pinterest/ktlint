@@ -9,7 +9,6 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
-import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
@@ -59,28 +58,21 @@ public class ModifierListSpacingRule : StandardRule("modifier-list-spacing") {
                 if (node.isAnnotationElement() ||
                     (node.elementType == MODIFIER_LIST && node.lastChildNode.isAnnotationElement())
                 ) {
-                    val expectedWhiteSpace =
-                        if (whitespace.textContains('\n')) {
-                            node.indent()
-                        } else {
-                            " "
-                        }
-                    if (whitespace.text != expectedWhiteSpace) {
-                        emit(
-                            whitespace.startOffset,
-                            "Single whitespace or newline expected after annotation",
-                            true,
-                        )
+                    if (whitespace.text.contains("\n\n")) {
+                        emit(whitespace.startOffset, "Single newline expected after annotation", true)
                         if (autoCorrect) {
-                            (whitespace as LeafPsiElement).rawReplaceWithText(expectedWhiteSpace)
+                            (whitespace as LeafPsiElement).rawReplaceWithText(
+                                "\n".plus(whitespace.text.substringAfterLast("\n")),
+                            )
+                        }
+                    } else if (!whitespace.text.contains('\n') && whitespace.text != " ") {
+                        emit(whitespace.startOffset, "Single whitespace or newline expected after annotation", true)
+                        if (autoCorrect) {
+                            (whitespace as LeafPsiElement).rawReplaceWithText(" ")
                         }
                     }
                 } else {
-                    emit(
-                        whitespace.startOffset,
-                        "Single whitespace expected after modifier",
-                        true,
-                    )
+                    emit(whitespace.startOffset, "Single whitespace expected after modifier", true)
                     if (autoCorrect) {
                         (whitespace as LeafPsiElement).rawReplaceWithText(" ")
                     }

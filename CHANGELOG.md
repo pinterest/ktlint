@@ -102,6 +102,8 @@ If an `EditorConfigProperty` is defined in a `Rule` that is only provided via a 
 * Fix wrapping of multiline postfix expression `multiline-expression-wrapping` [#2183](https://github.com/pinterest/ktlint/issues/2183)
 * Remove registration of class "org.jetbrains.kotlin.com.intellij.treeCopyHandler" as extension point for the compiler as this is not supported in the embedded Kotlin compiler version 1.9. Also remove Ktlint CLI command line flag `disable-kotlin-extension-point`, and parameter `enableKotlinCompilerExtensionPoint` from `KtLintRuleEngine` to disable the kotlin extension point [#2061](https://github.com/pinterest/ktlint/issues/2061)
 * Do not wrap expression after a spread operator `multiline-expression-wrapping` [#2188](https://github.com/pinterest/ktlint/issues/2188)
+* Do not wrap expression after a spread operator `multiline-expression-wrapping` [#2188](https://github.com/pinterest/ktlint/issues/2188)
+* Prevent cyclic dependency between `modifier-list-spacing` rule and `indent` rule when the super type call entry is annotated
 
 ### Changed
 
