@@ -974,4 +974,16 @@ class AnnotationRuleTest {
             """.trimIndent()
         annotationRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Given a class with a super type list starting with an annotation having parameter`() {
+        val code =
+            """
+            class Foo(
+                bar: Bar,
+            ) : @Suppress("DEPRECATION")
+                FooBar()
+            """.trimIndent()
+        annotationRuleAssertThat(code).hasNoLintViolations()
+    }
 }
