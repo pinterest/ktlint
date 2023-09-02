@@ -115,6 +115,7 @@ If an `EditorConfigProperty` is defined in a `Rule` that is only provided via a 
 * Update dependency `io.github.oshai:kotlin-logging-jvm` to `v5.1.0` ([#2174](https://github.com/pinterest/ktlint/pull/2174))
 * Update kotlin monorepo to v1.9.10 [#2197](https://github.com/pinterest/ktlint/issues/2197)
 * Update dependency info.picocli:picocli to v4.7.5 [#2215](https://github.com/pinterest/ktlint/pull/2215)
+* Move wrapping on semicolon from `wrapping` rule to `statement-wrapping` rule [#2220](https://github.com/pinterest/ktlint/issue/2220)
 
 ## [0.50.0] - 2023-06-29
 

@@ -1,22 +1,26 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ARROW
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.SEMICOLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.noNewLineInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
@@ -28,7 +32,8 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 
-@SinceKtlint("1.0", EXPERIMENTAL)
+@SinceKtlint("0.50", EXPERIMENTAL)
+@SinceKtlint("1.0", STABLE)
 public class StatementWrappingRule :
     StandardRule(
         "statement-wrapping",
@@ -37,8 +42,7 @@ public class StatementWrappingRule :
                 INDENT_SIZE_PROPERTY,
                 INDENT_STYLE_PROPERTY,
             ),
-    ),
-    Rule.Experimental {
+    ) {
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
@@ -65,6 +69,9 @@ public class StatementWrappingRule :
 
             CLASS_BODY, WHEN ->
                 visitBlock(node, emit, autoCorrect)
+
+            SEMICOLON ->
+                visitSemiColon(node, autoCorrect, emit)
         }
     }
 
@@ -98,7 +105,7 @@ public class StatementWrappingRule :
             }?.let { lbraceOrArrow ->
                 val nextCodeLeaf = lbraceOrArrow.nextCodeLeaf()
                 if (nextCodeLeaf != null && noNewLineInClosedRange(lbraceOrArrow, nextCodeLeaf)) {
-                    emit(nextCodeLeaf.startOffset, "Expected new line after '${lbraceOrArrow.text}'", true)
+                    emit(nextCodeLeaf.startOffset, "Missing newline after '${lbraceOrArrow.text}'", true)
                     if (autoCorrect) {
                         if (node.elementType == WHEN) {
                             lbraceOrArrow.upsertWhitespaceAfterMe(lbraceOrArrow.indentAsChild)
@@ -113,7 +120,7 @@ public class StatementWrappingRule :
                     ?.let { rbrace ->
                         val prevCodeLeaf = rbrace.prevCodeLeaf()
                         if (prevCodeLeaf != null && noNewLineInClosedRange(prevCodeLeaf, rbrace)) {
-                            emit(rbrace.startOffset, "Expected new line before '}'", true)
+                            emit(rbrace.startOffset, "Missing newline before '}'", true)
                             if (autoCorrect) {
                                 rbrace.upsertWhitespaceBeforeMe(rbrace.indentAsParent)
                             }
@@ -161,4 +168,35 @@ public class StatementWrappingRule :
 
     private inline val ASTNode.indentAsParent: String
         get() = treeParent.indent()
+
+    private fun visitSemiColon(
+        node: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+    ) {
+        val previousCodeLeaf = node.prevCodeLeaf()?.lastChildLeafOrSelf() ?: return
+        val nextCodeLeaf = node.nextCodeLeaf()?.firstChildLeafOrSelf() ?: return
+        if (previousCodeLeaf.treeParent.elementType == ElementType.ENUM_ENTRY && nextCodeLeaf.elementType == RBRACE) {
+            // Allow
+            // enum class INDEX2 { ONE, TWO, THREE; }
+            return
+        }
+        if (noNewLineInClosedRange(previousCodeLeaf, nextCodeLeaf)) {
+            emit(node.startOffset + 1, """Missing newline after '${node.text}'""", true)
+            if (autoCorrect) {
+                node.upsertWhitespaceAfterMe(previousCodeLeaf.indent())
+            }
+//            node
+//                .treeParent
+//                .takeIf { it.elementType == BLOCK }
+//                ?.let { block ->
+//                    beforeVisitBlock(block, autoCorrect, emit)
+//                    block
+//                        .treeParent
+//                        .takeIf { it.elementType == FUNCTION_LITERAL }
+//                        ?.findChildByType(ARROW)
+//                        ?.let { arrow -> rearrangeArrow(arrow, autoCorrect, emit) }
+//                }
+        }
+    }
 }
