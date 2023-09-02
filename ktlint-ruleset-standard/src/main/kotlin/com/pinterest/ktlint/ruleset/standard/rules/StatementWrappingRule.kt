@@ -11,6 +11,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.SEMICOLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
+import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
@@ -186,17 +187,8 @@ public class StatementWrappingRule :
             if (autoCorrect) {
                 node.upsertWhitespaceAfterMe(previousCodeLeaf.indent())
             }
-//            node
-//                .treeParent
-//                .takeIf { it.elementType == BLOCK }
-//                ?.let { block ->
-//                    beforeVisitBlock(block, autoCorrect, emit)
-//                    block
-//                        .treeParent
-//                        .takeIf { it.elementType == FUNCTION_LITERAL }
-//                        ?.findChildByType(ARROW)
-//                        ?.let { arrow -> rearrangeArrow(arrow, autoCorrect, emit) }
-//                }
         }
     }
 }
+
+public val STATEMENT_WRAPPING_RULE_ID: RuleId = StatementWrappingRule().ruleId
