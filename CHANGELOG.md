@@ -116,6 +116,8 @@ If an `EditorConfigProperty` is defined in a `Rule` that is only provided via a 
 * Update kotlin monorepo to v1.9.10 [#2197](https://github.com/pinterest/ktlint/issues/2197)
 * Update dependency info.picocli:picocli to v4.7.5 [#2215](https://github.com/pinterest/ktlint/pull/2215)
 * Update dependency org.jetbrains.dokka:dokka-gradle-plugin to v1.9.0 ([#2221](https://github.com/pinterest/ktlint/pull/2221))
+* Move wrapping on semicolon from `wrapping` rule to `statement-wrapping` rule [#2220](https://github.com/pinterest/ktlint/issue/2220)
+* Update dependency org.jetbrains.dokka:dokka-gradle-plugin to v1.9.0 [#2221](https://github.com/pinterest/ktlint/pull/2221) 
 * Update dependency org.slf4j:slf4j-simple to v2.0.9 ([#2224](https://github.com/pinterest/ktlint/pull/2224))
 
 ## [0.50.0] - 2023-06-29
