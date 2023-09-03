@@ -115,7 +115,8 @@ If an `EditorConfigProperty` is defined in a `Rule` that is only provided via a 
 * Update dependency `io.github.oshai:kotlin-logging-jvm` to `v5.1.0` ([#2174](https://github.com/pinterest/ktlint/pull/2174))
 * Update kotlin monorepo to v1.9.10 [#2197](https://github.com/pinterest/ktlint/issues/2197)
 * Update dependency info.picocli:picocli to v4.7.5 [#2215](https://github.com/pinterest/ktlint/pull/2215)
-* Update dependency org.jetbrains.dokka:dokka-gradle-plugin to v1.9.0 [#2221](https://github.com/pinterest/ktlint/pull/2221) 
+* Update dependency org.jetbrains.dokka:dokka-gradle-plugin to v1.9.0 ([#2221](https://github.com/pinterest/ktlint/pull/2221))
+* Update dependency org.slf4j:slf4j-simple to v2.0.9 ([#2224](https://github.com/pinterest/ktlint/pull/2224))
 
 ## [0.50.0] - 2023-06-29
 
