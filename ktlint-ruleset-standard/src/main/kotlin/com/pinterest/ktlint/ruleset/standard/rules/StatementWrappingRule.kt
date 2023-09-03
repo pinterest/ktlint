@@ -1,11 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ARROW
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SEMICOLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
@@ -21,6 +23,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.noNewLineInClosedRange
@@ -94,6 +97,9 @@ public class StatementWrappingRule :
             }?.takeUnless {
                 // Allow
                 //     enum class FooBar { FOO, BAR }
+                // or
+                //     /** Some comment */
+                //     enum class FooBar { FOO, BAR }
                 it.treeParent.isEnumClassOnSingleLine
             }?.findChildByType(LBRACE)
             ?.applyIf(node.isFunctionLiteralWithParameterList) {
@@ -154,9 +160,24 @@ public class StatementWrappingRule :
 
     private inline val ASTNode.isEnumClassOnSingleLine: Boolean
         get() =
-            takeIf { psi.isEnumClass }
-                ?.let { !it.textContains('\n') }
-                ?: false
+            if (psi.isEnumClass) {
+                val lastChildLeaf = lastChildLeafOrSelf()
+                // Ignore the leading comment
+                noNewLineInClosedRange(firstCodeLeafOrNull!!, lastChildLeaf)
+            } else {
+                false
+            }
+
+    private inline val ASTNode.firstCodeLeafOrNull: ASTNode?
+        get() =
+            // Skip the comment on top of the node by getting modifier list
+            findChildByType(MODIFIER_LIST)
+                ?.children()
+                ?.dropWhile {
+                    // Ignore annotations placed on separate lines above the node
+                    it.elementType == ANNOTATION_ENTRY || it.isWhiteSpace()
+                }?.firstOrNull()
+                ?.firstChildLeafOrSelf()
 
     private inline val PsiElement.isEnumClass: Boolean
         get() = (this as? KtClass)?.isEnum() ?: false

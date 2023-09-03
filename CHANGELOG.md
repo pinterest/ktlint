@@ -103,6 +103,7 @@ If an `EditorConfigProperty` is defined in a `Rule` that is only provided via a 
 * Remove registration of class "org.jetbrains.kotlin.com.intellij.treeCopyHandler" as extension point for the compiler as this is not supported in the embedded Kotlin compiler version 1.9. Also remove Ktlint CLI command line flag `disable-kotlin-extension-point`, and parameter `enableKotlinCompilerExtensionPoint` from `KtLintRuleEngine` to disable the kotlin extension point [#2061](https://github.com/pinterest/ktlint/issues/2061)
 * Do not wrap expression after a spread operator `multiline-expression-wrapping` [#2188](https://github.com/pinterest/ktlint/issues/2188)
 * Do not remove parenthesis after explicit constructor keyword when it has no parameters ([#2226](https://github.com/pinterest/ktlint/pull/2226))
+* Do not wrap values in a single line enum when it is preceded by a comment or an annotation ([#2229](https://github.com/pinterest/ktlint/pull/2229))
 
 ### Changed
 
