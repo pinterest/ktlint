@@ -1223,4 +1223,26 @@ class StatementWrappingRuleTest {
                 ).isFormattedAs(formattedCode)
         }
     }
+
+    @Test
+    fun `Given a single line enumeration class preceded by a comment`() {
+        val code =
+            """
+            /**
+             * Some comment
+             */
+            enum class Foobar { FOO, BAR }
+            """.trimIndent()
+        statementWrappingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a single line enumeration class preceded by one or more annotations`() {
+        val code =
+            """
+            @FooBar
+            enum class Foobar { FOO, BAR }
+            """.trimIndent()
+        statementWrappingRuleAssertThat(code).hasNoLintViolations()
+    }
 }
