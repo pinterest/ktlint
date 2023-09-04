@@ -106,6 +106,7 @@ If an `EditorConfigProperty` is defined in a `Rule` that is only provided via a 
 * Prevent cyclic dependency between `modifier-list-spacing` rule and `indent` rule when the super type call entry is annotated ([#2227](https://github.com/pinterest/ktlint/pull/2227))
 * Do not remove parenthesis after explicit constructor keyword when it has no parameters ([#2226](https://github.com/pinterest/ktlint/pull/2226))
 * Fix indentation of super type list of class in case it is preceded by a comment ([#2228](https://github.com/pinterest/ktlint/pull/2228))
+* Allow a super type list starting with an annotation having a parameter to be on the same line as the closing parenthesis of the enclosing class ([#2230](https://github.com/pinterest/ktlint/pull/2230))
 
 ### Changed
 

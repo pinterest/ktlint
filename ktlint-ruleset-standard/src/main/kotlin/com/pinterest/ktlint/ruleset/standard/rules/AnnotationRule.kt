@@ -3,10 +3,13 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATED_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONSTRUCTOR_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE_ANNOTATION_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.GT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PROJECTION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
@@ -32,6 +35,8 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -153,10 +158,19 @@ public class AnnotationRule :
                 .filter {
                     it.isAnnotationEntryWithValueArgumentList() ||
                         !it.isPrecededByOtherAnnotationEntryWithoutParametersOnTheSameLine()
-                }.forEach { annotationEntry ->
+                }.forEachIndexed { index, annotationEntry ->
                     annotationEntry
                         .prevLeaf()
-                        ?.let { prevLeaf ->
+                        .takeUnless {
+                            // Allow in ktlint_official code style:
+                            //     class Foo(
+                            //         bar: Bar,
+                            //     ) : @Suppress("DEPRECATION")
+                            //         FooBar()
+                            index == 0 &&
+                                codeStyle == CodeStyleValue.ktlint_official &&
+                                it.annotationOnSameLineAsClosingParenthesisOfClassParameterList()
+                        }?.let { prevLeaf ->
                             // Let the indentation rule determine the exact indentation and only report and fix when the line needs to be
                             // wrapped
                             if (!prevLeaf.textContains('\n')) {
@@ -368,6 +382,22 @@ public class AnnotationRule :
             .none { it.isWhiteSpaceWithNewline() }
 
     private fun ASTNode.isFollowedByOtherAnnotationEntry() = siblings(forward = true).any { it.elementType == ANNOTATION_ENTRY }
+
+    private fun ASTNode?.annotationOnSameLineAsClosingParenthesisOfClassParameterList() =
+        // Allow:
+        //     class Foo(
+        //         bar: Bar,
+        //     ) : @Suppress("DEPRECATION")
+        //         FooBar()
+        this
+            ?.takeIf { it.treeParent?.elementType == CLASS }
+            ?.prevCodeSibling()
+            ?.takeIf { it.elementType == COLON }
+            ?.prevCodeLeaf()
+            ?.takeIf { it.elementType == RPAR }
+            ?.prevLeaf()
+            ?.isWhiteSpaceWithNewline()
+            ?: false
 
     private fun ASTNode.isOnSameLineAsNextAnnotationEntry() =
         siblings(forward = true)
