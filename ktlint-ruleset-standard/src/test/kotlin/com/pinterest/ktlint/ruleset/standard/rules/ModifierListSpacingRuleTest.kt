@@ -143,8 +143,8 @@ class ModifierListSpacingRuleTest {
             """.trimIndent()
         modifierListSpacingRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(1, 6, "Single whitespace or newline expected after annotation"),
-                LintViolation(3, 6, "Single whitespace or newline expected after annotation"),
+                LintViolation(1, 6, "Single newline expected after annotation"),
+                LintViolation(3, 6, "Single newline expected after annotation"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -170,6 +170,18 @@ class ModifierListSpacingRuleTest {
               */
             @Foo3
             class Bar {}
+            """.trimIndent()
+        modifierListSpacingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a class with an annotated super type call entry`() {
+        val code =
+            """
+            class Foo(
+                bar: Bar,
+            ) : @Unused
+                FooBar()
             """.trimIndent()
         modifierListSpacingRuleAssertThat(code).hasNoLintViolations()
     }
