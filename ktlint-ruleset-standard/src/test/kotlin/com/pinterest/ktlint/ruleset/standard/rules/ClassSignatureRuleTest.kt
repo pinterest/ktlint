@@ -1695,6 +1695,34 @@ class ClassSignatureRuleTest {
         classSignatureWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
+    @Test
+    fun `Given a class with an annotated super type call entry`() {
+        val code =
+            """
+            class Foo(
+                bar: Bar,
+            ) : // Some comment
+                @Unused
+                FooBar()
+            """.trimIndent()
+        classSignatureWrappingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a class with an annotated super type entry`() {
+        val code =
+            """
+            class Foo(
+                bar: Bar,
+            ) : // Some comment
+                @Unused
+                FooBar(),
+                FooBar2
+            """.trimIndent()
+        classSignatureWrappingRuleAssertThat(code)
+            .hasNoLintViolations()
+    }
+
     private companion object {
         const val UNEXPECTED_SPACES = "  "
         const val NO_SPACE = ""

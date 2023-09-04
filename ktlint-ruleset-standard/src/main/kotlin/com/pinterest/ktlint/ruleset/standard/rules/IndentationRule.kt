@@ -220,22 +220,31 @@ public class IndentationRule :
                     lastChildIndent = "",
                 )
 
-            node.elementType == SUPER_TYPE_LIST -> {
-                if (codeStyle == ktlint_official && node.isPartOfClassWithAMultilinePrimaryConstructor()) {
-                    // Contrary to the default IntelliJ IDEA formatter, indent the super type call entry so that it looks better in case it
-                    // is followed by another super type:
-                    //      class Foo(
-                    //          val bar1: Bar,
-                    //          val bar2: Bar,
-                    //      ) : FooBar(
-                    //              bar1,
-                    //              bar2
-                    //          ),
-                    //          BarFoo,
-                    startIndentContext(
-                        fromAstNode = node,
-                        activated = true,
-                    )
+            (node.elementType == SUPER_TYPE_LIST && !node.isPrecededByComment()) ||
+                (node.isPartOfComment() && node.nextCodeSibling()?.elementType == SUPER_TYPE_LIST) -> {
+                if (codeStyle == ktlint_official) {
+                    val superTypeList =
+                        if (node.isPartOfComment()) {
+                            node.nextCodeLeaf()!!
+                        } else {
+                            node
+                        }
+                    if (superTypeList.isPartOfClassWithAMultilinePrimaryConstructor()) {
+                        // Contrary to the default IntelliJ IDEA formatter, indent the super type call entry so that it looks better in case it
+                        // is followed by another super type:
+                        //      class Foo(
+                        //          val bar1: Bar,
+                        //          val bar2: Bar,
+                        //      ) : FooBar(
+                        //              bar1,
+                        //              bar2
+                        //          ),
+                        //          BarFoo,
+                        startIndentContext(
+                            fromAstNode = node,
+                            activated = true,
+                        )
+                    }
                 }
             }
 
@@ -1221,6 +1230,8 @@ public class IndentationRule :
             lastChildIndent = "",
             activated = true,
         )
+
+    private fun ASTNode.isPrecededByComment() = prevSibling { !it.isWhiteSpace() }?.isPartOfComment() == true
 
     private companion object {
         const val KDOC_CONTINUATION_INDENT = " "
