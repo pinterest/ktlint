@@ -6,6 +6,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONSTRUCTOR_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PRIMARY_CONSTRUCTOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
@@ -39,6 +40,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
@@ -251,7 +253,11 @@ public class ClassSignatureRule :
         node
             .getPrimaryConstructorParameterListOrNull()
             ?.takeUnless { it.containsComment() }
-            ?.let { parameterList ->
+            ?.takeUnless {
+                // Allow:
+                //     class Foo constructor() { ... }
+                it.prevCodeSibling()?.elementType == CONSTRUCTOR_KEYWORD
+            }?.let { parameterList ->
                 if (!dryRun) {
                     emit(parameterList.startOffset, "No parenthesis expected", true)
                 }
