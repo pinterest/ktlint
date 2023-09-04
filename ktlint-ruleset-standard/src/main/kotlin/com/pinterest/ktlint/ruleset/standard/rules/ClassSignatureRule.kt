@@ -7,6 +7,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONSTRUCTOR_KEYWORD
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PRIMARY_CONSTRUCTOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
@@ -492,6 +493,7 @@ public class ClassSignatureRule :
                         firstSuperType
                             .prevLeaf()
                             .takeIf { it.isWhiteSpaceWithNewline() }
+                            ?.takeUnless { it.prevSibling()?.elementType == EOL_COMMENT }
                             ?.let { whiteSpaceBeforeSuperType ->
                                 val expectedWhitespace = " "
                                 if (whiteSpaceBeforeSuperType.text != expectedWhitespace) {
@@ -547,8 +549,8 @@ public class ClassSignatureRule :
                         .let { whiteSpaceBeforeIdentifier ->
                             if (index == 0 && node.hasMultilinePrimaryConstructor()) {
                                 val expectedWhitespace = " "
-                                if (whiteSpaceBeforeIdentifier == null ||
-                                    whiteSpaceBeforeIdentifier.text != expectedWhitespace
+                                if (whiteSpaceBeforeIdentifier?.prevLeaf()?.elementType != EOL_COMMENT &&
+                                    (whiteSpaceBeforeIdentifier == null || whiteSpaceBeforeIdentifier.text != expectedWhitespace)
                                 ) {
                                     emit(firstChildNodeInSuperType.startOffset, "Expected single space before the first super type", true)
                                     if (autoCorrect) {

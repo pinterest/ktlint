@@ -105,6 +105,7 @@ If an `EditorConfigProperty` is defined in a `Rule` that is only provided via a 
 * Do not wrap expression after a spread operator `multiline-expression-wrapping` [#2188](https://github.com/pinterest/ktlint/issues/2188)
 * Prevent cyclic dependency between `modifier-list-spacing` rule and `indent` rule when the super type call entry is annotated ([#2227](https://github.com/pinterest/ktlint/pull/2227))
 * Do not remove parenthesis after explicit constructor keyword when it has no parameters ([#2226](https://github.com/pinterest/ktlint/pull/2226))
+* Fix indentation of super type list of class in case it is preceded by a comment ([#2228](https://github.com/pinterest/ktlint/pull/2228))
 
 ### Changed
 

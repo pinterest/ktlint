@@ -5548,6 +5548,19 @@ internal class IndentationRuleTest {
             ).isFormattedAs(formattedCode)
     }
 
+    @Test
+    fun `Given a class with a comment before the super type list`() {
+        val code =
+            """
+            class Foo(
+                bar: Bar,
+            ) : // Some comment
+                @Unused
+                FooBar()
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
     private companion object {
         val INDENT_STYLE_TAB =
             INDENT_STYLE_PROPERTY to PropertyType.IndentStyleValue.tab
