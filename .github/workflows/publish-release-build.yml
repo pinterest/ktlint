@@ -66,6 +66,7 @@ jobs:
           COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TOKEN }}
         with:
           formula-name: ktlint
+          formula-path: Formula/k/ktlint.rb
           download-url: https://github.com/pinterest/ktlint/releases/download/${{ env.version }}/ktlint-${{ env.version }}.zip
 
       - name: Release to sdkman
