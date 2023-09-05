@@ -1,8 +1,8 @@
-The code style `ktlint_official` is first introduced in version `0.49`. This code style is work in progress but will become the default code style in the `1.0` release. Please try out the new code style and provide your feedback via the [issue tracker](https://github.com/pinterest/ktlint/issues).
+Starting from version `1.0`, `ktlint_official` is the default code style. If you want to revert to another code style, then set the `.editorconfig` property `ktlint_code_style`.
 
 ```ini
 [*.{kt,kts}]
-ktlint_code_style = ktlint_official
+ktlint_code_style = intellij_idea # or android_studio or ktlint_official (default)
 ```
 
 This `ktlint_official` code style combines the best elements from the [Kotlin Coding conventions](https://kotlinlang.org/docs/coding-conventions.html) and [Android's Kotlin styleguide](https://developer.android.com/kotlin/style-guide). This code style also provides additional formatting on topics which are not (explicitly) mentioned in those conventions and style guide.
