@@ -6,15 +6,12 @@ Ktlint uses a limited set of `.editorconfig` properties for additional configura
 
 ## Code style
 
-By default, the `intellij_idea` Kotlin code style is applied. Alternatively, the code style can be set to `ktlint_official` or `android`.
+By default, the `ktlint_official` code style is applied. Alternatively, the code style can be set to `intellij_idea` or `android_studio`.
 
 ```ini
 [*.{kt,kts}]
 ktlint_code_style = ktlint_official
 ```
-
-!!! note
-    The default code style will be changed to `ktlint_official` in the `1.0` version of ktlint.
 
 ## Disabled rules
 
