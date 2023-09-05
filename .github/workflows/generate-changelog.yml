@@ -73,7 +73,7 @@ jobs:
                   "exclude_labels": ["documentation", "exclude from changelog"]
                 }
               ],
-              "pr_template": "\n* #{{TITLE}}  \n[##{{NUMBER}}](#{{URL}}), by @#{{AUTHOR}}",
+              "pr_template": "\n* #{{TITLE}} - [##{{NUMBER}}](#{{URL}}), by @#{{AUTHOR}}",
               "empty_template": "- no changes",
               "sort": {
                 "order": "ASC",
