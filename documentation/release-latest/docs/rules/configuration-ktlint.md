@@ -54,6 +54,20 @@ insert_final_newline = true
 
 This setting only takes effect when rule `final-newline` is enabled.
 
+## Force multiline chained methods based on number of chain operators
+
+Setting `ktlint_chain_method_rule_force_multiline_when_chain_operator_count_greater_or_equal_than` forces a chained method to be wrapped at each chain operator (`.` or `?.`) in case it contains the specified minimum number of chain operators even in case the entire chained method fits on a single line. Use value `unset` (default) to disable this setting.
+
+!!! note
+    By default, chained methods are wrapped when an expression contains 4 or more chain operators in an expression. Note that if a chained method contains nested expressions the chain operators of the inner expression are not taken into account.
+
+```ini
+[*.{kt,kts}]
+ktlint_chain_method_rule_force_multiline_when_chain_operator_count_greater_or_equal_than=unset
+```
+
+This setting only takes effect when rule `chain-method-continution` is enabled.
+
 ## Force multiline function signature based on number of parameters
 
 Setting `ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than` forces a multiline function signature in case the function contains the specified minimum number of parameters even in case the function signature would fit on a single line. Use value `unset` (default) to disable this setting.
