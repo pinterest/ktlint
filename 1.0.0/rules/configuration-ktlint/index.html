@@ -1206,14 +1206,10 @@ You're not viewing the latest version.
 <p>Unfortunately <a href="https://www.jetbrains.com/idea/">IntelliJ IDEA</a> has an <a href="https://youtrack.jetbrains.com/issue/IDEA-242506">autoformat issue regarding <code>.editorconfig</code></a>. Due to this error an additional space is added between glob statements, resulting in <code>[*{kt, kts}]</code> instead of <code>[*{kt,kts}]</code>. The <code>.editorconfig</code> library used by <code>ktlint</code> <a href="https://github.com/editorconfig/editorconfig/issues/148">ignores sections after encountering a space in the list</a>. As a result, the rule is not applied on all files as documented in the <a href="https://github.com/pinterest/ktlint/issues/762">original ktlint issue</a>.</p>
 </div>
 <h2 id="code-style">Code style<a class="headerlink" href="#code-style" title="Permanent link">&para;</a></h2>
-<p>By default, the <code>intellij_idea</code> Kotlin code style is applied. Alternatively, the code style can be set to <code>ktlint_official</code> or <code>android</code>.</p>
+<p>By default, the <code>ktlint_official</code> code style is applied. Alternatively, the code style can be set to <code>intellij_idea</code> or <code>android_studio</code>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">[*.{kt,kts}]</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="na">ktlint_code_style</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">ktlint_official</span>
 </code></pre></div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The default code style will be changed to <code>ktlint_official</code> in the <code>1.0</code> version of ktlint.</p>
-</div>
 <h2 id="disabled-rules">Disabled rules<a class="headerlink" href="#disabled-rules" title="Permanent link">&para;</a></h2>
 <p>Rule sets and individual rules can be disabled / enabled with a separate property per rule (set).</p>
 <p>All rules in a rule set can be enabled or disabled with a rule set property. The name of the rule set property consists of the <code>ktlint_</code> prefix followed by the rule set id. Examples:
