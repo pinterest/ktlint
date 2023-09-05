@@ -528,7 +528,8 @@ class SimpleCLITest {
                 assertThat(normalOutput).containsLineMatching(
                     Regex(
                         ".*WARN.*Parameter `--code-style=android_studio is deprecated. The code style should be defined as " +
-                            "'.editorconfig' property 'ktlint_code_style'.*"),
+                            "'.editorconfig' property 'ktlint_code_style'.*",
+                    ),
                 )
             }
     }
