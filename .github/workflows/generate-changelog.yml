@@ -37,16 +37,19 @@ jobs:
               "categories": [
                 {
                   "title": "### 💔 Breaking changes",
-                  "labels": ["api changelog"]
+                  "labels": ["api changelog"],
+                  "exclude_labels": ["exclude from changelog"]
                 },
                 {
                   "title": "### 🆕 Features",
                   "labels": ["feature changelog"],
+                  "exclude_labels": ["exclude from changelog"],
                   "empty_content": "None"
                 },
                 {
                   "title": "### 🔧 Fixes",
                   "labels": ["fix changelog"],
+                  "exclude_labels": ["exclude from changelog"],
                   "empty_content": "None"
                 },
                 {
@@ -61,7 +64,8 @@ jobs:
                       "pattern": "renovate\\[bot\\]",
                       "on_property": "author"
                     }
-                  ]
+                  ],
+                  "exclude_labels": ["exclude from changelog"]
                 },
                 {
                   "title": "### 💬 Other",
