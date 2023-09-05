@@ -8,6 +8,26 @@ By using ktlint you put the importance of code clarity and community conventions
 
 ktlint is a single binary with both linter & formatter included. All you need is to drop it in (no need to get [overwhelmed](https://en.wikipedia.org/wiki/Decision_fatigue) while choosing among [dozens of code style options](https://checkstyle.sourceforge.net/checks.html)).
 
+
+## What are the Maven coordinates in Ktlint 1.x?
+
+With the release of ktlint `1.0` the Maven coordinates of most modules have been changed. Now all ktlint modules are published in Maven group `com.pinterest.ktlint`. Also, the artifact id's of some modules have been changed.
+
+The Maven coordinates of modules below have been changed:
+
+| Old Maven coordinates                                | New Maven coordinates                                    |
+|------------------------------------------------------|----------------------------------------------------------|
+| `com.pinterest.ktlint`                               | `com.pinterest.ktlint.ktlint-cli`                        |
+| `com.pinterest.ktlint.ktlint-reporter-baseline`      | `com.pinterest.ktlint.ktlint-cli-reporter-baseline`      |
+| `com.pinterest.ktlint.ktlint-reporter-checkstyle`    | `com.pinterest.ktlint.ktlint-cli-reporter-checkstyle`    |
+| `com.pinterest.ktlint.ktlint-cli-reporter`           | `com.pinterest.ktlint.ktlint-cli-reporter-core`          |
+| `com.pinterest.ktlint.ktlint-reporter-format`        | `com.pinterest.ktlint.ktlint-cli-reporter-format`        |
+| `com.pinterest.ktlint.ktlint-reporter-html`          | `com.pinterest.ktlint.ktlint-cli-reporter-html`          |
+| `com.pinterest.ktlint.ktlint-reporter-json`          | `com.pinterest.ktlint.ktlint-cli-reporter-json`          |
+| `com.pinterest.ktlint.ktlint-reporter-plain`         | `com.pinterest.ktlint.ktlint-cli-reporter-plain`         |
+| `com.pinterest.ktlint.ktlint-reporter-plain-summary` | `com.pinterest.ktlint.ktlint-cli-reporter-plain-summary` |
+| `com.pinterest.ktlint.ktlint-reporter-sarif`         | `com.pinterest.ktlint.ktlint-cli-reporter-sarif`         |
+
 ##  How do I enable or disable a rule?
 
 An individual rule can be enabled or disabled with a rule property. The name of the rule property consists of the `ktlint_` prefix followed by the rule set id followed by a `_` and the rule id. Examples:
@@ -73,7 +93,7 @@ When using Ktlint CLI, you may pass a list of disabled rules via the `--disabled
 
 ## Why is `.editorconfig` property `disabled_rules` deprecated and how do I resolve this?
 
-The `.editorconfig` properties `disabled_rules` and `ktlint_disabled_rules` have been removed in version `0.49`. Those properties contain a comma separated list of rules which are disabled. Using a comma separated list of values has some disadvantages.
+The `.editorconfig` properties `disabled_rules` and `ktlint_disabled_rules` are deprecated as of KtLint version `0.48` and are removed in version `0.49`. Those properties contain a comma separated list of rules which are disabled. Using a comma separated list of values has some disadvantages.
 
 A big disadvantage is that it is not possible to override the property partially in an `.editorconfig` file in a subpackage. Another disadvantage is that it is not possible to express explicitly that a rule is enabled. Lastly, (qualified) rule ids can be 20 characters or longer, which makes a list with multiple entries hard to read.
 
@@ -146,7 +166,7 @@ kotlinFile.writeText(
 
 # Are formatter tags respected?
 
-The formatter tags of IntelliJ IDEA are respected. By default, those formatter tags are disabled. The formatter tags can be enabled with `.editorconfig` properties below:
+As of version `0.49.x` the formatter tags of IntelliJ IDEA are respected. By default, those formatter tags are disabled. The formatter tags can be enabled with `.editorconfig` properties below:
 ```editorconfig
 ij_formatter_tags_enabled = true # Defaults to 'false'
 ij_formatter_off_tag = some-custom-off-tag # Defaults to '@formatter:off'
