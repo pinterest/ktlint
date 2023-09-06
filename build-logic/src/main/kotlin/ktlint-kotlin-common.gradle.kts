@@ -17,11 +17,11 @@ kotlin {
 }
 
 tasks.withType<JavaCompile>().configureEach {
-    options.release.set(javaTargetVersion.asInt())
+    options.release = javaTargetVersion.asInt()
 }
 tasks.withType<KotlinCompile>().configureEach {
     // Convert Java version (e.g. "1.8" or "11") to Kotlin JvmTarget ("8" resp. "11")
-    compilerOptions.jvmTarget.set(JvmTarget.fromTarget(JavaVersion.toVersion(javaTargetVersion).toString()))
+    compilerOptions.jvmTarget = JvmTarget.fromTarget(JavaVersion.toVersion(javaTargetVersion).toString())
 }
 
 val requestedJdkVersion = project.findProperty("testJdkVersion")?.toString()?.toInt()
