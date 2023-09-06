@@ -7,7 +7,9 @@ import java.io.PrintStream
 import java.util.ArrayList
 import java.util.concurrent.ConcurrentHashMap
 
-public class CheckStyleReporter(private val out: PrintStream) : ReporterV2 {
+public class CheckStyleReporter(
+    private val out: PrintStream,
+) : ReporterV2 {
     private val acc = ConcurrentHashMap<String, MutableList<KtlintCliError>>()
 
     override fun onLintError(
@@ -24,11 +26,13 @@ public class CheckStyleReporter(private val out: PrintStream) : ReporterV2 {
         out.println("""<checkstyle version="8.0">""")
         for ((file, errList) in acc.entries.sortedBy { it.key }) {
             out.println("""    <file name="${file.escapeXMLAttrValue()}">""")
-            for ((line, col, ruleId, detail) in errList) {
-                val message = detail.escapeXMLAttrValue()
-                out.println(
-                    """        <error line="$line" column="$col" severity="error" message="$message" source="$ruleId" />""",
-                )
+            for (err in errList) {
+                with(err) {
+                    val message = detail.escapeXMLAttrValue()
+                    out.println(
+                        """        <error line="$line" column="$col" severity="error" message="$message" source="$ruleId" />""",
+                    )
+                }
             }
             out.println("""    </file>""")
         }
@@ -36,6 +40,10 @@ public class CheckStyleReporter(private val out: PrintStream) : ReporterV2 {
     }
 
     private fun String.escapeXMLAttrValue() =
-        this.replace("&", "&amp;").replace("\"", "&quot;").replace("'", "&apos;")
-            .replace("<", "&lt;").replace(">", "&gt;")
+        this
+            .replace("&", "&amp;")
+            .replace("\"", "&quot;")
+            .replace("'", "&apos;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
 }

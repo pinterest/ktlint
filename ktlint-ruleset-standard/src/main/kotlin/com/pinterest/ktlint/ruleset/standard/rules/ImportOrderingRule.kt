@@ -3,6 +3,8 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -11,7 +13,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.ImportOrderingRule.Companion.
 import com.pinterest.ktlint.ruleset.standard.rules.internal.importordering.ImportSorter
 import com.pinterest.ktlint.ruleset.standard.rules.internal.importordering.PatternEntry
 import com.pinterest.ktlint.ruleset.standard.rules.internal.importordering.parseImportsLayout
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
@@ -37,6 +39,7 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
  *
  * In case the custom property is not provided, the rule defaults to alphabetical order in case of "android" flag supplied, or to idea otherwise.
  */
+@SinceKtlint("0.10", STABLE)
 public class ImportOrderingRule :
     StandardRule(
         id = "import-ordering",
@@ -66,8 +69,10 @@ public class ImportOrderingRule :
                 val sortedImports =
                     imports
                         .asSequence()
-                        .mapNotNull { it.psi as? KtImportDirective } // sorter expects KtImportDirective, whitespaces are inserted afterwards
-                        .sortedWith(importSorter)
+                        .mapNotNull {
+                            // sorter expects KtImportDirective, whitespaces are inserted afterwards
+                            it.psi as? KtImportDirective
+                        }.sortedWith(importSorter)
                         .map { it.node } // transform back to ASTNode in order to operate over its method (addChild)
 
                 // insert blank lines wherever needed
@@ -173,9 +178,11 @@ public class ImportOrderingRule :
 
     private fun isCustomLayout() = importsLayout != IDEA_PATTERN && importsLayout != ASCII_PATTERN
 
-    private fun hasTooMuchWhitespace(nodes: Array<ASTNode>): Boolean {
-        return nodes.any { it is PsiWhiteSpace && (it as PsiWhiteSpace).text != "\n" }
-    }
+    private fun hasTooMuchWhitespace(nodes: Array<ASTNode>): Boolean =
+        nodes.any {
+            it is PsiWhiteSpace &&
+                (it as PsiWhiteSpace).text != "\n"
+        }
 
     public companion object {
         /**

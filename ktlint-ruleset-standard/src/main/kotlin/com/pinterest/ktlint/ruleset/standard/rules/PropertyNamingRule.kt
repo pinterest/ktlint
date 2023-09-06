@@ -12,8 +12,10 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.PRIVATE_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY_ACCESSOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VAL_KEYWORD
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.internal.regExIgnoringDiacriticsAndStrokesOnLetters
@@ -24,9 +26,9 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
  * https://kotlinlang.org/docs/coding-conventions.html#function-names
  * https://kotlinlang.org/docs/coding-conventions.html#property-names
  */
-public class PropertyNamingRule :
-    StandardRule("property-naming"),
-    Rule.Experimental {
+@SinceKtlint("0.48", EXPERIMENTAL)
+@SinceKtlint("1.0", STABLE)
+public class PropertyNamingRule : StandardRule("property-naming") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -45,16 +47,14 @@ public class PropertyNamingRule :
             .findChildByType(IDENTIFIER)
             ?.let { identifier ->
                 when {
-                    property.hasCustomGetter() -> {
+                    property.hasConstModifier() -> {
+                        visitConstProperty(identifier, emit)
+                    }
+                    property.hasCustomGetter() || property.isTopLevelValue() || property.isObjectValue() -> {
                         // Can not reliably determine whether the value is immutable or not
                     }
                     property.isBackingProperty() -> {
                         visitBackingProperty(identifier, emit)
-                    }
-                    property.hasConstModifier() ||
-                        property.isTopLevelValue() ||
-                        property.isObjectValue() -> {
-                        visitConstProperty(identifier, emit)
                     }
                     else -> {
                         visitNonConstProperty(identifier, emit)

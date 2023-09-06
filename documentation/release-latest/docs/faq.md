@@ -8,6 +8,26 @@ By using ktlint you put the importance of code clarity and community conventions
 
 ktlint is a single binary with both linter & formatter included. All you need is to drop it in (no need to get [overwhelmed](https://en.wikipedia.org/wiki/Decision_fatigue) while choosing among [dozens of code style options](https://checkstyle.sourceforge.net/checks.html)).
 
+
+## What are the Maven coordinates in Ktlint 1.x?
+
+With the release of ktlint `1.0` the Maven coordinates of most modules have been changed. Now all ktlint modules are published in Maven group `com.pinterest.ktlint`. Also, the artifact id's of some modules have been changed.
+
+The Maven coordinates of modules below have been changed:
+
+| Old Maven coordinates                                | New Maven coordinates                                    |
+|------------------------------------------------------|----------------------------------------------------------|
+| `com.pinterest.ktlint`                               | `com.pinterest.ktlint.ktlint-cli`                        |
+| `com.pinterest.ktlint.ktlint-reporter-baseline`      | `com.pinterest.ktlint.ktlint-cli-reporter-baseline`      |
+| `com.pinterest.ktlint.ktlint-reporter-checkstyle`    | `com.pinterest.ktlint.ktlint-cli-reporter-checkstyle`    |
+| `com.pinterest.ktlint.ktlint-cli-reporter`           | `com.pinterest.ktlint.ktlint-cli-reporter-core`          |
+| `com.pinterest.ktlint.ktlint-reporter-format`        | `com.pinterest.ktlint.ktlint-cli-reporter-format`        |
+| `com.pinterest.ktlint.ktlint-reporter-html`          | `com.pinterest.ktlint.ktlint-cli-reporter-html`          |
+| `com.pinterest.ktlint.ktlint-reporter-json`          | `com.pinterest.ktlint.ktlint-cli-reporter-json`          |
+| `com.pinterest.ktlint.ktlint-reporter-plain`         | `com.pinterest.ktlint.ktlint-cli-reporter-plain`         |
+| `com.pinterest.ktlint.ktlint-reporter-plain-summary` | `com.pinterest.ktlint.ktlint-cli-reporter-plain-summary` |
+| `com.pinterest.ktlint.ktlint-reporter-sarif`         | `com.pinterest.ktlint.ktlint-cli-reporter-sarif`         |
+
 ##  How do I enable or disable a rule?
 
 An individual rule can be enabled or disabled with a rule property. The name of the rule property consists of the `ktlint_` prefix followed by the rule set id followed by a `_` and the rule id. Examples:
@@ -154,3 +174,16 @@ ij_formatter_on_tag = some-custom-on-tag # Defaults to '@formatter:on'
 ```
 
 When enabled, the ktlint rule checking is disabled for all code surrounded by the formatter tags.
+
+# How do I disable ktlint for generated code?
+
+Running ktlint on generated code is not useful. Fixing lint and format errors on generated code is a waste of time as errors will be re-introduced once that code is generated again. Given that generated code is located in a separate directory, you can disable ktlint for such directory by adding a glob for that directory:
+```editorconfig
+[some/path/to/generated/code/**/*]
+ktlint = disabled
+```
+
+!!! warning
+    The `ec4j` library used by ktlint does not seem to work with globs starting with `**` followed by a chain of multiple directories (for example `**/path/to/generated/**/*`). But both `some/path/to/generated/**/*` and `**/generated/**/*` work fine.
+
+

@@ -52,7 +52,9 @@ class RuleFilterKtTest {
         assertThat(actual).isEmpty()
     }
 
-    private class RuleIdRuleFilter(private val string: String) : RuleFilter {
+    private class RuleIdRuleFilter(
+        private val string: String,
+    ) : RuleFilter {
         override fun filter(ruleProviders: Set<RuleProvider>): Set<RuleProvider> =
             ruleProviders
                 .filter { it.ruleId.value.contains(string) }

@@ -4,6 +4,7 @@ import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.ALL_RULES_EXECUTION_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
@@ -14,7 +15,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.ktLintRuleExecutionPropertyName
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.ktLintRuleSetExecutionPropertyName
 import com.pinterest.ktlint.rule.engine.internal.rules.KTLINT_SUPPRESSION_RULE_ID
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -24,16 +25,22 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 internal class RuleExecutionRuleFilter(
     private val editorConfig: EditorConfig,
 ) : RuleFilter {
-    override fun filter(ruleProviders: Set<RuleProvider>): Set<RuleProvider> {
-        val ruleExecutionFilter =
-            RuleExecutionFilter(
-                editorConfig.ruleExecutionProperties(ruleProviders),
-                editorConfig[CODE_STYLE_PROPERTY],
-            )
-        return ruleProviders
-            .filter { ruleExecutionFilter.isEnabled(it) }
-            .toSet()
-    }
+    override fun filter(ruleProviders: Set<RuleProvider>): Set<RuleProvider> =
+        if (disableKtlintEntirely()) {
+            emptySet()
+        } else {
+            val ruleExecutionFilter =
+                RuleExecutionFilter(
+                    editorConfig.ruleExecutionProperties(ruleProviders),
+                    editorConfig[CODE_STYLE_PROPERTY],
+                )
+            ruleProviders
+                .filter { ruleExecutionFilter.isEnabled(it) }
+                .toSet()
+        }
+
+    private fun disableKtlintEntirely() =
+        editorConfig.getEditorConfigValueOrNull(RULE_EXECUTION_PROPERTY_TYPE, ALL_RULES_EXECUTION_PROPERTY.name) == RuleExecution.disabled
 
     private fun EditorConfig.ruleExecutionProperties(ruleProviders: Set<RuleProvider>): Map<String, RuleExecution> {
         val ruleExecutionPropertyNames =

@@ -7,7 +7,9 @@ import java.io.PrintStream
 import java.util.ArrayList
 import java.util.concurrent.ConcurrentHashMap
 
-public class JsonReporter(private val out: PrintStream) : ReporterV2 {
+public class JsonReporter(
+    private val out: PrintStream,
+) : ReporterV2 {
     private val acc = ConcurrentHashMap<String, MutableList<KtlintCliError>>()
 
     override fun onLintError(
@@ -29,13 +31,14 @@ public class JsonReporter(private val out: PrintStream) : ReporterV2 {
             out.println("""        "errors": [""")
             val errIndexLast = errList.size - 1
             for ((errIndex, err) in errList.withIndex()) {
-                val (line, col, ruleId, detail) = err
-                out.println("""            {""")
-                out.println("""                "line": $line,""")
-                out.println("""                "column": $col,""")
-                out.println("""                "message": "${detail.escapeJsonValue()}",""")
-                out.println("""                "rule": "$ruleId"""")
-                out.println("""            }${if (errIndex != errIndexLast) "," else ""}""")
+                with(err) {
+                    out.println("""            {""")
+                    out.println("""                "line": $line,""")
+                    out.println("""                "column": $col,""")
+                    out.println("""                "message": "${detail.escapeJsonValue()}",""")
+                    out.println("""                "rule": "$ruleId"""")
+                    out.println("""            }${if (errIndex != errIndexLast) "," else ""}""")
+                }
             }
             out.println("""        ]""")
             out.println("""    }${if (index != indexLast) "," else ""}""")

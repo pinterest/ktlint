@@ -12,6 +12,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.THEN
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
@@ -31,6 +33,7 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
 /**
  * https://kotlinlang.org/docs/reference/coding-conventions.html#formatting-control-flow-statements
  */
+@SinceKtlint("0.25", STABLE)
 public class MultiLineIfElseRule :
     StandardRule(
         id = "multiline-if-else",

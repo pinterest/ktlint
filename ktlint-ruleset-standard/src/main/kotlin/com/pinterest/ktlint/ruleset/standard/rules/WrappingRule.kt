@@ -11,7 +11,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONDITION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DESTRUCTURING_DECLARATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
@@ -27,7 +26,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACKET
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.SEMICOLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_TYPE_CALL_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_TYPE_ENTRY
@@ -47,6 +45,8 @@ import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.Companion.DEFAULT_
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
@@ -67,14 +67,13 @@ import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
-import com.pinterest.ktlint.rule.engine.core.api.noNewLineInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -95,6 +94,7 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
  * is fixed with respect to indentation of the parent. This is just a simple best effort for the case that the
  * indentation rule is not run.
  */
+@SinceKtlint("0.45", STABLE)
 public class WrappingRule :
     StandardRule(
         id = "wrapping",
@@ -140,7 +140,6 @@ public class WrappingRule :
             ARROW -> rearrangeArrow(node, autoCorrect, emit)
             WHITE_SPACE -> line += node.text.count { it == '\n' }
             CLOSING_QUOTE -> rearrangeClosingQuote(node, autoCorrect, emit)
-            SEMICOLON -> insertNewLineAfterSemi(node, autoCorrect, emit)
         }
     }
 
@@ -210,23 +209,24 @@ public class WrappingRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        val rElementType = MATCHING_RTOKEN_MAP[node.elementType]
+        val closingElementType = MATCHING_RTOKEN_MAP[node.elementType]
         var newlineInBetween = false
         var parameterListInBetween = false
         var numberOfArgs = 0
         var firstArg: ASTNode? = null
         // matching ), ] or }
-        val r = node.nextSibling {
-            val isValueArgument = it.elementType == VALUE_ARGUMENT
-            val hasLineBreak = if (isValueArgument) it.hasLineBreak(LAMBDA_EXPRESSION, FUN) else it.hasLineBreak()
-            newlineInBetween = newlineInBetween || hasLineBreak
-            parameterListInBetween = parameterListInBetween || it.elementType == VALUE_PARAMETER_LIST
-            if (isValueArgument) {
-                numberOfArgs++
-                firstArg = it
-            }
-            it.elementType == rElementType
-        }!!
+        val closingElement =
+            node.nextSibling {
+                val isValueArgument = it.elementType == VALUE_ARGUMENT
+                val hasLineBreak = if (isValueArgument) it.hasLineBreak(LAMBDA_EXPRESSION, FUN) else it.hasLineBreak()
+                newlineInBetween = newlineInBetween || hasLineBreak
+                parameterListInBetween = parameterListInBetween || it.elementType == VALUE_PARAMETER_LIST
+                if (isValueArgument) {
+                    numberOfArgs++
+                    firstArg = it
+                }
+                it.elementType == closingElementType
+            }!!
         if (
             !newlineInBetween ||
             // keep { p ->
@@ -237,9 +237,11 @@ public class WrappingRule :
             // })
             (
                 numberOfArgs == 1 &&
-                    firstArg?.firstChildNode?.elementType
+                    firstArg
+                        ?.firstChildNode
+                        ?.elementType
                         ?.let { it == OBJECT_LITERAL || it == LAMBDA_EXPRESSION } == true
-                )
+            )
         ) {
             return
         }
@@ -258,12 +260,14 @@ public class WrappingRule :
             // ) { ... }
             return
         }
-        if (!node.nextCodeLeaf()?.prevLeaf {
-                // Skip comments, whitespace, and empty nodes
-                !it.isPartOfComment() &&
-                    !it.isWhiteSpaceWithoutNewline() &&
-                    it.textLength > 0
-            }.isWhiteSpaceWithNewline() &&
+        if (!node
+                .nextCodeLeaf()
+                ?.prevLeaf {
+                    // Skip comments, whitespace, and empty nodes
+                    !it.isPartOfComment() &&
+                        !it.isWhiteSpaceWithoutNewline() &&
+                        it.textLength > 0
+                }.isWhiteSpaceWithNewline() &&
             // IDEA quirk:
             // if (true &&
             //     true
@@ -279,8 +283,8 @@ public class WrappingRule :
         ) {
             requireNewlineAfterLeaf(node, autoCorrect, emit)
         }
-        if (!r.prevLeaf().isWhiteSpaceWithNewline()) {
-            requireNewlineBeforeLeaf(r, autoCorrect, emit, indentConfig.parentIndentOf(node))
+        if (!closingElement.prevLeaf().isWhiteSpaceWithNewline()) {
+            requireNewlineBeforeLeaf(closingElement, autoCorrect, emit, indentConfig.parentIndentOf(node))
         }
     }
 
@@ -308,7 +312,7 @@ public class WrappingRule :
             !(
                 entries.dropLast(1).all { it.elementType == SUPER_TYPE_ENTRY } &&
                     entries.last().elementType == SUPER_TYPE_CALL_ENTRY
-                )
+            )
         ) {
             // put space after :
             if (!node.prevLeaf().isWhiteSpaceWithNewline()) {
@@ -491,10 +495,7 @@ public class WrappingRule :
             val rToken = lToken.nextSibling { it.elementType == rElementType }
             return rToken?.treeParent == lToken.treeParent
         }
-        if (nextCodeSibling?.textContains('\n') == false) {
-            return true
-        }
-        return false
+        return nextCodeSibling?.textContains('\n') == false
     }
 
     private fun rearrangeArrow(
@@ -534,34 +535,6 @@ public class WrappingRule :
         val r = node.nextSibling { it.elementType == RBRACE } ?: return
         if (!r.prevLeaf().isWhiteSpaceWithNewline()) {
             requireNewlineBeforeLeaf(r, autoCorrect, emit, node.indent())
-        }
-    }
-
-    private fun insertNewLineAfterSemi(
-        node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-    ) {
-        val previousCodeLeaf = node.prevCodeLeaf()?.lastChildLeafOrSelf() ?: return
-        val nextCodeLeaf = node.nextCodeLeaf()?.firstChildLeafOrSelf() ?: return
-        if (previousCodeLeaf.treeParent.elementType == ENUM_ENTRY && nextCodeLeaf.elementType == RBRACE) {
-            // Allow
-            // enum class INDEX2 { ONE, TWO, THREE; }
-            return
-        }
-        if (noNewLineInClosedRange(previousCodeLeaf, nextCodeLeaf)) {
-            requireNewlineAfterLeaf(node, autoCorrect, emit, previousCodeLeaf.indent())
-            node
-                .treeParent
-                .takeIf { it.elementType == BLOCK }
-                ?.let { block ->
-                    beforeVisitBlock(block, autoCorrect, emit)
-                    block
-                        .treeParent
-                        .takeIf { it.elementType == FUNCTION_LITERAL }
-                        ?.findChildByType(ARROW)
-                        ?.let { arrow -> rearrangeArrow(arrow, autoCorrect, emit) }
-                }
         }
     }
 
@@ -630,7 +603,9 @@ public class WrappingRule :
     private fun KtStringTemplateExpression.isFollowedByTrimMargin() = isFollowedBy("trimMargin()")
 
     private fun KtStringTemplateExpression.isFollowedBy(callExpressionName: String) =
-        this.node.nextSibling { it.elementType != DOT }
+        this
+            .node
+            .nextSibling { it.elementType != DOT }
             .let { it?.elementType == CALL_EXPRESSION && it.text == callExpressionName }
 
     /**
@@ -736,9 +711,10 @@ public class WrappingRule :
         private val LTOKEN_SET = TokenSet.create(LPAR, LBRACE, LBRACKET, LT)
         private val RTOKEN_SET = TokenSet.create(RPAR, RBRACE, RBRACKET, GT)
         private val MATCHING_RTOKEN_MAP =
-            LTOKEN_SET.types.zip(
-                RTOKEN_SET.types,
-            ).toMap()
+            LTOKEN_SET
+                .types
+                .zip(RTOKEN_SET.types)
+                .toMap()
     }
 }
 

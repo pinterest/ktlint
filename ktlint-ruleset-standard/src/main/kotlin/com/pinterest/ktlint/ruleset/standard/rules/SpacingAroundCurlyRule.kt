@@ -18,6 +18,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SAFE_ACCESS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SEMICOLON
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.isLeaf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfString
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -33,6 +35,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.TreeElement
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtLambdaExpression
 
+@SinceKtlint("0.1", STABLE)
 public class SpacingAroundCurlyRule : StandardRule("curly-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
@@ -51,7 +54,7 @@ public class SpacingAroundCurlyRule : StandardRule("curly-spacing") {
                     (
                         prevLeaf?.elementType == LPAR &&
                             ((node as LeafPsiElement).parent is KtLambdaExpression || node.parent.parent is KtLambdaExpression)
-                        )
+                    )
                 spacingAfter = nextLeaf is PsiWhiteSpace || nextLeaf?.elementType == RBRACE
                 if (prevLeaf is PsiWhiteSpace &&
                     !prevLeaf.textContains('\n') &&
@@ -69,7 +72,7 @@ public class SpacingAroundCurlyRule : StandardRule("curly-spacing") {
                         prevLeaf.prevLeaf()?.let { it.elementType == RPAR || KtTokens.KEYWORDS.contains(it.elementType) } == true ||
                             node.treeParent.elementType == CLASS_BODY ||
                             (prevLeaf.treeParent.elementType == FUN && prevLeaf.treeNext.elementType != LAMBDA_EXPRESSION)
-                        ) // allow newline for lambda return type
+                    ) // allow newline for lambda return type
                 ) {
                     emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
                     if (autoCorrect) {
@@ -141,7 +144,7 @@ public class SpacingAroundCurlyRule : StandardRule("curly-spacing") {
                 nextElementType == LBRACKET ||
                 nextElementType == LPAR ||
                 nextElementType == COLONCOLON
-            )
+        )
     }
 }
 

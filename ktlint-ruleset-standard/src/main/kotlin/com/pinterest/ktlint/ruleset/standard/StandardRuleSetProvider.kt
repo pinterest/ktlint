@@ -9,8 +9,10 @@ import com.pinterest.ktlint.ruleset.standard.rules.ArgumentListWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.BinaryExpressionWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.BlankLineBeforeDeclarationRule
 import com.pinterest.ktlint.ruleset.standard.rules.BlockCommentInitialStarAlignmentRule
+import com.pinterest.ktlint.ruleset.standard.rules.ChainMethodContinuationRule
 import com.pinterest.ktlint.ruleset.standard.rules.ChainWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ClassNamingRule
+import com.pinterest.ktlint.ruleset.standard.rules.ClassSignatureRule
 import com.pinterest.ktlint.ruleset.standard.rules.CommentSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.CommentWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ContextReceiverWrappingRule
@@ -20,10 +22,13 @@ import com.pinterest.ktlint.ruleset.standard.rules.EnumWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.FilenameRule
 import com.pinterest.ktlint.ruleset.standard.rules.FinalNewlineRule
 import com.pinterest.ktlint.ruleset.standard.rules.FunKeywordSpacingRule
+import com.pinterest.ktlint.ruleset.standard.rules.FunctionExpressionBodyRule
+import com.pinterest.ktlint.ruleset.standard.rules.FunctionLiteralRule
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionNamingRule
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionReturnTypeSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionStartOfBodySpacingRule
+import com.pinterest.ktlint.ruleset.standard.rules.FunctionTypeModifierSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionTypeReferenceSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.IfElseBracingRule
 import com.pinterest.ktlint.ruleset.standard.rules.IfElseWrappingRule
@@ -34,7 +39,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.MaxLineLengthRule
 import com.pinterest.ktlint.ruleset.standard.rules.ModifierListSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ModifierOrderRule
 import com.pinterest.ktlint.ruleset.standard.rules.MultiLineIfElseRule
-import com.pinterest.ktlint.ruleset.standard.rules.MultilineExpressionWrapping
+import com.pinterest.ktlint.ruleset.standard.rules.MultilineExpressionWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoBlankLineBeforeRbraceRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoBlankLineInListRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoBlankLinesInChainedMethodCallsRule
@@ -74,6 +79,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundUnaryOperatorRul
 import com.pinterest.ktlint.ruleset.standard.rules.SpacingBetweenDeclarationsWithAnnotationsRule
 import com.pinterest.ktlint.ruleset.standard.rules.SpacingBetweenDeclarationsWithCommentsRule
 import com.pinterest.ktlint.ruleset.standard.rules.SpacingBetweenFunctionNameAndOpeningParenthesisRule
+import com.pinterest.ktlint.ruleset.standard.rules.StatementWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.StringTemplateIndentRule
 import com.pinterest.ktlint.ruleset.standard.rules.StringTemplateRule
 import com.pinterest.ktlint.ruleset.standard.rules.TrailingCommaOnCallSiteRule
@@ -84,8 +90,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.TypeParameterListSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.UnnecessaryParenthesesBeforeTrailingLambdaRule
 import com.pinterest.ktlint.ruleset.standard.rules.WrappingRule
 
-public class StandardRuleSetProvider :
-    RuleSetProviderV3(RuleSetId.STANDARD) {
+public class StandardRuleSetProvider : RuleSetProviderV3(RuleSetId.STANDARD) {
     override fun getRuleProviders(): Set<RuleProvider> =
         setOf(
             RuleProvider { AnnotationRule() },
@@ -94,8 +99,10 @@ public class StandardRuleSetProvider :
             RuleProvider { BinaryExpressionWrappingRule() },
             RuleProvider { BlankLineBeforeDeclarationRule() },
             RuleProvider { BlockCommentInitialStarAlignmentRule() },
+            RuleProvider { ChainMethodContinuationRule() },
             RuleProvider { ChainWrappingRule() },
             RuleProvider { ClassNamingRule() },
+            RuleProvider { ClassSignatureRule() },
             RuleProvider { CommentSpacingRule() },
             RuleProvider { CommentWrappingRule() },
             RuleProvider { ContextReceiverWrappingRule() },
@@ -104,10 +111,13 @@ public class StandardRuleSetProvider :
             RuleProvider { EnumWrappingRule() },
             RuleProvider { FilenameRule() },
             RuleProvider { FinalNewlineRule() },
+            RuleProvider { FunctionExpressionBodyRule() },
+            RuleProvider { FunctionLiteralRule() },
             RuleProvider { FunctionNamingRule() },
             RuleProvider { FunctionReturnTypeSpacingRule() },
             RuleProvider { FunctionSignatureRule() },
             RuleProvider { FunctionStartOfBodySpacingRule() },
+            RuleProvider { FunctionTypeModifierSpacingRule() },
             RuleProvider { FunctionTypeReferenceSpacingRule() },
             RuleProvider { FunKeywordSpacingRule() },
             RuleProvider { IfElseBracingRule() },
@@ -119,7 +129,7 @@ public class StandardRuleSetProvider :
             RuleProvider { ModifierListSpacingRule() },
             RuleProvider { ModifierOrderRule() },
             RuleProvider { MultiLineIfElseRule() },
-            RuleProvider { MultilineExpressionWrapping() },
+            RuleProvider { MultilineExpressionWrappingRule() },
             RuleProvider { NoBlankLineBeforeRbraceRule() },
             RuleProvider { NoBlankLineInListRule() },
             RuleProvider { NoBlankLinesInChainedMethodCallsRule() },
@@ -159,6 +169,7 @@ public class StandardRuleSetProvider :
             RuleProvider { SpacingBetweenDeclarationsWithAnnotationsRule() },
             RuleProvider { SpacingBetweenDeclarationsWithCommentsRule() },
             RuleProvider { SpacingBetweenFunctionNameAndOpeningParenthesisRule() },
+            RuleProvider { StatementWrappingRule() },
             RuleProvider { StringTemplateRule() },
             RuleProvider { StringTemplateIndentRule() },
             RuleProvider { TrailingCommaOnCallSiteRule() },

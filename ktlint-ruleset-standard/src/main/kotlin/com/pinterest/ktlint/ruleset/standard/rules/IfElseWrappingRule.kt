@@ -13,6 +13,9 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
@@ -36,6 +39,8 @@ import org.jetbrains.kotlin.utils.addToStdlib.applyIf
  * Enforce that single line if statements are kept simple. A single line if statement is allowed only when it has at most one else branch.
  * Also, the branches of such an if statement may not be wrapped in a block.
  */
+@SinceKtlint("0.49", EXPERIMENTAL)
+@SinceKtlint("1.0", STABLE)
 public class IfElseWrappingRule :
     StandardRule(
         id = "if-else-wrapping",
@@ -46,7 +51,6 @@ public class IfElseWrappingRule :
                 INDENT_STYLE_PROPERTY,
             ),
     ),
-    Rule.Experimental,
     Rule.OfficialCodeStyle {
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 
@@ -164,25 +168,14 @@ public class IfElseWrappingRule :
         }
     }
 
-//         private fun ASTNode.findFirstNodeInBlockToBeIndented(): ASTNode? {
-//            val blockOrSelf = findChildByType(BLOCK) ?: this
-//            return blockOrSelf
-//                .children()
-//                .find {
-//                    it.elementType != LBRACE &&
-//                        !it.isWhitespaceBeforeComment() &&
-//                        !it.isPartOfComment()
-//                }
-//        }
-    private fun ASTNode.findFirstNodeInBlockToBeIndented(): ASTNode? {
-        return findChildByType(BLOCK)
+    private fun ASTNode.findFirstNodeInBlockToBeIndented(): ASTNode? =
+        findChildByType(BLOCK)
             ?.children()
             ?.first {
                 it.elementType != LBRACE &&
                     !it.isWhitespaceBeforeComment() &&
                     !it.isPartOfComment()
             }
-    }
 
     private fun ASTNode.isWhitespaceBeforeComment() = isWhiteSpaceWithoutNewline() && nextLeaf()?.isPartOfComment() == true
 

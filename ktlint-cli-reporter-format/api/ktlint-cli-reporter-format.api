@@ -1,0 +1,40 @@
+public final class com/pinterest/ktlint/cli/reporter/format/Color : java/lang/Enum {
+	public static final field BLACK Lcom/pinterest/ktlint/cli/reporter/format/Color;
+	public static final field BLUE Lcom/pinterest/ktlint/cli/reporter/format/Color;
+	public static final field CYAN Lcom/pinterest/ktlint/cli/reporter/format/Color;
+	public static final field DARK_GRAY Lcom/pinterest/ktlint/cli/reporter/format/Color;
+	public static final field GREEN Lcom/pinterest/ktlint/cli/reporter/format/Color;
+	public static final field LIGHT_BLUE Lcom/pinterest/ktlint/cli/reporter/format/Color;
+	public static final field LIGHT_CYAN Lcom/pinterest/ktlint/cli/reporter/format/Color;
+	public static final field LIGHT_GRAY Lcom/pinterest/ktlint/cli/reporter/format/Color;
+	public static final field LIGHT_GREEN Lcom/pinterest/ktlint/cli/reporter/format/Color;
+	public static final field LIGHT_MAGENTA Lcom/pinterest/ktlint/cli/reporter/format/Color;
+	public static final field LIGHT_RED Lcom/pinterest/ktlint/cli/reporter/format/Color;
+	public static final field LIGHT_YELLOW Lcom/pinterest/ktlint/cli/reporter/format/Color;
+	public static final field MAGENTA Lcom/pinterest/ktlint/cli/reporter/format/Color;
+	public static final field RED Lcom/pinterest/ktlint/cli/reporter/format/Color;
+	public static final field WHITE Lcom/pinterest/ktlint/cli/reporter/format/Color;
+	public static final field YELLOW Lcom/pinterest/ktlint/cli/reporter/format/Color;
+	public final fun getCode ()I
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/pinterest/ktlint/cli/reporter/format/Color;
+	public static fun values ()[Lcom/pinterest/ktlint/cli/reporter/format/Color;
+}
+
+public final class com/pinterest/ktlint/cli/reporter/format/FormatReporter : com/pinterest/ktlint/cli/reporter/core/api/ReporterV2 {
+	public fun <init> (Ljava/io/PrintStream;ZZLcom/pinterest/ktlint/cli/reporter/format/Color;)V
+	public synthetic fun <init> (Ljava/io/PrintStream;ZZLcom/pinterest/ktlint/cli/reporter/format/Color;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun after (Ljava/lang/String;)V
+	public fun afterAll ()V
+	public fun before (Ljava/lang/String;)V
+	public fun beforeAll ()V
+	public fun onLintError (Ljava/lang/String;Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError;)V
+}
+
+public final class com/pinterest/ktlint/cli/reporter/format/FormatReporterProvider : com/pinterest/ktlint/cli/reporter/core/api/ReporterProviderV2 {
+	public fun <init> ()V
+	public synthetic fun get (Ljava/io/PrintStream;Ljava/util/Map;)Lcom/pinterest/ktlint/cli/reporter/core/api/ReporterV2;
+	public fun get (Ljava/io/PrintStream;Ljava/util/Map;)Lcom/pinterest/ktlint/cli/reporter/format/FormatReporter;
+	public fun getId ()Ljava/lang/String;
+}
+

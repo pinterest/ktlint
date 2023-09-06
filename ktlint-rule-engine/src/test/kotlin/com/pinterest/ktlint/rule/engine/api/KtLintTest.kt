@@ -488,10 +488,11 @@ private open class DummyRule(
 /**
  * A dummy rule for testing
  */
-private class AutoCorrectErrorRule : Rule(
-    ruleId = AUTOCORRECT_ERROR_RULE_ID,
-    about = About(),
-) {
+private class AutoCorrectErrorRule :
+    Rule(
+        ruleId = AUTOCORRECT_ERROR_RULE_ID,
+        about = About(),
+    ) {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -637,10 +638,11 @@ private data class CallbackResult(
 /**
  * This rule throws an exception when it is visited more than once.
  */
-private class WithStateRule : Rule(
-    ruleId = RuleId("test:with-state"),
-    about = About(),
-) {
+private class WithStateRule :
+    Rule(
+        ruleId = RuleId("test:with-state"),
+        about = About(),
+    ) {
     private var hasNotBeenVisitedYet = true
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {

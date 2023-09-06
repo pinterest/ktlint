@@ -1,7 +1,10 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
-import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isRoot
@@ -9,7 +12,9 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
-public class NoEmptyFileRule : StandardRule(id = "no-empty-file"), Rule.Experimental {
+@SinceKtlint("0.50", EXPERIMENTAL)
+@SinceKtlint("1.0", STABLE)
+public class NoEmptyFileRule : StandardRule(id = "no-empty-file") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -40,3 +45,5 @@ public class NoEmptyFileRule : StandardRule(id = "no-empty-file"), Rule.Experime
                         !(it.elementType == ElementType.SCRIPT && it.text.isBlank())
                 }
 }
+
+public val NO_EMPTY_FILE_RULE_ID: RuleId = NoEmptyFileRule().ruleId

@@ -4,6 +4,7 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.ALL_RULES_EXECUTION_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RULE_EXECUTION_PROPERTY_TYPE
@@ -176,6 +177,21 @@ class RuleExecutionRuleFilterTest {
         assertThat(actual).containsExactly(KTLINT_SUPPRESSION_RULE_ID)
     }
 
+    @Test
+    fun `Given that ktlint is disabled entirely then the internal rule for migrating the ktlint-disable directives is disabled`() {
+        val actual =
+            runWithRuleExecutionRuleFilter(
+                RuleProvider { NormalRule(STANDARD_RULE_A) },
+                RuleProvider { KtlintSuppressionRule(listOf(STANDARD_RULE_A)) },
+                editorConfig =
+                    EditorConfig(
+                        ktLintDisableAllRuleExecutionEditorConfigProperty(),
+                    ),
+            ).toRuleIds()
+
+        assertThat(actual).isEmpty()
+    }
+
     /**
      * Create a [RuleExecutionRuleFilter] for a given set of [RuleProvider]s and an [EditorConfig].
      */
@@ -190,6 +206,14 @@ class RuleExecutionRuleFilterTest {
         )
 
     private fun Set<RuleProvider>.toRuleIds() = map { it.ruleId }
+
+    private fun ktLintDisableAllRuleExecutionEditorConfigProperty() =
+        Property
+            .builder()
+            .type(RULE_EXECUTION_PROPERTY_TYPE)
+            .name(ALL_RULES_EXECUTION_PROPERTY.name)
+            .value(RuleExecution.disabled.name)
+            .build()
 
     private fun ktLintRuleExecutionEditorConfigProperty(
         ktlintRuleExecutionPropertyName: String,
@@ -217,14 +241,16 @@ class RuleExecutionRuleFilterTest {
         val CUSTOM_RULE_C = RuleId("$CUSTOM:rule-c")
     }
 
-    private open class NormalRule(ruleId: RuleId) :
-        Rule(
+    private open class NormalRule(
+        ruleId: RuleId,
+    ) : Rule(
             ruleId = ruleId,
             about = About(),
         )
 
-    private open class ExperimentalRule(ruleId: RuleId) :
-        Rule(
+    private open class ExperimentalRule(
+        ruleId: RuleId,
+    ) : Rule(
             ruleId = ruleId,
             about = About(),
         ),

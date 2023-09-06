@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.rule.engine.api
 
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import dev.drewhamilton.poko.Poko
 
 /**
  * Lint error found by the [KtLintRuleEngine].
@@ -11,10 +12,11 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
  * [detail]: error message
  * [canBeAutoCorrected]: flag indicating whether the error can be corrected by the rule if "format" is run
  */
-public data class LintError(
-    val line: Int,
-    val col: Int,
-    val ruleId: RuleId,
-    val detail: String,
-    val canBeAutoCorrected: Boolean,
+@Poko
+public class LintError(
+    public val line: Int,
+    public val col: Int,
+    public val ruleId: RuleId,
+    public val detail: String,
+    public val canBeAutoCorrected: Boolean,
 )

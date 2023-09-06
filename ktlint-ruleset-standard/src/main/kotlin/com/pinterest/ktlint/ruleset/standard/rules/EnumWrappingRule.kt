@@ -7,8 +7,10 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
@@ -28,6 +30,8 @@ import org.jetbrains.kotlin.psi.KtClass
 /**
  *
  */
+@SinceKtlint("0.49", EXPERIMENTAL)
+@SinceKtlint("1.0", STABLE)
 public class EnumWrappingRule :
     StandardRule(
         id = "enum-wrapping",
@@ -36,8 +40,7 @@ public class EnumWrappingRule :
                 INDENT_SIZE_PROPERTY,
                 INDENT_STYLE_PROPERTY,
             ),
-    ),
-    Rule.Experimental {
+    ) {
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {

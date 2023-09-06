@@ -20,6 +20,18 @@ public val RULE_EXECUTION_PROPERTY_TYPE: PropertyType.LowerCasingPropertyType<Ru
     )
 
 /**
+ * When disabled, no ktlint rules are executed. This property can be used to disable all rulesets (including internal rules) for a given
+ * glob in the '.editorconfig'.
+ */
+public val ALL_RULES_EXECUTION_PROPERTY: EditorConfigProperty<RuleExecution> =
+    EditorConfigProperty(
+        // Explicitly name the rule as multiple properties exists for this property type
+        name = "ktlint",
+        type = RULE_EXECUTION_PROPERTY_TYPE,
+        defaultValue = RuleExecution.enabled,
+    )
+
+/**
  * When enabled, a rule that implements interface "Rule.Experimental" is executed unless that rule itself is explicitly disabled.
  */
 public val EXPERIMENTAL_RULES_EXECUTION_PROPERTY: EditorConfigProperty<RuleExecution> =

@@ -13,7 +13,6 @@ import java.util.jar.Manifest
 public fun <T> ktlintVersion(javaClass: Class<T>): String? = javaClass.`package`.implementationVersion ?: getManifestVersion(javaClass)
 
 private fun <T> getManifestVersion(javaClass: Class<T>) =
-    javaClass.getResourceAsStream("/META-INF/MANIFEST.MF")
-        ?.run {
-            Manifest(this).mainAttributes.getValue("Implementation-Version")
-        }
+    javaClass
+        .getResourceAsStream("/META-INF/MANIFEST.MF")
+        ?.run { Manifest(this).mainAttributes.getValue("Implementation-Version") }

@@ -31,8 +31,9 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
 import com.pinterest.ktlint.ruleset.standard.rules.FILENAME_RULE_ID
-import mu.KLogger
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.DelegatingKLogger
+import io.github.oshai.kotlinlogging.KLogger
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 import picocli.CommandLine
 import picocli.CommandLine.Command
@@ -41,7 +42,6 @@ import picocli.CommandLine.ParameterException
 import picocli.CommandLine.Parameters
 import java.io.File
 import java.nio.file.FileSystems
-import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.Locale
 import java.util.concurrent.ArrayBlockingQueue
@@ -52,8 +52,6 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
-import kotlin.io.path.pathString
-import kotlin.io.path.relativeToOrSelf
 import kotlin.system.exitProcess
 
 private lateinit var logger: KLogger
@@ -224,12 +222,6 @@ internal class KtlintCommandLine {
     )
     private var minLogLevel: Level = Level.INFO
 
-    @Option(
-        hidden = true,
-        names = ["--disable-kotlin-extension-point"],
-    )
-    var disableKotlinExtensionPoint: Boolean = false
-
     private val tripped = AtomicBoolean()
     private val fileNumber = AtomicInteger()
     private val errorNumber = AtomicInteger()
@@ -282,7 +274,6 @@ internal class KtlintCommandLine {
                 editorConfigDefaults = editorConfigDefaults(ruleProviders),
                 editorConfigOverride = editorConfigOverride,
                 isInvokedFromCli = true,
-                enableKotlinCompilerExtensionPoint = !disableKotlinExtensionPoint,
             )
 
         val baseline =
@@ -380,11 +371,20 @@ internal class KtlintCommandLine {
         logger =
             KotlinLogging
                 .logger {}
-                .setDefaultLoggerModifier { logger ->
-                    (logger.underlyingLogger as Logger).level = minLogLevel
-                }
+                .setDefaultLoggerModifier { logger -> logger.level = minLogLevel }
                 .initKtLintKLogger()
     }
+
+    private var KLogger.level: Level?
+        get() = underlyingLogger()?.level
+        set(value) {
+            underlyingLogger()?.level = value
+        }
+
+    private fun KLogger.underlyingLogger(): Logger? =
+        @Suppress("UNCHECKED_CAST")
+        (this as? DelegatingKLogger<Logger>)
+            ?.underlyingLogger
 
     private fun assertStdinAndPatternsFromStdinOptionsMutuallyExclusive() {
         if (stdin && stdinDelimiter != null) {
@@ -598,7 +598,7 @@ internal class KtlintCommandLine {
                         status = KOTLIN_PARSE_EXCEPTION,
                     )
                 is KtLintRuleException -> {
-                    logger.debug("Internal Error (${e.ruleId}) in ${code.fileNameOrStdin()} at position '${e.line}:${e.col}", e)
+                    logger.debug(e) { "Internal Error (${e.ruleId}) in ${code.fileNameOrStdin()} at position '${e.line}:${e.col}" }
                     KtlintCliError(
                         line = e.line,
                         col = e.col,
@@ -654,28 +654,18 @@ internal class KtlintCommandLine {
     ) {
         val pill =
             object : Future<T> {
-                override fun isDone(): Boolean {
-                    throw UnsupportedOperationException()
-                }
+                override fun isDone(): Boolean = throw UnsupportedOperationException()
 
                 override fun get(
                     timeout: Long,
                     unit: TimeUnit,
-                ): T {
-                    throw UnsupportedOperationException()
-                }
+                ): T = throw UnsupportedOperationException()
 
-                override fun get(): T {
-                    throw UnsupportedOperationException()
-                }
+                override fun get(): T = throw UnsupportedOperationException()
 
-                override fun cancel(mayInterruptIfRunning: Boolean): Boolean {
-                    throw UnsupportedOperationException()
-                }
+                override fun cancel(mayInterruptIfRunning: Boolean): Boolean = throw UnsupportedOperationException()
 
-                override fun isCancelled(): Boolean {
-                    throw UnsupportedOperationException()
-                }
+                override fun isCancelled(): Boolean = throw UnsupportedOperationException()
             }
         val q = ArrayBlockingQueue<Future<T>>(numberOfThreads)
         val producer =
@@ -749,15 +739,3 @@ internal fun exitKtLintProcess(status: Int): Nothing {
     logger.debug { "Exit ktlint with exit code: $status" }
     exitProcess(status)
 }
-
-/**
- * Gets the relative route of the path. Also adjusts the slashes for uniformity between file systems.
- */
-internal val Path.relativeRoute: String
-    get() {
-        val rootPath = Paths.get("").toAbsolutePath()
-        return this
-            .relativeToOrSelf(rootPath)
-            .pathString
-            .replace(File.separatorChar, '/')
-    }

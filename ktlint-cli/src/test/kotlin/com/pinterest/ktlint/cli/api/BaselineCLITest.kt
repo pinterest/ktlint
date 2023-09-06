@@ -21,17 +21,16 @@ class BaselineCLITest {
                 projectName,
                 listOf(
                     "TestBaselineFile.kt.test",
-                    "some/path/to/TestBaselineFile2.kt.test",
+                    "some/path/to/TestBaselineFile.kt.test",
                 ),
             ) {
-                SoftAssertions().apply {
-                    assertErrorExitCode()
-                    assertThat(normalOutput)
-                        .containsLineMatching(Regex(".*/$projectName/TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
-                        .containsLineMatching(Regex(".*/$projectName/TestBaselineFile.kt.test:2:1: Unexpected blank line.*"))
-                        .containsLineMatching(Regex(".*/$projectName/some/path/to/TestBaselineFile2.kt.test:1:25: Unnecessary block.*"))
-                        .containsLineMatching(Regex(".*/$projectName/some/path/to/TestBaselineFile2.kt.test:2:1: Unexpected blank line.*"))
-                }.assertAll()
+                SoftAssertions()
+                    .apply {
+                        assertErrorExitCode()
+                        assertThat(normalOutput)
+                            .containsLineMatching(Regex(".*/$projectName/TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
+                            .containsLineMatching(Regex(".*/$projectName/some/path/to/TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
+                    }.assertAll()
             }
     }
 
@@ -51,28 +50,24 @@ class BaselineCLITest {
                     listOf(
                         "--baseline=$baselinePath",
                         "TestBaselineFile.kt.test",
-                        "some/path/to/TestBaselineFile2.kt.test",
+                        "some/path/to/TestBaselineFile.kt.test",
                     ),
                 ) {
-                    SoftAssertions().apply {
-                        assertNormalExitCode()
-                        assertThat(normalOutput)
-                            .doesNotContainLineMatching(Regex(".*/$projectName/TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
-                            .doesNotContainLineMatching(Regex(".*/$projectName/TestBaselineFile.kt.test:2:1: Unexpected blank line.*"))
-                            .doesNotContainLineMatching(
-                                Regex(".*/$projectName/some/path/to/TestBaselineFile.kt.test:1:24: Unnecessary block.*"),
-                            )
-                            .doesNotContainLineMatching(
-                                Regex(".*/$projectName/some/path/to/TestBaselineFile.kt.test:2:1: Unexpected blank line.*"),
-                            )
-                            .containsLineMatching(
-                                Regex(
-                                    ".*Baseline file '$baselinePath' contains 6 reference\\(s\\) to rule ids without a rule set id. For " +
-                                        "those references the rule set id 'standard' is assumed. It is advised to regenerate this " +
-                                        "baseline file.*",
-                                ),
-                            )
-                    }.assertAll()
+                    SoftAssertions()
+                        .apply {
+                            assertNormalExitCode()
+                            assertThat(normalOutput)
+                                .doesNotContainLineMatching(Regex(".*/$projectName/TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
+                                .doesNotContainLineMatching(
+                                    Regex(".*/$projectName/some/path/to/TestBaselineFile.kt.test:1:24: Unnecessary block.*"),
+                                ).containsLineMatching(
+                                    Regex(
+                                        ".*Baseline file '$baselinePath' contains 4 reference\\(s\\) to rule ids without a rule set id. " +
+                                            "For those references the rule set id 'standard' is assumed. It is advised to regenerate " +
+                                            "this baseline file.*",
+                                    ),
+                                )
+                        }.assertAll()
                 }
         }
 
@@ -90,28 +85,24 @@ class BaselineCLITest {
                     listOf(
                         "--baseline=$baselinePath",
                         "TestBaselineFile.kt.test",
-                        "some/path/to/TestBaselineFile2.kt.test",
+                        "some/path/to/TestBaselineFile.kt.test",
                     ),
                 ) {
-                    SoftAssertions().apply {
-                        assertNormalExitCode()
-                        assertThat(normalOutput)
-                            .doesNotContainLineMatching(Regex(".*/$projectName/TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
-                            .doesNotContainLineMatching(Regex(".*/$projectName/TestBaselineFile.kt.test:2:1: Unexpected blank line.*"))
-                            .doesNotContainLineMatching(
-                                Regex(".*/$projectName/some/path/to/TestBaselineFile.kt.test:1:24: Unnecessary block.*"),
-                            )
-                            .doesNotContainLineMatching(
-                                Regex(".*/$projectName/some/path/to/TestBaselineFile.kt.test:2:1: Unexpected blank line.*"),
-                            )
-                            .containsLineMatching(
-                                Regex(
-                                    ".*Baseline file '$baselinePath' contains 6 reference\\(s\\) to rule ids without a rule set id. For " +
-                                        "those references the rule set id 'standard' is assumed. It is advised to regenerate this " +
-                                        "baseline file.*",
-                                ),
-                            )
-                    }.assertAll()
+                    SoftAssertions()
+                        .apply {
+                            assertNormalExitCode()
+                            assertThat(normalOutput)
+                                .doesNotContainLineMatching(Regex(".*/$projectName/TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
+                                .doesNotContainLineMatching(
+                                    Regex(".*/$projectName/some/path/to/TestBaselineFile.kt.test:1:24: Unnecessary block.*"),
+                                ).containsLineMatching(
+                                    Regex(
+                                        ".*Baseline file '$baselinePath' contains 4 reference\\(s\\) to rule ids without a rule set id. " +
+                                            "For those references the rule set id 'standard' is assumed. It is advised to regenerate " +
+                                            "this baseline file.*",
+                                    ),
+                                )
+                        }.assertAll()
                 }
         }
 
@@ -128,25 +119,24 @@ class BaselineCLITest {
                     listOf(
                         "--baseline=$baselinePath",
                         "TestBaselineFile.kt.test",
-                        "some/path/to/TestBaselineFile2.kt.test",
+                        "some/path/to/TestBaselineFile.kt.test",
                     ),
                 ) {
-                    SoftAssertions().apply {
-                        assertNormalExitCode()
-                        assertThat(normalOutput)
-                            .doesNotContainLineMatching(Regex("^TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
-                            .doesNotContainLineMatching(Regex("^TestBaselineFile.kt.test:2:1: Unexpected blank line.*"))
-                            .doesNotContainLineMatching(Regex("^some/path/to/TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
-                            .doesNotContainLineMatching(Regex("^some/path/to/TestBaselineFile.kt.test:2:1: Unexpected blank line.*"))
-                            .containsLineMatching(
-                                Regex(
-                                    // Escape "\" in baseline path for Windows
-                                    ".*Baseline file '${baselinePath.replace("\\", "\\\\")}' contains 6 " +
-                                        "reference\\(s\\) to rule ids without a rule set id. For those references the rule set id " +
-                                        "'standard' is assumed. It is advised to regenerate this baseline file.*",
-                                ),
-                            )
-                    }.assertAll()
+                    SoftAssertions()
+                        .apply {
+                            assertNormalExitCode()
+                            assertThat(normalOutput)
+                                .doesNotContainLineMatching(Regex("^TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
+                                .doesNotContainLineMatching(Regex("^some/path/to/TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
+                                .containsLineMatching(
+                                    Regex(
+                                        // Escape "\" in baseline path for Windows
+                                        ".*Baseline file '${baselinePath.replace("\\", "\\\\")}' contains 4 " +
+                                            "reference\\(s\\) to rule ids without a rule set id. For those references the rule set id " +
+                                            "'standard' is assumed. It is advised to regenerate this baseline file.*",
+                                    ),
+                                )
+                        }.assertAll()
                 }
         }
     }
@@ -165,24 +155,31 @@ class BaselineCLITest {
                 listOf(
                     "--baseline=$baselinePath",
                     "TestBaselineExtraErrorFile.kt.test",
-                    "some/path/to/TestBaselineExtraErrorFile2.kt.test",
+                    "some/path/to/TestBaselineExtraErrorFile.kt.test",
                 ),
             ) {
-                SoftAssertions().apply {
-                    assertErrorExitCode()
-                    assertThat(normalOutput)
-                        .containsLineMatching(Regex(".*/$projectName/TestBaselineExtraErrorFile.kt.test:2:1: Unexpected blank line.*"))
-                        .containsLineMatching(
-                            Regex(".*/$projectName/some/path/to/TestBaselineExtraErrorFile2.kt.test:2:1: Unexpected blank line.*"),
-                        )
-                        .containsLineMatching(
-                            Regex(
-                                ".*Baseline file '$baselinePath' contains 6 reference\\(s\\) to rule ids without a rule set id. For " +
-                                    "those references the rule set id 'standard' is assumed. It is advised to regenerate this baseline " +
-                                    "file.*",
-                            ),
-                        )
-                }.assertAll()
+                SoftAssertions()
+                    .apply {
+                        assertErrorExitCode()
+                        assertThat(normalOutput)
+                            .containsLineMatching(
+                                Regex(
+                                    ".*/$projectName/TestBaselineExtraErrorFile.kt.test:1:1: Replace the block comment with an " +
+                                        "EOL comment.*",
+                                ),
+                            ).containsLineMatching(
+                                Regex(
+                                    ".*/$projectName/some/path/to/TestBaselineExtraErrorFile.kt.test:1:1: Replace the block comment with " +
+                                        "an EOL comment.*",
+                                ),
+                            ).containsLineMatching(
+                                Regex(
+                                    ".*Baseline file '$baselinePath' contains 4 reference\\(s\\) to rule ids without a rule set id. For " +
+                                        "those references the rule set id 'standard' is assumed. It is advised to regenerate this " +
+                                        "baseline file.*",
+                                ),
+                            )
+                    }.assertAll()
             }
     }
 }

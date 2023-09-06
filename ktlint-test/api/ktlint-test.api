@@ -1,0 +1,94 @@
+public final class com/pinterest/ktlint/test/KtLintAssertThat {
+	public static final field Companion Lcom/pinterest/ktlint/test/KtLintAssertThat$Companion;
+	public static final field EOL_CHAR C
+	public static final field MAX_LINE_LENGTH_MARKER Ljava/lang/String;
+	public fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleProvider;Ljava/lang/String;Ljava/util/Set;Ljava/util/Set;)V
+	public final fun addAdditionalRuleProvider (Lkotlin/jvm/functions/Function0;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
+	public final fun addAdditionalRuleProviders ([Lkotlin/jvm/functions/Function0;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
+	public final fun asFileWithPath (Ljava/lang/String;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
+	public final fun asKotlinScript (Z)Lcom/pinterest/ktlint/test/KtLintAssertThat;
+	public static synthetic fun asKotlinScript$default (Lcom/pinterest/ktlint/test/KtLintAssertThat;ZILjava/lang/Object;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
+	public final fun hasLintViolation (IILjava/lang/String;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
+	public final fun hasLintViolationForAdditionalRule (IILjava/lang/String;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
+	public final fun hasLintViolationWithoutAutoCorrect (IILjava/lang/String;)V
+	public final fun hasLintViolations ([Lcom/pinterest/ktlint/test/LintViolation;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
+	public final fun hasLintViolationsForAdditionalRule ([Lcom/pinterest/ktlint/test/LintViolation;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
+	public final fun hasLintViolationsWithoutAutoCorrect ([Lcom/pinterest/ktlint/test/LintViolation;)V
+	public final fun hasNoLintViolations ()V
+	public final fun hasNoLintViolationsExceptInAdditionalRules ()Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
+	public final fun hasNoLintViolationsForRuleId (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
+	public final fun isFormattedAs (Ljava/lang/String;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
+	public final fun setMaxLineLength ()Lcom/pinterest/ktlint/test/KtLintAssertThat;
+	public final fun withEditorConfigOverride ([Lkotlin/Pair;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
+}
+
+public final class com/pinterest/ktlint/test/KtLintAssertThat$Companion {
+	public final fun assertThatRule (Lkotlin/jvm/functions/Function0;)Lkotlin/jvm/functions/Function1;
+	public final fun assertThatRule (Lkotlin/jvm/functions/Function0;Ljava/util/Set;Ljava/util/Set;)Lkotlin/jvm/functions/Function1;
+	public static synthetic fun assertThatRule$default (Lcom/pinterest/ktlint/test/KtLintAssertThat$Companion;Lkotlin/jvm/functions/Function0;Ljava/util/Set;Ljava/util/Set;ILjava/lang/Object;)Lkotlin/jvm/functions/Function1;
+}
+
+public final class com/pinterest/ktlint/test/KtLintAssertThatAssertable : org/assertj/core/api/AbstractAssert {
+	public fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleProvider;Lcom/pinterest/ktlint/rule/engine/api/Code;Lcom/pinterest/ktlint/rule/engine/api/EditorConfigOverride;Ljava/util/Set;)V
+	public synthetic fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleProvider;Lcom/pinterest/ktlint/rule/engine/api/Code;Lcom/pinterest/ktlint/rule/engine/api/EditorConfigOverride;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun hasLintViolation (IILjava/lang/String;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
+	public final fun hasLintViolationForAdditionalRule (IILjava/lang/String;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
+	public final fun hasLintViolationWithoutAutoCorrect (IILjava/lang/String;)V
+	public final fun hasLintViolations ([Lcom/pinterest/ktlint/test/LintViolation;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
+	public final fun hasLintViolationsForAdditionalRules ([Lcom/pinterest/ktlint/test/LintViolation;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
+	public final fun hasLintViolationsWithoutAutocorrect ([Lcom/pinterest/ktlint/test/LintViolation;)V
+	public final fun hasNoLintViolations ()V
+	public final fun hasNoLintViolationsExceptInAdditionalRules ()Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
+	public final fun hasNoLintViolationsForRuleId (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
+	public final fun isFormattedAs (Ljava/lang/String;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
+}
+
+public abstract interface annotation class com/pinterest/ktlint/test/KtlintDocumentationTest : java/lang/annotation/Annotation {
+}
+
+public final class com/pinterest/ktlint/test/KtlintTestFileSystem {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun close ()V
+	public final fun getFileSystem ()Ljava/nio/file/FileSystem;
+	public final fun resolve (Ljava/lang/String;)Ljava/nio/file/Path;
+	public static synthetic fun resolve$default (Lcom/pinterest/ktlint/test/KtlintTestFileSystem;Ljava/lang/String;ILjava/lang/Object;)Ljava/nio/file/Path;
+	public final fun unixPathStringRelativeToRootDirectoryOfFileSystem (Ljava/lang/String;)Ljava/lang/String;
+	public final fun writeEditorConfigFile (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public static synthetic fun writeEditorConfigFile$default (Lcom/pinterest/ktlint/test/KtlintTestFileSystem;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)V
+	public final fun writeFile (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun writeFile (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public final fun writeRootEditorConfigFile (Ljava/lang/String;)V
+}
+
+public final class com/pinterest/ktlint/test/LintViolation {
+	public fun <init> (IILjava/lang/String;)V
+	public fun <init> (IILjava/lang/String;Z)V
+	public synthetic fun <init> (IILjava/lang/String;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCanBeAutoCorrected ()Z
+	public final fun getCol ()I
+	public final fun getDetail ()Ljava/lang/String;
+	public final fun getLine ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/pinterest/ktlint/test/ReplaceStringTemplatePlaceholderKt {
+	public static final fun replaceStringTemplatePlaceholder (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public static synthetic fun replaceStringTemplatePlaceholder$default (Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
+}
+
+public class com/pinterest/ktlint/test/RuleSetProviderTest {
+	public static final field NEWLINE_AND_INDENT Ljava/lang/String;
+	public fun <init> (Ljava/lang/Class;Ljava/lang/String;)V
+	public final fun checkAllRulesInPackageAreProvidedByRuleSetProvider ()V
+}
+
+public final class com/pinterest/ktlint/test/TestLiteralsKt {
+	public static final field MULTILINE_STRING_QUOTE Ljava/lang/String;
+	public static final field SPACE Ljava/lang/String;
+	public static final field TAB Ljava/lang/String;
+}
+

@@ -25,12 +25,19 @@ import kotlin.io.path.relativeToOrSelf
 private const val SRCROOT = "%SRCROOT%"
 
 internal fun String.sanitize(): String =
-    this.replace(File.separatorChar, '/')
+    this
+        .replace(File.separatorChar, '/')
         .let {
-            if (it.endsWith('/')) it else "$it/"
+            if (it.endsWith('/')) {
+                it
+            } else {
+                "$it/"
+            }
         }
 
-public class SarifReporter(private val out: PrintStream) : ReporterV2 {
+public class SarifReporter(
+    private val out: PrintStream,
+) : ReporterV2 {
     private val results: MutableList<Result> = mutableListOf()
     private var workingDirectory: File? = null
 

@@ -2,7 +2,7 @@ package com.pinterest.ktlint.cli.internal
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.test.KtlintTestFileSystem
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -279,12 +279,13 @@ internal class FileUtilsTest {
                 rootDir = ktlintTestFileSystem.resolve("project1"),
             )
 
-        assertThat(foundFiles).containsExactlyInAnyOrder(
-            ktFile1InProjectSubDirectory,
-            ktFile2InProjectSubDirectory,
-        ).doesNotContain(
-            javaFileInProjectSubDirectory,
-        )
+        assertThat(foundFiles)
+            .containsExactlyInAnyOrder(
+                ktFile1InProjectSubDirectory,
+                ktFile2InProjectSubDirectory,
+            ).doesNotContain(
+                javaFileInProjectSubDirectory,
+            )
     }
 
     @EnabledOnOs(OS.WINDOWS)
@@ -344,7 +345,8 @@ internal class FileUtilsTest {
                 patterns =
                     listOf(
                         pattern,
-                        "/some/non/existing/file", // This prevents the default patterns to be added
+                        // Prevents the default patterns to be added by specifying a file
+                        "/some/non/existing/file",
                     ),
                 rootDir = ktlintTestFileSystem.resolve("project1"),
             )
@@ -386,7 +388,8 @@ internal class FileUtilsTest {
                 patterns =
                     listOf(
                         pattern,
-                        "/some/non/existing/file", // This prevents the default patterns to be added
+                        // Prevents the default patterns to be added by specifying a file
+                        "/some/non/existing/file",
                     ),
                 rootDir = ktlintTestFileSystem.resolve("project1"),
             )
@@ -410,8 +413,7 @@ internal class FileUtilsTest {
                 ktsFileRootDirectory,
                 ktsFileInProjectRootDirectory,
                 ktsFileInProjectSubDirectory,
-            )
-            .doesNotContain(
+            ).doesNotContain(
                 ktFileInProjectRootDirectory,
                 ktFile1InProjectSubDirectory,
                 ktFile2InProjectSubDirectory,

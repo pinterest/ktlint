@@ -1,9 +1,29 @@
-import java.net.URL
+import java.net.URI
 
 plugins {
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.checksum) apply false
     alias(libs.plugins.shadow) apply false
+    alias(
+        libs
+            .plugins
+            .kotlinx
+            .binary
+            .compatibiltiy
+            .validator,
+    )
+}
+
+val internalNonPublishableProjects by extra(
+    setOf(
+        "ktlint-api-consumer",
+        "ktlint-bom",
+        "ktlint-ruleset-template",
+    ),
+)
+
+apiValidation {
+    ignoredProjects += internalNonPublishableProjects
 }
 
 val ktlint: Configuration by configurations.creating
@@ -44,6 +64,9 @@ tasks.register<JavaExec>("ktlintFormat") {
 
 tasks.wrapper {
     distributionSha256Sum =
-        URL("$distributionUrl.sha256")
-            .openStream().use { it.reader().readText().trim() }
+        URI
+            .create("$distributionUrl.sha256")
+            .toURL()
+            .openStream()
+            .use { it.reader().readText().trim() }
 }

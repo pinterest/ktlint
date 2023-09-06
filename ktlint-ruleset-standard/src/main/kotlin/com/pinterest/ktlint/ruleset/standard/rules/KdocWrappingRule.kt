@@ -5,6 +5,9 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC_END
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC_START
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.indent
@@ -18,6 +21,8 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 /**
  * Checks external wrapping of KDoc comment. Wrapping inside the KDoc comment is not altered.
  */
+@SinceKtlint("0.45", EXPERIMENTAL)
+@SinceKtlint("0.49", STABLE)
 public class KdocWrappingRule :
     StandardRule(
         id = "kdoc-wrapping",

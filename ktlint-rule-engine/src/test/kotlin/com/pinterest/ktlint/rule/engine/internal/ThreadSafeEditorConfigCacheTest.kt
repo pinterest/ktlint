@@ -104,14 +104,15 @@ class ThreadSafeEditorConfigCacheTest {
                                 .name(SOME_PROPERTY)
                                 .value(id),
                         ),
-                )
-                .build()
+                ).build()
 
         val EDIT_CONFIG_1: EditorConfig = createUniqueInstanceOfEditConfig("edit-config-1")
         val EDIT_CONFIG_2: EditorConfig = createUniqueInstanceOfEditConfig("edit-config-2")
     }
 
-    private class EditorConfigLoaderMock(private var initial: EditorConfig) : EditorConfigLoader(null, null) {
+    private class EditorConfigLoaderMock(
+        private var initial: EditorConfig,
+    ) : EditorConfigLoader(null, null) {
         var loadCount = 0
 
         override fun load(configFile: Resource): EditorConfig {

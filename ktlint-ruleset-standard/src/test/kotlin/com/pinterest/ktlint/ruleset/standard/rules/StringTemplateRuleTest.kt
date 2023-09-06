@@ -3,6 +3,7 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
+import com.pinterest.ktlint.test.replaceStringTemplatePlaceholder
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -22,8 +23,7 @@ class StringTemplateRuleTest {
             class Foo() {
                 override fun toString(): String = "Override hashcode = $.{super.hashCode().toString()}"
             }
-            """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
+            """.trimIndent().replaceStringTemplatePlaceholder()
         val formattedCode =
             """
             val foo1 = "${'$'}.{String::class}"
@@ -32,8 +32,7 @@ class StringTemplateRuleTest {
             class Foo() {
                 override fun toString(): String = "Override hashcode = ${'$'}.{super.hashCode()}"
             }
-            """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
+            """.trimIndent().replaceStringTemplatePlaceholder()
         stringTemplateRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 28, "Redundant \"toString()\" call in string template"),
@@ -50,13 +49,11 @@ class StringTemplateRuleTest {
         val code =
             """
             val foo = "$.{foo.toString()}"
-            """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
+            """.trimIndent().replaceStringTemplatePlaceholder()
         val formattedCode =
             """
             val foo = "${'$'}.foo"
-            """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
+            """.trimIndent().replaceStringTemplatePlaceholder()
         stringTemplateRuleAssertThat(code)
             .hasLintViolation(1, 17, "Redundant \"toString()\" call in string template")
             .isFormattedAs(formattedCode)
@@ -71,14 +68,12 @@ class StringTemplateRuleTest {
             """
             val foo1 = "${'$'}.{foo}.hello"
             val foo2 = "${'$'}.{foo}"
-            """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
+            """.trimIndent().replaceStringTemplatePlaceholder()
         val formattedCode =
             """
             val foo1 = "${'$'}.foo.hello"
             val foo2 = "${'$'}.foo"
-            """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
+            """.trimIndent().replaceStringTemplatePlaceholder()
         stringTemplateRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 14, "Redundant curly braces"),
@@ -96,8 +91,7 @@ class StringTemplateRuleTest {
             val foo1 = "$.bar"
             val foo2 = $MULTILINE_STRING_QUOTE$.bar$MULTILINE_STRING_QUOTE
             val foo3 = "$.bar.length"
-            """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
+            """.trimIndent().replaceStringTemplatePlaceholder()
         stringTemplateRuleAssertThat(code).hasNoLintViolations()
     }
 
@@ -113,8 +107,7 @@ class StringTemplateRuleTest {
             val foo3 = "bar.length is $.{bar.length}"
             val foo4 = "${'$'}9.99"
             val foo5 = "Found: $.{if (bar > 0) "yes" else "no"}"
-            """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
+            """.trimIndent().replaceStringTemplatePlaceholder()
         stringTemplateRuleAssertThat(code).hasNoLintViolations()
     }
 
@@ -131,8 +124,7 @@ class StringTemplateRuleTest {
 
                 @Suppress("RemoveCurlyBracesFromTemplate", "OtherSuppression")
                 fun foo3() = "Foo = $.{foo}"
-                """.trimIndent()
-                    .replacePlaceholderWithStringTemplate()
+                """.trimIndent().replaceStringTemplatePlaceholder()
             val formattedCode =
                 """
                 fun foo1() = "Foo = ${'$'}.foo"
@@ -142,8 +134,7 @@ class StringTemplateRuleTest {
 
                 @Suppress("RemoveCurlyBracesFromTemplate", "OtherSuppression")
                 fun foo3() = "Foo = ${'$'}.{foo}"
-                """.trimIndent()
-                    .replacePlaceholderWithStringTemplate()
+                """.trimIndent().replaceStringTemplatePlaceholder()
             stringTemplateRuleAssertThat(code)
                 .hasLintViolation(1, 17, "Redundant curly braces")
                 .isFormattedAs(formattedCode)
@@ -160,8 +151,7 @@ class StringTemplateRuleTest {
 
                 @Suppress("RemoveCurlyBracesFromTemplate", "OtherSuppression")
                 val foo3 = "Foo = $.{foo}"
-                """.trimIndent()
-                    .replacePlaceholderWithStringTemplate()
+                """.trimIndent().replaceStringTemplatePlaceholder()
             val formattedCode =
                 """
                 val foo1 = "Foo = ${'$'}.foo"
@@ -171,8 +161,7 @@ class StringTemplateRuleTest {
 
                 @Suppress("RemoveCurlyBracesFromTemplate", "OtherSuppression")
                 val foo3 = "Foo = ${'$'}.{foo}"
-                """.trimIndent()
-                    .replacePlaceholderWithStringTemplate()
+                """.trimIndent().replaceStringTemplatePlaceholder()
             stringTemplateRuleAssertThat(code)
                 .hasLintViolation(1, 15, "Redundant curly braces")
                 .isFormattedAs(formattedCode)
@@ -189,8 +178,7 @@ class StringTemplateRuleTest {
                     @Suppress("RemoveCurlyBracesFromTemplate", "OtherSuppression")
                     println("Foo = ${'$'}.{foo}")
                 }
-                """.trimIndent()
-                    .replacePlaceholderWithStringTemplate()
+                """.trimIndent().replaceStringTemplatePlaceholder()
             val formattedCode =
                 """
                 fun foo() {
@@ -200,8 +188,7 @@ class StringTemplateRuleTest {
                     @Suppress("RemoveCurlyBracesFromTemplate", "OtherSuppression")
                     println("Foo = ${'$'}.{foo}")
                 }
-                """.trimIndent()
-                    .replacePlaceholderWithStringTemplate()
+                """.trimIndent().replaceStringTemplatePlaceholder()
             stringTemplateRuleAssertThat(code)
                 .hasLintViolation(2, 16, "Redundant curly braces")
                 .isFormattedAs(formattedCode)
@@ -223,8 +210,7 @@ class StringTemplateRuleTest {
                     val foo3
                         get() = "Foo = $.{foo}"
                 }
-                """.trimIndent()
-                    .replacePlaceholderWithStringTemplate()
+                """.trimIndent().replaceStringTemplatePlaceholder()
             val formattedCode =
                 """
                 class Foo {
@@ -239,8 +225,7 @@ class StringTemplateRuleTest {
                     val foo3
                         get() = "Foo = ${'$'}.{foo}"
                 }
-                """.trimIndent()
-                    .replacePlaceholderWithStringTemplate()
+                """.trimIndent().replaceStringTemplatePlaceholder()
             stringTemplateRuleAssertThat(code)
                 .hasLintViolation(3, 20, "Redundant curly braces")
                 .isFormattedAs(formattedCode)
@@ -264,8 +249,7 @@ class StringTemplateRuleTest {
                     val foo
                         get() = "Foo = ${'$'}.{foo}"
                 }
-                """.trimIndent()
-                    .replacePlaceholderWithStringTemplate()
+                """.trimIndent().replaceStringTemplatePlaceholder()
             val formattedCode =
                 """
                 class Foo1 {
@@ -282,8 +266,7 @@ class StringTemplateRuleTest {
                     val foo
                         get() = "Foo = ${'$'}.{foo}"
                 }
-                """.trimIndent()
-                    .replacePlaceholderWithStringTemplate()
+                """.trimIndent().replaceStringTemplatePlaceholder()
             stringTemplateRuleAssertThat(code)
                 .hasLintViolation(3, 20, "Redundant curly braces")
                 .isFormattedAs(formattedCode)
@@ -300,8 +283,7 @@ class StringTemplateRuleTest {
                     println("$.{this@F}")
                 }
             }
-            """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
+            """.trimIndent().replaceStringTemplatePlaceholder()
         val formattedCode =
             """
             class Foo {
@@ -310,8 +292,7 @@ class StringTemplateRuleTest {
                     println("${'$'}.{this@F}")
                 }
             }
-            """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
+            """.trimIndent().replaceStringTemplatePlaceholder()
         stringTemplateRuleAssertThat(code)
             .hasLintViolation(3, 19, "Redundant curly braces")
             .isFormattedAs(formattedCode)
@@ -328,8 +309,7 @@ class StringTemplateRuleTest {
                     println("$.{false}")
                 }
             }
-            """.trimIndent()
-                .replacePlaceholderWithStringTemplate()
+            """.trimIndent().replaceStringTemplatePlaceholder()
         stringTemplateRuleAssertThat(code).hasNoLintViolations()
     }
 
@@ -366,7 +346,3 @@ class StringTemplateRuleTest {
         stringTemplateRuleAssertThat(code).hasNoLintViolations()
     }
 }
-
-// Replace the "$." placeholder with an actual "$" so that string "$.{expression}" is transformed to a String template
-// "${expression}".
-private fun String.replacePlaceholderWithStringTemplate() = replace("$.", "${'$'}")

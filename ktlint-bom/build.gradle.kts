@@ -7,13 +7,8 @@ publishing.publications.named<MavenPublication>("maven") {
     from(components["javaPlatform"])
 }
 
-val excludeList =
-    listOf(
-        "ktlint-api-consumer",
-        "ktlint-bom",
-        "ktlint-ruleset-template",
-        "ktlint-test-ruleset-provider-v2-deprecated",
-    )
+val internalNonPublishableProjects: Set<String> by rootProject.extra
+val excludeList = internalNonPublishableProjects + "ktlint-test-ruleset-provider-v2-deprecated"
 
 dependencies {
     logger.lifecycle("Creating dependencies for ktlint-bom")

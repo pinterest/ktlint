@@ -41,4 +41,5 @@ internal class OsEnvironment private constructor(
 }
 
 private class CaseInsensitiveMap<V : Any> :
-    TreeMap<String, V>(java.lang.String.CASE_INSENSITIVE_ORDER), MutableMap<String, V>
+    TreeMap<String, V>(java.lang.String.CASE_INSENSITIVE_ORDER),
+    MutableMap<String, V>

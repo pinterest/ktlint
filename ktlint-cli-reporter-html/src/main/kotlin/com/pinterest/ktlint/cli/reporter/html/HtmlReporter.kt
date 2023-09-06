@@ -30,7 +30,9 @@ import com.pinterest.ktlint.cli.reporter.core.api.ReporterV2
 import java.io.PrintStream
 import java.util.concurrent.ConcurrentHashMap
 
-public class HtmlReporter(private val out: PrintStream) : ReporterV2 {
+public class HtmlReporter(
+    private val out: PrintStream,
+) : ReporterV2 {
     private val acc = ConcurrentHashMap<String, MutableList<KtlintCliError>>()
     private var issueCount = 0
     private var correctedCount = 0
@@ -76,8 +78,10 @@ public class HtmlReporter(private val out: PrintStream) : ReporterV2 {
                     acc.forEach { (file: String, ktlintCliErrors: MutableList<KtlintCliError>) ->
                         h3 { text(file) }
                         ul {
-                            ktlintCliErrors.forEach { (line, col, ruleId, detail) ->
-                                item("($line, $col): $detail  ($ruleId)")
+                            ktlintCliErrors.forEach { err ->
+                                with(err) {
+                                    item("($line, $col): $detail  ($ruleId)")
+                                }
                             }
                         }
                     }
@@ -149,6 +153,10 @@ public class HtmlReporter(private val out: PrintStream) : ReporterV2 {
     }
 
     private fun String.escapeHTMLAttrValue() =
-        this.replace("&", "&amp;").replace("\"", "&quot;").replace("'", "&apos;")
-            .replace("<", "&lt;").replace(">", "&gt;")
+        this
+            .replace("&", "&amp;")
+            .replace("\"", "&quot;")
+            .replace("'", "&apos;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
 }

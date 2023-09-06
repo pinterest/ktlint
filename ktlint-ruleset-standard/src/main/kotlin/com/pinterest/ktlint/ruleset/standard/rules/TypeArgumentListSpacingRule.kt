@@ -2,8 +2,10 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
@@ -22,6 +24,8 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 /**
  * Lints and formats the spacing before and after the angle brackets of a type argument list.
  */
+@SinceKtlint("0.45", EXPERIMENTAL)
+@SinceKtlint("1.0", STABLE)
 public class TypeArgumentListSpacingRule :
     StandardRule(
         id = "type-argument-list-spacing",
@@ -30,8 +34,7 @@ public class TypeArgumentListSpacingRule :
                 INDENT_SIZE_PROPERTY,
                 INDENT_STYLE_PROPERTY,
             ),
-    ),
-    Rule.Experimental {
+    ) {
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
@@ -77,13 +80,11 @@ public class TypeArgumentListSpacingRule :
                 //    fun foo(): List<Foo> { ... }
                 //    var bar: List<Bar> = emptyList()
                 it.isPartOfCompositeElementOfType(ElementType.TYPE_REFERENCE)
-            }
-            ?.takeUnless {
+            }?.takeUnless {
                 // unless it is part of a call expression followed by lambda:
                 //    bar<Foo> { ... }
                 it.isPartOfCallExpressionFollowedByLambda()
-            }
-            ?.lastChildNode
+            }?.lastChildNode
             ?.nextLeaf(includeEmpty = true)
             ?.takeIf { it.elementType == ElementType.WHITE_SPACE }
             ?.let { noWhitespaceExpected(it, autoCorrect, emit) }

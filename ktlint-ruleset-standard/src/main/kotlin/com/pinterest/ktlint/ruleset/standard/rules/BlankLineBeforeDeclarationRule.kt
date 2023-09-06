@@ -12,6 +12,9 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY_ACCESSOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
@@ -30,9 +33,10 @@ import org.jetbrains.kotlin.psi.KtFunctionLiteral
  * Insert a blank line before declarations. No blank line is inserted before between a class or method signature and the first declaration
  * in the class or method respectively. Also, no blank lines are inserted between consecutive properties.
  */
+@SinceKtlint("0.50", EXPERIMENTAL)
+@SinceKtlint("1.0", STABLE)
 public class BlankLineBeforeDeclarationRule :
     StandardRule("blank-line-before-declaration"),
-    Rule.Experimental,
     Rule.OfficialCodeStyle {
     override fun beforeVisitChildNodes(
         node: ASTNode,

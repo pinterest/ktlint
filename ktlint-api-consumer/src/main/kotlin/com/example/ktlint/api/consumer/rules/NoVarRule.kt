@@ -5,10 +5,11 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
-public class NoVarRule : Rule(
-    ruleId = RuleId("$CUSTOM_RULE_SET_ID:no-var"),
-    about = About(),
-) {
+public class NoVarRule :
+    Rule(
+        ruleId = RuleId("$CUSTOM_RULE_SET_ID:no-var"),
+        about = About(),
+    ) {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,

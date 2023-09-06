@@ -6,20 +6,14 @@ Ktlint uses a limited set of `.editorconfig` properties for additional configura
 
 ## Code style
 
-By default, the `intellij_idea` Kotlin code style is applied. Alternatively, the code style can be set to `ktlint_official` or `android`.
+By default, the `ktlint_official` code style is applied. Alternatively, the code style can be set to `intellij_idea` or `android_studio`.
 
 ```ini
 [*.{kt,kts}]
 ktlint_code_style = ktlint_official
 ```
 
-!!! note
-    The default code style will be changed to `ktlint_official` in the `1.0` version of ktlint.
-
 ## Disabled rules
-
-!!! note
-    Support of properties `disabled_rules` and `ktlint_disabled_rules` has been removed in KtLint `0.49`.
 
 Rule sets and individual rules can be disabled / enabled with a separate property per rule (set).
 
@@ -56,6 +50,20 @@ insert_final_newline = true
 ```
 
 This setting only takes effect when rule `final-newline` is enabled.
+
+## Force multiline chained methods based on number of chain operators
+
+Setting `ktlint_chain_method_rule_force_multiline_when_chain_operator_count_greater_or_equal_than` forces a chained method to be wrapped at each chain operator (`.` or `?.`) in case it contains the specified minimum number of chain operators even in case the entire chained method fits on a single line. Use value `unset` (default) to disable this setting.
+
+!!! note
+    By default, chained methods are wrapped when an expression contains 4 or more chain operators in an expression. Note that if a chained method contains nested expressions the chain operators of the inner expression are not taken into account.
+
+```ini
+[*.{kt,kts}]
+ktlint_chain_method_rule_force_multiline_when_chain_operator_count_greater_or_equal_than=unset
+```
+
+This setting only takes effect when rule `chain-method-continution` is enabled.
 
 ## Force multiline function signature based on number of parameters
 

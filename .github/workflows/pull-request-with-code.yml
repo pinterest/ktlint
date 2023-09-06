@@ -17,35 +17,80 @@ on:
       - '**/*.toml'
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+
 env:
-  ORG_GRADLE_PROJECT_signingKey : ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEY }}
+  ORG_GRADLE_PROJECT_signingKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEY }}
   ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID }}
-  ORG_GRADLE_PROJECT_signingKeyPassword : ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
+  ORG_GRADLE_PROJECT_signingKeyPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
   CLI_TEST_MAX_DURATION_IN_SECONDS: 10
 
-# Note that "jobs.build.strategy" and "jobs.build.runs-on" should be kept in sync with "pull-request-wth-code"
+# Note that all "jobs" (build, tests) including "jobs.*.runs-on" should be kept in sync with "pull-request-without-code"
 jobs:
   build:
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest ]
-        # When changing the list of JDK versions, the build configuration has to be changed by a repository admin. See
-        # https://github.com/pinterest/ktlint/pull/1787#issuecomment-1409074092
-        jdk: [ 8, 11, 17, 19 ]
-        exclude: # windows with JDK8 are *really* flaky
-          - os: windows-latest
-            jdk: 8
+        os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    name: "[build] OS=${{ matrix.os }} Kotlin=stable"
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: ${{ matrix.jdk }}
-      - uses: gradle/gradle-build-action@v2
-        with:
-          gradle-home-cache-cleanup: true
+
+      - uses: ./.github/actions/setup-gradle-build
+
       - name: Build with release Kotlin version
-        run: ./gradlew build ktlintCheck --no-configuration-cache
-      - name: Build with dev Kotlin version
-        run: ./gradlew -PkotlinDev build ktlintCheck --no-configuration-cache
+        run: ./gradlew ktlintCheck build
+
+      - name: Check `data class`es are not part of public API
+        run: |
+          found=0
+
+          # Loop through all .api files in the current directory and subdirectories
+          for file in $(find . -type f -name "*.api" ! -path "*/build/*"); do
+              # Check if the file contains the 'data class' specific text
+              if grep -q "public static synthetic fun copy$default" "$file"; then
+                  echo "public 'data class' found in: $file"
+                  found=1
+              fi
+          done
+
+          if [ $found -eq 0 ]; then
+              exit 0
+          else
+              echo "data classes found in one or more .api files. Visit https://github.com/pinterest/ktlint/issues/2133 for more details"
+              exit 1
+          fi
+        shell: bash
+
+  build-dev:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    name: "[build] OS=${{ matrix.os }}, Kotlin=dev"
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: ./.github/actions/setup-gradle-build
+
+      - name: Build with assemble Kotlin version
+        run: ./gradlew -PkotlinDev ktlintCheck build
+
+  tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        jdk: [8, 11, 17] # list of Java versions to run tests against (excluding `java-compilation` version for which tests already have run during `build` job)
+    runs-on: ${{ matrix.os }}
+    name: "[tests] OS=${{ matrix.os }}, Java=${{ matrix.jdk }}"
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: ./.github/actions/setup-gradle-build
+        with:
+          additional-java-versions: ${{ matrix.jdk }}
+
+      - run: ./gradlew testOnJdk${{ matrix.jdk }} -PtestJdkVersion=${{ matrix.jdk }}

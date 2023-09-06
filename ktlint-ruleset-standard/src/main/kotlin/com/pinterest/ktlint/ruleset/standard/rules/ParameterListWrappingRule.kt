@@ -12,6 +12,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.column
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
@@ -36,6 +38,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.psiUtil.children
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 
+@SinceKtlint("0.16", STABLE)
 public class ParameterListWrappingRule :
     StandardRule(
         id = "parameter-list-wrapping",
@@ -167,7 +170,8 @@ public class ParameterListWrappingRule :
 
     private fun ASTNode.containsAnnotatedParameter(): Boolean {
         require(elementType == VALUE_PARAMETER_LIST)
-        return this.children()
+        return this
+            .children()
             .filter { it.elementType == VALUE_PARAMETER }
             .any { it.isAnnotated() }
     }

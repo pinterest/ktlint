@@ -31,8 +31,7 @@ class RuleProviderSorterTest {
                             NormalRule(STANDARD_RULE_B),
                             NormalRule(STANDARD_RULE_A),
                         ),
-                )
-                .map { it.ruleId }
+                ).map { it.ruleId }
 
         assertThat(actual).containsExactly(
             STANDARD_RULE_A,
@@ -82,8 +81,7 @@ class RuleProviderSorterTest {
                             RunAsLateAsPossibleRule(STANDARD_RULE_A),
                             NormalRule(STANDARD_RULE_B),
                         ),
-                )
-                .map { it.ruleId }
+                ).map { it.ruleId }
 
         assertThat(actual).containsExactly(
             STANDARD_RULE_B,
@@ -424,20 +422,28 @@ class RuleProviderSorterTest {
         val CUSTOM_RULE_SET_B_RULE_B = RuleId("$CUSTOM_RULE_SET_B:rule-b")
     }
 
-    private open class NormalRule(ruleId: RuleId) : R(ruleId)
+    private open class NormalRule(
+        ruleId: RuleId,
+    ) : R(ruleId)
 
-    private open class ExperimentalRule(ruleId: RuleId) : R(ruleId), Rule.Experimental
+    private open class ExperimentalRule(
+        ruleId: RuleId,
+    ) : R(ruleId),
+        Rule.Experimental
 
-    private class RunAsLateAsPossibleRule(ruleId: RuleId) : R(
-        ruleId = ruleId,
-        visitorModifiers =
-            setOf(
-                VisitorModifier.RunAsLateAsPossible,
-            ),
-    )
+    private class RunAsLateAsPossibleRule(
+        ruleId: RuleId,
+    ) : R(
+            ruleId = ruleId,
+            visitorModifiers =
+                setOf(
+                    VisitorModifier.RunAsLateAsPossible,
+                ),
+        )
 
-    private class RunAsLateAsPossibleExperimentalRule(ruleId: RuleId) :
-        R(
+    private class RunAsLateAsPossibleExperimentalRule(
+        ruleId: RuleId,
+    ) : R(
             ruleId = ruleId,
             visitorModifiers =
                 setOf(
@@ -460,10 +466,9 @@ class RuleProviderSorterTest {
             node: ASTNode,
             autoCorrect: Boolean,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        ) {
+        ): Unit =
             throw UnsupportedOperationException(
                 "Rule should never be really invoked because that is not the aim of this unit test.",
             )
-        }
     }
 }

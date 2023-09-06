@@ -6,6 +6,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SEMICOLON
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -25,6 +27,7 @@ import org.jetbrains.kotlin.psi.KtIfExpression
 import org.jetbrains.kotlin.psi.KtLoopExpression
 import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
 
+@SinceKtlint("0.1", STABLE)
 public class NoSemicolonsRule :
     StandardRule(
         id = "no-semi",
@@ -67,26 +70,25 @@ public class NoSemicolonsRule :
         }
     }
 
-    private fun ASTNode?.doesNotRequirePreSemi(): Boolean {
-        if (this == null) {
-            return true
-        }
-        if (this is PsiWhiteSpace) {
-            val nextLeaf =
+    private fun ASTNode?.doesNotRequirePreSemi() =
+        when {
+            this == null -> true
+
+            this is PsiWhiteSpace -> {
                 nextLeaf {
                     val psi = it.psi
                     it !is PsiWhiteSpace &&
                         it !is PsiComment &&
                         psi.getStrictParentOfType<KDoc>() == null &&
                         psi.getStrictParentOfType<KtAnnotationEntry>() == null
+                }.let { nextLeaf ->
+                    nextLeaf == null || // \s+ and then eof
+                        (textContains('\n') && nextLeaf.elementType != KtTokens.LBRACE)
                 }
-            return (
-                nextLeaf == null || // \s+ and then eof
-                    textContains('\n') && nextLeaf.elementType != KtTokens.LBRACE
-                )
+            }
+
+            else -> false
         }
-        return false
-    }
 
     private fun isNoSemicolonRequiredAfter(node: ASTNode): Boolean {
         val prevCodeLeaf =

@@ -5,8 +5,10 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
-import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
@@ -18,6 +20,8 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 /**
  * Lint and format the spacing between the modifiers in and after the last modifier in a modifier list.
  */
+@SinceKtlint("0.45", EXPERIMENTAL)
+@SinceKtlint("0.49", STABLE)
 public class ModifierListSpacingRule : StandardRule("modifier-list-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
@@ -41,7 +45,8 @@ public class ModifierListSpacingRule : StandardRule("modifier-list-spacing") {
         if (node.elementType == WHITE_SPACE) {
             return
         }
-        node.nextSibling { it.elementType == WHITE_SPACE && it.nextLeaf()?.isPartOfComment() != true }
+        node
+            .nextSibling { it.elementType == WHITE_SPACE && it.nextLeaf()?.isPartOfComment() != true }
             ?.takeIf { it.elementType == WHITE_SPACE }
             ?.takeUnless {
                 // Regardless of element type, a single white space is always ok and does not need to be checked.
@@ -53,28 +58,21 @@ public class ModifierListSpacingRule : StandardRule("modifier-list-spacing") {
                 if (node.isAnnotationElement() ||
                     (node.elementType == MODIFIER_LIST && node.lastChildNode.isAnnotationElement())
                 ) {
-                    val expectedWhiteSpace =
-                        if (whitespace.textContains('\n')) {
-                            node.indent()
-                        } else {
-                            " "
-                        }
-                    if (whitespace.text != expectedWhiteSpace) {
-                        emit(
-                            whitespace.startOffset,
-                            "Single whitespace or newline expected after annotation",
-                            true,
-                        )
+                    if (whitespace.text.contains("\n\n")) {
+                        emit(whitespace.startOffset, "Single newline expected after annotation", true)
                         if (autoCorrect) {
-                            (whitespace as LeafPsiElement).rawReplaceWithText(expectedWhiteSpace)
+                            (whitespace as LeafPsiElement).rawReplaceWithText(
+                                "\n".plus(whitespace.text.substringAfterLast("\n")),
+                            )
+                        }
+                    } else if (!whitespace.text.contains('\n') && whitespace.text != " ") {
+                        emit(whitespace.startOffset, "Single whitespace or newline expected after annotation", true)
+                        if (autoCorrect) {
+                            (whitespace as LeafPsiElement).rawReplaceWithText(" ")
                         }
                     }
                 } else {
-                    emit(
-                        whitespace.startOffset,
-                        "Single whitespace expected after modifier",
-                        true,
-                    )
+                    emit(whitespace.startOffset, "Single whitespace expected after modifier", true)
                     if (autoCorrect) {
                         (whitespace as LeafPsiElement).rawReplaceWithText(" ")
                     }

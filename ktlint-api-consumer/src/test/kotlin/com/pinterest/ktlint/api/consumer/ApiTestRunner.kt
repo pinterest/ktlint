@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.api.consumer
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
 import java.nio.file.Path
@@ -14,7 +14,9 @@ import kotlin.io.path.relativeToOrSelf
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
-class ApiTestRunner(private val tempDir: Path) {
+class ApiTestRunner(
+    private val tempDir: Path,
+) {
     fun prepareTestProject(testProjectName: String): Path {
         val testProjectPath = TEST_PROJECTS_PATHS.resolve(testProjectName)
         assert(Files.exists(testProjectPath)) {

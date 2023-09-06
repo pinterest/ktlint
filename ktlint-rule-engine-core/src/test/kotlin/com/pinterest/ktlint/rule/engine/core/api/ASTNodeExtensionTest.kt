@@ -2,13 +2,16 @@ package com.pinterest.ktlint.rule.engine.core.api
 
 import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LPAR
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
@@ -303,7 +306,7 @@ class ASTNodeExtensionTest {
     @Nested
     inner class UpsertWhitespaceBeforeMe {
         @Test
-        fun `Given a whitespace node and upsert a whitespace before the node (RPAR) then replace the current whitespace element`() {
+        fun `Given an upsert of a whitespace based before another whitespace node then replace the existing whitespace element`() {
             val code =
                 """
                 fun foo( ) = 42
@@ -327,30 +330,7 @@ class ASTNodeExtensionTest {
         }
 
         @Test
-        fun `Given a node (RPAR) which is preceded by a non-whitespace leaf element (LPAR) and upsert a whitespace before the node (RPAR) then create a new whitespace element before the node (RPAR)`() {
-            val code =
-                """
-                fun foo() = 42
-                """.trimIndent()
-            val formattedCode =
-                """
-                fun foo(
-
-                ) = 42
-                """.trimIndent()
-
-            val actual =
-                code
-                    .transformAst {
-                        nextLeaf { it.elementType == RPAR }
-                            ?.upsertWhitespaceBeforeMe("\n\n")
-                    }.text
-
-            assertThat(actual).isEqualTo(formattedCode)
-        }
-
-        @Test
-        fun `Given a node (RPAR) which is preceded by a whitespace leaf element and upsert a whitespace before the node (RPAR) then replace the whitespace element before the node (RPAR)`() {
+        fun `Given an upsert of a whitespace before a non-whitespace node (RPAR) which is preceded by a whitespace leaf element (LPAR) then then replace the whitespace element`() {
             val code =
                 """
                 fun foo( ) = 42
@@ -373,7 +353,56 @@ class ASTNodeExtensionTest {
         }
 
         @Test
-        fun `Given a node (VALUE_PARAMETER) which is preceded by a non-whitespace leaf element (LPAR) and upsert a whitespace before the node (VALUE_PARAMETER) then create a new whitespace element before the node (VALUE_PARAMETER)`() {
+        fun `Given an upsert of a whitespace before a non-whitespace node (RPAR) which is preceded by another non-whitespace leaf element (LPAR) then create a new whitespace element`() {
+            val code =
+                """
+                fun foo() = 42
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun foo(
+
+                ) = 42
+                """.trimIndent()
+
+            val actual =
+                code
+                    .transformAst {
+                        nextLeaf { it.elementType == RPAR }
+                            ?.upsertWhitespaceBeforeMe("\n\n")
+                    }.text
+
+            assertThat(actual).isEqualTo(formattedCode)
+        }
+
+        @Test
+        fun `Given an upsert of a whitespace before a composite node (ANNOTATION_ENTRY) which is the first child of another composite element then create a new whitespace before (VALUE_PARAMETER)`() {
+            val code =
+                """
+                fun foo(@Bar string: String) = 42
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun foo(
+                    @Bar string: String) = 42
+                """.trimIndent()
+
+            val actual =
+                code
+                    .transformAst {
+                        findChildByType(FUN)
+                            ?.findChildByType(VALUE_PARAMETER_LIST)
+                            ?.findChildByType(VALUE_PARAMETER)
+                            ?.findChildByType(MODIFIER_LIST)
+                            ?.findChildByType(ANNOTATION_ENTRY)
+                            ?.upsertWhitespaceBeforeMe("\n    ")
+                    }.text
+
+            assertThat(actual).isEqualTo(formattedCode)
+        }
+
+        @Test
+        fun `Given an upsert of a whitespace before a composite node (VALUE_PARAMETER) which is preceded by a non-whitespace leaf element (LPAR) then create a new whitespace element before the node (VALUE_PARAMETER)`() {
             val code =
                 """
                 fun foo(string: String) = 42
@@ -397,25 +426,26 @@ class ASTNodeExtensionTest {
         }
 
         @Test
-        fun `Given a node (FUN bar) which is preceded by a composite element (FUN foo) and upsert a whitespace before the node (FUN bar) then create a new whitespace element before the node (FUN bar)`() {
+        fun `Given an upsert of a whitespace before a composite node (ANNOTATION_ENTRY) which is preceded by another composite node (ANNOTATION_ENTRY) then create a new whitespace between the ANNOTATION_ENTRIES`() {
             val code =
                 """
-                fun foo() = "foo"
-                fun bar() = "bar"
+                fun foo(@Bar@Foo string: String) = 42
                 """.trimIndent()
             val formattedCode =
                 """
-                fun foo() = "foo"
-
-                fun bar() = "bar"
+                fun foo(@Bar @Foo string: String) = 42
                 """.trimIndent()
 
             val actual =
                 code
                     .transformAst {
-                        children()
-                            .last { it.elementType == FUN }
-                            .upsertWhitespaceBeforeMe("\n\n")
+                        findChildByType(FUN)
+                            ?.findChildByType(VALUE_PARAMETER_LIST)
+                            ?.findChildByType(VALUE_PARAMETER)
+                            ?.findChildByType(MODIFIER_LIST)
+                            ?.findChildByType(ANNOTATION_ENTRY)
+                            ?.nextSibling()
+                            ?.upsertWhitespaceBeforeMe(" ")
                     }.text
 
             assertThat(actual).isEqualTo(formattedCode)
@@ -425,30 +455,31 @@ class ASTNodeExtensionTest {
     @Nested
     inner class UpsertWhitespaceAfterMe {
         @Test
-        fun `Given a node (LPAR) which is followed by a non-whitespace leaf element (RPAR) and upsert a whitespace after the node (LPAR) then create a new whitespace element after the node (LPAR)`() {
+        fun `Given an upsert of a whitespace based after another whitespace node then replace the existing whitespace element`() {
             val code =
                 """
-                fun foo() = 42
+                fun foo( ) = 42
                 """.trimIndent()
             val formattedCode =
                 """
                 fun foo(
-
                 ) = 42
                 """.trimIndent()
 
             val actual =
                 code
                     .transformAst {
-                        nextLeaf { it.elementType == LPAR }
-                            ?.upsertWhitespaceAfterMe("\n\n")
+                        findChildByType(FUN)
+                            ?.findChildByType(VALUE_PARAMETER_LIST)
+                            ?.findChildByType(WHITE_SPACE)
+                            ?.upsertWhitespaceAfterMe("\n")
                     }.text
 
             assertThat(actual).isEqualTo(formattedCode)
         }
 
         @Test
-        fun `Given a node (LPAR) which is followed by a whitespace leaf element and upsert a whitespace after the node (LPAR) then replace the whitespace element after the node (LPAR)`() {
+        fun `Given an upsert of a whitespace after a non-whitespace node (LPAR) which is followed by a whitespace leaf element (RPAR) then then replace the whitespace element`() {
             val code =
                 """
                 fun foo( ) = 42
@@ -471,7 +502,55 @@ class ASTNodeExtensionTest {
         }
 
         @Test
-        fun `Given a node (VALUE_PARAMETER) which is followed by a non-whitespace leaf element (RPAR) and upsert a whitespace after the node (VALUE_PARAMETER) then create a new whitespace element after the node (VALUE_PARAMETER)`() {
+        fun `Given an upsert of a whitespace after a non-whitespace node (LPAR) which is followed by another non-whitespace leaf element (RPAR) then create a new whitespace element`() {
+            val code =
+                """
+                fun foo() = 42
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun foo(
+
+                ) = 42
+                """.trimIndent()
+
+            val actual =
+                code
+                    .transformAst {
+                        nextLeaf { it.elementType == LPAR }
+                            ?.upsertWhitespaceAfterMe("\n\n")
+                    }.text
+
+            assertThat(actual).isEqualTo(formattedCode)
+        }
+
+        @Test
+        fun `Given an upsert of a whitespace after a composite node (ANNOTATION_ENTRY) which is the last child of another composite element then create a new whitespace after (VALUE_PARAMETER)`() {
+            val code =
+                """
+                fun foo(@Bar string: String) = 42
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun foo(@Bar string: String
+                ) = 42
+                """.trimIndent()
+
+            val actual =
+                code
+                    .transformAst {
+                        findChildByType(FUN)
+                            ?.findChildByType(VALUE_PARAMETER_LIST)
+                            ?.findChildByType(VALUE_PARAMETER)
+                            ?.findChildByType(TYPE_REFERENCE)
+                            ?.upsertWhitespaceAfterMe("\n")
+                    }.text
+
+            assertThat(actual).isEqualTo(formattedCode)
+        }
+
+        @Test
+        fun `Given an upsert of a whitespace after a composite node (VALUE_PARAMETER) which is followed by a non-whitespace leaf element (RPAR) then create a new whitespace element after the node (VALUE_PARAMETER)`() {
             val code =
                 """
                 fun foo(string: String) = 42
@@ -495,25 +574,25 @@ class ASTNodeExtensionTest {
         }
 
         @Test
-        fun `Given a node (FUN foo) which is followed by a composite element (FUN bar) and upsert a whitespace after the node (FUN foo) then create a new whitespace element after the node (FUN foo)`() {
+        fun `Given an upsert of a whitespace after a composite node (ANNOTATION_ENTRY) which is followed by another composite node (ANNOTATION_ENTRY) then create a new whitespace between the ANNOTATION_ENTRIES`() {
             val code =
                 """
-                fun foo() = "foo"
-                fun bar() = "bar"
+                fun foo(@Bar@Foo string: String) = 42
                 """.trimIndent()
             val formattedCode =
                 """
-                fun foo() = "foo"
-
-                fun bar() = "bar"
+                fun foo(@Bar @Foo string: String) = 42
                 """.trimIndent()
 
             val actual =
                 code
                     .transformAst {
-                        children()
-                            .first { it.elementType == FUN }
-                            .upsertWhitespaceAfterMe("\n\n")
+                        findChildByType(FUN)
+                            ?.findChildByType(VALUE_PARAMETER_LIST)
+                            ?.findChildByType(VALUE_PARAMETER)
+                            ?.findChildByType(MODIFIER_LIST)
+                            ?.findChildByType(ANNOTATION_ENTRY)
+                            ?.upsertWhitespaceAfterMe(" ")
                     }.text
 
             assertThat(actual).isEqualTo(formattedCode)
@@ -582,7 +661,7 @@ class ASTNodeExtensionTest {
     }
 
     @Test
-    fun `Given some line containing identifiers at different indentation levels then get line length exclusive the leading newline characters`() {
+    fun `Given some lines containing identifiers at different indentation levels then get line length exclusive the leading newline characters`() {
         val code =
             """
             class Foo1 {
@@ -599,15 +678,47 @@ class ASTNodeExtensionTest {
                 .firstChildLeafOrSelf()
                 .leaves()
                 .filter { it.elementType == IDENTIFIER }
-                .map { newLine ->
-                    newLine.lineLengthWithoutNewlinePrefix()
-                }.toList()
+                .map { identifier -> identifier.lineLengthWithoutNewlinePrefix() }
+                .toList()
 
         assertThat(actual).contains(
             "class Foo1 {".length,
             "    val foo2 = \"foo2\"".length,
             "    fun foo3() {".length,
             "        val foo4 = \"foo4\"".length,
+        )
+    }
+
+    @Test
+    fun `Given some lines containing identifiers at different indentation levels then get line length exclusive the leading newline characters until and including the identifier`() {
+        val code =
+            """
+            class Foo1 {
+                val foo2 = "foo2"
+
+                fun foo3() {
+                    val foo4 = "foo4"
+                }
+            }
+            """.trimIndent()
+
+        val actual =
+            transformCodeToAST(code)
+                .firstChildLeafOrSelf()
+                .leaves()
+                .filter { it.elementType == IDENTIFIER }
+                .map { identifier ->
+                    identifier
+                        .leavesOnLine()
+                        .takeWhile { it.prevLeaf() != identifier }
+                        .lineLengthWithoutNewlinePrefix()
+                }.toList()
+
+        assertThat(actual).contains(
+            "class Foo1".length,
+            "    val foo2".length,
+            "    fun foo3".length,
+            "        val foo4".length,
         )
     }
 

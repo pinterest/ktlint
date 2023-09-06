@@ -2,6 +2,7 @@ package com.pinterest.ktlint.rule.engine.api
 
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigDefaultsLoader
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigLoaderEc4j
+import dev.drewhamilton.poko.Poko
 import org.ec4j.core.model.EditorConfig
 import org.ec4j.core.model.PropertyType
 import java.nio.file.Path
@@ -10,7 +11,8 @@ import java.nio.file.Path
  * Wrapper around the ec4j [EditorConfig]. Only to be used to specify the default value of ec4j properties. Those default values will only
  * be used whenever a property is retrieved from the ec4j [EditorConfig] and the property has not been defined in the ".editorconfig" file.
  */
-public data class EditorConfigDefaults(
+@Poko
+public class EditorConfigDefaults(
     /**
      * The ec4j [EditorConfig] containing the default value of the ec4j properties. Those default values will only be used whenever a
      * property is retrieved from the ec4j [EditorConfig] and the property has not been defined in the ".editorconfig" file.

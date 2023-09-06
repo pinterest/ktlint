@@ -8,8 +8,8 @@ import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
-class MultilineExpressionWrappingTest {
-    private val multilineExpressionWrappingAssertThat = KtLintAssertThat.assertThatRule { MultilineExpressionWrapping() }
+class MultilineExpressionWrappingRuleTest {
+    private val multilineExpressionWrappingRuleAssertThat = KtLintAssertThat.assertThatRule { MultilineExpressionWrappingRule() }
 
     @Nested
     inner class `Given a function call using a named parameter` {
@@ -33,7 +33,7 @@ class MultilineExpressionWrappingTest {
                                 .plus("over the lazy dog"),
                     )
                 """.trimIndent()
-            multilineExpressionWrappingAssertThat(code)
+            multilineExpressionWrappingRuleAssertThat(code)
                 .addAdditionalRuleProvider { IndentationRule() }
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
                 .hasLintViolations(
@@ -62,7 +62,7 @@ class MultilineExpressionWrappingTest {
                                 ?.plus("over the lazy dog"),
                     )
                 """.trimIndent()
-            multilineExpressionWrappingAssertThat(code)
+            multilineExpressionWrappingRuleAssertThat(code)
                 .addAdditionalRuleProvider { IndentationRule() }
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
                 .hasLintViolations(
@@ -91,7 +91,7 @@ class MultilineExpressionWrappingTest {
                                 ?.plus("over the lazy dog"),
                     )
                 """.trimIndent()
-            multilineExpressionWrappingAssertThat(code)
+            multilineExpressionWrappingRuleAssertThat(code)
                 .addAdditionalRuleProvider { IndentationRule() }
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
                 .hasLintViolations(
@@ -120,7 +120,7 @@ class MultilineExpressionWrappingTest {
                                 ?.plus("jumps over the lazy dog"),
                     )
                 """.trimIndent()
-            multilineExpressionWrappingAssertThat(code)
+            multilineExpressionWrappingRuleAssertThat(code)
                 .addAdditionalRuleProvider { IndentationRule() }
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
                 .hasLintViolations(
@@ -149,7 +149,7 @@ class MultilineExpressionWrappingTest {
                             )
                     )
                 """.trimIndent()
-            multilineExpressionWrappingAssertThat(code)
+            multilineExpressionWrappingRuleAssertThat(code)
                 .addAdditionalRuleProvider { IndentationRule() }
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
                 .hasLintViolations(
@@ -179,7 +179,7 @@ class MultilineExpressionWrappingTest {
                             "over the lazy dog",
                     )
                 """.trimIndent()
-            multilineExpressionWrappingAssertThat(code)
+            multilineExpressionWrappingRuleAssertThat(code)
                 .addAdditionalRuleProvider { IndentationRule() }
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
                 .hasLintViolations(
@@ -206,7 +206,7 @@ class MultilineExpressionWrappingTest {
                             ?.plus("over the lazy dog"),
                     )
                 """.trimIndent()
-            multilineExpressionWrappingAssertThat(code)
+            multilineExpressionWrappingRuleAssertThat(code)
                 .addAdditionalRuleProvider { IndentationRule() }
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
                 .hasLintViolations(
@@ -233,7 +233,7 @@ class MultilineExpressionWrappingTest {
                             ?.plus("over the lazy dog"),
                     )
                 """.trimIndent()
-            multilineExpressionWrappingAssertThat(code)
+            multilineExpressionWrappingRuleAssertThat(code)
                 .addAdditionalRuleProvider { IndentationRule() }
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
                 .hasLintViolations(
@@ -260,7 +260,7 @@ class MultilineExpressionWrappingTest {
                             ?.plus("jumps over the lazy dog"),
                     )
                 """.trimIndent()
-            multilineExpressionWrappingAssertThat(code)
+            multilineExpressionWrappingRuleAssertThat(code)
                 .addAdditionalRuleProvider { IndentationRule() }
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
                 .hasLintViolations(
@@ -286,7 +286,7 @@ class MultilineExpressionWrappingTest {
                         )
                     )
                 """.trimIndent()
-            multilineExpressionWrappingAssertThat(code)
+            multilineExpressionWrappingRuleAssertThat(code)
                 .addAdditionalRuleProvider { IndentationRule() }
                 .addAdditionalRuleProvider { ParameterWrappingRule() }
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
@@ -307,7 +307,7 @@ class MultilineExpressionWrappingTest {
                 )
             }
             """.trimIndent()
-        multilineExpressionWrappingAssertThat(code)
+        multilineExpressionWrappingRuleAssertThat(code)
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
             .hasNoLintViolations()
     }
@@ -327,7 +327,7 @@ class MultilineExpressionWrappingTest {
                     "bar"
                 )
             """.trimIndent()
-        multilineExpressionWrappingAssertThat(code)
+        multilineExpressionWrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
             .hasLintViolation(1, 13, "A multiline expression should start on a new line")
@@ -344,7 +344,7 @@ class MultilineExpressionWrappingTest {
                 foobar
             )
             """.trimIndent()
-        multilineExpressionWrappingAssertThat(code)
+        multilineExpressionWrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
             .hasNoLintViolations()
@@ -369,7 +369,7 @@ class MultilineExpressionWrappingTest {
                         "over the lazy dog"
                 }
             """.trimIndent()
-        multilineExpressionWrappingAssertThat(code)
+        multilineExpressionWrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
             .hasLintViolation(2, 15, "A multiline expression should start on a new line")
@@ -395,7 +395,7 @@ class MultilineExpressionWrappingTest {
                     over the lazy dog$MULTILINE_STRING_QUOTE.trimIndent()
                 }
             """.trimIndent()
-        multilineExpressionWrappingAssertThat(code)
+        multilineExpressionWrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
             .hasLintViolation(2, 15, "A multiline expression should start on a new line")
@@ -423,7 +423,7 @@ class MultilineExpressionWrappingTest {
                             .substringAfter("o")
                     }
             """.trimIndent()
-        multilineExpressionWrappingAssertThat(code)
+        multilineExpressionWrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
             .hasLintViolation(3, 16, "A multiline expression should start on a new line")
@@ -452,7 +452,7 @@ class MultilineExpressionWrappingTest {
                 )
             }
             """.trimIndent()
-        multilineExpressionWrappingAssertThat(code)
+        multilineExpressionWrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
             .hasLintViolation(2, 13, "A multiline expression should start on a new line")
@@ -484,7 +484,7 @@ class MultilineExpressionWrappingTest {
                     else -> ""
                 }
             """.trimIndent()
-        multilineExpressionWrappingAssertThat(code)
+        multilineExpressionWrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
             .hasLintViolation(3, 50, "A multiline expression should start on a new line")
@@ -508,7 +508,7 @@ class MultilineExpressionWrappingTest {
                     else -> false
                 }
             """.trimIndent()
-        multilineExpressionWrappingAssertThat(code)
+        multilineExpressionWrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
             .hasLintViolation(1, 24, "A multiline expression should start on a new line")
@@ -534,7 +534,7 @@ class MultilineExpressionWrappingTest {
                     "foo"
                 }
             """.trimIndent()
-        multilineExpressionWrappingAssertThat(code)
+        multilineExpressionWrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
             .hasLintViolation(1, 25, "A multiline expression should start on a new line")
@@ -560,7 +560,7 @@ class MultilineExpressionWrappingTest {
                     // handle exception
                 }
             """.trimIndent()
-        multilineExpressionWrappingAssertThat(code)
+        multilineExpressionWrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
             .hasLintViolation(1, 13, "A multiline expression should start on a new line")
@@ -574,14 +574,13 @@ class MultilineExpressionWrappingTest {
             fun foo(any: Any) = any is
                 Foo
             """.trimIndent()
-        // TODO: https://github.com/pinterest/ktlint/issues/2094 Fix formatting by indent rule
         val formattedCode =
             """
             fun foo(any: Any) =
                 any is
-                Foo
+                    Foo
             """.trimIndent()
-        multilineExpressionWrappingAssertThat(code)
+        multilineExpressionWrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
             .hasLintViolation(1, 21, "A multiline expression should start on a new line")
@@ -601,7 +600,7 @@ class MultilineExpressionWrappingTest {
                 any as
                     Foo
             """.trimIndent()
-        multilineExpressionWrappingAssertThat(code)
+        multilineExpressionWrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
             .hasLintViolation(1, 21, "A multiline expression should start on a new line")
@@ -615,14 +614,13 @@ class MultilineExpressionWrappingTest {
             fun foo(any: Int) = ++
                 42
             """.trimIndent()
-        // TODO: https://github.com/pinterest/ktlint/issues/2094 Fix formatting by indent rule
         val formattedCode =
             """
             fun foo(any: Int) =
                 ++
-                42
+                    42
             """.trimIndent()
-        multilineExpressionWrappingAssertThat(code)
+        multilineExpressionWrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
             .hasLintViolation(1, 21, "A multiline expression should start on a new line")
@@ -644,7 +642,7 @@ class MultilineExpressionWrappingTest {
                     42
                 ]
             """.trimIndent()
-        multilineExpressionWrappingAssertThat(code)
+        multilineExpressionWrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
             .hasLintViolation(1, 31, "A multiline expression should start on a new line")
@@ -664,7 +662,7 @@ class MultilineExpressionWrappingTest {
                 object :
                     Foo() {}
             """.trimIndent()
-        multilineExpressionWrappingAssertThat(code)
+        multilineExpressionWrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
             .hasLintViolation(1, 13, "A multiline expression should start on a new line")
@@ -685,7 +683,7 @@ class MultilineExpressionWrappingTest {
                         }
                     }
             """.trimIndent()
-        multilineExpressionWrappingAssertThat(code)
+        multilineExpressionWrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
             .hasNoLintViolations()
@@ -708,7 +706,7 @@ class MultilineExpressionWrappingTest {
 
             val foobar = "foobar"
             """.trimIndent()
-        multilineExpressionWrappingAssertThat(code)
+        multilineExpressionWrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
             .hasLintViolation(1, 11, "A multiline expression should start on a new line")
@@ -738,7 +736,7 @@ class MultilineExpressionWrappingTest {
                     $MULTILINE_STRING_QUOTE.trimIndent()
             }
             """.trimIndent()
-        multilineExpressionWrappingAssertThat(code)
+        multilineExpressionWrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
             .hasLintViolation(4, 17, "A multiline expression should start on a new line")
@@ -764,21 +762,12 @@ class MultilineExpressionWrappingTest {
                     $MULTILINE_STRING_QUOTE.trimIndent()
             }
             """.trimIndent()
-        multilineExpressionWrappingAssertThat(code)
+        multilineExpressionWrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
             .hasLintViolation(2, 19, "A multiline expression should start on a new line")
             .isFormattedAs(formattedCode)
     }
-
-    fun fooBar(foobar: String?) =
-        foobar
-            ?.lowercase()
-            ?: """
-                foo
-                """
-                .uppercase()
-                .trimIndent()
 
     @Test
     fun `Given an elvis operator followed by a multiline expression then do not reformat`() {
@@ -791,8 +780,54 @@ class MultilineExpressionWrappingTest {
                         .uppercase()
                         .trimIndent()
             """.trimIndent()
-        multilineExpressionWrappingAssertThat(code)
+        multilineExpressionWrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 2183 - Given a multiline postfix expression then reformat`() {
+        val code =
+            """
+            val foobar = foo!!
+                .bar()
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foobar =
+                foo!!
+                    .bar()
+            """.trimIndent()
+        multilineExpressionWrappingRuleAssertThat(code)
+            .addAdditionalRuleProvider { IndentationRule() }
+            .hasLintViolation(1, 14, "A multiline expression should start on a new line")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 2188 - Given a multiline prefix expression then reformat but do not wrap after prefix operator`() {
+        val code =
+            """
+            val bar = bar(
+                *foo(
+                    "a",
+                    "b"
+                )
+            )
+            """.trimIndent()
+        val formattedCode =
+            """
+            val bar =
+                bar(
+                    *foo(
+                        "a",
+                        "b"
+                    )
+                )
+            """.trimIndent()
+        multilineExpressionWrappingRuleAssertThat(code)
+            .addAdditionalRuleProvider { IndentationRule() }
+            .hasLintViolation(1, 11, "A multiline expression should start on a new line")
+            .isFormattedAs(formattedCode)
     }
 }

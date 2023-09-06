@@ -7,7 +7,7 @@ import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
 import com.pinterest.ktlint.cli.reporter.core.api.ReporterProviderV2
 import com.pinterest.ktlint.cli.reporter.core.api.ReporterV2
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.io.File
 import java.io.IOException
 import java.io.PrintStream
@@ -184,7 +184,9 @@ internal class ReporterAggregator(
         val output: String?,
     )
 
-    private class AggregatedReporter(val reporters: List<ReporterV2>) : ReporterV2 {
+    private class AggregatedReporter(
+        val reporters: List<ReporterV2>,
+    ) : ReporterV2 {
         override fun beforeAll() = reporters.forEach(ReporterV2::beforeAll)
 
         override fun before(file: String) = reporters.forEach { it.before(file) }

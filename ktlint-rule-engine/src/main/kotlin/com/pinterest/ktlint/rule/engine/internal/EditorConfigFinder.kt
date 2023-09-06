@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.rule.engine.internal
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.ec4j.core.Resource
 import org.ec4j.core.ResourcePropertiesService
 import org.jetbrains.kotlin.konan.file.File
@@ -19,7 +19,9 @@ import kotlin.system.measureTimeMillis
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
-internal class EditorConfigFinder(private val editorConfigLoaderEc4j: EditorConfigLoaderEc4j) {
+internal class EditorConfigFinder(
+    private val editorConfigLoaderEc4j: EditorConfigLoaderEc4j,
+) {
     /**
      * Finds all relevant ".editorconfig" files for the given path.
      */
@@ -114,7 +116,8 @@ internal class EditorConfigFinder(private val editorConfigLoaderEc4j: EditorConf
     private fun Path?.resource() = Resource.Resources.ofPath(this, StandardCharsets.UTF_8)
 
     private fun createLoaderService() =
-        ResourcePropertiesService.builder()
+        ResourcePropertiesService
+            .builder()
             .cache(EDITOR_CONFIG_CACHE)
             .loader(editorConfigLoaderEc4j.editorConfigLoader)
             .build()

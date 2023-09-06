@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.cli.internal
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.kotlin.util.prefixIfNot
 import java.io.File
 import java.nio.file.FileSystem
@@ -108,15 +108,16 @@ internal fun FileSystem.fileSequence(
                     ): FileVisitResult {
                         val path =
                             if (onWindowsOS) {
-                                Paths.get(
-                                    filePath
-                                        .absolutePathString()
-                                        .replace(File.separatorChar, '/'),
-                                ).also {
-                                    if (it != filePath) {
-                                        LOGGER.trace { "On WindowsOS transform '$filePath' to '$it'" }
+                                Paths
+                                    .get(
+                                        filePath
+                                            .absolutePathString()
+                                            .replace(File.separatorChar, '/'),
+                                    ).also {
+                                        if (it != filePath) {
+                                            LOGGER.trace { "On WindowsOS transform '$filePath' to '$it'" }
+                                        }
                                     }
-                                }
                             } else {
                                 filePath
                             }
@@ -134,15 +135,14 @@ internal fun FileSystem.fileSequence(
                     override fun preVisitDirectory(
                         dirPath: Path,
                         dirAttr: BasicFileAttributes,
-                    ): FileVisitResult {
-                        return if (Files.isHidden(dirPath)) {
+                    ): FileVisitResult =
+                        if (Files.isHidden(dirPath)) {
                             LOGGER.trace { "- Dir: $dirPath: Ignore" }
                             FileVisitResult.SKIP_SUBTREE
                         } else {
                             LOGGER.trace { "- Dir: $dirPath: Traverse" }
                             FileVisitResult.CONTINUE
                         }
-                    }
                 },
             )
         }

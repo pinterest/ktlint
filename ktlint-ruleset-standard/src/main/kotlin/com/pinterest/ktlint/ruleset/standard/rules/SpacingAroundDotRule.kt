@@ -1,6 +1,8 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfString
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -10,6 +12,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
+@SinceKtlint("0.30", STABLE)
 public class SpacingAroundDotRule : StandardRule("dot-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,

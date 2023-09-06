@@ -19,6 +19,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.Companion.DEFAULT_INDENT_CONFIG
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
@@ -40,6 +42,7 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 
+@SinceKtlint("0.13", STABLE)
 public class ChainWrappingRule :
     StandardRule(
         id = "chain-wrapping",
@@ -143,10 +146,9 @@ public class ChainWrappingRule :
 
     private fun ASTNode.isInPrefixPosition() = treeParent?.treeParent?.elementType == PREFIX_EXPRESSION
 
-    private fun ASTNode.isElvisOperatorAndComment(): Boolean {
-        return elementType == ELVIS &&
+    private fun ASTNode.isElvisOperatorAndComment(): Boolean =
+        elementType == ELVIS &&
             leaves().takeWhile { it.isWhiteSpaceWithoutNewline() || it.isPartOfComment() }.any()
-    }
 }
 
 public val CHAIN_WRAPPING_RULE_ID: RuleId = ChainWrappingRule().ruleId

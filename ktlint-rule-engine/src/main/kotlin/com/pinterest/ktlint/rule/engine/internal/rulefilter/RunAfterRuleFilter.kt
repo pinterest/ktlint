@@ -11,7 +11,7 @@ import com.pinterest.ktlint.rule.engine.internal.rulefilter.RunAfterRuleFilter.R
 import com.pinterest.ktlint.rule.engine.internal.rulefilter.RunAfterRuleFilter.RunAfterRuleOrderModifier.BLOCK_UNTIL_RUN_AFTER_RULE_IS_LOADED
 import com.pinterest.ktlint.rule.engine.internal.rulefilter.RunAfterRuleFilter.RunAfterRuleOrderModifier.IGNORE
 import com.pinterest.ktlint.rule.engine.internal.rulefilter.RunAfterRuleFilter.RunAfterRuleOrderModifier.REQUIRED_RUN_AFTER_RULE_NOT_LOADED
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -150,8 +150,8 @@ internal class RunAfterRuleFilter : RuleFilter {
     private fun Set<RuleProvider>.canRunWith(loadedRuleProviders: Set<RuleProvider>): Set<RuleProvider> =
         canRunWithRuleIds(loadedRuleProviders.map { it.ruleId }.toSet())
 
-    private fun Set<RuleProvider>.canRunWithRuleIds(loadedRuleIds: Set<RuleId>): Set<RuleProvider> {
-        return this
+    private fun Set<RuleProvider>.canRunWithRuleIds(loadedRuleIds: Set<RuleId>): Set<RuleProvider> =
+        this
             .filter { it.canRunWith(loadedRuleIds) }
             .let { unblockedRuleProviders ->
                 if (unblockedRuleProviders.isEmpty()) {
@@ -165,7 +165,6 @@ internal class RunAfterRuleFilter : RuleFilter {
                         .plus(unblockedRuleProviders)
                 }
             }.toSet()
-    }
 
     private fun RuleProvider.canRunWith(loadedRuleIds: Set<RuleId>): Boolean =
         this
@@ -211,9 +210,14 @@ internal class RunAfterRuleFilter : RuleFilter {
         }
     }
 
-    private data class RunAfterRuleRequiredButNotLoaded(val ruleId: RuleId, val runAfterRuleId: RuleId)
+    private data class RunAfterRuleRequiredButNotLoaded(
+        val ruleId: RuleId,
+        val runAfterRuleId: RuleId,
+    )
 
-    private enum class RunAfterRuleOrderModifier(val severity: Int) {
+    private enum class RunAfterRuleOrderModifier(
+        val severity: Int,
+    ) {
         /**
          *  This rule does not depend on any other rule which will be loaded, or it depends on rule which was already added to the new list
          *  of rule which will be loaded before the current rule.

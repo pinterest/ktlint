@@ -11,6 +11,9 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.THEN
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
@@ -31,6 +34,8 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
  * All branches of the if-statement should be wrapped between braces if at least one branch is wrapped between braces. Consistent bracing
  * makes statements easier to read.
  */
+@SinceKtlint("0.49", EXPERIMENTAL)
+@SinceKtlint("1.0", STABLE)
 public class IfElseBracingRule :
     StandardRule(
         id = "if-else-bracing",
@@ -40,7 +45,6 @@ public class IfElseBracingRule :
                 INDENT_STYLE_PROPERTY,
             ),
     ),
-    Rule.Experimental,
     Rule.OfficialCodeStyle {
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 
@@ -117,7 +121,7 @@ public class IfElseBracingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ): Boolean {
         emit(
-            node.firstChildNode.startOffset,
+            node.firstChildNode?.startOffset ?: node.startOffset,
             "All branches of the if statement should be wrapped between braces if at least one branch is wrapped between braces",
             true,
         )
@@ -149,15 +153,26 @@ public class IfElseBracingRule :
             }
         KtBlockExpression(null).apply {
             val previousChild = node.firstChildNode
-            node.replaceChild(node.firstChildNode, this)
+            if (previousChild == null) {
+                node.addChild(this, null)
+            } else {
+                node.replaceChild(node.firstChildNode, this)
+            }
             addChild(LeafPsiElement(LBRACE, "{"))
-            addChild(PsiWhiteSpaceImpl(indentConfig.childIndentOf(node)))
+            if (previousChild != null) {
+                addChild(PsiWhiteSpaceImpl(indentConfig.childIndentOf(node)))
+            }
             prevLeaves
                 .dropWhile { it.isWhiteSpace() }
-                .forEach(::addChild)
-            addChild(previousChild)
+                .takeIf { it.isNotEmpty() }
+                ?.forEach(::addChild)
+            if (previousChild != null) {
+                addChild(previousChild)
+            }
             nextLeaves.forEach(::addChild)
-            addChild(PsiWhiteSpaceImpl(node.indent()))
+            if (previousChild != null) {
+                addChild(PsiWhiteSpaceImpl(node.indent()))
+            }
             addChild(LeafPsiElement(RBRACE, "}"))
         }
 

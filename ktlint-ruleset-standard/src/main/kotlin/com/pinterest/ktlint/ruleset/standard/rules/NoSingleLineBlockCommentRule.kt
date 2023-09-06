@@ -6,6 +6,9 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
@@ -21,6 +24,8 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
 /**
  * A block comment following another element on the same line is replaced with an EOL comment, if possible.
  */
+@SinceKtlint("0.49.1", EXPERIMENTAL)
+@SinceKtlint("1.0", STABLE)
 public class NoSingleLineBlockCommentRule :
     StandardRule(
         id = "no-single-line-block-comment",
@@ -31,7 +36,6 @@ public class NoSingleLineBlockCommentRule :
             ),
         visitorModifiers = setOf(RunAfterRule(COMMENT_WRAPPING_RULE_ID, REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED)),
     ),
-    Rule.Experimental,
     Rule.OfficialCodeStyle {
     override fun beforeVisitChildNodes(
         node: ASTNode,

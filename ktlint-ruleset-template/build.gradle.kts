@@ -32,6 +32,7 @@ dependencies {
     implementation(projects.ktlintRuleEngineCore)
 
     testImplementation(projects.ktlintTest)
+    testRuntimeOnly(libs.slf4j)
 }
 
 val ktlintCheck by tasks.registering(JavaExec::class) {

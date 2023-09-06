@@ -8,8 +8,10 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PROJECTION
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.Companion.DEFAULT_INDENT_CONFIG
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
@@ -33,6 +35,8 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  * Wrapping of context receiver to a separate line. Arguments of the context receiver are wrapped to separate line
  * whenever the max line length is exceeded.
  */
+@SinceKtlint("0.48", EXPERIMENTAL)
+@SinceKtlint("1.0", STABLE)
 public class ContextReceiverWrappingRule :
     StandardRule(
         id = "context-receiver-wrapping",
@@ -42,8 +46,7 @@ public class ContextReceiverWrappingRule :
                 INDENT_STYLE_PROPERTY,
                 MAX_LINE_LENGTH_PROPERTY,
             ),
-    ),
-    Rule.Experimental {
+    ) {
     private var indentConfig = DEFAULT_INDENT_CONFIG
     private var maxLineLength = MAX_LINE_LENGTH_PROPERTY.defaultValue
 

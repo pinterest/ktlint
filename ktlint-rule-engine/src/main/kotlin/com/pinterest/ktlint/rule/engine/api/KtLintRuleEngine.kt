@@ -20,7 +20,7 @@ import com.pinterest.ktlint.rule.engine.internal.RuleExecutionContext
 import com.pinterest.ktlint.rule.engine.internal.RuleExecutionContext.Companion.createRuleExecutionContext
 import com.pinterest.ktlint.rule.engine.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFE_EDITOR_CONFIG_CACHE
 import com.pinterest.ktlint.rule.engine.internal.VisitorProvider
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.ec4j.core.Resource
 import org.ec4j.core.model.PropertyType.EndOfLineValue.crlf
 import org.ec4j.core.model.PropertyType.EndOfLineValue.lf
@@ -49,14 +49,6 @@ public class KtLintRuleEngine(
      * property being set in any other way.
      */
     public val editorConfigOverride: EditorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
-    /**
-     * Temporary flag to indicate that kotlin embeddable compiler is to be executed with (default) or without the extension point
-     * 'org.jetbrains.kotlin.com.intellij.treeCopyHandler'. This extension point is not (yet) supported in the preview of Kotlin 1.9. Some
-     * rules might no longer work and throw exceptions at runtime.
-     * It is unclear whether the extension point will be supported. Disabling this flag on the Kotlin 1.8 compiler has the same effect. As
-     * of that it can be used to assess the impact, and to fix rules before release of the Ktlint version which will be based on Kotlin 1.9.
-     */
-    public val enableKotlinCompilerExtensionPoint: Boolean = true,
     /**
      * **For internal use only**: indicates that linting was invoked from KtLint CLI tool. It enables some internals workarounds for Kotlin
      * Compiler initialization. This property is likely to be removed in any of next versions without further notice.
@@ -179,9 +171,25 @@ public class KtLintRuleEngine(
                 }
         } while (mutated && formatRunCount < MAX_FORMAT_RUNS_PER_FILE)
         if (formatRunCount == MAX_FORMAT_RUNS_PER_FILE && mutated) {
-            LOGGER.warn {
-                "Format was not able to resolve all violations which (theoretically) can be autocorrected in file " +
-                    "${code.filePathOrStdin()} in $MAX_FORMAT_RUNS_PER_FILE consecutive runs of format."
+            // It is unknown if the last format run introduces new lint violations which can be autocorrected. So run lint once more so that
+            // the user can be informed about this correctly.
+            var hasErrorsWhichCanBeAutocorrected = false
+            visitorProvider
+                .visitor()
+                .invoke { rule ->
+                    if (!hasErrorsWhichCanBeAutocorrected) {
+                        ruleExecutionContext.executeRule(rule, false) { _, _, canBeAutoCorrected ->
+                            if (canBeAutoCorrected) {
+                                hasErrorsWhichCanBeAutocorrected = true
+                            }
+                        }
+                    }
+                }
+            if (hasErrorsWhichCanBeAutocorrected) {
+                LOGGER.warn {
+                    "Format was not able to resolve all violations which (theoretically) can be autocorrected in file " +
+                        "${code.filePathOrStdin()} in $MAX_FORMAT_RUNS_PER_FILE consecutive runs of format."
+                }
             }
         }
 
@@ -203,7 +211,7 @@ public class KtLintRuleEngine(
         } else {
             formattedCode
         }.also {
-            LOGGER.debug("Finished with formatting file '${code.fileNameOrStdin()}'")
+            LOGGER.debug { "Finished with formatting file '${code.fileNameOrStdin()}'" }
         }
     }
 

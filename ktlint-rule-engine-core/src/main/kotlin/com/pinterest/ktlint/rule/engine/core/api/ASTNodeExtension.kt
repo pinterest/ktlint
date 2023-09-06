@@ -245,11 +245,23 @@ public fun ASTNode.upsertWhitespaceBeforeMe(text: String) {
             }
         }
     } else {
-        val prevLeaf =
-            requireNotNull(prevLeaf()) {
-                "Can not upsert a whitespace if the first node is a non-leaf node"
+        when (val prevSibling = prevSibling()) {
+            null -> {
+                // Never insert a whitespace element as first child node in a composite node. Instead, upsert just before the composite node
+                treeParent.upsertWhitespaceBeforeMe(text)
             }
-        prevLeaf.upsertWhitespaceAfterMe(text)
+
+            is LeafElement -> {
+                prevSibling.upsertWhitespaceAfterMe(text)
+            }
+
+            else -> {
+                // Insert in between two composite nodes
+                PsiWhiteSpaceImpl(text).also { psiWhiteSpace ->
+                    treeParent.addChild(psiWhiteSpace.node, this)
+                }
+            }
+        }
     }
 }
 
@@ -279,7 +291,23 @@ public fun ASTNode.upsertWhitespaceAfterMe(text: String) {
             }
         }
     } else {
-        lastChildLeafOrSelf().upsertWhitespaceAfterMe(text)
+        when (val nextSibling = nextSibling()) {
+            null -> {
+                // Never insert a whitespace element as last child node in a composite node. Instead, upsert just after the composite node
+                treeParent.upsertWhitespaceAfterMe(text)
+            }
+
+            is LeafElement -> {
+                nextSibling.upsertWhitespaceBeforeMe(text)
+            }
+
+            else -> {
+                // Insert in between two composite nodes
+                PsiWhiteSpaceImpl(text).also { psiWhiteSpace ->
+                    treeParent.addChild(psiWhiteSpace.node, nextSibling)
+                }
+            }
+        }
     }
 }
 
@@ -424,12 +452,21 @@ internal fun ASTNode.getLastLeafOnLineOrNull() = nextLeaf { it.textContains('\n'
  * Get the total length of all leaves on the same line as the given node including the whitespace indentation but excluding all leading
  * newline characters in the whitespace indentation.
  */
-public fun ASTNode.lineLengthWithoutNewlinePrefix(): Int =
-    leavesOnLine()
-        .joinToString(separator = "") { it.text }
+public fun ASTNode.lineLengthWithoutNewlinePrefix(): Int = leavesOnLine().lineLengthWithoutNewlinePrefix()
+
+/**
+ * Get the total length of all leaves in the sequence including the whitespace indentation but excluding all leading newline characters in
+ * the whitespace indentation. The first leaf node in the sequence must be a white space starting with at least one newline.
+ */
+public fun Sequence<ASTNode>.lineLengthWithoutNewlinePrefix(): Int {
+    require(first().text.startsWith('\n') || first().prevLeaf() == null) {
+        "First node in sequence must be a whitespace containing a newline"
+    }
+    return joinToString(separator = "") { it.text }
         // If a line is preceded by a blank line then the ident contains multiple newline chars
         .dropWhile { it == '\n' }
         // In case the last element on the line would contain a newline then only include chars before that newline. Note that this should
         // not occur if the AST is parsed correctly
         .takeWhile { it != '\n' }
         .length
+}

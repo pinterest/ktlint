@@ -89,7 +89,9 @@ private const val DOUBLE_QUOTE = "\""
  *
  * Ktlint-enable directives are removed as annotations have a scope in which the suppression will be active.
  */
-public class KtlintSuppressionRule(private val allowedRuleIds: List<RuleId>) : InternalRule("ktlint-suppression") {
+public class KtlintSuppressionRule(
+    private val allowedRuleIds: List<RuleId>,
+) : InternalRule("ktlint-suppression") {
     private val allowedRuleIdAsStrings = allowedRuleIds.map { it.value }
 
     private val ruleIdValidator: (String) -> Boolean = { ruleId -> allowedRuleIdAsStrings.contains(ruleId) }
@@ -454,8 +456,8 @@ public class KtlintSuppressionRule(private val allowedRuleIds: List<RuleId>) : I
     private fun ASTNode.createFileAnnotation(
         suppressType: SuppressAnnotationType,
         suppressions: Set<String>,
-    ): ASTNode {
-        return suppressions
+    ): ASTNode =
+        suppressions
             .sorted()
             .joinToString()
             .let { sortedSuppressions -> "@file:${suppressType.annotationName}($sortedSuppressions)" }
@@ -466,7 +468,6 @@ public class KtlintSuppressionRule(private val allowedRuleIds: List<RuleId>) : I
                     ?.firstChild
                     ?: throw IllegalStateException("Can not create annotation '$annotation'")
             }.node
-    }
 
     private fun ASTNode.createFileAnnotationList(annotation: ASTNode) {
         require(isRoot()) { "File annotation list can only be created for root node" }
@@ -550,7 +551,9 @@ public class KtlintSuppressionRule(private val allowedRuleIds: List<RuleId>) : I
         this.remove()
     }
 
-    private enum class SuppressAnnotationType(val annotationName: String) {
+    private enum class SuppressAnnotationType(
+        val annotationName: String,
+    ) {
         SUPPRESS("Suppress"),
         SUPPRESS_WARNINGS("SuppressWarnings"),
         ;
@@ -630,13 +633,17 @@ private data class KtLintDirective(
         }
     }
 
-    enum class KtlintDirectiveType(val id: String) {
+    enum class KtlintDirectiveType(
+        val id: String,
+    ) {
         KTLINT_DISABLE("ktlint-disable"),
         KTLINT_ENABLE("ktlint-enable"),
     }
 
     sealed class SuppressionIdChange {
-        class ValidSuppressionId(val suppressionId: String) : SuppressionIdChange()
+        class ValidSuppressionId(
+            val suppressionId: String,
+        ) : SuppressionIdChange()
 
         class InvalidSuppressionId(
             val originalRuleId: String,

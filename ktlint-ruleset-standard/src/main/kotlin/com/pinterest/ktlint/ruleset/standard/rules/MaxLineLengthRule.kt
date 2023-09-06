@@ -3,6 +3,8 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
@@ -22,6 +24,7 @@ import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPackageDirective
 
+@SinceKtlint("0.9", STABLE)
 public class MaxLineLengthRule :
     StandardRule(
         id = "max-line-length",
@@ -146,27 +149,27 @@ private data class ParsedLine(
     val offset: Int,
     val elements: List<ASTNode>,
 ) {
-    fun lineLength(ignoreBackTickedIdentifier: Boolean): Int {
-        return if (ignoreBackTickedIdentifier) {
+    fun lineLength(ignoreBackTickedIdentifier: Boolean): Int =
+        if (ignoreBackTickedIdentifier) {
             line.length - totalLengthBacktickedElements()
         } else {
             line.length
         }
-    }
 
-    private fun totalLengthBacktickedElements(): Int {
-        return elements
+    private fun totalLengthBacktickedElements(): Int =
+        elements
             .filterIsInstance(PsiElement::class.java)
             .filter { it.text.matches(BACKTICKED_IDENTIFIER_REGEX) }
             .sumOf(PsiElement::getTextLength)
-    }
 
     private companion object {
         val BACKTICKED_IDENTIFIER_REGEX = Regex("`.*`")
     }
 }
 
-internal class RangeTree(seq: List<Int> = emptyList()) {
+internal class RangeTree(
+    seq: List<Int> = emptyList(),
+) {
     private var emptyArrayView = ArrayView(0, 0)
     private var arr: IntArray = seq.toIntArray()
 
@@ -219,7 +222,10 @@ internal class RangeTree(seq: List<Int> = emptyList()) {
 
     fun isEmpty(): Boolean = arr.isEmpty()
 
-    inner class ArrayView(private var l: Int, private val r: Int) {
+    inner class ArrayView(
+        private var l: Int,
+        private val r: Int,
+    ) {
         val size: Int = r - l
 
         fun get(i: Int): Int {

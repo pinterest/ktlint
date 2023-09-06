@@ -26,6 +26,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.PLUS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PLUSEQ
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -38,6 +40,7 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPrefixExpression
 
+@SinceKtlint("0.1", STABLE)
 public class SpacingAroundOperatorsRule : StandardRule("op-spacing") {
     private val tokenSet =
         TokenSet.create(

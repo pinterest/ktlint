@@ -2,7 +2,8 @@ package com.pinterest.ktlint.rule.engine.core.api.editorconfig
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.core.api.Rule
-import mu.KotlinLogging
+import dev.drewhamilton.poko.Poko
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.ec4j.core.model.Property
 import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.PropertyType.PropertyValue
@@ -12,7 +13,8 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 /**
  * Loaded [Property]s from `.editorconfig` files.
  */
-public data class EditorConfig(
+@Poko
+public class EditorConfig(
     private val properties: Map<String, Property> = emptyMap(),
 ) {
     public constructor(vararg properties: Property) : this(
@@ -198,13 +200,12 @@ public data class EditorConfig(
         }
     }
 
-    private fun Set<EditorConfigProperty<*>>.defaultProperties(): Map<String, Property> {
-        return associate { editorConfigProperty ->
+    private fun Set<EditorConfigProperty<*>>.defaultProperties(): Map<String, Property> =
+        associate { editorConfigProperty ->
             editorConfigProperty
                 .writeDefaultValue()
                 .let { editorConfigProperty.name to editorConfigProperty.toPropertyWithValue(it) }
         }
-    }
 
     private fun <T> EditorConfigProperty<T>.writeDefaultValue() = propertyWriter(getDefaultValue())
 
@@ -220,4 +221,6 @@ public data class EditorConfig(
         filterKeys { it in editorConfigProperties }
 }
 
-private class DeprecatedEditorConfigPropertyException(message: String) : RuntimeException(message)
+private class DeprecatedEditorConfigPropertyException(
+    message: String,
+) : RuntimeException(message)

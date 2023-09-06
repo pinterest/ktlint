@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
+import com.pinterest.ktlint.ruleset.standard.rules.ClassSignatureRule.Companion.FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
@@ -834,8 +835,7 @@ class ArgumentListWrappingRuleTest {
                 LintViolation(8, 68, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(8, 118, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(8, 122, "Missing newline before \")\""),
-            )
-            .isFormattedAs(formattedCode)
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -855,5 +855,44 @@ class ArgumentListWrappingRuleTest {
             // function call in case that call is part of a binary expression. It might be better to break the line at the operation
             // reference instead.
             .hasNoLintViolationsExceptInAdditionalRules()
+    }
+
+    @Test
+    fun `Given a super type call entry with arguments which after wrapping to the next line does not fit on that line then keep start of body on same line as end of super type call entry`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER                            $EOL_CHAR
+            // Note that the super type call does not fit the line after it has been wrapped
+            // ...Foo(a: Any, b: Any, c: Any) :
+            //  FooBar(a, "longggggggggggggggggggggggggggggggggggg")
+            class Foo(a: Any, b: Any, c: Any) : FooBar(a, "longggggggggggggggggggggggggggggggggggg") {
+                // body
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            // $MAX_LINE_LENGTH_MARKER                            $EOL_CHAR
+            // Note that the super type call does not fit the line after it has been wrapped
+            // ...Foo(a: Any, b: Any, c: Any) :
+            //  FooBar(a, "longggggggggggggggggggggggggggggggggggg")
+            class Foo(a: Any, b: Any, c: Any) :
+                FooBar(
+                    a,
+                    "longggggggggggggggggggggggggggggggggggg"
+                ) {
+                // body
+            }
+            """.trimIndent()
+        argumentListWrappingRuleAssertThat(code)
+            .setMaxLineLength()
+            .addAdditionalRuleProvider { ClassSignatureRule() }
+            .addAdditionalRuleProvider { DiscouragedCommentLocationRule() }
+            .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to 4)
+            .hasLintViolationForAdditionalRule(5, 37, "Super type should start on a newline")
+            .hasLintViolations(
+                LintViolation(5, 44, "Argument should be on a separate line (unless all arguments can fit a single line)"),
+                LintViolation(5, 47, "Argument should be on a separate line (unless all arguments can fit a single line)"),
+                LintViolation(5, 88, "Missing newline before \")\""),
+            ).isFormattedAs(formattedCode)
     }
 }

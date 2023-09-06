@@ -1,0 +1,48 @@
+public final class com/pinterest/ktlint/cli/reporter/core/api/KtlintCliError : java/io/Serializable {
+	public fun <init> (IILjava/lang/String;Ljava/lang/String;Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError$Status;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCol ()I
+	public final fun getDetail ()Ljava/lang/String;
+	public final fun getLine ()I
+	public final fun getRuleId ()Ljava/lang/String;
+	public final fun getStatus ()Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError$Status;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/pinterest/ktlint/cli/reporter/core/api/KtlintCliError$Status : java/lang/Enum {
+	public static final field BASELINE_IGNORED Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError$Status;
+	public static final field FORMAT_IS_AUTOCORRECTED Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError$Status;
+	public static final field KOTLIN_PARSE_EXCEPTION Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError$Status;
+	public static final field KTLINT_RULE_ENGINE_EXCEPTION Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError$Status;
+	public static final field LINT_CAN_BE_AUTOCORRECTED Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError$Status;
+	public static final field LINT_CAN_NOT_BE_AUTOCORRECTED Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError$Status;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError$Status;
+	public static fun values ()[Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError$Status;
+}
+
+public final class com/pinterest/ktlint/cli/reporter/core/api/KtlintVersionKt {
+	public static final fun ktlintVersion (Ljava/lang/Class;)Ljava/lang/String;
+}
+
+public abstract interface class com/pinterest/ktlint/cli/reporter/core/api/ReporterProviderV2 : java/io/Serializable {
+	public abstract fun get (Ljava/io/PrintStream;Ljava/util/Map;)Lcom/pinterest/ktlint/cli/reporter/core/api/ReporterV2;
+	public abstract fun getId ()Ljava/lang/String;
+}
+
+public abstract interface class com/pinterest/ktlint/cli/reporter/core/api/ReporterV2 {
+	public abstract fun after (Ljava/lang/String;)V
+	public abstract fun afterAll ()V
+	public abstract fun before (Ljava/lang/String;)V
+	public abstract fun beforeAll ()V
+	public abstract fun onLintError (Ljava/lang/String;Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError;)V
+}
+
+public final class com/pinterest/ktlint/cli/reporter/core/api/ReporterV2$DefaultImpls {
+	public static fun after (Lcom/pinterest/ktlint/cli/reporter/core/api/ReporterV2;Ljava/lang/String;)V
+	public static fun afterAll (Lcom/pinterest/ktlint/cli/reporter/core/api/ReporterV2;)V
+	public static fun before (Lcom/pinterest/ktlint/cli/reporter/core/api/ReporterV2;Ljava/lang/String;)V
+	public static fun beforeAll (Lcom/pinterest/ktlint/cli/reporter/core/api/ReporterV2;)V
+}
+

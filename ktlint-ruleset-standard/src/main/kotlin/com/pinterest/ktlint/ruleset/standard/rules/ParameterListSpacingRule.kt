@@ -8,8 +8,10 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
@@ -28,9 +30,9 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
  * commas and colons. However, it does have a more complete view on the higher concept of the parameter-list without
  * interfering of the parameter-list-wrapping rule.
  */
-public class ParameterListSpacingRule :
-    StandardRule("parameter-list-spacing"),
-    Rule.Experimental {
+@SinceKtlint("0.46", EXPERIMENTAL)
+@SinceKtlint("1.0", STABLE)
+public class ParameterListSpacingRule : StandardRule("parameter-list-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -148,8 +150,7 @@ public class ParameterListSpacingRule :
             .takeUnless {
                 // Ignore when the modifier is an annotation which is placed on a separate line
                 it.isIndent() && it.getPrecedingModifier()?.elementType == ANNOTATION_ENTRY
-            }
-            ?.takeIf { it.isNotSingleSpace() }
+            }?.takeIf { it.isNotSingleSpace() }
             ?.let { replaceWithSingleSpace(it, emit, autoCorrect) }
     }
 
@@ -253,8 +254,8 @@ public class ParameterListSpacingRule :
         }
     }
 
-    private fun ASTNode.getPrecedingModifier(): ASTNode? {
-        return prevCodeSibling()
+    private fun ASTNode.getPrecedingModifier(): ASTNode? =
+        prevCodeSibling()
             ?.let { prevCodeSibling ->
                 if (prevCodeSibling.elementType == MODIFIER_LIST) {
                     prevCodeSibling.lastChildNode
@@ -263,7 +264,6 @@ public class ParameterListSpacingRule :
                     prevCodeSibling
                 }
             }
-    }
 
     private fun ASTNode?.isTypeReferenceWithModifierList() =
         null !=

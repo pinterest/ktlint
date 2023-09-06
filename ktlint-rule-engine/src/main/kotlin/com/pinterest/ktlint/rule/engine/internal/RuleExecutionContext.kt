@@ -14,7 +14,7 @@ import com.pinterest.ktlint.rule.engine.internal.rulefilter.InternalRuleProvider
 import com.pinterest.ktlint.rule.engine.internal.rulefilter.RuleExecutionRuleFilter
 import com.pinterest.ktlint.rule.engine.internal.rulefilter.RunAfterRuleFilter
 import com.pinterest.ktlint.rule.engine.internal.rulefilter.applyRuleFilters
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
@@ -204,12 +204,11 @@ internal class RuleExecutionContext private constructor(
             )
         }
 
-        private fun normalizeText(text: String): String {
-            return text
+        private fun normalizeText(text: String): String =
+            text
                 .replace("\r\n", "\n")
                 .replace("\r", "\n")
                 .replaceFirst(UTF8_BOM, "")
-        }
 
         private fun PsiElement.findErrorElement(): PsiErrorElement? {
             if (this is PsiErrorElement) {

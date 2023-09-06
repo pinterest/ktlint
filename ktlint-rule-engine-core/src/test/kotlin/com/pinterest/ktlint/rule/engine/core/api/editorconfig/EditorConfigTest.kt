@@ -6,6 +6,7 @@ import com.pinterest.ktlint.test.KtlintTestFileSystem
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatNoException
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.ec4j.core.model.Property
 import org.ec4j.core.model.PropertyType
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -16,28 +17,27 @@ class EditorConfigTest {
     fun `Given an EditorConfig from which a non existing property is retrieved then an exception is thrown`() {
         val editorConfig = EditorConfig()
 
-        assertThatThrownBy { editorConfig[SOME_EDITOR_CONFIG_PROPERTY] }
+        assertThatThrownBy { editorConfig[sampleEditorConfigProperty()] }
             .isInstanceOf(IllegalStateException::class.java)
             .hasMessageStartingWith("Property '$SOME_PROPERTY_NAME' can not be retrieved from this EditorConfig.")
     }
 
     @Test
     fun `Given an EditorConfig from which an existing property is retrieved then return the value of that property`() {
-        val editorConfig = EditorConfig(SOME_EDITOR_CONFIG_PROPERTY.toPropertyWithValue(SOME_PROPERTY_VALUE))
+        val editorConfig = EditorConfig(sampleEditorConfigProperty().toPropertyWithValue(SOME_PROPERTY_VALUE))
 
-        val actual = editorConfig[SOME_EDITOR_CONFIG_PROPERTY]
+        val actual = editorConfig[sampleEditorConfigProperty()]
 
         assertThat(actual).isEqualTo(SOME_PROPERTY_VALUE)
     }
 
     @Test
     fun `Given an empty EditorConfig and add a property with default value then the default value can be retrieved for the default code style`() {
-        val editorConfig = EditorConfig().addPropertiesWithDefaultValueIfMissing(SOME_EDITOR_CONFIG_PROPERTY)
+        val editorConfig = EditorConfig().addPropertiesWithDefaultValueIfMissing(sampleEditorConfigProperty())
 
-        val actual = editorConfig[SOME_EDITOR_CONFIG_PROPERTY]
+        val actual = editorConfig[sampleEditorConfigProperty()]
 
-        // Note that IntelliJ IDEA is the default code style for now, this will change to KTLINT_OFFICIAL in the future
-        assertThat(actual).isEqualTo(SOME_PROPERTY_VALUE_INTELLIJ_IDEA)
+        assertThat(actual).isEqualTo(SOME_PROPERTY_VALUE_KTLINT_OFFICIAL)
     }
 
     @ParameterizedTest(name = "Code style: {0}, expected result: {1}")
@@ -45,7 +45,7 @@ class EditorConfigTest {
         value = [
             "android_studio, $SOME_PROPERTY_VALUE_ANDROID_STUDIO",
             "intellij_idea, $SOME_PROPERTY_VALUE_INTELLIJ_IDEA",
-            "ktlint_official, $SOME_PROPERTY_VALUE_OFFICIAL",
+            "ktlint_official, $SOME_PROPERTY_VALUE_KTLINT_OFFICIAL",
         ],
     )
     fun `Given an EditorConfig with a defined code style and add a property with default value then the default value can be retrieved for the default code style`(
@@ -54,9 +54,9 @@ class EditorConfigTest {
     ) {
         val editorConfig =
             EditorConfig(CODE_STYLE_PROPERTY.toPropertyWithValue(codeStyleValue.name))
-                .addPropertiesWithDefaultValueIfMissing(SOME_EDITOR_CONFIG_PROPERTY)
+                .addPropertiesWithDefaultValueIfMissing(sampleEditorConfigProperty())
 
-        val actual = editorConfig[SOME_EDITOR_CONFIG_PROPERTY]
+        val actual = editorConfig[sampleEditorConfigProperty()]
 
         assertThat(actual).isEqualTo(expectedValue)
     }
@@ -64,10 +64,10 @@ class EditorConfigTest {
     @Test
     fun `Given an EditorConfig containing a certain property with a non-default value and add the same property again with default value then the non-default value is not overwritten`() {
         val editorConfig =
-            EditorConfig(SOME_EDITOR_CONFIG_PROPERTY.toPropertyWithValue(SOME_PROPERTY_VALUE))
-                .addPropertiesWithDefaultValueIfMissing(SOME_EDITOR_CONFIG_PROPERTY)
+            EditorConfig(sampleEditorConfigProperty().toPropertyWithValue(SOME_PROPERTY_VALUE))
+                .addPropertiesWithDefaultValueIfMissing(sampleEditorConfigProperty())
 
-        val actual = editorConfig[SOME_EDITOR_CONFIG_PROPERTY]
+        val actual = editorConfig[sampleEditorConfigProperty()]
 
         assertThat(actual).isEqualTo(SOME_PROPERTY_VALUE)
     }
@@ -75,7 +75,7 @@ class EditorConfigTest {
     @Test
     fun `Given an EditorConfig from which a deprecated -error-level- property is retrieved then thrown an exception`() {
         val someDeprecationMessage = "some-deprecation-message"
-        val someDeprecatedEditorConfigProperty = SOME_EDITOR_CONFIG_PROPERTY.copy(deprecationError = someDeprecationMessage)
+        val someDeprecatedEditorConfigProperty = sampleEditorConfigProperty(deprecationError = someDeprecationMessage)
         val editorConfig = EditorConfig().addPropertiesWithDefaultValueIfMissing(someDeprecatedEditorConfigProperty)
 
         assertThatThrownBy { editorConfig[someDeprecatedEditorConfigProperty] }
@@ -84,19 +84,19 @@ class EditorConfigTest {
 
     @Test
     fun `Given an EditorConfig from which a deprecated -warning-level- property is retrieved then do not throw an exception`() {
-        val someDeprecatedEditorConfigProperty = SOME_EDITOR_CONFIG_PROPERTY.copy(deprecationWarning = "some-deprecation-message")
+        val someDeprecatedEditorConfigProperty = sampleEditorConfigProperty(deprecationWarning = "some-deprecation-message")
         val editorConfig = EditorConfig().addPropertiesWithDefaultValueIfMissing(someDeprecatedEditorConfigProperty)
 
-        editorConfig[SOME_EDITOR_CONFIG_PROPERTY]
+        editorConfig[sampleEditorConfigProperty()]
 
         assertThatNoException()
     }
 
     @Test
     fun `Given an EditorConfig containing a property then 'contains' returns true when that property is retrieved`() {
-        val editorConfig = EditorConfig(SOME_EDITOR_CONFIG_PROPERTY.toPropertyWithValue(SOME_PROPERTY_VALUE))
+        val editorConfig = EditorConfig(sampleEditorConfigProperty().toPropertyWithValue(SOME_PROPERTY_VALUE))
 
-        val actual = editorConfig.contains(SOME_EDITOR_CONFIG_PROPERTY.name)
+        val actual = editorConfig.contains(sampleEditorConfigProperty().name)
 
         assertThat(actual).isTrue
     }
@@ -105,7 +105,7 @@ class EditorConfigTest {
     fun `Given an EditorConfig then 'contains' returns false when a non-existent property is retrieved`() {
         val editorConfig = EditorConfig()
 
-        val actual = editorConfig.contains(SOME_EDITOR_CONFIG_PROPERTY.name)
+        val actual = editorConfig.contains(sampleEditorConfigProperty().name)
 
         assertThat(actual).isFalse
     }
@@ -119,8 +119,8 @@ class EditorConfigTest {
         val editorConfig =
             EditorConfig()
                 .addPropertiesWithDefaultValueIfMissing(
-                    SOME_EDITOR_CONFIG_PROPERTY.copy(name = propertyName1, intellijIdeaCodeStyleDefaultValue = propertyValue1),
-                    SOME_EDITOR_CONFIG_PROPERTY.copy(name = propertyName2, intellijIdeaCodeStyleDefaultValue = propertyValue2),
+                    sampleEditorConfigProperty(name = propertyName1, ktlintOfficialCodeStyleDefaultValue = propertyValue1),
+                    sampleEditorConfigProperty(name = propertyName2, ktlintOfficialCodeStyleDefaultValue = propertyValue2),
                 )
 
         val actual = editorConfig.map { property -> property.name.uppercase() to property.sourceValue.uppercase() }
@@ -136,8 +136,8 @@ class EditorConfigTest {
         assertThatThrownBy {
             EditorConfig()
                 .addPropertiesWithDefaultValueIfMissing(
-                    SOME_EDITOR_CONFIG_PROPERTY.copy(defaultValue = SOME_PROPERTY_VALUE_ANDROID_STUDIO),
-                    SOME_EDITOR_CONFIG_PROPERTY.copy(defaultValue = SOME_PROPERTY_VALUE_INTELLIJ_IDEA),
+                    sampleEditorConfigProperty(defaultValue = SOME_PROPERTY_VALUE_ANDROID_STUDIO),
+                    sampleEditorConfigProperty(defaultValue = SOME_PROPERTY_VALUE_INTELLIJ_IDEA),
                 )
         }.isInstanceOf(IllegalArgumentException::class.java)
             .hasMessageStartingWith(
@@ -151,8 +151,8 @@ class EditorConfigTest {
             EditorConfig()
                 .filterBy(
                     setOf(
-                        SOME_EDITOR_CONFIG_PROPERTY.copy(defaultValue = SOME_PROPERTY_VALUE_ANDROID_STUDIO),
-                        SOME_EDITOR_CONFIG_PROPERTY.copy(defaultValue = SOME_PROPERTY_VALUE_INTELLIJ_IDEA),
+                        sampleEditorConfigProperty(defaultValue = SOME_PROPERTY_VALUE_ANDROID_STUDIO),
+                        sampleEditorConfigProperty(defaultValue = SOME_PROPERTY_VALUE_INTELLIJ_IDEA),
                     ),
                 )
         }.isInstanceOf(IllegalArgumentException::class.java)
@@ -164,12 +164,12 @@ class EditorConfigTest {
     @Test
     fun `Given an editorconfig containing a property and a filterBy for a property with the same name is given but with different identity then the existing property is not overwritten`() {
         val editorConfig =
-            EditorConfig(SOME_EDITOR_CONFIG_PROPERTY.toPropertyWithValue(SOME_PROPERTY_VALUE_ANDROID_STUDIO))
+            EditorConfig(sampleEditorConfigProperty().toPropertyWithValue(SOME_PROPERTY_VALUE_ANDROID_STUDIO))
                 .filterBy(
-                    setOf(SOME_EDITOR_CONFIG_PROPERTY.copy(defaultValue = SOME_PROPERTY_VALUE_INTELLIJ_IDEA)),
+                    setOf(sampleEditorConfigProperty(defaultValue = SOME_PROPERTY_VALUE_INTELLIJ_IDEA)),
                 )
 
-        val actual = editorConfig[SOME_EDITOR_CONFIG_PROPERTY]
+        val actual = editorConfig[sampleEditorConfigProperty()]
 
         assertThat(actual).isEqualTo(SOME_PROPERTY_VALUE_ANDROID_STUDIO)
     }
@@ -180,15 +180,13 @@ class EditorConfigTest {
         val property2 = "property-2"
         val editorConfig =
             EditorConfig(
-                SOME_EDITOR_CONFIG_PROPERTY
-                    .copy(name = property1)
+                sampleEditorConfigProperty(name = property1)
                     .toPropertyWithValue(SOME_PROPERTY_VALUE_ANDROID_STUDIO),
-                SOME_EDITOR_CONFIG_PROPERTY
-                    .copy(name = property2)
+                sampleEditorConfigProperty(name = property2)
                     .toPropertyWithValue(SOME_PROPERTY_VALUE_INTELLIJ_IDEA),
             )
 
-        val actual = editorConfig.getEditorConfigValueOrNull(SOME_EDITOR_CONFIG_PROPERTY.type, property2)
+        val actual = editorConfig.getEditorConfigValueOrNull(sampleEditorConfigProperty().type, property2)
 
         assertThat(actual).isEqualTo(SOME_PROPERTY_VALUE_INTELLIJ_IDEA)
     }
@@ -196,31 +194,30 @@ class EditorConfigTest {
     @Test
     fun `Given an editorconfig containing a property for which a property mapper is defined then the property mapper is called`() {
         val editorConfigPropertyWithPropertyMapper =
-            SOME_EDITOR_CONFIG_PROPERTY
-                .copy(
-                    propertyMapper = { _, _ -> SOME_PROPERTY_VALUE_OFFICIAL },
-                    defaultValue = SOME_PROPERTY_VALUE,
-                    androidStudioCodeStyleDefaultValue = null,
-                    intellijIdeaCodeStyleDefaultValue = null,
-                    ktlintOfficialCodeStyleDefaultValue = null,
-                )
+            sampleEditorConfigProperty(
+                propertyMapper = { _, _ -> SOME_PROPERTY_VALUE_KTLINT_OFFICIAL },
+                defaultValue = SOME_PROPERTY_VALUE,
+                androidStudioCodeStyleDefaultValue = null,
+                intellijIdeaCodeStyleDefaultValue = null,
+                ktlintOfficialCodeStyleDefaultValue = null,
+            )
         val editorConfig = EditorConfig().addPropertiesWithDefaultValueIfMissing(editorConfigPropertyWithPropertyMapper)
 
         val actual = editorConfig[editorConfigPropertyWithPropertyMapper]
 
-        assertThat(actual).isEqualTo(SOME_PROPERTY_VALUE_OFFICIAL)
+        assertThat(actual).isEqualTo(SOME_PROPERTY_VALUE_KTLINT_OFFICIAL)
     }
 
     @Test
     fun `Given an editorconfig containing a property for which the value is unset then return its default value`() {
         val editorConfig =
             EditorConfig(
-                SOME_EDITOR_CONFIG_PROPERTY.toPropertyWithValue("unset"),
+                sampleEditorConfigProperty().toPropertyWithValue("unset"),
             )
 
-        val actual = editorConfig[SOME_EDITOR_CONFIG_PROPERTY]
+        val actual = editorConfig[sampleEditorConfigProperty()]
 
-        assertThat(actual).isEqualTo(SOME_PROPERTY_VALUE_INTELLIJ_IDEA)
+        assertThat(actual).isEqualTo(SOME_PROPERTY_VALUE_KTLINT_OFFICIAL)
     }
 
     @Test
@@ -324,21 +321,33 @@ class EditorConfigTest {
         const val SOME_PROPERTY_VALUE_ANDROID_STUDIO = "some-property-value-android"
         const val SOME_PROPERTY_VALUE_DEFAULT = "some-property-value-default"
         const val SOME_PROPERTY_VALUE_INTELLIJ_IDEA = "some-property-value-intellij-idea"
-        const val SOME_PROPERTY_VALUE_OFFICIAL = "some-property-value-official"
-        val SOME_EDITOR_CONFIG_PROPERTY =
-            EditorConfigProperty(
-                name = SOME_PROPERTY_NAME,
-                type =
-                    PropertyType(
-                        SOME_PROPERTY_NAME,
-                        "",
-                        PropertyType.PropertyValueParser.IDENTITY_VALUE_PARSER,
-                        setOf(SOME_PROPERTY_VALUE_ANDROID_STUDIO, SOME_PROPERTY_VALUE_INTELLIJ_IDEA),
-                    ),
-                defaultValue = SOME_PROPERTY_VALUE_DEFAULT,
-                androidStudioCodeStyleDefaultValue = SOME_PROPERTY_VALUE_ANDROID_STUDIO,
-                ktlintOfficialCodeStyleDefaultValue = SOME_PROPERTY_VALUE_OFFICIAL,
-                intellijIdeaCodeStyleDefaultValue = SOME_PROPERTY_VALUE_INTELLIJ_IDEA,
-            )
+        const val SOME_PROPERTY_VALUE_KTLINT_OFFICIAL = "some-property-value-ktlint-official"
+
+        fun sampleEditorConfigProperty(
+            name: String = SOME_PROPERTY_NAME,
+            defaultValue: String = SOME_PROPERTY_VALUE_DEFAULT,
+            androidStudioCodeStyleDefaultValue: String? = SOME_PROPERTY_VALUE_ANDROID_STUDIO,
+            ktlintOfficialCodeStyleDefaultValue: String? = SOME_PROPERTY_VALUE_KTLINT_OFFICIAL,
+            intellijIdeaCodeStyleDefaultValue: String? = SOME_PROPERTY_VALUE_INTELLIJ_IDEA,
+            deprecationError: String? = null,
+            deprecationWarning: String? = null,
+            propertyMapper: ((Property?, CodeStyleValue) -> String?)? = null,
+        ) = EditorConfigProperty(
+            name = name,
+            type =
+                PropertyType(
+                    name,
+                    "",
+                    PropertyType.PropertyValueParser.IDENTITY_VALUE_PARSER,
+                    setOf(SOME_PROPERTY_VALUE_ANDROID_STUDIO, SOME_PROPERTY_VALUE_INTELLIJ_IDEA),
+                ),
+            defaultValue = defaultValue,
+            androidStudioCodeStyleDefaultValue = androidStudioCodeStyleDefaultValue,
+            ktlintOfficialCodeStyleDefaultValue = ktlintOfficialCodeStyleDefaultValue,
+            intellijIdeaCodeStyleDefaultValue = intellijIdeaCodeStyleDefaultValue,
+            deprecationError = deprecationError,
+            deprecationWarning = deprecationWarning,
+            propertyMapper = propertyMapper,
+        )
     }
 }

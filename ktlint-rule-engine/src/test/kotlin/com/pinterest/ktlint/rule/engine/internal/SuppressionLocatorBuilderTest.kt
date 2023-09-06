@@ -369,10 +369,12 @@ class SuppressionLocatorBuilderTest {
         assertThat(actual).isEqualTo(formattedCode)
     }
 
-    private class NoFooIdentifierRule(id: RuleId) : Rule(
-        ruleId = id,
-        about = About(),
-    ) {
+    private class NoFooIdentifierRule(
+        id: RuleId,
+    ) : Rule(
+            ruleId = id,
+            about = About(),
+        ) {
         override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,
@@ -386,7 +388,7 @@ class SuppressionLocatorBuilderTest {
 
     private fun lint(
         code: String,
-        editorConfigOverride: EditorConfigOverride = EditorConfigOverride.EMPTY_EDITOR_CONFIG_OVERRIDE,
+        editorConfigOverride: EditorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
         ruleProviders: Set<RuleProvider> = emptySet(),
         ignoreKtlintSuppressionRule: Boolean = true,
     ) = ArrayList<LintError>().apply {

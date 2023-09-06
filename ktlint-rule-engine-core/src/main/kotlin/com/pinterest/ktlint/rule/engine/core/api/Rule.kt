@@ -3,9 +3,13 @@ package com.pinterest.ktlint.rule.engine.core.api
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.internal.IdNamingPolicy
+import dev.drewhamilton.poko.Poko
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
-public data class RuleId(public val value: String) {
+@Poko
+public class RuleId(
+    public val value: String,
+) {
     init {
         IdNamingPolicy.enforceRuleIdNaming(value)
     }
@@ -23,10 +27,15 @@ public data class RuleId(public val value: String) {
             } else {
                 "${RuleSetId.STANDARD.value}$DELIMITER$id"
             }
+
+        public fun isValid(value: String): Boolean = IdNamingPolicy.isValidRuleId(value)
     }
 }
 
-public data class RuleSetId(public val value: String) {
+@Poko
+public class RuleSetId(
+    public val value: String,
+) {
     init {
         IdNamingPolicy.enforceRuleSetIdNaming(value)
     }
@@ -38,6 +47,8 @@ public data class RuleSetId(public val value: String) {
          * maintenance of the rule (set).
          */
         public val STANDARD: RuleSetId = RuleSetId("standard")
+
+        public fun isValid(value: String): Boolean = IdNamingPolicy.isValidRuleSetId(value)
     }
 }
 
@@ -93,7 +104,8 @@ public open class Rule(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-    ) {}
+    ) {
+    }
 
     /**
      * This method is called on a node in AST after all its child nodes have been visited.
@@ -103,7 +115,8 @@ public open class Rule(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-    ) {}
+    ) {
+    }
 
     /**
      * This method is called once after the last node in the AST is visited. It can be used for teardown of the state
@@ -175,19 +188,20 @@ public open class Rule(
      * API consumers to provide more detailed information about the rule. Please provide all details below, so that users of your rule set
      * can easily get up-to-date information about the rule.
      */
-    public data class About(
+    @Poko
+    public class About(
         /**
          * Name of person, organisation or group maintaining the rule.
          */
-        val maintainer: String = "Not specified (and not maintained by the Ktlint project)",
+        public val maintainer: String = "Not specified (and not maintained by the Ktlint project)",
         /**
          * Url to the repository containing the rule.
          */
-        val repositoryUrl: String = "Not specified",
+        public val repositoryUrl: String = "Not specified",
         /**
          * Url to the issue tracker of the project which provides the rule.
          */
-        val issueTrackerUrl: String = "Not specified",
+        public val issueTrackerUrl: String = "Not specified",
     )
 
     public sealed class VisitorModifier {
@@ -195,16 +209,17 @@ public open class Rule(
          * Defines that the [Rule] that declares this [VisitorModifier] will be run after the [Rule] with rule id
          * [VisitorModifier.RunAfterRule.ruleId].
          */
-        public data class RunAfterRule(
+        @Poko
+        public class RunAfterRule(
             /**
              * The [RuleId] of the [Rule] which should run before the [Rule] that declares the [VisitorModifier.RunAfterRule].
              */
-            val ruleId: RuleId,
+            public val ruleId: RuleId,
             /**
              * The [Mode] determines whether the [Rule] that declares this [VisitorModifier] can be run in case the [Rule] with rule id
              * [VisitorModifier.RunAfterRule.ruleId] is not loaded or enabled.
              */
-            val mode: Mode,
+            public val mode: Mode,
         ) : VisitorModifier() {
             public enum class Mode {
                 /**

@@ -15,6 +15,9 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
@@ -54,6 +57,8 @@ import org.jetbrains.kotlin.psi.psiUtil.prevLeaf
  *
  * @see [Kotlin Style Guide](https://kotlinlang.org/docs/coding-conventions.html#trailing-commas)
  */
+@SinceKtlint("0.43", EXPERIMENTAL)
+@SinceKtlint("0.46", STABLE)
 public class TrailingCommaOnDeclarationSiteRule :
     StandardRule(
         id = "trailing-comma-on-declaration-site",
@@ -251,7 +256,7 @@ public class TrailingCommaOnDeclarationSiteRule :
         children()
             .lastOrNull { it.psi is KtEnumEntry }
             ?.children()
-            ?.singleOrNull { it.elementType == ElementType.SEMICOLON }
+            ?.singleOrNull { it.elementType == SEMICOLON }
             ?: lastChildNode
 
     private fun ASTNode.reportAndCorrectTrailingCommaNodeBefore(
@@ -424,7 +429,7 @@ public class TrailingCommaOnDeclarationSiteRule :
             } else {
                 prevCodeLeaf()
             }
-        return codeLeaf?.takeIf { it.elementType == ElementType.COMMA }
+        return codeLeaf?.takeIf { it.elementType == COMMA }
     }
 
     private fun containsLineBreakInLeavesRange(

@@ -1,0 +1,40 @@
+public final class com/pinterest/ktlint/cli/reporter/baseline/Baseline {
+	public fun <init> (Ljava/lang/String;Lcom/pinterest/ktlint/cli/reporter/baseline/Baseline$Status;Ljava/util/Map;)V
+	public synthetic fun <init> (Ljava/lang/String;Lcom/pinterest/ktlint/cli/reporter/baseline/Baseline$Status;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getLintErrorsPerFile ()Ljava/util/Map;
+	public final fun getPath ()Ljava/lang/String;
+	public final fun getStatus ()Lcom/pinterest/ktlint/cli/reporter/baseline/Baseline$Status;
+}
+
+public final class com/pinterest/ktlint/cli/reporter/baseline/Baseline$Status : java/lang/Enum {
+	public static final field DISABLED Lcom/pinterest/ktlint/cli/reporter/baseline/Baseline$Status;
+	public static final field INVALID Lcom/pinterest/ktlint/cli/reporter/baseline/Baseline$Status;
+	public static final field NOT_FOUND Lcom/pinterest/ktlint/cli/reporter/baseline/Baseline$Status;
+	public static final field VALID Lcom/pinterest/ktlint/cli/reporter/baseline/Baseline$Status;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/pinterest/ktlint/cli/reporter/baseline/Baseline$Status;
+	public static fun values ()[Lcom/pinterest/ktlint/cli/reporter/baseline/Baseline$Status;
+}
+
+public final class com/pinterest/ktlint/cli/reporter/baseline/BaselineKt {
+	public static final fun containsLintError (Ljava/util/List;Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError;)Z
+	public static final fun doesNotContain (Ljava/util/List;Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError;)Z
+	public static final fun loadBaseline (Ljava/lang/String;)Lcom/pinterest/ktlint/cli/reporter/baseline/Baseline;
+}
+
+public final class com/pinterest/ktlint/cli/reporter/baseline/BaselineReporter : com/pinterest/ktlint/cli/reporter/core/api/ReporterV2 {
+	public fun <init> (Ljava/io/PrintStream;)V
+	public fun after (Ljava/lang/String;)V
+	public fun afterAll ()V
+	public fun before (Ljava/lang/String;)V
+	public fun beforeAll ()V
+	public fun onLintError (Ljava/lang/String;Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError;)V
+}
+
+public final class com/pinterest/ktlint/cli/reporter/baseline/BaselineReporterProvider : com/pinterest/ktlint/cli/reporter/core/api/ReporterProviderV2 {
+	public fun <init> ()V
+	public fun get (Ljava/io/PrintStream;Ljava/util/Map;)Lcom/pinterest/ktlint/cli/reporter/baseline/BaselineReporter;
+	public synthetic fun get (Ljava/io/PrintStream;Ljava/util/Map;)Lcom/pinterest/ktlint/cli/reporter/core/api/ReporterV2;
+	public fun getId ()Ljava/lang/String;
+}
+

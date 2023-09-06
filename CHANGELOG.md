@@ -10,12 +10,175 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
-* Fix wrapping of nested function literals `wrapping` ([#2106](https://github.com/pinterest/ktlint/issues/2106))
-* Do not indent class body for classes having a long super type list in code style `ktlint_official` as it is inconsistent compared to other class bodies `indent` [#2115](https://github.com/pinterest/ktlint/issues/2115) 
-
 ### Changed
 
-* Update dependency gradle to v8.2 ([#2105](https://github.com/pinterest/ktlint/pull/2105))
+## 1.0.0 - 2023-09-05
+
+### 💔 Breaking changes
+
+* Update and align Maven coordinates - [#2195](https://github.com/pinterest/ktlint/pull/2195), by @paul-dingemans  
+  Be sure to update Maven coordinates below, to get latest changes!  
+  
+  | Old Maven coordinates                              | New Maven coordinates                                  |
+  |----------------------------------------------------|--------------------------------------------------------|
+  | com.pinterest.ktlint                               | com.pinterest.ktlint.ktlint-cli                        |
+  | com.pinterest.ktlint.ktlint-reporter-baseline      | com.pinterest.ktlint.ktlint-cli-reporter-baseline      |
+  | com.pinterest.ktlint.ktlint-reporter-checkstyle    | com.pinterest.ktlint.ktlint-cli-reporter-checkstyle    |
+  | com.pinterest.ktlint.ktlint-cli-reporter           | com.pinterest.ktlint.ktlint-cli-reporter-core          |
+  | com.pinterest.ktlint.ktlint-reporter-format        | com.pinterest.ktlint.ktlint-cli-reporter-format        |
+  | com.pinterest.ktlint.ktlint-reporter-html          | com.pinterest.ktlint.ktlint-cli-reporter-html          |
+  | com.pinterest.ktlint.ktlint-reporter-json          | com.pinterest.ktlint.ktlint-cli-reporter-json          |
+  | com.pinterest.ktlint.ktlint-reporter-plain         | com.pinterest.ktlint.ktlint-cli-reporter-plain         |
+  | com.pinterest.ktlint.ktlint-reporter-plain-summary | com.pinterest.ktlint.ktlint-cli-reporter-plain-summary |
+  | com.pinterest.ktlint.ktlint-reporter-sarif         | com.pinterest.ktlint.ktlint-cli-reporter-sarif         |
+
+
+* Add binary compatibility validator - [#2131](https://github.com/pinterest/ktlint/pull/2131), by @mateuszkwiecinski
+
+* Replace kotlin public `data class`es with Poko compiler plugin generated ones - [#2136](https://github.com/pinterest/ktlint/pull/2136), by @mateuszkwiecinski  
+  As a part of public API stabilization, data classes are no longer used in the public API. As of that, functions like `copy()` or `componentN()` (used for destructuring declarations) are not available anymore.
+
+* Promote experimental rules - [#2218](https://github.com/pinterest/ktlint/pull/2218), by @paul-dingemans  
+  The rules below have been promoted to non-experimental rules:
+  * [blank-line-before-declaration](https://pinterest.github.io/ktlint/rules/standard/#blank-line-before-declarations)
+  * [context-receiver-wrapping](https://pinterest.github.io/ktlint/rules/standard/#content-receiver-wrapping)
+  * [discouraged-comment-location](https://pinterest.github.io/ktlint/rules/standard/#discouraged-comment-location)
+  * [enum-wrapping](https://pinterest.github.io/ktlint/rules/standard/#enum-wrapping)
+  * [function-naming](https://pinterest.github.io/ktlint/rules/standard/#function-naming)
+  * [function-signature](https://pinterest.github.io/ktlint/rules/standard/#function-signature)
+  * [if-else-bracing](https://pinterest.github.io/ktlint/rules/standard/#if-else-bracing)
+  * [multiline-expression-wrapping](https://pinterest.github.io/ktlint/rules/standard/#multiline-expression-wrapping)
+  * [if-else-wrapping](https://pinterest.github.io/ktlint/rules/standard/#if-else-wrapping)
+  * [no-blank-line-in-list](https://pinterest.github.io/ktlint/rules/standard/#no-blank-line-in-list)
+  * [no-consecutive-comments](https://pinterest.github.io/ktlint/rules/standard/#no-consecutive-comments)
+  * [no-empty-file](https://pinterest.github.io/ktlint/rules/standard/#no-empty-file)
+  * [no-empty-first-line-in-class-body](https://pinterest.github.io/ktlint/rules/standard/#no-empty-first-line-in-class-body)
+  * [no-single-line-block-comment](https://pinterest.github.io/ktlint/rules/standard/#no-single-line-block-comment)
+  * [parameter-list-spacing](https://pinterest.github.io/ktlint/rules/standard/#parameter-list-spacing)
+  * [property-naming](https://pinterest.github.io/ktlint/rules/standard/#property-naming)
+  * [statement-wrapping](https://pinterest.github.io/ktlint/rules/standard/#statement-wrapping)
+  * [string-template-indent](https://pinterest.github.io/ktlint/rules/standard/#string-template-indent)
+  * [try-catch-finally-spacing](https://pinterest.github.io/ktlint/rules/standard/#try-catch-finally-spacing)
+  * [type-argument-list-spacing](https://pinterest.github.io/ktlint/rules/standard/#type-argument-list-spacing)
+  * [type-parameter-list-spacing](https://pinterest.github.io/ktlint/rules/standard/#type-parameter-list-spacing)
+  * [unnecessary-parentheses-before-trailing-lambda](https://pinterest.github.io/ktlint/rules/standard/#unnecessary-parentheses-before-trailing-lambda)
+
+* Fix statement-wrapping and align rule classes - [#2178](https://github.com/pinterest/ktlint/pull/2178), by @paul-dingemans  
+  Rule class `MultilineExpressionWrapping` has been renamed to `MultilineExpressionWrappingRule`. Rule class `StatementWrapping` has been renamed to `StatementWrappingRule`. `RULE_ID` constants below are moved to a different Java class at compile time. Each rule provided by Ktlint is to be accompanied by a `RULE_ID` constant that can be used in the `VisitorModifier.RunAfter`. Filenames did not comply with standard that it should end with `Rule` suffix.  
+  
+  | RULE ID                                 | Old Java class name           | New Java class name               |
+  |-----------------------------------------|-------------------------------|-----------------------------------|
+  | `FUNCTION_EXPRESSION_BODY_RULE_ID`      | FunctionExpressionBodyKt      | FunctionExpressionBodyRuleKt      |
+  | `FUNCTION_LITERAL_RULE_ID`              | FunctionLiteralKt             | FunctionLiteralRuleKt             |
+  | `MULTILINE_EXPRESSION_WRAPPING_RULE_ID` | MultilineExpressionWrappingKt | MultilineExpressionWrappingRuleKt |
+  | `NO_BLANK_LINE_IN_LIST_RULE_ID`         | NoBlankLineInListKt           | NoBlankLineInListRuleKt           |
+  | `NO_EMPTY_FILE_RULE_ID`                 | (not applicable)              | NoEmptyFileRuleKt                 |
+  
+* Update to Kotlin 1.9 & remove TreeCopyHandler extension - [#2113](https://github.com/pinterest/ktlint/pull/2113), by @paul-dingemans  
+  Class `org.jetbrains.kotlin.com.intellij.treeCopyHandler` is no longer registered as extension point for the compiler as this is not supported in Kotlin 1.9. Please test your custom rules. In case of unexpected exceptions during formatting of code, see [#2044](https://github.com/pinterest/ktlint/pull/2044) for possible remediation.
+
+### 🆕 Features
+
+
+* Change default code style to `ktlint_official` - [#2144](https://github.com/pinterest/ktlint/pull/2144), by @paul-dingemans
+
+* Add new experimental rule `class-signature` - [#2119](https://github.com/pinterest/ktlint/pull/2119), by @paul-dingemans
+
+* Add new experimental rule `function-expression-body` - [#2151](https://github.com/pinterest/ktlint/pull/2151), by @paul-dingemans
+
+* Add new experimental rule `chain-method-continuation` - [#2088](https://github.com/pinterest/ktlint/pull/2088), by @atulgpt
+
+* Add new experimental rule `function-literal` - [#2137](https://github.com/pinterest/ktlint/pull/2137), by @paul-dingemans
+
+* Add new experimental rule `function-type-modifier-spacing` rule - [#2216](https://github.com/pinterest/ktlint/pull/2216), by @t-kameyama
+
+* Define `EditorConfigOverride` for dynamically loaded ruleset - [#2194](https://github.com/pinterest/ktlint/pull/2194), by @paul-dingemans  
+  The `EditorConfigOverride` parameter of the `KtlintRuleEngine` can be defined using the factory method `EditorConfigOverride.from(vararg properties: Pair<EditorConfigProperty<*>, *>)`. This requires the `EditorConfigProperty`'s to be available at compile time. Some common `EditorConfigProperty`'s are defined in `ktlint-rule-engine-core` which is loaded as transitive dependency of `ktlint-rule-engine` and as of that are available at compile.
+  If an `EditorConfigProperty` is defined in a `Rule` that is only provided via a runtime dependency, it gets a bit more complicated. The `ktlint-api-consumer` example has now been updated to show how the `EditorConfigProperty` can be retrieved from the `Rule`.
+
+* Move wrapping on semicolon from `wrapping` rule to `statement-wrapping` rule - [#2222](https://github.com/pinterest/ktlint/pull/2222), by @paul-dingemans
+
+### 🔧 Fixes
+
+* Do not indent class body for classes having a long super type list - [#2116](https://github.com/pinterest/ktlint/pull/2116), by @paul-dingemans
+
+* Fix indent of explicit constructor - [#2118](https://github.com/pinterest/ktlint/pull/2118), by @paul-dingemans
+
+* Fix incorrect formatting of nested function literal - [#2107](https://github.com/pinterest/ktlint/pull/2107), by @paul-dingemans
+
+* Add property to disable ktlint for a glob in `.editorconfig` - [#2108](https://github.com/pinterest/ktlint/pull/2108), by @paul-dingemans
+
+* Fix spacing around colon in annotations - [#2126](https://github.com/pinterest/ktlint/pull/2126), by @paul-dingemans
+
+* Fix solving problems in 3 consecutive runs - [#2132](https://github.com/pinterest/ktlint/pull/2132), by @paul-dingemans
+
+* Fix indent parenthesized expression - [#2127](https://github.com/pinterest/ktlint/pull/2127), by @paul-dingemans
+
+* Fix indent of IS_EXPRESSION, PREFIX_EXPRESSION and POSTFIX_EXPRESSION - [#2125](https://github.com/pinterest/ktlint/pull/2125), by @paul-dingemans
+
+* Do not wrap a binary expression after an elvis operator - [#2134](https://github.com/pinterest/ktlint/pull/2134), by @paul-dingemans
+
+* Drop obsolete class LintError in ktlint-api-consumer - [#2145](https://github.com/pinterest/ktlint/pull/2145), by @paul-dingemans
+
+* Fix null pointer exception for if-else statement with empty THEN block - [#2142](https://github.com/pinterest/ktlint/pull/2142), by @paul-dingemans
+
+* Fix false positive in property-naming - [#2141](https://github.com/pinterest/ktlint/pull/2141), by @paul-dingemans
+
+* Store relative path of file in baseline file - [#2147](https://github.com/pinterest/ktlint/pull/2147), by @paul-dingemans
+
+* Fix url of build status badge - [#2162](https://github.com/pinterest/ktlint/pull/2162), by @paul-dingemans
+
+* Update CONTRIBUTING.md - [#2163](https://github.com/pinterest/ktlint/pull/2163), by @oshai
+
+* Fix statement-wrapping and align rule classes - [#2178](https://github.com/pinterest/ktlint/pull/2178), by @paul-dingemans
+
+* Fix alignment of type constraints after `where` keyword in function - [#2180](https://github.com/pinterest/ktlint/pull/2180), by @paul-dingemans
+
+* Fix wrapping of multiline postfix expression - [#2184](https://github.com/pinterest/ktlint/pull/2184), by @paul-dingemans
+
+* Do not wrap expression after a spread operator - [#2193](https://github.com/pinterest/ktlint/pull/2193), by @paul-dingemans
+
+* Do not remove parenthesis after explicit class constructor without arguments - [#2226](https://github.com/pinterest/ktlint/pull/2226), by @paul-dingemans
+
+* Fix conflict between rules due to annotated super type call - [#2227](https://github.com/pinterest/ktlint/pull/2227), by @paul-dingemans
+
+* Fix indentation of super type list of class in case it is preceded by  a comment - [#2228](https://github.com/pinterest/ktlint/pull/2228), by @paul-dingemans
+
+* Super type list starting with an annotation having a parameters - [#2230](https://github.com/pinterest/ktlint/pull/2230), by @paul-dingemans
+
+* Do not wrap values in a single line enum when it is preceded by a comment or an annotation - [#2229](https://github.com/pinterest/ktlint/pull/2229), by @paul-dingemans
+
+### 📦 Dependencies
+
+
+* Update dependency org.codehaus.janino:janino to v3.1.10 - [#2110](https://github.com/pinterest/ktlint/pull/2110), by @renovate[bot]
+
+* Update dependency com.google.jimfs:jimfs to v1.3.0 - [#2112](https://github.com/pinterest/ktlint/pull/2112), by @renovate[bot]
+
+* Update dependency org.junit.jupiter:junit-jupiter to v5.10.0 - [#2148](https://github.com/pinterest/ktlint/pull/2148), by @renovate[bot]
+
+* Update dependency io.github.oshai:kotlin-logging-jvm to v5.1.0 - [#2174](https://github.com/pinterest/ktlint/pull/2174), by @renovate[bot]
+
+* Update dependency dev.drewhamilton.poko:poko-gradle-plugin to v0.15.0 - [#2173](https://github.com/pinterest/ktlint/pull/2173), by @renovate[bot]
+
+* Update plugin org.gradle.toolchains.foojay-resolver-convention to v0.7.0 - [#2187](https://github.com/pinterest/ktlint/pull/2187), by @renovate[bot]
+
+* Update dependency gradle to v8.3 - [#2186](https://github.com/pinterest/ktlint/pull/2186), by @renovate[bot]
+
+* Update kotlin monorepo to v1.9.10 - [#2197](https://github.com/pinterest/ktlint/pull/2197), by @renovate[bot]
+
+* Update dependency info.picocli:picocli to v4.7.5 - [#2215](https://github.com/pinterest/ktlint/pull/2215), by @renovate[bot]
+
+* Update dependency org.jetbrains.dokka:dokka-gradle-plugin to v1.9.0 - [#2221](https://github.com/pinterest/ktlint/pull/2221), by @renovate[bot]
+
+* Update dependency org.slf4j:slf4j-simple to v2.0.9 - [#2224](https://github.com/pinterest/ktlint/pull/2224), by @renovate[bot]
+
+### 💬 Other
+
+
+* Setup toolchains, compile project with Java 20 only, run test on various Java versions - [#2120](https://github.com/pinterest/ktlint/pull/2120), by @mateuszkwiecinski
+
+* Add release-changelog-builder-action to temporary workflow - [#2196](https://github.com/pinterest/ktlint/pull/2196), by @paul-dingemans
 
 ## [0.50.0] - 2023-06-29
 
@@ -52,7 +215,7 @@ At this point in time, it is not yet decided what the next steps will be. Ktlint
 * Add new experimental rule `binary-expression-wrapping`. This rule wraps a binary expression in case the max line length is exceeded ([#1940](https://github.com/pinterest/ktlint/issues/1940))
 * Add flag to disable extension point `org.jetbrains.kotlin.com.intellij.treeCopyHandler` to analyse impact on custom rules [#1981](https://github.com/pinterest/ktlint/issues/1981)
 * Add new experimental rule `no-empty-file` for all code styles. A kotlin (script) file may not be empty ([#1074](https://github.com/pinterest/ktlint/issues/1074))
-* Add new experimental rule `statement-wrapping` which ensures function, class, or other blocks statement body doesn't start or end at starting or ending braces of the block ([#1938](https://github.com/pinterest/ktlint/issues/1938))
+* Add new experimental rule `statement-wrapping` which ensures function, class, or other blocks statement body doesn't start or end at starting or ending braces of the block ([#1938](https://github.com/pinterest/ktlint/issues/1938)). Note, although this rule is added in this release, it is never executed except in unit tests.
 * Add new experimental rule `blank-line-before-declaration`. This rule requires a blank line before class, function or property declarations ([#1939](https://github.com/pinterest/ktlint/issues/1939))
 * Wrap multiple statements on same line `wrapping` ([#1078](https://github.com/pinterest/ktlint/issues/1078))
 * Add new rule `ktlint-suppression` to replace the `ktlint-disable` and `ktlint-enable` directives with annotations. This rule can not be disabled via the `.editorconfig` ([#1947](https://github.com/pinterest/ktlint/issues/1947))
@@ -74,11 +237,11 @@ At this point in time, it is not yet decided what the next steps will be. Ktlint
 ### Changed
 
 * Fix Java interoperability issues with `RuleId` and `RuleSetId` classes. Those classes were defined as value classes in `0.49.0` and `0.49.1`. Although the classes were marked with `@JvmInline` it seems that it is not possible to uses those classes from Java base API Consumers like Spotless. The classes have now been replaced with data classes ([#2041](https://github.com/pinterest/ktlint/issues/2041))
-* Update dependency `info.picocli:picocli` to v4.7.4
-* Update dependency `org.junit.jupiter:junit-jupiter` to v5.9.3
+* Update dependency `info.picocli:picocli` to `v4.7.4`
+* Update dependency `org.junit.jupiter:junit-jupiter` to `v5.9.3`
 * Update Kotlin development version to `1.8.22` and Kotlin version to `1.8.22`.
-* Update dependency io.github.detekt.sarif4k:sarif4k to v0.4.0
-* Update dependency org.jetbrains.dokka:dokka-gradle-plugin to v1.8.20
+* Update dependency `io.github.detekt.sarif4k:sarif4k` to `v0.4.0`
+* Update dependency `org.jetbrains.dokka:dokka-gradle-plugin` to `v1.8.20`
 * Run format up to 3 times in case formatting introduces changes which also can be autocorrected ([#2084](https://github.com/pinterest/ktlint/issues/2084))
 
 ## [0.49.1] - 2023-05-12
@@ -291,10 +454,10 @@ The rule id's in `com.pinterest.ktlint.ruleset.core.api.Rule` have been changed 
 
 When wrapping a rule from the ktlint project and modifying its behavior, please change the `ruleId` and `about` fields in the wrapped rule, so that it is clear to users whenever they use the original rule provided by KtLint versus a modified version which is not maintained by the KtLint project.
 
-The typealias `com.pinterest.ktlint.core.api.EditorConfigProperties` has been replaced with `com.pinterest.ktlint.rule.engine.core.api.EditorConfig`. The interface `com.pinterest.ktlint.core.api.UsesEditorConfigProperties` has been removed. Instead, the Rule property `usesEditorConfigProperties` needs to be set. As a result of those changes, the `beforeFirstNode` function in each rule has to changed to something like below: 
+The typealias `com.pinterest.ktlint.core.api.EditorConfigProperties` has been replaced with `com.pinterest.ktlint.rule.engine.core.api.EditorConfig`. The interface `com.pinterest.ktlint.core.api.UsesEditorConfigProperties` has been removed. Instead, the Rule property `usesEditorConfigProperties` needs to be set. As a result of those changes, the `beforeFirstNode` function in each rule has to changed to something like below:
 
 ```kotlin
-public class SomeRule : Rule(
+ class SomeRule : Rule(
   ruleId = RuleId("some-rule-set:some-rule"),
   usesEditorConfigProperties = setOf(MY_EDITOR_CONFIG_PROPERTY),
 ) {
@@ -331,7 +494,7 @@ When wrapping a rule from the ktlint project and modifying its behavior, please 
 The typealias `com.pinterest.ktlint.core.api.EditorConfigProperties` has been replaced with `com.pinterest.ktlint.rule.engine.core.api.EditorConfig`. The interface `com.pinterest.ktlint.core.api.UsesEditorConfigProperties` has been removed. Instead, the Rule property `usesEditorConfigProperties` needs to be set. As a result of those changes, the `beforeFirstNode` function in each rule has to changed to something like below:
 
 ```kotlin
-public class SomeRule : Rule(
+ class SomeRule : Rule(
   ruleId = RuleId("some-rule-set:some-rule"),
   usesEditorConfigProperties = setOf(MY_EDITOR_CONFIG_PROPERTY),
 ) {
@@ -340,7 +503,7 @@ public class SomeRule : Rule(
   override fun beforeFirstNode(editorConfig: EditorConfig) {
     myEditorConfigProperty = editorConfig[MY_EDITOR_CONFIG_PROPERTY]
   }
-  
+
   ...
 }
 ```
@@ -1953,7 +2116,8 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
-[0.49.1]: https://github.com/pinterest/ktlint/compare/0.49.1...0.50.0
+[1.0.0]: https://github.com/pinterest/ktlint/compare/0.50.0...1.0.0
+[0.50.0]: https://github.com/pinterest/ktlint/compare/0.49.1...0.50.0
 [0.49.1]: https://github.com/pinterest/ktlint/compare/0.49.0...0.49.1
 [0.49.0]: https://github.com/pinterest/ktlint/compare/0.48.2...0.49.0
 [0.48.2]: https://github.com/pinterest/ktlint/compare/0.48.1...0.48.2

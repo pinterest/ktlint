@@ -7,7 +7,7 @@ import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError.Status.BASELINE_IGNORED
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.w3c.dom.Element
 import org.xml.sax.SAXException
 import java.io.IOException
@@ -63,7 +63,9 @@ public class Baseline(
  */
 public fun loadBaseline(path: String): Baseline = BaselineLoader(path).load()
 
-private class BaselineLoader(private val path: String) {
+private class BaselineLoader(
+    private val path: String,
+) {
     var ruleReferenceWithoutRuleSetIdPrefix = 0
 
     fun load(): Baseline {
@@ -158,14 +160,16 @@ private class BaselineLoader(private val path: String) {
                 getAttribute("source")
                     .let { ruleId ->
                         // Ensure backwards compatibility with baseline files in which the rule set id for standard rules is not saved
-                        RuleId.prefixWithStandardRuleSetIdWhenMissing(ruleId)
+                        RuleId
+                            .prefixWithStandardRuleSetIdWhenMissing(ruleId)
                             .also { prefixedRuleId ->
                                 if (prefixedRuleId != ruleId) {
                                     ruleReferenceWithoutRuleSetIdPrefix++
                                 }
                             }
                     },
-            detail = "", // Not available in the baseline
+            // Detail is not available in the baseline
+            detail = "",
             status = BASELINE_IGNORED,
         )
 }

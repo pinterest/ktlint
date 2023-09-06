@@ -8,6 +8,7 @@ pluginManagement {
 }
 
 dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         mavenCentral()
     }
@@ -15,13 +16,16 @@ dependencyResolutionManagement {
 
 plugins {
     `gradle-enterprise`
+    id("org.gradle.toolchains.foojay-resolver-convention") version "0.7.0"
 }
 
 gradleEnterprise {
     buildScan {
         termsOfServiceUrl = "https://gradle.com/terms-of-service"
         termsOfServiceAgree = "yes"
-        publishAlways()
+        if (System.getenv("CI") != null) {
+            publishAlways()
+        }
     }
 }
 

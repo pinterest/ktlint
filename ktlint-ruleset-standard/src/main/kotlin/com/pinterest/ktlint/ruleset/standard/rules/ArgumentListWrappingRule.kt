@@ -7,6 +7,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
@@ -39,6 +41,7 @@ import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
  * - maxLineLength exceeded (and separating arguments with \n would actually help)
  * in addition, "(" and ")" must be on separates line if any of the arguments are (otherwise on the same)
  */
+@SinceKtlint("0.1", STABLE)
 public class ArgumentListWrappingRule :
     StandardRule(
         id = "argument-list-wrapping",
@@ -47,6 +50,10 @@ public class ArgumentListWrappingRule :
                 // ArgumentListWrapping should only be used in case the max_line_length is still violated after running rules below:
                 VisitorModifier.RunAfterRule(
                     ruleId = WRAPPING_RULE_ID,
+                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                ),
+                VisitorModifier.RunAfterRule(
+                    ruleId = CLASS_SIGNATURE_RULE_ID,
                     mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
                 ),
             ),
@@ -224,23 +231,23 @@ public class ArgumentListWrappingRule :
             else -> throw UnsupportedOperationException()
         }
 
-    private fun ASTNode.textContainsIgnoringLambda(char: Char): Boolean {
-        return children().any { child ->
+    private fun ASTNode.textContainsIgnoringLambda(char: Char): Boolean =
+        children().any { child ->
             val elementType = child.elementType
             elementType == ElementType.WHITE_SPACE && child.textContains(char) ||
                 elementType == ElementType.COLLECTION_LITERAL_EXPRESSION && child.textContains(char) ||
                 elementType == ElementType.VALUE_ARGUMENT && child.children().any { it.textContainsIgnoringLambda(char) }
         }
-    }
 
     private fun ASTNode.hasTypeArgumentListInFront(): Boolean =
-        treeParent.children()
+        treeParent
+            .children()
             .firstOrNull { it.elementType == ElementType.TYPE_ARGUMENT_LIST }
             ?.children()
             ?.any { it.isWhiteSpaceWithNewline() } == true
 
     private fun ASTNode.isPartOfDotQualifiedAssignmentExpression(): Boolean =
-        treeParent?.treeParent?.elementType == ElementType.BINARY_EXPRESSION &&
+        treeParent?.treeParent?.elementType == BINARY_EXPRESSION &&
             treeParent?.treeParent?.children()?.find { it.elementType == ElementType.DOT_QUALIFIED_EXPRESSION } != null
 
     private fun ASTNode.prevWhiteSpaceWithNewLine(): ASTNode? {

@@ -171,8 +171,7 @@ class IfElseBracingRuleTest {
                     2,
                     15,
                     "All branches of the if statement should be wrapped between braces if at least one branch is wrapped between braces",
-                )
-                .isFormattedAs(formattedCode)
+                ).isFormattedAs(formattedCode)
         }
 
         @Test
@@ -371,5 +370,22 @@ class IfElseBracingRuleTest {
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
                 .hasNoLintViolations()
         }
+    }
+
+    @Test
+    fun `Issue 2135 - Given ktlint_official code style and an if statement with and empty THEN block then do not throw a null pointer exception`() {
+        val code =
+            """
+            val foo = if (false) else { bar() }
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo = if (false) {} else { bar() }
+            """.trimIndent()
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+        multiLineIfElseRuleAssertThat(code)
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+            .hasLintViolation(1, 22, "All branches of the if statement should be wrapped between braces if at least one branch is wrapped between braces")
+            .isFormattedAs(formattedCode)
     }
 }

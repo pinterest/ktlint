@@ -24,7 +24,12 @@ public open class RuleSetProviderTest(
 
     @Test
     public fun checkAllRulesInPackageAreProvidedByRuleSetProvider() {
-        val srcLocation = rulesetClass.protectionDomain.codeSource.location.path
+        val srcLocation =
+            rulesetClass
+                .protectionDomain
+                .codeSource
+                .location
+                .path
         val rulesDir = File(srcLocation + packageName.replace(".", "/"))
         val packageRules =
             rulesDir
@@ -44,8 +49,7 @@ public open class RuleSetProviderTest(
         assertThat(missingRules)
             .withFailMessage(
                 "${ruleSetProvider::class.simpleName} is missing to provide the following rules:${NEWLINE_AND_INDENT}$missingRules",
-            )
-            .isEmpty()
+            ).isEmpty()
     }
 
     private companion object {

@@ -2,11 +2,11 @@ package com.pinterest.ktlint.cli
 
 import com.pinterest.ktlint.cli.environment.OsEnvironment
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.AbstractBooleanAssert
 import org.assertj.core.api.AbstractIntegerAssert
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.ListAssert
 import org.junit.jupiter.api.fail
 import java.io.File
@@ -24,7 +24,9 @@ import kotlin.io.path.relativeToOrSelf
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
-class CommandLineTestRunner(private val tempDir: Path) {
+class CommandLineTestRunner(
+    private val tempDir: Path,
+) {
     private val ktlintCli: String = System.getProperty("ktlint-cli")
 
     /**
@@ -155,7 +157,7 @@ class CommandLineTestRunner(private val tempDir: Path) {
 
                 addAll(arguments)
             }.joinToString(separator = " ")
-            .also { LOGGER.debug("Command to be executed: $it") }
+            .also { LOGGER.debug { "Command to be executed: $it" } }
 
     private fun String?.javaVersionAsInt(): Int? {
         if (this == null) {
@@ -225,7 +227,7 @@ class CommandLineTestRunner(private val tempDir: Path) {
         val testProject: Path,
     ) {
         fun assertNormalExitCode(): AbstractIntegerAssert<*> =
-            Assertions.assertThat(exitCode)
+            assertThat(exitCode)
                 .withFailMessage(
                     "Expected process to exit with exitCode 0, but was $exitCode."
                         .followedByIndentedList(
@@ -237,12 +239,12 @@ class CommandLineTestRunner(private val tempDir: Path) {
                 ).isEqualTo(0)
 
         fun assertErrorExitCode(): AbstractIntegerAssert<*> =
-            Assertions.assertThat(exitCode)
+            assertThat(exitCode)
                 .withFailMessage("Execution was expected to finish with error. However, exitCode is $exitCode")
                 .isNotEqualTo(0)
 
         fun assertErrorOutputIsEmpty(): AbstractBooleanAssert<*> =
-            Assertions.assertThat(errorOutput.isEmpty())
+            assertThat(errorOutput.isEmpty())
                 .withFailMessage(
                     "Expected error output to be empty but was:".followedByIndentedList(errorOutput),
                 ).isTrue
@@ -260,7 +262,7 @@ class CommandLineTestRunner(private val tempDir: Path) {
                     .toFile()
                     .readText()
 
-            return Assertions.assertThat(formattedCode).isNotEqualTo(originalCode)
+            return assertThat(formattedCode).isNotEqualTo(originalCode)
         }
     }
 

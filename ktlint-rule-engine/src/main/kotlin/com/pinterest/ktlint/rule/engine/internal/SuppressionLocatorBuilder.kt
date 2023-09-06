@@ -209,7 +209,8 @@ internal object SuppressionLocatorBuilder {
     private fun KtAnnotated.createSuppressionHintFromAnnotations(): SuppressionHint? =
         annotationEntries
             .filter {
-                it.calleeExpression
+                it
+                    .calleeExpression
                     ?.constructorReferenceExpression
                     ?.getReferencedName() in SUPPRESS_ANNOTATIONS
             }.flatMap(KtAnnotationEntry::getValueArguments)

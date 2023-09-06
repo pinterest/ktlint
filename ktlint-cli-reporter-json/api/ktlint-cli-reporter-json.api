@@ -1,0 +1,16 @@
+public final class com/pinterest/ktlint/cli/reporter/json/JsonReporter : com/pinterest/ktlint/cli/reporter/core/api/ReporterV2 {
+	public fun <init> (Ljava/io/PrintStream;)V
+	public fun after (Ljava/lang/String;)V
+	public fun afterAll ()V
+	public fun before (Ljava/lang/String;)V
+	public fun beforeAll ()V
+	public fun onLintError (Ljava/lang/String;Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError;)V
+}
+
+public final class com/pinterest/ktlint/cli/reporter/json/JsonReporterProvider : com/pinterest/ktlint/cli/reporter/core/api/ReporterProviderV2 {
+	public fun <init> ()V
+	public synthetic fun get (Ljava/io/PrintStream;Ljava/util/Map;)Lcom/pinterest/ktlint/cli/reporter/core/api/ReporterV2;
+	public fun get (Ljava/io/PrintStream;Ljava/util/Map;)Lcom/pinterest/ktlint/cli/reporter/json/JsonReporter;
+	public fun getId ()Ljava/lang/String;
+}
+

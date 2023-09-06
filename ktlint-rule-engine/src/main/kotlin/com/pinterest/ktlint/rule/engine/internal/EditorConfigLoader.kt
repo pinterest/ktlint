@@ -5,7 +5,6 @@ import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
-import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.END_OF_LINE_PROPERTY
@@ -18,7 +17,7 @@ import com.pinterest.ktlint.rule.engine.internal.FormatterTags.Companion.FORMATT
 import com.pinterest.ktlint.rule.engine.internal.FormatterTags.Companion.FORMATTER_TAG_OFF_ENABLED_PROPERTY
 import com.pinterest.ktlint.rule.engine.internal.FormatterTags.Companion.FORMATTER_TAG_ON_ENABLED_PROPERTY
 import com.pinterest.ktlint.rule.engine.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFE_EDITOR_CONFIG_CACHE
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.ec4j.core.EditorConfigLoader
 import org.ec4j.core.PropertyTypeRegistry
 import org.ec4j.core.Resource
@@ -89,28 +88,28 @@ internal class EditorConfigLoader(
                 // Only add properties which are not related to rules but which are needed by the KtLint Rule Engine
                 EditorConfig(properties)
                     .addPropertiesWithDefaultValueIfMissing(
-                        /**
+                        /*
                          * Used in [EditorConfig] to determine the default value for a property when it is not specified in the
                          * [EditorConfig].
                          */
                         CODE_STYLE_PROPERTY,
-                        /**
+                        /*
                          * Used by [KtLintRuleEngine] to use correct line separator when writing the formatted output.
                          */
                         END_OF_LINE_PROPERTY,
-                        /**
+                        /*
                          * Used by [VisitorProvider] to determine whether experimental rules have to be executed.
                          */
                         EXPERIMENTAL_RULES_EXECUTION_PROPERTY,
-                        /**
+                        /*
                          * Used by [FormatterTags] to determine whether formatter tags should be respected.
                          */
                         FORMATTER_TAGS_ENABLED_PROPERTY,
-                        /**
+                        /*
                          * Used by [FormatterTags] to get the tag to disable the formatter.
                          */
                         FORMATTER_TAG_OFF_ENABLED_PROPERTY,
-                        /**
+                        /*
                          * Used by [FormatterTags] to get the tag to enable the formatter.
                          */
                         FORMATTER_TAG_ON_ENABLED_PROPERTY,
