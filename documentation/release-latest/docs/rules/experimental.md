@@ -435,28 +435,3 @@ Enforce a single whitespace between the modifier list and the function type.
     ```
 
 Rule id: `function-type-modifier-spacing` (`standard` rule set)
-
-## Package naming
-
-Enforce naming of package.
-
-This rule can also be suppressed with the IntelliJ IDEA inspection suppression `PackageName`.
-
-=== "[:material-heart:](#) Ktlint"
-
-    ```kotlin
-    package foo
-    package foo.foo
-    package foo_bar
-    package foo.foo_bar
-    ```
-=== "[:material-heart-off-outline:](#) Disallowed"
-
-    ```kotlin
-    package Foo
-    package foo.Foo
-    package `foo bar`
-    package foo.`foo bar`
-    ```
-
-Rule id: `package-naming` (`standard` rule set)
