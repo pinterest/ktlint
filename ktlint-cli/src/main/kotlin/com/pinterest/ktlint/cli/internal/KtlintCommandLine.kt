@@ -105,11 +105,13 @@ internal class KtlintCommandLine {
         scope = CommandLine.ScopeType.INHERIT,
         names = ["--code-style"],
         description = [
-            "Defines the code style (ktlint_official, intellij_idea or android_studio) to be used for formatting the code. It is " +
-                "advised to define '.editorconfig' property 'ktlint_code_style'.",
+            "Defines the code style (ktlint_official, intellij_idea or android_studio) to be used for formatting the code. This option " +
+                "is deprecated, and will be removed in Ktlint 1.1. The code style has to be defined as '.editorconfig' property " +
+                "'ktlint_code_style'.",
         ],
         converter = [CodeStyleValueConverter::class],
     )
+    @Deprecated("Marked for removal in Ktlint 1.1")
     var codeStyle: CodeStyleValue? = null
 
     @Option(
@@ -127,10 +129,12 @@ internal class KtlintCommandLine {
     @Option(
         names = ["--disabled_rules"],
         description = [
-            "Comma-separated list of rules to globally disable." +
-                " To disable standard ktlint rule-set use --disabled_rules=standard",
+            "Comma-separated list of rules to globally disable. This option is deprecated, and will be removed in Ktlint 1.1. The " +
+                "disabled rules have to be defined as '.editorconfig' properties. See " +
+                "https://pinterest.github.io/ktlint/1.0.0/faq/#how-do-i-enable-or-disable-a-rule",
         ],
     )
+    @Deprecated("Marked for removal in Ktlint 1.1")
     var disabledRules: String = ""
 
     @Option(
@@ -202,8 +206,13 @@ internal class KtlintCommandLine {
 
     @Option(
         names = ["--experimental"],
-        description = ["Enable experimental rules"],
+        description = [
+            "Enable experimental rules. This option is deprecated, and will be removed in Ktlint 1.1. The experimental flag has to be " +
+                "set as '.editorconfig' property 'ktlint_experimental'. See " +
+                "https://pinterest.github.io/ktlint/1.0.0/faq/#how-do-i-enable-or-disable-a-rule-set",
+        ],
     )
+    @Deprecated("Marked for removal in Ktlint 1.1")
     var experimental: Boolean = false
 
     @Option(
@@ -246,14 +255,25 @@ internal class KtlintCommandLine {
             EditorConfigOverride
                 .EMPTY_EDITOR_CONFIG_OVERRIDE
                 .applyIf(experimental) {
-                    logger.debug { "Add editor config override to allow the experimental rule set" }
+                    logger.warn {
+                        "Parameter `--experimental is deprecated, and will be removed in Ktlint 1.1. The experimental flag has to be " +
+                            "set as '.editorconfig' property 'ktlint_experimental = enabled'. See " +
+                            "https://pinterest.github.io/ktlint/1.0.0/faq/#how-do-i-enable-or-disable-a-rule-set"
+                    }
                     plus(EXPERIMENTAL_RULES_EXECUTION_PROPERTY to RuleExecution.enabled)
                 }.applyIf(disabledRules.isNotBlank()) {
-                    logger.debug { "Add editor config override to disable rules: '$disabledRules'" }
+                    logger.warn {
+                        "Parameter `--disabled-rules is deprecated, and will be removed in Ktlint 1.1. The disabled rules have to be " +
+                            "defined as '.editorconfig' properties. See " +
+                            "https://pinterest.github.io/ktlint/1.0.0/faq/#how-do-i-enable-or-disable-a-rule"
+                    }
                     plus(*disabledRulesEditorConfigOverrides())
-                }.applyIf(codeStyle == CodeStyleValue.android_studio) {
-                    logger.debug { "Add editor config override to set code style to 'android_studio'" }
-                    plus(CODE_STYLE_PROPERTY to CodeStyleValue.android_studio)
+                }.applyIf(codeStyle != null) {
+                    logger.warn {
+                        "Parameter `--code-style=${codeStyle?.name} is deprecated. The code style should be defined as '.editorconfig' " +
+                            "property 'ktlint_code_style'."
+                    }
+                    plus(CODE_STYLE_PROPERTY to codeStyle)
                 }.applyIf(stdin) {
                     logger.debug {
                         "Add editor config override to disable 'filename' rule which can not be used in combination with reading from " +

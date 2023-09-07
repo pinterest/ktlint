@@ -387,12 +387,12 @@ class SimpleCLITest {
             CommandLineTestRunner(tempDir)
                 .run(
                     "too-many-empty-lines",
-                    listOf("--code-style=ktlint_official", "generateEditorConfig"),
+                    listOf("--code-style=intellij_idea", "generateEditorConfig"),
                 ) {
                     SoftAssertions()
                         .apply {
                             assertNormalExitCode()
-                            assertThat(normalOutput).containsLineMatching("ktlint_code_style = ktlint_official")
+                            assertThat(normalOutput).containsLineMatching("ktlint_code_style = intellij_idea")
                         }.assertAll()
                 }
         }
@@ -526,7 +526,10 @@ class SimpleCLITest {
                 arguments = listOf("--code-style=android_studio"),
             ) {
                 assertThat(normalOutput).containsLineMatching(
-                    Regex(".*Add editor config override to set code style to 'android_studio'.*"),
+                    Regex(
+                        ".*WARN.*Parameter `--code-style=android_studio is deprecated. The code style should be defined as " +
+                            "'.editorconfig' property 'ktlint_code_style'.*",
+                    ),
                 )
             }
     }

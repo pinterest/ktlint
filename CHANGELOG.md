@@ -10,6 +10,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+* Fix ktlint cli parameter `--code-style` [#2238](https://github.com/pinterest/ktlint/pull/2238)
+
 ### Changed
 
 ## 1.0.0 - 2023-09-05
