@@ -23,7 +23,7 @@ Note: These steps should be done directly in the pinterest/ktlint repository, no
 14. Announce release on Ktlint Slack channel 
 15. Update `gradle.properties` with the new `SNAPSHOT` version, and add the section below to the top of `CHANGELOG.md` and commit. (This can be done directly in the main repo or in your fork.)
 ```markdown
-## Unreleased
+## [Unreleased]
 
 ### Added
 
@@ -33,3 +33,4 @@ Note: These steps should be done directly in the pinterest/ktlint repository, no
 
 ### Changed
 ```
+Note: the heading "[Unreleased]" may not be changed as this will result in incorrect release notes being extracted from the 'changelog.md' file. 

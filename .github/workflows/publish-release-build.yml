@@ -27,6 +27,16 @@ jobs:
           ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID }}
           ORG_GRADLE_PROJECT_signingKeyPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
 
+      - name: Validate changelog.md
+        id: validate_changelog
+        if: ${{ success() }}
+        run: |
+          FIRST_HEADING2=$(grep "^## " CHANGELOG.md | head -n 1)
+          if [[ "$FIRST_HEADING2" != "## [Unreleased]" ]]; then
+            echo "First heading at level 2 should be '## [Unreleased]'"
+            exit 1
+          fi
+
       - name: Extract release notes
         id: release_notes
         if: ${{ success() }}
