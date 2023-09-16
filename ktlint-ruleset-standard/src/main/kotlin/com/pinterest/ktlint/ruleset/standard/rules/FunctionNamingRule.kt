@@ -1,12 +1,15 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IMPORT_DIRECTIVE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.internal.regExIgnoringDiacriticsAndStrokesOnLetters
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -43,7 +46,8 @@ public class FunctionNamingRule : StandardRule("function-naming") {
             ?.takeUnless {
                 node.isFactoryMethod() ||
                     node.isTestMethod() ||
-                    node.hasValidFunctionName()
+                    node.hasValidFunctionName() ||
+                    node.isAnonymousFunction()
             }?.let {
                 val identifierOffset =
                     node
@@ -75,6 +79,12 @@ public class FunctionNamingRule : StandardRule("function-naming") {
             ?.text
             .orEmpty()
             .matches(VALID_FUNCTION_NAME_REGEXP)
+
+    private fun ASTNode.isAnonymousFunction() =
+        VALUE_PARAMETER_LIST ==
+            findChildByType(FUN_KEYWORD)
+                ?.nextCodeSibling()
+                ?.elementType
 
     private companion object {
         val VALID_FUNCTION_NAME_REGEXP = "[a-z][A-Za-z\\d]*".regExIgnoringDiacriticsAndStrokesOnLetters()

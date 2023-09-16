@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 
 * Fix ktlint cli parameter `--code-style` [#2238](https://github.com/pinterest/ktlint/pull/2238)
+* Ignore anonymous function in rule `function-naming` [#2260](https://github.com/pinterest/ktlint/issue/2260)
 
 ### Changed
 

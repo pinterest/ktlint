@@ -170,4 +170,16 @@ class FunctionNamingRuleTest {
             """.trimIndent()
         functionNamingRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 2260 - Given an anonymous function in a property assignment`() {
+        val code =
+            """
+            val foo =
+                fun(): String {
+                    return "foo"
+                }
+            """.trimIndent()
+        functionNamingRuleAssertThat(code).hasNoLintViolations()
+    }
 }
