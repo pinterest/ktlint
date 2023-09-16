@@ -388,7 +388,8 @@ public class IndentationRule :
     }
 
     private fun ASTNode.isPartOfClassWithAMultilinePrimaryConstructor() =
-        parent { it.elementType == CLASS }
+        treeParent
+            .takeIf { it.elementType == CLASS }
             ?.findChildByType(PRIMARY_CONSTRUCTOR)
             ?.textContains('\n') == true
 

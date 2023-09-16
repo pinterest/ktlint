@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 
 * Fix ktlint cli parameter `--code-style` [#2238](https://github.com/pinterest/ktlint/pull/2238)
+* Fix indent of multiline object declaration inside class `indent` [#2257](https://github.com/pinterest/ktlint/issue/2257)
 
 ### Changed
 

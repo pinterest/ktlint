@@ -4651,7 +4651,7 @@ internal class IndentationRuleTest {
         val code =
             """
             class FooBar :
-                Foox,
+                Foo,
                 Bar {
                 // Do something
             }
@@ -4661,6 +4661,22 @@ internal class IndentationRuleTest {
                     Bar {
                     // Do something
                 }
+            }
+            """.trimIndent()
+        indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 2257 - Given a class containing an object declaration having a super type with parameters`() {
+        val code =
+            """
+            class Foo(
+                foo: String,
+            ) {
+                object Bar : Baz(
+                    baz = "baz",
+                    bar = "bar",
+                )
             }
             """.trimIndent()
         indentationRuleAssertThat(code).hasNoLintViolations()
