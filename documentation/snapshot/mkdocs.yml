@@ -38,7 +38,9 @@ theme:
     - search.share
 
 nav:
-  - Home: index.md
+  - Home:
+      - Features: index.md
+      - Quick start: quick-start.md
   - Installation:
     - Command line: install/cli.md
     - Integrations: install/integrations.md
