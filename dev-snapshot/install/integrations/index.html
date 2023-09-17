@@ -237,16 +237,17 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
   
   
   
-    <li class="md-tabs__item">
-      <a href="../.." class="md-tabs__link">
-        
-  
     
+    
+      <li class="md-tabs__item">
+        <a href="../.." class="md-tabs__link">
+          
   
   Home
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -397,16 +398,80 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
   
   
   
-    <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
   
   <span class="md-ellipsis">
     Home
   </span>
   
 
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            Home
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Features
+  </span>
+  
+
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../quick-start/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Quick start
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -1295,9 +1360,9 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 <a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a><span class="w">    </span><span class="nt">&lt;/executions&gt;</span>
 <a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a><span class="w">    </span><span class="nt">&lt;dependencies&gt;</span>
 <a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a><span class="w">        </span><span class="nt">&lt;dependency&gt;</span>
-<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a><span class="w">            </span><span class="nt">&lt;groupId&gt;</span>com.pinterest<span class="nt">&lt;/groupId&gt;</span>
-<a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a><span class="w">            </span><span class="nt">&lt;artifactId&gt;</span>ktlint<span class="nt">&lt;/artifactId&gt;</span>
-<a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a><span class="w">            </span><span class="nt">&lt;version&gt;</span>0.50.0<span class="nt">&lt;/version&gt;</span>
+<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a><span class="w">            </span><span class="nt">&lt;groupId&gt;</span>com.pinterest.ktlint<span class="nt">&lt;/groupId&gt;</span>
+<a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a><span class="w">            </span><span class="nt">&lt;artifactId&gt;</span>ktlint-cli<span class="nt">&lt;/artifactId&gt;</span>
+<a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a><span class="w">            </span><span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
 <a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a><span class="w">        </span><span class="nt">&lt;/dependency&gt;</span>
 <a id="__codelineno-0-51" name="__codelineno-0-51" href="#__codelineno-0-51"></a><span class="w">        </span><span class="cm">&lt;!-- additional 3rd party ruleset(s) can be specified here --&gt;</span>
 <a id="__codelineno-0-52" name="__codelineno-0-52" href="#__codelineno-0-52"></a><span class="w">    </span><span class="nt">&lt;/dependencies&gt;</span>
@@ -1348,7 +1413,7 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 <a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="o">}</span>
 <a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
 <a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="n">dependencies</span><span class="w"> </span><span class="o">{</span>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">    </span><span class="n">ktlint</span><span class="o">(</span><span class="s2">&quot;com.pinterest:ktlint:0.50.0&quot;</span><span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">    </span><span class="n">ktlint</span><span class="o">(</span><span class="s2">&quot;com.pinterest.ktlint:ktlint-cli:1.0.0&quot;</span><span class="o">)</span><span class="w"> </span><span class="o">{</span>
 <a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">        </span><span class="n">attributes</span><span class="w"> </span><span class="o">{</span>
 <a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">            </span><span class="n">attribute</span><span class="o">(</span><span class="n">Bundling</span><span class="o">.</span><span class="na">BUNDLING_ATTRIBUTE</span><span class="o">,</span><span class="w"> </span><span class="n">getObjects</span><span class="o">().</span><span class="na">named</span><span class="o">(</span><span class="n">Bundling</span><span class="o">,</span><span class="w"> </span><span class="n">Bundling</span><span class="o">.</span><span class="na">EXTERNAL</span><span class="o">))</span>
 <a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="w">        </span><span class="o">}</span>
@@ -1395,7 +1460,7 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 <div class="highlight"><span class="filename">build.gradle.kts</span><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kd">val</span><span class="w"> </span><span class="nv">ktlint</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">configurations</span><span class="p">.</span><span class="na">creating</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="n">ktlint</span><span class="p">(</span><span class="s">&quot;com.pinterest:ktlint:0.50.0&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="n">ktlint</span><span class="p">(</span><span class="s">&quot;com.pinterest.ktlint:ktlint-cli:1.0.0&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">        </span><span class="n">attributes</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">            </span><span class="n">attribute</span><span class="p">(</span><span class="n">Bundling</span><span class="p">.</span><span class="na">BUNDLING_ATTRIBUTE</span><span class="p">,</span><span class="w"> </span><span class="n">objects</span><span class="p">.</span><span class="na">named</span><span class="p">(</span><span class="n">Bundling</span><span class="p">.</span><span class="na">EXTERNAL</span><span class="p">))</span>
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">        </span><span class="p">}</span>
