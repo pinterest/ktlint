@@ -12,6 +12,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 * Fix ktlint cli parameter `--code-style` [#2238](https://github.com/pinterest/ktlint/pull/2238)
 * Fix indent of multiline object declaration inside class `indent` [#2257](https://github.com/pinterest/ktlint/issue/2257)
+* Ignore anonymous function in rule `function-naming` [#2260](https://github.com/pinterest/ktlint/issue/2260)
+* Do not force blank line before function in right hand side of assignment `blank-line-before-declaration` [#2260](https://github.com/pinterest/ktlint/issue/2260)
 
 ### Changed
 
@@ -24,16 +26,16 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   
   | Old Maven coordinates                              | New Maven coordinates                                  |
   |----------------------------------------------------|--------------------------------------------------------|
-  | com.pinterest.ktlint                               | com.pinterest.ktlint.ktlint-cli                        |
-  | com.pinterest.ktlint.ktlint-reporter-baseline      | com.pinterest.ktlint.ktlint-cli-reporter-baseline      |
-  | com.pinterest.ktlint.ktlint-reporter-checkstyle    | com.pinterest.ktlint.ktlint-cli-reporter-checkstyle    |
-  | com.pinterest.ktlint.ktlint-cli-reporter           | com.pinterest.ktlint.ktlint-cli-reporter-core          |
-  | com.pinterest.ktlint.ktlint-reporter-format        | com.pinterest.ktlint.ktlint-cli-reporter-format        |
-  | com.pinterest.ktlint.ktlint-reporter-html          | com.pinterest.ktlint.ktlint-cli-reporter-html          |
-  | com.pinterest.ktlint.ktlint-reporter-json          | com.pinterest.ktlint.ktlint-cli-reporter-json          |
-  | com.pinterest.ktlint.ktlint-reporter-plain         | com.pinterest.ktlint.ktlint-cli-reporter-plain         |
-  | com.pinterest.ktlint.ktlint-reporter-plain-summary | com.pinterest.ktlint.ktlint-cli-reporter-plain-summary |
-  | com.pinterest.ktlint.ktlint-reporter-sarif         | com.pinterest.ktlint.ktlint-cli-reporter-sarif         |
+  | com.pinterest.ktlint                               | com.pinterest.ktlint:ktlint-cli                        |
+  | com.pinterest.ktlint:ktlint-reporter-baseline      | com.pinterest.ktlint:ktlint-cli-reporter-baseline      |
+  | com.pinterest.ktlint:ktlint-reporter-checkstyle    | com.pinterest.ktlint:ktlint-cli-reporter-checkstyle    |
+  | com.pinterest.ktlint:ktlint-cli-reporter           | com.pinterest.ktlint:ktlint-cli-reporter-core          |
+  | com.pinterest.ktlint:ktlint-reporter-format        | com.pinterest.ktlint:ktlint-cli-reporter-format        |
+  | com.pinterest.ktlint:ktlint-reporter-html          | com.pinterest.ktlint:ktlint-cli-reporter-html          |
+  | com.pinterest.ktlint:ktlint-reporter-json          | com.pinterest.ktlint:ktlint-cli-reporter-json          |
+  | com.pinterest.ktlint:ktlint-reporter-plain         | com.pinterest.ktlint:ktlint-cli-reporter-plain         |
+  | com.pinterest.ktlint:ktlint-reporter-plain-summary | com.pinterest.ktlint:ktlint-cli-reporter-plain-summary |
+  | com.pinterest.ktlint:ktlint-reporter-sarif         | com.pinterest.ktlint:ktlint-cli-reporter-sarif         |
 
 
 * Add binary compatibility validator - [#2131](https://github.com/pinterest/ktlint/pull/2131), by @mateuszkwiecinski

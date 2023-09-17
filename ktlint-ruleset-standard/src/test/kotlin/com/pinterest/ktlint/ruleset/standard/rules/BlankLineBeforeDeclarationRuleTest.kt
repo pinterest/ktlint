@@ -447,4 +447,16 @@ class BlankLineBeforeDeclarationRuleTest {
             .hasLintViolation(3, 5, "Expected a blank line for this declaration")
             .isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Issue 2260 - Given an anonymous function as right hand side in an assignment`() {
+        val code =
+            """
+            val foo =
+                fun(): String {
+                    return "foo"
+                }
+            """.trimIndent()
+        blankLineBeforeDeclarationRuleAssertThat(code).hasNoLintViolations()
+    }
 }

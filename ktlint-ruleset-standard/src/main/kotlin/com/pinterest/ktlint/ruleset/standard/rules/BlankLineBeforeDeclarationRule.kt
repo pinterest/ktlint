@@ -4,6 +4,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_INITIALIZER
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.EQ
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
@@ -116,10 +117,17 @@ public class BlankLineBeforeDeclarationRule :
             return
         }
 
+        if (node.elementType == FUN && node.prevCodeSibling()?.elementType == EQ) {
+            // Allow:
+            //   val foo =
+            //       fun(): String {
+            //           return "foo"
+            //       }
+            return
+        }
+
         node
             .takeIf { it.psi is KtDeclaration }
-//        (node.psi as KtDeclaration)
-//            .node
             ?.takeIf {
                 val prevLeaf = it.prevLeaf()
                 prevLeaf != null && (!prevLeaf.isWhiteSpace() || !prevLeaf.text.startsWith("\n\n"))
