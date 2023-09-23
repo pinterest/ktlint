@@ -182,4 +182,18 @@ class FunctionNamingRuleTest {
             """.trimIndent()
         functionNamingRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 2271 - Given an override fun then do not report a violation of the rule as it might not be possible to change the signature of the rule when defined outside scope of project`() {
+        val code =
+            """
+            // Assume that Bar is defined outside the scope of the project. As of that the function signature can not be changed to comply
+            // to the function-naming rule. In case that Bar is defined inside the scope of the project, the violation will still be
+            // reported in the Bar class/interface itself.
+            class Foo : Bar {
+                override fun Something()
+            }
+            """.trimIndent()
+        functionNamingRuleAssertThat(code).hasNoLintViolations()
+    }
 }
