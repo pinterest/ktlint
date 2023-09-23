@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN_KEYWORD
@@ -118,16 +119,31 @@ public class FunctionNamingRule :
             .any { it.elementType == OVERRIDE_KEYWORD }
 
     private fun ASTNode.isAnnotatedWithAnyOf(excludeWhenAnnotatedWith: Set<String>) =
-        findChildByType(MODIFIER_LIST)
+        findChildByType(MODIFIER_LIST).containsAnnotationEntryWithIdentifierIn(excludeWhenAnnotatedWith)
+
+    private fun ASTNode?.containsAnnotationEntryWithIdentifierIn(excludeWhenAnnotatedWith: Set<String>): Boolean =
+        this
             ?.children()
-            ?.filter { it.elementType == ANNOTATION_ENTRY }
-            ?.mapNotNull { it.findChildByType(ElementType.CONSTRUCTOR_CALLEE) }
-            ?.mapNotNull { it.findChildByType(ElementType.TYPE_REFERENCE) }
-            ?.mapNotNull { it.findChildByType(ElementType.USER_TYPE) }
-            ?.mapNotNull { it.findChildByType(ElementType.REFERENCE_EXPRESSION) }
-            ?.mapNotNull { it.findChildByType(IDENTIFIER) }
-            ?.any { it.text in excludeWhenAnnotatedWith }
+            ?.any {
+                when (it.elementType) {
+                    ANNOTATION -> {
+                        it.containsAnnotationEntryWithIdentifierIn(excludeWhenAnnotatedWith)
+                    }
+                    ANNOTATION_ENTRY -> {
+                        it.annotationEntryName() in excludeWhenAnnotatedWith
+                    }
+                    else -> false
+                }
+            }
             ?: false
+
+    private fun ASTNode.annotationEntryName() =
+        findChildByType(ElementType.CONSTRUCTOR_CALLEE)
+            ?.findChildByType(ElementType.TYPE_REFERENCE)
+            ?.findChildByType(ElementType.USER_TYPE)
+            ?.findChildByType(ElementType.REFERENCE_EXPRESSION)
+            ?.findChildByType(IDENTIFIER)
+            ?.text
 
     public companion object {
         public val IGNORE_WHEN_ANNOTATED_WITH_PROPERTY: EditorConfigProperty<Set<String>> =
