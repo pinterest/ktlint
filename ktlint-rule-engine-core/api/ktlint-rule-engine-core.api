@@ -506,6 +506,11 @@ public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/CodeSt
 	public static fun values ()[Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/CodeStyleValue;
 }
 
+public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/CommaSeparatedListValueParser : org/ec4j/core/model/PropertyType$PropertyValueParser {
+	public fun <init> ()V
+	public fun parse (Ljava/lang/String;Ljava/lang/String;)Lorg/ec4j/core/model/PropertyType$PropertyValue;
+}
+
 public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig {
 	public fun <init> ()V
 	public fun <init> (Ljava/util/Map;)V
