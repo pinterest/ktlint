@@ -14,6 +14,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 * Fix indent of multiline object declaration inside class `indent` [#2257](https://github.com/pinterest/ktlint/issue/2257)
 * Ignore anonymous function in rule `function-naming` [#2260](https://github.com/pinterest/ktlint/issue/2260)
 * Do not force blank line before function in right hand side of assignment `blank-line-before-declaration` [#2260](https://github.com/pinterest/ktlint/issue/2260)
+* Ignore override of function in rule `function-naming` [#2271](https://github.com/pinterest/ktlint/issue/2271)
 * Do not replace function body having a return statement only in case the return statement contains an intermediate exit point 'function-expression-body' [#2269](https://github.com/pinterest/ktlint/issue/2269)
 
 ### Changed
