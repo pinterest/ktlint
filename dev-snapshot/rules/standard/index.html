@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.5.2, mkdocs-material-9.3.1">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.1">
     
     
       
@@ -26,10 +26,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.046329b4.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.72749a73.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.85d0ee34.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.a5377069.min.css">
       
       
 
@@ -2684,7 +2684,11 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Functions in files which import a class from package <code>org.junit</code>, <code>org.testng</code> or <code>kotlin.test</code> are considered to be test functions. Functions in such classes are allowed to have underscores in the name. Or function names can be specified between backticks and do not need to adhere to the normal naming convention.</p>
+<p>When using Compose, you might want to suppress the <code>function-naming</code> rule by setting <code>.editorconfig</code> property <code>ktlint_function_naming_ignore_when_annotated_with=Composable</code>. Furthermore, you can use a dedicated ktlint ruleset like <a href="https://mrmans0n.github.io/compose-rules/ktlint/">Compose Rules</a> for checking naming conventions for Composable functions. </p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Functions in files which import a class from package <code>org.junit</code>, <code>org.testng</code> or <code>kotlin.test</code> are considered to be test functions. Functions in such classes are allowed to have underscores in the name. Also, function names enclosed between backticks do not need to adhere to the normal naming convention.</p>
 </div>
 <p>This rule can also be suppressed with the IntelliJ IDEA inspection suppression <code>FunctionName</code>.</p>
 <p>Rule id: <code>function-naming</code> (<code>standard</code> rule set)</p>
@@ -4536,10 +4540,10 @@ returns (<code>fun fn {}</code> instead of <code>fun fn: Unit {}</code>)</p>
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "search.suggest", "search.share"], "search": "../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "search.suggest", "search.share"], "search": "../../assets/javascripts/workers/search.a264c092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.dff1b7c8.min.js"></script>
+      <script src="../../assets/javascripts/bundle.4e0fa4ba.min.js"></script>
       
     
   </body>
