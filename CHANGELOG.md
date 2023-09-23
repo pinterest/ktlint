@@ -6,6 +6,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+* Add `.editorconfig` property `ktlint_function_naming_ignore_when_annotated_with` so that rule `function-naming` can be ignored based on annotations on that rule. See [function-naming](https://pinterest.github.io/ktlint/1.0.1/rules/standard/#function-naming).
+
 ### Removed
 
 ### Fixed

@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.ruleset.standard.rules.FunctionNamingRule.Companion.IGNORE_WHEN_ANNOTATED_WITH_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -195,5 +196,26 @@ class FunctionNamingRuleTest {
             }
             """.trimIndent()
         functionNamingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 2259 - Given a fun which is to be ignored because it is annotated with a blacklisted annotation`() {
+        val code =
+            """
+            @Bar
+            @Foo
+            fun SomeFooBar()
+
+            @Composable
+            @Foo
+            fun SomeComposableFoo()
+
+            @Bar
+            @Composable
+            fun SomeComposableBar()
+            """.trimIndent()
+        functionNamingRuleAssertThat(code)
+            .withEditorConfigOverride(IGNORE_WHEN_ANNOTATED_WITH_PROPERTY to "Composable, Foo")
+            .hasNoLintViolations()
     }
 }

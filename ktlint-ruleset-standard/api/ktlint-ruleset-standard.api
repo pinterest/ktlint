@@ -220,8 +220,14 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionLiteralRu
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionNamingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
+	public static final field Companion Lcom/pinterest/ktlint/ruleset/standard/rules/FunctionNamingRule$Companion;
 	public fun <init> ()V
+	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
 	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+}
+
+public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionNamingRule$Companion {
+	public final fun getIGNORE_WHEN_ANNOTATED_WITH_PROPERTY ()Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionNamingRuleKt {
