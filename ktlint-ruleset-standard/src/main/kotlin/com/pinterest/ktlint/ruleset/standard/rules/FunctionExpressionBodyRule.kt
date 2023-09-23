@@ -38,7 +38,6 @@ import org.jetbrains.kotlin.psi.KtFunction
 import org.jetbrains.kotlin.psi.KtScript
 import org.jetbrains.kotlin.psi.KtTypeReference
 import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
-import org.jetbrains.kotlin.psi.psiUtil.leaves
 
 /**
  * [Kotlin Coding Conventions](https://kotlinlang.org/docs/coding-conventions.html#functions):
