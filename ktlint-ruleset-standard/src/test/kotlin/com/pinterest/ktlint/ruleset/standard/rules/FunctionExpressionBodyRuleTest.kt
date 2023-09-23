@@ -153,4 +153,19 @@ class FunctionExpressionBodyRuleTest {
             .isFormattedAs(formattedCode)
             .hasLintViolation(1, 16, "Function body should be replaced with body expression")
     }
+
+    @Test
+    fun `Given a function with a single expression but having multiple return expression inside then do not covert as it results in a compilation error`() {
+        val code =
+            """
+            fun foo(): Any {
+                return if (true) {
+                    Foo()
+                } else {
+                    return Bar()
+                }
+            }
+            """.trimIndent()
+        functionExpressionBodyRule(code).hasNoLintViolations()
+    }
 }
