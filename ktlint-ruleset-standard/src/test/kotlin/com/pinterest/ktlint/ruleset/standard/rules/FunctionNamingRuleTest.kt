@@ -218,4 +218,22 @@ class FunctionNamingRuleTest {
             .withEditorConfigOverride(IGNORE_WHEN_ANNOTATED_WITH_PROPERTY to "Composable, Foo")
             .hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 2259 - Given a fun which is to be ignored because it is annotated with a blacklisted annotation using annotation array`() {
+        val code =
+            """
+            @[Bar Foo]
+            fun SomeFooBar()
+
+            @[Composable Foo]
+            fun SomeComposableFoo()
+
+            @[Bar Composable]
+            fun SomeComposableBar()
+            """.trimIndent()
+        functionNamingRuleAssertThat(code)
+            .withEditorConfigOverride(IGNORE_WHEN_ANNOTATED_WITH_PROPERTY to "Composable, Foo")
+            .hasNoLintViolations()
+    }
 }
