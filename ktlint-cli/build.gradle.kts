@@ -172,3 +172,27 @@ sdkman {
     url.set("https://github.com/pinterest/ktlint/releases/download/$sdkmanVersion/ktlint-$sdkmanVersion.zip")
     hashtag.set("ktlint")
 }
+
+publishing {
+    publications {
+        // TODO: Remove in release after ktlint 1.0.1
+        create<MavenPublication>("relocation-ktlint-cli") {
+            pom {
+                // Old artifact coordinates ktlint-cli
+                groupId = "com.pinterest"
+                artifactId = "ktlint"
+                version = "0.51.0-FINAL"
+
+                distributionManagement {
+                    relocation {
+                        // New artifact coordinates
+                        groupId.set("com.pinterest.ktlint")
+                        artifactId.set("ktlint-cli")
+                        version.set("1.0.0")
+                        message.set("groupId and artifactId have been changed")
+                    }
+                }
+            }
+        }
+    }
+}
