@@ -487,4 +487,16 @@ class BlankLineBeforeDeclarationRuleTest {
                 LintViolation(4, 1, "Expected a blank line for this declaration"),
             ).isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Issue 2284 - Given an object declaration wrapped in object literal`() {
+        val code =
+            """
+            fun foo() =
+                object : Foo() {
+                    // some declarations
+                }
+            """.trimIndent()
+        blankLineBeforeDeclarationRuleAssertThat(code).hasNoLintViolations()
+    }
 }
