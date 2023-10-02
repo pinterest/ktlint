@@ -23,6 +23,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SAFE_ACCESS_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.Companion.DEFAULT_INDENT_CONFIG
@@ -36,11 +38,13 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -108,11 +112,39 @@ public class MultilineExpressionWrappingRule :
                         emit(node.startOffset, "A multiline expression should start on a new line", true)
                         if (autoCorrect) {
                             node.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
-                            node
-                                .lastChildLeafOrSelf()
-                                .nextLeaf { !it.isWhiteSpaceWithoutNewline() && !it.isPartOfComment() && it.elementType != COMMA }
-                                ?.takeIf { !it.isWhiteSpaceWithNewline() }
-                                ?.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
+                            val leafOnSameLineAfterMultilineExpression =
+                                node
+                                    .lastChildLeafOrSelf()
+                                    .nextLeaf { !it.isWhiteSpaceWithoutNewline() && !it.isPartOfComment() }
+                                    ?.takeIf { !it.isWhiteSpaceWithNewline() }
+                            when {
+                                leafOnSameLineAfterMultilineExpression == null -> Unit
+
+                                leafOnSameLineAfterMultilineExpression.treeParent.elementType == OPERATION_REFERENCE -> {
+                                    // When binary expressions are wrapped, each binary expression for itself is checked whether it is a
+                                    // multiline expression. So there is no need to check whether wrapping after the operation reference is
+                                    // needed
+                                        Unit
+                                }
+
+                                leafOnSameLineAfterMultilineExpression.elementType == COMMA &&
+                                    (leafOnSameLineAfterMultilineExpression.treeParent.elementType == VALUE_ARGUMENT_LIST ||
+                                     leafOnSameLineAfterMultilineExpression.treeParent.elementType == VALUE_PARAMETER_LIST
+                                        ) -> {
+                                    // Keep comma on same line as multiline expression:
+                                    //   foo(
+                                    //      fooBar
+                                    //          .filter { it.bar },
+                                    //   )
+                                    leafOnSameLineAfterMultilineExpression
+                                        .nextLeaf()
+                                        ?.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
+                                }
+
+                                else -> {
+                                    leafOnSameLineAfterMultilineExpression.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
+                                }
+                            }
                         }
                     }
                 }
