@@ -38,13 +38,11 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -124,13 +122,14 @@ public class MultilineExpressionWrappingRule :
                                     // When binary expressions are wrapped, each binary expression for itself is checked whether it is a
                                     // multiline expression. So there is no need to check whether wrapping after the operation reference is
                                     // needed
-                                        Unit
+                                    Unit
                                 }
 
                                 leafOnSameLineAfterMultilineExpression.elementType == COMMA &&
-                                    (leafOnSameLineAfterMultilineExpression.treeParent.elementType == VALUE_ARGUMENT_LIST ||
-                                     leafOnSameLineAfterMultilineExpression.treeParent.elementType == VALUE_PARAMETER_LIST
-                                        ) -> {
+                                    (
+                                        leafOnSameLineAfterMultilineExpression.treeParent.elementType == VALUE_ARGUMENT_LIST ||
+                                            leafOnSameLineAfterMultilineExpression.treeParent.elementType == VALUE_PARAMETER_LIST
+                                    ) -> {
                                     // Keep comma on same line as multiline expression:
                                     //   foo(
                                     //      fooBar
