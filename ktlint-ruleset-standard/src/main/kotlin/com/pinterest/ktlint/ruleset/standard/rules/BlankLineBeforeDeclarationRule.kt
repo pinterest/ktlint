@@ -8,6 +8,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.EQ
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_DECLARATION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY_ACCESSOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN
@@ -48,6 +50,7 @@ public class BlankLineBeforeDeclarationRule :
             CLASS,
             CLASS_INITIALIZER,
             FUN,
+            OBJECT_DECLARATION,
             PROPERTY,
             PROPERTY_ACCESSOR,
             ->
@@ -123,6 +126,15 @@ public class BlankLineBeforeDeclarationRule :
             //       fun(): String {
             //           return "foo"
             //       }
+            return
+        }
+
+        if (node.elementType == OBJECT_DECLARATION && node.treeParent.elementType == OBJECT_LITERAL) {
+            // Allow:
+            //   fun foo() =
+            //      object : Foo() {
+            //          // some declarations
+            //      }
             return
         }
 
