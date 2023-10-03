@@ -84,6 +84,7 @@ class FunctionNamingRuleTest {
         @ParameterizedTest(name = "Junit import: {0}")
         @ValueSource(
             strings = [
+                "io.kotest.*",
                 "org.junit.jupiter.api.Test",
                 "org.junit.jupiter.api.*",
                 "org.junit.jupiter.*",

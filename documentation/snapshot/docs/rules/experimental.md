@@ -19,8 +19,11 @@ Wraps binary expression at the operator reference whenever the binary expression
         // Assume that the last allowed character is
         // at the X character on the right                       X
         if ((leftHandSideExpression && rightHandSideExpression) ||
-            (leftHandSideLongExpression &&
-                rightHandSideLongExpression)) {
+            (
+                leftHandSideLongExpression &&
+                    rightHandSideExpression
+            )
+        ) {
             // do something
         }
     }
@@ -32,7 +35,9 @@ Wraps binary expression at the operator reference whenever the binary expression
     fun foo() {
         // Assume that the last allowed character is
         // at the X character on the right                       X
-        if ((leftHandSideExpression && rightHandSideExpression) || (leftHandSideLongExpression && rightHandSideLongExpression)) {
+        if ((leftHandSideExpression && rightHandSideExpression) ||
+            (leftHandSideLongExpression && rightHandSideExpression)
+        ) {
             // do something
         }
     }
@@ -74,9 +79,10 @@ This rule can be configured with `.editorconfig` property [`ktlint_chain_method_
             }?.map {
                 2 * it
             }
-    val foo3 = foo().bar().map {
-        it.foobar()
-    }
+    val foo3 =
+        foo().bar().map {
+            it.foobar()
+        }
     val foo4 =
         """
         Some text
@@ -107,7 +113,8 @@ This rule can be configured with `.editorconfig` property [`ktlint_chain_method_
             ?.map {
                 2 * it
             }
-    val foo3 = foo()
+    val foo3 = 
+        foo()
         .bar().map {
             it.foobar()
         }
@@ -133,23 +140,28 @@ The other code styles allow an infinite amount of parameters on the same line (a
     ```kotlin
     // Assume that max_line_length is not exceeded when written as single line
     class Foo0
+    
     class Foo1(
-        a: Any
+        a: Any,
     )
+    
     class Foo2(
         a: Any,
-        b: Any
+        b: Any,
     )
+    
     class Foo3(
         @Foo a: Any,
         b: Any,
-        c: Any
+        c: Any,
     )
+    
     class Foo4(
         a: Any,
         b: Any,
-        c: Any
+        c: Any,
     ) : FooBar(a, c)
+    
     class Foo5 :
         FooBar(
             "bar1",
@@ -157,26 +169,29 @@ The other code styles allow an infinite amount of parameters on the same line (a
         ) {
         // body
     }
+    
     class Foo6(
         val bar1: Bar,
-        val bar2: Bar
+        val bar2: Bar,
     ) : FooBar(
             bar1,
-            bar2
+            bar2,
         ) {
         // body
     }
+    
     class Foo7(
         val bar1: Bar,
-        val bar2: Bar
+        val bar2: Bar,
     ) : FooBar(
             bar1,
-            bar2
+            bar2,
         ),
         BarFoo1,
         BarFoo2 {
         // body
     }
+    
     class Foo8
         constructor(
             val bar1: Bar,
@@ -184,8 +199,8 @@ The other code styles allow an infinite amount of parameters on the same line (a
         ) : FooBar(bar1, bar2),
             BarFoo1,
             BarFoo2 {
-        // body
-    }
+            // body
+        }
     ```
 
 === "[:material-heart-off-outline:](#) Disallowed (ktlint_official)"
@@ -193,36 +208,44 @@ The other code styles allow an infinite amount of parameters on the same line (a
     ```kotlin
     // Assume that max_line_length is not exceeded when written as single line
     class Foo0()
+
     class Foo1(a: Any)
+
     class Foo2(a: Any, b: Any)
+
     class Foo3(@Foo a: Any, b: Any, c: Any)
+
     class Foo4(a: Any, b: Any, c: Any) : FooBar(a, c)
+
     class Foo5 : FooBar(
         "bar1",
         "bar2",
     ) {
         // body
     }
+
     class Foo6(
         val bar1: Bar,
-        val bar2: Bar
+        val bar2: Bar,
     ) : FooBar(
         bar1,
-        bar2
+        bar2,
     ) {
         // body
     }
+
     class Foo7(
         val bar1: Bar,
-        val bar2: Bar
+        val bar2: Bar,
     ) : FooBar(
         bar1,
-        bar2
+        bar2,
     ),
         BarFoo1,
         BarFoo2 {
         // body
     }
+
     class Foo8
     constructor(
         val bar1: Bar,
@@ -240,18 +263,25 @@ The other code styles allow an infinite amount of parameters on the same line (a
     // Assume that the last allowed character is
     // at the X character on the right           X
     class Foo0
+
     class Foo1(
-        a: Any
+        a: Any,
     )
+
     class Foo2(a: Any)
+
     class Foo3(
         a: Any,
-        b: Any
+        b: Any,
     )
+
     class Foo4(a: Any, b: Any)
+
     class Foo5(@Foo a: Any, b: Any, c: Any)
+
     class Foo6(a: Any, b: Any, c: Any) :
         FooBar(a, c)
+
     class Foo7 : FooBar(
         "bar1",
         "bar2",
@@ -260,16 +290,17 @@ The other code styles allow an infinite amount of parameters on the same line (a
     }
     class Foo8(
         val bar1: Bar,
-        val bar2: Bar
+        val bar2: Bar,
     ) : FooBar(
         bar1,
         bar2
     ) {
         // body
     }
+
     class Foo9(
         val bar1: Bar,
-        val bar2: Bar
+        val bar2: Bar,
     ) : FooBar(
         bar1,
         bar2
@@ -278,6 +309,7 @@ The other code styles allow an infinite amount of parameters on the same line (a
         BarFoo2 {
         // body
     }
+
     class Foo10
     constructor(
         val bar1: Bar,
@@ -295,6 +327,7 @@ The other code styles allow an infinite amount of parameters on the same line (a
     // Assume that the last allowed character is
     // at the X character on the right           X
     class Foo0()
+
     class Foo6(a: Any, b: Any, c: Any) : FooBar(a, c)
     ```
 
@@ -311,20 +344,27 @@ Rewrites a function body only containing a `return` or `throw` expression to an 
 
     ```kotlin
     fun foo1() = "foo"
+
     fun foo2(): String = "foo"
+
     fun foo3(): Unit = throw IllegalArgumentException("some message")
+
     fun foo4(): Foo = throw IllegalArgumentException("some message")
+
     fun foo5() {
         return "foo" // some comment
     }
+
     fun foo6(): String {
         /* some comment */
         return "foo"
     }
+
     fun foo7() {
         throw IllegalArgumentException("some message")
         /* some comment */
     }
+
     fun foo8(): Foo {
         throw IllegalArgumentException("some message")
         // some comment
@@ -336,12 +376,15 @@ Rewrites a function body only containing a `return` or `throw` expression to an 
     fun foo1() {
         return "foo"
     }
+
     fun foo2(): String {
         return "foo"
     }
+
     fun foo3() {
         throw IllegalArgumentException("some message")
     }
+
     fun foo4(): Foo {
         throw IllegalArgumentException("some message")
     }
@@ -358,33 +401,33 @@ If the function literal contains multiple parameter and at least one parameter o
 === "[:material-heart:](#) Ktlint"
 
     ```kotlin
-            val foobar1 = { foo + bar }
-            val foobar2 =
-                {
-                    foo + bar
-                }
-            val foobar3 =
-                { foo: Foo ->
-                    foo.repeat(2)
-                }
-            val foobar4 =
-                { foo: Foo, bar: Bar ->
-                    foo + bar
-                }
-            val foobar5 = { foo: Foo, bar: Bar -> foo + bar }
-            val foobar6 =
-                {
-                        foo: Foo,
-                        bar: Bar
-                    ->
-                    foo + bar
-                }
-
+    val foobar1 = { foo + bar }
+    val foobar2 =
+        {
+            foo + bar
+        }
+    val foobar3 =
+        { foo: Foo ->
+            foo.repeat(2)
+        }
+    val foobar4 =
+        { foo: Foo, bar: Bar ->
+            foo + bar
+        }
+    val foobar5 = { foo: Foo, bar: Bar -> foo + bar }
+    val foobar6 =
+        {
+                foo: Foo,
+                bar: Bar,
+            ->
+            foo + bar
+        }
+    
     // Assume that the last allowed character is
     // at the X character on the right           X
     val foobar7 =
-        barrrrrrrrrrrrrr {
-                fooooooooooooooo: Foo
+        barrrrrrrrrrrrrr { 
+              fooooooooooooooo: Foo
             ->
             foo.repeat(2)
         }
@@ -424,6 +467,7 @@ Enforce a single whitespace between the modifier list and the function type.
 
     ```kotlin
     val foo: suspend () -> Unit = {}
+
     suspend fun bar(baz: suspend () -> Unit) = baz()
     ```
 
@@ -431,6 +475,7 @@ Enforce a single whitespace between the modifier list and the function type.
 
     ```kotlin
     val foo: suspend() -> Unit = {}
+
     suspend fun bar(baz: suspend   () -> Unit) = baz()
     ```
 
