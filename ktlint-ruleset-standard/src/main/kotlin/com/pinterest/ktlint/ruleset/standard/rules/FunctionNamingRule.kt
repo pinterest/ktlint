@@ -52,19 +52,15 @@ public class FunctionNamingRule :
             (node.psi as KtImportDirective)
                 .importPath
                 ?.pathStr
-                ?.takeIf {
-                    it.startsWith(ORG_JUNIT) || it.startsWith(ORG_TESTNG) || it.startsWith(KOTLIN_TEST)
-                }?.let {
-                    // Assume that each file that imports a Junit Jupiter Api class is a test class
-                    isTestClass = true
-                }
+                ?.takeIf { importPathString -> TEST_LIBRARIES_SET.any { importPathString.startsWith(it) } }
+                ?.let { isTestClass = true }
         }
 
         node
             .takeIf { node.elementType == FUN }
             ?.takeUnless {
                 node.isFactoryMethod() ||
-                    node.isTestMethod() ||
+                    node.isMethodInTestClass() ||
                     node.hasValidFunctionName() ||
                     node.isAnonymousFunction() ||
                     node.isOverrideFunction() ||
@@ -87,7 +83,7 @@ public class FunctionNamingRule :
         (this.psi as KtFunction)
             .let { it.hasDeclaredReturnType() && it.name == it.typeReference?.text }
 
-    private fun ASTNode.isTestMethod() = isTestClass && hasValidTestFunctionName()
+    private fun ASTNode.isMethodInTestClass() = isTestClass && hasValidTestFunctionName()
 
     private fun ASTNode.hasValidTestFunctionName() =
         findChildByType(IDENTIFIER)
@@ -159,9 +155,13 @@ public class FunctionNamingRule :
 
         private val VALID_FUNCTION_NAME_REGEXP = "[a-z][A-Za-z\\d]*".regExIgnoringDiacriticsAndStrokesOnLetters()
         private val VALID_TEST_FUNCTION_NAME_REGEXP = "(`.*`)|([a-z][A-Za-z\\d_]*)".regExIgnoringDiacriticsAndStrokesOnLetters()
-        private const val KOTLIN_TEST = "kotlin.test"
-        private const val ORG_JUNIT = "org.junit"
-        private const val ORG_TESTNG = "org.testng"
+        private val TEST_LIBRARIES_SET =
+            setOf(
+                "io.kotest",
+                "kotlin.test",
+                "org.junit",
+                "org.testng",
+            )
     }
 }
 
