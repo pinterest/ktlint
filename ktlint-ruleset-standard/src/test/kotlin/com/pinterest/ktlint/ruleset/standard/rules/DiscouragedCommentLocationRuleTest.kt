@@ -501,15 +501,21 @@ class DiscouragedCommentLocationRuleTest {
                 """
                 class Foo1(
                     // some comment
-                    val bar: Bar
+                    val bar: Bar,
+                    // some comment
+                    val bar: Bar,
                 )
                 class Foo2(
                     /* some comment */
-                    val bar: Bar
+                    val bar: Bar,
+                    /* some comment */
+                    val bar: Bar,
                 )
                 class Foo3(
                     /** some comment */
-                    val bar: Bar
+                    val bar: Bar,
+                    /** some comment */
+                    val bar: Bar,
                 )
                 """.trimIndent()
             discouragedCommentLocationRuleAssertThat(code).hasNoLintViolations()
@@ -534,8 +540,8 @@ class DiscouragedCommentLocationRuleTest {
             @Suppress("ktlint:standard:parameter-list-wrapping", "ktlint:standard:max-line-length")
             discouragedCommentLocationRuleAssertThat(code)
                 .hasLintViolationsWithoutAutoCorrect(
-                    LintViolation(3, 9, "A comment in a 'value_parameter' is only allowed when placed on a new line before this element"),
-                    LintViolation(7, 14, "A comment in a 'value_parameter' is only allowed when placed on a new line before this element"),
+                    LintViolation(3, 9, "A (block or EOL) comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
+                    LintViolation(7, 14, "A (block or EOL) comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
                     LintViolation(10, 14, "A kdoc in a 'value_parameter' is only allowed when placed on a new line before this element"),
                 )
         }
@@ -557,9 +563,9 @@ class DiscouragedCommentLocationRuleTest {
             @Suppress("ktlint:standard:parameter-list-wrapping", "ktlint:standard:max-line-length")
             discouragedCommentLocationRuleAssertThat(code)
                 .hasLintViolationsWithoutAutoCorrect(
-                    LintViolation(2, 18, "A comment in a 'value_parameter' is only allowed when placed on a new line before this element"),
-                    LintViolation(5, 18, "A comment in a 'value_parameter' is only allowed when placed on a new line before this element"),
-                    LintViolation(8, 18, "A comment in a 'value_parameter' is only allowed when placed on a new line before this element"),
+                    LintViolation(2, 18, "A (block or EOL) comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
+                    LintViolation(5, 18, "A (block or EOL) comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
+                    LintViolation(8, 18, "A (block or EOL) comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
                 )
         }
 
@@ -819,5 +825,32 @@ class DiscouragedCommentLocationRuleTest {
                     LintViolation(11, 27, "No comment expected at this location"),
                 )
         }
+    }
+
+    @Test
+    fun `Given value argument preceded by a KDOC plus an EOL or BLOCK comments on separate lines above`() {
+        val code =
+            """
+            class Foo(
+                /** Some kdoc */
+                /* Some comment */
+                val bar1: Int,
+                /** Some kdoc */
+                // Some comment
+                val bar2: Int,
+                /* Some comment */
+                /** Some kdoc */
+                val bar3: Int,
+                // Some comment
+                /** Some kdoc */
+                val bar4: Int,
+            )
+            """.trimIndent()
+        @Suppress("ktlint:standard:parameter-list-wrapping", "ktlint:standard:max-line-length")
+        discouragedCommentLocationRuleAssertThat(code)
+            .hasLintViolationsWithoutAutoCorrect(
+                LintViolation(3, 5, "A (block or EOL) comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
+                LintViolation(6, 5, "A (block or EOL) comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
+            )
     }
 }

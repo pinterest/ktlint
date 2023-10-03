@@ -18,6 +18,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 * Do not force blank line before function in right hand side of assignment `blank-line-before-declaration` [#2260](https://github.com/pinterest/ktlint/issue/2260)
 * Ignore override of function in rule `function-naming` [#2271](https://github.com/pinterest/ktlint/issue/2271)
 * Do not replace function body having a return statement only in case the return statement contains an intermediate exit point 'function-expression-body' [#2269](https://github.com/pinterest/ktlint/issue/2269)
+* Improve violation message in `discouraged-comment-location` [#2292](https://github.com/pinterest/ktlint/issue/2292)
 
 ### Changed
 

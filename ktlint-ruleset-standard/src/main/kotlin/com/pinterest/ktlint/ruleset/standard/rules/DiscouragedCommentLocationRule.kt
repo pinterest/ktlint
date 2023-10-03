@@ -112,7 +112,8 @@ public class DiscouragedCommentLocationRule : StandardRule("discouraged-comment-
                 // of that type. However, if it would be possible, it is ok to emit the error analog to the VALUE_ARGUMENT
                 emit(
                     node.startOffset,
-                    "A comment in a '${node.treeParentElementTypeName()}' is only allowed when placed on a new line before this element",
+                    "A (block or EOL) comment inside or on same line after a '${node.treeParentElementTypeName()}' is not allowed. It " +
+                        "may be placed on a separate line above.",
                     false,
                 )
             }
