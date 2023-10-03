@@ -537,7 +537,7 @@ class DiscouragedCommentLocationRuleTest {
                     val bar: /** some comment */ Bar
                 )
                 """.trimIndent()
-            @Suppress("ktlint:standard:parameter-list-wrapping", "ktlint:standard:max-line-length")
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
             discouragedCommentLocationRuleAssertThat(code)
                 .hasLintViolationsWithoutAutoCorrect(
                     LintViolation(3, 9, "A (block or EOL) comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
@@ -560,7 +560,7 @@ class DiscouragedCommentLocationRuleTest {
                     val bar: Bar /* some comment */
                 )
                 """.trimIndent()
-            @Suppress("ktlint:standard:parameter-list-wrapping", "ktlint:standard:max-line-length")
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
             discouragedCommentLocationRuleAssertThat(code)
                 .hasLintViolationsWithoutAutoCorrect(
                     LintViolation(2, 18, "A (block or EOL) comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
@@ -580,7 +580,6 @@ class DiscouragedCommentLocationRuleTest {
                     val bar: Bar, /* some comment */
                 )
                 """.trimIndent()
-            @Suppress("ktlint:standard:parameter-list-wrapping", "ktlint:standard:max-line-length")
             discouragedCommentLocationRuleAssertThat(code)
                 .hasLintViolationsWithoutAutoCorrect(
                     LintViolation(2, 19, "A comment in a 'value_parameter_list' is only allowed when placed on a separate line"),
@@ -642,7 +641,6 @@ class DiscouragedCommentLocationRuleTest {
                     >
                 class Foo2<Bar /* some comment */ >
                 """.trimIndent()
-            @Suppress("ktlint:standard:parameter-list-wrapping", "ktlint:standard:max-line-length")
             discouragedCommentLocationRuleAssertThat(code)
                 .hasLintViolationsWithoutAutoCorrect(
                     LintViolation(2, 9, "A comment in a 'type_parameter_list' is only allowed when placed on a separate line"),
@@ -659,7 +657,6 @@ class DiscouragedCommentLocationRuleTest {
                     Bar>
                 class FooBar2<Foo, /* some comment */ Bar>
                 """.trimIndent()
-            @Suppress("ktlint:standard:parameter-list-wrapping", "ktlint:standard:max-line-length")
             discouragedCommentLocationRuleAssertThat(code)
                 .hasLintViolationsWithoutAutoCorrect(
                     LintViolation(2, 10, "A comment in a 'type_parameter_list' is only allowed when placed on a separate line"),
@@ -721,7 +718,6 @@ class DiscouragedCommentLocationRuleTest {
                 val fooBar2: FooBar<Foo, /* some comment */
                     Bar>
                 """.trimIndent()
-            @Suppress("ktlint:standard:parameter-list-wrapping", "ktlint:standard:max-line-length")
             discouragedCommentLocationRuleAssertThat(code)
                 .hasLintViolationsWithoutAutoCorrect(
                     LintViolation(1, 26, "A comment in a 'type_argument_list' is only allowed when placed on a separate line"),
@@ -846,7 +842,7 @@ class DiscouragedCommentLocationRuleTest {
                 val bar4: Int,
             )
             """.trimIndent()
-        @Suppress("ktlint:standard:parameter-list-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
         discouragedCommentLocationRuleAssertThat(code)
             .hasLintViolationsWithoutAutoCorrect(
                 LintViolation(3, 5, "A (block or EOL) comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
