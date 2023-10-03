@@ -3,6 +3,7 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.test.KtLintAssertThat
+import com.pinterest.ktlint.test.KtlintDocumentationTest
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -455,6 +456,45 @@ class BlankLineBeforeDeclarationRuleTest {
             val foo =
                 fun(): String {
                     return "foo"
+                }
+            """.trimIndent()
+        blankLineBeforeDeclarationRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @KtlintDocumentationTest
+    fun `Issue 2284 - Given an object declaration preceded by another declaration`() {
+        val code =
+            """
+            class C
+            data class DC(val v: Any)
+            interface I
+            object O
+            """.trimIndent()
+        val formattedCode =
+            """
+            class C
+
+            data class DC(val v: Any)
+
+            interface I
+
+            object O
+            """.trimIndent()
+        blankLineBeforeDeclarationRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 1, "Expected a blank line for this declaration"),
+                LintViolation(3, 1, "Expected a blank line for this declaration"),
+                LintViolation(4, 1, "Expected a blank line for this declaration"),
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 2284 - Given an object declaration wrapped in object literal`() {
+        val code =
+            """
+            fun foo() =
+                object : Foo() {
+                    // some declarations
                 }
             """.trimIndent()
         blankLineBeforeDeclarationRuleAssertThat(code).hasNoLintViolations()
