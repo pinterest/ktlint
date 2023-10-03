@@ -5,6 +5,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.test.KtLintAssertThat
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -12,7 +13,7 @@ class MultilineExpressionWrappingRuleTest {
     private val multilineExpressionWrappingRuleAssertThat = KtLintAssertThat.assertThatRule { MultilineExpressionWrappingRule() }
 
     @Nested
-    inner class `Given a function call using a named parameter` {
+    inner class `Given a function call using a named argument` {
         @Test
         fun `Given value argument for a named parameter in a function with a multiline dot qualified expression on the same line as the assignment`() {
             val code =
@@ -160,7 +161,7 @@ class MultilineExpressionWrappingRuleTest {
     }
 
     @Nested
-    inner class `Given a function call using an unnamed parameter` {
+    inner class `Given a function call using an unnamed argument` {
         @Test
         fun `Given value argument in a function with a multiline binary expression on the same line as the assignment`() {
             val code =
@@ -295,6 +296,31 @@ class MultilineExpressionWrappingRuleTest {
                     LintViolation(1, 15, "A multiline expression should start on a new line"),
                 ).isFormattedAs(formattedCode)
         }
+    }
+
+    @Test
+    fun `Given a declaration with parameter having a default value which is a multiline expression then keep trailing comma after the parameter`() {
+        val code =
+            """
+            fun foo(
+                val string: String = barFoo
+                    .count { it == "bar" },
+                val int: Int
+            )
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo(
+                val string: String =
+                    barFoo
+                        .count { it == "bar" },
+                val int: Int
+            )
+            """.trimIndent()
+        multilineExpressionWrappingRuleAssertThat(code)
+            .addAdditionalRuleProvider { IndentationRule() }
+            .hasLintViolation(2, 26, "A multiline expression should start on a new line")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -829,5 +855,66 @@ class MultilineExpressionWrappingRuleTest {
             .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolation(1, 11, "A multiline expression should start on a new line")
             .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 2286 - `() {
+        val code =
+            """
+            val foo = foo() + bar1 {
+                "bar1"
+            } +
+            bar2 {
+                "bar2"
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo =
+                foo() +
+                    bar1 {
+                        "bar1"
+                    } +
+                    bar2 {
+                        "bar2"
+                    }
+            """.trimIndent()
+        multilineExpressionWrappingRuleAssertThat(code)
+            .addAdditionalRuleProvider { IndentationRule() }
+            .hasLintViolations(
+                LintViolation(1, 11, "A multiline expression should start on a new line"),
+                LintViolation(1, 19, "A multiline expression should start on a new line"),
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Disabled
+    @Test
+    fun `Issue 2286 - xx `() {
+        val code =
+            """
+            val foo = foo() + bar1 {
+                "bar1"
+            } + "bar3" +
+            bar2 {
+                "bar2"
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo =
+                foo() +
+                    bar1 {
+                        "bar1"
+                    } +
+                    bar2 {
+                        "bar2"
+                    }
+            """.trimIndent()
+        multilineExpressionWrappingRuleAssertThat(code)
+            .addAdditionalRuleProvider { IndentationRule() }
+            .hasLintViolations(
+                LintViolation(1, 11, "A multiline expression should start on a new line"),
+                LintViolation(1, 19, "A multiline expression should start on a new line"),
+            ).isFormattedAs(formattedCode)
     }
 }
