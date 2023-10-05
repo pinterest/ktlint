@@ -138,7 +138,7 @@ tasks.register<Checksum>("shadowJarExecutableChecksum") {
                     .parentFile
             },
     )
-    checksumAlgorithm.set(Checksum.Algorithm.MD5)
+    checksumAlgorithm = Checksum.Algorithm.MD5
 }
 
 tasks.withType<Test>().configureEach {
@@ -167,8 +167,8 @@ tasks.withType<Test>().configureEach {
 
 sdkman {
     val sdkmanVersion = providers.environmentVariable("SDKMAN_VERSION").orElse(project.version.toString())
-    candidate.set("ktlint")
-    version.set(sdkmanVersion)
-    url.set("https://github.com/pinterest/ktlint/releases/download/$sdkmanVersion/ktlint-$sdkmanVersion.zip")
-    hashtag.set("ktlint")
+    candidate = "ktlint"
+    version = sdkmanVersion
+    url = "https://github.com/pinterest/ktlint/releases/download/$sdkmanVersion/ktlint-$sdkmanVersion.zip"
+    hashtag = "ktlint"
 }

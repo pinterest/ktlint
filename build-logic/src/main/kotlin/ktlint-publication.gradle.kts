@@ -24,26 +24,26 @@ publishing {
             artifactId = localGradleProperty("POM_ARTIFACT_ID").get()
 
             pom {
-                name.set(localGradleProperty("POM_NAME").get())
-                description.set(providers.gradleProperty("POM_DESCRIPTION"))
-                url.set(providers.gradleProperty("POM_URL"))
+                name = localGradleProperty("POM_NAME")
+                description = providers.gradleProperty("POM_DESCRIPTION")
+                url = providers.gradleProperty("POM_URL")
                 licenses {
                     license {
-                        name.set(providers.gradleProperty("POM_LICENSE_NAME"))
-                        url.set(providers.gradleProperty("POM_LICENSE_URL"))
-                        distribution.set("repo")
+                        name = providers.gradleProperty("POM_LICENSE_NAME")
+                        url = providers.gradleProperty("POM_LICENSE_URL")
+                        distribution = "repo"
                     }
                 }
                 developers {
                     developer {
-                        id.set(providers.gradleProperty("POM_DEVELOPER_ID"))
-                        name.set(providers.gradleProperty("POM_DEVELOPER_NAME"))
+                        id = providers.gradleProperty("POM_DEVELOPER_ID")
+                        name = providers.gradleProperty("POM_DEVELOPER_NAME")
                     }
                 }
                 scm {
-                    url.set(providers.gradleProperty("POM_SCM_URL"))
-                    connection.set(providers.gradleProperty("POM_SCM_CONNECTION"))
-                    developerConnection.set(providers.gradleProperty("POM_SCM_DEV_CONNECTION"))
+                    url = providers.gradleProperty("POM_SCM_URL")
+                    connection = providers.gradleProperty("POM_SCM_CONNECTION")
+                    developerConnection = providers.gradleProperty("POM_SCM_DEV_CONNECTION")
                 }
             }
         }

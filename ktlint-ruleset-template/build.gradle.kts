@@ -8,13 +8,13 @@ group = "com.github.username"
 
 val sourcesJar by tasks.registering(Jar::class) {
     dependsOn(tasks.classes)
-    archiveClassifier.set("sources")
+    archiveClassifier = "sources"
     from(sourceSets.main.map { it.allSource })
 }
 
 val javadocJar by tasks.registering(Jar::class) {
     dependsOn(tasks.javadoc)
-    archiveClassifier.set("javadoc")
+    archiveClassifier = "javadoc"
     from(tasks.javadoc.map { it.destinationDir!! })
 }
 
@@ -38,7 +38,7 @@ dependencies {
 val ktlintCheck by tasks.registering(JavaExec::class) {
     dependsOn(tasks.classes)
     group = LifecycleBasePlugin.VERIFICATION_GROUP
-    mainClass.set("com.pinterest.ktlint.Main")
+    mainClass = "com.pinterest.ktlint.Main"
     // Adding compiled classes of this ruleset to the classpath so that ktlint validates the ruleset using its own ruleset
     classpath(ktlint, sourceSets.main.map { it.output })
     args("--log-level=debug", "src/**/*.kt")
@@ -54,9 +54,9 @@ publishing {
             pom {
                 licenses {
                     license {
-                        name.set("The Apache Software License, Version 2.0")
-                        url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
-                        distribution.set("repo")
+                        name = "The Apache Software License, Version 2.0"
+                        url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                        distribution = "repo"
                     }
                 }
             }

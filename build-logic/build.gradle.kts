@@ -25,11 +25,11 @@ kotlin {
 //  @see https://github.com/pinterest/ktlint/pull/2120#discussion_r1260229055 for more details
 val buildLogicTargetJavaVersion = JavaVersion.VERSION_17
 tasks.withType<JavaCompile>().configureEach {
-    options.release.set(buildLogicTargetJavaVersion.majorVersion.toInt())
+    options.release = buildLogicTargetJavaVersion.majorVersion.toInt()
 }
 tasks.withType<KotlinCompile>().configureEach {
     // Convert Java version (e.g. "1.8" or "11") to Kotlin JvmTarget ("8" resp. "11")
-    compilerOptions.jvmTarget.set(JvmTarget.fromTarget(buildLogicTargetJavaVersion.toString()))
+    compilerOptions.jvmTarget = JvmTarget.fromTarget(buildLogicTargetJavaVersion.toString())
 }
 
 dependencies {
