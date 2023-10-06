@@ -18,6 +18,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 * Do not force blank line before function in right hand side of assignment `blank-line-before-declaration` [#2260](https://github.com/pinterest/ktlint/issue/2260)
 * Ignore override of function in rule `function-naming` [#2271](https://github.com/pinterest/ktlint/issue/2271)
 * Do not replace function body having a return statement only in case the return statement contains an intermediate exit point 'function-expression-body' [#2269](https://github.com/pinterest/ktlint/issue/2269)
+* Improve violation message in `discouraged-comment-location` [#2292](https://github.com/pinterest/ktlint/issue/2292)
 * Ignore function naming in Kotest classes `function-naming` [#2289](https://github.com/pinterest/ktlint/issue/2289)
 * Prevent wrapping of nested multiline binary expression before operation reference as it results in a compilation error `multiline-expression-wrapping` [#2286](https://github.com/pinterest/ktlint/issue/2286)
 * Force blank line before object declaration if preceded by another declaration `blank-line-before-declaration` [#2284](https://github.com/pinterest/ktlint/issues/2284)
