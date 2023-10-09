@@ -397,6 +397,16 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/MultiLineIfElseRu
 	public static final fun getMULTI_LINE_IF_ELSE_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
 }
 
+public final class com/pinterest/ktlint/ruleset/standard/rules/MultiLineLoopRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
+	public fun <init> ()V
+	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+}
+
+public final class com/pinterest/ktlint/ruleset/standard/rules/MultiLineLoopRuleKt {
+	public static final fun getMULTI_LINE_LOOP_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+}
+
 public final class com/pinterest/ktlint/ruleset/standard/rules/MultilineExpressionWrappingRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$OfficialCodeStyle {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
