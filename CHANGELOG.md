@@ -105,7 +105,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 * Add new experimental rule `function-type-modifier-spacing` rule - [#2216](https://github.com/pinterest/ktlint/pull/2216), by @t-kameyama
 
-* Define `EditorConfigOverride` for dynamically loaded ruleset - [#2194](https://github.com/pinterest/ktlint/pull/2194), by @paul-dingemans  
+* Add new experimental rule `multiline-loop` rule - [#2298](https://github.com/pinterest/ktlint/pull/2298), by @hendraanggrian
+
+* Define `EditorConfigOverride` for dynamically loaded ruleset - [#2194](https://github.com/pinterest/ktlint/pull/2194), by @paul-dingemans
   The `EditorConfigOverride` parameter of the `KtlintRuleEngine` can be defined using the factory method `EditorConfigOverride.from(vararg properties: Pair<EditorConfigProperty<*>, *>)`. This requires the `EditorConfigProperty`'s to be available at compile time. Some common `EditorConfigProperty`'s are defined in `ktlint-rule-engine-core` which is loaded as transitive dependency of `ktlint-rule-engine` and as of that are available at compile.
   If an `EditorConfigProperty` is defined in a `Rule` that is only provided via a runtime dependency, it gets a bit more complicated. The `ktlint-api-consumer` example has now been updated to show how the `EditorConfigProperty` can be retrieved from the `Rule`.
 

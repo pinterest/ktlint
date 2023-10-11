@@ -12,7 +12,7 @@ class MultiLineLoopRuleTest {
         val code =
             """
             fun foo() {
-                for (c in "Hello World") { return 0 }
+                for (i in 1..10) { return 0 }
                 while (true) { return 0 }
                 do { return 0 } while (true)
             }
@@ -25,7 +25,7 @@ class MultiLineLoopRuleTest {
         val code =
             """
             fun foo() {
-                for (c in "Hello World") return 0
+                for (i in 1..10) return 0
                 while (true) return 0
                 do return 0 while (true)
             }
@@ -38,7 +38,7 @@ class MultiLineLoopRuleTest {
         val code =
             """
             fun foo() {
-                for (c in "Hello World") {
+                for (i in 1..10) {
                     return 0
                 }
                 while (true) {
@@ -57,7 +57,7 @@ class MultiLineLoopRuleTest {
         val code =
             """
             fun foo() {
-                for (c in "Hello World")
+                for (i in 1..10)
                     return 0
                 while (true)
                     return 0
@@ -69,7 +69,7 @@ class MultiLineLoopRuleTest {
         val formattedCode =
             """
             fun foo() {
-                for (c in "Hello World") {
+                for (i in 1..10) {
                     return 0
                 }
                 while (true) {
@@ -94,7 +94,7 @@ class MultiLineLoopRuleTest {
         val code =
             """
             fun main() {
-                for (c in "Hello World")
+                for (i in 1..10)
                     while (true)
                         do
                             return 0
@@ -104,7 +104,7 @@ class MultiLineLoopRuleTest {
         val formattedCode =
             """
             fun main() {
-                for (c in "Hello World") {
+                for (i in 1..10) {
                     while (true) {
                         do {
                             return 0
@@ -127,7 +127,7 @@ class MultiLineLoopRuleTest {
             """
             fun test(s: String?): Int {
                 val i = s.let {
-                    for (c in s)
+                    for (i in 1..10)
                         1
                     while (true)
                         2
@@ -142,7 +142,7 @@ class MultiLineLoopRuleTest {
             """
             fun test(s: String?): Int {
                 val i = s.let {
-                    for (c in s) {
+                    for (i in 1..10) {
                         1
                     }
                     while (true) {
@@ -191,7 +191,7 @@ class MultiLineLoopRuleTest {
         val code =
             """
             fun foo() {
-                for (c in "Hello World") 25
+                for (i in 1..10) 25
                   .toString()
                 while (true) 50
                   .toString()
@@ -203,7 +203,7 @@ class MultiLineLoopRuleTest {
         val formattedCode =
             """
             fun foo() {
-                for (c in "Hello World") {
+                for (i in 1..10) {
                     25
                         .toString()
                 }
@@ -220,7 +220,7 @@ class MultiLineLoopRuleTest {
         multiLineLoopRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolations(
-                LintViolation(2, 30, "Missing { ... }"),
+                LintViolation(2, 22, "Missing { ... }"),
                 LintViolation(4, 18, "Missing { ... }"),
                 LintViolation(6, 8, "Missing { ... }"),
             )
