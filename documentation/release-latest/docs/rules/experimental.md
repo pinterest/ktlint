@@ -125,8 +125,9 @@ Rule id: `chain-method-continuation` (`standard` rule set)
 
 ## Class signature
 
-Rewrites the class signature to a consistent format respecting the `.editorconfig` property `max_line_length` if set. In the `ktlint_official` code style all class parameters are wrapped by default. Set `.editorconfig` property `ktlint_class_signature_wrapping_rule_always_with_minimum_parameters` to a value greater than 1 to allow class with a few parameters to be placed on a single line.
-The other code styles allow an infinite amount of parameters on the same line (as long as the `max_line_length` is not exceeded) unless `.editorconfig` property `ktlint_class_signature_wrapping_rule_always_with_minimum_parameters` is set explicitly.
+Rewrites the class signature to a consistent format respecting the `.editorconfig` property `max_line_length` if set. In the `ktlint_official` code style all class parameters are wrapped by default. Set `.editorconfig` property `ktlint_class_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than` to a value greater than 1 to allow class with a few parameters to be placed on a single line.
+
+The other code styles allow an infinite amount of parameters on the same line (as long as the `max_line_length` is not exceeded) unless `.editorconfig` property `ktlint_class_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than` is set explicitly.
 
 === "[:material-heart:](#) Ktlint (ktlint_official)"
 
