@@ -272,4 +272,61 @@ class ChainWrappingRuleTest {
             .hasLintViolation(5, 13, "Line must not begin with \"&&\"")
             .isFormattedAs(formattedCode)
     }
+
+    @Nested
+    inner class `Issue 2297 - Given an && starting on new line should not result in malformed AST which causes NPE in multiline-expression rule` {
+        @Test
+        fun `No EOL comment on previous line`() {
+            val code =
+                """
+                fun foo(): Boolean {
+                    return true
+                            &&
+                        columns.all { col ->
+                            false
+                        }
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun foo(): Boolean {
+                    return true &&
+                        columns.all { col ->
+                            false
+                        }
+                }
+                """.trimIndent()
+            chainWrappingRuleAssertThat(code)
+                .addAdditionalRuleProvider { MultilineExpressionWrappingRule() }
+                .hasLintViolation(3, 13, "Line must not begin with \"&&\"")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `EOL comment on previous line`() {
+            val code =
+                """
+                fun foo(): Boolean {
+                    return true // some comment
+                            &&
+                        columns.all { col ->
+                            false
+                        }
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun foo(): Boolean {
+                    return true && // some comment
+                        columns.all { col ->
+                            false
+                        }
+                }
+                """.trimIndent()
+            chainWrappingRuleAssertThat(code)
+                .addAdditionalRuleProvider { MultilineExpressionWrappingRule() }
+                .hasLintViolation(3, 13, "Line must not begin with \"&&\"")
+                .isFormattedAs(formattedCode)
+        }
+    }
 }

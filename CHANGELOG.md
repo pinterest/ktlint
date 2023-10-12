@@ -22,6 +22,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 * Ignore function naming in Kotest classes `function-naming` [#2289](https://github.com/pinterest/ktlint/issue/2289)
 * Prevent wrapping of nested multiline binary expression before operation reference as it results in a compilation error `multiline-expression-wrapping` [#2286](https://github.com/pinterest/ktlint/issue/2286)
 * Force blank line before object declaration if preceded by another declaration `blank-line-before-declaration` [#2284](https://github.com/pinterest/ktlint/issues/2284)
+* Fix malformed AST when `&&` or `||` is at start of line `chain-wrapping` [#2297](https://github.com/pinterest/ktlint/issues/2297) 
 
 ### Changed
 
