@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 import org.junit.jupiter.params.provider.ValueSource
 
 @Suppress("RemoveCurlyBracesFromTemplate")
@@ -974,7 +975,65 @@ internal class IndentationRuleTest {
             """.trimIndent()
 
         @Test
-        fun `Given a class declaration implementing a super type with generics`() {
+        fun `Given ktlint-official code style and a class declaration implementing a super type with generics`() {
+            val formattedCode =
+                """
+                open class Foo<K, V>
+                class Bar
+                class FooBar :
+                    Foo<
+                        String,
+                        Int
+                    >,
+                    Bar() {
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasLintViolations(
+                    LintViolation(4, 1, "Unexpected indentation (0) (should be 4)"),
+                    LintViolation(5, 1, "Unexpected indentation (0) (should be 8)"),
+                    LintViolation(6, 1, "Unexpected indentation (0) (should be 8)"),
+                    LintViolation(7, 1, "Unexpected indentation (0) (should be 4)"),
+                    LintViolation(8, 1, "Unexpected indentation (0) (should be 4)"),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given ktlint-official code style and a class declaration implementing a super type with generics (tab indentation)`() {
+            val formattedCode =
+                """
+                open class Foo<K, V>
+                class Bar
+                class FooBar :
+                ${TAB}Foo<
+                ${TAB}${TAB}String,
+                ${TAB}${TAB}Int
+                ${TAB}>,
+                ${TAB}Bar() {
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(INDENT_STYLE_TAB)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasLintViolations(
+                    LintViolation(4, 1, "Unexpected indentation (0) (should be 1)"),
+                    LintViolation(5, 1, "Unexpected indentation (0) (should be 2)"),
+                    LintViolation(6, 1, "Unexpected indentation (0) (should be 2)"),
+                    LintViolation(7, 1, "Unexpected indentation (0) (should be 1)"),
+                    LintViolation(8, 1, "Unexpected indentation (0) (should be 1)"),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @ParameterizedTest(name = "CodeStyle: {0}")
+        @EnumSource(
+            value = CodeStyleValue::class,
+            mode = EnumSource.Mode.EXCLUDE,
+            names = ["ktlint_official"],
+        )
+        fun `Given non-ktlint-official code style and a class declaration implementing a super type with generics`(
+            codeStyleValue: CodeStyleValue
+        ) {
             val formattedCode =
                 """
                 open class Foo<K, V>
@@ -988,6 +1047,7 @@ internal class IndentationRuleTest {
                 }
                 """.trimIndent()
             indentationRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyleValue)
                 .hasLintViolations(
                     LintViolation(4, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(5, 1, "Unexpected indentation (0) (should be 8)"),
@@ -997,8 +1057,15 @@ internal class IndentationRuleTest {
                 ).isFormattedAs(formattedCode)
         }
 
-        @Test
-        fun `Given a class declaration implementing a super type with generics (tab indentation)`() {
+        @ParameterizedTest(name = "CodeStyle: {0}")
+        @EnumSource(
+            value = CodeStyleValue::class,
+            mode = EnumSource.Mode.EXCLUDE,
+            names = ["ktlint_official"],
+        )
+        fun `Given non-ktlint-official code style and a class declaration implementing a super type with generics (tab indentation)`(
+            codeStyleValue: CodeStyleValue
+        ) {
             val formattedCode =
                 """
                 open class Foo<K, V>
@@ -1013,6 +1080,7 @@ internal class IndentationRuleTest {
                 """.trimIndent()
             indentationRuleAssertThat(code)
                 .withEditorConfigOverride(INDENT_STYLE_TAB)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyleValue)
                 .hasLintViolations(
                     LintViolation(4, 1, "Unexpected indentation (0) (should be 1)"),
                     LintViolation(5, 1, "Unexpected indentation (0) (should be 2)"),
@@ -4507,7 +4575,41 @@ internal class IndentationRuleTest {
         }
 
         @Test
-        fun `Given a nested type parameter list`() {
+        fun `Given ktlint-official code style and a nested type parameter list`() {
+            val code =
+                """
+                public class Foo<
+                    Bar1 : String,
+                    Bar2 : Map<
+                        Int,
+                        List<String>
+                        >
+                    > {}
+                """.trimIndent()
+            val formattedCode =
+                """
+                public class Foo<
+                    Bar1 : String,
+                    Bar2 : Map<
+                        Int,
+                        List<String>
+                    >
+                > {}
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .isFormattedAs(formattedCode)
+        }
+
+        @ParameterizedTest(name = "CodeStyle: {0}")
+        @EnumSource(
+            value = CodeStyleValue::class,
+            mode = EnumSource.Mode.EXCLUDE,
+            names = ["ktlint_official"],
+        )
+        fun `Given non-ktlint-official code style and a nested type parameter list`(
+            codeStyleValue: CodeStyleValue
+        ) {
             val code =
                 """
                 public class Foo<
@@ -4529,6 +4631,7 @@ internal class IndentationRuleTest {
                     > {}
                 """.trimIndent()
             indentationRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyleValue)
                 .isFormattedAs(formattedCode)
         }
     }
@@ -4844,15 +4947,13 @@ internal class IndentationRuleTest {
                 )
                 fun fooBar()
                 """.trimIndent()
-            // Actually, the closing ">" should be de-indented in same way as is done with ")", "]" and "}". It is
-            // however indented to keep it in sync with other TYPE_ARGUMENT_LISTs which are formatted in this way.
             val formattedCode =
                 """
                 context(
                     FooBar<
                         Foo,
                         Bar
-                        >
+                    >
                 )
                 fun fooBar()
                 """.trimIndent()
@@ -4861,7 +4962,7 @@ internal class IndentationRuleTest {
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),
                     LintViolation(4, 1, "Unexpected indentation (0) (should be 8)"),
-                    LintViolation(5, 1, "Unexpected indentation (0) (should be 8)"),
+                    LintViolation(5, 1, "Unexpected indentation (0) (should be 4)"),
                 ).isFormattedAs(formattedCode)
         }
 

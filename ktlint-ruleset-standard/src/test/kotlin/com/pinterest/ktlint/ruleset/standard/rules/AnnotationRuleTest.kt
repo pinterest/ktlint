@@ -739,7 +739,7 @@ class AnnotationRuleTest {
                     @Bar("bar")
                     @Foo
                     String
-                    > = FooBar()
+                > = FooBar()
                 """.trimIndent()
             @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
             annotationRuleAssertThat(code)

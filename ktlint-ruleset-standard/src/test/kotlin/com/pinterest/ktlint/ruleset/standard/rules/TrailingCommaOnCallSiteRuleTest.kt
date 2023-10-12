@@ -139,7 +139,7 @@ class TrailingCommaOnCallSiteRuleTest {
             val list1: List<String,> = emptyList()
             val list2: List<
                 String, // The comma before the comment should be removed without removing the comment itself
-                > = emptyList()
+            > = emptyList()
             val list3: List<
                 String, /* The comma before the comment should be removed without removing the comment itself */
                 > = emptyList()
@@ -149,10 +149,10 @@ class TrailingCommaOnCallSiteRuleTest {
             val list1: List<String> = emptyList()
             val list2: List<
                 String // The comma before the comment should be removed without removing the comment itself
-                > = emptyList()
+            > = emptyList()
             val list3: List<
                 String /* The comma before the comment should be removed without removing the comment itself */
-                > = emptyList()
+            > = emptyList()
             """.trimIndent()
         trailingCommaOnCallSiteRuleAssertThat(code)
             .withEditorConfigOverride(TRAILING_COMMA_ON_CALL_SITE_PROPERTY to false)
@@ -170,20 +170,20 @@ class TrailingCommaOnCallSiteRuleTest {
             val list1: List<String> = emptyList()
             val list2: List<
                 String // The comma should be inserted before the comment
-                > = emptyList()
+            > = emptyList()
             val list3: List<
                 String /* The comma should be inserted before the comment */
-                > = emptyList()
+            > = emptyList()
             """.trimIndent()
         val formattedCode =
             """
             val list1: List<String> = emptyList()
             val list2: List<
                 String, // The comma should be inserted before the comment
-                > = emptyList()
+            > = emptyList()
             val list3: List<
                 String, /* The comma should be inserted before the comment */
-                > = emptyList()
+            > = emptyList()
             """.trimIndent()
         trailingCommaOnCallSiteRuleAssertThat(code)
             .withEditorConfigOverride(TRAILING_COMMA_ON_CALL_SITE_PROPERTY to true)
