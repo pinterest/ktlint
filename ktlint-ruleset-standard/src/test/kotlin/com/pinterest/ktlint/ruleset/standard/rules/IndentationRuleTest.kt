@@ -1032,7 +1032,7 @@ internal class IndentationRuleTest {
             names = ["ktlint_official"],
         )
         fun `Given non-ktlint-official code style and a class declaration implementing a super type with generics`(
-            codeStyleValue: CodeStyleValue
+            codeStyleValue: CodeStyleValue,
         ) {
             val formattedCode =
                 """
@@ -1064,7 +1064,7 @@ internal class IndentationRuleTest {
             names = ["ktlint_official"],
         )
         fun `Given non-ktlint-official code style and a class declaration implementing a super type with generics (tab indentation)`(
-            codeStyleValue: CodeStyleValue
+            codeStyleValue: CodeStyleValue,
         ) {
             val formattedCode =
                 """
@@ -4607,9 +4607,7 @@ internal class IndentationRuleTest {
             mode = EnumSource.Mode.EXCLUDE,
             names = ["ktlint_official"],
         )
-        fun `Given non-ktlint-official code style and a nested type parameter list`(
-            codeStyleValue: CodeStyleValue
-        ) {
+        fun `Given non-ktlint-official code style and a nested type parameter list`(codeStyleValue: CodeStyleValue) {
             val code =
                 """
                 public class Foo<
