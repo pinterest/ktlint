@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.5.2, mkdocs-material-9.3.1">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.5">
     
     
       
@@ -26,10 +26,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.046329b4.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.6a10b989.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.85d0ee34.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.356b1318.min.css">
       
       
 
@@ -397,9 +397,13 @@ You're not viewing the latest version.
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    
+    
       
-        
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
         
         
         
@@ -407,7 +411,8 @@ You're not viewing the latest version.
         
         <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
         
-          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -480,9 +485,13 @@ You're not viewing the latest version.
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    
+    
       
-        
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
         
         
         
@@ -490,7 +499,8 @@ You're not viewing the latest version.
         
         <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
         
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -585,15 +595,20 @@ You're not viewing the latest version.
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+    
       
-        
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
         
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -824,9 +839,13 @@ You're not viewing the latest version.
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    
+    
       
-        
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
         
         
         
@@ -834,7 +853,8 @@ You're not viewing the latest version.
         
         <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
         
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -986,9 +1006,13 @@ You're not viewing the latest version.
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    
+    
       
-        
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
         
         
         
@@ -996,7 +1020,8 @@ You're not viewing the latest version.
         
         <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
         
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -1285,8 +1310,8 @@ Also see <a href="../configuration-ktlint/#disabled-rules">enable/disable specif
 <p>This rule is only run when <code>ktlint_code_style</code> is set to <code>ktlint_official</code> or when the rule is enabled explicitly.</p>
 </div>
 <h2 id="class-signature">Class signature<a class="headerlink" href="#class-signature" title="Permanent link">&para;</a></h2>
-<p>Rewrites the class signature to a consistent format respecting the <code>.editorconfig</code> property <code>max_line_length</code> if set. In the <code>ktlint_official</code> code style all class parameters are wrapped by default. Set <code>.editorconfig</code> property <code>ktlint_class_signature_wrapping_rule_always_with_minimum_parameters</code> to a value greater than 1 to allow class with a few parameters to be placed on a single line.
-The other code styles allow an infinite amount of parameters on the same line (as long as the <code>max_line_length</code> is not exceeded) unless <code>.editorconfig</code> property <code>ktlint_class_signature_wrapping_rule_always_with_minimum_parameters</code> is set explicitly.</p>
+<p>Rewrites the class signature to a consistent format respecting the <code>.editorconfig</code> property <code>max_line_length</code> if set. In the <code>ktlint_official</code> code style all class parameters are wrapped by default. Set <code>.editorconfig</code> property <code>ktlint_class_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than</code> to a value greater than 1 to allow class with a few parameters to be placed on a single line.</p>
+<p>The other code styles allow an infinite amount of parameters on the same line (as long as the <code>max_line_length</code> is not exceeded) unless <code>.editorconfig</code> property <code>ktlint_class_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than</code> is set explicitly.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="3:4"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><input id="__tabbed_3_3" name="__tabbed_3" type="radio" /><input id="__tabbed_3_4" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53L12 21.35Z"/></svg></span></a> Ktlint (ktlint_official)</label><label for="__tabbed_3_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9Z"/></svg></span></a> Disallowed (ktlint_official)</label><label for="__tabbed_3_3"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53L12 21.35Z"/></svg></span></a> Ktlint (non ktlint_official)</label><label for="__tabbed_3_4"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9Z"/></svg></span></a> Disallowed (non ktlint_official)</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1620,10 +1645,11 @@ The other code styles allow an infinite amount of parameters on the same line (a
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "search.suggest", "search.share"], "search": "../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "search.suggest", "search.share"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.dff1b7c8.min.js"></script>
+      <script src="../../assets/javascripts/bundle.aecac24b.min.js"></script>
       
     
   </body>
