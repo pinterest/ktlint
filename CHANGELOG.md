@@ -2,33 +2,58 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [1.0.1] - 2023-10-13
 
-### Added
+### 🆕 Features
 
 * Add `.editorconfig` property `ktlint_function_naming_ignore_when_annotated_with` so that rule `function-naming` can be ignored based on annotations on that rule. See [function-naming](https://pinterest.github.io/ktlint/1.0.1/rules/standard/#function-naming).
 
-### Removed
+### 🔧 Fixes
 
-### Fixed
+* Update badge for Maven Central - [#2245](https://github.com/pinterest/ktlint/pull/2245), by @Goooler
 
-* Fix ktlint cli parameter `--code-style` [#2238](https://github.com/pinterest/ktlint/pull/2238)
-* Fix indent of multiline object declaration inside class `indent` [#2257](https://github.com/pinterest/ktlint/issue/2257)
-* Ignore anonymous function in rule `function-naming` [#2260](https://github.com/pinterest/ktlint/issue/2260)
-* Do not force blank line before function in right hand side of assignment `blank-line-before-declaration` [#2260](https://github.com/pinterest/ktlint/issue/2260)
-* Ignore override of function in rule `function-naming` [#2271](https://github.com/pinterest/ktlint/issue/2271)
-* Do not replace function body having a return statement only in case the return statement contains an intermediate exit point 'function-expression-body' [#2269](https://github.com/pinterest/ktlint/issue/2269)
-* Improve violation message in `discouraged-comment-location` [#2292](https://github.com/pinterest/ktlint/issue/2292)
-* Ignore function naming in Kotest classes `function-naming` [#2289](https://github.com/pinterest/ktlint/issue/2289)
-* Prevent wrapping of nested multiline binary expression before operation reference as it results in a compilation error `multiline-expression-wrapping` [#2286](https://github.com/pinterest/ktlint/issue/2286)
-* Force blank line before object declaration if preceded by another declaration `blank-line-before-declaration` [#2284](https://github.com/pinterest/ktlint/issues/2284)
-* Fix malformed AST when `&&` or `||` is at start of line `chain-wrapping` [#2297](https://github.com/pinterest/ktlint/issues/2297)
-* Do not report false positives `type-argument-list-spacing` and `type-parameter-list-spacing` [#2299](https://github.com/pinterest/ktlint/issues/2299)
-* Fix chain method continuation for dot qualifying expression containing a call expression returning a (higher order) function `chain-method-continuation` [#2304](https://github.com/pinterest/ktlint/issues/2304)
+* Fix code style parameter in cli - [#2241](https://github.com/pinterest/ktlint/pull/2241), by @paul-dingemans
 
-### Changed
+* Anonymous function in assignment - [#2263](https://github.com/pinterest/ktlint/pull/2263), by @paul-dingemans
 
-## 1.0.0 - 2023-09-05
+* Fix indent of multiline object declaration inside class - [#2266](https://github.com/pinterest/ktlint/pull/2266), by @paul-dingemans
+
+* Do not replace function body with multiple exit points - [#2273](https://github.com/pinterest/ktlint/pull/2273), by @paul-dingemans
+
+* Ignore override of function in rule `function-naming` - [#2274](https://github.com/pinterest/ktlint/pull/2274), by @paul-dingemans
+
+* Suppress `function-naming` based on annotations - [#2275](https://github.com/pinterest/ktlint/pull/2275), by @paul-dingemans
+
+* Force blank line before object declaration - [#2287](https://github.com/pinterest/ktlint/pull/2287), by @paul-dingemans
+
+* Multiline expression wrapping - [#2290](https://github.com/pinterest/ktlint/pull/2290), by @paul-dingemans
+
+* Ignore function naming in Kotest classes - [#2291](https://github.com/pinterest/ktlint/pull/2291), by @paul-dingemans
+
+* Improve violation message in `discouraged-comment-location` - [#2293](https://github.com/pinterest/ktlint/pull/2293), by @paul-dingemans
+
+* Fix malformed AST when `&&` or `||` is at start of line `chain-wrapping` - [#2300](https://github.com/pinterest/ktlint/pull/2300), by @paul-dingemans
+
+* Do not report false positives `type-argument-list-spacing` and `type-parameter-list-spacing` - [#2303](https://github.com/pinterest/ktlint/pull/2303), by @paul-dingemans
+
+* Fix chain method continuation containing higher order function call - [#2305](https://github.com/pinterest/ktlint/pull/2305), by @paul-dingemans
+
+### 📦 Dependencies
+
+* Update dependency io.github.detekt.sarif4k:sarif4k to v0.5.0 - [#2277](https://github.com/pinterest/ktlint/pull/2277), by @renovate[bot]
+
+* Update dependency gradle to v8.4 - [#2294](https://github.com/pinterest/ktlint/pull/2294), by @renovate[bot]
+
+* Update actions/checkout action to v4 - [#2225](https://github.com/pinterest/ktlint/pull/2225), by @renovate[bot]
+
+* Update actions/checkout digest to 8ade135 - [#2295](https://github.com/pinterest/ktlint/pull/2295), by @renovate[bot]
+
+### 💬 Other
+
+* Simple property assignments in KTS - [#2123](https://github.com/pinterest/ktlint/pull/2123), by @Goooler
+* Re-enable releasing to SDKMan - [#2244](https://github.com/pinterest/ktlint/pull/2244), by @shashachu
+
+## [1.0.0] - 2023-09-05
 
 ### 💔 Breaking changes
 
@@ -2132,6 +2157,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[1.0.1]: https://github.com/pinterest/ktlint/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/pinterest/ktlint/compare/0.50.0...1.0.0
 [0.50.0]: https://github.com/pinterest/ktlint/compare/0.49.1...0.50.0
 [0.49.1]: https://github.com/pinterest/ktlint/compare/0.49.0...0.49.1
