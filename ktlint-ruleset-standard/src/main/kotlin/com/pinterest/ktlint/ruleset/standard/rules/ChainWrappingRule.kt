@@ -106,12 +106,18 @@ public class ChainWrappingRule :
                 return
             }
             val prevLeaf = node.prevLeaf()
-            if (node.elementType != MUL && prevLeaf?.isPartOfSpread() == true) {
-                // fn(*typedArray<...>()) case
+            if (node.isPartOfSpread()) {
+                // Allow:
+                //    fn(
+                //        *typedArray<...>()
+                //    )
                 return
             }
             if (prefixTokens.contains(elementType) && node.isInPrefixPosition()) {
-                // unary +/-
+                // Allow:
+                //    fn(
+                //        -42
+                //    )
                 return
             }
 
@@ -160,14 +166,16 @@ public class ChainWrappingRule :
     }
 
     private fun ASTNode.isPartOfSpread() =
-        prevCodeLeaf()?.let { leaf ->
-            val type = leaf.elementType
-            type == LPAR ||
-                type == COMMA ||
-                type == LBRACE ||
-                type == ELSE_KEYWORD ||
-                KtTokens.OPERATIONS.contains(type)
-        } == true
+        elementType == MUL &&
+            prevCodeLeaf()
+                ?.let { leaf ->
+                    val type = leaf.elementType
+                    type == LPAR ||
+                        type == COMMA ||
+                        type == LBRACE ||
+                        type == ELSE_KEYWORD ||
+                        KtTokens.OPERATIONS.contains(type)
+                } == true
 
     private fun ASTNode.isInPrefixPosition() = treeParent?.treeParent?.elementType == PREFIX_EXPRESSION
 

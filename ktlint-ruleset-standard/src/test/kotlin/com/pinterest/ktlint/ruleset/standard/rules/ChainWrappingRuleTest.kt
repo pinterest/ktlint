@@ -329,4 +329,15 @@ class ChainWrappingRuleTest {
                 .isFormattedAs(formattedCode)
         }
     }
+
+    @Test
+    fun `Given a spread operator starting on a new line`() {
+        val code =
+            """
+            val foo = foo(
+                *bar,
+            )
+            """.trimIndent()
+        chainWrappingRuleAssertThat(code).hasNoLintViolations()
+    }
 }
