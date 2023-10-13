@@ -24,6 +24,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 * Force blank line before object declaration if preceded by another declaration `blank-line-before-declaration` [#2284](https://github.com/pinterest/ktlint/issues/2284)
 * Fix malformed AST when `&&` or `||` is at start of line `chain-wrapping` [#2297](https://github.com/pinterest/ktlint/issues/2297)
 * Do not report false positives `type-argument-list-spacing` and `type-parameter-list-spacing` [#2299](https://github.com/pinterest/ktlint/issues/2299)
+* Fix chain method continuation for dot qualifying expression containing a call expression returning a (higher order) function `chain-method-continuation` [#2304](https://github.com/pinterest/ktlint/issues/2304)
 
 ### Changed
 

@@ -397,7 +397,7 @@ public class ChainMethodContinuationRule :
                             }
                     }
 
-                    ARRAY_ACCESS_EXPRESSION, PREFIX_EXPRESSION, POSTFIX_EXPRESSION -> {
+                    CALL_EXPRESSION, ARRAY_ACCESS_EXPRESSION, PREFIX_EXPRESSION, POSTFIX_EXPRESSION -> {
                         children()
                             .mapNotNull { it.toChainedExpression() }
                             .singleOrNull()
