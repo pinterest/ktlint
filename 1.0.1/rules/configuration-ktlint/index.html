@@ -1,0 +1,1529 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://pinterest.github.io/ktlint/1.0.1/rules/configuration-ktlint/">
+      
+      
+        <link rel="prev" href="../dependencies/">
+      
+      
+        <link rel="next" href="../configuration-intellij-idea/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.ico">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.5">
+    
+    
+      
+        <title>KtLint configuration - Ktlint</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.6a10b989.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.356b1318.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="indigo">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#code-style" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+          <aside class="md-banner md-banner--warning">
+            <div class="md-banner__inner md-grid md-typeset">
+              
+You're not viewing the latest version.
+<a href="../../..">
+    <strong>Click here to go to latest.</strong>
+</a>
+
+            </div>
+            <script>var el=document.querySelector("[data-md-component=outdated]"),outdated=__md_get("__outdated",sessionStorage);!0===outdated&&el&&(el.hidden=!1)</script>
+          </aside>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Ktlint" class="md-header__button md-logo" aria-label="Ktlint" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Ktlint
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              KtLint configuration
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="pink" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/pinterest/ktlint" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2Z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pinterest/ktlint
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../.." class="md-tabs__link">
+          
+  
+  Home
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../install/cli/" class="md-tabs__link">
+          
+  
+  Installation
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../code-styles/" class="md-tabs__link">
+          
+  
+  Rules
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/overview/" class="md-tabs__link">
+          
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../faq/" class="md-tabs__link">
+        
+  
+    
+  
+  FAQ
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/overview/" class="md-tabs__link">
+          
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Ktlint" class="md-nav__button md-logo" aria-label="Ktlint" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Ktlint
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/pinterest/ktlint" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2Z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pinterest/ktlint
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            Home
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Features
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../quick-start/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Quick start
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Installation
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Installation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install/cli/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Command line
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install/integrations/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Integrations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install/snapshot-build/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Snapshot build
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Rules
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Rules
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../code-styles/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Code styles
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../standard/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Standard rules
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../experimental/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Experimental rules
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dependencies/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Dependencies
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    KtLint configuration
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    KtLint configuration
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#code-style" class="md-nav__link">
+    Code style
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#disabled-rules" class="md-nav__link">
+    Disabled rules
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#final-newline" class="md-nav__link">
+    Final newline
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#force-multiline-chained-methods-based-on-number-of-chain-operators" class="md-nav__link">
+    Force multiline chained methods based on number of chain operators
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#force-multiline-function-signature-based-on-number-of-parameters" class="md-nav__link">
+    Force multiline function signature based on number of parameters
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#wrapping-the-expression-body-of-a-function" class="md-nav__link">
+    Wrapping the expression body of a function
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ignore-identifiers-enclosed-in-backticks" class="md-nav__link">
+    Ignore identifiers enclosed in backticks
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#import-layouts" class="md-nav__link">
+    Import layouts
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#indent-size-style" class="md-nav__link">
+    Indent size &amp; style
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#max-line-length" class="md-nav__link">
+    Max line length
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#trailing-comma-on-call-site" class="md-nav__link">
+    Trailing comma on call site
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#trailing-comma-on-declaration-site" class="md-nav__link">
+    Trailing comma on declaration site
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#overriding-editorconfig-properties-for-specific-directories" class="md-nav__link">
+    Overriding Editorconfig properties for specific directories
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration-intellij-idea/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    IntelliJ IDEA configuration
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    API
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            API
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/custom-integration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Custom integration
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/custom-rule-set/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Custom rule set
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/custom-reporter/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Custom reporter
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/badge/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Badge
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FAQ
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Contributing
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Contributing
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guidelines
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-of-conduct/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Code of conduct
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#code-style" class="md-nav__link">
+    Code style
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#disabled-rules" class="md-nav__link">
+    Disabled rules
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#final-newline" class="md-nav__link">
+    Final newline
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#force-multiline-chained-methods-based-on-number-of-chain-operators" class="md-nav__link">
+    Force multiline chained methods based on number of chain operators
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#force-multiline-function-signature-based-on-number-of-parameters" class="md-nav__link">
+    Force multiline function signature based on number of parameters
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#wrapping-the-expression-body-of-a-function" class="md-nav__link">
+    Wrapping the expression body of a function
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ignore-identifiers-enclosed-in-backticks" class="md-nav__link">
+    Ignore identifiers enclosed in backticks
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#import-layouts" class="md-nav__link">
+    Import layouts
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#indent-size-style" class="md-nav__link">
+    Indent size &amp; style
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#max-line-length" class="md-nav__link">
+    Max line length
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#trailing-comma-on-call-site" class="md-nav__link">
+    Trailing comma on call site
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#trailing-comma-on-declaration-site" class="md-nav__link">
+    Trailing comma on declaration site
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#overriding-editorconfig-properties-for-specific-directories" class="md-nav__link">
+    Overriding Editorconfig properties for specific directories
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+  <h1>KtLint configuration</h1>
+
+<p>Ktlint uses a limited set of <code>.editorconfig</code> properties for additional configuration. A sensible default value is provided for each property when not explicitly defined. Properties can be overridden, provided they are specified under <code>[*.{kt,kts}]</code>. Ktlint uses some properties defined by <a href="https://editorconfig.org/">.editorconfig</a>, IntelliJ IDEA and custom properties.</p>
+<div class="admonition danger">
+<p class="admonition-title">Danger</p>
+<p>Unfortunately <a href="https://www.jetbrains.com/idea/">IntelliJ IDEA</a> has an <a href="https://youtrack.jetbrains.com/issue/IDEA-242506">autoformat issue regarding <code>.editorconfig</code></a>. Due to this error an additional space is added between glob statements, resulting in <code>[*{kt, kts}]</code> instead of <code>[*{kt,kts}]</code>. The <code>.editorconfig</code> library used by <code>ktlint</code> <a href="https://github.com/editorconfig/editorconfig/issues/148">ignores sections after encountering a space in the list</a>. As a result, the rule is not applied on all files as documented in the <a href="https://github.com/pinterest/ktlint/issues/762">original ktlint issue</a>.</p>
+</div>
+<h2 id="code-style">Code style<a class="headerlink" href="#code-style" title="Permanent link">&para;</a></h2>
+<p>By default, the <code>ktlint_official</code> code style is applied. Alternatively, the code style can be set to <code>intellij_idea</code> or <code>android_studio</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">[*.{kt,kts}]</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="na">ktlint_code_style</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">ktlint_official</span>
+</code></pre></div>
+<h2 id="disabled-rules">Disabled rules<a class="headerlink" href="#disabled-rules" title="Permanent link">&para;</a></h2>
+<p>Rule sets and individual rules can be disabled / enabled with a separate property per rule (set).</p>
+<p>All rules in a rule set can be enabled or disabled with a rule set property. The name of the rule set property consists of the <code>ktlint_</code> prefix followed by the rule set id. Examples:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>ktlint_standard = disabled # Disable all rules from the `standard` rule set provided by KtLint
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>ktlint_experimental = enabled # Enable all `experimental` rules from all rule sets provided by KtLint or other rule providers
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>ktlint_custom-rule-set = enabled # Enable all rules in the `custom-rule-set` rule set (not provided by KtLint)
+</code></pre></div></p>
+<p>Rules that are marked as experimental will not be run, unless explicitly enabled:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>ktlint_experimental = enabled # Enable rules marked as experimental for all rule sets that are enabled
+</code></pre></div></p>
+<p>An individual rule can be enabled or disabled with a rule property. The name of the rule property consists of the <code>ktlint_</code> prefix followed by the rule set id followed by a <code>_</code> and the rule id. Examples:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>ktlint_standard_final-newline = disabled # Disables the `final-newline` rule provided by KtLint
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>ktlint_standard_some-experimental-rule = enabled # Enables the (experimental) `some-experimental-rule` in the `standard` rule set provided by KtLint
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>ktlint_custom-rule-set_custom-rule = disabled # Disables the `custom-rule` rule in the `custom-rule-set` rule set (not provided by KtLint)
+</code></pre></div></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <em>rule</em> properties are applied after applying the <em>rule set</em> properties and take precedence. So if a rule set is disabled but a specific rule of that rule set is enabled, then the rule will be executed.</p>
+</div>
+<h2 id="final-newline">Final newline<a class="headerlink" href="#final-newline" title="Permanent link">&para;</a></h2>
+<p>By default, a final newline is required at the end of the file.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">[*.{kt,kts}]</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="na">insert_final_newline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
+</code></pre></div>
+<p>This setting only takes effect when rule <code>final-newline</code> is enabled.</p>
+<h2 id="force-multiline-chained-methods-based-on-number-of-chain-operators">Force multiline chained methods based on number of chain operators<a class="headerlink" href="#force-multiline-chained-methods-based-on-number-of-chain-operators" title="Permanent link">&para;</a></h2>
+<p>Setting <code>ktlint_chain_method_rule_force_multiline_when_chain_operator_count_greater_or_equal_than</code> forces a chained method to be wrapped at each chain operator (<code>.</code> or <code>?.</code>) in case it contains the specified minimum number of chain operators even in case the entire chained method fits on a single line. Use value <code>unset</code> (default) to disable this setting.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, chained methods are wrapped when an expression contains 4 or more chain operators in an expression. Note that if a chained method contains nested expressions the chain operators of the inner expression are not taken into account.</p>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">[*.{kt,kts}]</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="na">ktlint_chain_method_rule_force_multiline_when_chain_operator_count_greater_or_equal_than</span><span class="o">=</span><span class="s">unset</span>
+</code></pre></div>
+<p>This setting only takes effect when rule <code>chain-method-continution</code> is enabled.</p>
+<h2 id="force-multiline-function-signature-based-on-number-of-parameters">Force multiline function signature based on number of parameters<a class="headerlink" href="#force-multiline-function-signature-based-on-number-of-parameters" title="Permanent link">&para;</a></h2>
+<p>Setting <code>ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than</code> forces a multiline function signature in case the function contains the specified minimum number of parameters even in case the function signature would fit on a single line. Use value <code>unset</code> (default) to disable this setting.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, the <code>ktlint_official</code> code style wraps parameters of functions having at least 2 parameters. For other code styles, this setting is disabled by default. </p>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">[*.{kt,kts}]</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="na">ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than</span><span class="o">=</span><span class="s">unset</span>
+</code></pre></div>
+<p>This setting only takes effect when rule <code>function-signature</code> is enabled.</p>
+<h2 id="wrapping-the-expression-body-of-a-function">Wrapping the expression body of a function<a class="headerlink" href="#wrapping-the-expression-body-of-a-function" title="Permanent link">&para;</a></h2>
+<p>Setting <code>ktlint_function_signature_body_expression_wrapping</code> determines if and when the expression body of a function is wrapped to a new line. This setting can be set to value <code>default</code>, <code>multiline</code> or <code>always</code>. </p>
+<p>When set to <code>default</code>, the first line of a body expression is appended to the function signature as long as the max line length is not exceeded.</p>
+<div class="highlight"><span class="filename">ktlint_function_signature_body_expression_wrapping=default (or when not set)</span><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1">// Given that the function signature has to be written as a single line function signature</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">someFunction</span><span class="p">(</span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;some-result&quot;</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="p">.</span><span class="na">uppercase</span><span class="p">()</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="c1">// Given that the function signature has to be written as a multiline function signature</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">someFunction</span><span class="p">(</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">    </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;some-result&quot;</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">    </span><span class="p">.</span><span class="na">uppercase</span><span class="p">()</span>
+</code></pre></div>
+<p>When set to <code>multiline</code>, the body expression starts on a separate line in case it is a multiline expression. A single line body expression is wrapped only when it does not fit on the same line as the function signature.</p>
+<div class="highlight"><span class="filename">ktlint_function_signature_body_expression_wrapping=multiline</span><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1">// Given a single line body expression and</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="c1">// a the function signature that has to be written as a single line function signature and</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="c1">// it does not exceed the max line length</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">someFunction</span><span class="p">(</span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;some-result&quot;</span><span class="p">.</span><span class="na">uppercase</span><span class="p">()</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="c1">// Given a single line body expression and</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="c1">// a the function signature that has to be written as a multiline function signature and</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="c1">// it does not exceed the max line length</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">someFunction</span><span class="p">(</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">    </span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">    </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;some-result&quot;</span><span class="p">.</span><span class="na">uppercase</span><span class="p">()</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="c1">// Given a single line body expression then always wrap it to a separate line</span>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">someFunction</span><span class="p">(</span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span>
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="w">    </span><span class="s">&quot;some-result&quot;</span>
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="w">         </span><span class="p">.</span><span class="na">uppercase</span><span class="p">()</span>
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">someFunction</span><span class="p">(</span>
+<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="w">    </span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span>
+<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a><span class="w">    </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span>
+<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span>
+<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a><span class="w">    </span><span class="s">&quot;some-result&quot;</span>
+<a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a><span class="w">       </span><span class="p">.</span><span class="na">uppercase</span><span class="p">()</span>
+</code></pre></div>
+<p>When set to <code>always</code> the body expression is always wrapped to a separate line.</p>
+<div class="highlight"><span class="filename">ktlint_function_signature_body_expression_wrapping=always</span><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">someFunction</span><span class="p">(</span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="s">&quot;some-result&quot;</span><span class="p">.</span><span class="na">uppercase</span><span class="p">()</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">functionWithAVeryLongName</span><span class="p">(</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">    </span><span class="s">&quot;some-result&quot;</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">        </span><span class="p">.</span><span class="na">uppercase</span><span class="p">()</span>
+</code></pre></div>
+<p>This setting only takes effect when rule <code>function-signature</code> is enabled.</p>
+<h2 id="ignore-identifiers-enclosed-in-backticks">Ignore identifiers enclosed in backticks<a class="headerlink" href="#ignore-identifiers-enclosed-in-backticks" title="Permanent link">&para;</a></h2>
+<p>By default, the identifiers enclosed in backticks are not ignored.</p>
+<p>According to <a href="https://kotlinlang.org/docs/reference/coding-conventions.html#names-for-test-methods">Kotlin coding conventions</a> it is acceptable to write method names in natural language. When using natural language, the description tends to be longer. This property allows lines containing an identifier between backticks to be longer than the maximum line length. (Since 0.41.0)</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nd">@Test</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">`Given a test with a very loooooooooooooooooooooong test description`</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="p">}</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">[*.{kt,kts}]</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="na">ktlint_ignore_back_ticked_identifier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span>
+</code></pre></div>
+<p>This setting only takes effect when rule <code>max-line-length</code> is enabled.</p>
+<h2 id="import-layouts">Import layouts<a class="headerlink" href="#import-layouts" title="Permanent link">&para;</a></h2>
+<p>By default, the same imports are allowed as in IntelliJ IDEA. The import path can be a full path, e.g. "java.util.List.<em>" as well as wildcard path, e.g. "kotlin.</em>*".</p>
+<p>The layout can be composed by the following symbols:</p>
+<ul>
+<li><code>*</code> - wildcard. There must be at least one entry of a single wildcard to match all other imports. Matches anything after a specified symbol/import as well.</li>
+<li><code>|</code> - blank line. Supports only single blank lines between imports. No blank line is allowed in the beginning or end of the layout.</li>
+<li><code>^</code> - alias import, e.g. "^android.*" will match all android alias imports, "^" will match all other alias imports.</li>
+</ul>
+<p>Examples:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">ij_kotlin_imports_layout</span><span class="o">=*</span><span class="w"> </span><span class="err">#</span><span class="w"> </span><span class="n">alphabetical</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">capital</span><span class="w"> </span><span class="n">letters</span><span class="w"> </span><span class="n">before</span><span class="w"> </span><span class="n">lower</span><span class="w"> </span><span class="n">case</span><span class="w"> </span><span class="n">letters</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="na">g</span><span class="p">.</span><span class="w"> </span><span class="n">Z</span><span class="w"> </span><span class="n">before</span><span class="w"> </span><span class="n">a</span><span class="p">),</span><span class="w"> </span><span class="n">no</span><span class="w"> </span><span class="n">blank</span><span class="w"> </span><span class="n">lines</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="n">ij_kotlin_imports_layout</span><span class="o">=*</span><span class="p">,</span><span class="n">java</span><span class="p">.</span><span class="o">**</span><span class="p">,</span><span class="n">javax</span><span class="p">.</span><span class="o">**</span><span class="p">,</span><span class="n">kotlin</span><span class="p">.</span><span class="o">**</span><span class="p">,</span><span class="o">^</span><span class="w"> </span><span class="err">#</span><span class="w"> </span><span class="n">default</span><span class="w"> </span><span class="n">IntelliJ</span><span class="w"> </span><span class="n">IDEA</span><span class="w"> </span><span class="n">style</span><span class="p">,</span><span class="w"> </span><span class="n">same</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">alphabetical</span><span class="p">,</span><span class="w"> </span><span class="n">but</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="s">&quot;java&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;javax&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;kotlin&quot;</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">alias</span><span class="w"> </span><span class="n">imports</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">end</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">imports</span><span class="w"> </span><span class="n">list</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="n">ij_kotlin_imports_layout</span><span class="o">=</span><span class="n">android</span><span class="p">.</span><span class="o">**</span><span class="p">,</span><span class="o">|</span><span class="p">,</span><span class="o">^</span><span class="n">org</span><span class="p">.</span><span class="na">junit</span><span class="p">.</span><span class="o">**</span><span class="p">,</span><span class="n">kotlin</span><span class="p">.</span><span class="na">io</span><span class="p">.</span><span class="na">Closeable</span><span class="p">.</span><span class="o">*</span><span class="p">,</span><span class="o">|</span><span class="p">,</span><span class="o">*</span><span class="p">,</span><span class="o">^</span><span class="w"> </span><span class="err">#</span><span class="w"> </span><span class="n">custom</span><span class="w"> </span><span class="n">imports</span><span class="w"> </span><span class="n">layout</span>
+</code></pre></div></p>
+<p>Wildcard imports can be allowed for specific import paths (Comma-separated list, use "**" as wildcard for package and all subpackages). This setting overrides the no-wildcard-imports rule. This setting is best be used for allowing wildcard imports from libraries like Ktor where extension functions are used in a way that creates a lot of imports.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">[*.{kt,kts}]</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="na">ij_kotlin_packages_to_use_import_on_demand</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">java.util.*,kotlinx.android.synthetic.**</span>
+</code></pre></div>
+<p>This setting only takes effect when rule <code>no-wildcard-imports</code> is enabled.</p>
+<h2 id="indent-size-style">Indent size &amp; style<a class="headerlink" href="#indent-size-style" title="Permanent link">&para;</a></h2>
+<p>By default, indenting is done with 4 spaces per indent level. Code style <code>android_studio</code> uses a tab per indent level.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">[*.{kt,kts}]</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="na">indent_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4</span><span class="w"> </span><span class="c1"># possible values: number (e.g. 2), &quot;unset&quot; (makes ktlint ignore indentation completely)  </span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="na">indent_style</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">space</span><span class="w"> </span><span class="c1"># or &quot;tab&quot;</span>
+</code></pre></div>
+<p>Those settings are used by multiple rules of which rule <code>indent</code> is the most important.</p>
+<h2 id="max-line-length">Max line length<a class="headerlink" href="#max-line-length" title="Permanent link">&para;</a></h2>
+<p>By default, the maximum line length is not set. The <code>android</code> code style sets the max line length to 100 (per Android Kotlin Style Guide).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">[*.{kt,kts}]</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="na">max_line_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">off</span><span class="w"> </span><span class="c1"># Use &quot;off&quot; to ignore max line length or a positive number to set max line length</span>
+</code></pre></div>
+<p>This setting is used by multiple rules of which rule <code>max-line-length</code> is the most important.</p>
+<h2 id="trailing-comma-on-call-site">Trailing comma on call site<a class="headerlink" href="#trailing-comma-on-call-site" title="Permanent link">&para;</a></h2>
+<p>KtLint uses the IntelliJ IDEA <code>.editorconfig</code> property <code>ij_kotlin_allow_trailing_comma_on_call_site</code> to <em>enforce</em> the usage of the trailing comma at call site when enabled. IntelliJ IDEA uses this property to <em>allow</em> the use of trailing comma but leaves it to the developer's discretion to actually use it (or not). KtLint values <em>consistent</em> formatting more than a per-situation decision.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In KtLint 0.48.x the default value for using the trailing comma on call site has been changed to <code>true</code> except when codestyle <code>android</code> is used.</p>
+<p>Although the <a href="https://kotlinlang.org/docs/reference/coding-conventions.html#trailing-commas">Kotlin coding conventions</a> leaves it to the developer's discretion to use trailing commas on the call site, it also states that usage of trailing commas has several benefits:</p>
+<ul>
+<li>It makes version-control diffs cleaner – as all the focus is on the changed value.</li>
+<li>It makes it easy to add and reorder elements – there is no need to add or delete the comma if you manipulate elements.</li>
+<li>It simplifies code generation, for example, for object initializers. The last element can also have a comma.</li>
+</ul>
+</div>
+<p>Example:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="k">[*.{kt,kts}]</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="na">ij_kotlin_allow_trailing_comma_on_call_site</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span>
+</code></pre></div></p>
+<p>This setting only takes effect when rule <code>trailing-comma-on-call-site</code> is enabled.</p>
+<h2 id="trailing-comma-on-declaration-site">Trailing comma on declaration site<a class="headerlink" href="#trailing-comma-on-declaration-site" title="Permanent link">&para;</a></h2>
+<p>KtLint uses the IntelliJ IDEA <code>.editorconfig</code> property <code>ij_kotlin_allow_trailing_comma</code> to <em>enforce</em> the usage of the trailing comma at declaration site when enabled. IntelliJ IDEA uses this property to <em>allow</em> the use of trailing comma but leaves it to the developer's discretion to actually use it (or not). KtLint values <em>consistent</em> formatting more than a per-situation decision.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In KtLint 0.48.x the default value for using the trailing comma on declaration site has been changed to <code>true</code> except when codestyle <code>android</code> is used.</p>
+<p>The <a href="https://kotlinlang.org/docs/reference/coding-conventions.html#trailing-commas">Kotlin coding conventions</a> encourages the usage of trailing commas on the declaration site, but leaves it to the developer's discretion to use trailing commas on the call site. But next to this, it also states that usage of trailing commas has several benefits:</p>
+<ul>
+<li>It makes version-control diffs cleaner – as all the focus is on the changed value.</li>
+<li>It makes it easy to add and reorder elements – there is no need to add or delete the comma if you manipulate elements.</li>
+<li>It simplifies code generation, for example, for object initializers. The last element can also have a comma.</li>
+</ul>
+</div>
+<p>Example:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">[*.{kt,kts}]</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="na">ij_kotlin_allow_trailing_comma</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span><span class="w"> </span><span class="c1"># Only used for declaration site </span>
+</code></pre></div></p>
+<p>This setting only takes effect when rule <code>trailing-comma-on-declaration-site</code> is enabled.</p>
+<h2 id="overriding-editorconfig-properties-for-specific-directories">Overriding Editorconfig properties for specific directories<a class="headerlink" href="#overriding-editorconfig-properties-for-specific-directories" title="Permanent link">&para;</a></h2>
+<p>You can <a href="https://editorconfig.org/#file-format-details">override</a> properties for specific directories inside your project:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">[*.{kt,kts}]</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="na">ktlint_standard_import-ordering</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">disabled</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="k">[api/*.{kt,kts}]</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="na">ktlint_standard_indent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">disabled</span>
+</code></pre></div></p>
+<p>Note that the <code>import-ordering</code> rule is disabled for <em>all</em> packages including the <code>api</code> sub package. Next to this the <code>indent</code> rule is disabled for the <code>api</code> package and its sub packages.</p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "search.suggest", "search.share"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.aecac24b.min.js"></script>
+      
+    
+  </body>
+</html>
