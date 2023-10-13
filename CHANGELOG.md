@@ -51,7 +51,6 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### 💬 Other
 
 * Simple property assignments in KTS - [#2123](https://github.com/pinterest/ktlint/pull/2123), by @Goooler
-* Re-enable releasing to SDKMan - [#2244](https://github.com/pinterest/ktlint/pull/2244), by @shashachu
 
 ## [1.0.0] - 2023-09-05
 
