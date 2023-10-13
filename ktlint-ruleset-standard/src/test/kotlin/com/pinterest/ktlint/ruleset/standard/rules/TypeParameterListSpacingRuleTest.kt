@@ -283,7 +283,7 @@ class TypeParameterListSpacingRuleTest {
     }
 
     @Test
-    fun `Issue 1867 - Given a multiline type parameter list which is correctly formatted then do not report a violation`() {
+    fun `Issue 1867 - Given a function with multiline type parameter list which is correctly formatted then do not report a violation`() {
         val code =
             """
             fun <
@@ -291,8 +291,19 @@ class TypeParameterListSpacingRuleTest {
                 Bar,
                 > foobar()
             """.trimIndent()
-        typeParameterListSpacingRuleAssertThat(code)
-            .hasNoLintViolations()
+        typeParameterListSpacingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 2299 - Given a class with multiline type parameter list which is correctly formatted then do not report a violation`() {
+        val code =
+            """
+            class FooBar<
+                Foo,
+                Bar,
+            >
+            """.trimIndent()
+        typeParameterListSpacingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test

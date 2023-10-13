@@ -12,6 +12,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.findCompositeParentElementOfType
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfCompositeElementOfType
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -109,9 +110,13 @@ public class TypeArgumentListSpacingRule :
             ?.let { nextSibling ->
                 if (multiline) {
                     if (nextSibling.text != expectedIndent) {
-                        emit(nextSibling.startOffset, "Expected newline", true)
-                        if (autoCorrect) {
-                            nextSibling.upsertWhitespaceAfterMe(expectedIndent)
+                        if (nextSibling.isWhiteSpaceWithoutNewline()) {
+                            emit(nextSibling.startOffset, "Expected newline", true)
+                            if (autoCorrect) {
+                                nextSibling.upsertWhitespaceAfterMe(expectedIndent)
+                            }
+                        } else {
+                            // Let Indentation rule fix the indentation
                         }
                     }
                 } else {
@@ -129,9 +134,13 @@ public class TypeArgumentListSpacingRule :
             ?.let { prevSibling ->
                 if (multiline) {
                     if (prevSibling.text != expectedIndent) {
-                        emit(prevSibling.startOffset, "Expected newline", true)
-                        if (autoCorrect) {
-                            prevSibling.upsertWhitespaceBeforeMe(expectedIndent)
+                        if (prevSibling.isWhiteSpaceWithoutNewline()) {
+                            emit(prevSibling.startOffset, "Expected newline", true)
+                            if (autoCorrect) {
+                                prevSibling.upsertWhitespaceBeforeMe(expectedIndent)
+                            }
+                        } else {
+                            // Let Indentation rule fix the indentation
                         }
                     }
                 } else {
