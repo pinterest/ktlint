@@ -20,7 +20,7 @@ Note: These steps should be done directly in the pinterest/ktlint repository, no
 11. Merge of branch `<release>-update-refs` to master starts the `Publish release documentation` and `Publish snapshot documentation` workflows. Check that both workflows succeed (https://github.com/pinterest/ktlint/actions). Also check that the documentation has actually been published on https://pinterest.github.io/ktlint/latest.
 12. Verify that documentation of new release is published correctly. Especially check whether version numbers in [documentation](https://pinterest.github.io/ktlint/latest/install/cli/) have been changed. After publication of `1.0.0` the documentation still referred to `0.50.0` (according to https://github.com/pinterest/ktlint/actions/runs/6085301212/job/16509057702#step:11:14 it tried updating `0.49.1` to `1.0.0` which most likely was caused by the already fixed issue that the changelog heading of the `0.50.0` did not comply to the expected format).
 13. Verify that the published documentation does not contain broken links with [Broken Link Checker Tool](https://www.deadlinkchecker.com/website-dead-link-checker.asp).
-14. Announce release on Ktlint Slack channel 
+14. Announce release on Ktlint Slack channel but wait with doing so until sonatype release is closed by Pinterest.
 15. Update `gradle.properties` with the new `SNAPSHOT` version, and add the section below to the top of `CHANGELOG.md` and commit. (This can be done directly in the main repo or in your fork.)
 ```markdown
 ## [Unreleased]
