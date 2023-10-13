@@ -86,11 +86,6 @@ As of Ktlint 0.50, an error can only be suppressed using @Suppress or @SuppressW
     import foo.*
     ```
 
-## How do I globally disable a rule without `.editorconfig`?
-
-When using Ktlint CLI, you may pass a list of disabled rules via the `--disabled_rules` command line flag. The value is a comma separated list of rule id's that have to be disabled. The rule id must be fully qualified (e.g. must be prefixed with the rule set id). 
-
-
 ## Why is `.editorconfig` property `disabled_rules` deprecated and how do I resolve this?
 
 The `.editorconfig` properties `disabled_rules` and `ktlint_disabled_rules` are deprecated as of KtLint version `0.48` and are removed in version `0.49`. Those properties contain a comma separated list of rules which are disabled. Using a comma separated list of values has some disadvantages.
