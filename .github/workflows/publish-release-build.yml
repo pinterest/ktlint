@@ -80,13 +80,13 @@ jobs:
           formula-path: Formula/k/ktlint.rb
           download-url: https://github.com/pinterest/ktlint/releases/download/${{ env.version }}/ktlint-${{ env.version }}.zip
 
-      - name: Release to sdkman
-        if: ${{ success() }}
-        env:
-          SDKMAN_KEY: ${{ secrets.SDKMAN_KEY }}
-          SDKMAN_TOKEN: ${{ secrets.SDKMAN_TOKEN }}
-          SDKMAN_VERSION: ${{ env.version }}
-        run: ./gradlew :ktlint-cli:sdkMajorRelease
+#      - name: Release to sdkman
+#        if: ${{ success() }}
+#        env:
+#          SDKMAN_KEY: ${{ secrets.SDKMAN_KEY }}
+#          SDKMAN_TOKEN: ${{ secrets.SDKMAN_TOKEN }}
+#          SDKMAN_VERSION: ${{ env.version }}
+#        run: ./gradlew :ktlint-cli:sdkMajorRelease
 
       - name: Update Release documentation
         if: ${{ success() }}
