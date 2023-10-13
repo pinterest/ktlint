@@ -12,7 +12,7 @@ All releases of `ktlint` can be downloaded from the [releases](https://github.co
 A particular version of `ktlint` can be downloaded with next command which also changes the file to an executable in directory `/usr/local/bin`:
 
 ```sh title="Download"
-curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.0.0/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
+curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.0.1/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
 ```
 
 !!! tip "Curl not installed or behind proxy"
@@ -59,20 +59,14 @@ On Arch Linux install package [ktlint <sup>AUR</sup>](https://aur.archlinux.org/
 
 ### Rule set(s)
 
-When no arguments are specified, the style of all Kotlin files (ending with '.kt' or '.kts') inside the current dir (recursively) are validated with the (non-experimental) rules from the [standard ruleset](../../rules/standard/). Hidden folders will be skipped.
+When no arguments are specified, the style of all Kotlin files (ending with '.kt' or '.kts') inside the current dir (recursively) are validated with the rules from the [standard ruleset](../../rules/standard/). Hidden folders will be skipped.
 
 ```shell title="Default validation with standard ruleset"
 ktlint
 ```
 
-To validate with the [standard ruleset](../../rules/standard/) including the experimental rules run command below: 
-
-```shell title="Validation with standard ruleset including the experimental rules"
-ktlint --experimental
-```
-
 !!! note
-    Instead of using this command line flag, it is advised to set `.editorconfig` property `ktlint_experimental = enabled` if you want the project always to be checked with the experimental rules.
+    The experimental rules in the standard rule set will only be run when `.editorconfig` property `ktlint_experimental = enabled` is set.
 
 To validate with a [custom ruleset](../../api/custom-rule-set/) run command below:  
 
@@ -83,7 +77,7 @@ ktlint -R /path/to/custom-ruleset.jar
 ```
 
 !!! note
-    If the custom rule set contains rules that are marked as experimental, those rule will only be run when `.editorconfig` property `ktlint_experimental = enabled` is set (or command line parameter `--experimental` is specified).
+    If the custom rule set contains rules that are marked as experimental, those rule will only be run when `.editorconfig` property `ktlint_experimental = enabled` is set.
 
 ### Format (autocorrect)
 
@@ -149,9 +143,9 @@ A scaffold of the `.editorconfig file` can be generated with command below. Note
 ```shell title="Generate .editorconfig"
 ktlint generateEditorConfig
 # or
-ktlint --experimental generateEditorConfig
+ktlint generateEditorConfig
 # or
-ktlint --experimental --ruleset=/path/to/custom-ruleset.jar generateEditorConfig
+ktlint --ruleset=/path/to/custom-ruleset.jar generateEditorConfig
 ```
 
 Normally this file is located in the root of your project directory. In case the file is located in a sub folder of the project, the settings of that file only applies to that subdirectory and its folders (recursively). Ktlint automatically detects and reads all `.editorconfig` files in your project.
@@ -200,8 +194,6 @@ ktlint installGitPrePushHook
 
 `--color` and `--color-name=<colorName>`: Make output colorful and optionally set the color name to use.
 
-`--disabled_rules=<disabledRules>`: A comma-separated list of rules to globally disable. To disable the standard ktlint rule-set use `--disabled_rules=standard`.  This flag is most likely to be removed in a future version. Use [`.editorconfig disabled_rules`](../../rules/configuration-ktlint/#disabled-rules).
-
 `-h` or `--help`: Prints help information.
 
 `--limit=<limit>`: Maximum number of errors to show (default: show all)
@@ -218,6 +210,6 @@ Options `--stdin` and `--patterns-from-stdin` are mutually exclusive, only one o
 
 Microsoft Windows is not able to run the `ktlint` command directly. Ktlint can be run in following ways on Microsoft Windows:
 
-1. Use the `ktlint.bat` batch file provided as part of the [release](https://github.com/pinterest/ktlint/releases/tag/1.0.0). Add the batch file to your `%PATH%` environment variable for easy access
+1. Use the `ktlint.bat` batch file provided as part of the [release](https://github.com/pinterest/ktlint/releases/tag/1.0.1). Add the batch file to your `%PATH%` environment variable for easy access
 2. Run `ktlint` using Git Bash
 3. Run as `java -jar ktlint`
