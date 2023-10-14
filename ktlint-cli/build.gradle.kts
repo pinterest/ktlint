@@ -215,22 +215,6 @@ publishing {
                         message.set("groupId and artifactId have been changed")
                     }
                 }
-
-                repositories {
-                    maven {
-                        name = "mavenCentral"
-                        url = URI.create("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
-
-                        logger.lifecycle("Create relocation pom.xml for ktlint-cli and upload to $url")
-
-                        credentials {
-                            username = providers.gradleProperty("SONATYPE_NEXUS_USERNAME").orNull
-                                ?: System.getenv("SONATYPE_NEXUS_USERNAME")
-                            password = providers.gradleProperty("SONATYPE_NEXUS_PASSWORD").orNull
-                                ?: System.getenv("SONATYPE_NEXUS_PASSWORD")
-                        }
-                    }
-                }
             }
         }
     }
@@ -238,8 +222,6 @@ publishing {
 
 // TODO: Remove in release after ktlint 1.0.1
 signing {
-    logger.lifecycle("Sign relocation pom.xml for ktlint-cli")
-
     // Uncomment following line to use gpg-agent for signing
     // See https://docs.gradle.org/current/userguide/signing_plugin.html#sec:using_gpg_agent how to configure it
     // useGpgCmd()

@@ -56,6 +56,20 @@ publishing {
             name = "mavenCentral"
             url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
 
+            logger.lifecycle("Set publication repository for version $version to $url")
+
+            credentials {
+                username = providers.gradleProperty("SONATYPE_NEXUS_USERNAME").orNull
+                    ?: System.getenv("SONATYPE_NEXUS_USERNAME")
+                password = providers.gradleProperty("SONATYPE_NEXUS_PASSWORD").orNull
+                    ?: System.getenv("SONATYPE_NEXUS_PASSWORD")
+            }
+        }
+
+        maven {
+            name = "mavenCentralRelocation"
+            url = URI.create("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+
             credentials {
                 username = providers.gradleProperty("SONATYPE_NEXUS_USERNAME").orNull
                     ?: System.getenv("SONATYPE_NEXUS_USERNAME")

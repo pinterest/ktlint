@@ -44,20 +44,6 @@ publishing {
                         message.set("artifactId has been changed")
                     }
                 }
-
-                repositories {
-                    maven {
-                        name = "mavenCentral"
-                        url = URI.create("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
-
-                        credentials {
-                            username = providers.gradleProperty("SONATYPE_NEXUS_USERNAME").orNull
-                                ?: System.getenv("SONATYPE_NEXUS_USERNAME")
-                            password = providers.gradleProperty("SONATYPE_NEXUS_PASSWORD").orNull
-                                ?: System.getenv("SONATYPE_NEXUS_PASSWORD")
-                        }
-                    }
-                }
             }
         }
     }

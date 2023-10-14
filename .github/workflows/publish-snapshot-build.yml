@@ -22,7 +22,7 @@ jobs:
       - uses: ./.github/actions/setup-gradle-build
 
       - name: Publish snapshot to Maven
-        run: ./gradlew clean publishAllPublicationsToMavenCentralRepository --no-daemon --no-parallel --no-configuration-cache
+        run: ./gradlew clean publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel --no-configuration-cache
 
       - name: Publish Kotlin-dev snapshot to Maven
         run: ./gradlew -PkotlinDev clean publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel --no-configuration-cache
