@@ -55,10 +55,8 @@ publishing {
 
                 repositories {
                     maven {
-                        val releasesRepoUrl = URI.create("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
-                        val snapshotsRepoUrl = URI.create("https://oss.sonatype.org/content/repositories/snapshots/")
                         name = "mavenCentral"
-                        url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
+                        url = URI.create("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
 
                         credentials {
                             username = providers.gradleProperty("SONATYPE_NEXUS_USERNAME").orNull
