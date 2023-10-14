@@ -8,6 +8,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Removed
 
+* Remove obsolete idea configuration files [#2249](https://github.com/pinterest/ktlint/issues/2249)
+
 ### Fixed
 
 ### Changed
