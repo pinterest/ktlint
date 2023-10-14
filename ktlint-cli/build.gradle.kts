@@ -1,5 +1,4 @@
 import org.gradle.crypto.checksum.Checksum
-import java.net.URI
 
 plugins {
     id("ktlint-publication-library")
