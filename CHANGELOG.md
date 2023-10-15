@@ -14,6 +14,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+* Use Java 21 for compilation [#2319](https://github.com/pinterest/ktlint/issues/2319)
+
 ## [1.0.1] - 2023-10-13
 
 ### 🆕 Features
