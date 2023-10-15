@@ -16,11 +16,11 @@ class SpacingAroundAngleBracketsRuleTest {
             val c: Map <Int, String> = mapOf()
             val d: Map<
                 Int, String
-            > = mapOf()
+                > = mapOf()
             val e: Map<
                 Int,
                 String
-            > = mapOf()
+                > = mapOf()
             val f: Map
                 <
                     Int,
@@ -31,8 +31,8 @@ class SpacingAroundAngleBracketsRuleTest {
                 Int,
                 List<
                     String
-                >
-            > = mapOf()
+                    >
+                > = mapOf()
             """.trimIndent()
         val formattedCode =
             """
@@ -41,22 +41,22 @@ class SpacingAroundAngleBracketsRuleTest {
             val c: Map<Int, String> = mapOf()
             val d: Map<
                 Int, String
-                > = mapOf()
+            > = mapOf()
             val e: Map<
                 Int,
                 String
-                > = mapOf()
+            > = mapOf()
             val f: Map<
                 Int,
                 String
-                > = mapOf()
+            > = mapOf()
             val g: Map<Int, List<String>> = mapOf()
             val h: Map<
                 Int,
                 List<
                     String
-                    >
-                > = mapOf()
+                >
+            > = mapOf()
             """.trimIndent()
         spacingAroundAngleBracketsRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
@@ -89,8 +89,8 @@ class SpacingAroundAngleBracketsRuleTest {
                 Bar2 : Map<
                     Int,
                     List< String >
-                >
-            > {}
+                    >
+                > {}
             """.trimIndent()
         val formattedCode =
             """
@@ -105,8 +105,8 @@ class SpacingAroundAngleBracketsRuleTest {
                 Bar2 : Map<
                     Int,
                     List<String>
-                    >
-                > {}
+                >
+            > {}
             """.trimIndent()
         spacingAroundAngleBracketsRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
