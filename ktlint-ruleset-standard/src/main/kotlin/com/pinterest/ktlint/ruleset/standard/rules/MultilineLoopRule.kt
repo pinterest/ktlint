@@ -7,6 +7,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
+import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
@@ -30,7 +31,7 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
  * https://developer.android.com/kotlin/style-guide#braces
  */
 @SinceKtlint("1.0", EXPERIMENTAL)
-public class MultiLineLoopRule :
+public class MultilineLoopRule :
     StandardRule(
         id = "multiline-loop",
         usesEditorConfigProperties =
@@ -38,7 +39,8 @@ public class MultiLineLoopRule :
                 INDENT_SIZE_PROPERTY,
                 INDENT_STYLE_PROPERTY,
             ),
-    ) {
+    ),
+    Rule.Experimental {
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
@@ -54,28 +56,18 @@ public class MultiLineLoopRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        if (node.elementType != BODY) {
-            return
-        }
-
-        // Ignore when already wrapped in a block
-        if (node.firstChildNode?.elementType == BLOCK) {
-            return
-        }
-
-        if (!node.treePrev.textContains('\n')) {
-            if (!node.treeParent.textContains('\n')) {
+        node
+            .takeIf { it.elementType == BODY }
+            ?.takeUnless { it.firstChildNode.elementType == BLOCK }
+            ?.takeUnless {
                 // Allow single line loop statements as long as they are really simple (e.g. do not contain newlines)
                 //    for (...) <statement>
                 //    while (...) <statement>
                 //    do <statement> while (...)
-                return
-            }
-
-            Unit
-        }
-
+                !it.treeParent.textContains('\n')
+            } ?: return
         emit(node.firstChildNode.startOffset, "Missing { ... }", true)
+
         if (autoCorrect) {
             autocorrect(node)
         }
@@ -115,13 +107,10 @@ public class MultiLineLoopRule :
             addChild(LeafPsiElement(RBRACE, "}"))
         }
 
-        // Make sure while starts on same line as newly inserted right brace
-        if (node.elementType == BODY) {
-            node
-                .nextSibling { !it.isPartOfComment() }
-                ?.upsertWhitespaceBeforeMe(" ")
-        }
+        node
+            .nextSibling { !it.isPartOfComment() }
+            ?.upsertWhitespaceBeforeMe(" ")
     }
 }
 
-public val MULTI_LINE_LOOP_RULE_ID: RuleId = MultiLineLoopRule().ruleId
+public val MULTILINE_LOOP_RULE_ID: RuleId = MultilineLoopRule().ruleId

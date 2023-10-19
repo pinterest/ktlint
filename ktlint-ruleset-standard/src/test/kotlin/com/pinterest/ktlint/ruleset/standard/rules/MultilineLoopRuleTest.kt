@@ -4,20 +4,20 @@ import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
-class MultiLineLoopRuleTest {
-    private val multiLineLoopRuleAssertThat = assertThatRule { MultiLineLoopRule() }
+class MultilineLoopRuleTest {
+    private val multilineLoopRuleAssertThat = assertThatRule { MultilineLoopRule() }
 
     @Test
     fun `Given loop statements with curly braces on single line`() {
         val code =
             """
             fun foo() {
-                for (i in 1..10) { return 0 }
-                while (true) { return 0 }
-                do { return 0 } while (true)
+                for (i in 1..10) { bar() }
+                while (true) { bar() }
+                do { bar() } while (true)
             }
             """.trimIndent()
-        multiLineLoopRuleAssertThat(code).hasNoLintViolations()
+        multilineLoopRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -25,12 +25,12 @@ class MultiLineLoopRuleTest {
         val code =
             """
             fun foo() {
-                for (i in 1..10) return 0
-                while (true) return 0
-                do return 0 while (true)
+                for (i in 1..10) bar()
+                while (true) bar()
+                do bar() while (true)
             }
             """.trimIndent()
-        multiLineLoopRuleAssertThat(code).hasNoLintViolations()
+        multilineLoopRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -39,17 +39,17 @@ class MultiLineLoopRuleTest {
             """
             fun foo() {
                 for (i in 1..10) {
-                    return 0
+                    bar()
                 }
                 while (true) {
-                    return 0
+                    bar()
                 }
                 do {
-                    return 0
+                    bar()
                 } while (true)
             }
             """.trimIndent()
-        multiLineLoopRuleAssertThat(code).hasNoLintViolations()
+        multilineLoopRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -58,11 +58,11 @@ class MultiLineLoopRuleTest {
             """
             fun foo() {
                 for (i in 1..10)
-                    return 0
+                    bar()
                 while (true)
-                    return 0
+                    bar()
                 do
-                    return 0
+                    bar()
                 while (true)
             }
             """.trimIndent()
@@ -70,23 +70,22 @@ class MultiLineLoopRuleTest {
             """
             fun foo() {
                 for (i in 1..10) {
-                    return 0
+                    bar()
                 }
                 while (true) {
-                    return 0
+                    bar()
                 }
                 do {
-                    return 0
+                    bar()
                 } while (true)
             }
             """.trimIndent()
-        multiLineLoopRuleAssertThat(code)
+        multilineLoopRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(3, 9, "Missing { ... }"),
                 LintViolation(5, 9, "Missing { ... }"),
                 LintViolation(7, 9, "Missing { ... }"),
-            )
-            .isFormattedAs(formattedCode)
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -97,7 +96,7 @@ class MultiLineLoopRuleTest {
                 for (i in 1..10)
                     while (true)
                         do
-                            return 0
+                            bar()
                         while (true)
             }
             """.trimIndent()
@@ -107,13 +106,13 @@ class MultiLineLoopRuleTest {
                 for (i in 1..10) {
                     while (true) {
                         do {
-                            return 0
+                            bar()
                         } while (true)
                     }
                 }
             }
             """.trimIndent()
-        multiLineLoopRuleAssertThat(code)
+        multilineLoopRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(3, 9, "Missing { ... }"),
                 LintViolation(4, 13, "Missing { ... }"),
@@ -155,7 +154,7 @@ class MultiLineLoopRuleTest {
                 return i
             }
             """.trimIndent()
-        multiLineLoopRuleAssertThat(code)
+        multilineLoopRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(4, 13, "Missing { ... }"),
                 LintViolation(6, 13, "Missing { ... }"),
@@ -164,11 +163,11 @@ class MultiLineLoopRuleTest {
     }
 
     @Test
-    fun `Given a do-while-statement with do keyword on same line as main statement`() {
+    fun `Given a do-while-statement with do keyword on same line as body statement and while keyword on separate line`() {
         val code =
             """
             fun foo() {
-                do return 0
+                do bar()
                 while (true)
             }
             """.trimIndent()
@@ -176,14 +175,13 @@ class MultiLineLoopRuleTest {
             """
             fun foo() {
                 do {
-                    return 0
+                    bar()
                 } while (true)
             }
             """.trimIndent()
-        multiLineLoopRuleAssertThat(code)
-            .hasLintViolations(
-                LintViolation(2, 8, "Missing { ... }"),
-            ).isFormattedAs(formattedCode)
+        multilineLoopRuleAssertThat(code)
+            .hasLintViolation(2, 8, "Missing { ... }")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -217,13 +215,12 @@ class MultiLineLoopRuleTest {
                 } while (true)
             }
             """.trimIndent()
-        multiLineLoopRuleAssertThat(code)
+        multilineLoopRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolations(
                 LintViolation(2, 22, "Missing { ... }"),
                 LintViolation(4, 18, "Missing { ... }"),
                 LintViolation(6, 8, "Missing { ... }"),
-            )
-            .isFormattedAs(formattedCode)
+            ).isFormattedAs(formattedCode)
     }
 }

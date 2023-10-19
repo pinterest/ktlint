@@ -39,8 +39,8 @@ import com.pinterest.ktlint.ruleset.standard.rules.MaxLineLengthRule
 import com.pinterest.ktlint.ruleset.standard.rules.ModifierListSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ModifierOrderRule
 import com.pinterest.ktlint.ruleset.standard.rules.MultiLineIfElseRule
-import com.pinterest.ktlint.ruleset.standard.rules.MultiLineLoopRule
 import com.pinterest.ktlint.ruleset.standard.rules.MultilineExpressionWrappingRule
+import com.pinterest.ktlint.ruleset.standard.rules.MultilineLoopRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoBlankLineBeforeRbraceRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoBlankLineInListRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoBlankLinesInChainedMethodCallsRule
@@ -130,8 +130,8 @@ public class StandardRuleSetProvider : RuleSetProviderV3(RuleSetId.STANDARD) {
             RuleProvider { ModifierListSpacingRule() },
             RuleProvider { ModifierOrderRule() },
             RuleProvider { MultiLineIfElseRule() },
-            RuleProvider { MultiLineLoopRule() },
             RuleProvider { MultilineExpressionWrappingRule() },
+            RuleProvider { MultilineLoopRule() },
             RuleProvider { NoBlankLineBeforeRbraceRule() },
             RuleProvider { NoBlankLineInListRule() },
             RuleProvider { NoBlankLinesInChainedMethodCallsRule() },
