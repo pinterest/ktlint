@@ -17,7 +17,7 @@ kotlinx-binary-compatibiltiy-validator = "org.jetbrains.kotlinx.binary-compatibi
 kotlin-compiler = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
 kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-plugin-dev = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlinDev" }
-dokka = "org.jetbrains.dokka:dokka-gradle-plugin:1.9.0"
+dokka = "org.jetbrains.dokka:dokka-gradle-plugin:1.9.10"
 ec4j = "org.ec4j.core:ec4j-core:0.3.0"
 picocli = "info.picocli:picocli:4.7.5"
 logging = "io.github.oshai:kotlin-logging-jvm:5.1.0"
