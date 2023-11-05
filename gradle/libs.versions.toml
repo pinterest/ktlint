@@ -28,7 +28,7 @@ logback = "ch.qos.logback:logback-classic:1.3.5"
 # Required for logback.xml conditional configuration
 janino = "org.codehaus.janino:janino:3.1.10"
 # Testing libraries
-junit5 = "org.junit.jupiter:junit-jupiter:5.10.0"
+junit5 = "org.junit.jupiter:junit-jupiter:5.10.1"
 assertj = "org.assertj:assertj-core:3.24.2"
 sarif4k = "io.github.detekt.sarif4k:sarif4k:0.5.0"
 jimfs = "com.google.jimfs:jimfs:1.3.0"
