@@ -82,4 +82,22 @@ class TypeArgumentListSpacingRuleTest {
             """.trimIndent()
         typeArgumentListSpacingRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 2299 - Given a correctly indented multiline type argument list then do not report violations`() {
+        val code =
+            """
+            class FooBar(
+                foo: String,
+                bar: Int,
+            ) : Baz<
+                    String,
+                    Int,
+                >(
+                    foo,
+                    bar,
+                )
+            """.trimIndent()
+        typeArgumentListSpacingRuleAssertThat(code).hasNoLintViolations()
+    }
 }

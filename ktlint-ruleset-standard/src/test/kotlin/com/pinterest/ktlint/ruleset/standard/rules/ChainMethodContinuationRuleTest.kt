@@ -892,4 +892,25 @@ class ChainMethodContinuationRuleTest {
             .setMaxLineLength()
             .hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 2304 - Given a dot qualified expression in which the call expression returns a function which is called with value argument`() {
+        val code =
+            """
+            fun foo(baz: Baz) = bar.get()(baz)
+            """.trimIndent()
+        chainMethodContinuationRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 2304 - Given a dot qualified expression in which the call expression returns a function which is called with value argument ans has a trailing lambda`() {
+        val code =
+            """
+            fun foo(baz: Baz) =
+                bar.get()(baz) {
+                    // do something
+                }
+            """.trimIndent()
+        chainMethodContinuationRuleAssertThat(code).hasNoLintViolations()
+    }
 }

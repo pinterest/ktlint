@@ -146,11 +146,11 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             class Foo2<
                 A,
                 B, // The comma before the comment should be removed without removing the comment itself
-                > {}
+            > {}
             class Foo3<
                 A,
                 B, /* The comma before the comment should be removed without removing the comment itself */
-                > {}
+            > {}
             """.trimIndent()
         val formattedCode =
             """
@@ -158,11 +158,11 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             class Foo2<
                 A,
                 B // The comma before the comment should be removed without removing the comment itself
-                > {}
+            > {}
             class Foo3<
                 A,
                 B /* The comma before the comment should be removed without removing the comment itself */
-                > {}
+            > {}
             """.trimIndent()
         trailingCommaOnDeclarationSiteRuleAssertThat(code)
             .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to false)
@@ -181,11 +181,11 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             class Foo2<
                 A,
                 B // The comma should be inserted before the comment
-                > {}
+            > {}
             class Foo3<
                 A,
                 B /* The comma should be inserted before the comment */
-                > {}
+            > {}
             """.trimIndent()
         val formattedCode =
             """
@@ -193,11 +193,11 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             class Foo2<
                 A,
                 B, // The comma should be inserted before the comment
-                > {}
+            > {}
             class Foo3<
                 A,
                 B, /* The comma should be inserted before the comment */
-                > {}
+            > {}
             """.trimIndent()
         trailingCommaOnDeclarationSiteRuleAssertThat(code)
             .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)

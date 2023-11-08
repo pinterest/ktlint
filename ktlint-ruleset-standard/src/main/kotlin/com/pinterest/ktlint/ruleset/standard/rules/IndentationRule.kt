@@ -265,9 +265,19 @@ public class IndentationRule :
                     startIndentContext(node)
                 }
 
+            node.elementType == TYPE_ARGUMENT_LIST ||
+                node.elementType == TYPE_PARAMETER_LIST ->
+                if (codeStyle == ktlint_official) {
+                    // Contrary to the IntelliJ IDEA default formatter, do not indent the closing angle bracket
+                    startIndentContext(
+                        fromAstNode = node,
+                        lastChildIndent = "",
+                    )
+                } else {
+                    startIndentContext(node)
+                }
+
             node.elementType == BINARY_WITH_TYPE ||
-                node.elementType == TYPE_ARGUMENT_LIST ||
-                node.elementType == TYPE_PARAMETER_LIST ||
                 node.elementType == USER_TYPE ->
                 startIndentContext(node)
 

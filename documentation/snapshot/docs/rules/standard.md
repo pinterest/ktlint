@@ -191,7 +191,9 @@ Rule id: `final-newline` (`standard` rule set)
 
 ## Function signature
 
-Rewrites the function signature to a single line when possible (e.g. when not exceeding the `max_line_length` property) or a multiline signature otherwise. In case of function with a body expression, the body expression is placed on the same line as the function signature when not exceeding the `max_line_length` property. Optionally the function signature can be forced to be written as a multiline signature in case the function has more than a specified number of parameters (`.editorconfig` property `ktlint_function_signature_wrapping_rule_always_with_minimum_parameters`)
+Rewrites the function signature to a single line when possible (e.g. when not exceeding the `max_line_length` property) or a multiline signature otherwise. In case of function with a body expression, the body expression is placed on the same line as the function signature when not exceeding the `max_line_length` property. 
+
+In `ktlint-official` code style, a function signature is always rewritten to a multiline signature in case the function has 2 or more parameters. This number of parameters can be set via `.editorconfig` property `ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than`.
 
 === "[:material-heart:](#) Ktlint"
 

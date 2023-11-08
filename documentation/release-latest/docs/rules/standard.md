@@ -8,25 +8,30 @@ Multiple annotations should be on a separate line than the annotated declaration
     // A single annotation (without parameters) is allowed on same line as annotated construct
     @FunctionalInterface class FooBar {
         @JvmField var foo: String
+    
         @Test fun bar() {}
     }
+    
     // A class or function parameter may have a single annotation with parameter(s) on the same line
-    class Foo(@Path("fooId") val fooId: String)
-    class Bar(
-        @NotNull("fooId") val fooId: String,
-        @NotNull("bar") bar: String
+    class Foo(
+        @Path("fooId") val fooId: String,
+        @NotNull("bar") bar: String,
     )
+    
     // Multiple annotations (without parameters) are allowed on the same line
     @Foo @Bar
     class FooBar {
         @Foo @Bar
         var foo: String
+    
         @Foo @Bar
         fun bar() {}
     }
+    
     // An array of annotations (without parameters) is allowed on same line as annotated construct
     @[Foo Bar] class FooBar2 {
         @[Foo Bar] var foo: String
+    
         @[Foo Bar] fun bar() {}
     }
     ```
@@ -54,23 +59,23 @@ Requires a blank line before any class or function declaration. No blank line is
 === "[:material-heart:](#) Ktlint"
 
     ```kotlin
-    const val foo1 = "foo1"
-
+    const val FOO_1 = "foo1"
+    
     class FooBar {
         val foo2 = "foo2"
         val foo3 = "foo3"
-
+    
         fun bar1() {
-           val foo4 = "foo4"
-           val foo5 = "foo5"
+            val foo4 = "foo4"
+            val foo5 = "foo5"
         }
-
+    
         fun bar2() = "bar"
-
+    
         val foo6 = "foo3"
         val foo7 = "foo4"
-
-        enum class Foo {}
+    
+        enum class Foo
     }
     ```
 
@@ -78,16 +83,21 @@ Requires a blank line before any class or function declaration. No blank line is
 
     ```kotlin
     const val foo1 = "foo1"
+
     class FooBar {
         val foo2 = "foo2"
         val foo3 = "foo3"
+
         fun bar1() {
            val foo4 = "foo4"
            val foo5 = "foo5"
         }
+
         fun bar2() = "bar"
+
         val foo6 = "foo3"
         val foo7 = "foo4"
+
         enum class Foo {}
     }
     ```
@@ -150,7 +160,7 @@ Enum entry names should be uppercase underscore-separated or upper camel-case se
         FOO,
         Foo,
         FOO_BAR,
-        FooBar
+        FooBar,
     }
     ```
 === "[:material-heart-off-outline:](#) Disallowed"
@@ -181,7 +191,9 @@ Rule id: `final-newline` (`standard` rule set)
 
 ## Function signature
 
-Rewrites the function signature to a single line when possible (e.g. when not exceeding the `max_line_length` property) or a multiline signature otherwise. In case of function with a body expression, the body expression is placed on the same line as the function signature when not exceeding the `max_line_length` property. Optionally the function signature can be forced to be written as a multiline signature in case the function has more than a specified number of parameters (`.editorconfig` property `ktlint_function_signature_wrapping_rule_always_with_minimum_parameters`)
+Rewrites the function signature to a single line when possible (e.g. when not exceeding the `max_line_length` property) or a multiline signature otherwise. In case of function with a body expression, the body expression is placed on the same line as the function signature when not exceeding the `max_line_length` property. 
+
+In `ktlint-official` code style, a function signature is always rewritten to a multiline signature in case the function has 2 or more parameters. This number of parameters can be set via `.editorconfig` property `ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than`.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -191,7 +203,7 @@ Rewrites the function signature to a single line when possible (e.g. when not ex
     fun foooooooo(
         a: Any,
         b: Any,
-        c: Any
+        c: Any,
     ): String {
         // body
     }
@@ -322,7 +334,7 @@ Indentation formatting - respects `.editorconfig` `indent_size` with no continua
         foobar(
             a,
             b,
-            c
+            c,
         )
     }
     ```
@@ -333,7 +345,7 @@ Indentation formatting - respects `.editorconfig` `indent_size` with no continua
         foobar(
               a,
               b,
-              c
+              c,
               )
     }
     ```
@@ -353,6 +365,7 @@ Enforce naming of class and objects.
 
     ```kotlin
     class Foo
+
     class Foo1
     ```
 === "[:material-heart:](#) Ktlint JUnit Test"
@@ -390,6 +403,7 @@ Enforce naming of function.
 
     ```kotlin
     fun foo() {}
+
     fun fooBar() {}
     ```
 === "[:material-heart:](#) Ktlint Test"
@@ -412,7 +426,10 @@ Enforce naming of function.
     ```
 
 !!! note
-    Functions in files which import a class from package `org.junit`, `org.testng` or `kotlin.test` are considered to be test functions. Functions in such classes are allowed to have underscores in the name. Or function names can be specified between backticks and do not need to adhere to the normal naming convention.
+    When using Compose, you might want to suppress the `function-naming` rule by setting `.editorconfig` property `ktlint_function_naming_ignore_when_annotated_with=Composable`. Furthermore, you can use a dedicated ktlint ruleset like [Compose Rules](https://mrmans0n.github.io/compose-rules/ktlint/) for checking naming conventions for Composable functions. 
+
+!!! note
+    Functions in files which import a class from package `org.junit`, `org.testng` or `kotlin.test` are considered to be test functions. Functions in such classes are allowed to have underscores in the name. Also, function names enclosed between backticks do not need to adhere to the normal naming convention.
 
 This rule can also be suppressed with the IntelliJ IDEA inspection suppression `FunctionName`.
 
@@ -457,8 +474,7 @@ Enforce naming of property.
     var foo2: Foo = Foo() // By definition not immutable
 
     class Bar {
-        val foo1 = Foo() // In case developer want to communicate that Foo is mutable
-        val FOO1 = Foo() // In case developer want to communicate that Foo is deeply immutable
+        val foo1 = "foo1" // Class properties always start with lowercase, const is not allowed
 
         const val FOO_BAR = "FOO-BAR" // By definition deeply immutable
 
@@ -468,6 +484,11 @@ Enforce naming of property.
         private val _elementList = mutableListOf<Element>()
         val elementList: List<Element>
             get() = _elementList
+    
+        companion object {
+            val foo1 = Foo() // In case developer want to communicate that Foo is mutable
+            val FOO1 = Foo() // In case developer want to communicate that Foo is deeply immutable
+        }
     }
     ```
 === "[:material-heart-off-outline:](#) Disallowed"
@@ -503,7 +524,7 @@ Disallow blank lines to be used in lists before the first element, between eleme
 === "[:material-heart:](#) Ktlint"
 
     ```kotlin
-    class FooBar:
+    class FooBar :
         Foo,
         Bar {
         // body
@@ -513,7 +534,7 @@ Disallow blank lines to be used in lists before the first element, between eleme
 === "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
-    class FooBar:
+    class FooBar :
 
         Foo,
 
@@ -554,7 +575,7 @@ Disallow blank lines to be used in lists before the first element, between eleme
     ```kotlin
     class BiAdapter<C : RecyclerView.ViewHolder, V1 : C, V2 : C, out A1, out A2>(
         val adapter1: A1,
-        val adapter2: A2
+        val adapter2: A2,
     ) : RecyclerView.Adapter<C>()
         where A1 : RecyclerView.Adapter<V1>, A1 : ComposableAdapter.ViewTypeProvider,
               A2 : RecyclerView.Adapter<V2>, A2 : ComposableAdapter.ViewTypeProvider {
@@ -606,22 +627,24 @@ Disallow blank lines to be used in lists before the first element, between eleme
 === "[:material-heart:](#) Ktlint"
 
     ```kotlin
-    val foobar = foobar(
-        "foo",
-        "bar",
-    )
+    val foobar =
+        foobar(
+            "foo",
+            "bar",
+        )
     ```
 
 === "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
-    val foobar = foobar(
-
-        "foo",
-
-        "bar",
-
-    )
+    val foobar = 
+        foobar(
+  
+          "foo",
+  
+          "bar",
+  
+      )
     ```
 
 *Value parameter list*
@@ -819,10 +842,12 @@ Ensures that lines do not exceed the given length of `.editorconfig` property `m
     // line length is exceeded.
     package com.toooooooooooooooooooooooooooo.long
     import com.tooooooooooooooooooooooooooooo.long
+
     val foo =
         """
         fooooooooooooooooooooooooooooooooooooooooo
         """
+
     @Test
     fun `Test description which is toooooooooooo long`() {
     }
@@ -849,7 +874,9 @@ Consistent order of modifiers
     ```kotlin
     abstract class A {
         protected open val v = ""
+
         internal open suspend fun f(v: Any): Any = ""
+
         protected lateinit var lv: String
     }
     ```
@@ -858,7 +885,9 @@ Consistent order of modifiers
     ```kotlin
     abstract class A {
         open protected val v = ""
+
         open suspend internal fun f(v: Any): Any = ""
+
         lateinit protected var lv: String
     }
     ```
@@ -901,6 +930,7 @@ No blank lines before `}`.
     fun main() {
         fun a() {
         }
+
         fun b()
     }
     ```
@@ -983,17 +1013,23 @@ Rule id: `no-consecutive-blank-lines` (`standard` rule set)
 
     ```kotlin
     class C
+
     data class DC(val v: Any)
+
     interface I
+
     object O
     ```
 === "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
     class C {}
+
     data class DC(val v: Any) { }
+
     interface I {
     }
+
     object O{}
     ```
 
@@ -1091,7 +1127,7 @@ Rule id: `no-multi-spaces` (`standard` rule set)
 
 ## No semicolons
 
-No semicolons (unless used to separate multiple statements on the same line).
+Avoid using unnecessary semicolons.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -1125,7 +1161,6 @@ Rule id: `no-trailing-spaces` (`standard` rule set)
 ## No `Unit` as return type 
 
 The `Unit` type is not allowed as return type of a function.
-returns (`fun fn {}` instead of `fun fn: Unit {}`)
 
 === "[:material-heart:](#) Ktlint"
 
@@ -1287,12 +1322,14 @@ Consistent spacing around colon.
 
     ```kotlin
     class A : B
+
     class A2 : B2
     ```
 === "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
     class A:B
+
     class A2  :  B2
     ```
 
@@ -1328,12 +1365,13 @@ The end of line comment sign `//` should be preceded and followed by exactly a s
     var debugging = false // comment
     var debugging = false // comment
     var debugging = false // comment
+    
     fun main() {
-        System.out.println( // 123
-            "test"
+        System.out.println(
+            // comment
+            "test",
         )
-    }
-        // comment
+    } // comment
     ```
 
 === "[:material-heart-off-outline:](#) Disallowed"
@@ -1343,12 +1381,13 @@ The end of line comment sign `//` should be preceded and followed by exactly a s
     var debugging = false// comment
     var debugging = false //comment
     var debugging = false//comment
+
     fun main() {
-        System.out.println(//123
+        System.out.println(
+             //123
             "test"
         )
-    }
-        //comment
+    }//comment
     ```
 
 Rule id: `comment-spacing` (`standard` rule set)
@@ -1360,12 +1399,12 @@ Consistent spacing around curly braces.
 === "[:material-heart:](#) Ktlint"
 
     ```kotlin
-    val foo = if (true) { 0 } else { 1 }
+    val foo = bar { foo() }
     ```
 === "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
-    val foo = if (true){0}else{1}
+    val foo = bar{foo()}
     ```
 
 Rule id: `curly-spacing` (`standard` rule set)
@@ -1421,8 +1460,11 @@ Consistent spacing around the function return type.
 
     ```kotlin
     fun foo1() : String = "some-result"
+
     fun foo2():  String = "some-result"
+
     fun foo3():String = "some-result"
+
     fun foo4():
         String = "some-result"
     ```
@@ -1436,16 +1478,26 @@ Consistent spacing before start of function body.
 === "[:material-heart:](#) Ktlint"
 
     ```kotlin
+    // In case `ktlint_function_signature_body_expression_wrapping` is set to `default` or `multiline`
     fun foo1() = "some-result"
+    
+    // In case `ktlint_function_signature_body_expression_wrapping` is set to `always`
     fun foo2() =
         "some-result"
+    
     fun foo3() {
         // do something
     }
+    
+    // In case `ktlint_function_signature_body_expression_wrapping` is set to `default` or `multiline`
     fun bar1(): String = "some-result"
+    
+    // In case `ktlint_function_signature_body_expression_wrapping` is set to `always`
     fun bar2(): String =
         "some-result"
+    
     fun bar3(): String {
+        doSomething()
         return "some-result"
     }
     ```
@@ -1453,15 +1505,20 @@ Consistent spacing before start of function body.
 
     ```kotlin
     fun foo1()= "some-result"
+    
     fun foo2()
         = "some-result"
+    
     fun foo3()
     {
         // do something
     }
+    
     fun bar1(): String= "some-result"
+    
     fun bar2(): String
         = "some-result"
+    
     fun bar3(): String
     {
         return "some-result"
@@ -1540,14 +1597,18 @@ Consistent spacing around keywords.
 
     ```kotlin
     fun main() {
-        if (true) {}
+        if (true) {
+            doSomething()
+        }
     }
     ```
 === "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
     fun main() {
-        if(true){}
+        if(true) {
+            doSomething()
+        }
     }
     ```
 
@@ -1630,7 +1691,8 @@ Consistent spacing inside the parameter list.
 === "[:material-heart:](#) Ktlint"
 
     ```kotlin
-    fun foo(a: Any ) = "some-result"
+    fun foo(a: Any) = "some-result"
+    
     fun foo() = "some-result"
     ```
 === "[:material-heart-off-outline:](#) Disallowed"
@@ -1653,6 +1715,7 @@ Consistent spacing around parenthesis.
     class Foo : Bar {
         constructor(string: String) : super()
     }
+    
     val foo1 = ((1 + 2) / 3)
     ```
 === "[:material-heart-off-outline:](#) Disallowed"
@@ -1661,6 +1724,7 @@ Consistent spacing around parenthesis.
     class Foo : Bar {
         constructor(string: String) : super ()
     }
+
     val foo1 = ( (1 + 2 ) / 3)
     ```
 
@@ -1749,6 +1813,7 @@ Spacing before and after the angle brackets of a type argument list.
 
     ```kotlin
     val res = ArrayList<LintError>()
+
     class B<T> : A<T>() {
         override fun x() = super<A>.x()
     }
@@ -1757,6 +1822,7 @@ Spacing before and after the angle brackets of a type argument list.
 
     ```kotlin
     val res = ArrayList < LintError > ()
+
     class B<T> : A< T >() {
         override fun x() = super< A >.x()
     }
@@ -1772,14 +1838,18 @@ Spacing after a type parameter list in function and class declarations.
 
     ```kotlin
     fun <T> foo1(t: T) = "some-result"
+    
     fun <T> foo2(t: T) = "some-result"
+
     fun <T> foo3(t: T) = "some-result"
     ```
 === "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
     fun<T> foo1(t: T) = "some-result"
+
     fun <T>foo2(t: T) = "some-result"
+
     fun<T>foo3(t: T) = "some-result"
     ```
 
@@ -1793,14 +1863,18 @@ No spaces around unary operators.
 
     ```kotlin
     fun foo1(i: Int) = i++
+
     fun foo2(i: Int) = ++i
+
     fun foo3(i: Int) = ++i
     ```
 === "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
     fun foo1(i: Int) = i ++
+
     fun foo2(i: Int) = ++ i
+
     fun foo3(i: Int) = ++
         i
     ```
@@ -1836,6 +1910,7 @@ Enforce consistent string template indentation for multiline string templates wh
         line1
         line2
         """.trimIndent()
+    
     fun foo() {
         // The opening """ can not be wrapped to next line as that would result in a compilation error
         return """
@@ -1851,6 +1926,7 @@ Enforce consistent string template indentation for multiline string templates wh
               line1
               line2
               """.trimIndent()
+
     fun foo() {
         return """
             line1
@@ -1874,20 +1950,22 @@ Consistent removal (default) or adding of trailing commas on call site.
 === "[:material-heart:](#) Ktlint"
 
     ```kotlin
-    FooWrapper(
-        Foo(
-            a = 3,
-            b = 4,
-        ),
-    )
+    val foo =
+        FooWrapper(
+            Foo(
+                a = 3,
+                b = 4,
+            ),
+        )
     ```
 === "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
-    FooWrapper(Foo(
-        a = 3,
-        b = 4,
-    ),) // it's weird to insert "," between unwrapped (continued) parenthesis
+    val foo =
+        FooWrapper(Foo(
+            a = 3,
+            b = 4,
+        ),) // it's weird to insert "," between unwrapped (continued) parenthesis
     ```
 
 !!! note
@@ -1951,13 +2029,13 @@ An empty parentheses block before a lambda is redundant.
 === "[:material-heart:](#) Ktlint"
 
     ```kotlin
-    "some-string".count { it == '-' }
+    val foo = "some-string".count { it == '-' }
     ```
 
 === "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
-    "some-string".count() { it == '-' }
+    val foo = "some-string".count() { it == '-' }
     ```
 
 Rule id: `unnecessary-parentheses-before-trailing-lambda` (`standard` rule set)
@@ -1971,19 +2049,21 @@ All arguments should be on the same line, or every argument should be on a separ
 === "[:material-heart:](#) Ktlint"
 
     ```kotlin
-    val x = f(
-        a,
-        b,
-        c
-    )
+    val foo =
+        foo(
+            a,
+            b,
+            c,
+        )
     ```
 === "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
-    val x = f(
-        a,
-        b, c
-    )
+    val foo =
+        foo(
+            a,
+            b, c,
+        )
     ```
 
 Rule-id: `argument-list-wrapping` (`standard` rule set)
@@ -1995,22 +2075,26 @@ When wrapping chained calls `.`, `?.` and `?:` should be placed on the next line
 === "[:material-heart:](#) Ktlint"
 
     ```kotlin
-    val foo = listOf(1, 2, 3)
-        .filter { it > 2 }!!
-        .takeIf { it.count() > 100 }
-        ?.sum()
-    val foobar = foo()
-        ?: bar
+    val foo =
+        listOf(1, 2, 3)
+            .filter { it > 2 }!!
+            .takeIf { it.count() > 100 }
+            ?.sum()
+    val foobar =
+        foo()
+            ?: bar
     ```
 === "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
-    val foo = listOf(1, 2, 3).
-        filter { it > 2 }!!.
-        takeIf { it.count() > 100 }?.
-        sum()
-    val foobar = foo() ?:
-        bar
+    val foo =
+        listOf(1, 2, 3).
+            filter { it > 2 }!!.
+            takeIf { it.count() > 100 }?.
+            sum()
+    val foobar =
+        foo() ?:
+            bar
     ```
 
 Rule id: `chain-wrapping` (`standard` rule set)
@@ -2022,7 +2106,7 @@ A block comment should start and end on a line that does not contain any other e
 === "[:material-heart:](#) Ktlint"
 
     ```kotlin
-    /* Some comment 1 */
+    // Some comment 1
     val foo1 = "foo1"
     val foo2 = "foo" // Some comment
     val foo3 = { /* no-op */ } 
@@ -2046,10 +2130,10 @@ Wraps the content receiver list to a separate line regardless of maximum line le
 === "[:material-heart:](#) Ktlint"
 
     ```kotlin
-    // ALways wrap regardless of whether max line length is set
+    // Always wrap regardless of whether max line length is set
     context(Foo)
     fun fooBar()
-
+    
     // Wrap each context receiver to a separate line when the
     // entire context receiver list does not fit on a single line
     context(
@@ -2057,7 +2141,7 @@ Wraps the content receiver list to a separate line regardless of maximum line le
         Foooooooooooooooooooooooooooooo2
     )
     fun fooBar()
-
+    
     // Wrap each context receiver to a separate line when the
     // entire context receiver list does not fit on a single line.
     // Also, wrap each of it projection types in case a context
@@ -2066,7 +2150,7 @@ Wraps the content receiver list to a separate line regardless of maximum line le
     context(
         Foooooooooooooooo<
             Foo,
-            Bar
+            Bar,
             >
     )
     fun fooBar()
@@ -2197,18 +2281,26 @@ When class/function signature doesn't fit on a single line, each parameter must 
 === "[:material-heart:](#) Ktlint"
 
     ```kotlin
+    // If `ktlint_class_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than` equals
+    // `unset` the parameters are not wrapped as long as they fit on a single line
     class ClassA(paramA: String, paramB: String, paramC: String)
+    
     class ClassA(
         paramA: String,
         paramB: String,
         paramC: String
     )
+    
+    // If `ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than` equals
+    // `unset` the parameters are not wrapped as long as they fit on a single line
     fun f(a: Any, b: Any, c: Any)
+    
     fun f(
         a: Any,
         b: Any,
         c: Any
     )
+    
     fun foo(
         @Bar fooBar: FooBar
     )
@@ -2220,10 +2312,12 @@ When class/function signature doesn't fit on a single line, each parameter must 
         paramA: String, paramB: String,
         paramC: String
     )
+
     fun f(
         a: Any,
         b: Any, c: Any
     )
+
     fun foo(@Bar fooBar: FooBar)
     ```
 === "[:material-heart-off-outline:](#) Disallowed (non ktlint_official)""
@@ -2233,6 +2327,7 @@ When class/function signature doesn't fit on a single line, each parameter must 
         paramA: String, paramB: String,
         paramC: String
     )
+
     fun f(
         a: Any,
         b: Any, c: Any
@@ -2254,6 +2349,7 @@ When a function or class parameter doesn't fit on a single line, wrap the type o
         val fooooooooooooooooooooooooTooLong:
             Foo,
     )
+
     fun bar(
         fooooooooooooooooooooooooTooLong:
             Foo,
@@ -2268,6 +2364,7 @@ When a function or class parameter doesn't fit on a single line, wrap the type o
         val fooooooooooooooooooooooooTooLong:
         Foo,
     )
+
     fun bar(
         fooooooooooooooooooooooooTooLong:
         Foo,
@@ -2281,6 +2378,7 @@ When a function or class parameter doesn't fit on a single line, wrap the type o
     class Bar(
         val fooooooooooooooooooooooooTooLong: Foo,
     )
+
     fun bar(
         fooooooooooooooooooooooooooooTooLong: Foo,
     )
@@ -2322,11 +2420,14 @@ A function, class/object body or other block body statement has to be placed on 
             // do something
         }
     }
+
     class A {
         val a = 0
         val b = 1
     }
+
     enum class FooBar1 { FOO, BAR }
+
     enum class FooBar2 {
         FOO,
         BAR,
@@ -2340,6 +2441,7 @@ A function, class/object body or other block body statement has to be placed on 
             // do something
         }
     }
+
     class A { val a = 0
         val b = 1 }
     ```
@@ -2353,17 +2455,18 @@ Inserts missing newlines (for example between parentheses of a multi-line functi
 === "[:material-heart:](#) Ktlint"
 
     ```kotlin
-    val x = f(
-        a,
-        b,
-        c
-    )
+    val foo =
+        foo(
+            a,
+            b,
+            c,
+        )
     ```
 
 === "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
-    val x = f(
+    val foo = foo(
         a,
         b,
         c)

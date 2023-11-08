@@ -19,6 +19,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
@@ -222,7 +223,7 @@ public class TypeParameterListSpacingRule :
                 }
             }
 
-            expectedWhitespace.startsWith("\n") -> {
+            node.isWhiteSpaceWithoutNewline() && expectedWhitespace.startsWith("\n") -> {
                 emit(
                     node.startOffset,
                     "Expected a newline",

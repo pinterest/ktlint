@@ -15,7 +15,6 @@ jobs:
         with:
           ref: 'master'
 
-
       - uses: ./.github/actions/setup-gradle-build
 
       - name: Build executable and publish to Maven
@@ -32,8 +31,9 @@ jobs:
         if: ${{ success() }}
         run: |
           FIRST_HEADING2=$(grep "^## " CHANGELOG.md | head -n 1)
-          if [[ "$FIRST_HEADING2" != "## [Unreleased]" ]]; then
-            echo "First heading at level 2 should be '## [Unreleased]'"
+          echo "First heading2 found: $FIRST_HEADING2"
+          if [[ ! "$FIRST_HEADING2" =~ ^##[[:space:]]\[[0-9]+\.[0-9]+\.[0-9]+\][[:space:]]-[[:space:]][0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+            echo "First heading at level 2 should match '## [X.Y.Z] - [YYYY-MM-DD]'"
             exit 1
           fi
 
@@ -79,13 +79,13 @@ jobs:
           formula-path: Formula/k/ktlint.rb
           download-url: https://github.com/pinterest/ktlint/releases/download/${{ env.version }}/ktlint-${{ env.version }}.zip
 
-      - name: Release to sdkman
-        if: ${{ success() }}
-        env:
-          SDKMAN_KEY: ${{ secrets.SDKMAN_KEY }}
-          SDKMAN_TOKEN: ${{ secrets.SDKMAN_TOKEN }}
-          SDKMAN_VERSION: ${{ env.version }}
-        run: ./gradlew :ktlint-cli:sdkMajorRelease
+#      - name: Release to sdkman
+#        if: ${{ success() }}
+#        env:
+#          SDKMAN_KEY: ${{ secrets.SDKMAN_KEY }}
+#          SDKMAN_TOKEN: ${{ secrets.SDKMAN_TOKEN }}
+#          SDKMAN_VERSION: ${{ env.version }}
+#        run: ./gradlew :ktlint-cli:sdkMajorRelease
 
       - name: Update Release documentation
         if: ${{ success() }}

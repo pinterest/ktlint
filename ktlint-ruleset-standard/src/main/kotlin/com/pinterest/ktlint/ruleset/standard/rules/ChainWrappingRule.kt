@@ -10,12 +10,12 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MINUS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MUL
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OROR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PERC
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PLUS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PREFIX_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SAFE_ACCESS
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.Companion.DEFAULT_INDENT_CONFIG
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
@@ -29,13 +29,14 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
@@ -105,14 +106,22 @@ public class ChainWrappingRule :
                 return
             }
             val prevLeaf = node.prevLeaf()
-            if (
-                prevLeaf?.elementType == WHITE_SPACE &&
-                prevLeaf.textContains('\n') &&
-                // fn(*typedArray<...>()) case
-                (elementType != MUL || !prevLeaf.isPartOfSpread()) &&
-                // unary +/-
-                (!prefixTokens.contains(elementType) || !node.isInPrefixPosition())
-            ) {
+            if (node.isPartOfSpread()) {
+                // Allow:
+                //    fn(
+                //        *typedArray<...>()
+                //    )
+                return
+            }
+            if (prefixTokens.contains(elementType) && node.isInPrefixPosition()) {
+                // Allow:
+                //    fn(
+                //        -42
+                //    )
+                return
+            }
+
+            if (prevLeaf != null && prevLeaf.isWhiteSpaceWithNewline()) {
                 emit(node.startOffset, "Line must not begin with \"${node.text}\"", true)
                 if (autoCorrect) {
                     // rewriting
@@ -122,27 +131,51 @@ public class ChainWrappingRule :
                     // <insertionPoint><spaceBeforeComment><comment><prevLeaf="\n"><node="&&"><nextLeaf=" "> to
                     // <insertionPoint><space if needed><node="&&"><spaceBeforeComment><comment><prevLeaf="\n"><delete node="&&"><delete nextLeaf=" ">
                     val nextLeaf = node.nextLeaf()
-                    if (nextLeaf is PsiWhiteSpace) {
-                        nextLeaf.node.treeParent.removeChild(nextLeaf.node)
+                    val whiteSpaceToBeDeleted =
+                        when {
+                            nextLeaf.isWhiteSpaceWithNewline() -> {
+                                // Node is preceded and followed by whitespace. Prefer to remove the whitespace before the node as this will
+                                // change the indent of the next line
+                                prevLeaf
+                            }
+                            nextLeaf.isWhiteSpaceWithoutNewline() -> nextLeaf
+                            else -> null
+                        }
+
+                    if (node.treeParent.elementType == OPERATION_REFERENCE) {
+                        val operationReference = node.treeParent
+                        val insertBeforeSibling =
+                            operationReference
+                                .prevCodeSibling()
+                                ?.nextSibling()
+                        operationReference.treeParent.removeChild(operationReference)
+                        insertBeforeSibling?.treeParent?.addChild(operationReference, insertBeforeSibling)
+                        node.treeParent.upsertWhitespaceBeforeMe(" ")
+                    } else {
+                        val insertionPoint = prevLeaf.prevCodeLeaf() as LeafPsiElement
+                        (node as LeafPsiElement).treeParent.removeChild(node)
+                        insertionPoint.rawInsertAfterMe(node)
+                        (insertionPoint as ASTNode).upsertWhitespaceAfterMe(" ")
                     }
-                    val insertionPoint = prevLeaf.prevCodeLeaf() as LeafPsiElement
-                    (node as LeafPsiElement).treeParent.removeChild(node)
-                    insertionPoint.rawInsertAfterMe(node)
-                    (insertionPoint as ASTNode).upsertWhitespaceAfterMe(" ")
+                    whiteSpaceToBeDeleted
+                        ?.treeParent
+                        ?.removeChild(whiteSpaceToBeDeleted)
                 }
             }
         }
     }
 
     private fun ASTNode.isPartOfSpread() =
-        prevCodeLeaf()?.let { leaf ->
-            val type = leaf.elementType
-            type == LPAR ||
-                type == COMMA ||
-                type == LBRACE ||
-                type == ELSE_KEYWORD ||
-                KtTokens.OPERATIONS.contains(type)
-        } == true
+        elementType == MUL &&
+            prevCodeLeaf()
+                ?.let { leaf ->
+                    val type = leaf.elementType
+                    type == LPAR ||
+                        type == COMMA ||
+                        type == LBRACE ||
+                        type == ELSE_KEYWORD ||
+                        KtTokens.OPERATIONS.contains(type)
+                } == true
 
     private fun ASTNode.isInPrefixPosition() = treeParent?.treeParent?.elementType == PREFIX_EXPRESSION
 

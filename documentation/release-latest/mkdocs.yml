@@ -39,8 +39,8 @@ theme:
 
 nav:
   - Home:
-    - Features: index.md
-    - Quick start: quick-start.md
+      - Features: index.md
+      - Quick start: quick-start.md
   - Installation:
     - Command line: install/cli.md
     - Integrations: install/integrations.md

@@ -59,10 +59,6 @@ Before releasing a new version of KtLint, the release candidate is tested on a s
    ```shell
    ./exec-in-each-project.sh "git pull"
    ```
-3. Remove baseline file
-   ```shell
-   rm baseline.xml
-   ```
 
 ## Testing a new release
 
@@ -92,7 +88,6 @@ Formatting projects in which ktlint is not used may result in a huge amount of f
    #        graphql
    #          ktlint_standard_import-ordering = disabled
    #          ktlint_standard_package-name = disabled
-   #   3) Replace removed property "disabled_rules" with "ktlint_standard_xxxx = disabled"
    ktlint_code_style = ktlint_official
    ktlint_experimental = enabled
    ktlint_standard = enabled
@@ -103,7 +98,7 @@ Formatting projects in which ktlint is not used may result in a huge amount of f
    ktlint_standard_class-naming = disabled
    ktlint_standard_comment-wrapping = disabled
    ```
-3. Commit changes:
+2. Commit changes:
    ```shell
    ./exec-in-each-project.sh "git add --all && git commit -m \"Update .editorconfig to fallback to integration test settings\""
    ```

@@ -498,7 +498,7 @@ class ParameterListWrappingRuleTest {
                 A : GenericTypeWithALongLongALong1,
                 B : GenericTypeWithALongLongALong2,
                 C : GenericTypeWithALongLongALong3
-                > constructor(
+            > constructor(
                 parameterWithLongLongLongLongLongLongLongLongNameA: A,
                 parameterWithLongLongLongLongLongLongLongLongNameB: B,
                 parameterWithLongLongLongLongLongLongLongLongNameC: C
@@ -530,7 +530,7 @@ class ParameterListWrappingRuleTest {
                 public val fooBar: List<
                     Foo,
                     Bar
-                    >,
+                >,
             )
             """.trimIndent()
         parameterListWrappingRuleAssertThat(code).hasNoLintViolations()
