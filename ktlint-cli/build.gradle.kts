@@ -8,6 +8,8 @@ plugins {
     signing
 }
 
+val r8: Configuration by configurations.creating
+
 tasks.jar {
     manifest {
         attributes("Main-Class" to "com.pinterest.ktlint.Main")
@@ -37,6 +39,46 @@ dependencies {
     runtimeOnly(projects.ktlintCliReporterSarif)
 
     testImplementation(projects.ktlintTest)
+
+    r8(libs.r8)
+}
+
+val r8JarFile =
+    layout
+        .buildDirectory
+        .file("libs/ktlint-cli-$version-r8.jar")
+        .get()
+        .asFile
+val proguardFile = file("src/main/proguard-rules.pro")
+val fatJarFile = tasks.shadowJar.get().archiveFile
+val r8Jar by tasks.registering(JavaExec::class) {
+    description = "Creates a jar minified from the fat jar using R8"
+    group = "Distribution"
+    dependsOn(tasks.shadowJar)
+
+    // Find the "ktlint-cli-<version>-all.jar" file
+    val fatJar =
+        tasks
+            .shadowJar
+            .get()
+            .outputs
+            .files
+            .singleFile
+    inputs.file(fatJar)
+    inputs.file(proguardFile)
+    outputs.file(r8JarFile)
+
+    classpath = r8
+    mainClass = "com.android.tools.r8.R8"
+    args =
+        listOf(
+            "--release",
+            "--classfile",
+            "--output", r8JarFile.toString(),
+            "--pg-conf", proguardFile.path,
+            "--lib", System.getProperty("java.home").toString(),
+            fatJarFile.get().toString(),
+        )
 }
 
 // Implements https://github.com/brianm/really-executable-jars-maven-plugin maven plugin behaviour.
@@ -44,22 +86,12 @@ dependencies {
 val shadowJarExecutable by tasks.registering(DefaultTask::class) {
     description = "Creates self-executable file, that runs generated shadow jar"
     group = "Distribution"
-
-    dependsOn(tasks.shadowJar)
+    dependsOn(r8Jar)
 
     val isReleaseBuild = !version.toString().endsWith("SNAPSHOT")
 
-    // Find the "ktlint-cli-<version>-all.jar" file
-    val ktlintCliAllJarFile =
-        tasks
-            .shadowJar
-            .orNull
-            ?.outputs
-            ?.files
-            ?.singleFile
-            ?: throw GradleException("Can not locate the jar file for building the self-executable ktlint-cli")
-    logger.lifecycle("ktlint-cli: Base jar to build self-executable file: ${ktlintCliAllJarFile.absolutePath}")
-    inputs.files(ktlintCliAllJarFile)
+    logger.lifecycle("ktlint-cli: Base jar to build self-executable file: ${r8JarFile.absolutePath}")
+    inputs.files(r8JarFile)
 
     val windowsBatchFileInputPath = "$projectDir/src/main/scripts/ktlint.bat"
     inputs.files(windowsBatchFileInputPath)
@@ -100,7 +132,7 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
                 """.trimIndent(),
             )
             // Add the jar
-            appendBytes(ktlintCliAllJarFile.readBytes())
+            appendBytes(r8JarFile.readBytes())
 
             setExecutable(true, false)
 
