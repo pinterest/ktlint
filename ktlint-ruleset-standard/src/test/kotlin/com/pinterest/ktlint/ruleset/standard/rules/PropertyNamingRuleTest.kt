@@ -118,69 +118,153 @@ class PropertyNamingRuleTest {
         propertyNamingRuleAssertThat(code).hasNoLintViolations()
     }
 
-    @Test
-    fun `Given a backing val property name, not in screaming case notation, and having another property with a custom get function then do not emit`() {
-        val code =
-            """
-            class Foo {
-                private val _elementList = mutableListOf<Element>()
+    @Nested
+    inner class `Given a property name starting with '_', and not in screaming case notation` {
+        @Nested
+        inner class `Given that a correlated property exists` {
+            @Test
+            fun `Given that the correlated property is implicitly public then do not emit`() {
+                val code =
+                    """
+                    class Foo {
+                        private val _elementList = mutableListOf<Element>()
 
-                val elementList: List<Element>
-                    get() = _elementList
+                        val elementList: List<Element>
+                            get() = _elementList
+                    }
+                    """.trimIndent()
+                propertyNamingRuleAssertThat(code).hasNoLintViolations()
             }
-            """.trimIndent()
-        propertyNamingRuleAssertThat(code).hasNoLintViolations()
-    }
 
-    @Test
-    fun `Given a backing val property name, not in screaming case notation, and having another property with a custom get function with public modifier then do not emit`() {
-        val code =
-            """
-            class Foo {
-                private val _elementList = mutableListOf<Element>()
+            @Test
+            fun `Given that the correlated property is explicitly public then do not emit`() {
+                val code =
+                    """
+                    class Foo {
+                        private val _elementList = mutableListOf<Element>()
 
-                public val elementList: List<Element>
-                    get() = _elementList
+                        public val elementList: List<Element>
+                            get() = _elementList
+                    }
+                    """.trimIndent()
+                propertyNamingRuleAssertThat(code).hasNoLintViolations()
             }
-            """.trimIndent()
-        propertyNamingRuleAssertThat(code).hasNoLintViolations()
-    }
 
-    @ParameterizedTest(name = "Modifier: {0}")
-    @ValueSource(
-        strings = [
-            "private",
-            "protected",
-        ],
-    )
-    fun `Given a backing val property name, not in screaming case notation, and having having another property with a custom get function with non-public modifier then do emit`(
-        modifier: String,
-    ) {
-        val code =
-            """
-            class Foo {
-                private val _elementList = mutableListOf<Element>()
+            @Test
+            fun `Given that the backing and correlated property contain diacritics then do not emit`() {
+                val code =
+                    """
+                    class Foo {
+                        private val _elementŁîšt = mutableListOf<Element>()
 
-                $modifier val elementList: List<Element>
-                    get() = _elementList
+                        val elementŁîšt: List<Element>
+                            get() = _elementList
+                    }
+                    """.trimIndent()
+                propertyNamingRuleAssertThat(code).hasNoLintViolations()
             }
-            """.trimIndent()
-        propertyNamingRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(2, 17, "Backing property not allowed when matching public property is missing")
-    }
 
-    @Test
-    fun `Given a backing val property name containing diacritics having a custom get function and not in screaming case notation then do not emit`() {
-        val code =
-            """
-            class Foo {
-                private val _elementŁîšt = mutableListOf<Element>()
+            @ParameterizedTest(name = "Modifier: {0}")
+            @ValueSource(
+                strings = [
+                    "private",
+                    "protected",
+                ],
+            )
+            fun `Given that correlated property is non-public then emit`(modifier: String) {
+                val code =
+                    """
+                    class Foo {
+                        private val _elementList = mutableListOf<Element>()
 
-                val elementŁîšt: List<Element>
-                    get() = _elementList
+                        $modifier val elementList: List<Element>
+                            get() = _elementList
+                    }
+                    """.trimIndent()
+                @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+                propertyNamingRuleAssertThat(code)
+                    .hasLintViolationWithoutAutoCorrect(2, 17, "Backing property name is only allowed when a matching public property or function exists")
             }
-            """.trimIndent()
-        propertyNamingRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Nested
+        inner class `Given that a correlated function exists` {
+            @Test
+            fun `Given that the correlated function is implicitly public then do not emit`() {
+                val code =
+                    """
+                    class Foo {
+                        private val _elementList = mutableListOf<Element>()
+
+                        fun getElementList(): List<Element> = _elementList
+                    }
+                    """.trimIndent()
+                propertyNamingRuleAssertThat(code).hasNoLintViolations()
+            }
+
+            @Test
+            fun `Given that the correlated function is explicitly public then do not emit`() {
+                val code =
+                    """
+                    class Foo {
+                        private val _elementList = mutableListOf<Element>()
+
+                        public fun getElementList(): List<Element> = _elementList
+                    }
+                    """.trimIndent()
+                propertyNamingRuleAssertThat(code).hasNoLintViolations()
+            }
+
+            @Test
+            fun `Given that the backing and correlated function contain diacritics then do not emit`() {
+                val code =
+                    """
+                    class Foo {
+                        private val _ëlementŁîšt = mutableListOf<Element>()
+
+                        fun getËlementŁîšt(): List<Element> = _elementList
+                    }
+                    """.trimIndent()
+                propertyNamingRuleAssertThat(code).hasNoLintViolations()
+            }
+
+            @ParameterizedTest(name = "Modifier: {0}")
+            @ValueSource(
+                strings = [
+                    "private",
+                    "protected",
+                    "internal",
+                ],
+            )
+            fun `Given that correlated function is non-public then emit`(modifier: String) {
+                val code =
+                    """
+                    class Foo {
+                        private val _elementList = mutableListOf<Element>()
+
+                        $modifier fun getElementList(): List<Element> = _elementList
+                    }
+                    """.trimIndent()
+                @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+                propertyNamingRuleAssertThat(code)
+                    .hasLintViolationWithoutAutoCorrect(2, 17, "Backing property name is only allowed when a matching public property or function exists")
+            }
+
+            @Test
+            fun `Given that the correlated function has at least 1 parameter then emit`() {
+                val code =
+                    """
+                    class Foo {
+                        private val _elementList = mutableListOf<Element>()
+
+                        fun getElementList(bar: String): List<Element> = _elementList + bar
+                    }
+                    """.trimIndent()
+                @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+                propertyNamingRuleAssertThat(code)
+                    .hasLintViolationWithoutAutoCorrect(2, 17, "Backing property name is only allowed when a matching public property or function exists")
+            }
+        }
     }
 
     @Test
@@ -303,7 +387,7 @@ class PropertyNamingRuleTest {
                 LintViolation(1, 11, "Property name should use the screaming snake case notation when the value can not be changed", canBeAutoCorrected = false),
                 LintViolation(3, 5, "Property name should start with a lowercase letter and use camel case", canBeAutoCorrected = false),
                 LintViolation(6, 9, "Property name should start with a lowercase letter and use camel case", canBeAutoCorrected = false),
-                LintViolation(9, 17, "Backing property not allowed when matching public property is missing", canBeAutoCorrected = false),
+                LintViolation(9, 17, "Backing property name is only allowed when a matching public property or function exists", canBeAutoCorrected = false),
                 LintViolation(12, 9, "Backing property name not allowed when 'private' modifier is missing", canBeAutoCorrected = false),
             )
     }
