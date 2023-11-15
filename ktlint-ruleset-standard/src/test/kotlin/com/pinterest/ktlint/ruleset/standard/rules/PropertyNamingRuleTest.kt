@@ -119,7 +119,7 @@ class PropertyNamingRuleTest {
     }
 
     @Test
-    fun `Given a backing val property name having a custom get function and not in screaming case notation then do not emit`() {
+    fun `Given a backing val property name, not in screaming case notation, and having another property with a custom get function then do not emit`() {
         val code =
             """
             class Foo {
@@ -130,6 +130,43 @@ class PropertyNamingRuleTest {
             }
             """.trimIndent()
         propertyNamingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a backing val property name, not in screaming case notation, and having another property with a custom get function with public modifier then do not emit`() {
+        val code =
+            """
+            class Foo {
+                private val _elementList = mutableListOf<Element>()
+
+                public val elementList: List<Element>
+                    get() = _elementList
+            }
+            """.trimIndent()
+        propertyNamingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @ParameterizedTest(name = "Modifier: {0}")
+    @ValueSource(
+        strings = [
+            "private",
+            "protected",
+        ],
+    )
+    fun `Given a backing val property name, not in screaming case notation, and having having another property with a custom get function with non-public modifier then do emit`(
+        modifier: String,
+    ) {
+        val code =
+            """
+            class Foo {
+                private val _elementList = mutableListOf<Element>()
+
+                $modifier val elementList: List<Element>
+                    get() = _elementList
+            }
+            """.trimIndent()
+        propertyNamingRuleAssertThat(code)
+            .hasLintViolationWithoutAutoCorrect(2, 17, "Backing property not allowed when matching public property is missing")
     }
 
     @Test
@@ -266,8 +303,8 @@ class PropertyNamingRuleTest {
                 LintViolation(1, 11, "Property name should use the screaming snake case notation when the value can not be changed", canBeAutoCorrected = false),
                 LintViolation(3, 5, "Property name should start with a lowercase letter and use camel case", canBeAutoCorrected = false),
                 LintViolation(6, 9, "Property name should start with a lowercase letter and use camel case", canBeAutoCorrected = false),
-                LintViolation(9, 17, "Property name should start with a lowercase letter and use camel case", canBeAutoCorrected = false),
-                LintViolation(12, 9, "Property name should start with a lowercase letter and use camel case", canBeAutoCorrected = false),
+                LintViolation(9, 17, "Backing property not allowed when matching public property is missing", canBeAutoCorrected = false),
+                LintViolation(12, 9, "Backing property name not allowed when 'private' modifier is missing", canBeAutoCorrected = false),
             )
     }
 }

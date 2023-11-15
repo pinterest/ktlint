@@ -11,6 +11,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.OVERRIDE_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PRIVATE_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY_ACCESSOR
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROTECTED_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VAL_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
@@ -53,7 +54,7 @@ public class PropertyNamingRule : StandardRule("property-naming") {
                     property.hasCustomGetter() || property.isTopLevelValue() || property.isObjectValue() -> {
                         // Can not reliably determine whether the value is immutable or not
                     }
-                    property.isBackingProperty() -> {
+                    identifier.text.startsWith("_") -> {
                         visitBackingProperty(identifier, emit)
                     }
                     else -> {
@@ -72,6 +73,27 @@ public class PropertyNamingRule : StandardRule("property-naming") {
             .takeUnless { it.matches(BACKING_PROPERTY_LOWER_CAMEL_CASE_REGEXP) }
             ?.let {
                 emit(identifier.startOffset, "Backing property name should start with underscore followed by lower camel case", false)
+            }
+
+        if (!identifier.treeParent.hasModifier(PRIVATE_KEYWORD)) {
+            emit(identifier.startOffset, "Backing property name not allowed when 'private' modifier is missing", false)
+        }
+
+        identifier
+            .treeParent
+            ?.treeParent
+            ?.children()
+            ?.filter { it.elementType == PROPERTY }
+            ?.mapNotNull { it.findChildByType(IDENTIFIER) }
+            ?.firstOrNull { it.text == identifier.text.removePrefix("_") }
+            ?.treeParent
+            .let { otherProperty ->
+                if (otherProperty == null ||
+                    otherProperty.hasModifier(PRIVATE_KEYWORD) ||
+                    otherProperty.hasModifier(PROTECTED_KEYWORD)
+                ) {
+                    emit(identifier.startOffset, "Backing property not allowed when matching public property is missing", false)
+                }
             }
     }
 
@@ -128,22 +150,6 @@ public class PropertyNamingRule : StandardRule("property-naming") {
             treeParent?.treeParent?.elementType == OBJECT_DECLARATION &&
             containsValKeyword() &&
             !hasModifier(OVERRIDE_KEYWORD)
-
-    private fun ASTNode.isBackingProperty() =
-        takeIf { hasModifier(PRIVATE_KEYWORD) }
-            ?.findChildByType(IDENTIFIER)
-            ?.takeIf { it.text.startsWith("_") }
-            ?.let { identifier ->
-                this.hasPublicProperty(identifier.text.removePrefix("_"))
-            }
-            ?: false
-
-    private fun ASTNode.hasPublicProperty(identifier: String) =
-        treeParent
-            .children()
-            .filter { it.elementType == PROPERTY }
-            .mapNotNull { it.findChildByType(IDENTIFIER) }
-            .any { it.text == identifier }
 
     private companion object {
         val LOWER_CAMEL_CASE_REGEXP = "[a-z][a-zA-Z0-9]*".regExIgnoringDiacriticsAndStrokesOnLetters()
