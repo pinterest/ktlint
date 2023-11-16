@@ -3,8 +3,10 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONST_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.GET_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.INTERNAL_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_DECLARATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OVERRIDE_KEYWORD
@@ -12,6 +14,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.PRIVATE_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY_ACCESSOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROTECTED_KEYWORD
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VAL_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
@@ -79,6 +83,7 @@ public class PropertyNamingRule : StandardRule("property-naming") {
             emit(identifier.startOffset, "Backing property name not allowed when 'private' modifier is missing", false)
         }
 
+        // A backing property can only exist when a correlated public property or function exists
         identifier
             .treeParent
             ?.treeParent
@@ -87,15 +92,41 @@ public class PropertyNamingRule : StandardRule("property-naming") {
             ?.mapNotNull { it.findChildByType(IDENTIFIER) }
             ?.firstOrNull { it.text == identifier.text.removePrefix("_") }
             ?.treeParent
-            .let { otherProperty ->
-                if (otherProperty == null ||
-                    otherProperty.hasModifier(PRIVATE_KEYWORD) ||
-                    otherProperty.hasModifier(PROTECTED_KEYWORD)
-                ) {
-                    emit(identifier.startOffset, "Backing property not allowed when matching public property is missing", false)
+            ?.let { correlatedProperty ->
+                if (correlatedProperty.isNotPublic()) {
+                    return
                 }
             }
+
+        val correlatedFunctionName = "get${identifier.capitalizeFirstChar()}"
+        identifier
+            .treeParent
+            ?.treeParent
+            ?.children()
+            ?.filter { it.elementType == FUN }
+            ?.filter { it.hasNonEmptyParameterList() }
+            ?.mapNotNull { it.findChildByType(IDENTIFIER) }
+            ?.firstOrNull { it.text == correlatedFunctionName }
+            ?.treeParent
+            ?.let { correlatedFunction ->
+                if (correlatedFunction.isNotPublic()) {
+                    return
+                }
+            }
+
+        emit(identifier.startOffset, "Backing property name is only allowed when a matching public property or function exists", false)
     }
+
+    private fun ASTNode.hasNonEmptyParameterList() =
+        findChildByType(VALUE_PARAMETER_LIST)
+            ?.children()
+            ?.none { it.elementType == VALUE_PARAMETER }
+            ?: false
+
+    private fun ASTNode.capitalizeFirstChar() =
+        text
+            .removePrefix("_")
+            .replaceFirstChar { it.uppercase() }
 
     private fun visitConstProperty(
         identifier: ASTNode,
@@ -150,6 +181,11 @@ public class PropertyNamingRule : StandardRule("property-naming") {
             treeParent?.treeParent?.elementType == OBJECT_DECLARATION &&
             containsValKeyword() &&
             !hasModifier(OVERRIDE_KEYWORD)
+
+    private fun ASTNode.isNotPublic() =
+        !hasModifier(PRIVATE_KEYWORD) &&
+            !hasModifier(PROTECTED_KEYWORD) &&
+            !hasModifier(INTERNAL_KEYWORD)
 
     private companion object {
         val LOWER_CAMEL_CASE_REGEXP = "[a-z][a-zA-Z0-9]*".regExIgnoringDiacriticsAndStrokesOnLetters()
