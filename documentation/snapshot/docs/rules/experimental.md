@@ -480,3 +480,24 @@ Enforce a single whitespace between the modifier list and the function type.
     ```
 
 Rule id: `function-type-modifier-spacing` (`standard` rule set)
+
+## Multiline loop
+
+Braces required for multiline for, while, and do statements.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    for (i in 1..10) {
+        println(i)
+    }
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    for (i in 1..10)
+        println(i)
+    ```
+
+Rule id: `multiline-loop` (`standard` rule set)
