@@ -52,6 +52,78 @@ ktlint_custom-rule-set = enabled # Enable all rules in the `custom-rule-set` rul
 !!! note
     All rules from the `standard` and custom rule sets are *enabled* by default and can optionally be disabled in the `.editorconfig`. All `experimental` rules are *disabled* by default and can optionally be enabled in the `.editorconfig`.
 
+## Why is a rule skipped when I disable some other rule?
+
+Most rules in ktlint can be executed independently of other rules. However, some rules can only be executed in case one or more other rules are also loaded and/or enabled. Dependencies between rules are introduced to reduce complexity in ktlint. Similar logic in different rules has to be avoided as this might result in formatting conflicts between different rules, which could result in endless loops of formatting and reformatting by a set of rules.
+
+In case, you disable a rule, you might run into an `IllegalStateException` like below:
+
+```text
+java.lang.IllegalStateException: Skipping rule(s) which are depending on a rule which is not loaded. Please check if you need to add additional rule sets before creating an issue.
+  - Rule with id 'RuleId(value=standard:string-template-indent)' requires rule with id 'RuleId(value=standard:multiline-expression-wrapping)' to be loaded
+```
+
+For the example above, the `string-template-indent` rule depends on the `multiline-expression-wrapping` so that the former rule does not need to know, how to wrap a multiline string that is not yet wrapped:
+```kotlin
+val foo = """
+    some text
+   """.trimIndent()
+```
+
+## Why does ktlint discourage certain comment locations?
+
+Kotlin has three different type of comments. Although the KDoc and the block comment look similar in code, their internal PSI structure is different. The EOL comment is yet very different.
+
+In Kotlin it is possible to insert a comment everywhere. It is very challenging, and time-consuming, to make each rule fully resilient for each possible comment location, even in case such locations will (almost) never by used.
+
+For example, in sample below it is unclear whether the comment applies to the `if` block, or to the `else` block without interpreting the comment itself.
+
+=== "[:material-heart-off-outline:](#) Unclear comment"
+
+    ```kotlin
+    if (someCondition) {
+        doTrue()
+    } // comment
+    else {
+        doFalse()
+    }
+    ```
+
+=== "[:material-heart:](#) Clear comment"
+
+    ```kotlin
+    if (someCondition) {
+        doTrue()
+    } else { 
+        // comment
+        doFalse()
+    }
+    ```
+
+In other cases, a comment location is more widely used but semantically still incorrect. For example, in sample below the EOL comment is placed after the comma, but it obviously is related to the part before the comma:
+
+=== "[:material-heart-off-outline:](#) Unclear comment"
+
+    ```kotlin
+    fun fooBar(
+        foo: Foo, // foo-comment
+        bar: Bar, // bar-comment
+    ) {}
+    ```
+
+=== "[:material-heart:](#) Clear comment"
+
+    ```kotlin
+    fun fooBar(
+        // foo-comment
+        foo: Foo,
+        // bar-comment
+        bar: Bar,
+    ) {}
+    ```
+
+By forbidding certain comment locations, the logic in the rules becomes a bit easier.
+
 ## Can I have my own rules on top of ktlint?
 
 Absolutely, "no configuration" doesn't mean "no extensibility". You can add your own ruleset(s) to discover potential bugs, check for anti-patterns, etc.
