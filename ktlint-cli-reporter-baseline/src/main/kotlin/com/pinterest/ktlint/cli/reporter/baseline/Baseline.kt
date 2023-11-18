@@ -58,23 +58,75 @@ public class Baseline(
     }
 }
 
+public enum class BaselineErrorHandling {
+    /**
+     * Log an error message. Does not throw an exception.
+     */
+    LOG,
+
+    /**
+     * Throws an exception on error. Does not log the error.
+     */
+    EXCEPTION,
+}
+
 /**
- * Loads the [Baseline] from the file located on [path].
+ * Loads the [Baseline] from the file located on [path]. Exceptions are swallowed and log message is written. On error, the baseline file is
+ * deleted.
  */
-public fun loadBaseline(path: String): Baseline = BaselineLoader(path).load()
+@Deprecated(
+    message = "Marked for removal in Ktlint 2.0",
+    replaceWith = ReplaceWith("loadBaseline(path, BaselineErrorHandling.LOG)"),
+)
+public fun loadBaseline(path: String): Baseline = loadBaseline(path, BaselineErrorHandling.LOG)
+
+/**
+ * Loads the [Baseline] from the file located on [path]. In case the baseline file can not be loaded successfully, it will be deleted.
+ */
+public fun loadBaseline(
+    path: String,
+    errorHandling: BaselineErrorHandling = BaselineErrorHandling.EXCEPTION,
+): Baseline =
+    with(BaselineLoader(path)) {
+        try {
+            load()
+        } catch (e: Exception) {
+            // Delete baseline as it contains an error
+            try {
+                delete()
+            } catch (e: Exception) {
+                if (errorHandling == BaselineErrorHandling.LOG) {
+                    LOGGER.error { e.message }
+                } else {
+                    // Swallow as original exception from loading is to be returned only
+                }
+            }
+
+            // Handle original exception
+            if (errorHandling == BaselineErrorHandling.EXCEPTION) {
+                throw e
+            } else {
+                LOGGER.error { e.message }
+                Baseline(path = path, status = INVALID)
+            }
+        }
+    }
 
 private class BaselineLoader(
     private val path: String,
 ) {
+    private val baselinePath =
+        Paths
+            .get(path)
+            .toFile()
+            .takeIf { it.exists() }
+
     var ruleReferenceWithoutRuleSetIdPrefix = 0
 
     fun load(): Baseline {
         require(path.isNotBlank()) { "Path for loading baseline may not be blank or empty" }
 
-        Paths
-            .get(path)
-            .toFile()
-            .takeIf { it.exists() }
+        baselinePath
             ?.let { baselineFile ->
                 try {
                     return Baseline(
@@ -91,20 +143,12 @@ private class BaselineLoader(
                         }
                     }
                 } catch (e: IOException) {
-                    LOGGER.error { "Unable to parse baseline file: $path" }
+                    throw BaselineLoaderException("Unable to parse baseline file: $path", e)
                 } catch (e: ParserConfigurationException) {
-                    LOGGER.error { "Unable to parse baseline file: $path" }
+                    throw BaselineLoaderException("Unable to parse baseline file: $path", e)
                 } catch (e: SAXException) {
-                    LOGGER.error { "Unable to parse baseline file: $path" }
+                    throw BaselineLoaderException("Unable to parse baseline file: $path", e)
                 }
-
-                // Baseline can not be parsed.
-                try {
-                    baselineFile.delete()
-                } catch (e: IOException) {
-                    LOGGER.error { "Unable to delete baseline file: $path" }
-                }
-                return Baseline(path = path, status = INVALID)
             }
 
         return Baseline(path = path, status = NOT_FOUND)
@@ -172,7 +216,20 @@ private class BaselineLoader(
             detail = "",
             status = BASELINE_IGNORED,
         )
+
+    fun delete() {
+        try {
+            baselinePath?.delete()
+        } catch (e: IOException) {
+            throw BaselineLoaderException("Unable to delete baseline file: $path", e)
+        }
+    }
 }
+
+public class BaselineLoaderException(
+    message: String,
+    throwable: Throwable,
+) : RuntimeException(message, throwable)
 
 /**
  * Checks if the list contains the given [KtlintCliError]. The [List.contains] function can not be used as [KtlintCliError.detail] is not

@@ -3,6 +3,7 @@ package com.pinterest.ktlint.cli.internal
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import com.pinterest.ktlint.cli.reporter.baseline.Baseline
+import com.pinterest.ktlint.cli.reporter.baseline.BaselineErrorHandling
 import com.pinterest.ktlint.cli.reporter.baseline.doesNotContain
 import com.pinterest.ktlint.cli.reporter.baseline.loadBaseline
 import com.pinterest.ktlint.cli.reporter.core.api.KtlintCliError
@@ -300,7 +301,7 @@ internal class KtlintCommandLine {
             if (stdin || baselinePath.isBlank()) {
                 Baseline(status = Baseline.Status.DISABLED)
             } else {
-                loadBaseline(baselinePath)
+                loadBaseline(baselinePath, BaselineErrorHandling.LOG)
             }
         val aggregatedReporter =
             ReporterAggregator(

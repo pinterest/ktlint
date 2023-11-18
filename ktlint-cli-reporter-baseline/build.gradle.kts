@@ -8,4 +8,6 @@ dependencies {
     implementation(projects.ktlintCliReporterCore)
 
     testImplementation(projects.ktlintTest)
+    testImplementation(libs.logback)
+    testImplementation(libs.logcaptor)
 }
