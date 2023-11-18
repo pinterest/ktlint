@@ -15,6 +15,8 @@ import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 import org.xml.sax.SAXParseException
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -41,32 +43,65 @@ private fun KLogger.underlyingLogger(): Logger? =
         ?.underlyingLogger
 
 class BaselineTest {
-    @Test
-    fun `Given a valid baseline file then read without error`(
-        @TempDir
-        tempDir: Path,
-    ) {
-        val path = "baseline-valid.xml".copyResourceToFileIn(tempDir)
+    @Nested
+    inner class `Given a valid baseline file` {
+        @Test
+        fun `Given that the baseline is loaded with classic loader`(
+            @TempDir
+            tempDir: Path,
+        ) {
+            val path = "baseline-valid.xml".copyResourceToFileIn(tempDir)
 
-        val actual = loadBaseline(path)
+            val actual = loadBaseline(path)
 
-        assertThat(actual)
-            .usingRecursiveComparison()
-            .isEqualTo(
-                Baseline(
-                    path = path,
-                    status = Baseline.Status.VALID,
-                    lintErrorsPerFile =
-                        mapOf(
-                            "src/main/kotlin/foo.kt" to
-                                listOf(
-                                    KtlintCliError(1, 1, "standard:max-line-length", "", BASELINE_IGNORED),
-                                    KtlintCliError(2, 1, "standard:max-line-length", "", BASELINE_IGNORED),
-                                    KtlintCliError(4, 9, "standard:property-naming1", "", BASELINE_IGNORED),
-                                ),
-                        ),
-                ),
-            )
+            assertThat(actual)
+                .usingRecursiveComparison()
+                .isEqualTo(
+                    Baseline(
+                        path = path,
+                        status = Baseline.Status.VALID,
+                        lintErrorsPerFile =
+                            mapOf(
+                                "src/main/kotlin/Foo.kt" to
+                                    listOf(
+                                        KtlintCliError(1, 1, "standard:max-line-length", "", BASELINE_IGNORED),
+                                        KtlintCliError(2, 1, "standard:max-line-length", "", BASELINE_IGNORED),
+                                        KtlintCliError(4, 9, "standard:property-naming", "", BASELINE_IGNORED),
+                                    ),
+                            ),
+                    ),
+                )
+        }
+
+        @ParameterizedTest(name = "BaselineErrorHandling: {0}")
+        @EnumSource(value = BaselineErrorHandling::class)
+        fun `Given that the baseline is loaded with the new loader with LOG error handling`(
+            baselineErrorHandling: BaselineErrorHandling,
+            @TempDir
+            tempDir: Path,
+        ) {
+            val path = "baseline-valid.xml".copyResourceToFileIn(tempDir)
+
+            val actual = loadBaseline(path, baselineErrorHandling)
+
+            assertThat(actual)
+                .usingRecursiveComparison()
+                .isEqualTo(
+                    Baseline(
+                        path = path,
+                        status = Baseline.Status.VALID,
+                        lintErrorsPerFile =
+                            mapOf(
+                                "src/main/kotlin/Foo.kt" to
+                                    listOf(
+                                        KtlintCliError(1, 1, "standard:max-line-length", "", BASELINE_IGNORED),
+                                        KtlintCliError(2, 1, "standard:max-line-length", "", BASELINE_IGNORED),
+                                        KtlintCliError(4, 9, "standard:property-naming", "", BASELINE_IGNORED),
+                                    ),
+                            ),
+                    ),
+                )
+        }
     }
 
     @Nested
