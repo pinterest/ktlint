@@ -16,10 +16,24 @@ public final class com/pinterest/ktlint/cli/reporter/baseline/Baseline$Status : 
 	public static fun values ()[Lcom/pinterest/ktlint/cli/reporter/baseline/Baseline$Status;
 }
 
+public final class com/pinterest/ktlint/cli/reporter/baseline/BaselineErrorHandling : java/lang/Enum {
+	public static final field EXCEPTION Lcom/pinterest/ktlint/cli/reporter/baseline/BaselineErrorHandling;
+	public static final field LOG Lcom/pinterest/ktlint/cli/reporter/baseline/BaselineErrorHandling;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/pinterest/ktlint/cli/reporter/baseline/BaselineErrorHandling;
+	public static fun values ()[Lcom/pinterest/ktlint/cli/reporter/baseline/BaselineErrorHandling;
+}
+
 public final class com/pinterest/ktlint/cli/reporter/baseline/BaselineKt {
 	public static final fun containsLintError (Ljava/util/List;Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError;)Z
 	public static final fun doesNotContain (Ljava/util/List;Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError;)Z
 	public static final fun loadBaseline (Ljava/lang/String;)Lcom/pinterest/ktlint/cli/reporter/baseline/Baseline;
+	public static final fun loadBaseline (Ljava/lang/String;Lcom/pinterest/ktlint/cli/reporter/baseline/BaselineErrorHandling;)Lcom/pinterest/ktlint/cli/reporter/baseline/Baseline;
+	public static synthetic fun loadBaseline$default (Ljava/lang/String;Lcom/pinterest/ktlint/cli/reporter/baseline/BaselineErrorHandling;ILjava/lang/Object;)Lcom/pinterest/ktlint/cli/reporter/baseline/Baseline;
+}
+
+public final class com/pinterest/ktlint/cli/reporter/baseline/BaselineLoaderException : java/lang/RuntimeException {
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
 }
 
 public final class com/pinterest/ktlint/cli/reporter/baseline/BaselineReporter : com/pinterest/ktlint/cli/reporter/core/api/ReporterV2 {
