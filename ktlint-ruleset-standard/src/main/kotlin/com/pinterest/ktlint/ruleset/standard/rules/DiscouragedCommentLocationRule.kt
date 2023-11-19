@@ -133,7 +133,7 @@ public class DiscouragedCommentLocationRule : StandardRule("discouraged-comment-
                 } else {
                     emit(
                         node.startOffset,
-                        "A KDoc is not allowed on a '${node.treeParentElementTypeName()}",
+                        "A KDoc is not allowed inside a '${node.treeParentElementTypeName()}'",
                         false,
                     )
                 }

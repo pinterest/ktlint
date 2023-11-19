@@ -607,6 +607,39 @@ class DiscouragedCommentLocationRuleTest {
     @Nested
     inner class `Given a type parameter list ast node` {
         @Test
+        fun `Given a kdoc inside a type parameter`() {
+            val code =
+                """
+                class Foo<in /** some comment */ Bar>
+                """.trimIndent()
+            discouragedCommentLocationRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(1, 14, "A KDoc is not allowed inside a 'type_parameter'")
+        }
+
+        @Test
+        fun `Given a block comment inside a type parameter`() {
+            val code =
+                """
+                class Foo<in /* some comment */ Bar>
+                """.trimIndent()
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+            discouragedCommentLocationRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(1, 14, "A (block or EOL) comment inside or on same line after a 'type_parameter' is not allowed. It may be placed on a separate line above.")
+        }
+
+        @Test
+        fun `Given an EOL comment inside a type parameter`() {
+            val code =
+                """
+                class Foo<in // some comment
+                Bar>
+                """.trimIndent()
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+            discouragedCommentLocationRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(1, 14, "A (block or EOL) comment inside or on same line after a 'type_parameter' is not allowed. It may be placed on a separate line above.")
+        }
+
+        @Test
         fun `Given a kdoc as child of type parameter list`() {
             val code =
                 """
@@ -683,6 +716,39 @@ class DiscouragedCommentLocationRuleTest {
 
     @Nested
     inner class `Given a type argument list ast node` {
+        @Test
+        fun `Given a kdoc inside a type projection`() {
+            val code =
+                """
+                fun Foo<out /** some comment */ Any>.foo() {}
+                """.trimIndent()
+            discouragedCommentLocationRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(1, 13, "A KDoc is not allowed inside a 'type_projection'")
+        }
+
+        @Test
+        fun `Given a block comment inside a type projection`() {
+            val code =
+                """
+                fun Foo<out /* some comment */ Any>.foo() {}
+                """.trimIndent()
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+            discouragedCommentLocationRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(1, 13, "A (block or EOL) comment inside or on same line after a 'type_projection' is not allowed. It may be placed on a separate line above.")
+        }
+
+        @Test
+        fun `Given a EOL comment inside type projection`() {
+            val code =
+                """
+                fun Foo<out // some comment
+                Any>.foo() {}
+                """.trimIndent()
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+            discouragedCommentLocationRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(1, 13, "A (block or EOL) comment inside or on same line after a 'type_projection' is not allowed. It may be placed on a separate line above.")
+        }
+
         @Test
         fun `Given a kdoc as child of type argument list`() {
             val code =
