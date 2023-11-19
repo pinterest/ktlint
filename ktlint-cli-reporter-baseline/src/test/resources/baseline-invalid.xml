@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<baseline version="1.0">
+    <file name="src/main/kotlin/Foo2.kt">
+        <error line="1" column="1" source="standard:max-line-length" />
+        <error line="2" column="1" source="standard:max-line-length" />
+        <error line="4" column="9" source="standard:property-naming" />
+</baseline>
