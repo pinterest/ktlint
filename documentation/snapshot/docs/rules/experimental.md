@@ -456,9 +456,6 @@ If the function literal contains multiple parameter and at least one parameter o
 
 Rule id: `function-literal` (`standard` rule set)
 
-!!! Note
-    This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
-
 ## Function type modifier spacing
 
 Enforce a single whitespace between the modifier list and the function type.
