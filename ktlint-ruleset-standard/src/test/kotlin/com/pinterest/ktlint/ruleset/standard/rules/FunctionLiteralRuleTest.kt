@@ -449,4 +449,19 @@ class FunctionLiteralRuleTest {
                 LintViolation(3, 77, "Newline expected before closing brace"),
             ).isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Issue 2331 - Given a function literal with redundant arrow`() {
+        val code =
+            """
+            fun foo(block: () -> Unit): Unit = foo { -> block() }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo(block: () -> Unit): Unit = foo { block() }
+            """.trimIndent()
+        functionLiteralRuleAssertThat(code)
+            .hasLintViolation(1, 42, "Arrow is redundant when parameter list is empty")
+            .isFormattedAs(formattedCode)
+    }
 }

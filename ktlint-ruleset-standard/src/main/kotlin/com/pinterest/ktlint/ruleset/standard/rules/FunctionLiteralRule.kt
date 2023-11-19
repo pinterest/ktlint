@@ -112,6 +112,9 @@ public class FunctionLiteralRule :
                 .findChildByType(VALUE_PARAMETER_LIST)
                 ?.let { visitValueParameterList(it, autoCorrect, emit) }
             node
+                .findChildByType(ARROW)
+                ?.let { visitArrow(it, autoCorrect, emit) }
+            node
                 .findChildByType(BLOCK)
                 ?.let { visitBlock(it, autoCorrect, emit) }
         }
@@ -196,27 +199,33 @@ public class FunctionLiteralRule :
     private fun ASTNode.exceedsMaxLineLength() = lineLengthWithoutNewlinePrefix() > maxLineLength
 
     private fun ASTNode.wrapFirstParameterToNewline() =
-        takeIf { it.treeParent.elementType == FUNCTION_LITERAL }
+        if (isFunctionLiteralLambdaWithNonEmptyValueParameterList()) {
+            // Disallow when max line is exceeded:
+            //    val foo = someCallExpression { someLongParameterName ->
+            //        bar()
+            //    }
+            val stopAtLeaf =
+                children()
+                    .first { it.elementType == VALUE_PARAMETER }
+                    .lastChildLeafOrSelf()
+                    .nextLeaf { !it.isWhiteSpaceWithoutNewline() && !it.isPartOfComment() }
+            leavesOnLine()
+                .takeWhile { it.prevLeaf() != stopAtLeaf }
+                .lineLengthWithoutNewlinePrefix()
+                .let { it > maxLineLength }
+        } else {
+            false
+        }
+
+    private fun ASTNode.isFunctionLiteralLambdaWithNonEmptyValueParameterList() =
+        takeIf { it.elementType == VALUE_PARAMETER_LIST }
+            ?.takeIf { it.findChildByType(VALUE_PARAMETER) != null }
+            ?.takeIf { it.treeParent.elementType == FUNCTION_LITERAL }
             ?.treeParent
             ?.takeIf { it.treeParent.elementType == LAMBDA_EXPRESSION }
             ?.treeParent
             ?.takeIf { it.treeParent.elementType == LAMBDA_ARGUMENT }
-            ?.let {
-                // Disallow when max line is exceeded:
-                //    val foo = someCallExpression { someLongParameterName ->
-                //        bar()
-                //    }
-                val stopAtLeaf =
-                    children()
-                        .first { it.elementType == VALUE_PARAMETER }
-                        .lastChildLeafOrSelf()
-                        .nextLeaf { !it.isWhiteSpaceWithoutNewline() && !it.isPartOfComment() }
-                leavesOnLine()
-                    .takeWhile { it.prevLeaf() != stopAtLeaf }
-                    .lineLengthWithoutNewlinePrefix()
-                    .let { it > maxLineLength }
-            }
-            ?: false
+            .let { it != null }
 
     private fun rewriteToMultilineParameterList(
         parameterList: ASTNode,
@@ -353,6 +362,27 @@ public class FunctionLiteralRule :
                 emit(parameterList.startOffset + parameterList.textLength, "No newline expected after parameter", true)
                 if (autoCorrect) {
                     whitespaceAfterParameterList.upsertWhitespaceAfterMe(" ")
+                }
+            }
+    }
+
+    private fun visitArrow(
+        arrow: ASTNode,
+        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+    ) {
+        require(arrow.elementType == ARROW)
+        arrow
+            .prevSibling { it.elementType == VALUE_PARAMETER_LIST }
+            ?.takeIf { it.findChildByType(VALUE_PARAMETER) == null }
+            ?.let {
+                emit(arrow.startOffset, "Arrow is redundant when parameter list is empty", true)
+                if (autoCorrect) {
+                    arrow
+                        .nextSibling()
+                        .takeIf { it.isWhiteSpace() }
+                        ?.let { it.treeParent.removeChild(it) }
+                    arrow.treeParent.removeChild(arrow)
                 }
             }
     }
