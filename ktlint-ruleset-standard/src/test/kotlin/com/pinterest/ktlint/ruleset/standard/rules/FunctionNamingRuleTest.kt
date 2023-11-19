@@ -237,4 +237,24 @@ class FunctionNamingRuleTest {
             .withEditorConfigOverride(IGNORE_WHEN_ANNOTATED_WITH_PROPERTY to "Composable, Foo")
             .hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 2350 - Given a factory method with generic type`() {
+        val code =
+            """
+            fun <T> Generics(action: () -> T): Generics<T> = Generics(action())
+            """.trimIndent()
+        functionNamingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 2350 - Given a factory method which overloads a class constructor`() {
+        val code =
+            """
+            class Foo(value: String)
+
+            fun Foo(value: Double) = Foo(value.toString())
+            """.trimIndent()
+        functionNamingRuleAssertThat(code).hasNoLintViolations()
+    }
 }
