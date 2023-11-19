@@ -21,14 +21,13 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.afterCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.betweenCodeSiblings
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 
 /**
  * The AST allows comments to be placed anywhere. This however can lead to code which is unnecessarily hard to read.
@@ -63,12 +62,12 @@ public class DiscouragedCommentLocationRule : StandardRule("discouraged-comment-
         if (node.isPartOfComment()) {
             // Be restrictive when adding new locations at which comments are discouraged. Always run against major
             // open source projects first to verify whether valid cases are found to comment at this location.
-            if (node.afterNodeOfElementType(TYPE_PARAMETER_LIST) ||
-                node.betweenNodesOfElementType(RPAR, THEN) ||
-                node.betweenNodesOfElementType(THEN, ELSE_KEYWORD) ||
-                node.betweenNodesOfElementType(ELSE_KEYWORD, ELSE) ||
-                node.afterNodeOfElementType(DOT) ||
-                node.afterNodeOfElementType(SAFE_ACCESS)
+            if (node.afterCodeSibling(TYPE_PARAMETER_LIST) ||
+                node.betweenCodeSiblings(RPAR, THEN) ||
+                node.betweenCodeSiblings(THEN, ELSE_KEYWORD) ||
+                node.betweenCodeSiblings(ELSE_KEYWORD, ELSE) ||
+                node.afterCodeSibling(DOT) ||
+                node.afterCodeSibling(SAFE_ACCESS)
             ) {
                 emit(node.startOffset, "No comment expected at this location", false)
             }
@@ -80,15 +79,6 @@ public class DiscouragedCommentLocationRule : StandardRule("discouraged-comment-
             }
         }
     }
-
-    private fun ASTNode.afterNodeOfElementType(afterElementType: IElementType) = prevCodeSibling()?.elementType == afterElementType
-
-    private fun ASTNode.beforeNodeOfElementType(beforeElementType: IElementType) = nextCodeSibling()?.elementType == beforeElementType
-
-    private fun ASTNode.betweenNodesOfElementType(
-        afterElementType: IElementType,
-        beforeElementType: IElementType,
-    ) = afterNodeOfElementType(afterElementType) && beforeNodeOfElementType(beforeElementType)
 
     private fun visitListElement(
         node: ASTNode,

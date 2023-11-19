@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ELSE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ELSE_KEYWORD
@@ -10,12 +11,11 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.THEN
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.Rule
-import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule
-import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.betweenCodeSiblings
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
@@ -44,7 +44,6 @@ import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 public class IfElseWrappingRule :
     StandardRule(
         id = "if-else-wrapping",
-        visitorModifiers = setOf(RunAfterRule(DISCOURAGED_COMMENT_LOCATION_RULE_ID, ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED)),
         usesEditorConfigProperties =
             setOf(
                 INDENT_SIZE_PROPERTY,
@@ -67,8 +66,9 @@ public class IfElseWrappingRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        if (node.elementType == IF) {
-            visitIf(node, autoCorrect, emit)
+        when {
+            node.elementType == IF -> visitIf(node, autoCorrect, emit)
+            node.isPartOfComment() && node.treeParent.elementType == IF -> visitComment(node, emit)
         }
     }
 
@@ -191,6 +191,19 @@ public class IfElseWrappingRule :
         require(elementType == IF)
         return findChildByType(THEN)?.firstChildNode?.elementType == IF ||
             findChildByType(ELSE)?.firstChildNode?.elementType == IF
+    }
+
+    private fun visitComment(
+        comment: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+    ) {
+        require(comment.isPartOfComment())
+        if (comment.betweenCodeSiblings(ElementType.RPAR, THEN) ||
+            comment.betweenCodeSiblings(THEN, ELSE_KEYWORD) ||
+            comment.betweenCodeSiblings(ELSE_KEYWORD, ELSE)
+        ) {
+            emit(comment.startOffset, "No comment expected at this location", false)
+        }
     }
 
     private companion object {

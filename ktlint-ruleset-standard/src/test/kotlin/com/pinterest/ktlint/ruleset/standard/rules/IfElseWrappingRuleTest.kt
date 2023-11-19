@@ -14,8 +14,6 @@ class IfElseWrappingRuleTest {
             provider = { IfElseWrappingRule() },
             additionalRuleProviders =
                 setOf(
-                    // Required by visitor modifier
-                    RuleProvider { DiscouragedCommentLocationRule() },
                     // Keep formatted code readable
                     RuleProvider { IndentationRule() },
                 ),
@@ -237,5 +235,287 @@ class IfElseWrappingRuleTest {
             """.trimIndent()
         @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
         ifElseWrappingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Nested
+    inner class `Given a comment between IF CONDITION and THEN` {
+        @Test
+        fun `Given EOL comment on same line as CONDITION`() {
+            val code =
+                """
+                fun foo() {
+                    if (true) // some comment
+                        bar()
+                }
+                """.trimIndent()
+            ifElseWrappingRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(2, 15, "No comment expected at this location")
+        }
+
+        @Test
+        fun `Given EOL comment on line below CONDITION`() {
+            val code =
+                """
+                fun foo() {
+                    if (true)
+                        // some comment
+                        bar()
+                }
+                """.trimIndent()
+            ifElseWrappingRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(3, 9, "No comment expected at this location")
+        }
+
+        @Test
+        fun `Given block comment on same line as CONDITION`() {
+            val code =
+                """
+                fun foo() {
+                    if (true) /* some comment */
+                        bar()
+                }
+                """.trimIndent()
+            ifElseWrappingRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(2, 15, "No comment expected at this location")
+        }
+
+        @Test
+        fun `Given block comment on line below CONDITION`() {
+            val code =
+                """
+                fun foo() {
+                    if (true)
+                        /* some comment */
+                        bar()
+                }
+                """.trimIndent()
+            ifElseWrappingRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(3, 9, "No comment expected at this location")
+        }
+
+        @Test
+        fun `Given KDOC on same line as CONDITION`() {
+            val code =
+                """
+                fun foo() {
+                    if (true) /** some comment */
+                        bar()
+                }
+                """.trimIndent()
+            ifElseWrappingRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(2, 15, "No comment expected at this location")
+        }
+
+        @Test
+        fun `Given KDOC on line below CONDITION`() {
+            val code =
+                """
+                fun foo() {
+                    if (true)
+                        /** some comment */
+                        bar()
+                }
+                """.trimIndent()
+            ifElseWrappingRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(3, 9, "No comment expected at this location")
+        }
+    }
+
+    @Nested
+    inner class `Given a comment between THEN and ELSE` {
+        @Test
+        fun `Given EOL comment on same line as THEN`() {
+            val code =
+                """
+                fun foobar() {
+                    if (true)
+                        foo() // some comment
+                    else {
+                        bar()
+                    }
+                }
+                """.trimIndent()
+            ifElseWrappingRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(3, 15, "No comment expected at this location")
+        }
+
+        @Test
+        fun `Given EOL comment on line below THEN`() {
+            val code =
+                """
+                fun foobar() {
+                    if (true)
+                        foo()
+                    // some comment
+                    else {
+                        bar()
+                    }
+                }
+                """.trimIndent()
+            ifElseWrappingRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(4, 5, "No comment expected at this location")
+        }
+
+        @Test
+        fun `Given block comment on same line as THEN`() {
+            val code =
+                """
+                fun foobar() {
+                    if (true)
+                        foo() /* some comment */
+                    else {
+                        bar()
+                    }
+                }
+                """.trimIndent()
+            ifElseWrappingRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(3, 15, "No comment expected at this location")
+        }
+
+        @Test
+        fun `Given block comment on line below THEN`() {
+            val code =
+                """
+                fun foobar() {
+                    if (true)
+                        foo()
+                    /* some comment */
+                    else {
+                        bar()
+                    }
+                }
+                """.trimIndent()
+            ifElseWrappingRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(4, 5, "No comment expected at this location")
+        }
+
+        @Test
+        fun `Given KDOC on same line as THEN`() {
+            val code =
+                """
+                fun foobar() {
+                    if (true)
+                        foo() /** some comment */
+                    else {
+                        bar()
+                    }
+                }
+                """.trimIndent()
+            ifElseWrappingRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(3, 15, "No comment expected at this location")
+        }
+
+        @Test
+        fun `Given KDOC on line below THEN`() {
+            val code =
+                """
+                fun foobar() {
+                    if (true)
+                        foo()
+                    /** some comment */
+                    else {
+                        bar()
+                    }
+                }
+                """.trimIndent()
+            ifElseWrappingRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(4, 5, "No comment expected at this location")
+        }
+    }
+
+    @Nested
+    inner class `Given a comment between ELSE KEYWORD and ELSE block` {
+        @Test
+        fun `Given EOL comment on same line as THEN`() {
+            val code =
+                """
+                fun foobar() {
+                    if (true)
+                        foo()
+                    else // some comment
+                        bar()
+                }
+                """.trimIndent()
+            ifElseWrappingRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(4, 10, "No comment expected at this location")
+        }
+
+        @Test
+        fun `Given EOL comment on line below THEN`() {
+            val code =
+                """
+                fun foobar() {
+                    if (true)
+                        foo()
+                    else
+                    // some comment
+                        bar()
+                }
+                """.trimIndent()
+            ifElseWrappingRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(5, 5, "No comment expected at this location")
+        }
+
+        @Test
+        fun `Given block comment on same line as THEN`() {
+            val code =
+                """
+                fun foobar() {
+                    if (true)
+                        foo()
+                    else /* some comment */
+                        bar()
+                }
+                """.trimIndent()
+            ifElseWrappingRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(4, 10, "No comment expected at this location")
+        }
+
+        @Test
+        fun `Given block comment on line below THEN`() {
+            val code =
+                """
+                fun foobar() {
+                    if (true)
+                        foo()
+                    else
+                    /* some comment */
+                        bar()
+                }
+                """.trimIndent()
+            ifElseWrappingRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(5, 5, "No comment expected at this location")
+        }
+
+        @Test
+        fun `Given KDOC on same line as THEN`() {
+            val code =
+                """
+                fun foobar() {
+                    if (true)
+                        foo()
+                    else /** some comment */
+                        bar()
+                }
+                """.trimIndent()
+            ifElseWrappingRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(4, 10, "No comment expected at this location")
+        }
+
+        @Test
+        fun `Given KDOC on line below THEN`() {
+            val code =
+                """
+                fun foobar() {
+                    if (true)
+                        foo()
+                    else
+                    /** some comment */
+                        bar()
+                }
+                """.trimIndent()
+            ifElseWrappingRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(5, 5, "No comment expected at this location")
+        }
     }
 }
