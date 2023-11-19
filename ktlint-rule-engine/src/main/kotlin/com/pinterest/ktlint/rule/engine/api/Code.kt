@@ -1,5 +1,9 @@
 package com.pinterest.ktlint.rule.engine.api
 
+import com.pinterest.ktlint.rule.engine.api.Code.Companion.fromFile
+import com.pinterest.ktlint.rule.engine.api.Code.Companion.fromPath
+import com.pinterest.ktlint.rule.engine.api.Code.Companion.fromSnippet
+import com.pinterest.ktlint.rule.engine.api.Code.Companion.fromStdin
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine.Companion.STDIN_FILE
 import org.jetbrains.kotlin.konan.file.file
 import java.io.File
@@ -78,6 +82,31 @@ public class Code private constructor(
                 filePath = null,
                 fileName = null,
                 script = script,
+                isStdIn = true,
+            )
+
+        /**
+         * The [content] represent a valid piece of Kotlin code or Kotlin script. The '.editorconfig' file on the filesystem is based on
+         * the [virtualPath]. The filesystem is not expected to actually contain a file with this name. Use [Code.fromFile] for scanning a
+         * file that does exist on the filesystem.
+         */
+        public fun fromSnippetWithPath(
+            /**
+             * Code to be linted/formatted.
+             */
+            content: String,
+            /**
+             * Virtual path of file. Contents of the file is *not* read. The path is only used to determine the '.editorconfig' file
+             * containing the configuration to be applied on the code that is to be linted/formatted. When not specified, no '.editorconfig'
+             * is loaded at all.
+             */
+            virtualPath: Path? = null,
+        ): Code =
+            Code(
+                content = content,
+                filePath = virtualPath,
+                fileName = null,
+                script = virtualPath?.pathString.orEmpty().endsWith(".kts", ignoreCase = true),
                 isStdIn = true,
             )
 
