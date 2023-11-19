@@ -71,11 +71,7 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 public class ChainMethodContinuationRule :
     StandardRule(
         id = "chain-method-continuation",
-        visitorModifiers =
-            setOf(
-                RunAfterRule(DISCOURAGED_COMMENT_LOCATION_RULE_ID, ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED),
-                RunAfterRule(ARGUMENT_LIST_WRAPPING_RULE_ID, ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED),
-            ),
+        visitorModifiers = setOf(RunAfterRule(ARGUMENT_LIST_WRAPPING_RULE_ID, ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED)),
         usesEditorConfigProperties =
             setOf(
                 CODE_STYLE_PROPERTY,
@@ -129,6 +125,7 @@ public class ChainMethodContinuationRule :
                     ?.takeUnless { it.rootASTNode.treeParent.elementType == LONG_STRING_TEMPLATE_ENTRY }
                     ?.let { chainedExpression ->
                         fixWhitespaceBeforeChainOperators(chainedExpression, emit, autoCorrect)
+                        disallowCommentBetweenDotAndCallExpression(chainedExpression, emit)
                         fixWhiteSpaceAfterChainOperators(chainedExpression, emit, autoCorrect)
                     }
             }
@@ -145,14 +142,14 @@ public class ChainMethodContinuationRule :
             .chainOperators
             .filterNot { it.isJavaClassReferenceExpression() }
             .forEach { chainOperator ->
-                if (chainOperator.shouldBeOnSameLineAsClosingElementOfPreviousExpressionInMethodChain()) {
-                    removeWhiteSpaceBeforeChainOperator(chainOperator, emit, autoCorrect)
-                } else if (
-                    wrapBeforeEachChainOperator ||
-                    exceedsMaxLineLength ||
-                    chainOperator.isPrecededByComment()
-                ) {
-                    insertWhiteSpaceBeforeChainOperator(chainOperator, emit, autoCorrect)
+                when {
+                    chainOperator.shouldBeOnSameLineAsClosingElementOfPreviousExpressionInMethodChain() -> {
+                        removeWhiteSpaceBeforeChainOperator(chainOperator, emit, autoCorrect)
+                    }
+
+                    wrapBeforeEachChainOperator || exceedsMaxLineLength || chainOperator.isPrecededByComment() -> {
+                        insertWhiteSpaceBeforeChainOperator(chainOperator, emit, autoCorrect)
+                    }
                 }
             }
     }
@@ -248,6 +245,8 @@ public class ChainMethodContinuationRule :
 
     private fun ASTNode.isPrecededByComment() = treeParent.children().any { it.isPartOfComment() }
 
+    private fun ASTNode.isSucceededByComment() = nextSibling()?.isPartOfComment() ?: false
+
     private fun insertWhiteSpaceBeforeChainOperator(
         chainOperator: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
@@ -329,6 +328,20 @@ public class ChainMethodContinuationRule :
                         whiteSpaceOrComment?.treeParent?.removeChild(whiteSpaceOrComment)
                     }
                 }
+            }
+    }
+
+    private fun disallowCommentBetweenDotAndCallExpression(
+        chainedExpression: ChainedExpression,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+    ) {
+        chainedExpression
+            .chainOperators
+            .forEach { chainOperator ->
+                chainOperator
+                    .nextSibling { !it.isWhiteSpace() }
+                    ?.takeIf { it.isPartOfComment() }
+                    ?.let { emit(it.startOffset, "No comment expected at this location in method chain", false) }
             }
     }
 

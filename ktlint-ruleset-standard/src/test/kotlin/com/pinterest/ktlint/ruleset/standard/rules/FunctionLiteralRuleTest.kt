@@ -435,7 +435,6 @@ class FunctionLiteralRuleTest {
             .addAdditionalRuleProvider { MultilineExpressionWrappingRule() }
             .addAdditionalRuleProvider { ChainMethodContinuationRule() }
             .addAdditionalRuleProvider { ArgumentListWrappingRule() }
-            .addAdditionalRuleProvider { DiscouragedCommentLocationRule() }
             .addAdditionalRuleProvider { IndentationRule() }
             .setMaxLineLength()
             .hasLintViolations(

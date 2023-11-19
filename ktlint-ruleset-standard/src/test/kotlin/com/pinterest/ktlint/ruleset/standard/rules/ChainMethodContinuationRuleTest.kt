@@ -19,7 +19,6 @@ class ChainMethodContinuationRuleTest {
             provider = { ChainMethodContinuationRule() },
             additionalRuleProviders =
                 setOf(
-                    RuleProvider { DiscouragedCommentLocationRule() },
                     RuleProvider { ArgumentListWrappingRule() },
                 ),
         )
@@ -698,7 +697,7 @@ class ChainMethodContinuationRuleTest {
     @Nested
     inner class `Given chain with comments` {
         @Test
-        fun `Comments between a chain operator and the next chained method are disallowed`() {
+        fun `Comments between a DOT chain operator and the next chained method are disallowed`() {
             val code =
                 """
                 val foo1 = listOf(1, 2, 3)
@@ -723,17 +722,57 @@ class ChainMethodContinuationRuleTest {
                     .// some comment
                     filter { it > 2 }
                 """.trimIndent()
-            assertThatRule { DiscouragedCommentLocationRule() }(code)
+            chainMethodContinuationRuleAssertThat(code)
                 .hasLintViolations(
-                    LintViolation(2, 6, "No comment expected at this location", false),
-                    LintViolation(4, 6, "No comment expected at this location", false),
-                    LintViolation(6, 6, "No comment expected at this location", false),
-                    LintViolation(8, 6, "No comment expected at this location", false),
-                    LintViolation(10, 6, "No comment expected at this location", false),
-                    LintViolation(12, 6, "No comment expected at this location", false),
-                    LintViolation(14, 6, "No comment expected at this location", false),
-                    LintViolation(17, 6, "No comment expected at this location", false),
-                    LintViolation(20, 6, "No comment expected at this location", false),
+                    LintViolation(2, 6, "No comment expected at this location in method chain", false),
+                    LintViolation(4, 6, "No comment expected at this location in method chain", false),
+                    LintViolation(6, 6, "No comment expected at this location in method chain", false),
+                    LintViolation(8, 6, "No comment expected at this location in method chain", false),
+                    LintViolation(10, 6, "No comment expected at this location in method chain", false),
+                    LintViolation(12, 6, "No comment expected at this location in method chain", false),
+                    LintViolation(14, 6, "No comment expected at this location in method chain", false),
+                    LintViolation(17, 6, "No comment expected at this location in method chain", false),
+                    LintViolation(20, 6, "No comment expected at this location in method chain", false),
+                ).hasNoLintViolationsForRuleId(CHAIN_WRAPPING_RULE_ID)
+        }
+
+        @Test
+        fun `Comments between a SAFE ACCESS chain operator and the next chained method are disallowed`() {
+            val code =
+                """
+                val foo1 = listOf(1, 2, 3)
+                    ?./** some comment */size
+                val foo2 = listOf(1, 2, 3)
+                    ?./** some comment */single()
+                val foo3 = listOf(1, 2, 3)
+                    ?./** some comment */filter { it > 2 }
+                val foo4 = listOf(1, 2, 3)
+                    ?./* some comment */size
+                val foo5 = listOf(1, 2, 3)
+                    ?./* some comment */single()
+                val foo6 = listOf(1, 2, 3)
+                    ?./* some comment */filter { it > 2 }
+                val foo7 = listOf(1, 2, 3)
+                    ?.// some comment
+                    size
+                val foo8 = listOf(1, 2, 3)
+                    ?.// some comment
+                    single()
+                val foo9 = listOf(1, 2, 3)
+                    ?.// some comment
+                    filter { it > 2 }
+                """.trimIndent()
+            chainMethodContinuationRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(2, 7, "No comment expected at this location in method chain", false),
+                    LintViolation(4, 7, "No comment expected at this location in method chain", false),
+                    LintViolation(6, 7, "No comment expected at this location in method chain", false),
+                    LintViolation(8, 7, "No comment expected at this location in method chain", false),
+                    LintViolation(10, 7, "No comment expected at this location in method chain", false),
+                    LintViolation(12, 7, "No comment expected at this location in method chain", false),
+                    LintViolation(14, 7, "No comment expected at this location in method chain", false),
+                    LintViolation(17, 7, "No comment expected at this location in method chain", false),
+                    LintViolation(20, 7, "No comment expected at this location in method chain", false),
                 ).hasNoLintViolationsForRuleId(CHAIN_WRAPPING_RULE_ID)
         }
 

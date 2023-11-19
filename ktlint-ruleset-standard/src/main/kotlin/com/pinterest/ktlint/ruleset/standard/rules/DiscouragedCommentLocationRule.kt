@@ -53,6 +53,7 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
  */
 @SinceKtlint("0.45", EXPERIMENTAL)
 @SinceKtlint("1.0", STABLE)
+@Deprecated("Marked for removal in ktlint 2.0. See https://github.com/pinterest/ktlint/issues/2367")
 public class DiscouragedCommentLocationRule : StandardRule("discouraged-comment-location") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
