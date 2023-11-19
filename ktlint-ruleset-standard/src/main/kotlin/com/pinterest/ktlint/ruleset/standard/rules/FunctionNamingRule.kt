@@ -3,12 +3,15 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IMPORT_DIRECTIVE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OVERRIDE_KEYWORD
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.REFERENCE_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.USER_TYPE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
@@ -81,7 +84,34 @@ public class FunctionNamingRule :
 
     private fun ASTNode.isFactoryMethod() =
         (this.psi as KtFunction)
-            .let { it.hasDeclaredReturnType() && it.name == it.typeReference?.text }
+            .let { ktFunction ->
+                if (ktFunction.hasDeclaredReturnType()) {
+                    // Allow:
+                    //     fun Foo(): Foo = ..
+                    //     fun <T> Foo(action: () -> T): Foo<T> = ..
+                    ktFunction.name == ktFunction.typeReferenceNameWithoutGenerics()
+                } else {
+                    // Allow factory methods to overload another factory method or class constructor without specifying the type like:
+                    //     fun Foo(value: Bar) = Foo(value.baz())
+                    ktFunction.name == callExpressionReferenceIdentifier(ktFunction)
+                }
+            }
+
+    private fun KtFunction.typeReferenceNameWithoutGenerics() =
+        typeReference
+            ?.node
+            ?.findChildByType(USER_TYPE)
+            ?.findChildByType(REFERENCE_EXPRESSION)
+            ?.text
+
+    private fun callExpressionReferenceIdentifier(ktFunction: KtFunction) =
+        ktFunction
+            .bodyExpression
+            ?.node
+            ?.takeIf { it.elementType == CALL_EXPRESSION }
+            ?.findChildByType(REFERENCE_EXPRESSION)
+            ?.findChildByType(IDENTIFIER)
+            ?.text
 
     private fun ASTNode.isMethodInTestClass() = isTestClass && hasValidTestFunctionName()
 
