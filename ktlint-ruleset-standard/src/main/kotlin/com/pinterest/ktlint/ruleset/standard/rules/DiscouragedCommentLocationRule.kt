@@ -88,19 +88,7 @@ public class DiscouragedCommentLocationRule : StandardRule("discouraged-comment-
             EOL_COMMENT, BLOCK_COMMENT -> {
                 // Disallow a comment inside a VALUE_PARAMETER. Note that an EOL comment which is placed on a separate line is a direct
                 // child of the list.
-                //      class Foo(
-                //         val bar:
-                //             // some comment
-                //             Bar,
-                //     )
-                // or
-                //      class Foo(
-                //         val bar: Bar // some comment
-                //     )
-                // Although the last example looks ok it is not accepted because it can mess up a lot of things when trailing commas are
-                // enabled and/or multiple arguments are used in the class.
-                // It seems not to be possible to create a comment in a VALUE_ARGUMENT, TYPE_PROJECTION or TYPE_PARAMETER as a direct child
-                // of that type. However, if it would be possible, it is ok to emit the error analog to the VALUE_ARGUMENT
+                //      class Foo<in /** some comment */ Bar>
                 emit(
                     node.startOffset,
                     "A (block or EOL) comment inside or on same line after a '${node.treeParentElementTypeName()}' is not allowed. It " +
@@ -180,4 +168,5 @@ public class DiscouragedCommentLocationRule : StandardRule("discouraged-comment-
     }
 }
 
+@Deprecated("Marked for removal in ktlint 2.0. See https://github.com/pinterest/ktlint/issues/2367")
 public val DISCOURAGED_COMMENT_LOCATION_RULE_ID: RuleId = DiscouragedCommentLocationRule().ruleId

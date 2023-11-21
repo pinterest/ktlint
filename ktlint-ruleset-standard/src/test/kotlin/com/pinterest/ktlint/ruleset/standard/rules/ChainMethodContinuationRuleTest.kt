@@ -1,10 +1,10 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
 import com.pinterest.ktlint.ruleset.standard.rules.ChainMethodContinuationRule.Companion.FORCE_MULTILINE_WHEN_CHAIN_OPERATOR_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import com.pinterest.ktlint.test.replaceStringTemplatePlaceholder
@@ -15,13 +15,9 @@ import org.junit.jupiter.params.provider.ValueSource
 
 class ChainMethodContinuationRuleTest {
     private val chainMethodContinuationRuleAssertThat =
-        assertThatRule(
-            provider = { ChainMethodContinuationRule() },
-            additionalRuleProviders =
-                setOf(
-                    RuleProvider { ArgumentListWrappingRule() },
-                ),
-        )
+        assertThatRuleBuilder { ChainMethodContinuationRule() }
+            .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
+            .build()
 
     @Test
     fun `Given that no maximum line length is set, and a single line method chain does not exceed the maximum number of chain operators then do not wrap`() {

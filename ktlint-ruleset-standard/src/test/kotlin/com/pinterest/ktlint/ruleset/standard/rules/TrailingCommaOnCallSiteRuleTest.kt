@@ -1,25 +1,19 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
 import com.pinterest.ktlint.ruleset.standard.rules.TrailingCommaOnCallSiteRule.Companion.TRAILING_COMMA_ON_CALL_SITE_PROPERTY
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class TrailingCommaOnCallSiteRuleTest {
     private val trailingCommaOnCallSiteRuleAssertThat =
-        assertThatRule(
-            provider = { TrailingCommaOnCallSiteRule() },
-            additionalRuleProviders =
-                setOf(
-                    // WrappingRule must be loaded in order to run TrailingCommaOnCallSiteRule
-                    RuleProvider { WrappingRule() },
-                    // Apply the IndentationRule always as additional rule, so that the formattedCode in the unit test looks
-                    // correct.
-                    RuleProvider { IndentationRule() },
-                ),
-        )
+        assertThatRuleBuilder { TrailingCommaOnCallSiteRule() }
+            // Keep formatted code readable
+            .addAdditionalRuleProvider { IndentationRule() }
+            .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
+            .build()
 
     @Test
     fun `Given property allow trailing comma on call site is not set then remove trailing commas`() {

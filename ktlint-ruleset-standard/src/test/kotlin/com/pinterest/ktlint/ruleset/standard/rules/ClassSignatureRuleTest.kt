@@ -1,15 +1,15 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.intellij_idea
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.ec4j.toPropertyWithValue
+import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
 import com.pinterest.ktlint.ruleset.standard.rules.ClassSignatureRule.Companion.FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import com.pinterest.ktlint.test.LintViolation
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
@@ -23,10 +23,9 @@ import org.junit.jupiter.params.provider.ValueSource
 
 class ClassSignatureRuleTest {
     private val classSignatureWrappingRuleAssertThat =
-        assertThatRule(
-            provider = { ClassSignatureRule() },
-            additionalRuleProviders = setOf(RuleProvider { DiscouragedCommentLocationRule() }),
-        )
+        assertThatRuleBuilder { ClassSignatureRule() }
+            .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
+            .build()
 
     @Nested
     inner class `Given a class with a body` {
@@ -1555,6 +1554,7 @@ class ClassSignatureRuleTest {
             """.trimIndent()
         classSignatureWrappingRuleAssertThat(code)
             .setMaxLineLength()
+            .addAdditionalRuleProvider { ValueArgumentCommentRule() }
             .addAdditionalRuleProvider { ArgumentListWrappingRule() }
             .addAdditionalRuleProvider { WrappingRule() }
             .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to 4)

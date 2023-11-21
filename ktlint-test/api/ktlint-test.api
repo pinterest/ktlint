@@ -5,11 +5,15 @@ public final class com/pinterest/ktlint/test/KtLintAssertThat {
 	public fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleProvider;Ljava/lang/String;Ljava/util/Set;Ljava/util/Set;)V
 	public final fun addAdditionalRuleProvider (Lkotlin/jvm/functions/Function0;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
 	public final fun addAdditionalRuleProviders ([Lkotlin/jvm/functions/Function0;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
+	public final fun addRequiredRuleProviderDependenciesFrom (Lcom/pinterest/ktlint/cli/ruleset/core/api/RuleSetProviderV3;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
 	public final fun asFileWithPath (Ljava/lang/String;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
 	public final fun asKotlinScript (Z)Lcom/pinterest/ktlint/test/KtLintAssertThat;
 	public static synthetic fun asKotlinScript$default (Lcom/pinterest/ktlint/test/KtLintAssertThat;ZILjava/lang/Object;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
+	public final fun build ()Lkotlin/jvm/functions/Function1;
 	public final fun hasLintViolation (IILjava/lang/String;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
 	public final fun hasLintViolationForAdditionalRule (IILjava/lang/String;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
+	public final fun hasLintViolationForAdditionalRule (IILjava/lang/String;Z)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
+	public static synthetic fun hasLintViolationForAdditionalRule$default (Lcom/pinterest/ktlint/test/KtLintAssertThat;IILjava/lang/String;ZILjava/lang/Object;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
 	public final fun hasLintViolationWithoutAutoCorrect (IILjava/lang/String;)V
 	public final fun hasLintViolations ([Lcom/pinterest/ktlint/test/LintViolation;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
 	public final fun hasLintViolationsForAdditionalRule ([Lcom/pinterest/ktlint/test/LintViolation;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
@@ -26,6 +30,7 @@ public final class com/pinterest/ktlint/test/KtLintAssertThat$Companion {
 	public final fun assertThatRule (Lkotlin/jvm/functions/Function0;)Lkotlin/jvm/functions/Function1;
 	public final fun assertThatRule (Lkotlin/jvm/functions/Function0;Ljava/util/Set;Ljava/util/Set;)Lkotlin/jvm/functions/Function1;
 	public static synthetic fun assertThatRule$default (Lcom/pinterest/ktlint/test/KtLintAssertThat$Companion;Lkotlin/jvm/functions/Function0;Ljava/util/Set;Ljava/util/Set;ILjava/lang/Object;)Lkotlin/jvm/functions/Function1;
+	public final fun assertThatRuleBuilder (Lkotlin/jvm/functions/Function0;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
 }
 
 public final class com/pinterest/ktlint/test/KtLintAssertThatAssertable : org/assertj/core/api/AbstractAssert {
@@ -33,6 +38,8 @@ public final class com/pinterest/ktlint/test/KtLintAssertThatAssertable : org/as
 	public synthetic fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleProvider;Lcom/pinterest/ktlint/rule/engine/api/Code;Lcom/pinterest/ktlint/rule/engine/api/EditorConfigOverride;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun hasLintViolation (IILjava/lang/String;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
 	public final fun hasLintViolationForAdditionalRule (IILjava/lang/String;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
+	public final fun hasLintViolationForAdditionalRule (IILjava/lang/String;Z)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
+	public static synthetic fun hasLintViolationForAdditionalRule$default (Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;IILjava/lang/String;ZILjava/lang/Object;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
 	public final fun hasLintViolationWithoutAutoCorrect (IILjava/lang/String;)V
 	public final fun hasLintViolations ([Lcom/pinterest/ktlint/test/LintViolation;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
 	public final fun hasLintViolationsForAdditionalRules ([Lcom/pinterest/ktlint/test/LintViolation;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;

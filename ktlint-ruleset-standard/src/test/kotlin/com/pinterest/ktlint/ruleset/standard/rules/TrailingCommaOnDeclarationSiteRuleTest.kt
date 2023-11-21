@@ -1,25 +1,19 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
 import com.pinterest.ktlint.ruleset.standard.rules.TrailingCommaOnDeclarationSiteRule.Companion.TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY
-import com.pinterest.ktlint.test.KtLintAssertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class TrailingCommaOnDeclarationSiteRuleTest {
     private val trailingCommaOnDeclarationSiteRuleAssertThat =
-        KtLintAssertThat.assertThatRule(
-            provider = { TrailingCommaOnDeclarationSiteRule() },
-            additionalRuleProviders =
-                setOf(
-                    // WrappingRule must be loaded in order to run TrailingCommaOnCallSiteRule
-                    RuleProvider { WrappingRule() },
-                    // Apply the IndentationRule always as additional rule, so that the formattedCode in the unit test looks
-                    // correct.
-                    RuleProvider { IndentationRule() },
-                ),
-        )
+        assertThatRuleBuilder { TrailingCommaOnDeclarationSiteRule() }
+            // Unit tests becomes more readable when properly indented
+            .addAdditionalRuleProvider { IndentationRule() }
+            .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
+            .build()
 
     @Test
     fun `Given property allow trailing comma on declaration site is not set then remove trailing commas`() {
@@ -936,14 +930,10 @@ class TrailingCommaOnDeclarationSiteRuleTest {
         // Ensure that AST before Enumeration class is changed by another rule before the running the
         // TrailingCommaOnDeclarationSiteRule
         val multiLineIfElseRuleAssertThat =
-            KtLintAssertThat.assertThatRule(
-                provider = { MultiLineIfElseRule() },
-                additionalRuleProviders =
-                    setOf(
-                        RuleProvider { TrailingCommaOnDeclarationSiteRule() },
-                        RuleProvider { WrappingRule() },
-                    ),
-            )
+            assertThatRuleBuilder { MultiLineIfElseRule() }
+                .addAdditionalRuleProvider { TrailingCommaOnDeclarationSiteRule() }
+                .addAdditionalRuleProvider { WrappingRule() }
+                .build()
 
         multiLineIfElseRuleAssertThat(code)
             .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
@@ -1026,20 +1016,15 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             }
             """.trimIndent()
         val noSemicolonsRuleAssertThat =
-            KtLintAssertThat.assertThatRule(
-                provider = { NoSemicolonsRule() },
-                additionalRuleProviders =
-                    setOf(
-                        // WrappingRule must be loaded in order to run TrailingCommaOnCallSiteRule
-                        RuleProvider { WrappingRule() },
-                        // Apply the IndentationRule always as additional rule, so that the formattedCode in the unit test looks
-                        // correct.
-                        RuleProvider { IndentationRule() },
-                        RuleProvider { TrailingCommaOnDeclarationSiteRule() },
-                    ),
-            )
+            assertThatRuleBuilder { NoSemicolonsRule() }
+                // Keep formatted code readable
+                .addAdditionalRuleProvider { IndentationRule() }
+                .addAdditionalRuleProvider { TrailingCommaOnDeclarationSiteRule() }
+                .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
+                .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
+                .build()
+
         noSemicolonsRuleAssertThat(code)
-            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
             .hasNoLintViolationsForRuleId(NO_SEMICOLONS_RULE_ID)
             .isFormattedAs(formattedCode)
     }

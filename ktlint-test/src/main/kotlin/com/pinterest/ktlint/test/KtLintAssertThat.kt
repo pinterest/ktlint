@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.test
 
+import com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.logger.api.setDefaultLoggerModifier
 import com.pinterest.ktlint.rule.engine.api.Code
@@ -9,6 +10,7 @@ import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.plus
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.LintError
 import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
@@ -164,8 +166,10 @@ public class KtLintAssertThat(
     }
 
     /**
-     * Adds a single provider of an additional rule to be executed when linting/formatting the code. This can to be used to unit test rules
-     * which are best to be tested in conjunction with other rules, for example wrapping and indenting.
+     * Adds additional rule providers to be executed when linting/formatting the code. This can to be used to unit test rules which are best
+     * to be tested in conjunction with other rules, for example wrapping and indenting.
+     *
+     * Note that the rule providers which are required for the main [ruleProvider] are added automatically when creating the assertThat.
      *
      * Caution:
      * An additional rule provider for a rule which actually is executed before the rule under test, might result in unexpected
@@ -183,6 +187,41 @@ public class KtLintAssertThat(
 
         return this
     }
+
+    /**
+     * Adds additional rule providers for the [ruleProvider] and each [additionalRuleProviders] that itself is depending on another required
+     * rule. This method only has to be called once after all [additionalRuleProviders] have been added. Also, it only needs to be called in
+     * case at least one the [additionalRuleProviders] has a dependency on another required rule.
+     */
+    public fun addRequiredRuleProviderDependenciesFrom(ruleSetProviderV3: RuleSetProviderV3): KtLintAssertThat {
+        val size = additionalRuleProviders.size
+        ruleSetProviderV3
+            .findRequiredRuleProviders(ruleProvider)
+            .let { additionalRuleProviders.addAll(it) }
+        additionalRuleProviders
+            .map { ruleSetProviderV3.findRequiredRuleProviders(it) }
+            .flatten()
+            .filter { it !in additionalRuleProviders }
+            .let { additionalRuleProviders.addAll(it) }
+        if (additionalRuleProviders.size == size) {
+            LOGGER.warn { "Call to 'addRequiredRuleProviderDependenciesFrom' is useless as no rule providers have to be added" }
+        }
+
+        return this
+    }
+
+    /**
+     * Builds the [KtLintAssertThat] lambda from that is able to lint or format a given piece of code.
+     */
+    public fun build(): (String) -> KtLintAssertThat =
+        { code ->
+            KtLintAssertThat(
+                ruleProvider = this.ruleProvider,
+                code = code,
+                additionalRuleProviders = this.additionalRuleProviders.toMutableSet(),
+                editorConfigProperties = this.editorConfigProperties.toMutableSet(),
+            )
+        }
 
     /**
      * Asserts that the code does not contain any [LintViolation]s in the rule associated with the KtLintAssertThat.
@@ -230,7 +269,18 @@ public class KtLintAssertThat(
         line: Int,
         col: Int,
         detail: String,
-    ): KtLintAssertThatAssertable = ktLintAssertThatAssertable().hasLintViolationForAdditionalRule(line, col, detail)
+    ): KtLintAssertThatAssertable = hasLintViolationForAdditionalRule(line, col, detail, canBeAutoCorrected = true)
+
+    /**
+     * Asserts that the code does contain given [LintViolation] caused by an additional rule which automatically can be corrected. This is a
+     * sugar-coated version of [hasLintViolations] for the case that the code contains exactly one lint violation.
+     */
+    public fun hasLintViolationForAdditionalRule(
+        line: Int,
+        col: Int,
+        detail: String,
+        canBeAutoCorrected: Boolean = true,
+    ): KtLintAssertThatAssertable = ktLintAssertThatAssertable().hasLintViolationForAdditionalRule(line, col, detail, canBeAutoCorrected)
 
     /**
      * Asserts that the code does contain given [LintViolation]s caused by an additional rules which can be automatically corrected. Note
@@ -291,7 +341,24 @@ public class KtLintAssertThat(
          * Creates an assertThat assertion function for the rule provided by [provider]. This assertion function has extensions specifically
          * for testing KtLint rules.
          */
-        public fun assertThatRule(provider: () -> Rule): (String) -> KtLintAssertThat = RuleProvider { provider() }.assertThat()
+        public fun assertThatRule(provider: () -> Rule): (String) -> KtLintAssertThat = assertThatRuleBuilder(provider).build()
+
+        /**
+         * Creates a builder for constructing an assertThat assertion function for the rule provided by [provider]. Before constructing
+         * (e.g. before calling [build]) the builder can be customized with functions like [addAdditionalRuleProvider] or
+         * [addEditorConfigProperties]. This has effect on all invocations of the assertion function, and as of that is intended to create
+         * the base assertion function.
+         * After constructing (using function [build]) the created assertion function can be customized with function like
+         * [addAdditionalRuleProvider], [addEditorConfigProperties]. Those customization only affect the assert function for one piece of
+         * code that is to be linted or formatted.
+         */
+        public fun assertThatRuleBuilder(provider: () -> Rule): KtLintAssertThat =
+            KtLintAssertThat(
+                ruleProvider = RuleProvider { provider() },
+                code = "",
+                additionalRuleProviders = mutableSetOf(),
+                editorConfigProperties = mutableSetOf(),
+            )
 
         /**
          * Creates an assertThat assertion function for the rule provided by [provider]. This assertion function has extensions specifically
@@ -299,21 +366,19 @@ public class KtLintAssertThat(
          * This means that the unit test only has to check the lint violations thrown by the rule for which the assertThat is created. But
          * the code is formatted by both the rule and the rules provided by [additionalRuleProviders] in the order as defined by the rule
          * definitions.
+         *
+         * Use function [assertThatRule] to create a default assertThat assertion function. In case a more specialized assertion function is
+         * needed, then use [assertThatRuleBuilder].
          */
-
+        @Deprecated(message = "Marked for removal in Ktlint 2.0. See KDOC for alternative")
         public fun assertThatRule(
             provider: () -> Rule,
-            additionalRuleProviders: Set<RuleProvider> = emptySet(),
-            editorConfigProperties: Set<Pair<EditorConfigProperty<*>, *>> = emptySet(),
-        ): (String) -> KtLintAssertThat = RuleProvider { provider() }.assertThat(additionalRuleProviders, editorConfigProperties)
-
-        private fun RuleProvider.assertThat(
             additionalRuleProviders: Set<RuleProvider> = emptySet(),
             editorConfigProperties: Set<Pair<EditorConfigProperty<*>, *>> = emptySet(),
         ): (String) -> KtLintAssertThat =
             { code ->
                 KtLintAssertThat(
-                    ruleProvider = this,
+                    ruleProvider = RuleProvider { provider() },
                     code = code,
                     additionalRuleProviders = additionalRuleProviders.toMutableSet(),
                     editorConfigProperties = editorConfigProperties.toMutableSet(),
@@ -463,12 +528,24 @@ public class KtLintAssertThatAssertable(
         line: Int,
         col: Int,
         detail: String,
+    ): KtLintAssertThatAssertable = hasLintViolationForAdditionalRule(line, col, detail, canBeAutoCorrected = true)
+
+    /**
+     * Asserts that the code does contain given [LintViolation] caused by an additional rule. This is a sugar-coated version of
+     * [hasLintViolationsForAdditionalRules] for the case that the code contains exactly one lint violation.
+     */
+    public fun hasLintViolationForAdditionalRule(
+        line: Int,
+        col: Int,
+        detail: String,
+        canBeAutoCorrected: Boolean = true,
     ): KtLintAssertThatAssertable =
         hasLintViolationsForAdditionalRules(
             LintViolation(
                 line = line,
                 col = col,
                 detail = detail,
+                canBeAutoCorrected = canBeAutoCorrected,
             ),
         )
 
@@ -684,3 +761,31 @@ private fun EditorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProvider
 
 private fun EditorConfigOverride.enableExperimentalRules(): EditorConfigOverride =
     plus(EXPERIMENTAL_RULES_EXECUTION_PROPERTY to RuleExecution.enabled)
+
+private fun RuleSetProviderV3.findRequiredRuleProviders(ruleProvider: RuleProvider): Set<RuleProvider> {
+    val resultRuleProviders = mutableSetOf<RuleProvider>()
+
+    val ruleProviders = ArrayDeque<RuleProvider>()
+    ruleProviders.add(ruleProvider)
+    // Recursively add all rule providers which are required to run the given rule
+    while (ruleProviders.firstOrNull() != null) {
+        with(ruleProviders.removeFirst()) {
+            if (this != ruleProvider) {
+                resultRuleProviders.add(this)
+            }
+
+            runAfterRules
+                .filter { it.mode == ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED }
+                .forEach { runAfterRule ->
+                    findRuleProvider(runAfterRule.ruleId).let { ruleProviders.add(it) }
+                }
+        }
+    }
+
+    return resultRuleProviders
+}
+
+private fun RuleSetProviderV3.findRuleProvider(ruleId: RuleId): RuleProvider =
+    getRuleProviders()
+        .find { it.ruleId == ruleId }
+        ?: throw IllegalArgumentException("Can not find rule '${ruleId.value}' in given rule set '${this.id.value}'")

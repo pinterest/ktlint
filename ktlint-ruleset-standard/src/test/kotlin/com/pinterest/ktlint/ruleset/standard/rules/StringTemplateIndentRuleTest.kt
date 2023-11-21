@@ -1,11 +1,9 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
-import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
+import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import com.pinterest.ktlint.test.TAB
@@ -14,15 +12,9 @@ import org.junit.jupiter.api.Test
 
 class StringTemplateIndentRuleTest {
     private val stringTemplateIndentRuleAssertThat =
-        assertThatRule(
-            provider = { StringTemplateIndentRule() },
-            additionalRuleProviders =
-                setOf(
-                    RuleProvider { MultilineExpressionWrappingRule() },
-                    RuleProvider { IndentationRule() },
-                ),
-            editorConfigProperties = setOf(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official),
-        )
+        assertThatRuleBuilder { StringTemplateIndentRule() }
+            .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
+            .build()
 
     @Test
     fun `Do not move a multiline string literal after return statement to a new line as that results in a compilation error`() {

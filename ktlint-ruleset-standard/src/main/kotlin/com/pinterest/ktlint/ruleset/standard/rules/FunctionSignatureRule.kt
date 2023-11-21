@@ -18,6 +18,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.Companion.DEFAULT_INDENT_CONFIG
+import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
@@ -60,6 +61,17 @@ public class FunctionSignatureRule :
         id = "function-signature",
         visitorModifiers =
             setOf(
+                // Disallow comments at unexpected locations in the type parameter list
+                //     fun </* some comment */ T> Foo<T>.foo() {}
+                VisitorModifier.RunAfterRule(TYPE_PARAMETER_COMMENT_RULE_ID, ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED),
+                // Disallow comments at unexpected locations in the type argument list
+                //     fun Foo<out /* some comment */ Any>.foo() {}
+                VisitorModifier.RunAfterRule(TYPE_ARGUMENT_COMMENT_RULE_ID, ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED),
+                // Disallow comments at unexpected locations in the value parameter list
+                //     fun foo(
+                //        bar /* some comment */: Bar
+                //     )
+                VisitorModifier.RunAfterRule(VALUE_PARAMETER_COMMENT_RULE_ID, ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED),
                 // Run after wrapping and spacing rules
                 VisitorModifier.RunAsLateAsPossible,
             ),

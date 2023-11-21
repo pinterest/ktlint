@@ -1,24 +1,16 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
-import com.pinterest.ktlint.test.KtLintAssertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class IfElseWrappingRuleTest {
     private val ifElseWrappingRuleAssertThat =
-        KtLintAssertThat.assertThatRule(
-            provider = { IfElseWrappingRule() },
-            additionalRuleProviders =
-                setOf(
-                    // Keep formatted code readable
-                    RuleProvider { IndentationRule() },
-                ),
-            editorConfigProperties = setOf(CODE_STYLE_PROPERTY to ktlint_official),
-        )
+        assertThatRuleBuilder { IfElseWrappingRule() }
+            // Keep formatted code readable
+            .addAdditionalRuleProvider { IndentationRule() }
+            .build()
 
     @Test
     fun `Given a single line if statement without else then do not report a violation`() {

@@ -63,9 +63,16 @@ public class ClassSignatureRule :
         id = "class-signature",
         visitorModifiers =
             setOf(
+                // Disallow comments at unexpected locations in the type parameter list
+                //     class Foo<in /** some comment */ Bar>
+                RunAfterRule(TYPE_PARAMETER_COMMENT_RULE_ID, ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED),
+                // Disallow comments at unexpected locations in the value parameter list
+                //     class Foo(
+                //        bar /* some comment */: Bar
+                //     )
+                RunAfterRule(VALUE_PARAMETER_COMMENT_RULE_ID, ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED),
                 // Run after wrapping and spacing rules
                 RunAsLateAsPossible,
-                RunAfterRule(DISCOURAGED_COMMENT_LOCATION_RULE_ID, ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED),
             ),
         usesEditorConfigProperties =
             setOf(

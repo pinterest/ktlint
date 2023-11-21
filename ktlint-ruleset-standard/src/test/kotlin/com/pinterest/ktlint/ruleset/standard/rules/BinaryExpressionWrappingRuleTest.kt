@@ -1,14 +1,15 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.test.KtLintAssertThat
+import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import org.junit.jupiter.api.Test
 
 class BinaryExpressionWrappingRuleTest {
-    private val binaryExpressionWrappingRuleAssertThat = KtLintAssertThat.assertThatRule { BinaryExpressionWrappingRule() }
+    private val binaryExpressionWrappingRuleAssertThat = assertThatRule { BinaryExpressionWrappingRule() }
 
     @Test
     fun `Given a property with a binary expression on same line as equals, and it exceeds the max line length then wrap before the expression`() {
@@ -249,6 +250,7 @@ class BinaryExpressionWrappingRuleTest {
         binaryExpressionWrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { ArgumentListWrappingRule() }
             .addAdditionalRuleProvider { WrappingRule() }
+            .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
             .setMaxLineLength()
             .hasLintViolations(
                 // Although violations below are reported by the Linter, they will not be enforced by the formatter. After the
@@ -285,6 +287,7 @@ class BinaryExpressionWrappingRuleTest {
         binaryExpressionWrappingRuleAssertThat(code)
             .setMaxLineLength()
             .addAdditionalRuleProvider { ArgumentListWrappingRule() }
+            .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
             .addAdditionalRuleProvider { WrappingRule() }
             // Although the argument-list-wrapping runs before binary-expression-wrapping, it may not wrap the argument values of a
             // function call in case that call is part of a binary expression. It might be better to break the line at the operation
@@ -305,6 +308,7 @@ class BinaryExpressionWrappingRuleTest {
             .setMaxLineLength()
             .addAdditionalRuleProvider { ArgumentListWrappingRule() }
             .addAdditionalRuleProvider { WrappingRule() }
+            .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
             .hasLintViolationWithoutAutoCorrect(3, 1, "Line is exceeding max line length")
     }
 
@@ -322,6 +326,7 @@ class BinaryExpressionWrappingRuleTest {
             .addAdditionalRuleProvider { ArgumentListWrappingRule() }
             .addAdditionalRuleProvider { WrappingRule() }
             .addAdditionalRuleProvider { MaxLineLengthRule() }
+            .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
             .hasLintViolationWithoutAutoCorrect(4, 1, "Line is exceeding max line length")
     }
 }

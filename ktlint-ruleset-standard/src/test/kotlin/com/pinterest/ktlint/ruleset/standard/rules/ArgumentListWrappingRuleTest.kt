@@ -1,17 +1,21 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
+import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
 import com.pinterest.ktlint.ruleset.standard.rules.ClassSignatureRule.Companion.FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class ArgumentListWrappingRuleTest {
-    private val argumentListWrappingRuleAssertThat = assertThatRule { ArgumentListWrappingRule() }
+    private val argumentListWrappingRuleAssertThat =
+        assertThatRuleBuilder { ArgumentListWrappingRule() }
+            .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
+            .build()
 
     @Test
     fun `Given a function call and not all arguments are on the same line`() {
@@ -886,7 +890,7 @@ class ArgumentListWrappingRuleTest {
         argumentListWrappingRuleAssertThat(code)
             .setMaxLineLength()
             .addAdditionalRuleProvider { ClassSignatureRule() }
-            .addAdditionalRuleProvider { DiscouragedCommentLocationRule() }
+            .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
             .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to 4)
             .hasLintViolationForAdditionalRule(5, 37, "Super type should start on a newline")
             .hasLintViolations(
@@ -894,5 +898,27 @@ class ArgumentListWrappingRuleTest {
                 LintViolation(5, 47, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(5, 88, "Missing newline before \")\""),
             ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a value argument with a disallowed comment`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER                                     $EOL_CHAR
+            val foo = foo(bar = /* some disallowed comment location */ "bar")
+            """.trimIndent()
+        val formattedCode =
+            """
+            // $MAX_LINE_LENGTH_MARKER                                     $EOL_CHAR
+            val foo = foo(
+                bar = /* some disallowed comment location */ "bar"
+            )
+            """.trimIndent()
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+        argumentListWrappingRuleAssertThat(code)
+            .setMaxLineLength()
+            .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to 1)
+            .hasLintViolationForAdditionalRule(2, 21, "A (block or EOL) comment inside or on same line after a 'value_argument' is not allowed. It may be placed on a separate line above.", false)
+            .isFormattedAs(formattedCode)
     }
 }

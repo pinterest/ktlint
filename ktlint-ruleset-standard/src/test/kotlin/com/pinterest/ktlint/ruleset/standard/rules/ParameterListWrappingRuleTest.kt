@@ -1,12 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -15,15 +14,10 @@ import org.junit.jupiter.params.provider.EnumSource
 
 class ParameterListWrappingRuleTest {
     private val parameterListWrappingRuleAssertThat =
-        assertThatRule(
-            provider = { ParameterListWrappingRule() },
-            additionalRuleProviders =
-                setOf(
-                    // Apply the IndentationRule always as additional rule, so that the formattedCode in the unit test looks
-                    // correct.
-                    RuleProvider { IndentationRule() },
-                ),
-        )
+        assertThatRuleBuilder { ParameterListWrappingRule() }
+            // Keep formatted code readable
+            .addAdditionalRuleProvider { IndentationRule() }
+            .build()
 
     @Test
     fun `Given a class with parameters on multiple lines then put each parameter and closing parenthesis on a separate line`() {

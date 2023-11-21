@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
@@ -434,8 +435,9 @@ class FunctionLiteralRuleTest {
         functionLiteralRuleAssertThat(code)
             .addAdditionalRuleProvider { MultilineExpressionWrappingRule() }
             .addAdditionalRuleProvider { ChainMethodContinuationRule() }
-            .addAdditionalRuleProvider { ArgumentListWrappingRule() }
             .addAdditionalRuleProvider { IndentationRule() }
+            .addAdditionalRuleProvider { ArgumentListWrappingRule() }
+            .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
             .setMaxLineLength()
             .hasLintViolations(
                 LintViolation(2, 14, "Newline expected after opening brace"),
