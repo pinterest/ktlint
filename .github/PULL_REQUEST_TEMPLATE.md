@@ -17,10 +17,9 @@ Before submitting the PR, please check following (checks which are not relevant 
 - [ ] At least one commit message contains a reference `Closes #<xxx>` or `Fixes #<xxx>` (replace`<xxx>` with issue number)
 - [ ] Tests are added
 - [ ] KtLint format has been applied on source code itself and violations are fixed
-- [ ] `CHANGELOG.md` is updated
-- [ ] PR description added
+- [ ] PR title is short and clear (it is used as description in the release changelog)
+- [ ] PR description added (background information)
 
 [Documentation](https://pinterest.github.io/ktlint/) is updated. See [difference between snapshot and release documentation](https://github.com/pinterest/ktlint/tree/master/documentation)
 - [ ] [Snapshot documentation](https://github.com/pinterest/ktlint/tree/master/documentation/snapshot) in case documentation is to be released together with a code change
 - [ ] [Release documentation](https://github.com/pinterest/ktlint/tree/master/documentation/release-latest) in case documentation is related to a released version of ktlint and has to be published as soon as the change is merged to master 
-- [ ] In case of adding a new rule, it needs to be added to [experimental rules documentation](https://pinterest.github.io/ktlint/latest/rules/experimental/)
