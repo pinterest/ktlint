@@ -9,7 +9,7 @@ public final class com/pinterest/ktlint/test/KtLintAssertThat {
 	public final fun asFileWithPath (Ljava/lang/String;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
 	public final fun asKotlinScript (Z)Lcom/pinterest/ktlint/test/KtLintAssertThat;
 	public static synthetic fun asKotlinScript$default (Lcom/pinterest/ktlint/test/KtLintAssertThat;ZILjava/lang/Object;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
-	public final fun build ()Lkotlin/jvm/functions/Function1;
+	public final fun assertThat ()Lkotlin/jvm/functions/Function1;
 	public final fun hasLintViolation (IILjava/lang/String;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
 	public final fun hasLintViolationForAdditionalRule (IILjava/lang/String;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
 	public final fun hasLintViolationForAdditionalRule (IILjava/lang/String;Z)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;

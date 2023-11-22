@@ -213,7 +213,7 @@ public class KtLintAssertThat(
     /**
      * Builds the [KtLintAssertThat] lambda from that is able to lint or format a given piece of code.
      */
-    public fun build(): (String) -> KtLintAssertThat =
+    public fun assertThat(): (String) -> KtLintAssertThat =
         { code ->
             KtLintAssertThat(
                 ruleProvider = this.ruleProvider,
@@ -341,14 +341,14 @@ public class KtLintAssertThat(
          * Creates an assertThat assertion function for the rule provided by [provider]. This assertion function has extensions specifically
          * for testing KtLint rules.
          */
-        public fun assertThatRule(provider: () -> Rule): (String) -> KtLintAssertThat = assertThatRuleBuilder(provider).build()
+        public fun assertThatRule(provider: () -> Rule): (String) -> KtLintAssertThat = assertThatRuleBuilder(provider).assertThat()
 
         /**
          * Creates a builder for constructing an assertThat assertion function for the rule provided by [provider]. Before constructing
-         * (e.g. before calling [build]) the builder can be customized with functions like [addAdditionalRuleProvider] or
+         * (e.g. before calling [assertThat]) the builder can be customized with functions like [addAdditionalRuleProvider] or
          * [addEditorConfigProperties]. This has effect on all invocations of the assertion function, and as of that is intended to create
          * the base assertion function.
-         * After constructing (using function [build]) the created assertion function can be customized with function like
+         * After constructing (using function [assertThat]) the created assertion function can be customized with function like
          * [addAdditionalRuleProvider], [addEditorConfigProperties]. Those customization only affect the assert function for one piece of
          * code that is to be linted or formatted.
          */

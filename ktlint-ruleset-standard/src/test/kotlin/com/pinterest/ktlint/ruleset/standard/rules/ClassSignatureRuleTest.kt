@@ -25,7 +25,7 @@ class ClassSignatureRuleTest {
     private val classSignatureWrappingRuleAssertThat =
         assertThatRuleBuilder { ClassSignatureRule() }
             .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
-            .build()
+            .assertThat()
 
     @Nested
     inner class `Given a class with a body` {

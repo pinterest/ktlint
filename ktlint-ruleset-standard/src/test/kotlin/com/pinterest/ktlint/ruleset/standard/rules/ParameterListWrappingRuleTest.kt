@@ -17,7 +17,7 @@ class ParameterListWrappingRuleTest {
         assertThatRuleBuilder { ParameterListWrappingRule() }
             // Keep formatted code readable
             .addAdditionalRuleProvider { IndentationRule() }
-            .build()
+            .assertThat()
 
     @Test
     fun `Given a class with parameters on multiple lines then put each parameter and closing parenthesis on a separate line`() {

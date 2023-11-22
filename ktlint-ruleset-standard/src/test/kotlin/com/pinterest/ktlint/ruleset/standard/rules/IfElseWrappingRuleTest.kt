@@ -10,7 +10,7 @@ class IfElseWrappingRuleTest {
         assertThatRuleBuilder { IfElseWrappingRule() }
             // Keep formatted code readable
             .addAdditionalRuleProvider { IndentationRule() }
-            .build()
+            .assertThat()
 
     @Test
     fun `Given a single line if statement without else then do not report a violation`() {

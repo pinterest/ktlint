@@ -26,7 +26,7 @@ class FunctionSignatureRuleTest {
     private val functionSignatureWrappingRuleAssertThat =
         assertThatRuleBuilder { FunctionSignatureRule() }
             .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
-            .build()
+            .assertThat()
 
     @Test
     fun `Given a single line function signature which is smaller than or equal to the max line length, and the function is followed by a body block, then do no change the signature`() {

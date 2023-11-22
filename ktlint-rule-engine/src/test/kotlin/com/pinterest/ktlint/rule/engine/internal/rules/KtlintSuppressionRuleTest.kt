@@ -31,7 +31,7 @@ class KtlintSuppressionRuleTest {
             .addAdditionalRuleProvider { DummyRule("custom:foo") }
             .addAdditionalRuleProvider { DummyRule("standard:bar") }
             .addAdditionalRuleProvider { DummyRule("standard:foo") }
-            .build()
+            .assertThat()
 
     @Nested
     inner class `Given a suppression annotation missing the rule set id prefix` {

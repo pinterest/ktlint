@@ -15,7 +15,7 @@ class ArgumentListWrappingRuleTest {
     private val argumentListWrappingRuleAssertThat =
         assertThatRuleBuilder { ArgumentListWrappingRule() }
             .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
-            .build()
+            .assertThat()
 
     @Test
     fun `Given a function call and not all arguments are on the same line`() {

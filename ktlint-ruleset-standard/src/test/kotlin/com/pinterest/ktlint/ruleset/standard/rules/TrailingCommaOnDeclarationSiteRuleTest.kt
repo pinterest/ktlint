@@ -13,7 +13,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             // Unit tests becomes more readable when properly indented
             .addAdditionalRuleProvider { IndentationRule() }
             .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
-            .build()
+            .assertThat()
 
     @Test
     fun `Given property allow trailing comma on declaration site is not set then remove trailing commas`() {
@@ -933,7 +933,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             assertThatRuleBuilder { MultiLineIfElseRule() }
                 .addAdditionalRuleProvider { TrailingCommaOnDeclarationSiteRule() }
                 .addAdditionalRuleProvider { WrappingRule() }
-                .build()
+                .assertThat()
 
         multiLineIfElseRuleAssertThat(code)
             .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
@@ -1022,7 +1022,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
                 .addAdditionalRuleProvider { TrailingCommaOnDeclarationSiteRule() }
                 .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
                 .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
-                .build()
+                .assertThat()
 
         noSemicolonsRuleAssertThat(code)
             .hasNoLintViolationsForRuleId(NO_SEMICOLONS_RULE_ID)

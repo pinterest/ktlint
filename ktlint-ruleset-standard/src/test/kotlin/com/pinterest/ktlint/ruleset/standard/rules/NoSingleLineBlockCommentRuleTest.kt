@@ -10,7 +10,7 @@ class NoSingleLineBlockCommentRuleTest {
     private val noSingleLineBlockCommentRuleAssertThat =
         assertThatRuleBuilder { NoSingleLineBlockCommentRule() }
             .addAdditionalRuleProvider { CommentWrappingRule() }
-            .build()
+            .assertThat()
 
     @Test
     fun `Given a single line block comment then replace it with an EOL comment`() {

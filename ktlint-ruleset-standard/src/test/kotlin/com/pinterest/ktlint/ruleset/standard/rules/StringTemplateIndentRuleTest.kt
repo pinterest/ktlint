@@ -14,7 +14,7 @@ class StringTemplateIndentRuleTest {
     private val stringTemplateIndentRuleAssertThat =
         assertThatRuleBuilder { StringTemplateIndentRule() }
             .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
-            .build()
+            .assertThat()
 
     @Test
     fun `Do not move a multiline string literal after return statement to a new line as that results in a compilation error`() {

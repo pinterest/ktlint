@@ -13,7 +13,7 @@ class TrailingCommaOnCallSiteRuleTest {
             // Keep formatted code readable
             .addAdditionalRuleProvider { IndentationRule() }
             .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
-            .build()
+            .assertThat()
 
     @Test
     fun `Given property allow trailing comma on call site is not set then remove trailing commas`() {

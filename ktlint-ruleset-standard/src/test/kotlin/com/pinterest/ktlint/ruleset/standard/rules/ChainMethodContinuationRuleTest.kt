@@ -17,7 +17,7 @@ class ChainMethodContinuationRuleTest {
     private val chainMethodContinuationRuleAssertThat =
         assertThatRuleBuilder { ChainMethodContinuationRule() }
             .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
-            .build()
+            .assertThat()
 
     @Test
     fun `Given that no maximum line length is set, and a single line method chain does not exceed the maximum number of chain operators then do not wrap`() {
