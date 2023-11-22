@@ -7,6 +7,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
@@ -22,6 +23,8 @@ import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import kotlin.reflect.KFunction1
 
 class ASTNodeExtensionTest {
@@ -720,6 +723,67 @@ class ASTNodeExtensionTest {
             "    fun foo3".length,
             "        val foo4".length,
         )
+    }
+
+    @ParameterizedTest(name = "Text between FUN_KEYWORD and IDENTIFIER: {0}")
+    @ValueSource(
+        strings = [
+            " ",
+            "\n",
+            "/* some comment*/",
+            "// some EOL comment\n",
+        ],
+    )
+    fun `Given a function declaration then the IDENTIFIER should be after the FUN_KEYWORD element type`(separator: String) {
+        val code =
+            """
+            fun${separator}foo() = 42
+            """.trimIndent()
+        val actual =
+            transformCodeToAST(code)
+                .findChildByType(FUN)
+                ?.findChildByType(IDENTIFIER)
+                ?.afterCodeSibling(FUN_KEYWORD)
+
+        assertThat(actual).isTrue()
+    }
+
+    @ParameterizedTest(name = "Text between FUN_KEYWORD and IDENTIFIER: {0}")
+    @ValueSource(
+        strings = [
+            " ",
+            "\n",
+            "/* some comment*/",
+            "// some EOL comment\n",
+        ],
+    )
+    fun `Given a function declaration then the FUN_KEYWORD should be before the IDENTIFIER element type`(separator: String) {
+        val code =
+            """
+            fun${separator}foo() = 42
+            """.trimIndent()
+        val actual =
+            transformCodeToAST(code)
+                .findChildByType(FUN)
+                ?.findChildByType(FUN_KEYWORD)
+                ?.beforeCodeSibling(IDENTIFIER)
+
+        assertThat(actual).isTrue()
+    }
+
+    @Test
+    fun `Given a function declaration then the IDENTIFIER should be between the FUN_KEYWORD and the VALUE_PARAMETER_LIST element type`() {
+        val code =
+            """
+            fun foo() = 42
+            """.trimIndent()
+        val actual =
+            transformCodeToAST(code)
+                .findChildByType(FUN)
+                ?.findChildByType(IDENTIFIER)
+                ?.betweenCodeSiblings(FUN_KEYWORD, VALUE_PARAMETER_LIST)
+
+        assertThat(actual).isTrue()
     }
 
     private inline fun String.transformAst(block: FileASTNode.() -> Unit): FileASTNode =

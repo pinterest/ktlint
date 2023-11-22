@@ -850,6 +850,15 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/TryCatchFinallySp
 	public static final fun getTRY_CATCH_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
 }
 
+public final class com/pinterest/ktlint/ruleset/standard/rules/TypeArgumentCommentRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
+	public fun <init> ()V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+}
+
+public final class com/pinterest/ktlint/ruleset/standard/rules/TypeArgumentCommentRuleKt {
+	public static final fun getTYPE_ARGUMENT_COMMENT_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+}
+
 public final class com/pinterest/ktlint/ruleset/standard/rules/TypeArgumentListSpacingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
@@ -858,6 +867,15 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/TypeArgumentListS
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/TypeArgumentListSpacingRuleKt {
 	public static final fun getTYPE_ARGUMENT_LIST_SPACING_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+}
+
+public final class com/pinterest/ktlint/ruleset/standard/rules/TypeParameterCommentRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
+	public fun <init> ()V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+}
+
+public final class com/pinterest/ktlint/ruleset/standard/rules/TypeParameterCommentRuleKt {
+	public static final fun getTYPE_PARAMETER_COMMENT_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/TypeParameterListSpacingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
@@ -877,6 +895,24 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/UnnecessaryParent
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/UnnecessaryParenthesesBeforeTrailingLambdaRuleKt {
 	public static final fun getUNNECESSARY_PARENTHESES_BEFORE_TRAILING_LAMBDA_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+}
+
+public final class com/pinterest/ktlint/ruleset/standard/rules/ValueArgumentCommentRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
+	public fun <init> ()V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+}
+
+public final class com/pinterest/ktlint/ruleset/standard/rules/ValueArgumentCommentRuleKt {
+	public static final fun getVALUE_ARGUMENT_COMMENT_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+}
+
+public final class com/pinterest/ktlint/ruleset/standard/rules/ValueParameterCommentRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
+	public fun <init> ()V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+}
+
+public final class com/pinterest/ktlint/ruleset/standard/rules/ValueParameterCommentRuleKt {
+	public static final fun getVALUE_PARAMETER_COMMENT_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/WrappingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {

@@ -128,27 +128,6 @@ Lines in a block comment which (exclusive the indentation) start with a `*` shou
 
 Rule id: `block-comment-initial-star-alignment` (`standard` rule set)
 
-## Discouraged comment location
-
-Detect discouraged comment locations (no autocorrect).
-
-!!! note
-    Kotlin allows comments to be placed almost everywhere. As this can lead to code which is hard to read, most of them will never be used in practice. Ideally each rule takes comments at all possible locations into account. Sometimes this is really hard and not worth the effort. By explicitly forbidding such comment locations, the development of those rules becomes a bit easier.
-
-=== "[:material-heart-off-outline:](#) Disallowed"
-
-    ```kotlin
-    fun <T> /* some comment */ foo(t: T) = "some-result"
-
-    fun foo() {
-        if (true)
-            // some comment
-            bar()
-    }
-    ```
-
-Rule id: `discouraged-comment-location` (`standard` rule set)
-
 ## Enum entry
 
 Enum entry names should be uppercase underscore-separated or upper camel-case separated.
@@ -2022,6 +2001,89 @@ Consistent removal (default) or adding of trailing commas on declaration site.
 
 Rule id: `trailing-comma-on-declaration-site` (`standard` rule set)
 
+## Type argument comment
+
+Disallows comments to be placed at certain locations inside a type argument (list). A KDoc is not allowed.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun Foo<
+        /* some comment */ 
+        out Any
+        >.foo() {}
+    fun Foo<
+        // some comment 
+        out Any
+        >.foo() {}
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun Foo<out /* some comment */ Any>.foo() {}
+    fun Foo<
+        out Any, // some comment
+        >.foo() {}
+    val fooBar: FooBar<
+        /** some comment */
+        Foo,
+        Bar
+        >
+    ```
+
+Note: Although code sample below might look ok, it is semantically and programmatically unclear to which element `some comment 1` refers. As of that comments are only allowed when starting on a separate line. 
+```kotlin
+fun Foo<
+    out Bar1, // some comment 1
+    // some comment 2
+    out Bar2, // some comment
+    >.foo() {}
+```
+
+Rule id: `type-argument-comment` (`standard` rule set)
+
+## Type parameter comment
+
+Disallows comments to be placed at certain locations inside a type parameter (list). A KDoc is not allowed.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    class Foo2<
+        /* some comment */ 
+        out Bar
+        >
+    class Foo3<
+        // some comment 
+        out Bar
+        >
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    class Foo1<
+        /** some comment */
+        in Bar
+        >
+    class Foo2<in /* some comment */ Bar>
+    class Foo3<
+        in Bar, // some comment
+        >
+    ```
+
+Note: Although code sample below might look ok, it is semantically and programmatically unclear to which element `some comment 1` refers. As of that comments are only allowed when starting on a separate line.
+```kotlin
+class Foo<
+    out Bar1, // some comment 1
+    // some comment 2
+    out Bar2, // some comment
+    >
+```
+
+Rule id: `type-parameter-comment` (`standard` rule set)
+
 ## Unnecessary parenthesis before trailing lambda
 
 An empty parentheses block before a lambda is redundant.
@@ -2039,6 +2101,96 @@ An empty parentheses block before a lambda is redundant.
     ```
 
 Rule id: `unnecessary-parentheses-before-trailing-lambda` (`standard` rule set)
+
+## Value argument comment
+
+Disallows comments to be placed at certain locations inside a value argument (list). A KDoc is not allowed.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val foo2 =
+        foo(
+            /* some comment */
+            bar = "bar"
+        )
+    val foo3 =
+        foo(
+            // some comment
+            bar = "bar"
+        )
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val foo1 = foo(bar /** some comment */ = "bar")
+    val foo2 = foo(bar /* some comment */ = "bar")
+    val foo3 = 
+        foo(
+            bar = // some comment
+                "bar"
+        )
+    ```
+
+Note: Although code sample below might look ok, it is semantically and programmatically unclear to which element `some comment 1` refers. As of that comments are only allowed when starting on a separate line.
+```kotlin
+class Foo<
+    out Bar1, // some comment 1
+    // some comment 2
+    out Bar2, // some comment
+    >
+```
+
+Rule id: `value-argument-comment` (`standard` rule set)
+
+## Value parameter comment
+
+Disallows comments to be placed at certain locations inside a value argument (list). A KDoc is allowed but must start on a separate line.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    class Foo1(
+        /** some comment */
+        bar = "bar"
+    )
+    class Foo2(
+        /* some comment */
+        bar = "bar"
+    )
+    class Foo3(
+        // some comment
+        bar = "bar"
+    )
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    class Foo2(
+       bar /** some comment */ = "bar"
+    )
+    class Foo2(
+       bar = /* some comment */ "bar"
+    )
+    class Foo3(
+        bar =
+           // some comment
+           "bar"
+    )
+    ```
+
+Note: Although code sample below might look ok, it is semantically and programmatically unclear to which element `some comment 1` refers. As of that comments are only allowed when starting on a separate line.
+```kotlin
+class Foo(
+    bar: Bar1, // some comment 1
+    // some comment 2
+    bar2: Bar2, // some comment
+)
+```
+
+Rule id: `value-parameter-comment` (`standard` rule set)
 
 ## Wrapping
 

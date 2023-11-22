@@ -86,9 +86,13 @@ import com.pinterest.ktlint.ruleset.standard.rules.StringTemplateRule
 import com.pinterest.ktlint.ruleset.standard.rules.TrailingCommaOnCallSiteRule
 import com.pinterest.ktlint.ruleset.standard.rules.TrailingCommaOnDeclarationSiteRule
 import com.pinterest.ktlint.ruleset.standard.rules.TryCatchFinallySpacingRule
+import com.pinterest.ktlint.ruleset.standard.rules.TypeArgumentCommentRule
 import com.pinterest.ktlint.ruleset.standard.rules.TypeArgumentListSpacingRule
+import com.pinterest.ktlint.ruleset.standard.rules.TypeParameterCommentRule
 import com.pinterest.ktlint.ruleset.standard.rules.TypeParameterListSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.UnnecessaryParenthesesBeforeTrailingLambdaRule
+import com.pinterest.ktlint.ruleset.standard.rules.ValueArgumentCommentRule
+import com.pinterest.ktlint.ruleset.standard.rules.ValueParameterCommentRule
 import com.pinterest.ktlint.ruleset.standard.rules.WrappingRule
 
 public class StandardRuleSetProvider : RuleSetProviderV3(RuleSetId.STANDARD) {
@@ -177,8 +181,12 @@ public class StandardRuleSetProvider : RuleSetProviderV3(RuleSetId.STANDARD) {
             RuleProvider { TrailingCommaOnCallSiteRule() },
             RuleProvider { TrailingCommaOnDeclarationSiteRule() },
             RuleProvider { TryCatchFinallySpacingRule() },
+            RuleProvider { TypeArgumentCommentRule() },
             RuleProvider { TypeArgumentListSpacingRule() },
+            RuleProvider { TypeParameterCommentRule() },
             RuleProvider { TypeParameterListSpacingRule() },
+            RuleProvider { ValueArgumentCommentRule() },
+            RuleProvider { ValueParameterCommentRule() },
             RuleProvider { UnnecessaryParenthesesBeforeTrailingLambdaRule() },
             RuleProvider { WrappingRule() },
         )

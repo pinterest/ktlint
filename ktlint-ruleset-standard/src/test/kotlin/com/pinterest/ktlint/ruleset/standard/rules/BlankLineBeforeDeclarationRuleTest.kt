@@ -1,19 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
-import com.pinterest.ktlint.test.KtLintAssertThat
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.KtlintDocumentationTest
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class BlankLineBeforeDeclarationRuleTest {
-    private val blankLineBeforeDeclarationRuleAssertThat =
-        KtLintAssertThat.assertThatRule(
-            provider = { BlankLineBeforeDeclarationRule() },
-            editorConfigProperties = setOf(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official),
-        )
+    private val blankLineBeforeDeclarationRuleAssertThat = assertThatRule { BlankLineBeforeDeclarationRule() }
 
     @Test
     fun `Given some consecutive classes not separated by a blank line then insert a blank line in between`() {

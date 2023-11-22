@@ -470,3 +470,12 @@ public fun Sequence<ASTNode>.lineLengthWithoutNewlinePrefix(): Int {
         .takeWhile { it != '\n' }
         .length
 }
+
+public fun ASTNode.afterCodeSibling(afterElementType: IElementType): Boolean = prevCodeSibling()?.elementType == afterElementType
+
+public fun ASTNode.beforeCodeSibling(beforeElementType: IElementType): Boolean = nextCodeSibling()?.elementType == beforeElementType
+
+public fun ASTNode.betweenCodeSiblings(
+    afterElementType: IElementType,
+    beforeElementType: IElementType,
+): Boolean = afterCodeSibling(afterElementType) && beforeCodeSibling(beforeElementType)

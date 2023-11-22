@@ -2,11 +2,11 @@ package com.pinterest.ktlint.rule.engine.internal.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
 import com.pinterest.ktlint.ruleset.standard.rules.ArgumentListWrappingRule
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import com.pinterest.ktlint.test.KtlintDocumentationTest
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Nested
@@ -17,25 +17,21 @@ import org.junit.jupiter.params.provider.ValueSource
 
 class KtlintSuppressionRuleTest {
     private val ktlintSuppressionRuleAssertThat =
-        assertThatRule(
-            provider = { KtlintSuppressionRule(emptyList()) },
-            additionalRuleProviders =
-                setOf(
-                    // Create a dummy rule for each rule id that is used in a ktlint directive or suppression in the tests in this
-                    // class. If no rule provider is added for the rule id, a lint violation is thrown which will bloat the tests too
-                    // much.
-                    //
-                    // Ids of real rules used but for which the real implementation is unwanted as it would modify the formatted code
-                    RuleProvider { DummyRule("standard:no-wildcard-imports") },
-                    RuleProvider { DummyRule("standard:no-multi-spaces") },
-                    RuleProvider { DummyRule("standard:max-line-length") },
-                    RuleProvider { DummyRule("standard:package-name") },
-                    // Ids of fake rules in a custom and the standard rule set
-                    RuleProvider { DummyRule("custom:foo") },
-                    RuleProvider { DummyRule("standard:bar") },
-                    RuleProvider { DummyRule("standard:foo") },
-                ),
-        )
+        assertThatRuleBuilder { KtlintSuppressionRule(emptyList()) }
+            // Create a dummy rule for each rule id that is used in a ktlint directive or suppression in the tests in this
+            // class. If no rule provider is added for the rule id, a lint violation is thrown which will bloat the tests too
+            // much.
+            //
+            // Ids of real rules used but for which the real implementation is unwanted as it would modify the formatted code
+            .addAdditionalRuleProvider { DummyRule("standard:no-wildcard-imports") }
+            .addAdditionalRuleProvider { DummyRule("standard:no-multi-spaces") }
+            .addAdditionalRuleProvider { DummyRule("standard:max-line-length") }
+            .addAdditionalRuleProvider { DummyRule("standard:package-name") }
+            // Ids of fake rules in a custom and the standard rule set
+            .addAdditionalRuleProvider { DummyRule("custom:foo") }
+            .addAdditionalRuleProvider { DummyRule("standard:bar") }
+            .addAdditionalRuleProvider { DummyRule("standard:foo") }
+            .assertThat()
 
     @Nested
     inner class `Given a suppression annotation missing the rule set id prefix` {
@@ -872,6 +868,7 @@ class KtlintSuppressionRuleTest {
             """.trimIndent()
         ktlintSuppressionRuleAssertThat(code)
             .addAdditionalRuleProvider { ArgumentListWrappingRule() }
+            .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
             .hasLintViolations(
                 LintViolation(1, 4, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
                 LintViolation(4, 54, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
@@ -1359,6 +1356,7 @@ class KtlintSuppressionRuleTest {
         ktlintSuppressionRuleAssertThat(code)
             .setMaxLineLength()
             .addAdditionalRuleProvider { ArgumentListWrappingRule() }
+            .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
             .hasLintViolations(
                 LintViolation(8, 12, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
                 LintViolation(10, 12, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations"),

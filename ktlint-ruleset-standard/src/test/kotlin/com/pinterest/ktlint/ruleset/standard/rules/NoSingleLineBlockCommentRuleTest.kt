@@ -1,19 +1,16 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class NoSingleLineBlockCommentRuleTest {
     private val noSingleLineBlockCommentRuleAssertThat =
-        assertThatRule(
-            provider = { NoSingleLineBlockCommentRule() },
-            additionalRuleProviders = setOf(RuleProvider { CommentWrappingRule() }),
-            editorConfigProperties = setOf(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official),
-        )
+        assertThatRuleBuilder { NoSingleLineBlockCommentRule() }
+            .addAdditionalRuleProvider { CommentWrappingRule() }
+            .assertThat()
 
     @Test
     fun `Given a single line block comment then replace it with an EOL comment`() {

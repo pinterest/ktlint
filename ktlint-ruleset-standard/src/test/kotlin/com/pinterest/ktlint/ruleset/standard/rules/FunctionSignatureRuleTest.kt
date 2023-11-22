@@ -4,13 +4,14 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERT
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.ec4j.toPropertyWithValue
+import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.Companion.FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.Companion.FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.FunctionBodyExpressionWrapping
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.FunctionBodyExpressionWrapping.default
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import com.pinterest.ktlint.test.LintViolation
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
@@ -22,7 +23,10 @@ import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.EnumSource
 
 class FunctionSignatureRuleTest {
-    private val functionSignatureWrappingRuleAssertThat = assertThatRule { FunctionSignatureRule() }
+    private val functionSignatureWrappingRuleAssertThat =
+        assertThatRuleBuilder { FunctionSignatureRule() }
+            .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
+            .assertThat()
 
     @Test
     fun `Given a single line function signature which is smaller than or equal to the max line length, and the function is followed by a body block, then do no change the signature`() {
@@ -219,9 +223,16 @@ class FunctionSignatureRuleTest {
                 b: Any
             ): String = "f10"
             """.trimIndent()
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
         functionSignatureWrappingRuleAssertThat(code)
             .setMaxLineLength()
-            .hasNoLintViolations()
+            .hasLintViolationsForAdditionalRule(
+                LintViolation(5, 17, "A comment in a 'value_parameter_list' is only allowed when placed on a separate line", false),
+                LintViolation(6, 18, "A (block or EOL) comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
+                LintViolation(7, 19, "A (block or EOL) comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
+                LintViolation(8, 23, "A (block or EOL) comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
+                LintViolation(13, 13, "A comment in a 'value_parameter_list' is only allowed when placed on a separate line", false),
+            ).hasNoLintViolationsExceptInAdditionalRules()
     }
 
     @Test
