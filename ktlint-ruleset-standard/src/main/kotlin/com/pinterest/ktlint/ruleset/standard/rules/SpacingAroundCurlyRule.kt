@@ -5,7 +5,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLONCOLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EXCLEXCL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LAMBDA_EXPRESSION
@@ -17,26 +16,56 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACKET
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SAFE_ACCESS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SEMICOLON
+import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.isLeaf
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfString
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.TreeElement
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtLambdaExpression
 
 @SinceKtlint("0.1", STABLE)
-public class SpacingAroundCurlyRule : StandardRule("curly-spacing") {
+public class SpacingAroundCurlyRule :
+    StandardRule(
+        id = "curly-spacing",
+        usesEditorConfigProperties =
+            setOf(
+                CODE_STYLE_PROPERTY,
+                INDENT_SIZE_PROPERTY,
+                INDENT_STYLE_PROPERTY,
+            ),
+    ) {
+    private var codeStyle = CODE_STYLE_PROPERTY.defaultValue
+    private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
+
+    override fun beforeFirstNode(editorConfig: EditorConfig) {
+        codeStyle = editorConfig[CODE_STYLE_PROPERTY]
+        indentConfig =
+            IndentConfig(
+                indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
+                tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
+            )
+        if (indentConfig.disabled) {
+            stopTraversalOfAST()
+        }
+    }
+
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -76,19 +105,21 @@ public class SpacingAroundCurlyRule : StandardRule("curly-spacing") {
                 ) {
                     emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
                     if (autoCorrect) {
-                        val eolCommentExists =
+                        if (prevLeaf.isPrecededByEolComment()) {
+                            // All consecutive whitespaces and comments preceding the curly have to be moved after the curly brace
                             prevLeaf
-                                .prevLeaf()
-                                ?.let { it is PsiComment && it.elementType == EOL_COMMENT }
-                                ?: false
-                        if (eolCommentExists) {
-                            val commentLeaf = prevLeaf.prevLeaf()!!
-                            if (commentLeaf.prevLeaf() is PsiWhiteSpace) {
-                                (commentLeaf.prevLeaf() as LeafPsiElement).rawRemove()
-                            }
-                            (node.treeParent.treeParent as TreeElement).removeChild(commentLeaf)
-                            (node.treeParent as TreeElement).addChild(commentLeaf, node.treeNext)
-                            node.upsertWhitespaceAfterMe(" ")
+                                .leavesIncludingSelf(forward = false)
+                                .takeWhile { it.isWhiteSpace() || it.isPartOfComment() }
+                                .toList()
+                                .reversed()
+                                .takeIf { it.isNotEmpty() }
+                                ?.let { leavesToMoveAfterCurly ->
+                                    node.treeParent.addChildren(
+                                        leavesToMoveAfterCurly.first(),
+                                        leavesToMoveAfterCurly.last(),
+                                        node.treeNext,
+                                    )
+                                }
                         }
                         (prevLeaf as LeafPsiElement).rawReplaceWithText(" ")
                     }
@@ -130,6 +161,11 @@ public class SpacingAroundCurlyRule : StandardRule("curly-spacing") {
             }
         }
     }
+
+    private fun ASTNode.isPrecededByEolComment() =
+        prevLeaf()
+            ?.isPartOfComment()
+            ?: false
 
     private fun shouldNotToBeSeparatedBySpace(leaf: ASTNode?): Boolean {
         val nextElementType = leaf?.elementType

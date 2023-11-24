@@ -464,4 +464,102 @@ class SpacingAroundCurlyRuleTest {
                 LintViolation(5, 1, "Unexpected newline before \"{\""),
             ).isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Given a block comment before opening curly brace of function`() {
+        val code =
+            """
+            class Foo1()/* a comment (originally) not preceded by a space */
+            {
+            }
+            class Foo2() /* a comment (originally) preceded by a space */
+            {
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            class Foo1() { /* a comment (originally) not preceded by a space */
+            }
+            class Foo2() { /* a comment (originally) preceded by a space */
+            }
+            """.trimIndent()
+        spacingAroundCurlyRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 1, "Unexpected newline before \"{\""),
+                LintViolation(5, 1, "Unexpected newline before \"{\""),
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Nested
+    inner class `Issue 2355 - Given a function signature with multiple comments at an unexpected location` {
+        @Test
+        fun `Multiple EOL comments at an unexpected location`() {
+            val code =
+                """
+                fun foo(): Float
+                    // comment1
+                    // comment2
+                {
+                    return 0.0f
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun foo(): Float {
+                    // comment1
+                    // comment2
+                    return 0.0f
+                }
+                """.trimIndent()
+            spacingAroundCurlyRuleAssertThat(code)
+                .hasLintViolation(4, 1, "Unexpected newline before \"{\"")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Multiple block comments at an unexpected location`() {
+            val code =
+                """
+                fun foo(): Float
+                    /* comment1 */
+                    /* comment2 */
+                {
+                    return 0.0f
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun foo(): Float {
+                    /* comment1 */
+                    /* comment2 */
+                    return 0.0f
+                }
+                """.trimIndent()
+            spacingAroundCurlyRuleAssertThat(code)
+                .hasLintViolation(4, 1, "Unexpected newline before \"{\"")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Multiple block and EOL comments at an unexpected location`() {
+            val code =
+                """
+                fun foo(): Float // comment1
+                    /* comment2 */
+                {
+                    return 0.0f
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun foo(): Float { // comment1
+                    /* comment2 */
+                    return 0.0f
+                }
+                """.trimIndent()
+            spacingAroundCurlyRuleAssertThat(code)
+                .hasLintViolation(3, 1, "Unexpected newline before \"{\"")
+                .isFormattedAs(formattedCode)
+        }
+    }
 }
