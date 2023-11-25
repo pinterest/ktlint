@@ -136,7 +136,7 @@ internal fun FileSystem.fileSequence(
                         dirPath: Path,
                         dirAttr: BasicFileAttributes,
                     ): FileVisitResult =
-                        if (Files.isHidden(dirPath)) {
+                        if (Files.isHidden(dirPath) && dirPath != commonRootDir) {
                             LOGGER.trace { "- Dir: $dirPath: Ignore" }
                             FileVisitResult.SKIP_SUBTREE
                         } else {

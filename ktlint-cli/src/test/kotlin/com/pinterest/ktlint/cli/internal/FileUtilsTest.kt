@@ -107,6 +107,20 @@ internal class FileUtilsTest {
     }
 
     @Test
+    fun `Given the current directory is hidden the patterns should work`() {
+        val foundFiles =
+            getFiles(
+                patterns = listOf("*.kt"),
+                rootDir = ktlintTestFileSystem.resolve("project1/.git"),
+            )
+
+        assertThat(foundFiles)
+            .containsExactlyInAnyOrder(
+                ktFileInHiddenDirectory,
+            )
+    }
+
+    @Test
     fun `Given some patterns including a negate pattern and no workdir then select all files except files in the negate pattern`() {
         val foundFiles =
             getFiles(
