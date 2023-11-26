@@ -1,5 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.android_studio
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
@@ -201,12 +203,12 @@ class TypeParameterListSpacingRuleTest {
             """.trimIndent()
         typeParameterListSpacingRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(1, 16, "Expected a single space or newline (with indent)"),
-                LintViolation(2, 16, "Expected a single space or newline (with indent)"),
-                LintViolation(3, 16, "Expected a single space or newline (with indent)"),
-                LintViolation(4, 16, "Expected a single space or newline (with indent)"),
-                LintViolation(5, 16, "Expected a single space or newline (with indent)"),
-                LintViolation(6, 16, "Expected a single space or newline (with indent)"),
+                LintViolation(1, 16, "Expected a single space"),
+                LintViolation(2, 16, "Expected a single space"),
+                LintViolation(3, 16, "Expected a single space"),
+                LintViolation(4, 16, "Expected a single space"),
+                LintViolation(5, 16, "Expected a single space"),
+                LintViolation(6, 16, "Expected a single space"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -319,7 +321,32 @@ class TypeParameterListSpacingRuleTest {
     }
 
     @Test
+    fun `Issue 2360 - Given a class with a KDoc on an explicit constructor starting on a separate line then do not report a violation`() {
+        val code =
+            """
+            class Foo<T>
+            /**
+             * some-comment
+             */
+            constructor(param: T)
+            """.trimIndent()
+        typeParameterListSpacingRuleAssertThat(code)
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to android_studio)
+            .hasNoLintViolations()
+    }
+
+    @Test
     fun `Given a class with an annotated constructor on same line as parameter type list then do not report a violation`() {
+        val code =
+            """
+            class Foo<out T> @Bar constructor(val value: T?) : FooBar<T>()
+            """.trimIndent()
+        typeParameterListSpacingRuleAssertThat(code)
+            .hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 2360`() {
         val code =
             """
             class Foo<out T> @Bar constructor(val value: T?) : FooBar<T>()

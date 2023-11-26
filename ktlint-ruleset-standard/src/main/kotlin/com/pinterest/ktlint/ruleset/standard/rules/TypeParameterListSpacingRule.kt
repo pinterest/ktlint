@@ -19,6 +19,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -91,19 +92,34 @@ public class TypeParameterListSpacingRule :
             ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling()?.elementType == PRIMARY_CONSTRUCTOR }
             ?.let { whiteSpace ->
                 if (whiteSpace.nextCodeSibling()?.findChildByType(CONSTRUCTOR_KEYWORD) != null) {
-                    // Single space or newline expected before (modifier list of) constructor
-                    //    class Bar<T> constructor(...)
-                    //    class Bar<T> actual constructor(...)
-                    //    class Bar<T> @SomeAnnotation constructor(...)
-                    if (whiteSpace.text != " " && whiteSpace.text != indentConfig.childIndentOf(node)) {
-                        emit(
-                            whiteSpace.startOffset,
-                            "Expected a single space or newline (with indent)",
-                            true,
-                        )
-                        if (autoCorrect) {
-                            // If line is to be wrapped this should have been done by other rules before running this rule
-                            whiteSpace.upsertWhitespaceBeforeMe(" ")
+                    if (whiteSpace.isWhiteSpaceWithNewline()) {
+                        // Newline is acceptable before (modifier list of) constructor
+                        //    class Bar<T>
+                        //        constructor(...)
+                        //    class Bar<T>
+                        //        actual constructor(...)
+                        //    class Bar<T>
+                        //        @SomeAnnotation constructor(...)
+                        //    class Bar<T>
+                        //        @SomeAnnotation1
+                        //        @SomeAnnotation2
+                        //        constructor(...)
+                        //    class Bar<T>
+                        //        /**
+                        //         * Some kdoc
+                        //         */
+                        //        constructor(...)
+                    } else {
+                        // Single space before (modifier list of) constructor
+                        //    class Bar<T> constructor(...)
+                        //    class Bar<T> actual constructor(...)
+                        //    class Bar<T> @SomeAnnotation constructor(...)
+                        if (whiteSpace.text != " ") {
+                            emit(whiteSpace.startOffset, "Expected a single space", true)
+                            if (autoCorrect) {
+                                // If line is to be wrapped this should have been done by other rules before running this rule
+                                whiteSpace.upsertWhitespaceBeforeMe(" ")
+                            }
                         }
                     }
                 } else {
