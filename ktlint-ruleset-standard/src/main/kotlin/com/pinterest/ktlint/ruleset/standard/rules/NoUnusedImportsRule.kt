@@ -298,8 +298,8 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
                 "get", "set",
                 // invoke
                 "invoke",
-                // augmented assignments
-                "plusAssign", "minusAssign", "timesAssign", "divAssign", "modAssign",
+                // (augmented) assignment
+                "assign", "plusAssign", "minusAssign", "timesAssign", "divAssign", "modAssign",
                 // (in)equality
                 "equals",
                 // comparison
