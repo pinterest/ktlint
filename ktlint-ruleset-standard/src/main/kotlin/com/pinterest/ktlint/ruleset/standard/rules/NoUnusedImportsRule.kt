@@ -291,7 +291,7 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
                 // inc/dec
                 "inc", "dec",
                 // arithmetic
-                "plus", "minus", "times", "div", "rem", "mod", "rangeTo",
+                "plus", "minus", "times", "div", "rem", "mod", "rangeTo", "rangeUntil",
                 // in
                 "contains",
                 // indexed access
