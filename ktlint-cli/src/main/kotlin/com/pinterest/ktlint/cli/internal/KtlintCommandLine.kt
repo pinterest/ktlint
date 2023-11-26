@@ -538,18 +538,32 @@ internal class KtlintCommandLine {
                 }
         } catch (e: Exception) {
             if (code.isStdIn && e is KtLintParseException) {
-                logger.warn {
-                    """
-                    Can not parse input from <stdin> as Kotlin, due to error below:
-                        ${e.toKtlintCliError(code).detail}
-                    Now, trying to read the input as Kotlin Script.
-                    """.trimIndent()
+                if (code.script) {
+                    // When reading from stdin, code is only parsed as Kotlint script, if it could not be parsed as pure Kotlin. Now parsing
+                    // of the code has failed for both, the file has to be ignored.
+                    logger.error {
+                        """
+                        Can not parse input from <stdin> as Kotlin, due to error below:
+                            ${e.toKtlintCliError(code).detail}
+                        """.trimIndent()
+                    }
+                    ktlintCliErrors.add(e.toKtlintCliError(code))
+                } else {
+                    // When reading from stdin, it is first assumed that the provided code is pure Kotlin instead of Kotlin script. If
+                    // parsing fails, retry parsing at Kotlin script.
+                    logger.warn {
+                        """
+                        Can not parse input from <stdin> as Kotlin, due to error below:
+                            ${e.toKtlintCliError(code).detail}
+                        Now, trying to read the input as Kotlin Script.
+                        """.trimIndent()
+                    }
+                    return format(
+                        ktLintRuleEngine = ktLintRuleEngine,
+                        code = Code.fromSnippet(code.content, script = true),
+                        baselineLintErrors = baselineLintErrors,
+                    )
                 }
-                return format(
-                    ktLintRuleEngine = ktLintRuleEngine,
-                    code = Code.fromSnippet(code.content, script = true),
-                    baselineLintErrors = baselineLintErrors,
-                )
             } else {
                 ktlintCliErrors.add(e.toKtlintCliError(code))
                 tripped.set(true)
@@ -587,18 +601,32 @@ internal class KtlintCommandLine {
             }
         } catch (e: Exception) {
             if (code.isStdIn && e is KtLintParseException) {
-                logger.warn {
-                    """
-                    Can not parse input from <stdin> as Kotlin, due to error below:
-                        ${e.toKtlintCliError(code).detail}
-                    Now, trying to read the input as Kotlin Script.
-                    """.trimIndent()
+                if (code.script) {
+                    // When reading from stdin, code is only parsed as Kotlint script, if it could not be parsed as pure Kotlin. Now parsing
+                    // of the code has failed for both, the file has to be ignored.
+                    logger.error {
+                        """
+                        Can not parse input from <stdin> as Kotlin, due to error below:
+                            ${e.toKtlintCliError(code).detail}
+                        """.trimIndent()
+                    }
+                    ktlintCliErrors.add(e.toKtlintCliError(code))
+                } else {
+                    // When reading from stdin, it is first assumed that the provided code is pure Kotlin instead of Kotlin script. If
+                    // parsing fails, retry parsing at Kotlin script.
+                    logger.warn {
+                        """
+                        Can not parse input from <stdin> as Kotlin, due to error below:
+                            ${e.toKtlintCliError(code).detail}
+                        Now, trying to read the input as Kotlin Script.
+                        """.trimIndent()
+                    }
+                    return lint(
+                        ktLintRuleEngine = ktLintRuleEngine,
+                        code = Code.fromSnippet(code.content, script = true),
+                        baselineLintErrors = baselineLintErrors,
+                    )
                 }
-                return lint(
-                    ktLintRuleEngine = ktLintRuleEngine,
-                    code = Code.fromSnippet(code.content, script = true),
-                    baselineLintErrors = baselineLintErrors,
-                )
             } else {
                 ktlintCliErrors.add(e.toKtlintCliError(code))
                 tripped.set(true)

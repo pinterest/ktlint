@@ -516,6 +516,28 @@ class SimpleCLITest {
     }
 
     @Test
+    fun `Issue 2379 - Given stdin input resulting in a KtLintParseException when formatted as Kotlin Script code`(
+        @TempDir
+        tempDir: Path,
+    ) {
+        CommandLineTestRunner(tempDir)
+            .run(
+                testProjectName = "too-many-empty-lines",
+                arguments = listOf("--stdin", "--format"),
+                stdin =
+                    ByteArrayInputStream(
+                        """
+                        fun foo() =
+                        """.trimIndent().toByteArray(),
+                    ),
+            ) {
+                assertThat(errorOutput)
+                    .containsLineMatching(Regex(".*Not a valid Kotlin file.*"))
+                    .doesNotContainLineMatching(Regex(".*Now, trying to read the input as Kotlin Script.*"))
+            }
+    }
+
+    @Test
     fun `Enable android code style via parameter --code-style=android_studio`(
         @TempDir
         tempDir: Path,
