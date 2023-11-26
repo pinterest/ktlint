@@ -137,8 +137,13 @@ internal fun FileSystem.fileSequence(
                         dirAttr: BasicFileAttributes,
                     ): FileVisitResult =
                         if (Files.isHidden(dirPath)) {
-                            LOGGER.trace { "- Dir: $dirPath: Ignore" }
-                            FileVisitResult.SKIP_SUBTREE
+                            if (dirPath == commonRootDir) {
+                                LOGGER.trace { "- Dir: $dirPath: Traverse started from hidden directory" }
+                                FileVisitResult.CONTINUE
+                            } else {
+                                LOGGER.trace { "- Dir: $dirPath: Ignore traversal of hidden directory" }
+                                FileVisitResult.SKIP_SUBTREE
+                            }
                         } else {
                             LOGGER.trace { "- Dir: $dirPath: Traverse" }
                             FileVisitResult.CONTINUE
