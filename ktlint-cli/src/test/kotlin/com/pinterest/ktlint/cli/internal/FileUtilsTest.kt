@@ -26,9 +26,9 @@ internal class FileUtilsTest {
     private val javaFileRootDirectory = "Root.java"
     private val ktFileRootDirectory = "Root.kt"
     private val ktsFileRootDirectory = "Root.kts"
-    private val javaFileInHiddenDirectory = "project1/.git/Ignored.java"
-    private val ktFileInHiddenDirectory = "project1/.git/Ignored.kt"
-    private val ktsFileInHiddenDirectory = "project1/.git/Ignored.kts"
+    private val javaFileInHiddenDirectory = "project1/.hidden/Ignored.java"
+    private val ktFileInHiddenDirectory = "project1/.hidden/Ignored.kt"
+    private val ktsFileInHiddenDirectory = "project1/.hidden/Ignored.kts"
     private val javaFileInProjectRootDirectory = "project1/ProjectRoot.java"
     private val ktFileInProjectRootDirectory = "project1/ProjectRoot.kt"
     private val ktsFileInProjectRootDirectory = "project1/ProjectRoot.kts"
@@ -107,17 +107,14 @@ internal class FileUtilsTest {
     }
 
     @Test
-    fun `Given the current directory is hidden the patterns should work`() {
+    fun `Given the root directory where scanning starts is hidden, then the patterns should work`() {
         val foundFiles =
             getFiles(
                 patterns = listOf("*.kt"),
-                rootDir = ktlintTestFileSystem.resolve("project1/.git"),
+                rootDir = ktlintTestFileSystem.resolve("project1/.hidden"),
             )
 
-        assertThat(foundFiles)
-            .containsExactlyInAnyOrder(
-                ktFileInHiddenDirectory,
-            )
+        assertThat(foundFiles).containsExactlyInAnyOrder(ktFileInHiddenDirectory)
     }
 
     @Test
