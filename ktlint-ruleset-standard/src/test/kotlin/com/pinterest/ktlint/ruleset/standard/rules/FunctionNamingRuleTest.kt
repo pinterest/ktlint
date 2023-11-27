@@ -257,4 +257,18 @@ class FunctionNamingRuleTest {
             """.trimIndent()
         functionNamingRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 2383 - Given a class with tests in JUnit3 style`() {
+        val code =
+            """
+            import junit.framework.TestCase
+
+            class FooTest : TestCase() {
+                fun testFoo_bar() {
+                }
+            }
+            """.trimIndent()
+        functionNamingRuleAssertThat(code).hasNoLintViolations()
+    }
 }
