@@ -188,6 +188,7 @@ public class FunctionNamingRule :
         private val TEST_LIBRARIES_SET =
             setOf(
                 "io.kotest",
+                "junit.framework",
                 "kotlin.test",
                 "org.junit",
                 "org.testng",
