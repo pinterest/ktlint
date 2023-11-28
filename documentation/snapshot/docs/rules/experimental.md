@@ -333,6 +333,39 @@ The other code styles allow an infinite amount of parameters on the same line (a
 
 Rule id: `class-signature` (`standard` rule set)
 
+## Condition wrapping
+
+Wraps each operand in a multiline condition to a separate line.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val foo = bar || baz
+    if (bar1 ||
+        bar2 ||
+        baz1 ||
+        (baz2 && baz3)
+    ) {
+       // do somthing
+    }
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val foo =
+      multiLineOperand(
+          "bar"
+      ) || baz
+    if (bar1 || bar2 ||
+        baz1 || (baz2 && baz3)
+    ) {
+       // do somthing
+    }
+    ```
+
+Rule id: `condition-wrapping` (`standard` rule set)
+
 ## Function expression body
 
 Rewrites a function body only containing a `return` or `throw` expression to an expression body.
@@ -477,6 +510,27 @@ Enforce a single whitespace between the modifier list and the function type.
     ```
 
 Rule id: `function-type-modifier-spacing` (`standard` rule set)
+
+## Mixed condition operators
+
+Conditions should not use a both `&&` and `||` operators between operators at the same level. By using parenthesis the expression is to be clarified.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val foo = bar1 && (bar2 || bar3) && bar4
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val foo = bar1 &&
+        bar2 ||
+        bar3
+    val foo = bar1 && (bar2 || bar3 && bar4) && bar5
+    ```
+
+Rule id: `mixed-condition-operators` (`standard` rule set)
 
 ## Multiline loop
 

@@ -15,6 +15,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.ClassNamingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ClassSignatureRule
 import com.pinterest.ktlint.ruleset.standard.rules.CommentSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.CommentWrappingRule
+import com.pinterest.ktlint.ruleset.standard.rules.ConditionWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ContextReceiverWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.DiscouragedCommentLocationRule
 import com.pinterest.ktlint.ruleset.standard.rules.EnumEntryNameCaseRule
@@ -36,6 +37,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.ImportOrderingRule
 import com.pinterest.ktlint.ruleset.standard.rules.IndentationRule
 import com.pinterest.ktlint.ruleset.standard.rules.KdocWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.MaxLineLengthRule
+import com.pinterest.ktlint.ruleset.standard.rules.MixedConditionOperatorsRule
 import com.pinterest.ktlint.ruleset.standard.rules.ModifierListSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ModifierOrderRule
 import com.pinterest.ktlint.ruleset.standard.rules.MultiLineIfElseRule
@@ -108,6 +110,7 @@ public class StandardRuleSetProvider : RuleSetProviderV3(RuleSetId.STANDARD) {
             RuleProvider { ChainWrappingRule() },
             RuleProvider { ClassNamingRule() },
             RuleProvider { ClassSignatureRule() },
+            RuleProvider { ConditionWrappingRule() },
             RuleProvider { CommentSpacingRule() },
             RuleProvider { CommentWrappingRule() },
             RuleProvider { ContextReceiverWrappingRule() },
@@ -131,6 +134,7 @@ public class StandardRuleSetProvider : RuleSetProviderV3(RuleSetId.STANDARD) {
             RuleProvider { IndentationRule() },
             RuleProvider { KdocWrappingRule() },
             RuleProvider { MaxLineLengthRule() },
+            RuleProvider { MixedConditionOperatorsRule() },
             RuleProvider { ModifierListSpacingRule() },
             RuleProvider { ModifierOrderRule() },
             RuleProvider { MultiLineIfElseRule() },
