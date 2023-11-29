@@ -17,7 +17,7 @@ runs:
   using: composite
 
   steps:
-    - uses: actions/setup-java@v3
+    - uses: actions/setup-java@v4
       with:
         distribution: 'zulu'
         java-version: | # last version (set as default) should match all `jvmToolchain(xxx)` calls in the project
