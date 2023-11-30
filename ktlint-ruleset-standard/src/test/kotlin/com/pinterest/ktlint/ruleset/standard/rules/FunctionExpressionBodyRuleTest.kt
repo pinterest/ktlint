@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
+import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -167,5 +168,28 @@ class FunctionExpressionBodyRuleTest {
             }
             """.trimIndent()
         functionExpressionBodyRule(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 2394 - Given multiple function bodies with a single return statement`() {
+        val code =
+            """
+            fun foo1(): String {
+                return "foo1"
+            }
+            fun foo2(): String {
+                return "foo2"
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo1(): String = "foo1"
+            fun foo2(): String = "foo2"
+            """.trimIndent()
+        functionExpressionBodyRule(code)
+            .hasLintViolations(
+                LintViolation(1, 20, "Function body should be replaced with body expression"),
+                LintViolation(4, 20, "Function body should be replaced with body expression"),
+            ).isFormattedAs(formattedCode)
     }
 }
