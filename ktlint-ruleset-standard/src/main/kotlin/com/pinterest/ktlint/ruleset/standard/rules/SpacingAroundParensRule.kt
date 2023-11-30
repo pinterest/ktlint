@@ -14,6 +14,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIS
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -37,7 +38,8 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
             val nextLeaf = node.nextLeaf()
             val spacingBefore =
                 if (node.elementType == LPAR) {
-                    prevLeaf is PsiWhiteSpace && !prevLeaf.textContains('\n') &&
+                    prevLeaf is PsiWhiteSpace &&
+                        !prevLeaf.textContains('\n') &&
                         (
                             prevLeaf.prevLeaf()?.elementType == IDENTIFIER &&
                                 // val foo: @Composable () -> Unit
@@ -51,8 +53,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
                                 node.treeParent?.elementType == VALUE_ARGUMENT_LIST
                         )
                 } else {
-                    prevLeaf is PsiWhiteSpace && !prevLeaf.textContains('\n') &&
-                        prevLeaf.prevLeaf()?.elementType != LPAR
+                    prevLeaf.isWhiteSpaceWithoutNewline() && prevLeaf?.prevLeaf()?.elementType != LPAR
                 }
             val spacingAfter =
                 if (node.elementType == LPAR) {
@@ -60,8 +61,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
                         (!nextLeaf.textContains('\n') || nextLeaf.nextLeaf()?.elementType == RPAR) &&
                         !nextLeaf.isNextLeafAComment()
                 } else {
-                    nextLeaf is PsiWhiteSpace && !nextLeaf.textContains('\n') &&
-                        nextLeaf.nextLeaf()?.elementType == RPAR
+                    nextLeaf.isWhiteSpaceWithoutNewline() && nextLeaf?.nextLeaf()?.elementType == RPAR
                 }
             when {
                 spacingBefore && spacingAfter -> {

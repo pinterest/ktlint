@@ -7,6 +7,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.ImportOrderingRule.Companion.ASCII_PATTERN
 import com.pinterest.ktlint.ruleset.standard.rules.ImportOrderingRule.Companion.IDEA_PATTERN
@@ -140,20 +141,17 @@ public class ImportOrderingRule :
         val importTextSet = mutableSetOf<String>()
 
         children.forEach { current ->
-            val isPsiWhiteSpace = current.psi is PsiWhiteSpace
-
-            if (current.elementType == ElementType.IMPORT_DIRECTIVE ||
-                isPsiWhiteSpace && current.textLength > 1 // also collect empty lines, that are represented as "\n\n"
-            ) {
-                if (isPsiWhiteSpace || importTextSet.add(current.text)) {
+            when {
+                current.isWhiteSpace() && current.text.count { it == '\n' } > 1 ->
                     imports += current
-                } else {
-                    emit(
-                        current.startOffset,
-                        "Duplicate '${current.text}' found",
-                        true,
-                    )
-                    autoCorrectDuplicateImports = true
+
+                current.elementType == ElementType.IMPORT_DIRECTIVE -> {
+                    if (importTextSet.add(current.text)) {
+                        imports += current
+                    } else {
+                        emit(current.startOffset, "Duplicate '${current.text}' found", true)
+                        autoCorrectDuplicateImports = true
+                    }
                 }
             }
         }

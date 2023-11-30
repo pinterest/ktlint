@@ -54,9 +54,9 @@ public class SpacingAroundOperatorsRule : StandardRule("op-spacing") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (tokenSet.contains(node.elementType) &&
-            !node.isPartOf(KtPrefixExpression::class) && // not unary
-            !(node.elementType == MUL && node.treeParent.elementType == VALUE_ARGUMENT) && // fn(*array)
-            !node.isPartOf(KtImportDirective::class) // import *
+            node.isNotUnaryOperator() &&
+            isNotSpreadOperator(node) &&
+            isNotImport(node)
         ) {
             if ((node.elementType == LT || node.elementType == GT || node.elementType == MUL) &&
                 node.treeParent.elementType != OPERATION_REFERENCE
@@ -92,6 +92,16 @@ public class SpacingAroundOperatorsRule : StandardRule("op-spacing") {
             }
         }
     }
+
+    private fun ASTNode.isNotUnaryOperator() = !isPartOf(KtPrefixExpression::class)
+
+    private fun isNotSpreadOperator(node: ASTNode) =
+        // fn(*array)
+        !(node.elementType == MUL && node.treeParent.elementType == VALUE_ARGUMENT)
+
+    private fun isNotImport(node: ASTNode) =
+        // import *
+        !node.isPartOf(KtImportDirective::class)
 }
 
 public val SPACING_AROUND_OPERATORS_RULE_ID: RuleId = SpacingAroundOperatorsRule().ruleId

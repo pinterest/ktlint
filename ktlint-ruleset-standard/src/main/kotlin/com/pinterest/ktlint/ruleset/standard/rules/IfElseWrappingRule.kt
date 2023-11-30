@@ -129,10 +129,7 @@ public class IfElseWrappingRule :
         multilineIf: Boolean,
     ) {
         if (multilineIf) {
-            if (node.elementType == IF && node.prevCodeLeaf()?.elementType == ELSE_KEYWORD ||
-                node.elementType == ELSE && node.nextCodeLeaf()?.elementType == IF_KEYWORD ||
-                node.elementType == ELSE_KEYWORD && node.nextCodeLeaf()?.elementType == IF_KEYWORD
-            ) {
+            if (node.isElseIf()) {
                 // Allow "else if" on single line
                 return
             }
@@ -167,6 +164,13 @@ public class IfElseWrappingRule :
                 }
         }
     }
+
+    private fun ASTNode.isElseIf() =
+        when (elementType) {
+            IF -> prevCodeLeaf()?.elementType == ELSE_KEYWORD
+            ELSE, ELSE_KEYWORD -> nextCodeLeaf()?.elementType == IF_KEYWORD
+            else -> false
+        }
 
     private fun ASTNode.findFirstNodeInBlockToBeIndented(): ASTNode? =
         findChildByType(BLOCK)

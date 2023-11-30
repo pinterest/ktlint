@@ -28,6 +28,8 @@ import com.pinterest.ktlint.rule.engine.core.api.isLeaf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfString
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -96,45 +98,46 @@ public class SpacingAroundCurlyRule :
                         prevLeaf.node.treeParent.removeChild(prevLeaf.node)
                     }
                 }
-                if (prevLeaf is PsiWhiteSpace && prevLeaf.textContains('\n') &&
-                    (
+                prevLeaf
+                    ?.takeIf { it.isWhiteSpaceWithNewline() }
+                    ?.takeIf {
                         prevLeaf.prevLeaf()?.let { it.elementType == RPAR || KtTokens.KEYWORDS.contains(it.elementType) } == true ||
                             node.treeParent.elementType == CLASS_BODY ||
+                            // allow newline for lambda return type
                             (prevLeaf.treeParent.elementType == FUN && prevLeaf.treeNext.elementType != LAMBDA_EXPRESSION)
-                    ) // allow newline for lambda return type
-                ) {
-                    emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
-                    if (autoCorrect) {
-                        if (prevLeaf.isPrecededByEolComment()) {
-                            // All consecutive whitespaces and comments preceding the curly have to be moved after the curly brace
-                            prevLeaf
-                                .leavesIncludingSelf(forward = false)
-                                .takeWhile { it.isWhiteSpace() || it.isPartOfComment() }
-                                .toList()
-                                .reversed()
-                                .takeIf { it.isNotEmpty() }
-                                ?.let { leavesToMoveAfterCurly ->
-                                    node.treeParent.addChildren(
-                                        leavesToMoveAfterCurly.first(),
-                                        leavesToMoveAfterCurly.last(),
-                                        node.treeNext,
-                                    )
-                                }
+                    }?.run {
+                        emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
+                        if (autoCorrect) {
+                            if (isPrecededByEolComment()) {
+                                // All consecutive whitespaces and comments preceding the curly have to be moved after the curly brace
+                                leavesIncludingSelf(forward = false)
+                                    .takeWhile { it.isWhiteSpace() || it.isPartOfComment() }
+                                    .toList()
+                                    .reversed()
+                                    .takeIf { it.isNotEmpty() }
+                                    ?.let { leavesToMoveAfterCurly ->
+                                        node.treeParent.addChildren(
+                                            leavesToMoveAfterCurly.first(),
+                                            leavesToMoveAfterCurly.last(),
+                                            node.treeNext,
+                                        )
+                                    }
+                            }
+                            (this as LeafPsiElement).rawReplaceWithText(" ")
                         }
-                        (prevLeaf as LeafPsiElement).rawReplaceWithText(" ")
                     }
-                }
             } else if (node.elementType == RBRACE) {
                 spacingBefore = prevLeaf is PsiWhiteSpace || prevLeaf?.elementType == LBRACE
                 spacingAfter = nextLeaf == null || nextLeaf is PsiWhiteSpace || shouldNotToBeSeparatedBySpace(nextLeaf)
-                if (nextLeaf is PsiWhiteSpace && !nextLeaf.textContains('\n') &&
-                    shouldNotToBeSeparatedBySpace(nextLeaf.nextLeaf())
-                ) {
-                    emit(node.startOffset, "Unexpected space after \"${node.text}\"", true)
-                    if (autoCorrect) {
-                        nextLeaf.node.treeParent.removeChild(nextLeaf.node)
+                nextLeaf
+                    .takeIf { it.isWhiteSpaceWithoutNewline() }
+                    ?.takeIf { shouldNotToBeSeparatedBySpace(it.nextLeaf()) }
+                    ?.let { leaf ->
+                        emit(node.startOffset, "Unexpected space after \"${node.text}\"", true)
+                        if (autoCorrect) {
+                            leaf.treeParent.removeChild(leaf)
+                        }
                     }
-                }
             } else {
                 return
             }
