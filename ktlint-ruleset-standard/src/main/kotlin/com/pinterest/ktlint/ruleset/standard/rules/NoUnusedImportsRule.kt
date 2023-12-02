@@ -148,7 +148,8 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
                     if (autoCorrect) {
                         importDirective.delete()
                     }
-                } else if (name != null && (!ref.map { it.text }.contains(name) || !isAValidImport(importPath)) &&
+                } else if (name != null &&
+                    (!ref.map { it.text }.contains(name) || !isAValidImport(importPath)) &&
                     !OPERATOR_SET.contains(name) &&
                     !name.isComponentN() &&
                     !importPath.ignoreProvideDelegate()

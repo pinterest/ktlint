@@ -1,9 +1,16 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BINARY_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLLECTION_LITERAL_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ELSE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.LPAR
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
@@ -101,11 +108,11 @@ public class ArgumentListWrappingRule :
 
     private fun needToWrapArgumentList(node: ASTNode) =
         if ( // skip when there are no arguments
-            node.firstChildNode?.treeNext?.elementType != ElementType.RPAR &&
+            node.firstChildNode?.treeNext?.elementType != RPAR &&
             // skip lambda arguments
-            node.treeParent?.elementType != ElementType.FUNCTION_LITERAL &&
+            node.treeParent?.elementType != FUNCTION_LITERAL &&
             // skip if number of arguments is big (we assume it with a magic number of 8)
-            node.children().count { it.elementType == ElementType.VALUE_ARGUMENT } <= 8 &&
+            node.children().count { it.elementType == VALUE_ARGUMENT } <= 8 &&
             // skip if part of a value argument list. It depends on the situation whether it is better to wrap the arguments in the list
             // or the operators in the binary expression
             !node.isPartOf(BINARY_EXPRESSION)
@@ -161,7 +168,7 @@ public class ArgumentListWrappingRule :
                 it
             }
         }.let {
-            if (child.elementType == ElementType.VALUE_ARGUMENT) {
+            if (child.elementType == VALUE_ARGUMENT) {
                 it + 1
             } else {
                 it
@@ -180,7 +187,7 @@ public class ArgumentListWrappingRule :
         autoCorrect: Boolean,
     ) {
         when (child.elementType) {
-            ElementType.LPAR -> {
+            LPAR -> {
                 val prevLeaf = child.prevLeaf()
                 if (prevLeaf is PsiWhiteSpace && prevLeaf.textContains('\n')) {
                     emit(child.startOffset, errorMessage(child), true)
@@ -189,8 +196,8 @@ public class ArgumentListWrappingRule :
                     }
                 }
             }
-            ElementType.VALUE_ARGUMENT,
-            ElementType.RPAR,
+            VALUE_ARGUMENT,
+            RPAR,
             -> {
                 // aiming for
                 // ... LPAR
@@ -228,31 +235,36 @@ public class ArgumentListWrappingRule :
 
     private fun errorMessage(node: ASTNode) =
         when (node.elementType) {
-            ElementType.LPAR -> """Unnecessary newline before "(""""
-            ElementType.VALUE_ARGUMENT ->
-                "Argument should be on a separate line (unless all arguments can fit a single line)"
-            ElementType.RPAR -> """Missing newline before ")""""
+            LPAR -> """Unnecessary newline before "(""""
+            VALUE_ARGUMENT -> "Argument should be on a separate line (unless all arguments can fit a single line)"
+            RPAR -> """Missing newline before ")""""
             else -> throw UnsupportedOperationException()
         }
 
     private fun ASTNode.textContainsIgnoringLambda(char: Char): Boolean =
         children().any { child ->
-            val elementType = child.elementType
-            elementType == ElementType.WHITE_SPACE && child.textContains(char) ||
-                elementType == ElementType.COLLECTION_LITERAL_EXPRESSION && child.textContains(char) ||
-                elementType == ElementType.VALUE_ARGUMENT && child.children().any { it.textContainsIgnoringLambda(char) }
+            child.isWhitespaceContaining(char) ||
+                child.isCollectionLiteralContaining(char) ||
+                child.isValueArgumentContaining(char)
         }
+
+    private fun ASTNode.isWhitespaceContaining(char: Char) = elementType == WHITE_SPACE && textContains(char)
+
+    private fun ASTNode.isCollectionLiteralContaining(char: Char) = elementType == COLLECTION_LITERAL_EXPRESSION && textContains(char)
+
+    private fun ASTNode.isValueArgumentContaining(char: Char) =
+        elementType == VALUE_ARGUMENT && children().any { it.textContainsIgnoringLambda(char) }
 
     private fun ASTNode.hasTypeArgumentListInFront(): Boolean =
         treeParent
             .children()
-            .firstOrNull { it.elementType == ElementType.TYPE_ARGUMENT_LIST }
+            .firstOrNull { it.elementType == TYPE_ARGUMENT_LIST }
             ?.children()
             ?.any { it.isWhiteSpaceWithNewline() } == true
 
     private fun ASTNode.isPartOfDotQualifiedAssignmentExpression(): Boolean =
         treeParent?.treeParent?.elementType == BINARY_EXPRESSION &&
-            treeParent?.treeParent?.children()?.find { it.elementType == ElementType.DOT_QUALIFIED_EXPRESSION } != null
+            treeParent?.treeParent?.children()?.find { it.elementType == DOT_QUALIFIED_EXPRESSION } != null
 
     private fun ASTNode.prevWhiteSpaceWithNewLine(): ASTNode? {
         var prev = prevLeaf()

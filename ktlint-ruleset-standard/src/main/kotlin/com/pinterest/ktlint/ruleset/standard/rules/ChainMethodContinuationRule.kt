@@ -179,10 +179,7 @@ public class ChainMethodContinuationRule :
                 true
             }
 
-            chainOperators
-                .first()
-                .prevCodeSibling()
-                ?.elementType == STRING_TEMPLATE && !hasNewlineAfterLastChainOperator -> {
+            isChainedExpressionOnStringTemplate() && !hasNewlineAfterLastChainOperator -> {
                 // Allow:
                 //     """
                 //     some text
@@ -202,6 +199,13 @@ public class ChainMethodContinuationRule :
 
             else -> false
         }
+
+    private fun ChainedExpression.isChainedExpressionOnStringTemplate() =
+        STRING_TEMPLATE ==
+            chainOperators
+                .first()
+                .prevCodeSibling()
+                ?.elementType
 
     private fun ChainedExpression.exceedsMaxLineLength() =
         with(rootASTNode) {

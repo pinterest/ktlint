@@ -133,6 +133,16 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/CommentWrappingRu
 	public static final fun getCOMMENT_WRAPPING_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
 }
 
+public final class com/pinterest/ktlint/ruleset/standard/rules/ConditionWrappingRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$Experimental {
+	public fun <init> ()V
+	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+}
+
+public final class com/pinterest/ktlint/ruleset/standard/rules/ConditionWrappingRuleKt {
+	public static final fun getCONDITION_WRAPPING_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+}
+
 public final class com/pinterest/ktlint/ruleset/standard/rules/ContextReceiverWrappingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
@@ -367,6 +377,15 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/MaxLineLengthRule
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/MaxLineLengthRuleKt {
 	public static final fun getMAX_LINE_LENGTH_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+}
+
+public final class com/pinterest/ktlint/ruleset/standard/rules/MixedConditionOperatorsRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$Experimental {
+	public fun <init> ()V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+}
+
+public final class com/pinterest/ktlint/ruleset/standard/rules/MixedConditionOperatorsRuleKt {
+	public static final fun getMIXED_CONDITION_OPERATORS_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/ModifierListSpacingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {

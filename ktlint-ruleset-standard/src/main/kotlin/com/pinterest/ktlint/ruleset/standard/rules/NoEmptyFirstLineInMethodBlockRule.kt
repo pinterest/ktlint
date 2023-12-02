@@ -1,17 +1,17 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 @SinceKtlint("0.34", EXPERIMENTAL)
@@ -22,11 +22,14 @@ public class NoEmptyFirstLineInMethodBlockRule : StandardRule("no-empty-first-li
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        if (node is PsiWhiteSpace && node.textContains('\n') &&
-            node.prevLeaf()?.elementType == ElementType.LBRACE && node.isPartOf(FUN) &&
-            node.treeParent.elementType != CLASS_BODY // fun fn() = object : Builder {\n\n fun stuff() = Unit }
+        if (node.isWhiteSpaceWithNewline() &&
+            node.prevLeaf()?.elementType == LBRACE &&
+            node.isPartOf(FUN) &&
+            // Allow:
+            //     fun fn() = object : Builder {\n\n fun stuff() = Unit }
+            node.treeParent.elementType != CLASS_BODY
         ) {
-            val split = node.getText().split("\n")
+            val split = node.text.split("\n")
             if (split.size > 2) {
                 emit(
                     node.startOffset + 1,

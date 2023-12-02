@@ -82,7 +82,8 @@ public class NoSemicolonsRule :
                         psi.getStrictParentOfType<KDoc>() == null &&
                         psi.getStrictParentOfType<KtAnnotationEntry>() == null
                 }.let { nextLeaf ->
-                    nextLeaf == null || // \s+ and then eof
+                    nextLeaf == null ||
+                        // \s+ and then eof
                         (textContains('\n') && nextLeaf.elementType != KtTokens.LBRACE)
                 }
             }
