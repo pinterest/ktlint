@@ -724,7 +724,7 @@ class AnnotationRuleTest {
         }
 
         @Test
-        fun `Given a custom type with multiple annotations on it type parameter(s)`() {
+        fun `Given a custom type with multiple annotations on it type parameter(s)`() { // xxx
             val code =
                 """
                 val fooBar: FooBar<String, @Foo String, @Foo @Bar String, @Bar("bar") @Foo String> = FooBar()
@@ -983,6 +983,18 @@ class AnnotationRuleTest {
                 bar: Bar,
             ) : @Suppress("DEPRECATION")
                 FooBar()
+            """.trimIndent()
+        annotationRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 2399 - Given a type projection with an annotated type reference`() {
+        val code =
+            """
+            val foo: List<
+                @Bar("bar")
+                Any,
+            >? = null
             """.trimIndent()
         annotationRuleAssertThat(code).hasNoLintViolations()
     }

@@ -32,6 +32,7 @@ import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
@@ -281,31 +282,27 @@ public class AnnotationRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
     ) {
-        val expectedIndent = indentConfig.childIndentOf(node)
-
         node
             .children()
             .filter { it.elementType == TYPE_PROJECTION }
             .forEach { typeProjection ->
-                typeProjection
-                    .prevLeaf()
-                    ?.let { prevLeaf ->
-                        if (prevLeaf.text != expectedIndent) {
-                            emit(prevLeaf.startOffset, "Expected newline", true)
-                            if (autoCorrect) {
-                                prevLeaf.upsertWhitespaceAfterMe(expectedIndent)
-                            }
-                        }
+                val prevLeaf = typeProjection.prevLeaf().takeIf { it.isWhiteSpace() }
+                if (prevLeaf == null || prevLeaf.isWhiteSpaceWithoutNewline()) {
+                    emit(typeProjection.startOffset - 1, "Expected newline", true)
+                    if (autoCorrect) {
+                        typeProjection.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
                     }
+                }
             }
 
         node
             .findChildByType(GT)
             ?.let { gt ->
-                if (gt.prevLeaf()?.text != expectedIndent) {
+                val prevLeaf = gt.prevLeaf().takeIf { it.isWhiteSpace() }
+                if (prevLeaf == null || prevLeaf.isWhiteSpaceWithoutNewline()) {
                     emit(gt.startOffset, "Expected newline", true)
                     if (autoCorrect) {
-                        gt.upsertWhitespaceBeforeMe(expectedIndent)
+                        gt.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
                     }
                 }
             }
