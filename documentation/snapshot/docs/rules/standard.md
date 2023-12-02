@@ -346,6 +346,8 @@ Enforce naming of class and objects.
     class Foo
 
     class Foo1
+
+    class `class` // Any keyword is allowed when wrapped between backticks
     ```
 === "[:material-heart:](#) Ktlint JUnit Test"
 
@@ -384,6 +386,8 @@ Enforce naming of function.
     fun foo() {}
 
     fun fooBar() {}
+
+    fun `fun` {} // Any keyword is allowed when wrapped between backticks
     ```
 === "[:material-heart:](#) Ktlint Test"
 
@@ -469,6 +473,8 @@ Enforce naming of property.
             val FOO1 = Foo() // In case developer want to communicate that Foo is deeply immutable
         }
     }
+
+    var `package` = "foo" // Any keyword is allowed when wrapped between backticks
     ```
 === "[:material-heart-off-outline:](#) Disallowed"
 
