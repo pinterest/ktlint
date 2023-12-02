@@ -23,7 +23,8 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
-import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.leavesInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -111,7 +112,7 @@ public class FunctionExpressionBodyRule :
         require(block.elementType == BLOCK)
         block
             .takeIf { it.containingOnly(RETURN) }
-            ?.takeUnless { it.containsMultipleReturns() }
+            ?.takeUnless { it.countReturnKeywords() > 1 }
             ?.findChildByType(RETURN)
             ?.findChildByType(RETURN_KEYWORD)
             ?.nextSibling { !it.isWhiteSpace() }
@@ -164,8 +165,9 @@ public class FunctionExpressionBodyRule :
                 .singleOrNull()
                 ?.elementType
 
-    private fun ASTNode.containsMultipleReturns() =
-        firstChildLeafOrSelf().leavesIncludingSelf().count { it.elementType == RETURN_KEYWORD } > 1
+    private fun ASTNode.countReturnKeywords() =
+        leavesInClosedRange(this.firstChildLeafOrSelf(), this.lastChildLeafOrSelf())
+            .count { it.elementType == RETURN_KEYWORD }
 
     private fun ASTNode.createUnitTypeReference() =
         PsiFileFactory
