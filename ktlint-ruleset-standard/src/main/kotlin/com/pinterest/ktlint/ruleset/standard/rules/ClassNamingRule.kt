@@ -11,6 +11,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.internal.regExIgnoringDiacriticsAndStrokesOnLetters
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.lexer.KtTokens
 
 /**
  * https://kotlinlang.org/docs/coding-conventions.html#naming-rules
@@ -42,7 +43,7 @@ public class ClassNamingRule : StandardRule("class-naming") {
         node
             .takeIf { node.elementType == CLASS || node.elementType == OBJECT_DECLARATION }
             ?.findChildByType(IDENTIFIER)
-            ?.takeUnless { it.isValidFunctionName() || it.isTestClass() }
+            ?.takeUnless { it.isValidFunctionName() || it.isTestClass() || it.isTokenKeywordBetweenBackticks() }
             ?.let {
                 emit(it.startOffset, "Class or object name should start with an uppercase letter and use camel case", false)
             }
@@ -54,9 +55,25 @@ public class ClassNamingRule : StandardRule("class-naming") {
 
     private fun ASTNode.hasBackTickedIdentifier() = text.matches(BACK_TICKED_FUNCTION_NAME_REGEXP)
 
+    private fun ASTNode.isTokenKeywordBetweenBackticks() =
+        this
+            .takeIf { it.elementType == IDENTIFIER }
+            ?.text
+            .orEmpty()
+            .removeSurrounding("`")
+            .let { KEYWORDS.contains(it) }
+
     private companion object {
         val VALID_CLASS_NAME_REGEXP = "[A-Z][A-Za-z\\d]*".regExIgnoringDiacriticsAndStrokesOnLetters()
         val BACK_TICKED_FUNCTION_NAME_REGEXP = Regex("`.*`")
+        private val KEYWORDS =
+            setOf(KtTokens.KEYWORDS, KtTokens.SOFT_KEYWORDS)
+                .flatMap { tokenSet -> tokenSet.types.mapNotNull { it.debugName } }
+                .filterNot { keyword ->
+                    // The keyword sets contain a few 'keywords' which should be ignored. All valid keywords only contain lowercase
+                    // characters
+                    keyword.any { it.isUpperCase() }
+                }.toSet()
     }
 }
 

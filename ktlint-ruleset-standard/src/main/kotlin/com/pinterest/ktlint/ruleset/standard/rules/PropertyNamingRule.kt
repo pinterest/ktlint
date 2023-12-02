@@ -26,6 +26,7 @@ import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.internal.regExIgnoringDiacriticsAndStrokesOnLetters
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
+import org.jetbrains.kotlin.lexer.KtTokens
 
 /**
  * https://kotlinlang.org/docs/coding-conventions.html#function-names
@@ -50,6 +51,7 @@ public class PropertyNamingRule : StandardRule("property-naming") {
     ) {
         property
             .findChildByType(IDENTIFIER)
+            ?.takeUnless { it.isTokenKeywordBetweenBackticks() }
             ?.let { identifier ->
                 when {
                     property.hasConstModifier() -> {
@@ -187,11 +189,27 @@ public class PropertyNamingRule : StandardRule("property-naming") {
             !hasModifier(PROTECTED_KEYWORD) &&
             !hasModifier(INTERNAL_KEYWORD)
 
+    private fun ASTNode.isTokenKeywordBetweenBackticks() =
+        this
+            .takeIf { it.elementType == IDENTIFIER }
+            ?.text
+            .orEmpty()
+            .removeSurrounding("`")
+            .let { KEYWORDS.contains(it) }
+
     private companion object {
         val LOWER_CAMEL_CASE_REGEXP = "[a-z][a-zA-Z0-9]*".regExIgnoringDiacriticsAndStrokesOnLetters()
         val SCREAMING_SNAKE_CASE_REGEXP = "[A-Z][_A-Z0-9]*".regExIgnoringDiacriticsAndStrokesOnLetters()
         val BACKING_PROPERTY_LOWER_CAMEL_CASE_REGEXP = "_[a-z][a-zA-Z0-9]*".regExIgnoringDiacriticsAndStrokesOnLetters()
         const val SERIAL_VERSION_UID_PROPERTY_NAME = "serialVersionUID"
+        val KEYWORDS =
+            setOf(KtTokens.KEYWORDS, KtTokens.SOFT_KEYWORDS)
+                .flatMap { tokenSet -> tokenSet.types.mapNotNull { it.debugName } }
+                .filterNot { keyword ->
+                    // The keyword sets contain a few 'keywords' which should be ignored. All valid keywords only contain lowercase
+                    // characters
+                    keyword.any { it.isUpperCase() }
+                }.toSet()
     }
 }
 

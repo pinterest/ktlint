@@ -11,6 +11,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.IMPORT_DIRECTIVE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OVERRIDE_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REFERENCE_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.USER_TYPE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
@@ -26,6 +27,7 @@ import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.internal.regExIgnoringDiacriticsAndStrokesOnLetters
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtFunction
 import org.jetbrains.kotlin.psi.KtImportDirective
 
@@ -68,14 +70,11 @@ public class FunctionNamingRule :
                     node.isAnonymousFunction() ||
                     node.isOverrideFunction() ||
                     node.isAnnotatedWithAnyOf(ignoreWhenAnnotatedWith)
-            }?.let {
-                val identifierOffset =
-                    node
-                        .findChildByType(IDENTIFIER)
-                        ?.startOffset
-                        ?: 1
+            }?.findChildByType(IDENTIFIER)
+            ?.takeUnless { it.isTokenKeywordBetweenBackticks() }
+            ?.let { identifier ->
                 emit(
-                    identifierOffset,
+                    identifier.startOffset,
                     "Function name should start with a lowercase letter (except factory methods) and use camel case",
                     false,
                 )
@@ -165,11 +164,19 @@ public class FunctionNamingRule :
 
     private fun ASTNode.annotationEntryName() =
         findChildByType(ElementType.CONSTRUCTOR_CALLEE)
-            ?.findChildByType(ElementType.TYPE_REFERENCE)
-            ?.findChildByType(ElementType.USER_TYPE)
-            ?.findChildByType(ElementType.REFERENCE_EXPRESSION)
+            ?.findChildByType(TYPE_REFERENCE)
+            ?.findChildByType(USER_TYPE)
+            ?.findChildByType(REFERENCE_EXPRESSION)
             ?.findChildByType(IDENTIFIER)
             ?.text
+
+    private fun ASTNode.isTokenKeywordBetweenBackticks() =
+        this
+            .takeIf { it.elementType == IDENTIFIER }
+            ?.text
+            .orEmpty()
+            .removeSurrounding("`")
+            .let { KEYWORDS.contains(it) }
 
     public companion object {
         public val IGNORE_WHEN_ANNOTATED_WITH_PROPERTY: EditorConfigProperty<Set<String>> =
@@ -185,6 +192,14 @@ public class FunctionNamingRule :
 
         private val VALID_FUNCTION_NAME_REGEXP = "[a-z][A-Za-z\\d]*".regExIgnoringDiacriticsAndStrokesOnLetters()
         private val VALID_TEST_FUNCTION_NAME_REGEXP = "(`.*`)|([a-z][A-Za-z\\d_]*)".regExIgnoringDiacriticsAndStrokesOnLetters()
+        private val KEYWORDS =
+            setOf(KtTokens.KEYWORDS, KtTokens.SOFT_KEYWORDS)
+                .flatMap { tokenSet -> tokenSet.types.mapNotNull { it.debugName } }
+                .filterNot { keyword ->
+                    // The keyword sets contain a few 'keywords' which should be ignored. All valid keywords only contain lowercase
+                    // characters
+                    keyword.any { it.isUpperCase() }
+                }.toSet()
         private val TEST_LIBRARIES_SET =
             setOf(
                 "io.kotest",
