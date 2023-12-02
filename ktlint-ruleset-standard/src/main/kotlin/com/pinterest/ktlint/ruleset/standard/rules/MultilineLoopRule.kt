@@ -58,7 +58,10 @@ public class MultilineLoopRule :
     ) {
         node
             .takeIf { it.elementType == BODY }
-            ?.takeUnless { it.firstChildNode.elementType == BLOCK }
+            ?.takeUnless {
+                // Ignore loop with empty body
+                it.firstChildNode == null
+            }?.takeUnless { it.firstChildNode.elementType == BLOCK }
             ?.takeUnless {
                 // Allow single line loop statements as long as they are really simple (e.g. do not contain newlines)
                 //    for (...) <statement>
