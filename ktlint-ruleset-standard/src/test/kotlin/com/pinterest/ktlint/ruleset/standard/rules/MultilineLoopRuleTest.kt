@@ -223,4 +223,15 @@ class MultilineLoopRuleTest {
                 LintViolation(6, 8, "Missing { ... }"),
             ).isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Given a loop without body`() {
+        val code =
+            """
+            fun foo() {
+                while (depth.get() > 0);
+            }
+            """.trimIndent()
+        multilineLoopRuleAssertThat(code).hasNoLintViolations()
+    }
 }
