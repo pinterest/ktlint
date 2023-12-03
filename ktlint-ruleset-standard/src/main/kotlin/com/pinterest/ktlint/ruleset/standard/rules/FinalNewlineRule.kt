@@ -36,7 +36,7 @@ public class FinalNewlineRule :
             val lastNode = lastChildNodeOf(node)
             if (insertFinalNewline) {
                 if (lastNode !is PsiWhiteSpace || !lastNode.textContains('\n')) {
-                    emit(0, "File must end with a newline (\\n)", true)
+                    emit(node.textLength - 1, "File must end with a newline (\\n)", true)
                     if (autoCorrect) {
                         node.addChild(PsiWhiteSpaceImpl("\n"), null)
                     }
