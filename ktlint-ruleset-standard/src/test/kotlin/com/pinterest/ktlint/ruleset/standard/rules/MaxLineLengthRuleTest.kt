@@ -172,4 +172,21 @@ class MaxLineLengthRuleTest {
             .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to "off")
             .hasNoLintViolations()
     }
+
+    @Test
+    fun `Given a block comment at the start of the file`() {
+        val code =
+            // The MAX_LINE_LENGTH_MARKER comment can not be used in this test as that comment should be the first line in the code. But for
+            // test it is required that the block comment is the first comment in the code.
+            """
+            /*
+             * Some comment for which the individual
+             * lines do not exceed the max line, but
+             * the total length of the comment does.
+             */
+            """.trimIndent()
+        maxLineLengthRuleAssertThat(code)
+            .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 40)
+            .hasNoLintViolations()
+    }
 }

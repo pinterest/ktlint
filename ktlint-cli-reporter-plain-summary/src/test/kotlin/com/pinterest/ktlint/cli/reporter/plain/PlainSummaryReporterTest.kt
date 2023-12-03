@@ -70,19 +70,19 @@ class PlainSummaryReporterTest {
     fun `Report other violations`() {
         val out = ByteArrayOutputStream()
         val reporter = PlainSummaryReporter(PrintStream(out, true))
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
         reporter.onLintError(
             "file-1.kt",
-            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
             KtlintCliError(18, 51, "", "Not a valid Kotlin file (18:51 unexpected tokens (use ';' to separate expressions on the same line)) (cannot be auto-corrected) ()", KOTLIN_PARSE_EXCEPTION),
         )
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
         reporter.onLintError(
             "file-2.kt",
-            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
             KtlintCliError(18, 51, "", "Not a valid Kotlin file (18:51 unexpected tokens (use ';' to separate expressions on the same line)) (cannot be auto-corrected) ()", KOTLIN_PARSE_EXCEPTION),
         )
+        @Suppress("ktlint:standard:argument-list-wrapping")
         reporter.onLintError(
             "file-3.kt",
-            @Suppress("ktlint:standard:argument-list-wrapping")
             KtlintCliError(18, 51, "", "Something else", LINT_CAN_BE_AUTOCORRECTED),
         )
         reporter.afterAll()

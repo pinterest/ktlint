@@ -116,7 +116,9 @@ public class MaxLineLengthRule :
         parent(ElementType.STRING_TEMPLATE, strict = false)
             ?.let { it.firstChildNode.text == "\"\"\"" && it.textContains('\n') } == true
 
-    private fun ASTNode.isLineOnlyContainingComment() = isPartOf(PsiComment::class) && prevLeaf().isWhiteSpaceWithNewline()
+    private fun ASTNode.isLineOnlyContainingComment() =
+        isPartOf(PsiComment::class) &&
+            (prevLeaf() == null || prevLeaf().isWhiteSpaceWithNewline())
 
     public companion object {
         public val IGNORE_BACKTICKED_IDENTIFIER_PROPERTY: EditorConfigProperty<Boolean> =
