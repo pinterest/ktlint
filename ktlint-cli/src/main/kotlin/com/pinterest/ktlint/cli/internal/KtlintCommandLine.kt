@@ -25,7 +25,6 @@ import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
@@ -197,13 +196,9 @@ internal class KtlintCommandLine {
 
     @Option(
         names = ["--experimental"],
-        description = [
-            "Enable experimental rules. This option is deprecated, and will be removed in Ktlint 1.1. The experimental flag has to be " +
-                "set as '.editorconfig' property 'ktlint_experimental'. See " +
-                "https://pinterest.github.io/ktlint/1.0.0/faq/#how-do-i-enable-or-disable-a-rule-set",
-        ],
+        hidden = true,
     )
-    @Deprecated("Marked for removal in Ktlint 1.1")
+    @Deprecated("Remove in Ktlint 1.2 (or later) as some users will skip multiple versions.")
     var experimental: Boolean = false
 
     @Option(
@@ -232,6 +227,14 @@ internal class KtlintCommandLine {
         private set
 
     fun run() {
+        if (experimental) {
+            logger.error {
+                "Parameter `--experimental is ignored. The experimental rules have to be enabled via '.editorconfig' property " +
+                    "'ktlint_experimental = enabled'."
+            }
+            exitKtLintProcess(2)
+        }
+
         if (disabledRules.isNotBlank()) {
             logger.error {
                 "Parameter '--disabled-rules' is ignored. The disabled rules have to be defined as '.editorconfig' properties. " +
@@ -251,14 +254,7 @@ internal class KtlintCommandLine {
         val editorConfigOverride =
             EditorConfigOverride
                 .EMPTY_EDITOR_CONFIG_OVERRIDE
-                .applyIf(experimental) {
-                    logger.warn {
-                        "Parameter `--experimental is deprecated, and will be removed in Ktlint 1.1. The experimental flag has to be " +
-                            "set as '.editorconfig' property 'ktlint_experimental = enabled'. See " +
-                            "https://pinterest.github.io/ktlint/1.0.0/faq/#how-do-i-enable-or-disable-a-rule-set"
-                    }
-                    plus(EXPERIMENTAL_RULES_EXECUTION_PROPERTY to RuleExecution.enabled)
-                }.applyIf(stdin) {
+                .applyIf(stdin) {
                     logger.debug {
                         "Add editor config override to disable 'filename' rule which can not be used in combination with reading from " +
                             "<stdin>"
