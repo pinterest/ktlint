@@ -329,6 +329,31 @@ class PropertyNamingRuleTest {
         }
     }
 
+    @ParameterizedTest(name = "Keyword: {0}")
+    @Suppress("ktlint:standard:argument-list-wrapping")
+    @ValueSource(
+        strings = [
+            "abstract", "actual", "annotation", "as", "break", "by", "catch", "class", "companion", "const", "constructor", "context",
+            "continue", "contract", "crossinline", "data", "delegate", "do", "dynamic", "else", "enum", "expect", "external", "false",
+            "field", "file", "final", "finally", "for", "fun", "get", "header", "if", "impl", "import", "in", "infix", "init", "inline",
+            "inner", "interface", "internal", "is", "lateinit", "noinline", "null", "object", "open", "operator", "out", "override",
+            "package", "param", "private", "property", "protected", "public", "receiver", "reified", "return", "sealed", "set", "setparam",
+            "super", "suspend", "tailrec", "this", "throw", "true", "try", "typealias", "typeof", "val", "value", "var", "vararg", "when",
+            "where", "while",
+        ],
+    )
+    fun `Issue 2352 - Given a keyword then allow it to be wrapped between backticks`(keyword: String) {
+        val code =
+            """
+            var `$keyword` = "some-value"
+            fun foo() {
+                var `$keyword` = "some-value"
+                val `$keyword` = "some-value"
+            }
+            """.trimIndent()
+        propertyNamingRuleAssertThat(code).hasNoLintViolations()
+    }
+
     @KtlintDocumentationTest
     fun `Ktlint allowed examples`() {
         val code =
