@@ -138,17 +138,17 @@ By default, the `info` log level is used meaning that all log lines at level `in
 
 Some rules can be tweaked via the [`editorconfig file`](../../rules/configuration-ktlint/).
 
-A scaffold of the `.editorconfig file` can be generated with command below. Note: that the generated file only contains configuration settings which are actively used by the [rules which are loaded](#rule-sets):
+A scaffold of the `.editorconfig` file can be generated with command below. Note: that the generated file only contains configuration settings which are actively used by the [rules which are loaded](#rule-sets):
 
 ```shell title="Generate .editorconfig"
-ktlint generateEditorConfig
+ktlint generateEditorConfig ktlint_official
 # or
-ktlint generateEditorConfig
+ktlint generateEditorConfig ktlint_official
 # or
-ktlint --ruleset=/path/to/custom-ruleset.jar generateEditorConfig
+ktlint --ruleset=/path/to/custom-ruleset.jar generateEditorConfig  ktlint_official
 ```
 
-Normally this file is located in the root of your project directory. In case the file is located in a sub folder of the project, the settings of that file only applies to that subdirectory and its folders (recursively). Ktlint automatically detects and reads all `.editorconfig` files in your project.
+Normally the `.editorconfig` file is located in the root of your project directory. In case the file is located in a sub folder of the project, the settings of that file only applies to that subdirectory and its folders (recursively). Ktlint automatically detects and reads all `.editorconfig` files in your project.
 
 Use command below, to specify a default `editorconfig`. In case a property is not defined in any `.editorconfig` file on the path to the file, the value from the default file is used. The path may point to any valid file or directory. The path can be relative or absolute. Depending on your OS, the "~" at the beginning of a path is replaced by the user home directory.
 
