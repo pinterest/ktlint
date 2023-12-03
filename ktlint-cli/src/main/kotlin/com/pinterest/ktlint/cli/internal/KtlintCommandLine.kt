@@ -23,7 +23,6 @@ import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.plus
 import com.pinterest.ktlint.rule.engine.api.KtLintParseException
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
-import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
@@ -124,13 +123,9 @@ internal class KtlintCommandLine {
 
     @Option(
         names = ["--disabled_rules"],
-        description = [
-            "Comma-separated list of rules to globally disable. This option is deprecated, and will be removed in Ktlint 1.1. The " +
-                "disabled rules have to be defined as '.editorconfig' properties. See " +
-                "https://pinterest.github.io/ktlint/1.0.0/faq/#how-do-i-enable-or-disable-a-rule",
-        ],
+        hidden = true,
     )
-    @Deprecated("Marked for removal in Ktlint 1.1")
+    @Deprecated("Remove in Ktlint 1.2 (or later) as some users will skip multiple versions.")
     var disabledRules: String = ""
 
     @Option(
@@ -236,17 +231,15 @@ internal class KtlintCommandLine {
         get() = Level.DEBUG.isGreaterOrEqual(minLogLevel)
         private set
 
-    private fun disabledRulesEditorConfigOverrides() =
-        disabledRules
-            .split(",")
-            .filter { it.isNotBlank() }
-            .map {
-                // For backwards compatibility, prefix the rule id with the standard rule set id when missing
-                RuleId.prefixWithStandardRuleSetIdWhenMissing(it)
-            }.map { RuleId(it).createRuleExecutionEditorConfigProperty() to RuleExecution.disabled }
-            .toTypedArray()
-
     fun run() {
+        if (disabledRules.isNotBlank()) {
+            logger.error {
+                "Parameter '--disabled-rules' is ignored. The disabled rules have to be defined as '.editorconfig' properties. " +
+                    "See https://pinterest.github.io/ktlint/1.0.0/faq/#how-do-i-enable-or-disable-a-rule"
+            }
+            exitKtLintProcess(3)
+        }
+
         if (codeStyle != null) {
             logger.error {
                 "Parameter '--code-style=${codeStyle?.name}' is ignored. The code style should be defined as '.editorconfig' " +
@@ -265,13 +258,6 @@ internal class KtlintCommandLine {
                             "https://pinterest.github.io/ktlint/1.0.0/faq/#how-do-i-enable-or-disable-a-rule-set"
                     }
                     plus(EXPERIMENTAL_RULES_EXECUTION_PROPERTY to RuleExecution.enabled)
-                }.applyIf(disabledRules.isNotBlank()) {
-                    logger.warn {
-                        "Parameter `--disabled-rules is deprecated, and will be removed in Ktlint 1.1. The disabled rules have to be " +
-                            "defined as '.editorconfig' properties. See " +
-                            "https://pinterest.github.io/ktlint/1.0.0/faq/#how-do-i-enable-or-disable-a-rule"
-                    }
-                    plus(*disabledRulesEditorConfigOverrides())
                 }.applyIf(stdin) {
                     logger.debug {
                         "Add editor config override to disable 'filename' rule which can not be used in combination with reading from " +
