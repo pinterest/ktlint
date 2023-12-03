@@ -23,11 +23,8 @@ import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.plus
 import com.pinterest.ktlint.rule.engine.api.KtLintParseException
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
-import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
@@ -61,7 +58,7 @@ private lateinit var logger: KLogger
     headerHeading =
         """
 An anti-bikeshedding Kotlin linter with built-in formatter.
-(https://github.com/pinterest/ktlint).
+(https://pinterest.github.io/ktlint/latest/).
 
 Usage:
   ktlint <flags> [patterns]
@@ -105,14 +102,10 @@ internal class KtlintCommandLine {
         // Ensure that the code-style can be set on sub commands and is visible in the help documentation
         scope = CommandLine.ScopeType.INHERIT,
         names = ["--code-style"],
-        description = [
-            "Defines the code style (ktlint_official, intellij_idea or android_studio) to be used for formatting the code. This option " +
-                "is deprecated, and will be removed in Ktlint 1.1. The code style has to be defined as '.editorconfig' property " +
-                "'ktlint_code_style'.",
-        ],
-        converter = [CodeStyleValueConverter::class],
+        // Keep as hidden option, so that a customized error can be printed when still used.
+        hidden = true,
     )
-    @Deprecated("Marked for removal in Ktlint 1.1")
+    @Deprecated("Remove in Ktlint 1.2 (or later) as some users will skip multiple versions.")
     var codeStyle: CodeStyleValue? = null
 
     @Option(
@@ -129,13 +122,9 @@ internal class KtlintCommandLine {
 
     @Option(
         names = ["--disabled_rules"],
-        description = [
-            "Comma-separated list of rules to globally disable. This option is deprecated, and will be removed in Ktlint 1.1. The " +
-                "disabled rules have to be defined as '.editorconfig' properties. See " +
-                "https://pinterest.github.io/ktlint/1.0.0/faq/#how-do-i-enable-or-disable-a-rule",
-        ],
+        hidden = true,
     )
-    @Deprecated("Marked for removal in Ktlint 1.1")
+    @Deprecated("Remove in Ktlint 1.2 (or later) as some users will skip multiple versions.")
     var disabledRules: String = ""
 
     @Option(
@@ -207,13 +196,9 @@ internal class KtlintCommandLine {
 
     @Option(
         names = ["--experimental"],
-        description = [
-            "Enable experimental rules. This option is deprecated, and will be removed in Ktlint 1.1. The experimental flag has to be " +
-                "set as '.editorconfig' property 'ktlint_experimental'. See " +
-                "https://pinterest.github.io/ktlint/1.0.0/faq/#how-do-i-enable-or-disable-a-rule-set",
-        ],
+        hidden = true,
     )
-    @Deprecated("Marked for removal in Ktlint 1.1")
+    @Deprecated("Remove in Ktlint 1.2 (or later) as some users will skip multiple versions.")
     var experimental: Boolean = false
 
     @Option(
@@ -241,41 +226,35 @@ internal class KtlintCommandLine {
         get() = Level.DEBUG.isGreaterOrEqual(minLogLevel)
         private set
 
-    private fun disabledRulesEditorConfigOverrides() =
-        disabledRules
-            .split(",")
-            .filter { it.isNotBlank() }
-            .map {
-                // For backwards compatibility, prefix the rule id with the standard rule set id when missing
-                RuleId.prefixWithStandardRuleSetIdWhenMissing(it)
-            }.map { RuleId(it).createRuleExecutionEditorConfigProperty() to RuleExecution.disabled }
-            .toTypedArray()
-
     fun run() {
+        if (experimental) {
+            logger.error {
+                "Parameter `--experimental is ignored. The experimental rules have to be enabled via '.editorconfig' property " +
+                    "'ktlint_experimental = enabled'."
+            }
+            exitKtLintProcess(2)
+        }
+
+        if (disabledRules.isNotBlank()) {
+            logger.error {
+                "Parameter '--disabled-rules' is ignored. The disabled rules have to be defined as '.editorconfig' properties. " +
+                    "See https://pinterest.github.io/ktlint/1.0.0/faq/#how-do-i-enable-or-disable-a-rule"
+            }
+            exitKtLintProcess(3)
+        }
+
+        if (codeStyle != null) {
+            logger.error {
+                "Parameter '--code-style=${codeStyle?.name}' is ignored. The code style should be defined as '.editorconfig' " +
+                    "property 'ktlint_code_style='."
+            }
+            exitKtLintProcess(4)
+        }
+
         val editorConfigOverride =
             EditorConfigOverride
                 .EMPTY_EDITOR_CONFIG_OVERRIDE
-                .applyIf(experimental) {
-                    logger.warn {
-                        "Parameter `--experimental is deprecated, and will be removed in Ktlint 1.1. The experimental flag has to be " +
-                            "set as '.editorconfig' property 'ktlint_experimental = enabled'. See " +
-                            "https://pinterest.github.io/ktlint/1.0.0/faq/#how-do-i-enable-or-disable-a-rule-set"
-                    }
-                    plus(EXPERIMENTAL_RULES_EXECUTION_PROPERTY to RuleExecution.enabled)
-                }.applyIf(disabledRules.isNotBlank()) {
-                    logger.warn {
-                        "Parameter `--disabled-rules is deprecated, and will be removed in Ktlint 1.1. The disabled rules have to be " +
-                            "defined as '.editorconfig' properties. See " +
-                            "https://pinterest.github.io/ktlint/1.0.0/faq/#how-do-i-enable-or-disable-a-rule"
-                    }
-                    plus(*disabledRulesEditorConfigOverrides())
-                }.applyIf(codeStyle != null) {
-                    logger.warn {
-                        "Parameter `--code-style=${codeStyle?.name} is deprecated. The code style should be defined as '.editorconfig' " +
-                            "property 'ktlint_code_style'."
-                    }
-                    plus(CODE_STYLE_PROPERTY to codeStyle)
-                }.applyIf(stdin) {
+                .applyIf(stdin) {
                     logger.debug {
                         "Add editor config override to disable 'filename' rule which can not be used in combination with reading from " +
                             "<stdin>"
@@ -741,18 +720,6 @@ internal class KtlintCommandLine {
             producer.join()
         }
     }
-}
-
-private class CodeStyleValueConverter : CommandLine.ITypeConverter<CodeStyleValue> {
-    @Throws(Exception::class)
-    override fun convert(value: String?): CodeStyleValue =
-        when (value?.lowercase()?.replace("-", "_")) {
-            null -> CODE_STYLE_PROPERTY.defaultValue
-            "ktlint_official" -> CodeStyleValue.ktlint_official
-            "android_studio" -> CodeStyleValue.android_studio
-            "intellij_idea" -> CodeStyleValue.intellij_idea
-            else -> throw IllegalArgumentException("Invalid code style value")
-        }
 }
 
 private class LogLevelConverter : CommandLine.ITypeConverter<Level> {
