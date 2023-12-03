@@ -32,7 +32,7 @@ class FinalNewlineRuleTest {
                 """.trimIndent()
             finalNewlineRuleAssertThat(code)
                 .withEditorConfigOverride(FINAL_NEW_LINE_REQUIRED)
-                .hasLintViolation(1, 1, "File must end with a newline (\\n)")
+                .hasLintViolation(2, 1, "File must end with a newline (\\n)")
                 .isFormattedAs(formattedCode)
         }
 
