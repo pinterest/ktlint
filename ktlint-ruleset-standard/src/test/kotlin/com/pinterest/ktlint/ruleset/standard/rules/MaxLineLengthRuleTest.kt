@@ -7,7 +7,6 @@ import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARK
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -27,9 +26,9 @@ class MaxLineLengthRuleTest {
         maxLineLengthRuleAssertThat(code)
             .setMaxLineLength()
             .hasLintViolationsWithoutAutoCorrect(
-                LintViolation(2, 1, "Exceeded max line length (46)"),
-                LintViolation(3, 1, "Exceeded max line length (46)"),
-                LintViolation(5, 1, "Exceeded max line length (46)"),
+                LintViolation(2, 47, "Exceeded max line length (46)"),
+                LintViolation(3, 61, "Exceeded max line length (46)"),
+                LintViolation(5, 47, "Exceeded max line length (46)"),
             )
     }
 
@@ -106,7 +105,7 @@ class MaxLineLengthRuleTest {
     @Nested
     inner class `Given some error suppression` {
         @Test
-        fun `Given code that is wrapped into a ktlint-disable block then do no return lint errors for lines in this block`() {
+        fun `Given code that is suppressed then do no return lint errors for lines in this block`() {
             val code =
                 """
                 // $MAX_LINE_LENGTH_MARKER                     $EOL_CHAR
@@ -120,8 +119,8 @@ class MaxLineLengthRuleTest {
             maxLineLengthRuleAssertThat(code)
                 .setMaxLineLength()
                 .hasLintViolationsWithoutAutoCorrect(
-                    LintViolation(3, 1, "Exceeded max line length (48)"),
-                    LintViolation(6, 1, "Exceeded max line length (48)"),
+                    LintViolation(3, 49, "Exceeded max line length (48)"),
+                    LintViolation(6, 49, "Exceeded max line length (48)"),
                 )
         }
     }
@@ -142,7 +141,7 @@ class MaxLineLengthRuleTest {
                 .setMaxLineLength()
                 .withEditorConfigOverride(IGNORE_BACKTICKED_IDENTIFIER_PROPERTY to true)
                 // Note that no error was generated on line 2 with the long fun name but on another line
-                .hasLintViolationWithoutAutoCorrect(4, 1, "Exceeded max line length (37)")
+                .hasLintViolationWithoutAutoCorrect(4, 38, "Exceeded max line length (37)")
         }
 
         @Test
@@ -160,8 +159,8 @@ class MaxLineLengthRuleTest {
                 .withEditorConfigOverride(IGNORE_BACKTICKED_IDENTIFIER_PROPERTY to true)
                 .hasLintViolationsWithoutAutoCorrect(
                     // Note that no error was generated on line 2 with the long fun name but on another line
-                    LintViolation(3, 1, "Exceeded max line length (37)"),
-                    LintViolation(4, 1, "Exceeded max line length (37)"),
+                    LintViolation(3, 91, "Exceeded max line length (37)"),
+                    LintViolation(4, 38, "Exceeded max line length (37)"),
                 )
         }
     }
@@ -175,16 +174,19 @@ class MaxLineLengthRuleTest {
     }
 
     @Test
-    fun testRangeSearch() {
-        for (i in 0 until 10) {
-            assertThat(RangeTree((0..i).toList()).query(Int.MIN_VALUE, Int.MAX_VALUE).toString())
-                .isEqualTo((0..i).toList().toString())
-        }
-        assertThat(RangeTree(emptyList()).query(1, 5).toString()).isEqualTo("[]")
-        assertThat(RangeTree((5 until 10).toList()).query(1, 5).toString()).isEqualTo("[]")
-        assertThat(RangeTree((5 until 10).toList()).query(3, 7).toString()).isEqualTo("[5, 6]")
-        assertThat(RangeTree((5 until 10).toList()).query(7, 12).toString()).isEqualTo("[7, 8, 9]")
-        assertThat(RangeTree((5 until 10).toList()).query(10, 15).toString()).isEqualTo("[]")
-        assertThat(RangeTree(listOf(1, 5, 10)).query(3, 4).toString()).isEqualTo("[]")
+    fun `Given a block comment at the start of the file`() {
+        val code =
+            // The MAX_LINE_LENGTH_MARKER comment can not be used in this test as that comment should be the first line in the code. But for
+            // test it is required that the block comment is the first comment in the code.
+            """
+            /*
+             * Some comment for which the individual
+             * lines do not exceed the max line, but
+             * the total length of the comment does.
+             */
+            """.trimIndent()
+        maxLineLengthRuleAssertThat(code)
+            .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 40)
+            .hasNoLintViolations()
     }
 }

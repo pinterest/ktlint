@@ -444,7 +444,9 @@ public fun ASTNode.leavesOnLine(): Sequence<ASTNode> {
         .takeWhile { lastLeafOnLineOrNull == null || it.prevLeaf() != lastLeafOnLineOrNull }
 }
 
-internal fun ASTNode.getFirstLeafOnLineOrSelf() = prevLeaf { it.textContains('\n') || it.prevLeaf() == null }!!
+internal fun ASTNode.getFirstLeafOnLineOrSelf() =
+    prevLeaf { it.textContains('\n') || it.prevLeaf() == null }
+        ?: this
 
 internal fun ASTNode.getLastLeafOnLineOrNull() = nextLeaf { it.textContains('\n') }?.prevLeaf()
 

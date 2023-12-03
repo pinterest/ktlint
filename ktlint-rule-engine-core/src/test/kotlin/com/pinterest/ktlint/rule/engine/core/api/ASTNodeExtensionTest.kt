@@ -6,6 +6,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_ENTRY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
@@ -784,6 +785,22 @@ class ASTNodeExtensionTest {
                 ?.betweenCodeSiblings(FUN_KEYWORD, VALUE_PARAMETER_LIST)
 
         assertThat(actual).isTrue()
+    }
+
+    @Test
+    fun `Given that getFirstLeafOnLineOrSelf is called for the FILE element type then do not throw a null pointer exception`() {
+        val code =
+            """
+            // some comment
+            """.trimIndent()
+
+        val actual =
+            transformCodeToAST(code)
+                .also { require(it.elementType == FILE) }
+                .getFirstLeafOnLineOrSelf()
+                .text
+
+        assertThat(actual).contains(code)
     }
 
     private inline fun String.transformAst(block: FileASTNode.() -> Unit): FileASTNode =
