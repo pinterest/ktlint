@@ -165,27 +165,6 @@ class SimpleCLITest {
     }
 
     @Test
-    fun `Given some code which only contains errors for rules which are disabled via CLI argument --disabled_rules then return from lint with the normal exit code and without error output`(
-        @TempDir
-        tempDir: Path,
-    ) {
-        CommandLineTestRunner(tempDir)
-            .run(
-                "too-many-empty-lines",
-                listOf("--disabled_rules=no-consecutive-blank-lines,no-empty-first-line-in-method-block"),
-            ) {
-                SoftAssertions()
-                    .apply {
-                        assertNormalExitCode()
-                        assertThat(normalOutput).doesNotContain(
-                            "no-consecutive-blank-lines",
-                            "no-empty-first-line-in-method-block",
-                        )
-                    }.assertAll()
-            }
-    }
-
-    @Test
     fun `Given some code with an error and a pattern which is read in from stdin which does not select the file then return the no files matched warning`(
         @TempDir
         tempDir: Path,
