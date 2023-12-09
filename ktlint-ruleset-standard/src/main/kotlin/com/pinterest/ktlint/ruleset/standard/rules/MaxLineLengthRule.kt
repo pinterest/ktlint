@@ -83,8 +83,10 @@ public class MaxLineLengthRule :
             ?.takeUnless { it.isPartOfRawMultiLineString() }
             ?.takeUnless { it.isLineOnlyContainingComment() }
             ?.let { lastNodeOnLine ->
+                // Calculate the offset at the last possible position at which the newline should be inserted on the line
+                val offset = node.leavesOnLine().first().startOffset + maxLineLength + 1
                 emit(
-                    lastNodeOnLine.startOffset + lastNodeOnLine.textLength - 1,
+                    offset,
                     "Exceeded max line length ($maxLineLength)",
                     false,
                 )
