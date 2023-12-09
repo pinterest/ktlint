@@ -290,7 +290,7 @@ class SuppressionLocatorBuilderTest {
             val actual = lint(code = code, ignoreKtlintSuppressionRule = false)
             @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
             assertThat(actual).containsExactly(
-                LintError(1, 24, KTLINT_SUPPRESSION_RULE_ID, "Ktlint rule with id 'ktlint:internal:ktlint-suppression' is unknown or not loaded", false),
+                LintError(1, 17, KTLINT_SUPPRESSION_RULE_ID, "Ktlint rule with id 'ktlint:internal:ktlint-suppression' is unknown or not loaded", false),
             )
         }
 
