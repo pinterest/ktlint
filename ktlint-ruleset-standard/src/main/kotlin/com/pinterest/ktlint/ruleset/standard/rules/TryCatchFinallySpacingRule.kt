@@ -24,6 +24,7 @@ import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 
 /**
  * Checks spacing and wrapping of try-catch-finally.
@@ -55,6 +56,10 @@ public class TryCatchFinallySpacingRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
+        if (node.isPartOfComment() && node.treeParent.elementType in TRY_CATCH_FINALLY_TOKEN_SET) {
+            emit(node.startOffset, "No comment expected at this location", false)
+            return
+        }
         when (node.elementType) {
             BLOCK -> {
                 visitBlock(node, emit, autoCorrect)
@@ -70,7 +75,7 @@ public class TryCatchFinallySpacingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
     ) {
-        if (node.treeParent.elementType !in TRY_CATCH_FINALLY_ELEMENT_TYPES) {
+        if (node.treeParent.elementType !in TRY_CATCH_FINALLY_TOKEN_SET) {
             return
         }
 
@@ -116,7 +121,7 @@ public class TryCatchFinallySpacingRule :
     private fun ASTNode.elementTypeName() = elementType.toString().lowercase()
 
     private companion object {
-        val TRY_CATCH_FINALLY_ELEMENT_TYPES = listOf(TRY, CATCH, FINALLY)
+        val TRY_CATCH_FINALLY_TOKEN_SET = TokenSet.create(TRY, CATCH, FINALLY)
     }
 }
 
