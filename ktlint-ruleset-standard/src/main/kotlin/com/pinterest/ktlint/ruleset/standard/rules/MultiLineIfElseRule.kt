@@ -107,10 +107,13 @@ public class MultiLineIfElseRule :
                 // Allow single line if statements as long as they are really simple (e.g. do not contain newlines)
                 //    if (...) <statement> // no else statement
                 //    if (...) <statement> else <statement>
-                return
+                if (node.treeParent.treeParent.elementType == ELSE) {
+                    // Except in case nested if-else-if on single line
+                    //    if (...) <statement> else if (..) <statement>
+                } else {
+                    return
+                }
             }
-
-            Unit
         }
 
         emit(node.firstChildNode.startOffset, "Missing { ... }", true)

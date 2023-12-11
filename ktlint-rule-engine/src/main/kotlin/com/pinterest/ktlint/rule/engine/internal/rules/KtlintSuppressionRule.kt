@@ -1,76 +1,48 @@
 package com.pinterest.ktlint.rule.engine.internal.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATED_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK_COMMENT
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE_ANNOTATION_LIST
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.PACKAGE_DIRECTIVE
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.indent
-import com.pinterest.ktlint.rule.engine.core.api.isRoot
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.remove
+import com.pinterest.ktlint.rule.engine.core.api.replaceWith
+import com.pinterest.ktlint.rule.engine.internal.KTLINT_SUPPRESSION_ID_ALL_RULES
+import com.pinterest.ktlint.rule.engine.internal.insertKtlintRuleSuppression
+import com.pinterest.ktlint.rule.engine.internal.isKtlintSuppressionId
+import com.pinterest.ktlint.rule.engine.internal.isTopLevel
+import com.pinterest.ktlint.rule.engine.internal.qualifiedRuleIdString
 import com.pinterest.ktlint.rule.engine.internal.rules.KtLintDirective.KtlintDirectiveType.KTLINT_DISABLE
 import com.pinterest.ktlint.rule.engine.internal.rules.KtLintDirective.KtlintDirectiveType.KTLINT_ENABLE
 import com.pinterest.ktlint.rule.engine.internal.rules.KtLintDirective.SuppressionIdChange.InvalidSuppressionId
 import com.pinterest.ktlint.rule.engine.internal.rules.KtLintDirective.SuppressionIdChange.ValidSuppressionId
-import com.pinterest.ktlint.rule.engine.internal.rules.KtlintSuppressionRule.SuppressAnnotationType.SUPPRESS
-import com.pinterest.ktlint.rule.engine.internal.rules.KtlintSuppressionRule.SuppressAnnotationType.SUPPRESS_WARNINGS
+import com.pinterest.ktlint.rule.engine.internal.rules.KtLintDirective.SuppressionIdChange.ValidSuppressionId.Companion.KTLINT_SUPPRESSION_ALL
+import com.pinterest.ktlint.rule.engine.internal.toFullyQualifiedKtlintSuppressionId
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
+import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.idea.KotlinLanguage
-import org.jetbrains.kotlin.psi.KtAnnotatedExpression
-import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtCallExpression
-import org.jetbrains.kotlin.psi.KtClass
-import org.jetbrains.kotlin.psi.KtClassInitializer
-import org.jetbrains.kotlin.psi.KtCollectionLiteralExpression
-import org.jetbrains.kotlin.psi.KtDeclaration
-import org.jetbrains.kotlin.psi.KtDeclarationModifierList
-import org.jetbrains.kotlin.psi.KtExpression
-import org.jetbrains.kotlin.psi.KtFile
-import org.jetbrains.kotlin.psi.KtFileAnnotationList
-import org.jetbrains.kotlin.psi.KtFunction
-import org.jetbrains.kotlin.psi.KtFunctionLiteral
-import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtLiteralStringTemplateEntry
-import org.jetbrains.kotlin.psi.KtNamedFunction
-import org.jetbrains.kotlin.psi.KtPrimaryConstructor
-import org.jetbrains.kotlin.psi.KtProperty
-import org.jetbrains.kotlin.psi.KtPropertyAccessor
 import org.jetbrains.kotlin.psi.KtScript
 import org.jetbrains.kotlin.psi.KtScriptInitializer
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.KtValueArgument
 import org.jetbrains.kotlin.psi.KtValueArgumentList
-import org.jetbrains.kotlin.psi.psiUtil.children
 import org.jetbrains.kotlin.psi.psiUtil.findDescendantOfType
 import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.psi.psiUtil.siblings
-import org.jetbrains.kotlin.util.prefixIfNot
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
-
-private const val KTLINT_SUPPRESSION_ID_PREFIX = "ktlint:"
-private const val KTLINT_SUPPRESSION_ID_ALL_RULES = "\"ktlint\""
-private const val DOUBLE_QUOTE = "\""
 
 /**
  * Disallow usage of the old "ktlint-disable" and "ktlint-enable" directives.
@@ -121,8 +93,6 @@ public class KtlintSuppressionRule(
             }
             ?: false
 
-    private fun String.isKtlintSuppressionId() = removePrefix(DOUBLE_QUOTE).startsWith(KTLINT_SUPPRESSION_ID_PREFIX)
-
     private fun ASTNode.isPartOfAnnotation() = parent { it.elementType == ANNOTATION || it.elementType == ANNOTATION_ENTRY } != null
 
     private fun visitKtlintSuppressionInAnnotation(
@@ -138,8 +108,9 @@ public class KtlintSuppressionRule(
                 val prefixedSuppression =
                     literalStringTemplateEntry
                         .text
-                        .prefixKtlintSuppressionWithRuleSetIdOrNull()
-                val offset = literalStringTemplateEntry.startOffset + KTLINT_SUPPRESSION_ID_PREFIX.length
+                        .toFullyQualifiedKtlintSuppressionId()
+                        .removeSurrounding("\"")
+                val offset = literalStringTemplateEntry.startOffset
                 if (prefixedSuppression.isUnknownKtlintSuppression()) {
                     emit(offset, "Ktlint rule with id '$prefixedSuppression' is unknown or not loaded", false)
                 } else if (prefixedSuppression != literalStringTemplateEntry.text) {
@@ -151,6 +122,12 @@ public class KtlintSuppressionRule(
                     }
                 }
             }
+    }
+
+    private fun ASTNode.removePrecedingWhitespace() {
+        prevLeaf()
+            .takeIf { it.isWhiteSpace() }
+            ?.remove()
     }
 
     private fun ASTNode.createLiteralStringTemplateEntry(prefixedSuppression: String) =
@@ -166,27 +143,6 @@ public class KtlintSuppressionRule(
             ?.getChildOfType<KtStringTemplateExpression>()
             ?.getChildOfType<KtLiteralStringTemplateEntry>()
             ?.node
-
-    private fun String.prefixKtlintSuppressionWithRuleSetIdOrNull(): String {
-        val isPrefixedWithDoubleQuote = startsWith(DOUBLE_QUOTE)
-        return removePrefix(DOUBLE_QUOTE)
-            .takeIf { startsWith(KTLINT_SUPPRESSION_ID_PREFIX) }
-            ?.substringAfter(KTLINT_SUPPRESSION_ID_PREFIX)
-            ?.let { prefixWithRuleSetIdWhenMissing(it) }
-            ?.prefixIfNot(KTLINT_SUPPRESSION_ID_PREFIX)
-            ?.applyIf(isPrefixedWithDoubleQuote) { prefixIfNot(DOUBLE_QUOTE) }
-            ?: this
-    }
-
-    private fun String.isUnknownKtlintSuppression(): Boolean =
-        removePrefix(DOUBLE_QUOTE)
-            .takeIf { startsWith(KTLINT_SUPPRESSION_ID_PREFIX) }
-            ?.substringAfter(KTLINT_SUPPRESSION_ID_PREFIX)
-            ?.let { prefixWithRuleSetIdWhenMissing(it) }
-            ?.let { ruleId ->
-                allowedRuleIds.none { it.value == ruleId }
-            }
-            ?: false
 
     private fun KtLintDirective.visitKtlintDirective(
         autoCorrect: Boolean,
@@ -244,8 +200,15 @@ public class KtlintSuppressionRule(
                 )
             }
         if (autoCorrect) {
-            findParentDeclarationOrExpression()
-                .addKtlintRuleSuppression(suppressionIdChanges)
+            val suppressionIds =
+                suppressionIdChanges
+                    .filterIsInstance<ValidSuppressionId>()
+                    .map { it.suppressionId }
+                    .toSet()
+            node
+                .applyIf(node.elementType == BLOCK_COMMENT && shouldBePromotedToParentDeclaration(ruleIdValidator)) {
+                    treeParent.treeParent
+                }.insertKtlintRuleSuppression(suppressionIds, forceFileAnnotation = node.shouldBeConvertedToFileAnnotation())
             if (node.elementType == EOL_COMMENT) {
                 node.removePrecedingWhitespace()
             } else {
@@ -261,280 +224,6 @@ public class KtlintSuppressionRule(
         }
     }
 
-    private fun KtLintDirective.findParentDeclarationOrExpression(): ASTNode {
-        val shouldBeConvertedToFileAnnotation = shouldBeConvertedToFileAnnotation()
-        var targetNode =
-            if (node.elementType == BLOCK_COMMENT &&
-                shouldBePromotedToParentDeclaration(ruleIdValidator)
-            ) {
-                node.treeParent.treeParent.psi
-            } else {
-                node.psi
-            }
-        while (
-            shouldBeConvertedToFileAnnotation ||
-            targetNode is KtClassInitializer ||
-            targetNode is KtBlockExpression ||
-            targetNode is KtPrimaryConstructor ||
-            targetNode is KtFunctionLiteral ||
-            targetNode is KtLambdaExpression ||
-            (targetNode is KtExpression && targetNode.parent is KtExpression && targetNode.parent !is KtDeclaration) ||
-            (targetNode !is KtDeclaration && targetNode !is KtExpression)
-        ) {
-            if (targetNode.parent == null) {
-                return targetNode.node
-            }
-            targetNode = targetNode.parent
-        }
-        return targetNode.node
-    }
-
-    private fun ASTNode.remove() {
-        treeParent.removeChild(this)
-    }
-
-    private fun ASTNode.removePrecedingWhitespace() {
-        prevLeaf()
-            .takeIf { it.isWhiteSpace() }
-            ?.remove()
-    }
-
-    private fun ASTNode.addKtlintRuleSuppression(suppressionIdChanges: Set<KtLintDirective.SuppressionIdChange>) {
-        val ktlintRuleSuppressions =
-            suppressionIdChanges
-                .filterIsInstance<ValidSuppressionId>()
-                .map { it.suppressionId }
-                .toSet()
-        if (ktlintRuleSuppressions.isEmpty()) {
-            // Do not add or alter the @Suppress / @SuppressWarnings
-            return
-        }
-        val suppressionAnnotations = findSuppressionAnnotations()
-        // Add ktlint rule suppressions:
-        //   - To the @Suppress annotation if found
-        //   - otherwise to the @SuppressWarnings annotation if found
-        //   - otherwise create a new @Suppress annotation
-        when {
-            suppressionAnnotations.containsKey(SUPPRESS) ->
-                ktlintRuleSuppressions.mergeInto(suppressionAnnotations.getValue(SUPPRESS), SUPPRESS)
-
-            suppressionAnnotations.containsKey(SUPPRESS_WARNINGS) ->
-                ktlintRuleSuppressions.mergeInto(suppressionAnnotations.getValue(SUPPRESS_WARNINGS), SUPPRESS_WARNINGS)
-
-            else -> createSuppressAnnotation(SUPPRESS, ktlintRuleSuppressions)
-        }
-    }
-
-    private fun Set<String>.mergeInto(
-        annotationNode: ASTNode,
-        suppressType: SuppressAnnotationType,
-    ) {
-        annotationNode
-            .existingSuppressions()
-            .plus(this)
-            .let { suppressions ->
-                if (suppressions.contains(KTLINT_SUPPRESSION_ID_ALL_RULES)) {
-                    // When all ktlint rules are to be suppressed, then ignore all suppressions for specific ktlint rules
-                    suppressions
-                        .filterNot { it.isKtlintSuppressionId() }
-                        .toSet()
-                } else {
-                    suppressions
-                }
-            }.map { it.prefixKtlintSuppressionWithRuleSetIdOrNull() }
-            .toSet()
-            .let { suppressions -> annotationNode.createSuppressAnnotation(suppressType, suppressions) }
-    }
-
-    private fun ASTNode.existingSuppressions() =
-        existingSuppressionsFromNamedArgumentOrNull()
-            ?: getValueArguments()
-
-    private fun ASTNode.existingSuppressionsFromNamedArgumentOrNull() =
-        psi
-            .findDescendantOfType<KtCollectionLiteralExpression>()
-            ?.children
-            ?.map { it.text }
-            ?.toSet()
-
-    private fun ASTNode.findSuppressionAnnotations(): Map<SuppressAnnotationType, ASTNode> =
-        if (this.isRoot()) {
-            findChildByType(FILE_ANNOTATION_LIST)
-                ?.toMapOfSuppressionAnnotations()
-                .orEmpty()
-        } else if (this.elementType == ANNOTATED_EXPRESSION) {
-            this.toMapOfSuppressionAnnotations()
-        } else {
-            findChildByType(MODIFIER_LIST)
-                ?.toMapOfSuppressionAnnotations()
-                .orEmpty()
-        }
-
-    private fun ASTNode.toMapOfSuppressionAnnotations(): Map<SuppressAnnotationType, ASTNode> =
-        children()
-            .mapNotNull { modifier ->
-                when (modifier.suppressionAnnotationTypeOrNull()) {
-                    SUPPRESS -> Pair(SUPPRESS, modifier)
-                    SUPPRESS_WARNINGS -> Pair(SUPPRESS_WARNINGS, modifier)
-                    else -> null
-                }
-            }.toMap()
-
-    private fun ASTNode.suppressionAnnotationTypeOrNull() =
-        takeIf { elementType == ANNOTATION || elementType == ANNOTATION_ENTRY }
-            ?.findChildByType(ElementType.CONSTRUCTOR_CALLEE)
-            ?.findChildByType(ElementType.TYPE_REFERENCE)
-            ?.findChildByType(ElementType.USER_TYPE)
-            ?.findChildByType(ElementType.REFERENCE_EXPRESSION)
-            ?.findChildByType(ElementType.IDENTIFIER)
-            ?.text
-            ?.let { SuppressAnnotationType.findByIdOrNull(it) }
-
-    private fun ASTNode.getValueArguments() =
-        findChildByType(VALUE_ARGUMENT_LIST)
-            ?.children()
-            ?.filter { it.elementType == VALUE_ARGUMENT }
-            ?.map { it.text }
-            ?.toSet()
-            .orEmpty()
-
-    private fun ASTNode.createSuppressAnnotation(
-        suppressType: SuppressAnnotationType,
-        suppressions: Set<String>,
-    ) {
-        val targetNode =
-            if (elementType == ANNOTATION_ENTRY) {
-                treeParent
-            } else {
-                this
-            }
-
-        when (psi) {
-            is KtFile -> {
-                val fileAnnotation = targetNode.createFileAnnotation(suppressType, suppressions)
-                this.createFileAnnotationList(fileAnnotation)
-            }
-
-            is KtAnnotationEntry -> {
-                if (psi.parent is KtFileAnnotationList) {
-                    val fileAnnotation = targetNode.createFileAnnotation(suppressType, suppressions)
-                    this.replaceWith(fileAnnotation.firstChildNode)
-                } else {
-                    val modifierListWithAnnotation = targetNode.createModifierListWithAnnotationEntry(suppressType, suppressions)
-                    this.replaceWith(
-                        modifierListWithAnnotation
-                            .getChildOfType<KtAnnotationEntry>()!!
-                            .node,
-                    )
-                }
-            }
-
-            is KtClass, is KtFunction, is KtProperty, is KtPropertyAccessor -> {
-                this.addChild(PsiWhiteSpaceImpl(indent()), this.firstChildNode)
-                val modifierListWithAnnotation = targetNode.createModifierListWithAnnotationEntry(suppressType, suppressions)
-                this.addChild(modifierListWithAnnotation.node, this.firstChildNode)
-            }
-
-            else -> {
-                if (targetNode.psi is KtExpression && targetNode.psi !is KtAnnotatedExpression) {
-                    val annotatedExpression = targetNode.createAnnotatedExpression(suppressType, suppressions)
-                    treeParent.replaceChild(targetNode, annotatedExpression.node)
-                } else {
-                    val modifierListWithAnnotation = targetNode.createModifierListWithAnnotationEntry(suppressType, suppressions)
-                    treeParent.addChild(
-                        modifierListWithAnnotation
-                            .getChildOfType<KtAnnotationEntry>()!!
-                            .node,
-                        this,
-                    )
-                    treeParent.addChild(PsiWhiteSpaceImpl(indent()), this)
-                }
-            }
-        }
-    }
-
-    private fun ASTNode.createFileAnnotation(
-        suppressType: SuppressAnnotationType,
-        suppressions: Set<String>,
-    ): ASTNode =
-        suppressions
-            .sorted()
-            .joinToString()
-            .let { sortedSuppressions -> "@file:${suppressType.annotationName}($sortedSuppressions)" }
-            .let { annotation ->
-                PsiFileFactory
-                    .getInstance(psi.project)
-                    .createFileFromText(KotlinLanguage.INSTANCE, annotation)
-                    ?.firstChild
-                    ?: throw IllegalStateException("Can not create annotation '$annotation'")
-            }.node
-
-    private fun ASTNode.createFileAnnotationList(annotation: ASTNode) {
-        require(isRoot()) { "File annotation list can only be created for root node" }
-        // Should always be inserted into the first (root) code child regardless in which root node the ktlint directive
-        // was actually found
-        findChildByType(PACKAGE_DIRECTIVE)
-            ?.let { packageDirective ->
-                packageDirective
-                    .treeParent
-                    .addChild(annotation, packageDirective)
-                packageDirective
-                    .treeParent
-                    .addChild(PsiWhiteSpaceImpl("\n" + indent()), packageDirective)
-            }
-    }
-
-    private fun ASTNode.createModifierListWithAnnotationEntry(
-        suppressType: SuppressAnnotationType,
-        suppressions: Set<String>,
-    ): PsiElement =
-        suppressions
-            .sorted()
-            .joinToString()
-            .let { sortedSuppressions -> "@${suppressType.annotationName}($sortedSuppressions)" }
-            .let { annotation ->
-                PsiFileFactory
-                    .getInstance(psi.project)
-                    .createFileFromText(
-                        KotlinLanguage.INSTANCE,
-                        // Create the annotation for a dummy declaration as the entire code block should be valid Kotlin code
-                        """
-                        $annotation
-                        fun foo() {}
-                        """.trimIndent(),
-                    ).getChildOfType<KtScript>()
-                    ?.getChildOfType<KtBlockExpression>()
-                    ?.getChildOfType<KtNamedFunction>()
-                    ?.getChildOfType<KtDeclarationModifierList>()
-                    ?: throw IllegalStateException("Can not create annotation '$annotation'")
-            }
-
-    private fun ASTNode.createAnnotatedExpression(
-        suppressType: SuppressAnnotationType,
-        suppressions: Set<String>,
-    ): PsiElement =
-        suppressions
-            .sorted()
-            .joinToString()
-            .let { sortedSuppressions -> "@${suppressType.annotationName}($sortedSuppressions)" }
-            .let { annotation ->
-                PsiFileFactory
-                    .getInstance(psi.project)
-                    .createFileFromText(
-                        KotlinLanguage.INSTANCE,
-                        // Create the annotation for a dummy declaration as the entire code block should be valid Kotlin code
-                        """
-                        |fun foo() =
-                        |${this.indent(false)}$annotation
-                        |${this.indent(false)}${this.text}
-                        """.trimMargin(),
-                    ).getChildOfType<KtScript>()
-                    ?.getChildOfType<KtBlockExpression>()
-                    ?.getChildOfType<KtNamedFunction>()
-                    ?.getChildOfType<KtAnnotatedExpression>()
-                    ?: throw IllegalStateException("Can not create annotation '$annotation'")
-            }
-
     private fun KtLintDirective.removeKtlintEnableDirective(
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
@@ -546,29 +235,16 @@ public class KtlintSuppressionRule(
         }
     }
 
-    private fun ASTNode.replaceWith(node: ASTNode) {
-        treeParent.addChild(node, this)
-        this.remove()
-    }
-
-    private enum class SuppressAnnotationType(
-        val annotationName: String,
-    ) {
-        SUPPRESS("Suppress"),
-        SUPPRESS_WARNINGS("SuppressWarnings"),
-        ;
-
-        companion object {
-            fun findByIdOrNull(id: String): SuppressAnnotationType? =
-                SuppressAnnotationType
-                    .values()
-                    .firstOrNull { it.annotationName == id }
-        }
-    }
+    private fun String.isUnknownKtlintSuppression(): Boolean =
+        qualifiedRuleIdString()
+            .let { ruleId ->
+                allowedRuleIds.none { it.value == ruleId }
+            }
 }
 
-private data class KtLintDirective(
+private class KtLintDirective(
     val node: ASTNode,
+    val ruleIdValidator: (String) -> Boolean,
     val ktlintDirectiveType: KtlintDirectiveType,
     val ktlintDirectives: String,
     val suppressionIdChanges: Set<SuppressionIdChange>,
@@ -578,7 +254,7 @@ private data class KtLintDirective(
     fun hasNoMatchingKtlintEnableDirective(ruleIdValidator: (String) -> Boolean): Boolean {
         require(ktlintDirectiveType == KTLINT_DISABLE && node.elementType == BLOCK_COMMENT)
 
-        return if (shouldBeConvertedToFileAnnotation()) {
+        return if (node.shouldBeConvertedToFileAnnotation()) {
             false
         } else {
             findMatchingKtlintEnableDirective(ruleIdValidator) == null
@@ -589,38 +265,22 @@ private data class KtLintDirective(
         node
             .applyIf(node.isSuppressibleDeclaration()) { node.treeParent }
             .siblings()
-            .firstOrNull {
-                it
+            .firstOrNull { node ->
+                node
                     .ktlintDirectiveOrNull(ruleIdValidator)
                     ?.takeIf { it.ktlintDirectiveType == KTLINT_ENABLE }
                     ?.ktlintDirectives == ktlintDirectives
             }
 
-    fun shouldBeConvertedToFileAnnotation() =
-        node.isTopLevel() ||
-            (node.elementType == BLOCK_COMMENT && node.isSuppressibleDeclaration() && node.treeParent.isTopLevel())
-
-    private fun ASTNode.isSuppressibleDeclaration() =
-        when (treeParent.elementType) {
-            CLASS, FUN, PROPERTY -> true
-            else -> false
-        }
-
-    private fun ASTNode.isTopLevel() =
-        FILE ==
-            this
-                .treeParent
-                .elementType
-
     fun shouldBePromotedToParentDeclaration(ruleIdValidator: (String) -> Boolean): Boolean {
         require(ktlintDirectiveType == KTLINT_DISABLE && node.elementType == BLOCK_COMMENT)
 
-        return if (shouldBeConvertedToFileAnnotation()) {
-            false
-        } else {
-            node
-                .takeIf { it.isSuppressibleDeclaration() }
-                ?.let { findMatchingKtlintEnableDirective(ruleIdValidator) }
+        if (node.shouldBeConvertedToFileAnnotation()) {
+            return false
+        }
+
+        if (node.isSuppressibleDeclaration()) {
+            return findMatchingKtlintEnableDirective(ruleIdValidator)
                 ?.let { matchingKtlintEnabledDirective ->
                     // In case the node is part of a suppressible declaration and the next sibling matches the enable directive then the
                     // block directive should be match with this declaration only and not be moved to the parent.
@@ -631,7 +291,40 @@ private data class KtLintDirective(
                 }
                 ?: false
         }
+
+        return node.surroundsMultipleListElements()
     }
+
+    private fun ASTNode.surroundsMultipleListElements(): Boolean {
+        require(ktlintDirectiveType == KTLINT_DISABLE && elementType == BLOCK_COMMENT)
+        return if (treeParent.elementType in listTypeTokenSet) {
+            val firstElementAfterEnableDirective = nextSibling { it.elementType in listElementTypeTokenSet }
+            findMatchingKtlintEnableDirective(ruleIdValidator)
+                ?.siblings(false)
+                ?.takeWhile { it != this }
+                ?.count { it.elementType in listElementTypeTokenSet }
+                ?.let { it > 1 }
+                ?: false
+        } else {
+            false
+        }
+    }
+
+    private val listTypeTokenSet =
+        TokenSet.create(
+            ElementType.TYPE_ARGUMENT_LIST,
+            ElementType.TYPE_PARAMETER_LIST,
+            ElementType.VALUE_ARGUMENT_LIST,
+            ElementType.VALUE_PARAMETER_LIST,
+        )
+
+    private val listElementTypeTokenSet =
+        TokenSet.create(
+            ElementType.TYPE_PROJECTION,
+            ElementType.TYPE_PARAMETER,
+            VALUE_ARGUMENT,
+            ElementType.VALUE_PARAMETER,
+        )
 
     enum class KtlintDirectiveType(
         val id: String,
@@ -643,7 +336,11 @@ private data class KtLintDirective(
     sealed class SuppressionIdChange {
         class ValidSuppressionId(
             val suppressionId: String,
-        ) : SuppressionIdChange()
+        ) : SuppressionIdChange() {
+            companion object {
+                val KTLINT_SUPPRESSION_ALL = ValidSuppressionId(KTLINT_SUPPRESSION_ID_ALL_RULES)
+            }
+        }
 
         class InvalidSuppressionId(
             val originalRuleId: String,
@@ -675,7 +372,7 @@ private fun ASTNode.ktlintDirectiveOrNull(ruleIdValidator: (String) -> Boolean):
     val ruleIds = ktlintDirectiveString.removePrefix(ktlintDirectiveType.id)
     val suppressionIdChanges = ruleIds.toSuppressionIdChanges(ruleIdValidator)
 
-    return KtLintDirective(this, ktlintDirectiveType, ruleIds, suppressionIdChanges)
+    return KtLintDirective(this, ruleIdValidator, ktlintDirectiveType, ruleIds, suppressionIdChanges)
 }
 
 private fun String.toKtlintDirectiveTypeOrNull() =
@@ -694,14 +391,10 @@ private fun String.toSuppressionIdChanges(ruleIdValidator: (String) -> Boolean) 
         .split(" ")
         .map { it.trim() }
         .filter { it.isNotBlank() }
+        .map { it.qualifiedRuleIdString() }
         .map { originalRuleId ->
-            val prefixedRuleId = prefixWithRuleSetIdWhenMissing(originalRuleId)
-            if (ruleIdValidator(prefixedRuleId)) {
-                ValidSuppressionId(
-                    prefixedRuleId
-                        .prefixIfNot(KTLINT_SUPPRESSION_ID_PREFIX)
-                        .surroundWith(DOUBLE_QUOTE),
-                )
+            if (ruleIdValidator(originalRuleId)) {
+                ValidSuppressionId(originalRuleId)
             } else {
                 InvalidSuppressionId(
                     originalRuleId,
@@ -709,19 +402,16 @@ private fun String.toSuppressionIdChanges(ruleIdValidator: (String) -> Boolean) 
                 )
             }
         }.toSet()
-        .ifEmpty { setOf(ValidSuppressionId("\"ktlint\"")) }
+        .ifEmpty { setOf(KTLINT_SUPPRESSION_ALL) }
 
-private fun prefixWithRuleSetIdWhenMissing(ruleIdString: String) =
-    RuleId
-        .prefixWithStandardRuleSetIdWhenMissing(
-            // The experimental ruleset was removed in Ktlint 0.49. References to that ruleset however may still exist. Also, not all
-            // user seem to understand that it is no longer a separate ruleset.
-            ruleIdString.removePrefix("experimental:"),
-        )
+private fun ASTNode.shouldBeConvertedToFileAnnotation() =
+    isTopLevel() ||
+        (elementType == BLOCK_COMMENT && isSuppressibleDeclaration() && treeParent.isTopLevel())
 
-private fun String.surroundWith(string: String) =
-    removeSurrounding(string)
-        .prefixIfNot(string)
-        .plus(string)
+private fun ASTNode.isSuppressibleDeclaration() =
+    when (treeParent.elementType) {
+        ElementType.CLASS, ElementType.FUN, ElementType.PROPERTY -> true
+        else -> false
+    }
 
 public val KTLINT_SUPPRESSION_RULE_ID: RuleId = KtlintSuppressionRule(emptyList()).ruleId

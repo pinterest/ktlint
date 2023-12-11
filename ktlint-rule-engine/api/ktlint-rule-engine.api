@@ -95,6 +95,37 @@ public final class com/pinterest/ktlint/rule/engine/api/KtLintRuleException : ja
 	public final fun getRuleId ()Ljava/lang/String;
 }
 
+public final class com/pinterest/ktlint/rule/engine/api/KtlintRuleEngineSuppressionKt {
+	public static final fun insertSuppression (Lcom/pinterest/ktlint/rule/engine/api/KtLintRuleEngine;Lcom/pinterest/ktlint/rule/engine/api/Code;Lcom/pinterest/ktlint/rule/engine/api/KtlintSuppression;)Ljava/lang/String;
+}
+
+public abstract class com/pinterest/ktlint/rule/engine/api/KtlintSuppression {
+	public synthetic fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getRuleId ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+}
+
+public final class com/pinterest/ktlint/rule/engine/api/KtlintSuppressionAtOffset : com/pinterest/ktlint/rule/engine/api/KtlintSuppression {
+	public fun <init> (IILcom/pinterest/ktlint/rule/engine/core/api/RuleId;)V
+	public final fun getCol ()I
+	public final fun getLine ()I
+}
+
+public abstract class com/pinterest/ktlint/rule/engine/api/KtlintSuppressionException : java/lang/RuntimeException {
+	public synthetic fun <init> (Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class com/pinterest/ktlint/rule/engine/api/KtlintSuppressionForFile : com/pinterest/ktlint/rule/engine/api/KtlintSuppression {
+	public fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;)V
+}
+
+public final class com/pinterest/ktlint/rule/engine/api/KtlintSuppressionNoElementFoundException : com/pinterest/ktlint/rule/engine/api/KtlintSuppressionException {
+	public fun <init> (Lcom/pinterest/ktlint/rule/engine/api/KtlintSuppressionAtOffset;)V
+}
+
+public final class com/pinterest/ktlint/rule/engine/api/KtlintSuppressionOutOfBoundsException : com/pinterest/ktlint/rule/engine/api/KtlintSuppressionException {
+	public fun <init> (Lcom/pinterest/ktlint/rule/engine/api/KtlintSuppressionAtOffset;)V
+}
+
 public final class com/pinterest/ktlint/rule/engine/api/LintError {
 	public fun <init> (IILcom/pinterest/ktlint/rule/engine/core/api/RuleId;Ljava/lang/String;Z)V
 	public fun equals (Ljava/lang/Object;)Z

@@ -220,4 +220,90 @@ class SpacingBetweenDeclarationsWithAnnotationsRuleTest {
             """.trimIndent()
         spacingBetweenDeclarationsWithAnnotationsRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 2416 - Given a declaration followed by an EOL comment and other annotated declaration`() {
+        val code =
+            """
+            fun foobar() {
+                val bar = "bar"
+                // Some comment
+                @Suppress("unused")
+                val foo  = "foo"
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foobar() {
+                val bar = "bar"
+
+                // Some comment
+                @Suppress("unused")
+                val foo  = "foo"
+            }
+            """.trimIndent()
+        spacingBetweenDeclarationsWithAnnotationsRuleAssertThat(code)
+            .hasLintViolation(3, 1, "Declarations and declarations with annotations should have an empty space between.")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 2416 - Given a declaration followed by a block comment and other annotated declaration`() {
+        val code =
+            """
+            fun foobar() {
+                val bar = "bar"
+                /*
+                 * Some comment
+                 */
+                @Suppress("unused")
+                val foo  = "foo"
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foobar() {
+                val bar = "bar"
+
+                /*
+                 * Some comment
+                 */
+                @Suppress("unused")
+                val foo  = "foo"
+            }
+            """.trimIndent()
+        spacingBetweenDeclarationsWithAnnotationsRuleAssertThat(code)
+            .hasLintViolation(3, 1, "Declarations and declarations with annotations should have an empty space between.")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 2416 - Given a declaration followed by a KDoc and other annotated declaration`() {
+        val code =
+            """
+            fun foobar() {
+                val bar = "bar"
+                /**
+                 * Some comment
+                 */
+                @Suppress("unused")
+                val foo  = "foo"
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foobar() {
+                val bar = "bar"
+
+                /**
+                 * Some comment
+                 */
+                @Suppress("unused")
+                val foo  = "foo"
+            }
+            """.trimIndent()
+        spacingBetweenDeclarationsWithAnnotationsRuleAssertThat(code)
+            .hasLintViolation(3, 1, "Declarations and declarations with annotations should have an empty space between.")
+            .isFormattedAs(formattedCode)
+    }
 }

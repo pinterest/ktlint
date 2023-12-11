@@ -678,4 +678,30 @@ class MultiLineIfElseRuleTest {
                 LintViolation(1, 53, "Missing { ... }"),
             ).isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Issue 2420 - Given a single line else-if`() {
+        val code =
+            """
+            fun foo() {
+                if (foo) {
+                    doFoo()
+                } else if (bar) doBar()
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo() {
+                if (foo) {
+                    doFoo()
+                } else if (bar) {
+                    doBar()
+                }
+            }
+            """.trimIndent()
+        multiLineIfElseRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(4, 21, "Missing { ... }"),
+            ).isFormattedAs(formattedCode)
+    }
 }

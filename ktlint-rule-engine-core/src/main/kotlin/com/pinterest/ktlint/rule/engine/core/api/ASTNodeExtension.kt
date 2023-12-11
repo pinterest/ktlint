@@ -487,3 +487,12 @@ public fun ASTNode.hasModifier(iElementType: IElementType): Boolean =
         ?.children()
         .orEmpty()
         .any { it.elementType == iElementType }
+
+public fun ASTNode.replaceWith(node: ASTNode) {
+    treeParent.addChild(node, this)
+    this.remove()
+}
+
+public fun ASTNode.remove() {
+    treeParent.removeChild(this)
+}
