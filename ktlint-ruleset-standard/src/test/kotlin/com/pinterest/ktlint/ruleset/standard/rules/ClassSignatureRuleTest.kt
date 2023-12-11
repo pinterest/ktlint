@@ -1723,6 +1723,17 @@ class ClassSignatureRuleTest {
             .hasNoLintViolations()
     }
 
+    @Test
+    fun `Issue 2425 - Given an expected annotation class then the empty constructor may not be removed`() {
+        val code =
+            """
+            @OptIn(ExperimentalMultiplatform::class)
+            expect annotation class Parcelize()
+            """.trimIndent()
+        classSignatureWrappingRuleAssertThat(code)
+            .hasNoLintViolations()
+    }
+
     private companion object {
         const val UNEXPECTED_SPACES = "  "
         const val NO_SPACE = ""

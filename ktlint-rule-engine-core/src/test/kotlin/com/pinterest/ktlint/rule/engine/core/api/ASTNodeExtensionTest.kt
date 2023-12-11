@@ -12,6 +12,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.PRIVATE_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
@@ -801,6 +802,51 @@ class ASTNodeExtensionTest {
                 .text
 
         assertThat(actual).contains(code)
+    }
+
+    @Nested
+    inner class HasModifier {
+        @Test
+        fun `Given a node having the specified modifier then return true`() {
+            val code =
+                """
+                private fun foo() = 42
+                """.trimIndent()
+            val actual =
+                transformCodeToAST(code)
+                    .findChildByType(FUN)
+                    ?.hasModifier(PRIVATE_KEYWORD)
+
+            assertThat(actual).isTrue()
+        }
+
+        @Test
+        fun `Given a node having a modifier list but not having the specified modifier then return false`() {
+            val code =
+                """
+                internal fun foo() = 42
+                """.trimIndent()
+            val actual =
+                transformCodeToAST(code)
+                    .findChildByType(FUN)
+                    ?.hasModifier(PRIVATE_KEYWORD)
+
+            assertThat(actual).isFalse()
+        }
+
+        @Test
+        fun `Given a node not having a modifier list then return false`() {
+            val code =
+                """
+                fun foo() = 42
+                """.trimIndent()
+            val actual =
+                transformCodeToAST(code)
+                    .findChildByType(FUN)
+                    ?.hasModifier(PRIVATE_KEYWORD)
+
+            assertThat(actual).isFalse()
+        }
     }
 
     private inline fun String.transformAst(block: FileASTNode.() -> Unit): FileASTNode =
