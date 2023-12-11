@@ -27,7 +27,7 @@ class MaxLineLengthRuleTest {
             .setMaxLineLength()
             .hasLintViolationsWithoutAutoCorrect(
                 LintViolation(2, 47, "Exceeded max line length (46)"),
-                LintViolation(3, 61, "Exceeded max line length (46)"),
+                LintViolation(3, 47, "Exceeded max line length (46)"),
                 LintViolation(5, 47, "Exceeded max line length (46)"),
             )
     }
@@ -159,7 +159,7 @@ class MaxLineLengthRuleTest {
                 .withEditorConfigOverride(IGNORE_BACKTICKED_IDENTIFIER_PROPERTY to true)
                 .hasLintViolationsWithoutAutoCorrect(
                     // Note that no error was generated on line 2 with the long fun name but on another line
-                    LintViolation(3, 91, "Exceeded max line length (37)"),
+                    LintViolation(3, 38, "Exceeded max line length (37)"),
                     LintViolation(4, 38, "Exceeded max line length (37)"),
                 )
         }
