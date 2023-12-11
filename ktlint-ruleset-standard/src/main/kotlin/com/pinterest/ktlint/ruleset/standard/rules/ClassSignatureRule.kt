@@ -8,6 +8,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONSTRUCTOR_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.EXPECT_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PRIMARY_CONSTRUCTOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
@@ -34,6 +35,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY_OFF
+import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
@@ -259,7 +261,10 @@ public class ClassSignatureRule :
         var whiteSpaceCorrection = 0
 
         node
-            .getPrimaryConstructorParameterListOrNull()
+            .takeUnless {
+                // https://kotlinlang.org/docs/multiplatform-expect-actual.html#rules-for-expected-and-actual-declarations
+                it.hasModifier(EXPECT_KEYWORD)
+            }?.getPrimaryConstructorParameterListOrNull()
             ?.takeUnless { it.containsComment() }
             ?.takeUnless {
                 // Allow:

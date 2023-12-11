@@ -482,6 +482,12 @@ public fun ASTNode.betweenCodeSiblings(
     beforeElementType: IElementType,
 ): Boolean = afterCodeSibling(afterElementType) && beforeCodeSibling(beforeElementType)
 
+public fun ASTNode.hasModifier(iElementType: IElementType): Boolean =
+    findChildByType(ElementType.MODIFIER_LIST)
+        ?.children()
+        .orEmpty()
+        .any { it.elementType == iElementType }
+
 public fun ASTNode.replaceWith(node: ASTNode) {
     treeParent.addChild(node, this)
     this.remove()
