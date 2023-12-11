@@ -210,4 +210,29 @@ class TryCatchFinallySpacingRuleTest {
                 ).isFormattedAs(formattedCode)
         }
     }
+
+    @Test
+    fun `Issue 2427 - Given a try-catch with a comment at an unexpected location`() {
+        val code =
+            """
+            fun foo() {
+                try {
+                    trySomething()
+                } // Unexpected comment
+                catch (e: IOException) {
+                    catchSomething()
+                } // Unexpected comment
+                finally {
+                    finallySomething()
+                }
+            }
+            """.trimIndent()
+        tryCatchRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(4, 7, "No comment expected at this location", false),
+                LintViolation(5, 5, "A single space is required before 'catch'"),
+                LintViolation(7, 7, "No comment expected at this location", false),
+                LintViolation(8, 5, "A single space is required before 'finally'"),
+            )
+    }
 }
