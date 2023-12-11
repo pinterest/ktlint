@@ -195,6 +195,9 @@ Rewrites the function signature to a single line when possible (e.g. when not ex
 
 In `ktlint-official` code style, a function signature is always rewritten to a multiline signature in case the function has 2 or more parameters. This number of parameters can be set via `.editorconfig` property `ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than`.
 
+!!! note
+    Wrapping of parameters is also influenced by the `parameter-list-wrapping` rule.
+
 === "[:material-heart:](#) Ktlint"
 
     ```kotlin
@@ -2276,7 +2279,10 @@ Rule id: `multiline-expression-wrapping` (`standard` rule set)
 
 ### Parameter list wrapping
 
-When class/function signature doesn't fit on a single line, each parameter must be on a separate line
+When class/function signature doesn't fit on a single line, each parameter must be on a separate line.
+
+!!! Note
+    Wrapping of parameters is also influenced by the `function-signature` rule.
 
 === "[:material-heart:](#) Ktlint"
 
