@@ -481,3 +481,12 @@ public fun ASTNode.betweenCodeSiblings(
     afterElementType: IElementType,
     beforeElementType: IElementType,
 ): Boolean = afterCodeSibling(afterElementType) && beforeCodeSibling(beforeElementType)
+
+public fun ASTNode.replaceWith(node: ASTNode) {
+    treeParent.addChild(node, this)
+    this.remove()
+}
+
+public fun ASTNode.remove() {
+    treeParent.removeChild(this)
+}

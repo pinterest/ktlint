@@ -46,7 +46,7 @@ class KtlintSuppressionRuleTest {
                 @file:Suppress("ktlint:standard:bar", "ktlint:standard:foo", "ktlint:custom:foo")
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
-                .hasLintViolation(1, 24, "Identifier to suppress ktlint rule must be fully qualified with the rule set id")
+                .hasLintViolation(1, 17, "Identifier to suppress ktlint rule must be fully qualified with the rule set id")
                 .isFormattedAs(formattedCode)
         }
 
@@ -61,7 +61,7 @@ class KtlintSuppressionRuleTest {
                 @file:SuppressWarnings("ktlint:standard:bar", "ktlint:standard:foo", "ktlint:custom:foo")
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
-                .hasLintViolation(1, 32, "Identifier to suppress ktlint rule must be fully qualified with the rule set id")
+                .hasLintViolation(1, 25, "Identifier to suppress ktlint rule must be fully qualified with the rule set id")
                 .isFormattedAs(formattedCode)
         }
 
@@ -77,8 +77,8 @@ class KtlintSuppressionRuleTest {
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
                 .hasLintViolations(
-                    LintViolation(1, 25, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
-                    LintViolation(1, 77, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
+                    LintViolation(1, 18, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
+                    LintViolation(1, 70, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -96,8 +96,8 @@ class KtlintSuppressionRuleTest {
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
                 .hasLintViolations(
-                    LintViolation(1, 20, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
-                    LintViolation(1, 72, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
+                    LintViolation(1, 13, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
+                    LintViolation(1, 65, "Identifier to suppress ktlint rule must be fully qualified with the rule set id"),
                 ).isFormattedAs(formattedCode)
         }
 
@@ -114,7 +114,7 @@ class KtlintSuppressionRuleTest {
                 val foo = "foo"
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
-                .hasLintViolation(1, 35, "Identifier to suppress ktlint rule must be fully qualified with the rule set id")
+                .hasLintViolation(1, 28, "Identifier to suppress ktlint rule must be fully qualified with the rule set id")
                 .isFormattedAs(formattedCode)
         }
 
@@ -131,7 +131,7 @@ class KtlintSuppressionRuleTest {
                 val foo = "foo"
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
-                .hasLintViolation(1, 28, "Identifier to suppress ktlint rule must be fully qualified with the rule set id")
+                .hasLintViolation(1, 21, "Identifier to suppress ktlint rule must be fully qualified with the rule set id")
                 .isFormattedAs(formattedCode)
         }
 
@@ -148,7 +148,7 @@ class KtlintSuppressionRuleTest {
                 val foo = "foo"
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
-                .hasLintViolation(1, 19, "Identifier to suppress ktlint rule must be fully qualified with the rule set id")
+                .hasLintViolation(1, 12, "Identifier to suppress ktlint rule must be fully qualified with the rule set id")
                 .isFormattedAs(formattedCode)
         }
 
@@ -165,7 +165,7 @@ class KtlintSuppressionRuleTest {
                 val foo = "foo"
                 """.trimIndent()
             ktlintSuppressionRuleAssertThat(code)
-                .hasLintViolation(1, 27, "Identifier to suppress ktlint rule must be fully qualified with the rule set id")
+                .hasLintViolation(1, 20, "Identifier to suppress ktlint rule must be fully qualified with the rule set id")
                 .isFormattedAs(formattedCode)
         }
     }
@@ -987,7 +987,7 @@ class KtlintSuppressionRuleTest {
     @Nested
     inner class `Given ktlint-disable directive in block comment not having a ktlint-enable directive in a sibling in the same parent node` {
         @Test
-        fun `G1iven a ktlint-disable directive root level not related to an declaration or expression then move to @file annotation`() {
+        fun `Given a ktlint-disable directive root level not related to an declaration or expression then move to @file annotation`() {
             val code =
                 """
                 /* ktlint-disable standard:foo */
@@ -1103,8 +1103,8 @@ class KtlintSuppressionRuleTest {
             """.trimIndent()
         ktlintSuppressionRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(1, 24, "Ktlint rule with id 'ktlint:standard:SOME-INVALID-RULE-ID-1' is unknown or not loaded", false),
-                LintViolation(3, 19, "Ktlint rule with id 'ktlint:standard:SOME-INVALID-RULE-ID-2' is unknown or not loaded", false),
+                LintViolation(1, 17, "Ktlint rule with id 'ktlint:standard:SOME-INVALID-RULE-ID-1' is unknown or not loaded", false),
+                LintViolation(3, 12, "Ktlint rule with id 'ktlint:standard:SOME-INVALID-RULE-ID-2' is unknown or not loaded", false),
                 LintViolation(5, 8, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
                 LintViolation(5, 23, "Ktlint rule with id 'standard:SOME-INVALID-RULE-ID-3' is unknown or not loaded", false),
                 LintViolation(7, 28, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
@@ -1184,7 +1184,7 @@ class KtlintSuppressionRuleTest {
     }
 
     @Test
-    fun `Given a class parameter with multiple ktlint directives`() {
+    fun `Given a class with a single parameter wrapped between ktlint disable and ktlint enable directives`() {
         val code =
             """
             class Foo(
@@ -1195,8 +1195,8 @@ class KtlintSuppressionRuleTest {
             """.trimIndent()
         val formattedCode =
             """
-            @Suppress("ktlint:standard:bar", "ktlint:standard:foo")
             class Foo(
+                @Suppress("ktlint:standard:bar", "ktlint:standard:foo")
                 val bar: Bar
             )
             """.trimIndent()
@@ -1204,6 +1204,32 @@ class KtlintSuppressionRuleTest {
             .hasLintViolations(
                 LintViolation(2, 8, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
                 LintViolation(4, 8, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations"),
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a class with multiple parameters wrapped between ktlint disable and ktlint enable directives`() {
+        val code =
+            """
+            class Foo(
+                /* ktlint-disable standard:bar standard:foo */
+                val bar1: Bar,
+                val bar2: Bar,
+                /* ktlint-enable standard:bar standard:foo */
+            )
+            """.trimIndent()
+        val formattedCode =
+            """
+            @Suppress("ktlint:standard:bar", "ktlint:standard:foo")
+            class Foo(
+                val bar1: Bar,
+                val bar2: Bar,
+            )
+            """.trimIndent()
+        ktlintSuppressionRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 8, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
+                LintViolation(5, 8, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -1344,12 +1370,12 @@ class KtlintSuppressionRuleTest {
             """
             // $MAX_LINE_LENGTH_MARKER                          $EOL_CHAR
             fun optionalInputTestArguments(): Stream<Arguments> =
-                @Suppress("ktlint")
                 Stream.of(
                     Arguments.of(
                         "foo",
                         "bar"
                     ),
+                    @Suppress("ktlint")
                     Arguments.of("fooooooooooooooooooooooo","bar"),
                 )
             """.trimIndent()
