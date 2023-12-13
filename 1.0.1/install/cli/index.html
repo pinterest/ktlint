@@ -1445,8 +1445,8 @@ You're not viewing the latest version.
 
   <h1>Command line</h1>
 
-<div class="admonition note command line usage">
-<p class="admonition-title">Note</p>
+<div class="admonition note">
+<p class="admonition-title">Command Line usage</p>
 <p>If you don't plan to use <code>ktlint</code>'s command line interface then you can skip this section.</p>
 </div>
 <h2 id="download-and-verification">Download and verification<a class="headerlink" href="#download-and-verification" title="Permanent link">&para;</a></h2>
@@ -1543,8 +1543,10 @@ If you are behind a proxy see - <a href="https://curl.haxx.se/docs/manpage.html#
 <p>Use command below, to specify a default <code>editorconfig</code>. In case a property is not defined in any <code>.editorconfig</code> file on the path to the file, the value from the default file is used. The path may point to any valid file or directory. The path can be relative or absolute. Depending on your OS, the "~" at the beginning of a path is replaced by the user home directory.</p>
 <div class="highlight"><span class="filename">Override '.editorconfig'</span><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>ktlint<span class="w"> </span>--editorconfig<span class="o">=</span>/path/to/.editorconfig
 </code></pre></div>
-<p>!!! warning "Overrides '.editorconfig' in project directory" in KtLint 0.46 and older
-    When specifying this option using ktlint 0.46 or older, all <code>.editorconfig</code> files in the project directory are being ignored. Starting from KtLint 0.47 the properties in this file are used as fallback.</p>
+<div class="admonition warning">
+<p class="admonition-title">Overrides '.editorconfig' in project directory" in KtLint 0.46 and older</p>
+<p>When specifying this option using ktlint 0.46 or older, all <code>.editorconfig</code> files in the project directory are being ignored. Starting from KtLint 0.47 the properties in this file are used as fallback.</p>
+</div>
 <h3 id="stdin-stdout">Stdin &amp;&amp; stdout<a class="headerlink" href="#stdin-stdout" title="Permanent link">&para;</a></h3>
 <p>With command below, the input is read from <code>stdin</code> and the violations are printed to <code>stderr</code>. Logging is written to <code>stdout</code>.</p>
 <div class="highlight"><span class="filename">Lint from stdin</span><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>ktlint<span class="w"> </span>--stdin
@@ -1552,8 +1554,8 @@ If you are behind a proxy see - <a href="https://curl.haxx.se/docs/manpage.html#
 <p>When combined with the <code>--format</code> option, the formatted code is written to <code>stdout</code> and the violations are printed to <code>stderr</code>:</p>
 <div class="highlight"><span class="filename">Format from stdin and write to stdout</span><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>ktlint<span class="w"> </span>--stdin<span class="w"> </span>-F
 </code></pre></div>
-<div class="admonition tip suppress logging and error output">
-<p class="admonition-title">Tip</p>
+<div class="admonition tip">
+<p class="admonition-title">Suppress logging and error output</p>
 <p>Logging output printed to <code>stdout</code> can be suppressed by setting <code>--log-level=none</code> (see <a href="#logging">logging</a>).
 Output printed to <code>stderr</code> can be suppressed in different ways. To ignore all error output, add <code>2&gt; /dev/null</code> to the end of the command line. Otherwise, specify a <a href="#violation-reporting">reporter</a> to write the error output to a file.</p>
 </div>
