@@ -1,4 +1,4 @@
-!!! note Command Line usage
+!!! note "Command Line usage"
     If you don't plan to use `ktlint`'s command line interface then you can skip this section.
 
 ## Download and verification
@@ -156,7 +156,7 @@ Use command below, to specify a default `editorconfig`. In case a property is no
 ktlint --editorconfig=/path/to/.editorconfig
 ```
 
-!!! warning "Overrides '.editorconfig' in project directory" in KtLint 0.46 and older
+!!! warning "Overrides '.editorconfig' in project directory" in KtLint 0.46 and older"
     When specifying this option using ktlint 0.46 or older, all `.editorconfig` files in the project directory are being ignored. Starting from KtLint 0.47 the properties in this file are used as fallback.
 
 ### Stdin && stdout
@@ -173,7 +173,7 @@ When combined with the `--format` option, the formatted code is written to `stdo
 ktlint --stdin -F
 ```
 
-!!! tip Suppress logging and error output
+!!! tip "Suppress logging and error output"
     Logging output printed to `stdout` can be suppressed by setting `--log-level=none` (see [logging](#logging)).
     Output printed to `stderr` can be suppressed in different ways. To ignore all error output, add `2> /dev/null` to the end of the command line. Otherwise, specify a [reporter](#violation-reporting) to write the error output to a file.
 
