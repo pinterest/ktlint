@@ -143,8 +143,6 @@ A scaffold of the `.editorconfig file` can be generated with command below. Note
 ```shell title="Generate .editorconfig"
 ktlint generateEditorConfig
 # or
-ktlint generateEditorConfig
-# or
 ktlint --ruleset=/path/to/custom-ruleset.jar generateEditorConfig
 ```
 
