@@ -141,11 +141,12 @@ Some rules can be tweaked via the [`editorconfig file`](../../rules/configuratio
 A scaffold of the `.editorconfig` file can be generated with command below. Note: that the generated file only contains configuration settings which are actively used by the [rules which are loaded](#rule-sets):
 
 ```shell title="Generate .editorconfig"
-ktlint generateEditorConfig ktlint_official
+# By default use ktlint_official
+ktlint generateEditorConfig
 # or
-ktlint generateEditorConfig ktlint_official
+ktlint generateEditorConfig intellij_idea
 # or
-ktlint --ruleset=/path/to/custom-ruleset.jar generateEditorConfig  ktlint_official
+ktlint --ruleset=/path/to/custom-ruleset.jar generateEditorConfig android_studio
 ```
 
 Normally the `.editorconfig` file is located in the root of your project directory. In case the file is located in a sub folder of the project, the settings of that file only applies to that subdirectory and its folders (recursively). Ktlint automatically detects and reads all `.editorconfig` files in your project.
