@@ -42,6 +42,7 @@ internal object SuppressionLocatorBuilder {
             "FunctionName" to "standard:function-naming",
             "PackageName" to "standard:package-name",
             "PropertyName" to "standard:property-naming",
+            "ConstPropertyName" to "standard:property-naming",
             "UnusedImport" to "standard:no-unused-imports",
         )
     private val SUPPRESS_ANNOTATIONS = setOf("Suppress", "SuppressWarnings")

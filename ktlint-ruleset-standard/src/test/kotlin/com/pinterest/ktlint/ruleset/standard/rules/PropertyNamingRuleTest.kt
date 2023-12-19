@@ -416,4 +416,30 @@ class PropertyNamingRuleTest {
                 LintViolation(12, 9, "Backing property name not allowed when 'private' modifier is missing", canBeAutoCorrected = false),
             )
     }
+
+    @Test
+    fun `Given a property name suppressed via 'PropertyName' then also suppress the ktlint violation`() {
+        val code =
+            """
+            class Foo {
+                @Suppress("PropertyName")
+                var FOO = "foo"
+            }
+            """.trimIndent()
+        propertyNamingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 2441 - Given a property name suppressed via 'ConstPropertyName' then also suppress the ktlint violation`() {
+        val code =
+            """
+            interface Bar {
+                companion object {
+                    @Suppress("ConstPropertyName")
+                    const val bar: String = ""
+                }
+            }
+            """.trimIndent()
+        propertyNamingRuleAssertThat(code).hasNoLintViolations()
+    }
 }
