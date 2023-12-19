@@ -2,22 +2,111 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [1.1.0] - 2023-12-19
 
-### Added
+### 🆕 Features
 
-* Add `.editorconfig` property `ktlint_function_naming_ignore_when_annotated_with` so that rule `function-naming` can be ignored based on annotations on that rule. See [function-naming](https://pinterest.github.io/ktlint/1.0.1/rules/standard/#function-naming).
-* Add new experimental rule `multiline-loop` rule - [#2298](https://github.com/pinterest/ktlint/pull/2298), by @hendraanggrian
+* Compile with java 21 instead of 20 - [#2320](https://github.com/pinterest/ktlint/pull/2320), by @paul-dingemans
 
-### Removed
+* Improve checking on backing property - [#2346](https://github.com/pinterest/ktlint/pull/2346), by @paul-dingemans
 
-* Remove obsolete idea configuration files [#2249](https://github.com/pinterest/ktlint/issues/2249)
+* Add multiline-loop to complement multiline-if-else - [#2298](https://github.com/pinterest/ktlint/pull/2298), by @hendraanggrian
 
-### Fixed
+* Add "UnusedImport" as @Suppress alias - [#2357](https://github.com/pinterest/ktlint/pull/2357), by @paul-dingemans
 
-### Changed
+* Allow backing property to be correlated to a public function - [#2356](https://github.com/pinterest/ktlint/pull/2356), by @paul-dingemans
 
-* Use Java 21 for compilation [#2319](https://github.com/pinterest/ktlint/issues/2319)
+* Add helper function 'fromSnippetWithPath' to create a Code instance - [#2359](https://github.com/pinterest/ktlint/pull/2359), by @paul-dingemans
+
+* Support logging and exception throwing when loading baseline - [#2362](https://github.com/pinterest/ktlint/pull/2362), by @paul-dingemans
+
+* Allow factory methods to use generics, and to overload other factory … - [#2366](https://github.com/pinterest/ktlint/pull/2366), by @paul-dingemans
+
+* Remove dependencies on discouraged-comment-location rule - [#2371](https://github.com/pinterest/ktlint/pull/2371), by @paul-dingemans
+
+* Ignore imports for `rangeUntil` in `no-unused-imports` rule - [#2376](https://github.com/pinterest/ktlint/pull/2376), by @paul-dingemans
+
+* Ignore imports for `assign` in `no-unused-imports` rule - [#2382](https://github.com/pinterest/ktlint/pull/2382), by @paul-dingemans
+
+* Ignore invalid function names when importing from "junit.framework" - [#2386](https://github.com/pinterest/ktlint/pull/2386), by @paul-dingemans
+
+* Add experimental rules `condition-wrapping` and `mixed-condition-operators` - [#2401](https://github.com/pinterest/ktlint/pull/2401), by @paul-dingemans
+
+* Allow property, function and class name to be same as keyword wrapped with backticks - [#2405](https://github.com/pinterest/ktlint/pull/2405), by @paul-dingemans
+
+* Set offset of `max-line-length` violation to the last position at which a newline can be inserted to fix the violation - [#2419](https://github.com/pinterest/ktlint/pull/2419), by @paul-dingemans
+
+* Add support for API Consumers to add suppressions - [#2428](https://github.com/pinterest/ktlint/pull/2428), by @paul-dingemans
+
+* Disallow `else-if (..) <statement>` as single line construct - [#2430](https://github.com/pinterest/ktlint/pull/2430), by @paul-dingemans
+
+* Allow empty constructor for expected class declaration - [#2431](https://github.com/pinterest/ktlint/pull/2431), by @paul-dingemans
+
+* Disallow comments in try-catch-finally at unexpected locations - [#2432](https://github.com/pinterest/ktlint/pull/2432), by @paul-dingemans
+
+* Make ktlint.bat more environment agnostic - [#2421](https://github.com/pinterest/ktlint/pull/2421), by @TWiStErRob
+
+* Suppress property-naming rule via `@Suppress("ConstPropertyName")` - [#2442](https://github.com/pinterest/ktlint/pull/2442), by @paul-dingemans
+
+### 🔧 Fixes
+
+
+* Remove obsolete configuration files - [#2321](https://github.com/pinterest/ktlint/pull/2321), by @paul-dingemans
+
+* De-indent the closing angle bracket of the type argument list and type parameter lists in ktlint_official code style - [#2302](https://github.com/pinterest/ktlint/pull/2302), by @paul-dingemans
+
+* docs: Fix artifact url of Maven Central Badge - [#2327](https://github.com/pinterest/ktlint/pull/2327), by @guicamest
+
+* Remove redundant arrow in function literal without parameters / fix documentation - [#2365](https://github.com/pinterest/ktlint/pull/2365), by @paul-dingemans
+
+* Move curly brace before all consecutive comments preceding that curly brace - [#2375](https://github.com/pinterest/ktlint/pull/2375), by @paul-dingemans
+
+* Prevent stack overflow exception when code provided via stdin can not be parsed as Kotlin, nor Kotlin script - [#2380](https://github.com/pinterest/ktlint/pull/2380), by @paul-dingemans
+
+* Fix searching from inside a hidden directory - [#2377](https://github.com/pinterest/ktlint/pull/2377), by @kitterion
+
+* Prevent unwanted joining of KDoc with preceding type-parameter-list - [#2381](https://github.com/pinterest/ktlint/pull/2381), by @paul-dingemans
+
+* Fix false positive violation in `annotation` rule - [#2400](https://github.com/pinterest/ktlint/pull/2400), by @paul-dingemans
+
+* Replace all function bodies with body expressions in a single run - [#2395](https://github.com/pinterest/ktlint/pull/2395), by @paul-dingemans
+
+* Fix offset for violation when final newline is missing - [#2407](https://github.com/pinterest/ktlint/pull/2407), by @paul-dingemans
+
+* Fix path to ktlint JAR file in `ktlint.bat` - [#2408](https://github.com/pinterest/ktlint/pull/2408), by @paul-dingemans
+
+* Simplify `max-line-length` implementation - [#2410](https://github.com/pinterest/ktlint/pull/2410), by @paul-dingemans
+
+* Remove deprecated cli parameters `--experimental`, `--code-style`, `--disabled-rules` - [#2411](https://github.com/pinterest/ktlint/pull/2411), by @paul-dingemans
+
+* Fix adding blank line between declaration and an annotated declaration which is preceded by comment - [#2429](https://github.com/pinterest/ktlint/pull/2429), by @paul-dingemans
+
+* Update CODE_OF_CONDUCT with correct path - [#2437](https://github.com/pinterest/ktlint/pull/2437), by @OriginalMHV
+
+### 📦 Dependencies
+
+
+* fix(deps): update dependency org.jetbrains.dokka:dokka-gradle-plugin to v1.9.10 - [#2323](https://github.com/pinterest/ktlint/pull/2323), by @renovate[bot]
+
+* fix(deps): update dependency org.junit.jupiter:junit-jupiter to v5.10.1 - [#2342](https://github.com/pinterest/ktlint/pull/2342), by @renovate[bot]
+
+* fix(deps): update kotlin monorepo to v1.9.21 - [#2374](https://github.com/pinterest/ktlint/pull/2374), by @renovate[bot]
+
+* fix(deps): update dependency org.codehaus.janino:janino to v3.1.11 - [#2387](https://github.com/pinterest/ktlint/pull/2387), by @renovate[bot]
+
+* fix(deps): update dependency dev.drewhamilton.poko:poko-gradle-plugin to v0.15.1 - [#2389](https://github.com/pinterest/ktlint/pull/2389), by @renovate[bot]
+
+* chore(deps): update dependency gradle to v8.5 - [#2392](https://github.com/pinterest/ktlint/pull/2392), by @renovate[bot]
+
+* chore(deps): update actions/checkout digest to b4ffde6 - [#2329](https://github.com/pinterest/ktlint/pull/2329), by @renovate[bot]
+
+* chore(deps): update actions/setup-java action to v4 - [#2393](https://github.com/pinterest/ktlint/pull/2393), by @renovate[bot]
+
+* fix(deps): update dependency ch.qos.logback:logback-classic to v1.3.14 - [#2406](https://github.com/pinterest/ktlint/pull/2406), by @renovate[bot]
+
+* fix(deps): update dependency io.github.hakky54:logcaptor to v2.9.2 - [#2409](https://github.com/pinterest/ktlint/pull/2409), by @renovate[bot]
+
+* fix(deps): update dependency io.github.oshai:kotlin-logging-jvm to v5.1.4 - [#2439](https://github.com/pinterest/ktlint/pull/2439), by @renovate[bot]
 
 ## [1.0.1] - 2023-10-13
 
@@ -2173,6 +2262,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[1.1.0]: https://github.com/pinterest/ktlint/compare/1.0.1...1.1.0
 [1.0.1]: https://github.com/pinterest/ktlint/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/pinterest/ktlint/compare/0.50.0...1.0.0
 [0.50.0]: https://github.com/pinterest/ktlint/compare/0.49.1...0.50.0
