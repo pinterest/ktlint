@@ -499,7 +499,7 @@ Enforce naming of property.
     }
     ```
 
-This rule can also be suppressed with the IntelliJ IDEA inspection suppression `PropertyName`.
+This rule can also be suppressed with the IntelliJ IDEA inspection suppression `PropertyName` or `ConstPropertyName`.
 
 Rule id: `property-naming` (`standard` rule set)
 
