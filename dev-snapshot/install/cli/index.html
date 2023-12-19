@@ -1537,12 +1537,10 @@ If you are behind a proxy see - <a href="https://curl.haxx.se/docs/manpage.html#
 <h3 id="rule-configuration-editorconfig">Rule configuration (<code>.editorconfig</code>)<a class="headerlink" href="#rule-configuration-editorconfig" title="Permanent link">&para;</a></h3>
 <p>Some rules can be tweaked via the <a href="../../rules/configuration-ktlint/"><code>editorconfig file</code></a>.</p>
 <p>A scaffold of the <code>.editorconfig</code> file can be generated with command below. Note: that the generated file only contains configuration settings which are actively used by the <a href="#rule-sets">rules which are loaded</a>:</p>
-<div class="highlight"><span class="filename">Generate .editorconfig</span><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># By default use ktlint_official</span>
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>ktlint<span class="w"> </span>generateEditorConfig
+<div class="highlight"><span class="filename">Generate .editorconfig</span><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># Specify the code style(ktlint_official, intellij_idea or android_studio) to be used when generating the .editorconfig</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>ktlint<span class="w"> </span>generateEditorConfig<span class="w"> </span>ktlint_official
 <a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="c1"># or</span>
-<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>ktlint<span class="w"> </span>generateEditorConfig<span class="w"> </span>intellij_idea
-<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="c1"># or</span>
-<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>ktlint<span class="w"> </span>--ruleset<span class="o">=</span>/path/to/custom-ruleset.jar<span class="w"> </span>generateEditorConfig<span class="w"> </span>android_studio
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>ktlint<span class="w"> </span>--ruleset<span class="o">=</span>/path/to/custom-ruleset.jar<span class="w"> </span>generateEditorConfig<span class="w"> </span>android_studio
 </code></pre></div>
 <p>Normally the <code>.editorconfig</code> file is located in the root of your project directory. In case the file is located in a sub folder of the project, the settings of that file only applies to that subdirectory and its folders (recursively). Ktlint automatically detects and reads all <code>.editorconfig</code> files in your project.</p>
 <p>Use command below, to specify a default <code>editorconfig</code>. In case a property is not defined in any <code>.editorconfig</code> file on the path to the file, the value from the default file is used. The path may point to any valid file or directory. The path can be relative or absolute. Depending on your OS, the "~" at the beginning of a path is replaced by the user home directory.</p>
