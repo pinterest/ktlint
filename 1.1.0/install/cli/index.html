@@ -1454,7 +1454,7 @@ You're not viewing the latest version.
 <p>All releases of <code>ktlint</code> can be downloaded from the <a href="https://github.com/pinterest/ktlint/releases">releases</a> page.</p>
 <h3 id="download-using-curl">Download using curl<a class="headerlink" href="#download-using-curl" title="Permanent link">&para;</a></h3>
 <p>A particular version of <code>ktlint</code> can be downloaded with next command which also changes the file to an executable in directory <code>/usr/local/bin</code>:</p>
-<div class="highlight"><span class="filename">Download</span><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>curl<span class="w"> </span>-sSLO<span class="w"> </span>https://github.com/pinterest/ktlint/releases/download/1.0.1/ktlint<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>chmod<span class="w"> </span>a+x<span class="w"> </span>ktlint<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>sudo<span class="w"> </span>mv<span class="w"> </span>ktlint<span class="w"> </span>/usr/local/bin/
+<div class="highlight"><span class="filename">Download</span><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>curl<span class="w"> </span>-sSLO<span class="w"> </span>https://github.com/pinterest/ktlint/releases/download/1.1.0/ktlint<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>chmod<span class="w"> </span>a+x<span class="w"> </span>ktlint<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>sudo<span class="w"> </span>mv<span class="w"> </span>ktlint<span class="w"> </span>/usr/local/bin/
 </code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">Curl not installed or behind proxy</p>
@@ -1532,13 +1532,13 @@ If you are behind a proxy see - <a href="https://curl.haxx.se/docs/manpage.html#
 <p>By default, the <code>info</code> log level is used meaning that all log lines at level <code>info</code>, <code>warn</code> and <code>error</code> are shown while suppressing log lines at level <code>debug</code> or <code>trace</code>.</p>
 <h3 id="rule-configuration-editorconfig">Rule configuration (<code>.editorconfig</code>)<a class="headerlink" href="#rule-configuration-editorconfig" title="Permanent link">&para;</a></h3>
 <p>Some rules can be tweaked via the <a href="../../rules/configuration-ktlint/"><code>editorconfig file</code></a>.</p>
-<p>A scaffold of the <code>.editorconfig file</code> can be generated with command below. Note: that the generated file only contains configuration settings which are actively used by the <a href="#rule-sets">rules which are loaded</a>:</p>
+<p>A scaffold of the <code>.editorconfig</code> file can be generated with command below. Note: that the generated file only contains configuration settings which are actively used by the <a href="#rule-sets">rules which are loaded</a>:</p>
 <div class="highlight"><span class="filename">Generate .editorconfig</span><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># Specify the code style(ktlint_official, intellij_idea or android_studio) to be used when generating the .editorconfig</span>
 <a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>ktlint<span class="w"> </span>generateEditorConfig<span class="w"> </span>ktlint_official
 <a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="c1"># or</span>
 <a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>ktlint<span class="w"> </span>--ruleset<span class="o">=</span>/path/to/custom-ruleset.jar<span class="w"> </span>generateEditorConfig<span class="w"> </span>android_studio
 </code></pre></div>
-<p>Normally this file is located in the root of your project directory. In case the file is located in a sub folder of the project, the settings of that file only applies to that subdirectory and its folders (recursively). Ktlint automatically detects and reads all <code>.editorconfig</code> files in your project.</p>
+<p>Normally the <code>.editorconfig</code> file is located in the root of your project directory. In case the file is located in a sub folder of the project, the settings of that file only applies to that subdirectory and its folders (recursively). Ktlint automatically detects and reads all <code>.editorconfig</code> files in your project.</p>
 <p>Use command below, to specify a default <code>editorconfig</code>. In case a property is not defined in any <code>.editorconfig</code> file on the path to the file, the value from the default file is used. The path may point to any valid file or directory. The path can be relative or absolute. Depending on your OS, the "~" at the beginning of a path is replaced by the user home directory.</p>
 <div class="highlight"><span class="filename">Override '.editorconfig'</span><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>ktlint<span class="w"> </span>--editorconfig<span class="o">=</span>/path/to/.editorconfig
 </code></pre></div>
@@ -1576,7 +1576,7 @@ Options <code>--stdin</code> and <code>--patterns-from-stdin</code> are mutually
 <h3 id="microsoft-windows-users">Microsoft Windows users<a class="headerlink" href="#microsoft-windows-users" title="Permanent link">&para;</a></h3>
 <p>Microsoft Windows is not able to run the <code>ktlint</code> command directly. Ktlint can be run in following ways on Microsoft Windows:</p>
 <ol>
-<li>Use the <code>ktlint.bat</code> batch file provided as part of the <a href="https://github.com/pinterest/ktlint/releases/tag/1.0.1">release</a>. Add the batch file to your <code>%PATH%</code> environment variable for easy access</li>
+<li>Use the <code>ktlint.bat</code> batch file provided as part of the <a href="https://github.com/pinterest/ktlint/releases/tag/1.1.0">release</a>. Add the batch file to your <code>%PATH%</code> environment variable for easy access</li>
 <li>Run <code>ktlint</code> using Git Bash</li>
 <li>Run as <code>java -jar ktlint</code></li>
 </ol>
