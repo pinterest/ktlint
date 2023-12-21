@@ -12,7 +12,7 @@ All releases of `ktlint` can be downloaded from the [releases](https://github.co
 A particular version of `ktlint` can be downloaded with next command which also changes the file to an executable in directory `/usr/local/bin`:
 
 ```sh title="Download"
-curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.0.1/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
+curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.1.0/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
 ```
 
 !!! tip "Curl not installed or behind proxy"
@@ -138,7 +138,7 @@ By default, the `info` log level is used meaning that all log lines at level `in
 
 Some rules can be tweaked via the [`editorconfig file`](../../rules/configuration-ktlint/).
 
-A scaffold of the `.editorconfig file` can be generated with command below. Note: that the generated file only contains configuration settings which are actively used by the [rules which are loaded](#rule-sets):
+A scaffold of the `.editorconfig` file can be generated with command below. Note: that the generated file only contains configuration settings which are actively used by the [rules which are loaded](#rule-sets):
 
 ```shell title="Generate .editorconfig"
 # Specify the code style(ktlint_official, intellij_idea or android_studio) to be used when generating the .editorconfig
@@ -147,7 +147,7 @@ ktlint generateEditorConfig ktlint_official
 ktlint --ruleset=/path/to/custom-ruleset.jar generateEditorConfig android_studio
 ```
 
-Normally this file is located in the root of your project directory. In case the file is located in a sub folder of the project, the settings of that file only applies to that subdirectory and its folders (recursively). Ktlint automatically detects and reads all `.editorconfig` files in your project.
+Normally the `.editorconfig` file is located in the root of your project directory. In case the file is located in a sub folder of the project, the settings of that file only applies to that subdirectory and its folders (recursively). Ktlint automatically detects and reads all `.editorconfig` files in your project.
 
 Use command below, to specify a default `editorconfig`. In case a property is not defined in any `.editorconfig` file on the path to the file, the value from the default file is used. The path may point to any valid file or directory. The path can be relative or absolute. Depending on your OS, the "~" at the beginning of a path is replaced by the user home directory.
 
@@ -209,6 +209,6 @@ Options `--stdin` and `--patterns-from-stdin` are mutually exclusive, only one o
 
 Microsoft Windows is not able to run the `ktlint` command directly. Ktlint can be run in following ways on Microsoft Windows:
 
-1. Use the `ktlint.bat` batch file provided as part of the [release](https://github.com/pinterest/ktlint/releases/tag/1.0.1). Add the batch file to your `%PATH%` environment variable for easy access
+1. Use the `ktlint.bat` batch file provided as part of the [release](https://github.com/pinterest/ktlint/releases/tag/1.1.0). Add the batch file to your `%PATH%` environment variable for easy access
 2. Run `ktlint` using Git Bash
 3. Run as `java -jar ktlint`
