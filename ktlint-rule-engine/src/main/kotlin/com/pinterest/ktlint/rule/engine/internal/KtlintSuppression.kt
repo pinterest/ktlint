@@ -26,6 +26,7 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtAnnotatedExpression
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
+import org.jetbrains.kotlin.psi.KtBinaryExpression
 import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtClassInitializer
@@ -43,6 +44,7 @@ import org.jetbrains.kotlin.psi.KtPrimaryConstructor
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtPropertyAccessor
 import org.jetbrains.kotlin.psi.KtScript
+import org.jetbrains.kotlin.psi.KtScriptInitializer
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.psiUtil.children
 import org.jetbrains.kotlin.psi.psiUtil.findDescendantOfType
@@ -103,39 +105,47 @@ private fun ASTNode.findParentDeclarationOrExpression(forceFileAnnotation: Boole
         return this
     }
 
-    var targetNode = psi
+    var targetPsiElement = psi
+    var isAnnotationForBinaryExpression = false
     while (
         forceFileAnnotation ||
-        targetNode is KtClassInitializer ||
-        targetNode is KtBlockExpression ||
-        targetNode is KtPrimaryConstructor ||
-        targetNode is KtFunctionLiteral ||
-        targetNode is KtLambdaExpression ||
-        targetNode.parent is KtStringTemplateExpression ||
+        targetPsiElement is KtClassInitializer ||
+        targetPsiElement is KtBinaryExpression ||
+        targetPsiElement is KtBlockExpression ||
+        targetPsiElement is KtPrimaryConstructor ||
+        targetPsiElement is KtFunctionLiteral ||
+        targetPsiElement is KtLambdaExpression ||
+        targetPsiElement.parent is KtStringTemplateExpression ||
         (
-            targetNode is KtExpression &&
-                targetNode.parent is KtExpression &&
-                targetNode.parent !is KtBlockExpression &&
-                targetNode.parent !is KtDeclaration
+            targetPsiElement is KtExpression &&
+                targetPsiElement.parent is KtExpression &&
+                targetPsiElement.parent !is KtBlockExpression &&
+                targetPsiElement.parent !is KtDeclaration
         ) ||
-        (targetNode !is KtDeclaration && targetNode !is KtExpression)
+        (targetPsiElement !is KtDeclaration && targetPsiElement !is KtExpression)
     ) {
-        targetNode =
+        if (targetPsiElement is KtBinaryExpression) {
+            isAnnotationForBinaryExpression = true
+        }
+        targetPsiElement =
             when {
-                targetNode.parent == null -> {
+                targetPsiElement.parent == null -> {
                     // Prevents null pointer when already at a root node
-                    return targetNode.node
+                    return targetPsiElement.node
                 }
 
-                targetNode.node.elementType in listElementTypeTokenSet -> {
+                targetPsiElement.node.elementType in listElementTypeTokenSet && !isAnnotationForBinaryExpression -> {
                     // If a suppression is added to an inner element of a list element, then the annotation should be put on that element
-                    return targetNode.node
+                    // unless this is binary expression. Inserting the annotation on the root of the binary expression would result in
+                    // applying that annotation only on the left hand side of the root expression instead of on the entire binary
+                    // expression.
+                    return targetPsiElement.node
                 }
 
-                targetNode.isIgnorableListElement() -> {
+                targetPsiElement.isIgnorableListElement() -> {
                     // If a suppression is added on a direct child of the list type but not inside in a list element then the annotation is
                     // moved to the next list element. When no such element is found, it will be moved to the parent of the list type
-                    targetNode
+                    targetPsiElement
                         .node
                         .nextCodeSibling()
                         ?.firstChildLeafOrSelf()
@@ -143,11 +153,11 @@ private fun ASTNode.findParentDeclarationOrExpression(forceFileAnnotation: Boole
                 }
 
                 else -> {
-                    targetNode
+                    targetPsiElement
                 }
             }?.parent
     }
-    return targetNode.node
+    return targetPsiElement.node
 }
 
 private val listTypeTokenSet = TokenSet.create(TYPE_ARGUMENT_LIST, TYPE_PARAMETER_LIST, VALUE_ARGUMENT_LIST, VALUE_PARAMETER_LIST)
@@ -229,9 +239,9 @@ private fun ASTNode.suppressionAnnotationTypeOrNull() =
         ?.let { SuppressAnnotationType.findByIdOrNull(it) }
 
 private fun ASTNode.getValueArguments() =
-    findChildByType(ElementType.VALUE_ARGUMENT_LIST)
+    findChildByType(VALUE_ARGUMENT_LIST)
         ?.children()
-        ?.filter { it.elementType == ElementType.VALUE_ARGUMENT }
+        ?.filter { it.elementType == VALUE_ARGUMENT }
         ?.map { it.text }
         ?.toSet()
         .orEmpty()
@@ -363,15 +373,13 @@ private fun ASTNode.createAnnotatedExpression(
                 .getInstance(psi.project)
                 .createFileFromText(
                     KotlinLanguage.INSTANCE,
-                    // Create the annotation for a dummy declaration as the entire code block should be valid Kotlin code
                     """
-                    |fun foo() =
                     |${this.indent(false)}$annotation
                     |${this.indent(false)}${this.text}
                     """.trimMargin(),
                 ).getChildOfType<KtScript>()
                 ?.getChildOfType<KtBlockExpression>()
-                ?.getChildOfType<KtNamedFunction>()
+                ?.getChildOfType<KtScriptInitializer>()
                 ?.getChildOfType<KtAnnotatedExpression>()
                 ?: throw IllegalStateException("Can not create annotation '$annotation'")
         }
