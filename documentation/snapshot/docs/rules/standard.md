@@ -2041,14 +2041,15 @@ Disallows comments to be placed at certain locations inside a type argument (lis
         >
     ```
 
-Note: Although code sample below might look ok, it is semantically and programmatically unclear to which element `some comment 1` refers. As of that comments are only allowed when starting on a separate line. 
-```kotlin
-fun Foo<
-    out Bar1, // some comment 1
-    // some comment 2
-    out Bar2, // some comment
+!!! note
+    In some projects it is an accepted practice to use EOL comments to document the parameter *before* the comma as is shown below:
+    ```kotlin
+    fun Foo<
+        out Bar1, // some comment
+        out Bar2, // some other comment
     >.foo() {}
-```
+    ```
+    Although this code sample might look ok, it is semantically and programmatically unclear to which type `some comment` refers. From the developer perspective it might be clear that it belongs to type `Bar1`. From the parsers perspective, it does belong to type `Bar2`.
 
 Rule id: `type-argument-comment` (`standard` rule set)
 
@@ -2082,14 +2083,15 @@ Disallows comments to be placed at certain locations inside a type parameter (li
         >
     ```
 
-Note: Although code sample below might look ok, it is semantically and programmatically unclear to which element `some comment 1` refers. As of that comments are only allowed when starting on a separate line.
-```kotlin
-class Foo<
-    out Bar1, // some comment 1
-    // some comment 2
-    out Bar2, // some comment
+!!! note
+    In some projects it is an accepted practice to use EOL comments to document the parameter *before* the comma as is shown below:
+    ```kotlin
+    class Foo<
+        out Bar1, // some comment
+        out Bar2, // some other comment
     >
-```
+    ```
+   Although this code sample might look ok, it is semantically and programmatically unclear on which parameter `some comment` refers. From the developer perspective it might be clear that it belongs to type `Bar1`. From the parsers perspective, it does belong to type `Bar2`.
 
 Rule id: `type-parameter-comment` (`standard` rule set)
 
@@ -2142,14 +2144,15 @@ Disallows comments to be placed at certain locations inside a value argument (li
         )
     ```
 
-Note: Although code sample below might look ok, it is semantically and programmatically unclear to which element `some comment 1` refers. As of that comments are only allowed when starting on a separate line.
-```kotlin
-class Foo<
-    out Bar1, // some comment 1
-    // some comment 2
-    out Bar2, // some comment
-    >
-```
+!!! note
+    In a lot of projects it is an accepted practice to use EOL comments to document the parameter *before* the comma as is shown below:
+    ```kotlin
+    fun foo(
+        bar1: Bar1, // some comment
+        bar2: Bar2, // some other comment
+    )
+    ```
+    Although this code sample might look ok, it is semantically and programmatically unclear on which parameter `some comment` refers. From the developer perspective it might be clear that it belongs to parameter `bar1`. From the parsers perspective, it does belong to parameter `bar2`. This might lead to [unexpected behavior in Intellij IDEA](https://github.com/pinterest/ktlint/issues/2445#issuecomment-1863432022).
 
 Rule id: `value-argument-comment` (`standard` rule set)
 
@@ -2190,14 +2193,15 @@ Disallows comments to be placed at certain locations inside a value argument (li
     )
     ```
 
-Note: Although code sample below might look ok, it is semantically and programmatically unclear to which element `some comment 1` refers. As of that comments are only allowed when starting on a separate line.
-```kotlin
-class Foo(
-    bar: Bar1, // some comment 1
-    // some comment 2
-    bar2: Bar2, // some comment
-)
-```
+!!! note
+    In a lot of projects it is an accepted practice to use EOL comments to document the parameter *before* the comma as is shown below:
+    ```kotlin
+    class Foo(
+        bar1: Bar1, // some comment
+        bar2: Bar2, // some other comment
+    )
+    ```
+    Although this code sample might look ok, it is semantically and programmatically unclear on which parameter `some comment` refers. From the developer perspective it might be clear that it belongs to parameter `bar1`. From the parsers perspective, it does belong to parameter `bar2`. This might lead to [unexpected behavior in Intellij IDEA](https://github.com/pinterest/ktlint/issues/2445#issuecomment-1863432022).
 
 Rule id: `value-parameter-comment` (`standard` rule set)
 

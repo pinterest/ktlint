@@ -901,24 +901,22 @@ class ArgumentListWrappingRuleTest {
     }
 
     @Test
-    fun `Given a value argument with a disallowed comment`() {
+    fun `Issue 2445 - Given a value argument followed by EOL comment after comma`() {
         val code =
             """
-            // $MAX_LINE_LENGTH_MARKER                                     $EOL_CHAR
-            val foo = foo(bar = /* some disallowed comment location */ "bar")
-            """.trimIndent()
-        val formattedCode =
-            """
-            // $MAX_LINE_LENGTH_MARKER                                     $EOL_CHAR
             val foo = foo(
-                bar = /* some disallowed comment location */ "bar"
+                bar1 = "bar1", // some comment 1
+                bar2 = "bar2", // some comment 2
             )
             """.trimIndent()
         @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
         argumentListWrappingRuleAssertThat(code)
-            .setMaxLineLength()
-            .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to 1)
-            .hasLintViolationForAdditionalRule(2, 21, "A (block or EOL) comment inside or on same line after a 'value_argument' is not allowed. It may be placed on a separate line above.", false)
-            .isFormattedAs(formattedCode)
+            .addAdditionalRuleProvider { ValueArgumentCommentRule() }
+            .hasLintViolationsForAdditionalRule(
+                LintViolation(2, 20, "A comment in a 'value_argument_list' is only allowed when placed on a separate line", false),
+                LintViolation(3, 20, "A comment in a 'value_argument_list' is only allowed when placed on a separate line", false),
+            )
+        // When ValueArgumentCommentRule is not loaded or enabled
+        argumentListWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 }
