@@ -42,6 +42,7 @@ nav:
       - Features: index.md
       - Quick start: quick-start.md
   - Installation:
+    - Recommended setup: install/setup.md
     - Command line: install/cli.md
     - Integrations: install/integrations.md
 #    - API: install/api.md  TODO: properly document
