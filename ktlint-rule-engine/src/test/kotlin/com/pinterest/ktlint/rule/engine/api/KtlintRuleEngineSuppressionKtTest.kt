@@ -3,7 +3,9 @@ package com.pinterest.ktlint.rule.engine.api
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.ruleset.standard.rules.CONDITION_WRAPPING_RULE_ID
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -183,6 +185,94 @@ class KtlintRuleEngineSuppressionKtTest {
                 )
 
         assertThat(actual).isEqualTo(formattedCode)
+    }
+
+    @Nested
+    inner class `Issue 2462 - Given binary expression on which a suppression is added` {
+        @Test
+        fun `Given a value argument with a multiline condition to which a suppression is to be added`() {
+            val code =
+                """
+                fun foo() {
+                    require(
+                        true && false ||
+                            true,
+                    )
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun foo() {
+                    @Suppress("ktlint:standard:condition-wrapping")
+                    require(
+                        true && false ||
+                            true,
+                    )
+                }
+                """.trimIndent()
+            val actual =
+                ktLintRuleEngine
+                    .insertSuppression(
+                        Code.fromSnippet(code, false),
+                        KtlintSuppressionAtOffset(3, 17, CONDITION_WRAPPING_RULE_ID),
+                    )
+
+            assertThat(actual).isEqualTo(formattedCode)
+        }
+
+        @Test
+        fun `Given a property assignment with a multiline condition to which a suppression is to be added`() {
+            val code =
+                """
+                val bar =
+                    true && false ||
+                        true
+                """.trimIndent()
+            val formattedCode =
+                """
+                @Suppress("ktlint:standard:condition-wrapping")
+                val bar =
+                    true && false ||
+                        true
+                """.trimIndent()
+            val actual =
+                ktLintRuleEngine
+                    .insertSuppression(
+                        Code.fromSnippet(code, false),
+                        KtlintSuppressionAtOffset(2, 17, CONDITION_WRAPPING_RULE_ID),
+                    )
+
+            assertThat(actual).isEqualTo(formattedCode)
+        }
+
+        @Test
+        fun `Given an if statement with a multiline condition to which a suppression is to be added`() {
+            val code =
+                """
+                fun foo() {
+                    if (true && false ||
+                        true
+                    ) {}
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun foo() {
+                    @Suppress("ktlint:standard:condition-wrapping")
+                    if (true && false ||
+                        true
+                    ) {}
+                }
+                """.trimIndent()
+            val actual =
+                ktLintRuleEngine
+                    .insertSuppression(
+                        Code.fromSnippet(code, false),
+                        KtlintSuppressionAtOffset(2, 17, CONDITION_WRAPPING_RULE_ID),
+                    )
+
+            assertThat(actual).isEqualTo(formattedCode)
+        }
     }
 
     private companion object {
