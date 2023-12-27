@@ -4663,13 +4663,16 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 </div>
 </div>
 </div>
-<p>Note: Although code sample below might look ok, it is semantically and programmatically unclear to which element <code>some comment 1</code> refers. As of that comments are only allowed when starting on a separate line. 
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In some projects it is an accepted practice to use EOL comments to document the parameter <em>before</em> the comma as is shown below:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-139-1" name="__codelineno-139-1" href="#__codelineno-139-1"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">Foo</span><span class="o">&lt;</span>
-<a id="__codelineno-139-2" name="__codelineno-139-2" href="#__codelineno-139-2"></a><span class="w">    </span><span class="k">out</span><span class="w"> </span><span class="n">Bar1</span><span class="p">,</span><span class="w"> </span><span class="c1">// some comment 1</span>
-<a id="__codelineno-139-3" name="__codelineno-139-3" href="#__codelineno-139-3"></a><span class="w">    </span><span class="c1">// some comment 2</span>
-<a id="__codelineno-139-4" name="__codelineno-139-4" href="#__codelineno-139-4"></a><span class="w">    </span><span class="k">out</span><span class="w"> </span><span class="n">Bar2</span><span class="p">,</span><span class="w"> </span><span class="c1">// some comment</span>
-<a id="__codelineno-139-5" name="__codelineno-139-5" href="#__codelineno-139-5"></a><span class="w">    </span><span class="o">&gt;</span><span class="p">.</span><span class="na">foo</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span>
-</code></pre></div></p>
+<a id="__codelineno-139-2" name="__codelineno-139-2" href="#__codelineno-139-2"></a><span class="w">    </span><span class="k">out</span><span class="w"> </span><span class="n">Bar1</span><span class="p">,</span><span class="w"> </span><span class="c1">// some comment</span>
+<a id="__codelineno-139-3" name="__codelineno-139-3" href="#__codelineno-139-3"></a><span class="w">    </span><span class="k">out</span><span class="w"> </span><span class="n">Bar2</span><span class="p">,</span><span class="w"> </span><span class="c1">// some other comment</span>
+<a id="__codelineno-139-4" name="__codelineno-139-4" href="#__codelineno-139-4"></a><span class="o">&gt;</span><span class="p">.</span><span class="na">foo</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span>
+</code></pre></div>
+Although this code sample might look ok, it is semantically and programmatically unclear to which type <code>some comment</code> refers. From the developer perspective it might be clear that it belongs to type <code>Bar1</code>. From the parsers perspective, it does belong to type <code>Bar2</code>.</p>
+</div>
 <p>Rule id: <code>type-argument-comment</code> (<code>standard</code> rule set)</p>
 <h2 id="type-parameter-comment">Type parameter comment<a class="headerlink" href="#type-parameter-comment" title="Permanent link">&para;</a></h2>
 <p>Disallows comments to be placed at certain locations inside a type parameter (list). A KDoc is not allowed.</p>
@@ -4699,13 +4702,16 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 </div>
 </div>
 </div>
-<p>Note: Although code sample below might look ok, it is semantically and programmatically unclear to which element <code>some comment 1</code> refers. As of that comments are only allowed when starting on a separate line.
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In some projects it is an accepted practice to use EOL comments to document the parameter <em>before</em> the comma as is shown below:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-142-1" name="__codelineno-142-1" href="#__codelineno-142-1"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo</span><span class="o">&lt;</span>
-<a id="__codelineno-142-2" name="__codelineno-142-2" href="#__codelineno-142-2"></a><span class="w">    </span><span class="k">out</span><span class="w"> </span><span class="n">Bar1</span><span class="p">,</span><span class="w"> </span><span class="c1">// some comment 1</span>
-<a id="__codelineno-142-3" name="__codelineno-142-3" href="#__codelineno-142-3"></a><span class="w">    </span><span class="c1">// some comment 2</span>
-<a id="__codelineno-142-4" name="__codelineno-142-4" href="#__codelineno-142-4"></a><span class="w">    </span><span class="k">out</span><span class="w"> </span><span class="n">Bar2</span><span class="p">,</span><span class="w"> </span><span class="c1">// some comment</span>
-<a id="__codelineno-142-5" name="__codelineno-142-5" href="#__codelineno-142-5"></a><span class="w">    </span><span class="o">&gt;</span>
+<a id="__codelineno-142-2" name="__codelineno-142-2" href="#__codelineno-142-2"></a><span class="w">    </span><span class="k">out</span><span class="w"> </span><span class="n">Bar1</span><span class="p">,</span><span class="w"> </span><span class="c1">// some comment</span>
+<a id="__codelineno-142-3" name="__codelineno-142-3" href="#__codelineno-142-3"></a><span class="w">    </span><span class="k">out</span><span class="w"> </span><span class="n">Bar2</span><span class="p">,</span><span class="w"> </span><span class="c1">// some other comment</span>
+<a id="__codelineno-142-4" name="__codelineno-142-4" href="#__codelineno-142-4"></a><span class="o">&gt;</span>
 </code></pre></div></p>
+</div>
+<p>Although this code sample might look ok, it is semantically and programmatically unclear on which parameter <code>some comment</code> refers. From the developer perspective it might be clear that it belongs to type <code>Bar1</code>. From the parsers perspective, it does belong to type <code>Bar2</code>.</p>
 <p>Rule id: <code>type-parameter-comment</code> (<code>standard</code> rule set)</p>
 <h2 id="unnecessary-parenthesis-before-trailing-lambda">Unnecessary parenthesis before trailing lambda<a class="headerlink" href="#unnecessary-parenthesis-before-trailing-lambda" title="Permanent link">&para;</a></h2>
 <p>An empty parentheses block before a lambda is redundant.</p>
@@ -4751,13 +4757,16 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 </div>
 </div>
 </div>
-<p>Note: Although code sample below might look ok, it is semantically and programmatically unclear to which element <code>some comment 1</code> refers. As of that comments are only allowed when starting on a separate line.
-<div class="highlight"><pre><span></span><code><a id="__codelineno-147-1" name="__codelineno-147-1" href="#__codelineno-147-1"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo</span><span class="o">&lt;</span>
-<a id="__codelineno-147-2" name="__codelineno-147-2" href="#__codelineno-147-2"></a><span class="w">    </span><span class="k">out</span><span class="w"> </span><span class="n">Bar1</span><span class="p">,</span><span class="w"> </span><span class="c1">// some comment 1</span>
-<a id="__codelineno-147-3" name="__codelineno-147-3" href="#__codelineno-147-3"></a><span class="w">    </span><span class="c1">// some comment 2</span>
-<a id="__codelineno-147-4" name="__codelineno-147-4" href="#__codelineno-147-4"></a><span class="w">    </span><span class="k">out</span><span class="w"> </span><span class="n">Bar2</span><span class="p">,</span><span class="w"> </span><span class="c1">// some comment</span>
-<a id="__codelineno-147-5" name="__codelineno-147-5" href="#__codelineno-147-5"></a><span class="w">    </span><span class="o">&gt;</span>
-</code></pre></div></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In a lot of projects it is an accepted practice to use EOL comments to document the parameter <em>before</em> the comma as is shown below:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-147-1" name="__codelineno-147-1" href="#__codelineno-147-1"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span>
+<a id="__codelineno-147-2" name="__codelineno-147-2" href="#__codelineno-147-2"></a><span class="w">    </span><span class="n">bar1</span><span class="p">:</span><span class="w"> </span><span class="n">Bar1</span><span class="p">,</span><span class="w"> </span><span class="c1">// some comment</span>
+<a id="__codelineno-147-3" name="__codelineno-147-3" href="#__codelineno-147-3"></a><span class="w">    </span><span class="n">bar2</span><span class="p">:</span><span class="w"> </span><span class="n">Bar2</span><span class="p">,</span><span class="w"> </span><span class="c1">// some other comment</span>
+<a id="__codelineno-147-4" name="__codelineno-147-4" href="#__codelineno-147-4"></a><span class="p">)</span>
+</code></pre></div>
+Although this code sample might look ok, it is semantically and programmatically unclear on which parameter <code>some comment</code> refers. From the developer perspective it might be clear that it belongs to parameter <code>bar1</code>. From the parsers perspective, it does belong to parameter <code>bar2</code>. This might lead to <a href="https://github.com/pinterest/ktlint/issues/2445#issuecomment-1863432022">unexpected behavior in Intellij IDEA</a>.</p>
+</div>
 <p>Rule id: <code>value-argument-comment</code> (<code>standard</code> rule set)</p>
 <h2 id="value-parameter-comment">Value parameter comment<a class="headerlink" href="#value-parameter-comment" title="Permanent link">&para;</a></h2>
 <p>Disallows comments to be placed at certain locations inside a value argument (list). A KDoc is allowed but must start on a separate line.</p>
@@ -4794,13 +4803,16 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 </div>
 </div>
 </div>
-<p>Note: Although code sample below might look ok, it is semantically and programmatically unclear to which element <code>some comment 1</code> refers. As of that comments are only allowed when starting on a separate line.
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In a lot of projects it is an accepted practice to use EOL comments to document the parameter <em>before</em> the comma as is shown below:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-150-1" name="__codelineno-150-1" href="#__codelineno-150-1"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo</span><span class="p">(</span>
-<a id="__codelineno-150-2" name="__codelineno-150-2" href="#__codelineno-150-2"></a><span class="w">    </span><span class="n">bar</span><span class="p">:</span><span class="w"> </span><span class="n">Bar1</span><span class="p">,</span><span class="w"> </span><span class="c1">// some comment 1</span>
-<a id="__codelineno-150-3" name="__codelineno-150-3" href="#__codelineno-150-3"></a><span class="w">    </span><span class="c1">// some comment 2</span>
-<a id="__codelineno-150-4" name="__codelineno-150-4" href="#__codelineno-150-4"></a><span class="w">    </span><span class="n">bar2</span><span class="p">:</span><span class="w"> </span><span class="n">Bar2</span><span class="p">,</span><span class="w"> </span><span class="c1">// some comment</span>
-<a id="__codelineno-150-5" name="__codelineno-150-5" href="#__codelineno-150-5"></a><span class="p">)</span>
-</code></pre></div></p>
+<a id="__codelineno-150-2" name="__codelineno-150-2" href="#__codelineno-150-2"></a><span class="w">    </span><span class="n">bar1</span><span class="p">:</span><span class="w"> </span><span class="n">Bar1</span><span class="p">,</span><span class="w"> </span><span class="c1">// some comment</span>
+<a id="__codelineno-150-3" name="__codelineno-150-3" href="#__codelineno-150-3"></a><span class="w">    </span><span class="n">bar2</span><span class="p">:</span><span class="w"> </span><span class="n">Bar2</span><span class="p">,</span><span class="w"> </span><span class="c1">// some other comment</span>
+<a id="__codelineno-150-4" name="__codelineno-150-4" href="#__codelineno-150-4"></a><span class="p">)</span>
+</code></pre></div>
+Although this code sample might look ok, it is semantically and programmatically unclear on which parameter <code>some comment</code> refers. From the developer perspective it might be clear that it belongs to parameter <code>bar1</code>. From the parsers perspective, it does belong to parameter <code>bar2</code>. This might lead to <a href="https://github.com/pinterest/ktlint/issues/2445#issuecomment-1863432022">unexpected behavior in Intellij IDEA</a>.</p>
+</div>
 <p>Rule id: <code>value-parameter-comment</code> (<code>standard</code> rule set)</p>
 <h2 id="wrapping">Wrapping<a class="headerlink" href="#wrapping" title="Permanent link">&para;</a></h2>
 <h3 id="argument-list-wrapping">Argument list wrapping<a class="headerlink" href="#argument-list-wrapping" title="Permanent link">&para;</a></h3>
