@@ -146,6 +146,7 @@ public class ChainMethodContinuationRule :
                     chainOperator.shouldBeOnSameLineAsClosingElementOfPreviousExpressionInMethodChain() -> {
                         removeWhiteSpaceBeforeChainOperator(chainOperator, emit, autoCorrect)
                     }
+
                     wrapBeforeEachChainOperator || exceedsMaxLineLength || chainOperator.isPrecededByComment() -> {
                         insertWhiteSpaceBeforeChainOperator(chainOperator, emit, autoCorrect)
                     }
