@@ -547,6 +547,27 @@ class ChainMethodContinuationRuleTest {
     @Nested
     inner class `Given a chained expression as function argument` {
         @Test
+        fun `Issue 2452 - Given that the argument-list-wrapping rule is not loaded or not enabled`() {
+            val code =
+                """
+                val foo1 = requireNotNull(bar.filter { it == 'b' }.filter { it == 'a' }
+                        .filter { it == 'r' })
+                val foo2 = requireNotNull(bar.filter { it == 'b' }.filter { it == 'a' }.filter { it == 'r' })
+                """.trimIndent()
+            val formattedCode =
+                """
+                val foo1 = requireNotNull(bar
+                    .filter { it == 'b' }
+                    .filter { it == 'a' }
+                    .filter { it == 'r' })
+                val foo2 = requireNotNull(bar.filter { it == 'b' }.filter { it == 'a' }.filter { it == 'r' })
+                """.trimIndent()
+            chainMethodContinuationRuleAssertThat(code)
+                .addAdditionalRuleProvider { IndentationRule() }
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
         fun `Wrapping the argument has precedence above wrapping on the chain operator`() {
             val code =
                 """
@@ -566,6 +587,7 @@ class ChainMethodContinuationRuleTest {
                 """.trimIndent()
             chainMethodContinuationRuleAssertThat(code)
                 .setMaxLineLength()
+                .addAdditionalRuleProvider { ArgumentListWrappingRule() }
                 .hasNoLintViolationsExceptInAdditionalRules()
                 .isFormattedAs(formattedCode)
         }
