@@ -1448,9 +1448,13 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 </code></pre></div>
 <p>This setting only takes effect when rule <code>function-signature</code> is enabled.</p>
 <h2 id="wrapping-the-expression-body-of-a-function">Wrapping the expression body of a function<a class="headerlink" href="#wrapping-the-expression-body-of-a-function" title="Permanent link">&para;</a></h2>
-<p>Setting <code>ktlint_function_signature_body_expression_wrapping</code> determines if and when the expression body of a function is wrapped to a new line. This setting can be set to value <code>default</code>, <code>multiline</code> or <code>always</code>. </p>
+<p>Setting <code>ktlint_function_signature_body_expression_wrapping</code> determines if and when the expression body of a function is wrapped to a new line. This setting can be set to value <code>default</code>, <code>multiline</code> or <code>always</code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In this context <code>default</code> means the default behavior of the IntelliJ IDEA formatter. If not set explicitly, this style is used by code styles <code>intellij_idea</code> and <code>android_studio</code>. Code style <code>ktlint_official</code> uses style <code>multiline</code> when this setting has no value.</p>
+</div>
 <p>When set to <code>default</code>, the first line of a body expression is appended to the function signature as long as the max line length is not exceeded.</p>
-<div class="highlight"><span class="filename">ktlint_function_signature_body_expression_wrapping=default (or when not set)</span><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1">// Given that the function signature has to be written as a single line function signature</span>
+<div class="highlight"><span class="filename">ktlint_function_signature_body_expression_wrapping=default</span><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1">// Given that the function signature has to be written as a single line function signature</span>
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">someFunction</span><span class="p">(</span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;some-result&quot;</span>
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="p">.</span><span class="na">uppercase</span><span class="p">()</span>
 <a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
