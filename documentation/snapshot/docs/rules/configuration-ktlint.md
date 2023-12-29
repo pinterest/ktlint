@@ -129,7 +129,7 @@ fun someFunction(
        .uppercase()
 ```
 
-When  set to `always` the body expression is always wrapped to a separate line.
+When set to `always` the body expression is always wrapped to a separate line.
 
 ```kotlin title="ktlint_function_signature_body_expression_wrapping=always"
 fun someFunction(a: Any, b: Any): String =
