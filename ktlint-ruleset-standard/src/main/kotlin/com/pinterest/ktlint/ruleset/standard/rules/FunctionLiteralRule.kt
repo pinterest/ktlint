@@ -374,7 +374,7 @@ public class FunctionLiteralRule :
         require(arrow.elementType == ARROW)
         arrow
             .prevSibling { it.elementType == VALUE_PARAMETER_LIST }
-            ?.takeIf { it.findChildByType(VALUE_PARAMETER) == null }
+            ?.takeIf { it.findChildByType(VALUE_PARAMETER) == null && arrow.isFollowedByNonEmptyBlock() }
             ?.let {
                 emit(arrow.startOffset, "Arrow is redundant when parameter list is empty", true)
                 if (autoCorrect) {
@@ -385,6 +385,11 @@ public class FunctionLiteralRule :
                     arrow.treeParent.removeChild(arrow)
                 }
             }
+    }
+
+    private fun ASTNode.isFollowedByNonEmptyBlock(): Boolean {
+        require(elementType == ARROW)
+        return nextSibling { it.elementType == BLOCK }?.firstChildNode != null
     }
 
     private fun visitBlock(

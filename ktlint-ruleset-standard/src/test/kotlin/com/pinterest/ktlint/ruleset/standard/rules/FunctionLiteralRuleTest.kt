@@ -465,4 +465,13 @@ class FunctionLiteralRuleTest {
             .hasLintViolation(1, 42, "Arrow is redundant when parameter list is empty")
             .isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Issue 2465 - Given a function literal without parameters and with an empty block then do not remove the arrow`() {
+        val code =
+            """
+            fun foo(block: () -> Unit): Unit = foo { -> }
+            """.trimIndent()
+        functionLiteralRuleAssertThat(code).hasNoLintViolations()
+    }
 }
