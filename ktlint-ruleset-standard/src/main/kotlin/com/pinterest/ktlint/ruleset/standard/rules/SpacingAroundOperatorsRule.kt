@@ -12,6 +12,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.EXCLEQ
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EXCLEQEQEQ
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.GT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.GTEQ
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LTEQ
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MINUS
@@ -42,31 +43,42 @@ import org.jetbrains.kotlin.psi.KtPrefixExpression
 
 @SinceKtlint("0.1", STABLE)
 public class SpacingAroundOperatorsRule : StandardRule("op-spacing") {
-    private val tokenSet =
-        TokenSet.create(
-            MUL, PLUS, MINUS, DIV, PERC, LT, GT, LTEQ, GTEQ, EQEQEQ, EXCLEQEQEQ, EQEQ,
-            EXCLEQ, ANDAND, OROR, ELVIS, EQ, MULTEQ, DIVEQ, PERCEQ, PLUSEQ, MINUSEQ, ARROW,
-        )
-
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        if (tokenSet.contains(node.elementType) &&
-            node.isNotUnaryOperator() &&
-            isNotSpreadOperator(node) &&
-            isNotImport(node)
+        if (node.isUnaryOperator()) {
+            // Allow:
+            //   val foo = -1
+            return
+        }
+
+        if (node.isSpreadOperator()) {
+            // Allow:
+            //   foo(*array)
+            return
+        }
+
+        if (node.isImport()) {
+            // Allow:
+            //   import *
+            return
+        }
+
+        if ((node.elementType == LT || node.elementType == GT || node.elementType == MUL) &&
+            node.treeParent.elementType != OPERATION_REFERENCE
         ) {
-            if ((node.elementType == LT || node.elementType == GT || node.elementType == MUL) &&
-                node.treeParent.elementType != OPERATION_REFERENCE
-            ) {
-                // Do not format parameter types like:
-                //   <T> fun foo(...)
-                //   class Foo<T> { ... }
-                //   Foo<*>
-                return
-            }
+            // Allow:
+            //   <T> fun foo(...)
+            //   class Foo<T> { ... }
+            //   Foo<*>
+            return
+        }
+
+        if (node.elementType in OPERATORS ||
+            (node.elementType == IDENTIFIER && node.treeParent.elementType == OPERATION_REFERENCE)
+        ) {
             val spacingBefore = node.prevLeaf() is PsiWhiteSpace
             val spacingAfter = node.nextLeaf() is PsiWhiteSpace
             when {
@@ -84,7 +96,7 @@ public class SpacingAroundOperatorsRule : StandardRule("op-spacing") {
                     }
                 }
                 !spacingAfter -> {
-                    emit(node.startOffset + 1, "Missing spacing after \"${node.text}\"", true)
+                    emit(node.startOffset + node.textLength, "Missing spacing after \"${node.text}\"", true)
                     if (autoCorrect) {
                         node.upsertWhitespaceAfterMe(" ")
                     }
@@ -93,15 +105,44 @@ public class SpacingAroundOperatorsRule : StandardRule("op-spacing") {
         }
     }
 
-    private fun ASTNode.isNotUnaryOperator() = !isPartOf(KtPrefixExpression::class)
+    private fun ASTNode.isUnaryOperator() = isPartOf(KtPrefixExpression::class)
 
-    private fun isNotSpreadOperator(node: ASTNode) =
+    private fun ASTNode.isSpreadOperator() =
         // fn(*array)
-        !(node.elementType == MUL && node.treeParent.elementType == VALUE_ARGUMENT)
+        elementType == MUL && treeParent.elementType == VALUE_ARGUMENT
 
-    private fun isNotImport(node: ASTNode) =
+    private fun ASTNode.isImport() =
         // import *
-        !node.isPartOf(KtImportDirective::class)
+        isPartOf(KtImportDirective::class)
+
+    private companion object {
+        private val OPERATORS =
+            TokenSet.create(
+                ANDAND,
+                ARROW,
+                DIV,
+                DIVEQ,
+                ELVIS,
+                EQ,
+                EQEQ,
+                EQEQEQ,
+                EXCLEQ,
+                EXCLEQEQEQ,
+                GT,
+                GTEQ,
+                LT,
+                LTEQ,
+                MINUS,
+                MINUSEQ,
+                MUL,
+                MULTEQ,
+                OROR,
+                PERC,
+                PERCEQ,
+                PLUS,
+                PLUSEQ,
+            )
+    }
 }
 
 public val SPACING_AROUND_OPERATORS_RULE_ID: RuleId = SpacingAroundOperatorsRule().ruleId
