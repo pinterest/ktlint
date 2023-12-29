@@ -81,11 +81,14 @@ This setting only takes effect when rule `function-signature` is enabled.
 
 ## Wrapping the expression body of a function
 
-Setting `ktlint_function_signature_body_expression_wrapping` determines if and when the expression body of a function is wrapped to a new line. This setting can be set to value `default`, `multiline` or `always`. 
+Setting `ktlint_function_signature_body_expression_wrapping` determines if and when the expression body of a function is wrapped to a new line. This setting can be set to value `default`, `multiline` or `always`.
+
+!!! note
+    In this context `default` means the default behavior of the IntelliJ IDEA formatter. If not set explicitly, this style is used by code styles `intellij_idea` and `android_studio`. Code style `ktlint_official` uses style `multiline` when this setting has no value.
 
 When set to `default`, the first line of a body expression is appended to the function signature as long as the max line length is not exceeded.
 
-```kotlin title="ktlint_function_signature_body_expression_wrapping=default (or when not set)"
+```kotlin title="ktlint_function_signature_body_expression_wrapping=default"
 // Given that the function signature has to be written as a single line function signature
 fun someFunction(a: Any, b: Any): String = "some-result"
     .uppercase()
