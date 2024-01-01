@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
@@ -81,6 +81,7 @@ public class MaxLineLengthRule :
             ?.takeUnless { it.isPartOf(KtImportDirective::class) }
             ?.takeUnless { it.isPartOf(KDoc::class) }
             ?.takeUnless { it.isPartOfRawMultiLineString() }
+            ?.takeUnless { it.isLineOnlyContainingSingleTemplateString() }
             ?.takeUnless { it.isLineOnlyContainingComment() }
             ?.let { lastNodeOnLine ->
                 // Calculate the offset at the last possible position at which the newline should be inserted on the line
@@ -115,8 +116,20 @@ public class MaxLineLengthRule :
             }
 
     private fun ASTNode.isPartOfRawMultiLineString() =
-        parent(ElementType.STRING_TEMPLATE, strict = false)
+        parent(STRING_TEMPLATE, strict = false)
             ?.let { it.firstChildNode.text == "\"\"\"" && it.textContains('\n') } == true
+
+    private fun ASTNode.isLineOnlyContainingSingleTemplateString() =
+        treeParent
+            ?.takeIf { it.elementType == STRING_TEMPLATE }
+            ?.let { stringTemplate ->
+                stringTemplate
+                    .prevLeaf()
+                    .let { leafBeforeStringTemplate ->
+                        leafBeforeStringTemplate == null || leafBeforeStringTemplate.isWhiteSpaceWithNewline()
+                    }
+            }
+            ?: false
 
     private fun ASTNode.isLineOnlyContainingComment() =
         isPartOf(PsiComment::class) &&

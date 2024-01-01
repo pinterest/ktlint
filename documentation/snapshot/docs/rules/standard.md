@@ -819,7 +819,9 @@ Rule id: `ktlint-suppression` (`standard` rule set)
 
 ## Max line length
 
-Ensures that lines do not exceed the given length of `.editorconfig` property `max_line_length` (see [EditorConfig](../configuration-ktlint/) section for more). This rule does not apply in a number of situations. For example, in the case a line exceeds the maximum line length due to a comment that disables ktlint rules then that comment is being ignored when validating the length of the line. The `.editorconfig` property `ktlint_ignore_back_ticked_identifier` can be set to ignore identifiers which are enclosed in backticks, which for example is very useful when you want to allow longer names for unit tests.
+Ensures that lines do not exceed the given length of `.editorconfig` property `max_line_length` (see [EditorConfig](../configuration-ktlint/) section for more). This rule does not apply in a number of situations like multiline raw string literals, or single line string templates which are the sole element on a line.
+
+The `.editorconfig` property `ktlint_ignore_back_ticked_identifier` can be set to ignore identifiers which are enclosed in backticks, which for example is very useful when you want to allow longer names for unit tests.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -831,10 +833,13 @@ Ensures that lines do not exceed the given length of `.editorconfig` property `m
     package com.toooooooooooooooooooooooooooo.long
     import com.tooooooooooooooooooooooooooooo.long
 
-    val foo =
+    val foo1 =
         """
         fooooooooooooooooooooooooooooooooooooooooo
         """
+
+    val foo2 =
+        "fooooooooooooooooooooooooooooooooooooooo"
 
     @Test
     fun `Test description which is toooooooooooo long`() {
@@ -846,9 +851,8 @@ Ensures that lines do not exceed the given length of `.editorconfig` property `m
     // Assume that the last allowed character is
     // at the X character on the right           X
     val fooooooooooooooo = "fooooooooooooooooooooo"
+    val foo = "foo" + "ooooooooooooooooooooooooooo"
     val foooooooooooooo = "foooooooooooooooooooo" // some comment
-    val fooooooooooooo =
-        "foooooooooooooooooooooooooooooooooooooooo"
     ```
 
 Rule id: `max-line-length` (`standard` rule set)

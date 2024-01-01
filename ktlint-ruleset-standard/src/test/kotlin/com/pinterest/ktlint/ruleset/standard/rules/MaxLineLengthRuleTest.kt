@@ -20,15 +20,12 @@ class MaxLineLengthRuleTest {
             // $MAX_LINE_LENGTH_MARKER                   $EOL_CHAR
             val fooooooooooooooo = "fooooooooooooooooooooo"
             val foooooooooooooo = "foooooooooooooooooooo" // some comment
-            val fooooooooooooo =
-                "foooooooooooooooooooooooooooooooooooooooo"
             """.trimIndent()
         maxLineLengthRuleAssertThat(code)
             .setMaxLineLength()
             .hasLintViolationsWithoutAutoCorrect(
                 LintViolation(2, 47, "Exceeded max line length (46)"),
                 LintViolation(3, 47, "Exceeded max line length (46)"),
-                LintViolation(5, 47, "Exceeded max line length (46)"),
             )
     }
 
@@ -71,6 +68,25 @@ class MaxLineLengthRuleTest {
             maxLineLengthRuleAssertThat(code)
                 .setMaxLineLength()
                 .hasNoLintViolations()
+        }
+
+        @Test
+        fun `Given a single line string which exceeds the max line length, and which has no other non-whitespace elements on the same line then do not return a lint error`() {
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER          $EOL_CHAR
+                fun foo() {
+                    logger.info {
+                        "fooooooooooooooooooooooooooo"
+                    }
+                    logger.info {
+                        "foo" + "oooooooooooooooooooo"
+                    }
+                }
+                """.trimIndent()
+            maxLineLengthRuleAssertThat(code)
+                .setMaxLineLength()
+                .hasLintViolationWithoutAutoCorrect(7, 38, "Exceeded max line length (37)")
         }
 
         @Test
