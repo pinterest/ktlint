@@ -44,8 +44,29 @@ import org.jetbrains.kotlin.psi.KtPrefixExpression
 public class SpacingAroundOperatorsRule : StandardRule("op-spacing") {
     private val tokenSet =
         TokenSet.create(
-            MUL, PLUS, MINUS, DIV, PERC, LT, GT, LTEQ, GTEQ, EQEQEQ, EXCLEQEQEQ, EQEQ,
-            EXCLEQ, ANDAND, OROR, ELVIS, EQ, MULTEQ, DIVEQ, PERCEQ, PLUSEQ, MINUSEQ, ARROW,
+            ANDAND,
+            ARROW,
+            DIV,
+            DIVEQ,
+            ELVIS,
+            EQ,
+            EQEQ,
+            EQEQEQ,
+            EXCLEQ,
+            EXCLEQEQEQ,
+            GT,
+            GTEQ,
+            LT,
+            LTEQ,
+            MINUS,
+            MINUSEQ,
+            MUL,
+            MULTEQ,
+            OROR,
+            PERC,
+            PERCEQ,
+            PLUS,
+            PLUSEQ,
         )
 
     override fun beforeVisitChildNodes(

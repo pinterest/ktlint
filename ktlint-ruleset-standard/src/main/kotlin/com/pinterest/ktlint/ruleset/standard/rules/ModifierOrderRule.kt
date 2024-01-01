@@ -41,25 +41,32 @@ public class ModifierOrderRule : StandardRule("modifier-order") {
     // subset of ElementType.MODIFIER_KEYWORDS_ARRAY (+ annotations entries)
     private val order =
         arrayOf(
+            ABSTRACT_KEYWORD,
+            ACTUAL_KEYWORD,
             ANNOTATION_ENTRY,
-            PUBLIC_KEYWORD, PROTECTED_KEYWORD, PRIVATE_KEYWORD, INTERNAL_KEYWORD,
-            EXPECT_KEYWORD, ACTUAL_KEYWORD,
-            FINAL_KEYWORD, OPEN_KEYWORD, ABSTRACT_KEYWORD, SEALED_KEYWORD, CONST_KEYWORD,
+            ANNOTATION_KEYWORD,
+            COMPANION_KEYWORD,
+            CONST_KEYWORD,
+            DATA_KEYWORD,
+            ENUM_KEYWORD,
+            EXPECT_KEYWORD,
             EXTERNAL_KEYWORD,
-            OVERRIDE_KEYWORD,
+            FINAL_KEYWORD,
+            INFIX_KEYWORD,
+            INLINE_KEYWORD,
+            INNER_KEYWORD,
+            INTERNAL_KEYWORD,
             LATEINIT_KEYWORD,
+            OPEN_KEYWORD,
+            OPERATOR_KEYWORD,
+            OVERRIDE_KEYWORD,
+            PRIVATE_KEYWORD,
+            PROTECTED_KEYWORD,
+            PUBLIC_KEYWORD,
+            SEALED_KEYWORD,
+            SUSPEND_KEYWORD,
             TAILREC_KEYWORD,
             VARARG_KEYWORD,
-            SUSPEND_KEYWORD,
-            INNER_KEYWORD,
-            ENUM_KEYWORD, ANNOTATION_KEYWORD,
-            COMPANION_KEYWORD,
-            INLINE_KEYWORD,
-            INFIX_KEYWORD,
-            OPERATOR_KEYWORD,
-            DATA_KEYWORD,
-            // NOINLINE_KEYWORD, CROSSINLINE_KEYWORD, OUT_KEYWORD, IN_KEYWORD, REIFIED_KEYWORD
-            // HEADER_KEYWORD, IMPL_KEYWORD
         )
     private val tokenSet = TokenSet.create(*order)
 

@@ -18,6 +18,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
@@ -29,6 +30,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.lineLengthWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
+import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -69,6 +71,7 @@ public class ArgumentListWrappingRule :
             ),
         usesEditorConfigProperties =
             setOf(
+                IGNORE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY,
                 INDENT_SIZE_PROPERTY,
                 INDENT_STYLE_PROPERTY,
                 MAX_LINE_LENGTH_PROPERTY,
@@ -77,6 +80,7 @@ public class ArgumentListWrappingRule :
     private var editorConfigIndent = IndentConfig.DEFAULT_INDENT_CONFIG
 
     private var maxLineLength = MAX_LINE_LENGTH_PROPERTY.defaultValue
+    private var ignoreWhenParameterCountGreaterOrEqualThanProperty = UNSET_IGNORE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         editorConfigIndent =
@@ -85,6 +89,7 @@ public class ArgumentListWrappingRule :
                 tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
             )
         maxLineLength = editorConfig[MAX_LINE_LENGTH_PROPERTY]
+        ignoreWhenParameterCountGreaterOrEqualThanProperty = editorConfig[IGNORE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY]
     }
 
     override fun beforeVisitChildNodes(
@@ -110,8 +115,8 @@ public class ArgumentListWrappingRule :
             node.firstChildNode?.treeNext?.elementType != RPAR &&
             // skip lambda arguments
             node.treeParent?.elementType != FUNCTION_LITERAL &&
-            // skip if number of arguments is big (we assume it with a magic number of 8)
-            node.children().count { it.elementType == VALUE_ARGUMENT } <= 8 &&
+            // skip if number of arguments is big
+            node.children().count { it.elementType == VALUE_ARGUMENT } <= ignoreWhenParameterCountGreaterOrEqualThanProperty &&
             // skip if part of a value argument list. It depends on the situation whether it is better to wrap the arguments in the list
             // or the operators in the binary expression
             !node.isPartOf(BINARY_EXPRESSION)
@@ -293,6 +298,38 @@ public class ArgumentListWrappingRule :
             prevLeaf = prevLeaf.prevLeaf() ?: return false
         }
         return true
+    }
+
+    public companion object {
+        private const val UNSET_IGNORE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY = Int.MAX_VALUE
+        public val IGNORE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY: EditorConfigProperty<Int> =
+            EditorConfigProperty(
+                type =
+                    PropertyType.LowerCasingPropertyType(
+                        "ktlint_argument_list_wrapping_ignore_when_parameter_count_greater_or_equal_than",
+                        "Do not wrap parameters on separate lines when at least the specified number of parameters are " +
+                            "specified. Use 'unset' to always wrap each parameter.",
+                        PropertyType.PropertyValueParser.POSITIVE_INT_VALUE_PARSER,
+                        setOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "unset"),
+                    ),
+                // Historically, all code styles have used 8 as the magic value.
+                defaultValue = 8,
+                ktlintOfficialCodeStyleDefaultValue = UNSET_IGNORE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY,
+                propertyMapper = { property, _ ->
+                    if (property?.isUnset == true) {
+                        UNSET_IGNORE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY
+                    } else {
+                        property?.getValueAs<Int>()
+                    }
+                },
+                propertyWriter = { property ->
+                    if (property == UNSET_IGNORE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY) {
+                        "unset"
+                    } else {
+                        property.toString()
+                    }
+                },
+            )
     }
 }
 

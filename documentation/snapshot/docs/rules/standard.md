@@ -415,7 +415,7 @@ Enforce naming of function.
     When using Compose, you might want to suppress the `function-naming` rule by setting `.editorconfig` property `ktlint_function_naming_ignore_when_annotated_with=Composable`. Furthermore, you can use a dedicated ktlint ruleset like [Compose Rules](https://mrmans0n.github.io/compose-rules/ktlint/) for checking naming conventions for Composable functions. 
 
 !!! note
-    Functions in files which import a class from package `org.junit`, `org.testng` or `kotlin.test` are considered to be test functions. Functions in such classes are allowed to have underscores in the name. Also, function names enclosed between backticks do not need to adhere to the normal naming convention.
+    Functions in files which import a class from package `org.junit`, `org.testng` or `kotlin.test` are considered to be test-functions. Functions in such classes are allowed to have underscores in the name. Also, function names enclosed between backticks do not need to adhere to the normal naming convention.
 
 This rule can also be suppressed with the IntelliJ IDEA inspection suppression `FunctionName`.
 
@@ -1148,7 +1148,7 @@ Rule id: `no-trailing-spaces` (`standard` rule set)
 
 ## No `Unit` as return type 
 
-The `Unit` type is not allowed as return type of a function.
+The `Unit` type is not allowed as return-type of a function.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -2230,6 +2230,10 @@ All arguments should be on the same line, or every argument should be on a separ
             b, c,
         )
     ```
+
+| Configuration setting per code style                                                |  ktlint_official  |  intellij_idea  |  android_studio  |
+|:------------------------------------------------------------------------------------|:-----------------:|:---------------:|:----------------:|
+| `ktlint_argument_list_wrapping_ignore_when_parameter_count_greater_or_equal_than`   |      `unset`      |        8        |        8         |
 
 Rule-id: `argument-list-wrapping` (`standard` rule set)
 

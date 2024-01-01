@@ -2,6 +2,7 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
+import com.pinterest.ktlint.ruleset.standard.rules.ArgumentListWrappingRule.Companion.IGNORE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY
 import com.pinterest.ktlint.ruleset.standard.rules.ClassSignatureRule.Companion.FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
@@ -74,23 +75,25 @@ class ArgumentListWrappingRuleTest {
     fun `Given that not all parameters in a function call fit on a single line`() {
         val code =
             """
-            val x = f(a, b, c)
+            // $MAX_LINE_LENGTH_MARKER      $EOL_CHAR
+            val foobar = foobar(foo, bar, baz)
             """.trimIndent()
         val formattedCode =
             """
-            val x = f(
-                a,
-                b,
-                c
+            // $MAX_LINE_LENGTH_MARKER      $EOL_CHAR
+            val foobar = foobar(
+                foo,
+                bar,
+                baz
             )
             """.trimIndent()
         argumentListWrappingRuleAssertThat(code)
-            .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 10)
+            .setMaxLineLength()
             .hasLintViolations(
-                LintViolation(1, 11, "Argument should be on a separate line (unless all arguments can fit a single line)"),
-                LintViolation(1, 14, "Argument should be on a separate line (unless all arguments can fit a single line)"),
-                LintViolation(1, 17, "Argument should be on a separate line (unless all arguments can fit a single line)"),
-                LintViolation(1, 18, "Missing newline before \")\""),
+                LintViolation(2, 21, "Argument should be on a separate line (unless all arguments can fit a single line)"),
+                LintViolation(2, 26, "Argument should be on a separate line (unless all arguments can fit a single line)"),
+                LintViolation(2, 31, "Argument should be on a separate line (unless all arguments can fit a single line)"),
+                LintViolation(2, 34, "Missing newline before \")\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -292,15 +295,17 @@ class ArgumentListWrappingRuleTest {
     }
 
     @Nested
-    inner class `Given a function call with too man (eg more than 8) arguments` {
+    inner class `Given a function call with too many (eg more than 8) arguments` {
         @Test
         fun `Given that arguments are on a single line but exceeding max line length`() {
             val code =
                 """
+                // $MAX_LINE_LENGTH_MARKER      $EOL_CHAR
                 val foo = foo(1, 2, 3, 4, 5, 6, 7, 8, 9)
                 """.trimIndent()
             argumentListWrappingRuleAssertThat(code)
-                .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 20)
+                .setMaxLineLength()
+                .withEditorConfigOverride(IGNORE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to 8)
                 .hasNoLintViolations()
         }
 
@@ -314,7 +319,22 @@ class ArgumentListWrappingRuleTest {
                     9
                 )
                 """.trimIndent()
-            argumentListWrappingRuleAssertThat(code).hasNoLintViolations()
+            argumentListWrappingRuleAssertThat(code)
+                .withEditorConfigOverride(IGNORE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to 8)
+                .hasNoLintViolations()
+        }
+
+        @Test
+        fun `Given that arguments always have to be wrapped to a separate line`() {
+            val code =
+                """
+                val foo = foo(
+                    1, 2
+                )
+                """.trimIndent()
+            argumentListWrappingRuleAssertThat(code)
+                .withEditorConfigOverride(IGNORE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
+                .hasLintViolation(2, 8, "Argument should be on a separate line (unless all arguments can fit a single line)")
         }
     }
 
