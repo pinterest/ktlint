@@ -365,6 +365,32 @@ class BinaryExpressionWrappingRuleTest {
     }
 
     @Test
+    fun `Given an elvis expression exceeding the line length`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER                            $EOL_CHAR
+            val foo = foobar ?: throw UnsupportedOperationException("foobar")
+            """.trimIndent()
+        val formattedCode =
+            """
+            // $MAX_LINE_LENGTH_MARKER                            $EOL_CHAR
+            val foo =
+                foobar
+                    ?: throw UnsupportedOperationException(
+                        "foobar"
+                    )
+            """.trimIndent()
+        binaryExpressionWrappingRuleAssertThat(code)
+            .setMaxLineLength()
+            .addAdditionalRuleProvider { ArgumentListWrappingRule() }
+            .addAdditionalRuleProvider { MaxLineLengthRule() }
+            .hasLintViolations(
+                LintViolation(2, 11, "Line is exceeding max line length. Break line between assignment and expression", true),
+                LintViolation(2, 18, "Line is exceeding max line length. Break line before '?:'", true),
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
     fun `Issue 2128 - Given an elvis expression exceeding the line length`() {
         val code =
             """
