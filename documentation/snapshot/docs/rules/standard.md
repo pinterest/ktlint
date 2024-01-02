@@ -2231,9 +2231,9 @@ All arguments should be on the same line, or every argument should be on a separ
         )
     ```
 
-| Configuration setting per code style                                                |  ktlint_official  |  intellij_idea  |  android_studio  |
-|:------------------------------------------------------------------------------------|:-----------------:|:---------------:|:----------------:|
-| `ktlint_argument_list_wrapping_ignore_when_parameter_count_greater_or_equal_than`   |      `unset`      |        8        |        8         |
+| Configuration setting                                                             | ktlint_official | intellij_idea | android_studio |
+|:----------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `ktlint_argument_list_wrapping_ignore_when_parameter_count_greater_or_equal_than` |     `unset`     |       8       |       8        |
 
 Rule-id: `argument-list-wrapping` (`standard` rule set)
 
