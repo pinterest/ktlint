@@ -1435,6 +1435,24 @@ Also see <a href="../configuration-ktlint/#disabled-rules">enable/disable specif
 </div>
 </div>
 </div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Configuration setting</th>
+<th style="text-align: center;">ktlint_official</th>
+<th style="text-align: center;">intellij_idea</th>
+<th style="text-align: center;">android_studio</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>ktlint_chain_method_rule_force_multiline_when_chain_operator_count_greater_or_equal_than</code><br/><i>Force wrapping of chained methods in case an expression contains at least the specified number of chain operators. If a chained method contains nested expressions, the chain operators of the inner expression are not taken into account. Use value <code>unset</code> (default) to disable this setting.</i></td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">4</td>
+</tr>
+</tbody>
+</table>
 <p>Rule id: <code>chain-method-continuation</code> (<code>standard</code> rule set)</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1635,6 +1653,24 @@ The other code styles allow an infinite amount of parameters on the same line (a
 </div>
 </div>
 </div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Configuration setting</th>
+<th style="text-align: center;">ktlint_official</th>
+<th style="text-align: center;">intellij_idea</th>
+<th style="text-align: center;">android_studio</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>ktlint_class_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than</code><br/><i>Force wrapping of the parameters of the class signature in case it contains at least the specified number of parameters, even in case the entire class signature would fit on a single line. Use value <code>unset</code> to disable this setting.</i></td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;"><code>unset</code></td>
+<td style="text-align: center;"><code>unset</code></td>
+</tr>
+</tbody>
+</table>
 <p>Rule id: <code>class-signature</code> (<code>standard</code> rule set)</p>
 <h2 id="condition-wrapping">Condition wrapping<a class="headerlink" href="#condition-wrapping" title="Permanent link">&para;</a></h2>
 <p>Wraps each operand in a multiline condition to a separate line.</p>
