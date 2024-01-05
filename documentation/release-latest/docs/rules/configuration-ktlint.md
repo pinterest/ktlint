@@ -43,22 +43,22 @@ ktlint_custom-rule-set_custom-rule = disabled # Disables the `custom-rule` rule 
 
 The configuration settings below are used to configure the behavior of a specific rule. As of that, those settings only take effect when the corresponding rule is enabled. See description of rule for more information about the setting.
 
-| Configuration setting                                                                     | Rule                                                                                        |
-|:------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------------|
-| ij_kotlin_allow_trailing_comma                                                            | [trailing-comma-on-declaration-site](../rules/standard/#trailing-comma-on-declaration-site) |
-| ij_kotlin_allow_trailing_comma_on_call_site                                               | [trailing-comma-on-call-site](../rules/standard/#trailing-comma-on-call-site)               |
-| ij_kotlin_packages_to_use_import_on_demand                                                | [no-wildcard-imports](../rules/standard/#no-wildcard-imports)                               |
-| indent_size                                                                               | [indent](../rules/standard/#indentation)                                                    |                                                                                       |
-| indent_style                                                                              | [indent](../rules/standard/#indentation)                                                    |                                                                                       |
+| Configuration setting                                                                     | Rule                                                                                  |
+|:------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------|
+| ij_kotlin_allow_trailing_comma                                                            | [trailing-comma-on-declaration-site](../standard/#trailing-comma-on-declaration-site) |
+| ij_kotlin_allow_trailing_comma_on_call_site                                               | [trailing-comma-on-call-site](../standard/#trailing-comma-on-call-site)               |
+| ij_kotlin_packages_to_use_import_on_demand                                                | [no-wildcard-imports](../standard/#no-wildcard-imports)                               |
+| indent_size                                                                               | [indent](../standard/#indentation)                                                    |                                                                                       |
+| indent_style                                                                              | [indent](../standard/#indentation)                                                    |                                                                                       |
                                                                                     |
-| insert_final_newline                                                                      | [final-newline](../rules/standard/#final-newline)                                           |                                                                                       |
-| ktlint_chain_method_rule_force_multiline_when_chain_operator_count_greater_or_equal_than  | [chain-method-continuation](../rules/experimental/#chain-method-continuation)               |
-| ktlint_class_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than    | [class-signature](../rules/experimental/#class-signature)                                   |
-| ktlint_ignore_back_ticked_identifier                                                      | [max-line-length](../rules/standard/#max-line-length)                                       |
-| ktlint_function_naming_ignore_when_annotated_with                                        | [function-naming](../rules/standard/#function-naming)                                       |
-| ktlint_function_signature_body_expression_wrapping                                        | [function-signature](../rules/standard/#function-signature)                                 |
-| ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than | [function-signature](../rules/standard/#function-signature)                                 |
-| max_line_length                                                                           | [max-line-length](../rules/standard/#max-line-length) and several other rules               |
+| insert_final_newline                                                                      | [final-newline](../standard/#final-newline)                                           |                                                                                       |
+| ktlint_chain_method_rule_force_multiline_when_chain_operator_count_greater_or_equal_than  | [chain-method-continuation](../experimental/#chain-method-continuation)               |
+| ktlint_class_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than    | [class-signature](../experimental/#class-signature)                                   |
+| ktlint_ignore_back_ticked_identifier                                                      | [max-line-length](../standard/#max-line-length)                                       |
+| ktlint_function_naming_ignore_when_annotated_with                                         | [function-naming](../standard/#function-naming)                                       |
+| ktlint_function_signature_body_expression_wrapping                                        | [function-signature](../standard/#function-signature)                                 |
+| ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than | [function-signature](../standard/#function-signature)                                 |
+| max_line_length                                                                           | [max-line-length](../standard/#max-line-length) and several other rules               |
 
 ## Overriding Editorconfig properties for specific directories
 
