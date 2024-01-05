@@ -488,7 +488,7 @@ public class ChainMethodContinuationRule :
                 type =
                     PropertyType.LowerCasingPropertyType(
                         "ktlint_chain_method_rule_force_multiline_when_chain_operator_count_greater_or_equal_than",
-                        "Force wrapping of chained methods in case and expression contains at least the specified number of chain " +
+                        "Force wrapping of chained methods in case an expression contains at least the specified number of chain " +
                             "operators. By default this parameter is set to 4.",
                         PropertyType.PropertyValueParser.POSITIVE_INT_VALUE_PARSER,
                         setOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "unset"),

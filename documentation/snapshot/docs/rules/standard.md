@@ -164,15 +164,15 @@ Rule id: `filename` (`standard` rule set)
 
 Ensures consistent usage of a newline at the end of each file. 
 
-This rule can be configured with `.editorconfig` property [`insert_final_newline`](../configuration-ktlint/#final-newline).
+| Configuration setting                                                             | ktlint_official | intellij_idea | android_studio |
+|:----------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `insert_final_newline` |     `true`      |       `true`        |       `true`        |
 
 Rule id: `final-newline` (`standard` rule set)
 
 ## Function signature
 
-Rewrites the function signature to a single line when possible (e.g. when not exceeding the `max_line_length` property) or a multiline signature otherwise. In case of function with a body expression, the body expression is placed on the same line as the function signature when not exceeding the `max_line_length` property. 
-
-In `ktlint-official` code style, a function signature is always rewritten to a multiline signature in case the function has 2 or more parameters. This number of parameters can be set via `.editorconfig` property `ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than`.
+Rewrites the function signature to a single line when possible (e.g. when not exceeding the `max_line_length` property) or a multiline signature otherwise. 
 
 !!! note
     Wrapping of parameters is also influenced by the `parameter-list-wrapping` rule.
@@ -242,6 +242,84 @@ In `ktlint-official` code style, a function signature is always rewritten to a m
     // at the X character on the right           X
     fun f(a: Any, b: Any): String = "some-result"
         .uppercase()
+    ```
+
+| Configuration setting                                                                                                                                                                                                                                                                                                                                                                                                                   | ktlint_official | intellij_idea | android_studio |
+|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `ktlint_function_signature_body_expression_wrapping`<br/><i>Determines how to wrap the body of function in case it is an expression. Use `default` to wrap the body expression only when the first line of the expression does not fit on the same line as the function signature. Use `multiline` to force wrapping of body expressions that consists of multiple lines. Use `always` to force wrapping of body expression always.</i> |   `multiline`   |   `default`   |   `default`    |
+| `ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than`<br/><i>Forces a multiline function signature in case the function contains the specified minimum number of parameters even in case the function signature would fit on a single line. Use value `unset` (default) to disable this setting.</i>                                                                                              |        2        |    `unset`    |    `unset`     |
+
+=== "[:material-heart:](#) default"
+
+    When `ktlint_function_signature_body_expression_wrapping` is set to `default`, the first line of a body expression is appended to the function signature as long as the max line length is not exceeded.
+
+    ```kotlin title="ktlint_function_signature_body_expression_wrapping=default"
+    // Given that the function signature has to be written as a single line
+    // function signature and that the function has a multiline body expression
+    fun someFunction(a: Any, b: Any): String = "some-result"
+        .uppercase()
+    
+    // Given that the function signature has to be written as a multiline
+    // function signature and that the function has a multiline body expression
+    fun someFunction(
+        a: Any,
+        b: Any
+    ): String = "some-result"
+        .uppercase()
+    ```
+
+=== "[:material-heart:](#) multiline"
+
+    When `ktlint_function_signature_body_expression_wrapping` is set to `multiline`, the body expression starts on a separate line in case it is a multiline expression. A single line body expression is wrapped only when it does not fit on the same line as the function signature.
+    
+    ```kotlin title="ktlint_function_signature_body_expression_wrapping=multiline"
+    // Given that the function signature has to be written as a single line
+    // function signature and that the function has a single line body expression
+    // that fits on the same line as the function signature.
+    fun someFunction(a: Any, b: Any): String = "some-result".uppercase()
+    
+    // Given that the function signature has to be written as a multiline
+    // function signature and that the function has a single line body expression
+    // that fits on the same line as the function signature.
+    fun someFunction(
+        a: Any,
+        b: Any
+    ): String = "some-result".uppercase()
+    
+    // Given that the function signature has to be written as a single line
+    // function signature and that the function has a multiline body expression
+    fun someFunction(a: Any, b: Any): String =
+        "some-result"
+             .uppercase()
+
+    // Given that the function signature has to be written as a multiline
+    // function signature and that the function has a multiline body expression
+    fun someFunction(
+        a: Any,
+        b: Any
+    ): String =
+        "some-result"
+           .uppercase()
+    ```
+
+=== "[:material-heart:](#) always"
+
+    When `ktlint_function_signature_body_expression_wrapping` is  set to `always` the body expression is always wrapped to a separate line.
+    
+    ```kotlin title="ktlint_function_signature_body_expression_wrapping=always"
+    // Given that the function signature has to be written as a single line
+    // function signature and that the function has a single line body expression
+    fun someFunction(a: Any, b: Any): String =
+        "some-result".uppercase()
+
+    // Given that the function signature has to be written as a multiline
+    // function signature and that the function has a multiline body expression
+    fun functionWithAVeryLongName(
+        a: Any,
+        b: Any
+    ): String =
+        "some-result"
+            .uppercase()
     ```
 
 Rule id: `function-signature` (`standard` rule set)
@@ -335,6 +413,11 @@ Indentation formatting - respects `.editorconfig` `indent_size` with no continua
 !!! note
     This rule handles indentation for many different language constructs which can not be summarized with a few examples. See the [unit tests](https://github.com/pinterest/ktlint/blob/master/ktlint-ruleset-standard/src/test/kotlin/com/pinterest/ktlint/ruleset/standard/rules/IndentationRuleTest.kt) for more details.
 
+| Configuration setting                                                                                                                     | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `indent_size`</br><i>The size of an indentation level when `indent_style` is set to `space`. Use value `unset` to ignore indentation.</i> |        4        |       4       |       4        |
+| `indent_style`</br><i>Style of indentation. Set this value to `space` or `tab`.</i>                                                       |     `space`     |    `space`    |    `space`     |
+
 Rule id: `indent` (`standard` rule set)
 
 ## Naming
@@ -411,11 +494,15 @@ Enforce naming of function.
     fun do_something() {}
     ```
 
-!!! note
-    When using Compose, you might want to suppress the `function-naming` rule by setting `.editorconfig` property `ktlint_function_naming_ignore_when_annotated_with=Composable`. Furthermore, you can use a dedicated ktlint ruleset like [Compose Rules](https://mrmans0n.github.io/compose-rules/ktlint/) for checking naming conventions for Composable functions. 
+| Configuration setting                                                                                                                                                                                 | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `ktlint_function_naming_ignore_when_annotated_with`</br><i>Ignore functions that are annotated with values in this setting. This value is a comma separated list of names without the '@' prefix.</i> |     `unset`     |    `unset`    |    `unset`     |
 
 !!! note
-    Functions in files which import a class from package `org.junit`, `org.testng` or `kotlin.test` are considered to be test functions. Functions in such classes are allowed to have underscores in the name. Also, function names enclosed between backticks do not need to adhere to the normal naming convention.
+    When using Compose, you might want to configure the `function-naming` rule with `.editorconfig` property `ktlint_function_naming_ignore_when_annotated_with=Composable`. Furthermore, you can use a dedicated ktlint ruleset like [Compose Rules](https://mrmans0n.github.io/compose-rules/ktlint/) for checking naming conventions for Composable functions. 
+
+!!! note
+    Functions in files which import a class from package `io.kotest`, `junit.framework`, `kotlin.test`, `org.junit`, or `org.testng` are considered to be test functions. Functions in such classes are allowed to have underscores in the name. Also, function names enclosed between backticks do not need to adhere to the normal naming convention.
 
 This rule can also be suppressed with the IntelliJ IDEA inspection suppression `FunctionName`.
 
@@ -819,7 +906,7 @@ Rule id: `ktlint-suppression` (`standard` rule set)
 
 ## Max line length
 
-Ensures that lines do not exceed the given length of `.editorconfig` property `max_line_length` (see [EditorConfig](../configuration-ktlint/) section for more). This rule does not apply in a number of situations. For example, in the case a line exceeds the maximum line length due to a comment that disables ktlint rules then that comment is being ignored when validating the length of the line. The `.editorconfig` property `ktlint_ignore_back_ticked_identifier` can be set to ignore identifiers which are enclosed in backticks, which for example is very useful when you want to allow longer names for unit tests.
+Ensures that lines do not exceed the maximum length of a line. This rule does not apply in a number of situations. The `.editorconfig` property `ktlint_ignore_back_ticked_identifier` can be set to ignore identifiers which are enclosed in backticks, which for example is very useful when you want to allow longer names for unit tests.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -850,6 +937,12 @@ Ensures that lines do not exceed the given length of `.editorconfig` property `m
     val fooooooooooooo =
         "foooooooooooooooooooooooooooooooooooooooo"
     ```
+
+
+| Configuration setting                                                                                               | ktlint_official | intellij_idea | android_studio |
+|:--------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `ktlint_ignore_back_ticked_identifier`<br/><i>Defines whether the backticked identifier (``) should be ignored.</i> |     `false`     |    `false`    |    `false`     |
+| `max_line_length`<br/><i>Maximum length of a (regular) line.</i>                                                    |       140       |     `off`     |     `100`      |
 
 Rule id: `max-line-length` (`standard` rule set)
 
@@ -1172,7 +1265,7 @@ Rule id: `no-unused-imports` (`standard` rule set)
 
 ## No wildcard imports
 
-No wildcard imports except imports listed in `.editorconfig` property `ij_kotlin_packages_to_use_import_on_demand`.
+No wildcard imports except whitelisted imports.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -1186,12 +1279,31 @@ No wildcard imports except imports listed in `.editorconfig` property `ij_kotlin
     import foobar.*
     ```
 
+| Configuration setting                                                                     | ktlint_official |               intellij_idea                |                 android_studio                  |
+|:------------------------------------------------------------------------------------------|:---------------:|:------------------------------------------:|:-----------------------------------------------:|
+| `ij_kotlin_packages_to_use_import_on_demand`<br/><i>Defines allowed wildcard imports.</i> |        -        | `java.util.*,`<br/>`kotlinx.android.synthetic.**` | `java.util.*,`<br/>`kotlinx.android.synthetic.**` |
+
 !!! warning
     In case property `ij_kotlin_packages_to_use_import_on_demand` is not explicitly set, it allows wildcards imports like `java.util.*` by default to keep in sync with IntelliJ IDEA behavior. To disallow *all* wildcard imports, add property below to your `.editorconfig`:
     ```editorconfig
     [*.{kt,kts}]
     ij_kotlin_packages_to_use_import_on_demand = unset
     ```
+
+Configuration setting `ij_kotlin_packages_to_use_import_on_demand` is a comma separated string of import paths. This can be a full path, e.g. "java.util.List.*", or a wildcard path, e.g. "kotlin.**". Use "**" as wildcard for package and all subpackages.
+
+The layout can be composed by the following symbols:
+
+*  `*` - wildcard. There must be at least one entry of a single wildcard to match all other imports. Matches anything after a specified symbol/import as well.
+* `|` - blank line. Supports only single blank lines between imports. No blank line is allowed in the beginning or end of the layout.
+* `^` - alias import, e.g. "^android.*" will match all android alias imports, "^" will match all other alias imports.
+
+Examples:
+```kotlin
+ij_kotlin_imports_layout=* # alphabetical with capital letters before lower case letters (e.g. Z before a), no blank lines
+ij_kotlin_imports_layout=*,java.**,javax.**,kotlin.**,^ # default IntelliJ IDEA style, same as alphabetical, but with "java", "javax", "kotlin" and alias imports in the end of the imports list
+ij_kotlin_imports_layout=android.**,|,^org.junit.**,kotlin.io.Closeable.*,|,*,^ # custom imports layout
+```
 
 Rule id: `no-wildcard-imports` (`standard` rule set)
 
@@ -1932,9 +2044,6 @@ Rule id: `string-template-indent` (`standard` rule set)
 
 Consistent removal (default) or adding of trailing commas on call site.
 
-!!! important
-    KtLint uses the IntelliJ IDEA `.editorconfig` property `ij_kotlin_allow_trailing_comma_on_call_site` to configure the rule. When this property is enabled, KtLint *enforces* the usage of the trailing comma at call site while IntelliJ IDEA default formatter only *allows* to use the trailing comma but leaves it to the developer's discretion to actually use it (or not). KtLint values *consistent* formatting more than a per-situation decision.
-
 === "[:material-heart:](#) Ktlint"
 
     ```kotlin
@@ -1956,26 +2065,24 @@ Consistent removal (default) or adding of trailing commas on call site.
         ),) // it's weird to insert "," between unwrapped (continued) parenthesis
     ```
 
-!!! note
-    In KtLint 0.48.x the default value for using the trailing comma on call site has been changed to `true` except when codestyle `android` is used.
+| Configuration setting                                                                                                                                                                                                                                                                                                                                                                                                                               | ktlint_official | intellij_idea | android_studio |
+|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `ij_kotlin_allow_trailing_comma_on_call_site`<br/><i>Defines whether a trailing comma (or no trailing comma) should be enforced on the calling site, e.g. argument-list, when-entries, lambda-arguments, indices, etc. When set, IntelliJ IDEA uses this property to <b>allow</b> usage of a trailing comma by discretion of the developer. KtLint however uses this setting to <b>enforce</b> consistent usage of the trailing comma when set.</i> |     `true`      |    `true`     |    `false`     |
 
+!!! note
     Although the [Kotlin coding conventions](https://kotlinlang.org/docs/reference/coding-conventions.html#trailing-commas) leaves it to the developer's discretion to use trailing commas on the call site, it also states that usage of trailing commas has several benefits:
     
      * It makes version-control diffs cleaner – as all the focus is on the changed value.
      * It makes it easy to add and reorder elements – there is no need to add or delete the comma if you manipulate elements.
      * It simplifies code generation, for example, for object initializers. The last element can also have a comma.
 
-!!! note
-    Trailing comma on call site is automatically disabled if the [Wrapping](#wrapping) rule (or, before version `0.45.0`, the [Indentation](#indentation) rule) is disabled or not loaded. Because it cannot provide proper formatting with unwrapped calls. (see [dependencies](./dependencies.md)).
+    KtLint values *consistent* formatting more than a per-situation decision, and therefore uses this setting to *enforce/disallow* usage of trailing comma's on the calling site.
 
 Rule id: `trailing-comma-on-call-site` (`standard` rule set)
 
 ## Trailing comma on declaration site
 
 Consistent removal (default) or adding of trailing commas on declaration site.
-
-!!! important
-    KtLint uses the IntelliJ IDEA `.editorconfig` property `ij_kotlin_allow_trailing_comma` to configure the rule. When this property is enabled, KtLint *enforces* the usage of the trailing comma at declaration site while IntelliJ IDEA default formatter only *allows* to use the trailing comma but leaves it to the developer's discretion to actually use it (or not). KtLint values *consistent* formatting more than a per-situation decision.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -1996,17 +2103,18 @@ Consistent removal (default) or adding of trailing commas on declaration site.
     ),) // it's weird to insert "," between unwrapped (continued) parenthesis
     ```
 
-!!! note
-    In KtLint 0.48.x the default value for using the trailing comma on declaration site has been changed to `true` except when codestyle `android` is used.
+| Configuration setting                                                                                                                                                                                                                                                                                                                                                                                                                                      | ktlint_official | intellij_idea | android_studio |
+|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `ij_kotlin_allow_trailing_comma`<br/><i>Defines whether a trailing comma (or no trailing comma) should be enforced on the defining site, e.g. parameter-list, type-argument-list, lambda-value-parameters, enum-entries, etc. When set, IntelliJ IDEA uses this property to <b>allow</b> usage of a trailing comma by discretion of the developer. KtLint however uses this setting to <b>enforce</b> consistent usage of the trailing comma when set.</i> |     `true`      |    `true`     |    `false`     |
 
+!!! note
     The [Kotlin coding conventions](https://kotlinlang.org/docs/reference/coding-conventions.html#trailing-commas) encourages the usage of trailing commas on the declaration site, but leaves it to the developer's discretion to use trailing commas on the call site. But next to this, it also states that usage of trailing commas has several benefits:
     
      * It makes version-control diffs cleaner – as all the focus is on the changed value.
      * It makes it easy to add and reorder elements – there is no need to add or delete the comma if you manipulate elements.
      * It simplifies code generation, for example, for object initializers. The last element can also have a comma.
 
-!!! note
-    Trailing comma on declaration site is automatically disabled if the [Wrapping](#wrapping) rule (or, before version `0.45.0`, the [Indentation](#indentation) rule) is disabled or not loaded. Because it cannot provide proper formatting with unwrapped declarations. (see [dependencies](./dependencies.md)).
+   KtLint values *consistent* formatting more than a per-situation decision, and therefore uses this setting to *enforce/disallow* usage of trailing comma's in declarations.
 
 Rule id: `trailing-comma-on-declaration-site` (`standard` rule set)
 
