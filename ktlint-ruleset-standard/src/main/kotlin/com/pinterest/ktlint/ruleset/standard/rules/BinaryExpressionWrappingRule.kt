@@ -108,9 +108,24 @@ public class BinaryExpressionWrappingRule :
                 }
             }
 
+        // Prefer to wrap the entire binary expression to a newline instead of wrapping the binary expression at the operation reference.
+        // E.g. prefer:
+        //     fooBar(
+        //         "foooooo" + "bar",
+        //     )
+        // instead of
+        //     fooBar("foooooo" +
+        //         "bar")
         node
             .takeIf { it.treeParent.elementType == VALUE_ARGUMENT }
-            ?.takeIf { it.causesMaxLineLengthToBeExceeded() }
+            ?.takeUnless {
+                // Allow
+                //     fooBar(
+                //         "tooLongToFitOnSingleLine" +
+                //             "bar",
+                //     )
+                node.prevLeaf().isWhiteSpaceWithNewline()
+            }?.takeIf { it.causesMaxLineLengthToBeExceeded() }
             ?.let { expression ->
                 emit(
                     expression.startOffset,
