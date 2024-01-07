@@ -441,4 +441,20 @@ class BinaryExpressionWrappingRuleTest {
                 LintViolation(3, 59, "Line is exceeding max line length. Break line after 'returns' in binary expression"),
             ).isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Issue 2492 - Given a binary expression as value argument on a separate line`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER  $EOL_CHAR
+            val foo =
+                foo(
+                    "longgggggggggggggg" +
+                        "foo",
+                )
+            """.trimIndent()
+        binaryExpressionWrappingRuleAssertThat(code)
+            .setMaxLineLength()
+            .hasNoLintViolations()
+    }
 }
