@@ -47,7 +47,7 @@ class SpacingAroundOperatorsRuleTest {
             .hasLintViolations(
                 LintViolation(1, 13, "Missing spacing around \"${operator}\""),
                 LintViolation(2, 13, "Missing spacing before \"${operator}\""),
-                LintViolation(3, 15, "Missing spacing after \"${operator}\""),
+                LintViolation(3, 14 + operator.length, "Missing spacing after \"${operator}\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -248,10 +248,10 @@ class SpacingAroundOperatorsRuleTest {
                 """.trimIndent()
             spacingAroundOperatorsRuleAssertThat(code)
                 .hasLintViolations(
-                    LintViolation(3, 8, "Missing spacing after \"+=\""),
-                    LintViolation(4, 8, "Missing spacing after \"-=\""),
-                    LintViolation(5, 8, "Missing spacing after \"/=\""),
-                    LintViolation(6, 8, "Missing spacing after \"*=\""),
+                    LintViolation(3, 9, "Missing spacing after \"+=\""),
+                    LintViolation(4, 9, "Missing spacing after \"-=\""),
+                    LintViolation(5, 9, "Missing spacing after \"/=\""),
+                    LintViolation(6, 9, "Missing spacing after \"*=\""),
                 ).isFormattedAs(formattedCode)
         }
     }
@@ -284,5 +284,34 @@ class SpacingAroundOperatorsRuleTest {
             val foo = Map<PropertyType<*>>
             """.trimIndent()
         spacingAroundOperatorsRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a custom DSL`() {
+        val code =
+            """
+            fun foo() {
+                every { foo() }returns(bar)andThen(baz)
+                every { foo() }returns (bar)andThen (baz)
+                every { foo() } returns(bar) andThen(baz)
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo() {
+                every { foo() } returns (bar) andThen (baz)
+                every { foo() } returns (bar) andThen (baz)
+                every { foo() } returns (bar) andThen (baz)
+            }
+            """.trimIndent()
+        spacingAroundOperatorsRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 20, "Missing spacing around \"returns\""),
+                LintViolation(2, 32, "Missing spacing around \"andThen\""),
+                LintViolation(3, 20, "Missing spacing before \"returns\""),
+                LintViolation(3, 33, "Missing spacing before \"andThen\""),
+                LintViolation(4, 28, "Missing spacing after \"returns\""),
+                LintViolation(4, 41, "Missing spacing after \"andThen\""),
+            ).isFormattedAs(formattedCode)
     }
 }
