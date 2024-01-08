@@ -134,13 +134,13 @@ Formatting projects in which ktlint is not used may result in a huge amount of f
    ktlint-dev -F --baseline=baseline.xml --relative # Do not call this command via the "./exec-in-each-project.sh" script as we want to use the one combined baseline.xml file for all projects.
    ```
    Inspect the output carefully:
-  * If you see an error like below, then this version obviously may *not* be released. It is best to fix this error before continuing with testing and validating!
+   * If you see an error like below, then this version obviously may *not* be released. It is best to fix this error before continuing with testing and validating!
     ```plain
     Internal Error (...) in file '...' at position '0:0. Please create a ticket at https://github.com/pinterest/ktlint/issues ...
     ```
-  * Ideally, no violations are shown. This means that all violations have been autocorrected.
-  * Violations which could not be autocorrected should be validated for correctness but do not block the release as most likely this is intended behavior.
-  * If a violation is shown which is not marked as being "can not be autocorrected" this means that during autocorrect of another violation a new violations has been introduced. This should be fixed before releasing especially when the next format introduces the original violation again which of course would result in an endless loop.
+   * Ideally, no violations are shown. This means that all violations have been autocorrected.
+   * Violations which could not be autocorrected should be validated for correctness but do not block the release as most likely this is intended behavior.
+   * If a violation is shown which is not marked as being "can not be autocorrected" this means that during autocorrect of another violation a new violations has been introduced. This should be fixed before releasing especially when the next format introduces the original violation again which of course would result in an endless loop.
 8. Inspect all fixed violations, Of course inspection similar violations tens of times does not make sense. At least check different types of violations a couple of times. Commit changes which do not need to be inspected again:
    ```shell
    ./exec-in-each-project.sh "git add --all && git commit -m \"Fixed with latest development version\""
