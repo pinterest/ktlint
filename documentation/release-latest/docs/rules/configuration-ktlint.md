@@ -50,7 +50,7 @@ The configuration settings below are used to configure the behavior of a specifi
 | ij_kotlin_packages_to_use_import_on_demand                                                | [no-wildcard-imports](../standard/#no-wildcard-imports)                               |
 | indent_size                                                                               | [indent](../standard/#indentation)                                                    |                                                                                       |
 | indent_style                                                                              | [indent](../standard/#indentation)                                                    |                                                                                       |
-                                                                                    |
+|
 | insert_final_newline                                                                      | [final-newline](../standard/#final-newline)                                           |                                                                                       |
 | ktlint_chain_method_rule_force_multiline_when_chain_operator_count_greater_or_equal_than  | [chain-method-continuation](../experimental/#chain-method-continuation)               |
 | ktlint_class_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than    | [class-signature](../experimental/#class-signature)                                   |
