@@ -262,10 +262,10 @@ public class ArgumentListWrappingRule :
     private fun ASTNode.isPartOfDotQualifiedAssignmentExpression(): Boolean =
         treeParent
             ?.treeParent
-            ?.let { x ->
-                x.elementType == BINARY_EXPRESSION &&
-                    x.firstChildNode.elementType == DOT_QUALIFIED_EXPRESSION &&
-                    x.findChildByType(OPERATION_REFERENCE)?.firstChildNode?.elementType == EQ
+            ?.takeIf { it.elementType == BINARY_EXPRESSION }
+            ?.let { binaryExpression ->
+                binaryExpression.firstChildNode.elementType == DOT_QUALIFIED_EXPRESSION &&
+                    binaryExpression.findChildByType(OPERATION_REFERENCE)?.firstChildNode?.elementType == EQ
             }
             ?: false
 
