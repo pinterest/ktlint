@@ -4,6 +4,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLOSING_QUOTE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LITERAL_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPEN_QUOTE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REGULAR_STRING_PART
@@ -105,7 +106,9 @@ public class StringTemplateIndentRule :
                         }
                     stringTemplate
                         .getFirstLeafAfterTrimIndent()
-                        ?.takeUnless { it.isWhiteSpaceWithNewline() || it.elementType == COMMA }
+                        ?.takeUnless { it.isWhiteSpaceWithNewline() }
+                        ?.takeUnless { it.elementType == COMMA }
+                        ?.takeUnless { it.treeParent.elementType == DOT_QUALIFIED_EXPRESSION }
                         ?.let { nextLeaf ->
                             emit(nextLeaf.startOffset, "Expected newline after multiline string template", true)
                             if (autoCorrect) {

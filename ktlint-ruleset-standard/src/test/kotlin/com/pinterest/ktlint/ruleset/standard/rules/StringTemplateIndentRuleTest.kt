@@ -425,4 +425,24 @@ class StringTemplateIndentRuleTest {
                 LintViolation(8, 17, "Unexpected indent of raw string literal"),
             ).isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Given a multiline raw string literal and trimIndent is followed by another dot qualified expression`() {
+        val code =
+            """
+            val foo = $MULTILINE_STRING_QUOTE
+                someText
+                $MULTILINE_STRING_QUOTE.trimIndent().lowercase()
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo =
+                $MULTILINE_STRING_QUOTE
+                someText
+                $MULTILINE_STRING_QUOTE.trimIndent().lowercase()
+            """.trimIndent()
+        stringTemplateIndentRuleAssertThat(code)
+            .hasLintViolation(1, 11, "Expected newline before multiline string template")
+            .isFormattedAs(formattedCode)
+    }
 }
