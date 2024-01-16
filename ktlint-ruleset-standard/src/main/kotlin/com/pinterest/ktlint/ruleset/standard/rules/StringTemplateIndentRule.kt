@@ -2,10 +2,12 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLOSING_QUOTE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LITERAL_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPEN_QUOTE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REGULAR_STRING_PART
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.RETURN_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
@@ -20,11 +22,14 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
-import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
+import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -38,7 +43,7 @@ public class StringTemplateIndentRule :
         visitorModifiers =
             setOf(
                 // Wrap all multiline string templates to a separate line
-                VisitorModifier.RunAfterRule(MULTILINE_EXPRESSION_WRAPPING_RULE_ID, ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED),
+//                VisitorModifier.RunAfterRule(MULTILINE_EXPRESSION_WRAPPING_RULE_ID, ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED),
                 // The IndentationRule first needs to fix the indentation of the opening quotes of the string template. The indentation inside
                 // the string template is relative to the opening quotes. Running this rule before the IndentationRule results in a wrong
                 // indentation whenever the indent level of the root of the string template is changed.
@@ -51,12 +56,13 @@ public class StringTemplateIndentRule :
             ),
     ),
     Rule.OfficialCodeStyle {
+    private lateinit var indentConfig: IndentConfig
     private lateinit var nextIndent: String
     private lateinit var wrongIndentChar: String
     private lateinit var wrongIndentDescription: String
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
-        val indentConfig =
+        indentConfig =
             IndentConfig(
                 indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
                 tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
@@ -83,23 +89,63 @@ public class StringTemplateIndentRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        if (node.elementType == STRING_TEMPLATE) {
-            val psi = node.psi as KtStringTemplateExpression
-            if (psi.isMultiLine() && psi.isFollowedByTrimIndent()) {
-                if (node.containsMixedIndentationCharacters()) {
-                    // It can not be determined with certainty how mixed indentation characters should be interpreted. The trimIndent
-                    // function handles tabs and spaces equally (one tabs equals one space) while the user might expect that the tab size in
-                    // the indentation is more than one space.
-                    emit(node.startOffset, "Indentation of multiline raw string literal should not contain both tab(s) and space(s)", false)
-                    return
-                }
+        node
+            .takeIf { it.elementType == STRING_TEMPLATE }
+            ?.let { stringTemplate ->
+                val psi = stringTemplate.psi as KtStringTemplateExpression
+                if (psi.isMultiLine() && psi.isFollowedByTrimIndent()) {
+                    stringTemplate
+                        .takeUnless { it.isPrecededByWhitespaceWithNewline() }
+                        ?.takeUnless { it.isPrecededByReturnKeyword() }
+                        ?.let { whiteSpace ->
+                            emit(stringTemplate.startOffset, "Expected newline before multiline string template", true)
+                            if (autoCorrect) {
+                                whiteSpace.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(whiteSpace.treeParent))
+                            }
+                        }
+                    stringTemplate
+                        .getFirstLeafAfterTrimIndent()
+                        ?.takeUnless { it.isWhiteSpaceWithNewline() || it.elementType == COMMA }
+                        ?.let { nextLeaf ->
+                            emit(nextLeaf.startOffset, "Expected newline after multiline string template", true)
+                            if (autoCorrect) {
+                                nextLeaf.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(stringTemplate.treeParent))
+                            }
+                        }
 
-                val indent = node.getIndent()
-//                indentWhiteSpaceBeforeStringTemplate(node, indent, emit, autoCorrect)
-                indentStringTemplate(node, indent, emit, autoCorrect)
+                    if (stringTemplate.containsMixedIndentationCharacters()) {
+                        // It can not be determined with certainty how mixed indentation characters should be interpreted. The trimIndent
+                        // function handles tabs and spaces equally (one tabs equals one space) while the user might expect that the tab size in
+                        // the indentation is more than one space.
+                        emit(
+                            stringTemplate.startOffset,
+                            "Indentation of multiline raw string literal should not contain both tab(s) and space(s)",
+                            false,
+                        )
+                        return
+                    }
+
+                    val indent = stringTemplate.getIndent()
+                    indentStringTemplate(node, indent, emit, autoCorrect)
+                }
             }
-        }
     }
+
+    private fun ASTNode.getFirstLeafAfterTrimIndent() =
+        takeIf { it.elementType == STRING_TEMPLATE }
+            ?.takeIf { (it.psi as KtStringTemplateExpression).isFollowedByTrimIndent() }
+            ?.treeParent
+            ?.lastChildLeafOrSelf()
+            ?.nextLeaf()
+
+    private fun ASTNode.isPrecededByWhitespaceWithNewline() = prevLeaf().isWhiteSpaceWithNewline()
+
+    private fun ASTNode.isPrecededByReturnKeyword() =
+        // Allow below as otherwise it results in compilation failure:
+        //   return """
+        //       some string
+        //       """
+        prevCodeLeaf()?.elementType == RETURN_KEYWORD
 
     private fun ASTNode.getIndent(): String {
         // When executing this rule, the indentation rule may not have run yet. The functionality to determine the correct indentation level
@@ -147,26 +193,6 @@ public class StringTemplateIndentRule :
             .map { it.removePrefix(RAW_STRING_LITERAL_QUOTES) }
             .map { it.removeSuffix(RAW_STRING_LITERAL_QUOTES) }
             .filterNot { it.isBlank() }
-    }
-
-    private fun indentWhiteSpaceBeforeStringTemplate(
-        node: ASTNode,
-        indent: String,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
-    ) {
-        val prevLeaf = node.prevLeaf()!!
-        if (!prevLeaf.textContains('\n')) {
-            emit(prevLeaf.startOffset + 1, """Missing newline before raw string literal""", true)
-        } else if (prevLeaf.getTextAfterLastNewline() != indent) {
-            emit(prevLeaf.startOffset + 1, "Unexpected indent before opening quotes of raw string literal", true)
-        } else {
-            return
-        }
-
-        if (autoCorrect) {
-            prevLeaf.upsertWhitespaceAfterMe("\n" + indent)
-        }
     }
 
     private fun indentStringTemplate(
