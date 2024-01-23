@@ -518,7 +518,7 @@ internal class KtlintCommandLine {
         } catch (e: Exception) {
             if (code.isStdIn && e is KtLintParseException) {
                 if (code.script) {
-                    // When reading from stdin, code is only parsed as Kotlint script, if it could not be parsed as pure Kotlin. Now parsing
+                    // When reading from stdin, code is only parsed as Kotlin script, if it could not be parsed as pure Kotlin. Now parsing
                     // of the code has failed for both, the file has to be ignored.
                     logger.error {
                         """
