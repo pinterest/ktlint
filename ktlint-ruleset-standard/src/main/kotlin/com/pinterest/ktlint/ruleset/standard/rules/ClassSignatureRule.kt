@@ -689,9 +689,9 @@ public class ClassSignatureRule :
                 type =
                     PropertyType.LowerCasingPropertyType(
                         "ktlint_class_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than",
-                        "Force wrapping the parameters of the class signature in case it contains at least the specified " +
-                            "number of parameters even in case the entire Class signature would fit on a single line. " +
-                            "By default this parameter is not enabled.",
+                        "Force wrapping of the parameters of the class signature in case it contains at least the specified " +
+                            "number of parameters, even in case the entire class signature would fit on a single line. " +
+                            "Use value 'unset' to disable this setting.",
                         PropertyType.PropertyValueParser.POSITIVE_INT_VALUE_PARSER,
                         setOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "unset"),
                     ),

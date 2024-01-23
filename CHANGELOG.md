@@ -2,6 +2,55 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+### Removed
+
+### Fixed
+
+### Changed
+
+## [1.1.1] - 2024-01-08
+
+### 🆕 Features
+
+None
+
+### 🔧 Fixes
+
+
+* Fix incorrect generateEditorConfig example in documentation - [#2444](https://github.com/pinterest/ktlint/pull/2444), by @stay7
+
+* Fix insert of suppression on binary expression - [#2463](https://github.com/pinterest/ktlint/pull/2463), by @paul-dingemans
+
+* Loosen dependency between chain-method-continuation and argument-list-wrapping - [#2468](https://github.com/pinterest/ktlint/pull/2468), by @paul-dingemans
+
+* Keep arrow when both parameter list and block of function literal are empty - [#2469](https://github.com/pinterest/ktlint/pull/2469), by @paul-dingemans
+
+* Improve wrapping of binary expressions - [#2479](https://github.com/pinterest/ktlint/pull/2479), by @paul-dingemans
+
+* Resolve conflict between parameter-list-spacing and parameter-list-wrapping - [#2491](https://github.com/pinterest/ktlint/pull/2491), by @paul-dingemans
+
+* Do not wrap binary expression value argument if it is already preceded by a newline - [#2493](https://github.com/pinterest/ktlint/pull/2493), by @paul-dingemans
+
+* Fix operator spacing - [#2473](https://github.com/pinterest/ktlint/pull/2473), by @paul-dingemans
+
+* Run `argument-list-wrapping`, `class-signature` and `function-signature` when comment rules are disabled - [#2466](https://github.com/pinterest/ktlint/pull/2466), by @paul-dingemans
+
+### 📦 Dependencies
+
+* fix(deps): update kotlin monorepo to v1.9.22 - [#2456](https://github.com/pinterest/ktlint/pull/2456), by @renovate[bot]
+
+* chore(deps): update actions/setup-python action to v5 - [#2417](https://github.com/pinterest/ktlint/pull/2417), by @renovate[bot]
+
+* fix(deps): update dependency org.slf4j:slf4j-simple to v2.0.10 - [#2470](https://github.com/pinterest/ktlint/pull/2470), by @renovate[bot]
+
+* fix(deps): update dependency dev.drewhamilton.poko:poko-gradle-plugin to v0.15.2 - [#2485](https://github.com/pinterest/ktlint/pull/2485), by @renovate[bot]
+
+* fix(deps): update dependency org.assertj:assertj-core to v3.25.1 - [#2486](https://github.com/pinterest/ktlint/pull/2486), by @renovate[bot]
+
 ## [1.1.0] - 2023-12-19
 
 ### 🆕 Features
@@ -2262,6 +2311,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[1.1.1]: https://github.com/pinterest/ktlint/compare/1.1.1...1.1.0
 [1.1.0]: https://github.com/pinterest/ktlint/compare/1.0.1...1.1.0
 [1.0.1]: https://github.com/pinterest/ktlint/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/pinterest/ktlint/compare/0.50.0...1.0.0

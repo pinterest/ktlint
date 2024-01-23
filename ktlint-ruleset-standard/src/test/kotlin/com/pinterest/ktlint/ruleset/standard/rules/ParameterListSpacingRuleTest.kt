@@ -1,5 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
@@ -477,6 +479,33 @@ class ParameterListSpacingRuleTest {
             )
             """.trimIndent()
         parameterListSpacingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 2488 - Given a parameter with type reference which does not fit on a single line`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER          $EOL_CHAR
+            class Foo(
+                val foooooooooooo:
+                    Foooooooooooo,
+                val fooooooooooooX:
+                    Foooooooooooo,
+            )
+            """.trimIndent()
+        val formattedCode =
+            """
+            // $MAX_LINE_LENGTH_MARKER          $EOL_CHAR
+            class Foo(
+                val foooooooooooo: Foooooooooooo,
+                val fooooooooooooX:
+                    Foooooooooooo,
+            )
+            """.trimIndent()
+        parameterListSpacingRuleAssertThat(code)
+            .setMaxLineLength()
+            .hasLintViolation(3, 23, "Expected a single space")
+            .isFormattedAs(formattedCode)
     }
 
     private companion object {
