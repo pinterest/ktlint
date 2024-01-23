@@ -13,7 +13,11 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.lineLengthWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
@@ -32,7 +36,18 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
  */
 @SinceKtlint("0.46", EXPERIMENTAL)
 @SinceKtlint("1.0", STABLE)
-public class ParameterListSpacingRule : StandardRule("parameter-list-spacing") {
+public class ParameterListSpacingRule :
+    StandardRule(
+        id = "parameter-list-spacing",
+        usesEditorConfigProperties =
+            setOf(MAX_LINE_LENGTH_PROPERTY),
+    ) {
+    private var maxLineLength = MAX_LINE_LENGTH_PROPERTY.defaultValue
+
+    override fun beforeFirstNode(editorConfig: EditorConfig) {
+        maxLineLength = editorConfig[MAX_LINE_LENGTH_PROPERTY]
+    }
+
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -201,6 +216,13 @@ public class ParameterListSpacingRule : StandardRule("parameter-list-spacing") {
                         //           Bar,
                         //   )
                         Unit
+                    } else if (whiteSpaceAfterColon.hasTypeReferenceWhichDoesNotFitOnSameLineAsColon()) {
+                        // Allow the type to be wrapped to the next line when the type does not fit on same line as colon:
+                        //   class Foo(
+                        //       val someReallyLongFieldNameUsedInMyClass:
+                        //           SomeReallyLongDependencyClass
+                        //   )
+                        Unit
                     } else if (whiteSpaceAfterColon.isNotSingleSpace()) {
                         replaceWithSingleSpace(whiteSpaceAfterColon, emit, autoCorrect)
                     }
@@ -270,6 +292,24 @@ public class ParameterListSpacingRule : StandardRule("parameter-list-spacing") {
             this
                 ?.findChildByType(TYPE_REFERENCE)
                 ?.findChildByType(MODIFIER_LIST)
+
+    private fun ASTNode.hasTypeReferenceWhichDoesNotFitOnSameLineAsColon() =
+        takeIf { it.isWhiteSpaceWithNewline() }
+            ?.nextCodeSibling()
+            ?.takeIf { it.elementType == TYPE_REFERENCE }
+            ?.let { typeReference ->
+                val length =
+                    // length of previous line
+                    lineLengthWithoutNewlinePrefix() +
+                        // single space before type reference
+                        1 -
+                        // length of current indent before typeReference
+                        this.text.substringAfterLast("\n").length +
+                        // length of line containing typeReference
+                        typeReference.lineLengthWithoutNewlinePrefix()
+                length > maxLineLength
+            }
+            ?: false
 }
 
 public val PARAMETER_LIST_SPACING_RULE_ID: RuleId = ParameterListSpacingRule().ruleId

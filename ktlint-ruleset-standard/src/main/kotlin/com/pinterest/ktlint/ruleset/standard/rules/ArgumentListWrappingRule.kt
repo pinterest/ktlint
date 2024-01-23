@@ -22,7 +22,6 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.indent
-import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
@@ -111,10 +110,7 @@ public class ArgumentListWrappingRule :
             // skip lambda arguments
             node.treeParent?.elementType != FUNCTION_LITERAL &&
             // skip if number of arguments is big (we assume it with a magic number of 8)
-            node.children().count { it.elementType == VALUE_ARGUMENT } <= 8 &&
-            // skip if part of a value argument list. It depends on the situation whether it is better to wrap the arguments in the list
-            // or the operators in the binary expression
-            !node.isPartOf(BINARY_EXPRESSION)
+            node.children().count { it.elementType == VALUE_ARGUMENT } <= 8
         ) {
             // each argument should be on a separate line if
             // - at least one of the arguments is
