@@ -38,31 +38,6 @@ import java.util.Arrays
 
 @SinceKtlint("0.7", STABLE)
 public class ModifierOrderRule : StandardRule("modifier-order") {
-    // subset of ElementType.MODIFIER_KEYWORDS_ARRAY (+ annotations entries)
-    private val order =
-        arrayOf(
-            ANNOTATION_ENTRY,
-            PUBLIC_KEYWORD, PROTECTED_KEYWORD, PRIVATE_KEYWORD, INTERNAL_KEYWORD,
-            EXPECT_KEYWORD, ACTUAL_KEYWORD,
-            FINAL_KEYWORD, OPEN_KEYWORD, ABSTRACT_KEYWORD, SEALED_KEYWORD, CONST_KEYWORD,
-            EXTERNAL_KEYWORD,
-            OVERRIDE_KEYWORD,
-            LATEINIT_KEYWORD,
-            TAILREC_KEYWORD,
-            VARARG_KEYWORD,
-            SUSPEND_KEYWORD,
-            INNER_KEYWORD,
-            ENUM_KEYWORD, ANNOTATION_KEYWORD,
-            COMPANION_KEYWORD,
-            INLINE_KEYWORD,
-            INFIX_KEYWORD,
-            OPERATOR_KEYWORD,
-            DATA_KEYWORD,
-            // NOINLINE_KEYWORD, CROSSINLINE_KEYWORD, OUT_KEYWORD, IN_KEYWORD, REIFIED_KEYWORD
-            // HEADER_KEYWORD, IMPL_KEYWORD
-        )
-    private val tokenSet = TokenSet.create(*order)
-
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -70,7 +45,7 @@ public class ModifierOrderRule : StandardRule("modifier-order") {
     ) {
         if (node.psi is KtDeclarationModifierList) {
             val modifierArr = node.getChildren(tokenSet)
-            val sorted = modifierArr.copyOf().apply { sortWith(compareBy { order.indexOf(it.elementType) }) }
+            val sorted = modifierArr.copyOf().apply { sortWith(compareBy { ORDERED_MODIFIERS.indexOf(it.elementType) }) }
             if (!Arrays.equals(modifierArr, sorted)) {
                 // Since annotations can be fairly lengthy and/or span multiple lines we are
                 // squashing them into a single placeholder text to guarantee a single line output
@@ -99,6 +74,42 @@ public class ModifierOrderRule : StandardRule("modifier-order") {
         } else {
             nonAnnotationModifiers.map { it.text }
         }
+    }
+
+    private companion object {
+        // subset of ElementType.MODIFIER_KEYWORDS_ARRAY (+ annotations entries)
+        private val ORDERED_MODIFIERS =
+            arrayOf(
+                ANNOTATION_ENTRY,
+                PUBLIC_KEYWORD,
+                PROTECTED_KEYWORD,
+                PRIVATE_KEYWORD,
+                INTERNAL_KEYWORD,
+                EXPECT_KEYWORD,
+                ACTUAL_KEYWORD,
+                FINAL_KEYWORD,
+                OPEN_KEYWORD,
+                ABSTRACT_KEYWORD,
+                SEALED_KEYWORD,
+                CONST_KEYWORD,
+                EXTERNAL_KEYWORD,
+                OVERRIDE_KEYWORD,
+                LATEINIT_KEYWORD,
+                TAILREC_KEYWORD,
+                VARARG_KEYWORD,
+                SUSPEND_KEYWORD,
+                INNER_KEYWORD,
+                ENUM_KEYWORD,
+                ANNOTATION_KEYWORD,
+                COMPANION_KEYWORD,
+                INLINE_KEYWORD,
+                INFIX_KEYWORD,
+                OPERATOR_KEYWORD,
+                DATA_KEYWORD,
+                // NOINLINE_KEYWORD, CROSSINLINE_KEYWORD, OUT_KEYWORD, IN_KEYWORD, REIFIED_KEYWORD
+                // HEADER_KEYWORD, IMPL_KEYWORD
+            )
+        private val tokenSet = TokenSet.create(*ORDERED_MODIFIERS)
     }
 }
 

@@ -1243,7 +1243,7 @@ Rule id: `no-trailing-spaces` (`standard` rule set)
 
 ## No `Unit` as return type 
 
-The `Unit` type is not allowed as return type of a function.
+The `Unit` type is not allowed as return-type of a function.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -2340,6 +2340,10 @@ All arguments should be on the same line, or every argument should be on a separ
             b, c,
         )
     ```
+
+| Configuration setting                                                             | ktlint_official | intellij_idea | android_studio |
+|:----------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `ktlint_argument_list_wrapping_ignore_when_parameter_count_greater_or_equal_than` |     `unset`     |       8       |       8        |
 
 Rule-id: `argument-list-wrapping` (`standard` rule set)
 

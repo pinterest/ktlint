@@ -285,6 +285,7 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
     private companion object {
         val COMPONENT_N_REGEX = Regex("^component\\d+$")
 
+        @Suppress("ktlint:standard:argument-list-wrapping")
         val OPERATOR_SET =
             setOf(
                 // unary

@@ -29,9 +29,14 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/AnnotationSpacing
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/ArgumentListWrappingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
+	public static final field Companion Lcom/pinterest/ktlint/ruleset/standard/rules/ArgumentListWrappingRule$Companion;
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
 	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+}
+
+public final class com/pinterest/ktlint/ruleset/standard/rules/ArgumentListWrappingRule$Companion {
+	public final fun getIGNORE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY ()Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/ArgumentListWrappingRuleKt {
