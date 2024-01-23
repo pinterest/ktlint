@@ -4008,7 +4008,7 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 <h2 id="no-trailing-whitespaces">No trailing whitespaces<a class="headerlink" href="#no-trailing-whitespaces" title="Permanent link">&para;</a></h2>
 <p>Rule id: <code>no-trailing-spaces</code> (<code>standard</code> rule set)</p>
 <h2 id="no-unit-as-return-type">No <code>Unit</code> as return type<a class="headerlink" href="#no-unit-as-return-type" title="Permanent link">&para;</a></h2>
-<p>The <code>Unit</code> type is not allowed as return type of a function.</p>
+<p>The <code>Unit</code> type is not allowed as return-type of a function.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="36:2"><input checked="checked" id="__tabbed_36_1" name="__tabbed_36" type="radio" /><input id="__tabbed_36_2" name="__tabbed_36" type="radio" /><div class="tabbed-labels"><label for="__tabbed_36_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53L12 21.35Z"/></svg></span></a> Ktlint</label><label for="__tabbed_36_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9Z"/></svg></span></a> Disallowed</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -5064,6 +5064,24 @@ Although this code sample might look ok, it is semantically and programmatically
 </div>
 </div>
 </div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Configuration setting</th>
+<th style="text-align: center;">ktlint_official</th>
+<th style="text-align: center;">intellij_idea</th>
+<th style="text-align: center;">android_studio</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>ktlint_argument_list_wrapping_ignore_when_parameter_count_greater_or_equal_than</code></td>
+<td style="text-align: center;"><code>unset</code></td>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">8</td>
+</tr>
+</tbody>
+</table>
 <p>Rule-id: <code>argument-list-wrapping</code> (<code>standard</code> rule set)</p>
 <h3 id="chain-wrapping">Chain wrapping<a class="headerlink" href="#chain-wrapping" title="Permanent link">&para;</a></h3>
 <p>When wrapping chained calls <code>.</code>, <code>?.</code> and <code>?:</code> should be placed on the next line</p>
