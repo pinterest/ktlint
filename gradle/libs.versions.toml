@@ -20,7 +20,7 @@ kotlin-plugin-dev = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", vers
 dokka = "org.jetbrains.dokka:dokka-gradle-plugin:1.9.10"
 ec4j = "org.ec4j.core:ec4j-core:0.3.0"
 picocli = "info.picocli:picocli:4.7.5"
-logging = "io.github.oshai:kotlin-logging-jvm:5.1.4"
+logging = "io.github.oshai:kotlin-logging-jvm:6.0.3"
 slf4j = "org.slf4j:slf4j-simple:2.0.11"
 poko = "dev.drewhamilton.poko:poko-gradle-plugin:0.15.2"
 # Use logback-classic as the logger for kotlin-logging / slf4j as it allow changing the log level at runtime.
