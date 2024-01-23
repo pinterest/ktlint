@@ -918,10 +918,13 @@ Ensures that lines do not exceed the maximum length of a line. This rule does no
     package com.toooooooooooooooooooooooooooo.long
     import com.tooooooooooooooooooooooooooooo.long
 
-    val foo =
+    val foo1 =
         """
         fooooooooooooooooooooooooooooooooooooooooo
         """
+
+    val foo2 =
+        "fooooooooooooooooooooooooooooooooooooooo"
 
     @Test
     fun `Test description which is toooooooooooo long`() {
@@ -933,9 +936,8 @@ Ensures that lines do not exceed the maximum length of a line. This rule does no
     // Assume that the last allowed character is
     // at the X character on the right           X
     val fooooooooooooooo = "fooooooooooooooooooooo"
+    val foo = "foo" + "ooooooooooooooooooooooooooo"
     val foooooooooooooo = "foooooooooooooooooooo" // some comment
-    val fooooooooooooo =
-        "foooooooooooooooooooooooooooooooooooooooo"
     ```
 
 
