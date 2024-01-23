@@ -982,4 +982,15 @@ class ArgumentListWrappingRuleTest {
                 LintViolation(3, 48, "Missing newline before \")\""),
             ).isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Issue 2499 - Given a function signature with expression body starting on same line as function signature then do not throw exception`() {
+        val code =
+            """
+            fun foo(): List<Int> = listOf(
+                1,
+            ) + listOf(2).map { it }
+            """.trimIndent()
+        argumentListWrappingRuleAssertThat(code).hasNoLintViolations()
+    }
 }

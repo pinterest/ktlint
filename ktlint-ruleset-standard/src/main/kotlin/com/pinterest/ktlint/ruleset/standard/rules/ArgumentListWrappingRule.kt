@@ -4,8 +4,10 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.BINARY_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLLECTION_LITERAL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ELSE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.EQ
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LPAR
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
@@ -173,7 +175,7 @@ public class ArgumentListWrappingRule :
                 editorConfigIndent
                     .indentLevelFrom(child.treeParent.indent(false))
                     .plus(indentLevelFix)
-            "\n" + editorConfigIndent.indent.repeat(indentLevel)
+            "\n" + editorConfigIndent.indent.repeat(maxOf(indentLevel, 0))
         }
 
     private fun wrapArgumentInList(
@@ -258,8 +260,14 @@ public class ArgumentListWrappingRule :
             ?.any { it.isWhiteSpaceWithNewline() } == true
 
     private fun ASTNode.isPartOfDotQualifiedAssignmentExpression(): Boolean =
-        treeParent?.treeParent?.elementType == BINARY_EXPRESSION &&
-            treeParent?.treeParent?.children()?.find { it.elementType == DOT_QUALIFIED_EXPRESSION } != null
+        treeParent
+            ?.treeParent
+            ?.takeIf { it.elementType == BINARY_EXPRESSION }
+            ?.let { binaryExpression ->
+                binaryExpression.firstChildNode.elementType == DOT_QUALIFIED_EXPRESSION &&
+                    binaryExpression.findChildByType(OPERATION_REFERENCE)?.firstChildNode?.elementType == EQ
+            }
+            ?: false
 
     private fun ASTNode.prevWhiteSpaceWithNewLine(): ASTNode? {
         var prev = prevLeaf()
