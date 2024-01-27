@@ -40,7 +40,7 @@ jobs:
       - name: Extract release notes
         id: release_notes
         if: ${{ success() }}
-        uses: ffurrer2/extract-release-notes@v1
+        uses: ffurrer2/extract-release-notes@v2
 
       - name: Get version
         id: get_version
