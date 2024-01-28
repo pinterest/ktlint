@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.3">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.6">
     
     
       
@@ -4979,13 +4979,13 @@ Although this code sample might look ok, it is semantically and programmatically
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>In a lot of projects it is an accepted practice to use EOL comments to document the parameter <em>before</em> the comma as is shown below:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-151-1" name="__codelineno-151-1" href="#__codelineno-151-1"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span>
-<a id="__codelineno-151-2" name="__codelineno-151-2" href="#__codelineno-151-2"></a><span class="w">    </span><span class="n">bar1</span><span class="p">:</span><span class="w"> </span><span class="n">Bar1</span><span class="p">,</span><span class="w"> </span><span class="c1">// some comment</span>
-<a id="__codelineno-151-3" name="__codelineno-151-3" href="#__codelineno-151-3"></a><span class="w">    </span><span class="n">bar2</span><span class="p">:</span><span class="w"> </span><span class="n">Bar2</span><span class="p">,</span><span class="w"> </span><span class="c1">// some other comment</span>
-<a id="__codelineno-151-4" name="__codelineno-151-4" href="#__codelineno-151-4"></a><span class="p">)</span>
-</code></pre></div>
-Although this code sample might look ok, it is semantically and programmatically unclear on which parameter <code>some comment</code> refers. From the developer perspective it might be clear that it belongs to parameter <code>bar1</code>. From the parsers perspective, it does belong to parameter <code>bar2</code>. This might lead to <a href="https://github.com/pinterest/ktlint/issues/2445#issuecomment-1863432022">unexpected behavior in Intellij IDEA</a>.</p>
+<p>In Ktlint 1.1.x EOL comments like below are disallowed. This will be reverted in Ktlint 1.2.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-151-1" name="__codelineno-151-1" href="#__codelineno-151-1"></a><span class="kd">val</span><span class="w"> </span><span class="nv">foo1</span><span class="w"> </span><span class="o">=</span>
+<a id="__codelineno-151-2" name="__codelineno-151-2" href="#__codelineno-151-2"></a><span class="w">    </span><span class="n">foo</span><span class="p">(</span>
+<a id="__codelineno-151-3" name="__codelineno-151-3" href="#__codelineno-151-3"></a><span class="w">        </span><span class="n">bar1</span><span class="p">:</span><span class="w"> </span><span class="n">Bar1</span><span class="p">,</span><span class="w"> </span><span class="c1">// some comment</span>
+<a id="__codelineno-151-4" name="__codelineno-151-4" href="#__codelineno-151-4"></a><span class="w">        </span><span class="n">bar2</span><span class="p">:</span><span class="w"> </span><span class="n">Bar2</span><span class="p">,</span><span class="w"> </span><span class="c1">// some other comment</span>
+<a id="__codelineno-151-5" name="__codelineno-151-5" href="#__codelineno-151-5"></a><span class="w">    </span><span class="p">)</span>
+</code></pre></div></p>
 </div>
 <p>Rule id: <code>value-argument-comment</code> (<code>standard</code> rule set)</p>
 <h2 id="value-parameter-comment">Value parameter comment<a class="headerlink" href="#value-parameter-comment" title="Permanent link">&para;</a></h2>
@@ -5025,13 +5025,12 @@ Although this code sample might look ok, it is semantically and programmatically
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>In a lot of projects it is an accepted practice to use EOL comments to document the parameter <em>before</em> the comma as is shown below:
+<p>In Ktlint 1.1.x EOL comments like below are disallowed. This will be reverted in Ktlint 1.2.
 <div class="highlight"><pre><span></span><code><a id="__codelineno-154-1" name="__codelineno-154-1" href="#__codelineno-154-1"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo</span><span class="p">(</span>
 <a id="__codelineno-154-2" name="__codelineno-154-2" href="#__codelineno-154-2"></a><span class="w">    </span><span class="n">bar1</span><span class="p">:</span><span class="w"> </span><span class="n">Bar1</span><span class="p">,</span><span class="w"> </span><span class="c1">// some comment</span>
 <a id="__codelineno-154-3" name="__codelineno-154-3" href="#__codelineno-154-3"></a><span class="w">    </span><span class="n">bar2</span><span class="p">:</span><span class="w"> </span><span class="n">Bar2</span><span class="p">,</span><span class="w"> </span><span class="c1">// some other comment</span>
 <a id="__codelineno-154-4" name="__codelineno-154-4" href="#__codelineno-154-4"></a><span class="p">)</span>
-</code></pre></div>
-Although this code sample might look ok, it is semantically and programmatically unclear on which parameter <code>some comment</code> refers. From the developer perspective it might be clear that it belongs to parameter <code>bar1</code>. From the parsers perspective, it does belong to parameter <code>bar2</code>. This might lead to <a href="https://github.com/pinterest/ktlint/issues/2445#issuecomment-1863432022">unexpected behavior in Intellij IDEA</a>.</p>
+</code></pre></div></p>
 </div>
 <p>Rule id: <code>value-parameter-comment</code> (<code>standard</code> rule set)</p>
 <h2 id="wrapping">Wrapping<a class="headerlink" href="#wrapping" title="Permanent link">&para;</a></h2>
@@ -5487,10 +5486,10 @@ Although this code sample might look ok, it is semantically and programmatically
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "search.suggest", "search.share"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "search.suggest", "search.share"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7c377c4.min.js"></script>
+      <script src="../../assets/javascripts/bundle.e1c3ead8.min.js"></script>
       
     
   </body>
