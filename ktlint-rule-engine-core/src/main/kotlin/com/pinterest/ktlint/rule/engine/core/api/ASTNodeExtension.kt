@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.rule.engine.core.api
 
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VAL_KEYWORD
@@ -444,6 +445,16 @@ public fun ASTNode.leavesOnLine(): Sequence<ASTNode> {
         .takeWhile { lastLeafOnLineOrNull == null || it.prevLeaf() != lastLeafOnLineOrNull }
 }
 
+/**
+ * Take all nodes preceding the whitespace before the EOL comment
+ */
+public fun Sequence<ASTNode>.dropTrailingEolComment(): Sequence<ASTNode> =
+    takeWhile {
+        !(it.isWhiteSpace() && it.nextLeaf()?.elementType == EOL_COMMENT) &&
+            // But if EOL-comment not preceded by whitespace than take all node before the EOL comment
+            it.elementType != EOL_COMMENT
+    }
+
 internal fun ASTNode.getFirstLeafOnLineOrSelf() =
     prevLeaf { it.textContains('\n') || it.prevLeaf() == null }
         ?: this
@@ -452,9 +463,29 @@ internal fun ASTNode.getLastLeafOnLineOrNull() = nextLeaf { it.textContains('\n'
 
 /**
  * Get the total length of all leaves on the same line as the given node including the whitespace indentation but excluding all leading
- * newline characters in the whitespace indentation.
+ * newline characters in the whitespace indentation. Note that EOL-comments are included in the line length calculation. This can lead to
+ * rules modifying the code before the EOL-comment in case the EOL-comment causes the max_line_length to be exceeded. It should be
+ * preferred to prevent this by excluding the EOL-comment from the calculation (use [lineLength]), and let max-line-length rule report the
+ * violation.
  */
+@Deprecated(
+    message =
+        "Marked for removal in Ktlint 2.x. Rules should not modify code in case the EOL comment causes the max_line_length to be exceeded.",
+    replaceWith = ReplaceWith("lineLength(excludeEolComment = false)"),
+)
 public fun ASTNode.lineLengthWithoutNewlinePrefix(): Int = leavesOnLine().lineLengthWithoutNewlinePrefix()
+
+/**
+ * Get the total length of all leaves on the same line as the given node including the whitespace indentation but excluding all leading
+ * newline characters in the whitespace indentation. Use [excludeEolComment] to exclude the EOL-comment (and preceding whitespace) from this
+ * calculation. Note that rules should not modify code in case the EOL comment causes the max_line_length to be exceeded. Instead, let the
+ * max-line-length rule report this violation so that the developer can choose whether the comment can be shortened or that it can be placed
+ * on a separate line.
+ */
+public fun ASTNode.lineLength(excludeEolComment: Boolean = false): Int =
+    leavesOnLine()
+        .applyIf(excludeEolComment) { dropTrailingEolComment() }
+        .lineLengthWithoutNewlinePrefix()
 
 /**
  * Get the total length of all leaves in the sequence including the whitespace indentation but excluding all leading newline characters in

@@ -15,6 +15,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.column
+import com.pinterest.ktlint.rule.engine.core.api.dropTrailingEolComment
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
@@ -134,10 +135,10 @@ public class ParameterListWrappingRule :
         when {
             hasNoParameters() -> false
             codeStyle != ktlint_official && isPartOfFunctionLiteralInNonKtlintOfficialCodeStyle() -> false
+            codeStyle == ktlint_official && containsAnnotatedParameter() -> true
             codeStyle == ktlint_official && isPartOfFunctionLiteralStartingOnSameLineAsClosingParenthesisOfPrecedingReferenceExpression() ->
                 false
             textContains('\n') -> true
-            codeStyle == ktlint_official && containsAnnotatedParameter() -> true
             isOnLineExceedingMaxLineLength() -> true
             else -> false
         }
@@ -291,6 +292,7 @@ public class ParameterListWrappingRule :
             prevLeaf { it.textContains('\n') }
                 ?.leavesIncludingSelf()
                 ?.takeWhile { it.prevLeaf() != stopLeaf }
+                ?.dropTrailingEolComment()
                 ?.joinToString(separator = "") { it.text }
                 ?.substringAfter('\n')
                 ?.substringBefore('\n')

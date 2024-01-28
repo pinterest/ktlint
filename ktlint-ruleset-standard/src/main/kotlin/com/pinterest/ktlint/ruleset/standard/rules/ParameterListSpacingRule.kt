@@ -17,7 +17,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.rule.engine.core.api.lineLengthWithoutNewlinePrefix
+import com.pinterest.ktlint.rule.engine.core.api.lineLength
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
@@ -300,13 +300,13 @@ public class ParameterListSpacingRule :
             ?.let { typeReference ->
                 val length =
                     // length of previous line
-                    lineLengthWithoutNewlinePrefix() +
+                    lineLength(excludeEolComment = true) +
                         // single space before type reference
                         1 -
                         // length of current indent before typeReference
                         this.text.substringAfterLast("\n").length +
                         // length of line containing typeReference
-                        typeReference.lineLengthWithoutNewlinePrefix()
+                        typeReference.lineLength(excludeEolComment = true)
                 length > maxLineLength
             }
             ?: false

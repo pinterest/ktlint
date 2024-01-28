@@ -340,11 +340,30 @@ class FunctionLiteralRuleTest {
             """.trimIndent()
         functionLiteralRuleAssertThat(code)
             .setMaxLineLength()
-            .isFormattedAs(formattedCode)
             .hasLintViolations(
                 LintViolation(4, 19, "Newline expected before parameter"),
                 LintViolation(4, 29, "Newline expected before parameter"),
             ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 2450 - Given a parameter list followed by EOL comment which causes the max line length to be exceed then only report the violation via the max-line-length rule`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER  $EOL_CHAR
+            val foobar =
+                { foo: Foo // Some comment
+                    ->
+                    foo // Some other comment
+                }
+            """.trimIndent()
+        functionLiteralRuleAssertThat(code)
+            .setMaxLineLength()
+            .addAdditionalRuleProvider { MaxLineLengthRule() }
+            .hasLintViolationsForAdditionalRule(
+                LintViolation(3, 30, "Exceeded max line length (29)", false),
+                LintViolation(5, 30, "Exceeded max line length (29)", false),
+            ).hasNoLintViolationsExceptInAdditionalRules()
     }
 
     @Test

@@ -1013,4 +1013,21 @@ class ArgumentListWrappingRuleTest {
             """.trimIndent()
         argumentListWrappingRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 2450 - Given a statement followed by an EOL comment that causes the max line length to be exceeded then only report a violation via max-line-length rule`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER                 $EOL_CHAR
+            val foo = Bar.builder().baz(0).build() // long comment at the end of the line regarding baz
+            """.trimIndent()
+        argumentListWrappingRuleAssertThat(code)
+            .setMaxLineLength()
+            .addAdditionalRuleProvider { MaxLineLengthRule() }
+            .addAdditionalRuleProvider { ValueParameterCommentRule() }
+            .addAdditionalRuleProvider { ValueArgumentCommentRule() }
+            .hasLintViolationsForAdditionalRule(
+                LintViolation(2, 45, "Exceeded max line length (44)", false),
+            )
+    }
 }
