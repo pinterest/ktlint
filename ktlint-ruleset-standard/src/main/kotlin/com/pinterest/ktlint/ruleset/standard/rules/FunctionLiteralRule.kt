@@ -30,6 +30,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
+import com.pinterest.ktlint.rule.engine.core.api.lineLength
 import com.pinterest.ktlint.rule.engine.core.api.lineLengthWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -196,7 +197,7 @@ public class FunctionLiteralRule :
             }.length
     }
 
-    private fun ASTNode.exceedsMaxLineLength() = lineLengthWithoutNewlinePrefix() > maxLineLength
+    private fun ASTNode.exceedsMaxLineLength() = lineLength(excludeEolComment = true) > maxLineLength
 
     private fun ASTNode.wrapFirstParameterToNewline() =
         if (isFunctionLiteralLambdaWithNonEmptyValueParameterList()) {

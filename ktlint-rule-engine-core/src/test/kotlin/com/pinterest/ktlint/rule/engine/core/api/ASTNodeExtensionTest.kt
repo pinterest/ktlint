@@ -665,66 +665,189 @@ class ASTNodeExtensionTest {
         )
     }
 
-    @Test
-    fun `Given some lines containing identifiers at different indentation levels then get line length exclusive the leading newline characters`() {
-        val code =
-            """
-            class Foo1 {
-                val foo2 = "foo2"
+    @Suppress("DEPRECATION")
+    @Nested
+    inner class LineLengthWithoutNewlinePrefix {
+        @Test
+        fun `Given some lines containing identifiers at different indentation levels then get line length exclusive the leading newline characters`() {
+            val code =
+                """
+                class Foo1 {
+                    val foo2 = "foo2"
 
-                fun foo3() {
-                    val foo4 = "foo4"
+                    fun foo3() {
+                        val foo4 = "foo4"
+                    }
                 }
-            }
-            """.trimIndent()
+                """.trimIndent()
 
-        val actual =
-            transformCodeToAST(code)
-                .firstChildLeafOrSelf()
-                .leaves()
-                .filter { it.elementType == IDENTIFIER }
-                .map { identifier -> identifier.lineLengthWithoutNewlinePrefix() }
-                .toList()
+            val actual =
+                transformCodeToAST(code)
+                    .firstChildLeafOrSelf()
+                    .leaves()
+                    .filter { it.elementType == IDENTIFIER }
+                    .map { identifier -> identifier.lineLengthWithoutNewlinePrefix() }
+                    .toList()
 
-        assertThat(actual).contains(
-            "class Foo1 {".length,
-            "    val foo2 = \"foo2\"".length,
-            "    fun foo3() {".length,
-            "        val foo4 = \"foo4\"".length,
-        )
+            assertThat(actual).contains(
+                "class Foo1 {".length,
+                "    val foo2 = \"foo2\"".length,
+                "    fun foo3() {".length,
+                "        val foo4 = \"foo4\"".length,
+            )
+        }
+
+        @Test
+        fun `Given some lines containing identifiers and EOL comment then get line length exclusive the leading newline characters and exclusive EOL comment`() {
+            val code =
+                """
+                class Foo1 {
+                    val foo2 = "foo2" // some comment
+
+                    fun foo3() {
+                        val foo4 = "foo4" // some comment
+                    }
+                }
+                """.trimIndent()
+
+            val actual =
+                transformCodeToAST(code)
+                    .firstChildLeafOrSelf()
+                    .leaves()
+                    .filter { it.elementType == IDENTIFIER }
+                    .map { identifier -> identifier.lineLengthWithoutNewlinePrefix() }
+                    .toList()
+
+            assertThat(actual).contains(
+                "class Foo1 {".length,
+                "    val foo2 = \"foo2\" // some comment".length,
+                "    fun foo3() {".length,
+                "        val foo4 = \"foo4\" // some comment".length,
+            )
+        }
+
+        @Test
+        fun `Given some lines containing identifiers at different indentation levels then get line length exclusive the leading newline characters until and including the identifier`() {
+            val code =
+                """
+                class Foo1 {
+                    val foo2 = "foo2"
+
+                    fun foo3() {
+                        val foo4 = "foo4"
+                    }
+                }
+                """.trimIndent()
+
+            val actual =
+                transformCodeToAST(code)
+                    .firstChildLeafOrSelf()
+                    .leaves()
+                    .filter { it.elementType == IDENTIFIER }
+                    .map { identifier ->
+                        identifier
+                            .leavesOnLine()
+                            .takeWhile { it.prevLeaf() != identifier }
+                            .lineLengthWithoutNewlinePrefix()
+                    }.toList()
+
+            assertThat(actual).contains(
+                "class Foo1".length,
+                "    val foo2".length,
+                "    fun foo3".length,
+                "        val foo4".length,
+            )
+        }
     }
 
-    @Test
-    fun `Given some lines containing identifiers at different indentation levels then get line length exclusive the leading newline characters until and including the identifier`() {
-        val code =
-            """
-            class Foo1 {
-                val foo2 = "foo2"
+    @Nested
+    inner class LineLength {
+        @Test
+        fun `Given some lines containing identifiers at different indentation levels then get line length exclusive the leading newline characters`() {
+            val code =
+                """
+                class Foo1 {
+                    val foo2 = "foo2"
 
-                fun foo3() {
-                    val foo4 = "foo4"
+                    fun foo3() {
+                        val foo4 = "foo4"
+                    }
                 }
-            }
-            """.trimIndent()
+                """.trimIndent()
 
-        val actual =
-            transformCodeToAST(code)
-                .firstChildLeafOrSelf()
-                .leaves()
-                .filter { it.elementType == IDENTIFIER }
-                .map { identifier ->
-                    identifier
-                        .leavesOnLine()
-                        .takeWhile { it.prevLeaf() != identifier }
-                        .lineLengthWithoutNewlinePrefix()
-                }.toList()
+            val actual =
+                transformCodeToAST(code)
+                    .firstChildLeafOrSelf()
+                    .leaves()
+                    .filter { it.elementType == IDENTIFIER }
+                    .map { identifier -> identifier.lineLength() }
+                    .toList()
 
-        assertThat(actual).contains(
-            "class Foo1".length,
-            "    val foo2".length,
-            "    fun foo3".length,
-            "        val foo4".length,
-        )
+            assertThat(actual).contains(
+                "class Foo1 {".length,
+                "    val foo2 = \"foo2\"".length,
+                "    fun foo3() {".length,
+                "        val foo4 = \"foo4\"".length,
+            )
+        }
+
+        @Test
+        fun `Given some lines containing identifiers and EOL comment then get line length exclusive the leading newline characters`() {
+            val code =
+                """
+                class Foo1 {
+                    val foo2 = "foo2" // some comment
+
+                    fun foo3() {
+                        val foo4 = "foo4" // some comment
+                    }
+                }
+                """.trimIndent()
+
+            val actual =
+                transformCodeToAST(code)
+                    .firstChildLeafOrSelf()
+                    .leaves()
+                    .filter { it.elementType == IDENTIFIER }
+                    .map { identifier -> identifier.lineLength() }
+                    .toList()
+
+            assertThat(actual).contains(
+                "class Foo1 {".length,
+                "    val foo2 = \"foo2\" // some comment".length,
+                "    fun foo3() {".length,
+                "        val foo4 = \"foo4\" // some comment".length,
+            )
+        }
+
+        @Test
+        fun `Given some lines containing identifiers and EOL comment then get line length exclusive the leading newline characters and exclusive EOL comment`() {
+            val code =
+                """
+                class Foo1 {
+                    val foo2 = "foo2" // some comment
+
+                    fun foo3() {
+                        val foo4 = "foo4" // some comment
+                    }
+                }
+                """.trimIndent()
+
+            val actual =
+                transformCodeToAST(code)
+                    .firstChildLeafOrSelf()
+                    .leaves()
+                    .filter { it.elementType == IDENTIFIER }
+                    .map { identifier -> identifier.lineLength(excludeEolComment = true) }
+                    .toList()
+
+            assertThat(actual).contains(
+                "class Foo1 {".length,
+                "    val foo2 = \"foo2\"".length,
+                "    fun foo3() {".length,
+                "        val foo4 = \"foo4\"".length,
+            )
+        }
     }
 
     @ParameterizedTest(name = "Text between FUN_KEYWORD and IDENTIFIER: {0}")

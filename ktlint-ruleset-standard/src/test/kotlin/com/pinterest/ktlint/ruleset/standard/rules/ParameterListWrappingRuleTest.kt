@@ -685,4 +685,21 @@ class ParameterListWrappingRuleTest {
                 .hasNoLintViolations()
         }
     }
+
+    @Test
+    fun `Issue 2450 - Given a variable declaration for a function type followed by an EOL comment that causes the max line length to be exceeded, then only report a violation via max-line-length rule`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER                                 $EOL_CHAR
+            val fooooo: ((bar1: Bar, bar2: Bar, bar3: Bar) -> Unit) = {} // some comment
+            var foo: ((bar1: Bar, bar2: Bar, bar3: Bar) -> Unit)? = null // some comment
+            """.trimIndent()
+        parameterListWrappingRuleAssertThat(code)
+            .setMaxLineLength()
+            .addAdditionalRuleProvider { MaxLineLengthRule() }
+            .hasLintViolationsForAdditionalRule(
+                LintViolation(2, 61, "Exceeded max line length (60)", false),
+                LintViolation(3, 61, "Exceeded max line length (60)", false),
+            ).hasNoLintViolationsExceptInAdditionalRules()
+    }
 }

@@ -79,11 +79,9 @@ public class FunctionExpressionBodyRule :
     Rule.Experimental {
     private var codeStyle = CODE_STYLE_PROPERTY.defaultValue
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
-    private var maxLineLength = MAX_LINE_LENGTH_PROPERTY.defaultValue
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         codeStyle = editorConfig[CODE_STYLE_PROPERTY]
-        maxLineLength = editorConfig[MAX_LINE_LENGTH_PROPERTY]
         indentConfig =
             IndentConfig(
                 indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
