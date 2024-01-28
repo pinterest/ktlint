@@ -2253,14 +2253,14 @@ Disallows comments to be placed at certain locations inside a value argument (li
     ```
 
 !!! note
-    In a lot of projects it is an accepted practice to use EOL comments to document the parameter *before* the comma as is shown below:
+    In Ktlint 1.1.x EOL comments like below are disallowed. This will be reverted in Ktlint 1.2.
     ```kotlin
-    fun foo(
-        bar1: Bar1, // some comment
-        bar2: Bar2, // some other comment
-    )
+    val foo1 =
+        foo(
+            bar1: Bar1, // some comment
+            bar2: Bar2, // some other comment
+        )
     ```
-    Although this code sample might look ok, it is semantically and programmatically unclear on which parameter `some comment` refers. From the developer perspective it might be clear that it belongs to parameter `bar1`. From the parsers perspective, it does belong to parameter `bar2`. This might lead to [unexpected behavior in Intellij IDEA](https://github.com/pinterest/ktlint/issues/2445#issuecomment-1863432022).
 
 Rule id: `value-argument-comment` (`standard` rule set)
 
@@ -2302,14 +2302,13 @@ Disallows comments to be placed at certain locations inside a value argument (li
     ```
 
 !!! note
-    In a lot of projects it is an accepted practice to use EOL comments to document the parameter *before* the comma as is shown below:
+    In Ktlint 1.1.x EOL comments like below are disallowed. This will be reverted in Ktlint 1.2.
     ```kotlin
     class Foo(
         bar1: Bar1, // some comment
         bar2: Bar2, // some other comment
     )
     ```
-    Although this code sample might look ok, it is semantically and programmatically unclear on which parameter `some comment` refers. From the developer perspective it might be clear that it belongs to parameter `bar1`. From the parsers perspective, it does belong to parameter `bar2`. This might lead to [unexpected behavior in Intellij IDEA](https://github.com/pinterest/ktlint/issues/2445#issuecomment-1863432022).
 
 Rule id: `value-parameter-comment` (`standard` rule set)
 
