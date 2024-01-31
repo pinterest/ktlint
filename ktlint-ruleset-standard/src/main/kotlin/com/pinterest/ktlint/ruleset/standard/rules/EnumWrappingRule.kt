@@ -15,9 +15,11 @@ import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -85,16 +87,17 @@ public class EnumWrappingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
     ): Boolean {
-        val firstEnumEntry = node.findChildByType(ENUM_ENTRY)
+        val firstEnumEntry = node.findChildByType(ENUM_ENTRY)?.firstChildLeafOrSelf()
         if (firstEnumEntry != null) {
             node
-                .children()
+                .firstChildLeafOrSelf()
+                .leavesIncludingSelf()
                 .takeWhile { it != firstEnumEntry }
                 .firstOrNull { it.isPartOfComment() }
                 ?.let { commentBeforeFirstEnumEntry ->
-                    val expectedIndent = indentConfig.parentIndentOf(node)
+                    val expectedIndent = indentConfig.childIndentOf(node)
                     if (commentBeforeFirstEnumEntry.prevLeaf()?.text != expectedIndent) {
-                        emit(node.startOffset, "Expected a newline before comment", true)
+                        emit(node.startOffset, "Expected a (single) newline before comment", true)
                         if (autoCorrect) {
                             commentBeforeFirstEnumEntry.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
                         }

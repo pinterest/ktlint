@@ -153,7 +153,7 @@ class EnumWrappingRuleTest {
                 """.trimIndent()
             enumWrappingRuleAssertThat(code)
                 .hasLintViolations(
-                    LintViolation(1, 16, "Expected a newline before comment"),
+                    LintViolation(1, 16, "Expected a (single) newline before comment"),
                     LintViolation(1, 32, "Enum entry should start on a separate line"),
                     LintViolation(1, 35, "Enum entry should start on a separate line"),
                     LintViolation(1, 37, "Expected newline before '}'"),
@@ -241,5 +241,31 @@ class EnumWrappingRuleTest {
             enum class Foo {}
             """.trimIndent()
         enumWrappingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 2510 - Given an enum class with comment before the first entry`() {
+        val code =
+            """
+            enum class FooBar {
+
+                // Some comment about FooBar
+
+                // Foo
+                Foo,
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            enum class FooBar {
+                // Some comment about FooBar
+
+                // Foo
+                Foo,
+            }
+            """.trimIndent()
+        enumWrappingRuleAssertThat(code)
+            .hasLintViolation(1, 19, "Expected a (single) newline before comment")
+            .isFormattedAs(formattedCode)
     }
 }
