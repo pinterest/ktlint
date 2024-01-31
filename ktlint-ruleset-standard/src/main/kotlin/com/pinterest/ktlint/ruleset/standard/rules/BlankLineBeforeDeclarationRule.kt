@@ -12,6 +12,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_DECLARATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY_ACCESSOR
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.RETURN_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
@@ -120,7 +121,9 @@ public class BlankLineBeforeDeclarationRule :
             return
         }
 
-        if (node.elementType == FUN && node.prevCodeSibling()?.elementType == EQ) {
+        if (node.elementType == FUN &&
+            (node.prevCodeSibling()?.elementType == EQ || node.prevCodeSibling()?.elementType == RETURN_KEYWORD)
+        ) {
             // Allow:
             //   val foo =
             //       fun(): String {

@@ -493,4 +493,17 @@ class BlankLineBeforeDeclarationRuleTest {
             """.trimIndent()
         blankLineBeforeDeclarationRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 2521 - Given a function returning a function in a block body`() {
+        val code =
+            """
+            fun foo(bar: Int): (Int) -> Int {
+                return fun(baz: Int): Int {
+                    return bar + baz
+                }
+            }
+            """.trimIndent()
+        blankLineBeforeDeclarationRuleAssertThat(code).hasNoLintViolations()
+    }
 }
