@@ -19,6 +19,7 @@ public class Code private constructor(
     public val filePath: Path?,
     public val script: Boolean,
     public val isStdIn: Boolean,
+    public val editorConfig: String? = null,
 ) {
     public fun fileNameOrStdin(): String =
         if (isStdIn) {
@@ -76,6 +77,7 @@ public class Code private constructor(
         public fun fromSnippet(
             content: String,
             script: Boolean = false,
+            editorConfig: String? = null,
         ): Code =
             Code(
                 content = content,
@@ -83,6 +85,7 @@ public class Code private constructor(
                 fileName = null,
                 script = script,
                 isStdIn = true,
+                editorConfig = editorConfig,
             )
 
         /**
@@ -101,6 +104,7 @@ public class Code private constructor(
              * is loaded at all.
              */
             virtualPath: Path? = null,
+            editorConfig: String? = null,
         ): Code =
             Code(
                 content = content,
@@ -108,6 +112,7 @@ public class Code private constructor(
                 fileName = null,
                 script = virtualPath?.pathString.orEmpty().endsWith(".kts", ignoreCase = true),
                 isStdIn = true,
+                editorConfig = editorConfig,
             )
 
         /**

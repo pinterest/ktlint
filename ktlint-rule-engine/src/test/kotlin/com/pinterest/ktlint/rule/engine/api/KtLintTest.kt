@@ -222,6 +222,47 @@ class KtLintTest {
     }
 
     @Test
+    fun `Given a string editorConfig`() {
+        val ruleExecutionCalls = mutableListOf<RuleExecutionCall>()
+        KtLintRuleEngine(
+            ruleProviders =
+                setOf(
+                    RuleProvider {
+                        SimpleTestRule(
+                            ruleExecutionCalls = ruleExecutionCalls,
+                            ruleId = SimpleTestRule.RULE_ID_A,
+                            visitorModifiers = setOf(),
+                        )
+                    },
+                    RuleProvider {
+                        SimpleTestRule(
+                            ruleExecutionCalls = ruleExecutionCalls,
+                            ruleId = SimpleTestRule.RULE_ID_B,
+                            visitorModifiers = setOf(RunAsLateAsPossible),
+                        )
+                    },
+                ),
+        ).lint(
+            Code.fromSnippet(
+                content = "",
+                editorConfig = "[*]\nktlint_simple-test_a = disabled",
+            ),
+        )
+        assertThat(ruleExecutionCalls).containsExactly(
+            // Does not contain rule a, since it was disabled
+            // File b
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_FIRST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_CHILDREN, ROOT, FILE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_CHILDREN, ROOT, FILE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_LAST),
+        )
+    }
+
+    @Test
     fun `Given multiple rules which have to run in a certain order`() {
         val ruleExecutionCalls = mutableListOf<RuleExecutionCall>()
         KtLintRuleEngine(

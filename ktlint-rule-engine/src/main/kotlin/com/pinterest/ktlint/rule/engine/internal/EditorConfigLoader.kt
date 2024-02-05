@@ -21,6 +21,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.ec4j.core.EditorConfigLoader
 import org.ec4j.core.PropertyTypeRegistry
 import org.ec4j.core.Resource
+import org.ec4j.core.Resource.Resources.StringResourceTree
 import org.ec4j.core.ResourcePropertiesService
 import org.ec4j.core.model.Property
 import org.ec4j.core.model.PropertyType
@@ -55,11 +56,27 @@ internal class EditorConfigLoader(
      * Properties specified in [editorConfigOverride] take precedence above any other '.editorconfig' file on [filePath]
      * or default value.
      */
-    internal fun load(filePath: Path?): EditorConfig {
+    internal fun load(
+        filePath: Path?,
+        editorConfig: String? = null,
+    ): EditorConfig {
         val editorConfigPath = filePath ?: defaultFilePath()
+        val resource =
+            editorConfig?.let {
+                StringResourceTree
+                    .builder()
+                    .resource(
+                        editorConfigPath.toString(),
+                        null,
+                    ).resource(
+                        editorConfigPath.parent.resolve(".editorconfig").toString(),
+                        editorConfig,
+                    ).build()
+                    .getResource(editorConfigPath.toString())
+            } ?: editorConfigPath.resource()
         val editorConfigProperties: MutableMap<String, Property> =
             createResourcePropertiesService(editorConfigLoaderEc4j.editorConfigLoader, editorConfigDefaults)
-                .queryProperties(editorConfigPath.resource())
+                .queryProperties(resource)
                 .properties
         return editorConfigProperties
             .also { properties ->
