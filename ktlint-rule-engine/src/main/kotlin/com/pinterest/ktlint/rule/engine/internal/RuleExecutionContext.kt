@@ -179,7 +179,7 @@ internal class RuleExecutionContext private constructor(
             val editorConfig =
                 ktLintRuleEngine
                     .editorConfigLoader
-                    .load(code.filePath,code.editorConfig)
+                    .load(code.filePath, code.editorConfig)
                     .also {
                         // TODO: Remove warning below in KtLint 0.52 or later as some users skips multiple versions
                         it.warnIfPropertyIsObsolete("disabled_rules", "0.49")
