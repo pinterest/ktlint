@@ -24,6 +24,8 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -74,16 +76,12 @@ public class ParameterListWrappingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         when (node.elementType) {
-            NULLABLE_TYPE -> wrapNullableType(node, emit, autoCorrect)
-            VALUE_PARAMETER_LIST -> {
-                if (node.needToWrapParameterList()) {
-                    wrapParameterList(node, emit, autoCorrect)
-                }
-            }
+            NULLABLE_TYPE -> visitNullableType(node, emit, autoCorrect)
+            VALUE_PARAMETER_LIST -> visitParameterList(node, emit, autoCorrect)
         }
     }
 
-    private fun wrapNullableType(
+    private fun visitNullableType(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
@@ -183,15 +181,26 @@ public class ParameterListWrappingRule :
             .orEmpty()
             .any { it.elementType == ElementType.ANNOTATION_ENTRY }
 
-    private fun wrapParameterList(
+    private fun visitParameterList(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         autoCorrect: Boolean,
     ) {
-        node
-            .children()
-            .forEach { child -> wrapParameterInList(child, emit, autoCorrect) }
+        if (isPrecededByComment(node)) {
+            emit(node.startOffset, "Parameter list should not be preceded by a comment", false)
+        } else if (node.needToWrapParameterList()) {
+            node
+                .children()
+                .forEach { child -> wrapParameterInList(child, emit, autoCorrect) }
+        }
     }
+
+    private fun isPrecededByComment(node: ASTNode) =
+        node
+            .prevLeaf { !it.isWhiteSpace() }
+            ?.prevLeaf()
+            ?.isPartOfComment()
+            ?: false
 
     private fun intendedIndent(child: ASTNode): String =
         when {

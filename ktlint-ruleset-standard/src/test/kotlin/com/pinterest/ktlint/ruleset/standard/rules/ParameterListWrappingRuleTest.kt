@@ -702,4 +702,32 @@ class ParameterListWrappingRuleTest {
                 LintViolation(3, 61, "Exceeded max line length (60)", false),
             ).hasNoLintViolationsExceptInAdditionalRules()
     }
+
+    @Test
+    fun `Issue 2535 - Given a class with a KDoc on the primary constructor instead of on the class name`() {
+        val code =
+            // Code sample below contains a code smell. The KDoc is at the wrong position.
+            """
+            class ClassA
+                /**
+                 * some comment
+                 */(paramA: String)
+            """.trimIndent()
+        val formattedCode =
+            // Code sample below contains a code smell. The KDoc is at the wrong position. The formatted code is not intended to show
+            // that this code is well formatted according to good coding practices. It merely is used to validate that the newline is
+            // inserted at the correct position in the AST so that no exception will be thrown in the ParameterListWrappingRule.
+            """
+            class ClassA
+            /**
+             * some comment
+             */
+            (paramA: String)
+            """.trimIndent()
+        parameterListWrappingRuleAssertThat(code)
+            .addAdditionalRuleProvider { KdocWrappingRule() }
+            .hasLintViolations(
+                LintViolation(4, 8, "Parameter list should not be preceded by a comment", false),
+            ).isFormattedAs(formattedCode)
+    }
 }

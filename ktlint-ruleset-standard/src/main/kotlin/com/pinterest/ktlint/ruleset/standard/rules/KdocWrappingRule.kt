@@ -14,7 +14,7 @@ import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.noNewLineInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
-import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
+import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
@@ -97,7 +97,7 @@ public class KdocWrappingRule :
     ) {
         emit(startOffset, "A KDoc comment may not be followed by any other element on that same line", true)
         if (autoCorrect) {
-            this.upsertWhitespaceBeforeMe(kdocCommentNode.indent())
+            kdocCommentNode.upsertWhitespaceAfterMe(kdocCommentNode.indent())
         }
     }
 
