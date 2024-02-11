@@ -80,7 +80,7 @@ publishing {
     }
 }
 
-/**
+/*
  * Following signing parameters must be configured in `$HOME/.gradle/gradle.properties`:
  * ```properties
  * signing.keyId=12345678

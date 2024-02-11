@@ -146,9 +146,9 @@ public class KtLintRuleEngine(
                     ruleExecutionContext.executeRule(rule, true) { offset, errorMessage, canBeAutoCorrected ->
                         if (canBeAutoCorrected) {
                             mutated = true
-                            /**
-                             * Rebuild the suppression locator after each change in the AST as the offsets of the
-                             * suppression hints might have changed.
+                            /*
+                             * Rebuild the suppression locator after each change in the AST as the offsets of the suppression hints might
+                             * have changed.
                              */
                             ruleExecutionContext.rebuildSuppressionLocator()
                         }

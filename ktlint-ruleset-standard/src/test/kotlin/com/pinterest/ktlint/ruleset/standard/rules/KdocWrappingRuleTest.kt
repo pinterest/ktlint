@@ -70,29 +70,6 @@ class KdocWrappingRuleTest {
     }
 
     @Test
-    fun `A KDoc comment in between code elements on the same line should start and end on a new line but is not autocorrected`() {
-        val code =
-            """
-            val foo /** Some KDoc comment */ = "foo"
-            """.trimIndent()
-        kdocWrappingRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(1, 9, "A KDoc comment in between other elements on the same line is disallowed")
-    }
-
-    @Test
-    fun `Given a KDoc comment containing a new line and the block is preceded and followed by other code elements then raise lint errors but do not autocorrect`() {
-        val code =
-            """
-            val foo /**
-            some KDoc comment
-            */ = "foo"
-            """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
-        kdocWrappingRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(1, 9, "A KDoc comment starting on same line as another element and ending on another line before another element is disallowed")
-    }
-
-    @Test
     fun `Given a KDoc comment which is indented then keep that indent when wrapping the line`() {
         val code =
             """
