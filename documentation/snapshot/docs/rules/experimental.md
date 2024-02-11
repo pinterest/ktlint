@@ -541,6 +541,63 @@ Conditions should not use a both `&&` and `||` operators between operators at th
 
 Rule id: `mixed-condition-operators` (`standard` rule set)
 
+## KDoc
+
+KDoc's should only be used on elements for which KDoc is to be transformed to documentation. Normal block comments should be used in other cases.
+
+!!! note:
+    Access modifiers are ignored. Strictly speaking, one could argue that private declarations should not have a KDoc as no documentation will be generated for it. However, for internal use of developers the KDoc still serves documentation purposes.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    /** some KDoc */
+    class FooBar(
+        /** some KDoc */
+        val foo: Foo
+    ) {
+        /**
+         * Some bar KDoc
+         */
+        constructor() : this()
+
+        /** some KDoc */
+        val bar: Bar
+    }
+
+    enum class Foo {
+        /** some KDoc */
+        BAR
+    }
+
+    /** some KDoc */
+    interface Foo
+    /** some KDoc */
+    fun foo()
+    /** some KDoc */
+    val foo: Foo
+    /** some KDoc */
+    object foo: Foo
+    /** some KDoc */
+    typealias FooBar = (Foo) -> Bar
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    /**
+     * Some dangling Kdoc (e.g. not followed by a declaration)
+     */
+
+    val foo /** Some KDoc */ = "foo"
+
+    class Foo(
+        /** some dangling KDoc inside a parameter list */
+    )
+    ```
+
+Rule id: `kdoc` (`standard` rule set)
+
 ## Multiline loop
 
 Braces required for multiline for, while, and do statements.

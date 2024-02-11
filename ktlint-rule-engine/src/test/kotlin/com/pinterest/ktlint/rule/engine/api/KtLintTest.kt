@@ -428,7 +428,7 @@ class KtLintTest {
 
     @Test
     fun `Given that format is started using the ruleProviders parameter then NO exception is thrown`() {
-        /**
+        /*
          * Formatting some code with the [WithStateRule] does not result in a [KtLintRuleException] because [KtLintRuleEngine.format] is
          * able to request a new instance of the rule whenever the instance has been used before to traverse the AST.
          */

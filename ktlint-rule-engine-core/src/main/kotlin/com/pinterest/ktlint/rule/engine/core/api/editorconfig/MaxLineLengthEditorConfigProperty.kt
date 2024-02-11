@@ -30,7 +30,7 @@ public val MAX_LINE_LENGTH_PROPERTY: EditorConfigProperty<Int> =
                     codeStyleValue.defaultValue()
                 }
 
-                /**
+                /*
                  * Internally, Ktlint uses integer 'Int.MAX_VALUE' to indicate that the max line length has to be ignored as this is easier
                  * in comparisons to check whether the maximum length of a line is exceeded.
                  */
