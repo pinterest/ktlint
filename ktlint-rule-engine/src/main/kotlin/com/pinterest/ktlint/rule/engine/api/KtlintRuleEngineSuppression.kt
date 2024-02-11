@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.rule.engine.api
 
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.internal.RuleExecutionContext
 import com.pinterest.ktlint.rule.engine.internal.insertKtlintRuleSuppression
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -38,6 +39,14 @@ private fun ASTNode.findLeafElementAt(suppression: KtlintSuppression): ASTNode =
 
         is KtlintSuppressionAtOffset ->
             findLeafElementAt(suppression.offsetFromStartOf(text))
+                ?.let {
+                    if (it.isWhiteSpace()) {
+                        // A suppression can not be added at a whitespace element. Insert it at the parent instead
+                        it.treeParent
+                    } else {
+                        it
+                    }
+                }
                 ?: throw KtlintSuppressionNoElementFoundException(suppression)
     }
 
@@ -60,11 +69,22 @@ private fun KtlintSuppressionAtOffset.offsetFromStartOf(code: String): Int {
             }
 
     val codeLine = lines[line - 1]
-    if (col > codeLine.length) {
-        throw KtlintSuppressionOutOfBoundsException(this)
+    return when {
+        col == 1 && codeLine.isEmpty() -> {
+            startOffsetOfLineContainingLintError
+        }
+        col <= codeLine.length -> {
+            startOffsetOfLineContainingLintError + (col - 1)
+        }
+        col == codeLine.length + 1 -> {
+            // Offset of suppression is set at EOL of the line. This is visually correct for the reader. But the newline character was stripped
+            // from the line because the lines were split using that character.
+            startOffsetOfLineContainingLintError + col
+        }
+        else -> {
+            throw KtlintSuppressionOutOfBoundsException(this)
+        }
     }
-
-    return startOffsetOfLineContainingLintError + (col - 1)
 }
 
 public sealed class KtlintSuppressionException(

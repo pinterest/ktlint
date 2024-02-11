@@ -4,6 +4,8 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.ruleset.standard.rules.CONDITION_WRAPPING_RULE_ID
+import com.pinterest.ktlint.ruleset.standard.rules.NO_CONSECUTIVE_BLANK_LINES_RULE_ID
+import com.pinterest.ktlint.ruleset.standard.rules.NO_LINE_BREAK_BEFORE_ASSIGNMENT_RULE_ID
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -269,6 +271,91 @@ class KtlintRuleEngineSuppressionKtTest {
                     .insertSuppression(
                         Code.fromSnippet(code, false),
                         KtlintSuppressionAtOffset(2, 17, CONDITION_WRAPPING_RULE_ID),
+                    )
+
+            assertThat(actual).isEqualTo(formattedCode)
+        }
+    }
+
+    @Test
+    fun `Given a violation with offset exactly at the EOL of a line`() {
+        val code =
+            """
+            fun foo(): String // Some comment
+                = "some-result"
+            """.trimIndent()
+        val formattedCode =
+            """
+            @Suppress("ktlint:standard:no-line-break-before-assignment")
+            fun foo(): String // Some comment
+                = "some-result"
+            """.trimIndent()
+        val actual =
+            ktLintRuleEngine
+                .insertSuppression(
+                    Code.fromSnippet(code, false),
+                    KtlintSuppressionAtOffset(1, 34, NO_LINE_BREAK_BEFORE_ASSIGNMENT_RULE_ID),
+                )
+
+        assertThat(actual).isEqualTo(formattedCode)
+    }
+
+    @Nested
+    inner class `Consecutive line suppression can not be placed at line` {
+        @Test
+        fun `Given some consecutive blank lines at top level`() {
+            val code =
+                """
+                val foo = "foo"
+
+
+                val bar = "bar"
+                """.trimIndent()
+            val formattedCode =
+                """
+                @file:Suppress("ktlint:standard:no-consecutive-blank-lines")
+
+                val foo = "foo"
+
+
+                val bar = "bar"
+                """.trimIndent()
+            val actual =
+                ktLintRuleEngine
+                    .insertSuppression(
+                        Code.fromSnippet(code, false),
+                        KtlintSuppressionAtOffset(3, 1, NO_CONSECUTIVE_BLANK_LINES_RULE_ID),
+                    )
+
+            assertThat(actual).isEqualTo(formattedCode)
+        }
+
+        @Test
+        fun `Given some consecutive blank lines inside a function`() {
+            val code =
+                """
+                fun foobar() {
+                    val foo = "foo"
+
+
+                    val bar = "bar"
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                @Suppress("ktlint:standard:no-consecutive-blank-lines")
+                fun foobar() {
+                    val foo = "foo"
+
+
+                    val bar = "bar"
+                }
+                """.trimIndent()
+            val actual =
+                ktLintRuleEngine
+                    .insertSuppression(
+                        Code.fromSnippet(code, false),
+                        KtlintSuppressionAtOffset(3, 1, NO_CONSECUTIVE_BLANK_LINES_RULE_ID),
                     )
 
             assertThat(actual).isEqualTo(formattedCode)
