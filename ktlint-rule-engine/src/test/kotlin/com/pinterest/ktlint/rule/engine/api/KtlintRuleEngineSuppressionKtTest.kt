@@ -300,7 +300,6 @@ class KtlintRuleEngineSuppressionKtTest {
         assertThat(actual).isEqualTo(formattedCode)
     }
 
-//
     @Nested
     inner class `Consecutive line suppression can not be placed at line` {
         @Test
