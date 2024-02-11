@@ -1,8 +1,5 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK_COMMENT
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
@@ -30,52 +27,44 @@ public class ValueArgumentCommentRule : StandardRule("value-argument-comment") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         if (node.isPartOfComment() && node.treeParent.elementType in valueArgumentTokenSet) {
-            when (node.elementType) {
-                EOL_COMMENT, BLOCK_COMMENT -> {
-                    if (node.treeParent.elementType == VALUE_ARGUMENT) {
-                        // Disallow:
-                        //     val foo = foo(
-                        //         bar /* some comment */ = "bar"
-                        //     )
-                        // or
-                        //     val foo = foo(
-                        //         bar =
-                        //            // some comment
-                        //            "bar"
-                        //     )
-                        emit(
-                            node.startOffset,
-                            "A (block or EOL) comment inside or on same line after a 'value_argument' is not allowed. It may be placed " +
-                                "on a separate line above.",
-                            false,
-                        )
-                    } else if (node.treeParent.elementType == VALUE_ARGUMENT_LIST) {
-                        if (node.prevLeaf().isWhiteSpaceWithNewline()) {
-                            // Allow:
-                            //     val foo = foo(
-                            //         // some comment
-                            //         bar = "bar"
-                            //     )
-                        } else {
-                            // Disallow
-                            //     class Foo(
-                            //         val bar1: Bar, // some comment 1
-                            //         // some comment 2
-                            //         val bar2: Bar,
-                            //     )
-                            // It is not clear whether "some comment 2" belongs to bar1 as a continuation of "some comment 1" or that it belongs to
-                            // bar2. Note both comments are direct children of the value_argument_list.
-                            emit(
-                                node.startOffset,
-                                "A comment in a 'value_argument_list' is only allowed when placed on a separate line",
-                                false,
-                            )
-                        }
-                    }
-                }
-
-                KDOC -> {
-                    emit(node.startOffset, "A KDoc is not allowed inside a 'value_argument_list'", false)
+            if (node.treeParent.elementType == VALUE_ARGUMENT) {
+                // Disallow:
+                //     val foo = foo(
+                //         bar /* some comment */ = "bar"
+                //     )
+                // or
+                //     val foo = foo(
+                //         bar =
+                //            // some comment
+                //            "bar"
+                //     )
+                emit(
+                    node.startOffset,
+                    "A (block or EOL) comment inside or on same line after a 'value_argument' is not allowed. It may be placed " +
+                        "on a separate line above.",
+                    false,
+                )
+            } else if (node.treeParent.elementType == VALUE_ARGUMENT_LIST) {
+                if (node.prevLeaf().isWhiteSpaceWithNewline()) {
+                    // Allow:
+                    //     val foo = foo(
+                    //         // some comment
+                    //         bar = "bar"
+                    //     )
+                } else {
+                    // Disallow
+                    //     class Foo(
+                    //         val bar1: Bar, // some comment 1
+                    //         // some comment 2
+                    //         val bar2: Bar,
+                    //     )
+                    // It is not clear whether "some comment 2" belongs to bar1 as a continuation of "some comment 1" or that it belongs to
+                    // bar2. Note both comments are direct children of the value_argument_list.
+                    emit(
+                        node.startOffset,
+                        "A comment in a 'value_argument_list' is only allowed when placed on a separate line",
+                        false,
+                    )
                 }
             }
         }

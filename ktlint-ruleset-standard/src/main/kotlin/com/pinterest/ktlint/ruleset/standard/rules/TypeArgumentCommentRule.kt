@@ -2,7 +2,6 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PROJECTION
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
@@ -66,10 +65,6 @@ public class TypeArgumentCommentRule : StandardRule("type-argument-comment") {
                             )
                         }
                     }
-                }
-
-                KDOC -> {
-                    emit(node.startOffset, "A KDoc is not allowed inside a 'type_argument_list'", false)
                 }
             }
         }

@@ -8,16 +8,6 @@ class TypeArgumentCommentRuleTest {
     private val typeArgumentCommentRuleAssertThat = assertThatRule { TypeArgumentCommentRule() }
 
     @Test
-    fun `Given a kdoc inside a type projection`() {
-        val code =
-            """
-            fun Foo<out /** some comment */ Any>.foo() {}
-            """.trimIndent()
-        typeArgumentCommentRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(1, 13, "A KDoc is not allowed inside a 'type_argument_list'")
-    }
-
-    @Test
     fun `Given a block comment inside a type projection`() {
         val code =
             """
@@ -38,18 +28,6 @@ class TypeArgumentCommentRuleTest {
         @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
         typeArgumentCommentRuleAssertThat(code)
             .hasLintViolationWithoutAutoCorrect(1, 13, "A (block or EOL) comment inside or on same line after a 'type_projection' is not allowed. It may be placed on a separate line above.")
-    }
-
-    @Test
-    fun `Given a kdoc as child of type argument list`() {
-        val code =
-            """
-            val fooBar: FooBar<
-                /** some comment */
-                Foo, Bar>
-            """.trimIndent()
-        typeArgumentCommentRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(2, 5, "A KDoc is not allowed inside a 'type_argument_list'")
     }
 
     @Test
