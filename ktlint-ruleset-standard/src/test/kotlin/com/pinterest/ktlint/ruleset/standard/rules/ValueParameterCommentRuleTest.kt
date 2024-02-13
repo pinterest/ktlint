@@ -8,19 +8,6 @@ class ValueParameterCommentRuleTest {
     private val valueParameterCommentRuleAssertThat = KtLintAssertThat.assertThatRule { ValueParameterCommentRule() }
 
     @Test
-    fun `Given a kdoc as child of value parameter list`() {
-        val code =
-            """
-            class Foo(
-                /** some comment */
-            )
-            """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
-        valueParameterCommentRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(2, 5, "A KDoc is not allowed inside a 'value_parameter_list' when not followed by a property")
-    }
-
-    @Test
     fun `Given a kdoc as only child of value parameter list`() {
         val code =
             """
@@ -95,9 +82,9 @@ class ValueParameterCommentRuleTest {
         @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
         valueParameterCommentRuleAssertThat(code)
             .hasLintViolationsWithoutAutoCorrect(
-                LintViolation(3, 9, "A (block or EOL) comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
-                LintViolation(7, 14, "A (block or EOL) comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
-                LintViolation(10, 14, "A kdoc in a 'value_parameter' is only allowed when placed on a new line before this element"),
+                LintViolation(3, 9, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
+                LintViolation(7, 14, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
+                LintViolation(10, 14, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
             )
     }
 
@@ -118,9 +105,9 @@ class ValueParameterCommentRuleTest {
         @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
         valueParameterCommentRuleAssertThat(code)
             .hasLintViolationsWithoutAutoCorrect(
-                LintViolation(2, 18, "A (block or EOL) comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
-                LintViolation(5, 18, "A (block or EOL) comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
-                LintViolation(8, 18, "A (block or EOL) comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
+                LintViolation(2, 18, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
+                LintViolation(5, 18, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
+                LintViolation(8, 18, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
             )
     }
 

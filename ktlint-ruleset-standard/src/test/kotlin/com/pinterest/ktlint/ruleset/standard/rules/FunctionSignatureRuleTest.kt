@@ -229,9 +229,9 @@ class FunctionSignatureRuleTest {
             .addAdditionalRuleProvider { ValueParameterCommentRule() }
             .hasLintViolationsForAdditionalRule(
                 LintViolation(5, 17, "A comment in a 'value_parameter_list' is only allowed when placed on a separate line", false),
-                LintViolation(6, 18, "A (block or EOL) comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
-                LintViolation(7, 19, "A (block or EOL) comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
-                LintViolation(8, 23, "A (block or EOL) comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
+                LintViolation(6, 18, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
+                LintViolation(7, 19, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
+                LintViolation(8, 23, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
                 LintViolation(13, 13, "A comment in a 'value_parameter_list' is only allowed when placed on a separate line", false),
             ).hasNoLintViolationsExceptInAdditionalRules()
     }
@@ -252,9 +252,9 @@ class FunctionSignatureRuleTest {
         functionSignatureWrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { ValueParameterCommentRule() }
             .hasLintViolationsForAdditionalRule(
-                LintViolation(1, 18, "A (block or EOL) comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
-                LintViolation(2, 19, "A (block or EOL) comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
-                LintViolation(3, 23, "A (block or EOL) comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
+                LintViolation(1, 18, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
+                LintViolation(2, 19, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
+                LintViolation(3, 23, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
                 LintViolation(5, 13, "A comment in a 'value_parameter_list' is only allowed when placed on a separate line", false),
             ).hasNoLintViolationsExceptInAdditionalRules()
         // When ValueParameterCommentRule is not loaded or disabled:

@@ -8,16 +8,6 @@ class TypeParameterCommentRuleTest {
     private val typeParameterCommentRuleAssertThat = assertThatRule { TypeParameterCommentRule() }
 
     @Test
-    fun `Given a kdoc inside a type parameter`() {
-        val code =
-            """
-            class Foo<in /** some comment */ Bar>
-            """.trimIndent()
-        typeParameterCommentRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(1, 14, "A KDoc is not allowed inside a 'type_parameter_list'")
-    }
-
-    @Test
     fun `Given a block comment inside a type parameter`() {
         val code =
             """
@@ -38,18 +28,6 @@ class TypeParameterCommentRuleTest {
         @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
         typeParameterCommentRuleAssertThat(code)
             .hasLintViolationWithoutAutoCorrect(1, 14, "A (block or EOL) comment inside or on same line after a 'type_parameter' is not allowed. It may be placed on a separate line above.")
-    }
-
-    @Test
-    fun `Given a kdoc as child of type parameter list`() {
-        val code =
-            """
-            class Foo<
-                /** some comment */
-                Bar>
-            """.trimIndent()
-        typeParameterCommentRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(2, 5, "A KDoc is not allowed inside a 'type_parameter_list'")
     }
 
     @Test

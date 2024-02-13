@@ -8,18 +8,6 @@ class ValueArgumentCommentRuleTest {
     private val valueArgumentCommentRuleAssertThat = KtLintAssertThat.assertThatRule { ValueArgumentCommentRule() }
 
     @Test
-    fun `Given a kdoc inside a value argument`() {
-        val code =
-            """
-            val foo = foo(
-                bar /** some comment */ = "bar"
-            )
-            """.trimIndent()
-        valueArgumentCommentRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(2, 9, "A KDoc is not allowed inside a 'value_argument_list'")
-    }
-
-    @Test
     fun `Given a block comment inside a value argument`() {
         val code =
             """
@@ -44,18 +32,6 @@ class ValueArgumentCommentRuleTest {
         @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
         valueArgumentCommentRuleAssertThat(code)
             .hasLintViolationWithoutAutoCorrect(2, 9, "A (block or EOL) comment inside or on same line after a 'value_argument' is not allowed. It may be placed on a separate line above.")
-    }
-
-    @Test
-    fun `Given a kdoc as child of value argument list`() {
-        val code =
-            """
-            val foo = foo(
-                /** some comment */
-            )
-            """.trimIndent()
-        valueArgumentCommentRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(2, 5, "A KDoc is not allowed inside a 'value_argument_list'")
     }
 
     @Test
