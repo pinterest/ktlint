@@ -1410,7 +1410,7 @@ private class StringTemplateIndenter(
                         }
                     }
             }
-    } //
+    }
 
     private fun ASTNode.isRawStringLiteralFunctionBodyExpression() =
         (prevLeaf()?.elementType != WHITE_SPACE || prevLeaf()?.text == " ") &&
