@@ -2244,16 +2244,6 @@ Disallows comments to be placed at certain locations inside a value argument.
         )
     ```
 
-!!! note
-    In Ktlint 1.1.x EOL comments like below are disallowed. This will be reverted in Ktlint 1.2.
-    ```kotlin
-    val foo1 =
-    foo(
-    bar1: Bar1, // some comment
-    bar2: Bar2, // some other comment
-    )
-    ```
-
 Rule id: `value-argument-comment` (`standard` rule set)
 
 ## Value parameter comment
@@ -2264,10 +2254,14 @@ Disallows comments to be placed at certain locations inside a value argument.
 
     ```kotlin
     class Foo1(
-        /* some comment */
+        /** some kdoc */
         bar = "bar"
     )
     class Foo2(
+        /* some comment */
+        bar = "bar"
+    )
+    class Foo3(
         // some comment
         bar = "bar"
     )
@@ -2277,21 +2271,15 @@ Disallows comments to be placed at certain locations inside a value argument.
 
     ```kotlin
     class Foo1(
-       bar = /* some comment */ "bar"
+       bar = /** some kdoc */ "bar"
     )
     class Foo2(
+       bar = /* some comment */ "bar"
+    )
+    class Foo3(
         bar =
            // some comment
            "bar"
-    )
-    ```
-
-!!! note
-    In Ktlint 1.1.x EOL comments like below are disallowed. This will be reverted in Ktlint 1.2.
-    ```kotlin
-    class Foo(
-        bar1: Bar1, // some comment
-        bar2: Bar2, // some other comment
     )
     ```
 

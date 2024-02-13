@@ -945,26 +945,6 @@ class ArgumentListWrappingRuleTest {
     }
 
     @Test
-    fun `Issue 2445 - Given a value argument followed by EOL comment after comma`() {
-        val code =
-            """
-            val foo = foo(
-                bar1 = "bar1", // some comment 1
-                bar2 = "bar2", // some comment 2
-            )
-            """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
-        argumentListWrappingRuleAssertThat(code)
-            .addAdditionalRuleProvider { ValueArgumentCommentRule() }
-            .hasLintViolationsForAdditionalRule(
-                LintViolation(2, 20, "A comment in a 'value_argument_list' is only allowed when placed on a separate line", false),
-                LintViolation(3, 20, "A comment in a 'value_argument_list' is only allowed when placed on a separate line", false),
-            )
-        // When ValueArgumentCommentRule is not loaded or enabled
-        argumentListWrappingRuleAssertThat(code).hasNoLintViolations()
-    }
-
-    @Test
     fun `Issue 2462 - Given a call expression with value argument list inside a binary expression, then first wrap the binary expression`() {
         val code =
             """

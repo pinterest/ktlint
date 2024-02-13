@@ -2,16 +2,12 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 
 /**
  * The AST allows comments to be placed anywhere. This however can lead to code which is unnecessarily hard to read. Or, it makes
@@ -27,57 +23,33 @@ public class ValueParameterCommentRule : StandardRule("value-parameter-comment")
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        if (node.isPartOfComment() && node.treeParent.elementType in valueParameterTokenSet) {
-            if (node.treeParent.elementType == VALUE_PARAMETER) {
-                if (node.elementType == KDOC && node.treeParent.firstChildNode == node) {
-                    // Allow KDoc to be the first element of a value parameter. EOL and Block comments are not parsed as the first child of
-                    // the value parameter but as a child of the value parameter list
-                } else {
-                    // Disallow:
-                    //     class Foo(
-                    //         bar /* some comment */ = "bar"
-                    //     )
-                    // or
-                    //     class Foo(
-                    //         bar =
-                    //            // some comment
-                    //            "bar"
-                    //     )
-                    emit(
-                        node.startOffset,
-                        "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line " +
-                            "above.",
-                        false,
-                    )
-                }
-            } else if (node.treeParent.elementType == VALUE_PARAMETER_LIST) {
-                if (node.prevLeaf().isWhiteSpaceWithNewline()) {
-                    // Allow:
-                    //     class Foo(
-                    //         // some comment
-                    //         bar = "bar"
-                    //     )
-                } else {
-                    // Disallow
-                    //     class Foo(
-                    //         val bar1: Bar, // some comment 1
-                    //         // some comment 2
-                    //         val bar2: Bar,
-                    //     )
-                    // It is not clear whether "some comment 2" belongs to bar1 as a continuation of "some comment 1" or that it belongs to
-                    // bar2. Note both comments are direct children of the value_parameter_list.
-                    emit(
-                        node.startOffset,
-                        "A comment in a 'value_parameter_list' is only allowed when placed on a separate line",
-                        false,
-                    )
-                }
+        if (node.isPartOfComment() && node.treeParent.elementType == VALUE_PARAMETER) {
+            if (node.elementType == KDOC && node.treeParent.firstChildNode == node) {
+                // Allow KDoc to be the first element of a value parameter. EOL and block comments directly before a value parameter are
+                // a child of the value parameter list, and as of that will never be the first child of the value.
+                //     class Foo(
+                //         /** some kdoc */
+                //         bar = "bar"
+                //     )
+            } else {
+                // Disallow:
+                //     class Foo(
+                //         bar /* some comment */ = "bar"
+                //     )
+                // or
+                //     class Foo(
+                //         bar =
+                //            // some comment
+                //            "bar"
+                //     )
+                emit(
+                    node.startOffset,
+                    "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line " +
+                        "above.",
+                    false,
+                )
             }
         }
-    }
-
-    private companion object {
-        val valueParameterTokenSet = TokenSet.create(VALUE_PARAMETER, VALUE_PARAMETER_LIST)
     }
 }
 
