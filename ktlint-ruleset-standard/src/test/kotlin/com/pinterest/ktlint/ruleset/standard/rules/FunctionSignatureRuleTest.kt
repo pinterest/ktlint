@@ -211,28 +211,21 @@ class FunctionSignatureRuleTest {
             private /* some comment */ fun f1(a: Any, b: Any): String = "some-result"
             private fun /* some comment */ f2(a: Any, b: Any): String = "some-result"
             private fun f3 /* some comment */ (a: Any, b: Any): String = "some-result"
-            private fun f4( /* some comment */ a: Any, b: Any): String = "some-result"
             private fun f5(a /* some comment */: Any, b: Any): String = "some-result"
             private fun f6(a: /* some comment */ Any, b: Any): String = "some-result"
             private fun f7(a: Any /* some comment */, b: Any): String = "some-result"
             private fun f8(a: Any, b: Any) /* some comment */: String = "some-result"
             private fun f9(a: Any, b: Any): /* some comment */ String = "some-result"
             private fun f10(a: Any, b: Any): String /* some comment */ = "some-result"
-            private fun f11(
-                a: Any, // some-comment
-                b: Any
-            ): String = "f10"
             """.trimIndent()
         @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
         functionSignatureWrappingRuleAssertThat(code)
             .setMaxLineLength()
             .addAdditionalRuleProvider { ValueParameterCommentRule() }
             .hasLintViolationsForAdditionalRule(
-                LintViolation(5, 17, "A comment in a 'value_parameter_list' is only allowed when placed on a separate line", false),
-                LintViolation(6, 18, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
-                LintViolation(7, 19, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
-                LintViolation(8, 23, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
-                LintViolation(13, 13, "A comment in a 'value_parameter_list' is only allowed when placed on a separate line", false),
+                LintViolation(5, 18, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
+                LintViolation(6, 19, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
+                LintViolation(7, 23, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
             ).hasNoLintViolationsExceptInAdditionalRules()
     }
 
@@ -243,10 +236,6 @@ class FunctionSignatureRuleTest {
             private fun f5(a /* some comment */: Any, b: Any): String = "some-result"
             private fun f6(a: /* some comment */ Any, b: Any): String = "some-result"
             private fun f7(a: Any /* some comment */, b: Any): String = "some-result"
-            private fun f11(
-                a: Any, // some-comment
-                b: Any
-            ): String = "f10"
             """.trimIndent()
         @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
         functionSignatureWrappingRuleAssertThat(code)
@@ -255,7 +244,6 @@ class FunctionSignatureRuleTest {
                 LintViolation(1, 18, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
                 LintViolation(2, 19, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
                 LintViolation(3, 23, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
-                LintViolation(5, 13, "A comment in a 'value_parameter_list' is only allowed when placed on a separate line", false),
             ).hasNoLintViolationsExceptInAdditionalRules()
         // When ValueParameterCommentRule is not loaded or disabled:
         functionSignatureWrappingRuleAssertThat(code).hasNoLintViolations()

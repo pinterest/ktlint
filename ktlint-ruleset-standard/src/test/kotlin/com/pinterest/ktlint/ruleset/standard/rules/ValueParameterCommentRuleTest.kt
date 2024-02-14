@@ -112,24 +112,6 @@ class ValueParameterCommentRuleTest {
     }
 
     @Test
-    fun `Given a comment after a comma on the same line as an value parameter ast node`() {
-        val code =
-            """
-            class Foo1(
-                val bar: Bar, // some comment
-            )
-            class Foo2(
-                val bar: Bar, /* some comment */
-            )
-            """.trimIndent()
-        valueParameterCommentRuleAssertThat(code)
-            .hasLintViolationsWithoutAutoCorrect(
-                LintViolation(2, 19, "A comment in a 'value_parameter_list' is only allowed when placed on a separate line"),
-                LintViolation(5, 19, "A comment in a 'value_parameter_list' is only allowed when placed on a separate line"),
-            )
-    }
-
-    @Test
     fun `Given a comment as last node of value parameter list`() {
         val code =
             """
