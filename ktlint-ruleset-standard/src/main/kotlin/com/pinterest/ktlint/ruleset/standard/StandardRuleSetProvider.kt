@@ -6,6 +6,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import com.pinterest.ktlint.ruleset.standard.rules.AnnotationRule
 import com.pinterest.ktlint.ruleset.standard.rules.AnnotationSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ArgumentListWrappingRule
+import com.pinterest.ktlint.ruleset.standard.rules.BackingPropertyNamingRule
 import com.pinterest.ktlint.ruleset.standard.rules.BinaryExpressionWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.BlankLineBeforeDeclarationRule
 import com.pinterest.ktlint.ruleset.standard.rules.BlockCommentInitialStarAlignmentRule
@@ -104,6 +105,7 @@ public class StandardRuleSetProvider : RuleSetProviderV3(RuleSetId.STANDARD) {
             RuleProvider { AnnotationRule() },
             RuleProvider { AnnotationSpacingRule() },
             RuleProvider { ArgumentListWrappingRule() },
+            RuleProvider { BackingPropertyNamingRule() },
             RuleProvider { BinaryExpressionWrappingRule() },
             RuleProvider { BlankLineBeforeDeclarationRule() },
             RuleProvider { BlockCommentInitialStarAlignmentRule() },

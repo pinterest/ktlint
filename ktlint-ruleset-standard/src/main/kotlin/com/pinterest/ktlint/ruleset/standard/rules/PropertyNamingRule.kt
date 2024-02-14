@@ -3,18 +3,12 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONST_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.GET_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.INTERNAL_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_DECLARATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OVERRIDE_KEYWORD
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.PRIVATE_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY_ACCESSOR
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROTECTED_KEYWORD
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VAL_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
@@ -59,75 +53,12 @@ public class PropertyNamingRule : StandardRule("property-naming") {
                     property.hasCustomGetter() || property.isTopLevelValue() || property.isObjectValue() -> {
                         // Can not reliably determine whether the value is immutable or not
                     }
-                    identifier.text.startsWith("_") -> {
-                        visitBackingProperty(identifier, emit)
-                    }
                     else -> {
                         visitNonConstProperty(identifier, emit)
                     }
                 }
             }
     }
-
-    private fun visitBackingProperty(
-        identifier: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-    ) {
-        identifier
-            .text
-            .takeUnless { it.matches(BACKING_PROPERTY_LOWER_CAMEL_CASE_REGEXP) }
-            ?.let {
-                emit(identifier.startOffset, "Backing property name should start with underscore followed by lower camel case", false)
-            }
-
-        if (!identifier.treeParent.hasModifier(PRIVATE_KEYWORD)) {
-            emit(identifier.startOffset, "Backing property name not allowed when 'private' modifier is missing", false)
-        }
-
-        // A backing property can only exist when a correlated public property or function exists
-        identifier
-            .treeParent
-            ?.treeParent
-            ?.children()
-            ?.filter { it.elementType == PROPERTY }
-            ?.mapNotNull { it.findChildByType(IDENTIFIER) }
-            ?.firstOrNull { it.text == identifier.text.removePrefix("_") }
-            ?.treeParent
-            ?.let { correlatedProperty ->
-                if (correlatedProperty.isNotPublic()) {
-                    return
-                }
-            }
-
-        val correlatedFunctionName = "get${identifier.capitalizeFirstChar()}"
-        identifier
-            .treeParent
-            ?.treeParent
-            ?.children()
-            ?.filter { it.elementType == FUN }
-            ?.filter { it.hasNonEmptyParameterList() }
-            ?.mapNotNull { it.findChildByType(IDENTIFIER) }
-            ?.firstOrNull { it.text == correlatedFunctionName }
-            ?.treeParent
-            ?.let { correlatedFunction ->
-                if (correlatedFunction.isNotPublic()) {
-                    return
-                }
-            }
-
-        emit(identifier.startOffset, "Backing property name is only allowed when a matching public property or function exists", false)
-    }
-
-    private fun ASTNode.hasNonEmptyParameterList() =
-        findChildByType(VALUE_PARAMETER_LIST)
-            ?.children()
-            ?.none { it.elementType == VALUE_PARAMETER }
-            ?: false
-
-    private fun ASTNode.capitalizeFirstChar() =
-        text
-            .removePrefix("_")
-            .replaceFirstChar { it.uppercase() }
 
     private fun visitConstProperty(
         identifier: ASTNode,
@@ -158,7 +89,10 @@ public class PropertyNamingRule : StandardRule("property-naming") {
         identifier
             .text
             .takeUnless { it.matches(LOWER_CAMEL_CASE_REGEXP) }
-            ?.let {
+            ?.takeUnless {
+                // Ignore backing properties
+                it.startsWith("_")
+            }?.let {
                 emit(identifier.startOffset, "Property name should start with a lowercase letter and use camel case", false)
             }
     }
@@ -177,11 +111,6 @@ public class PropertyNamingRule : StandardRule("property-naming") {
             containsValKeyword() &&
             !hasModifier(OVERRIDE_KEYWORD)
 
-    private fun ASTNode.isNotPublic() =
-        !hasModifier(PRIVATE_KEYWORD) &&
-            !hasModifier(PROTECTED_KEYWORD) &&
-            !hasModifier(INTERNAL_KEYWORD)
-
     private fun ASTNode.isTokenKeywordBetweenBackticks() =
         this
             .takeIf { it.elementType == IDENTIFIER }
@@ -193,7 +122,6 @@ public class PropertyNamingRule : StandardRule("property-naming") {
     private companion object {
         val LOWER_CAMEL_CASE_REGEXP = "[a-z][a-zA-Z0-9]*".regExIgnoringDiacriticsAndStrokesOnLetters()
         val SCREAMING_SNAKE_CASE_REGEXP = "[A-Z][_A-Z0-9]*".regExIgnoringDiacriticsAndStrokesOnLetters()
-        val BACKING_PROPERTY_LOWER_CAMEL_CASE_REGEXP = "_[a-z][a-zA-Z0-9]*".regExIgnoringDiacriticsAndStrokesOnLetters()
         const val SERIAL_VERSION_UID_PROPERTY_NAME = "serialVersionUID"
         val KEYWORDS =
             setOf(KtTokens.KEYWORDS, KtTokens.SOFT_KEYWORDS)

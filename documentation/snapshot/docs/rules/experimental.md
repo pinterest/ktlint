@@ -8,6 +8,36 @@ ktlint_experimental=enabled
 ```
 Also see [enable/disable specific rules](../configuration-ktlint/#disabled-rules).
 
+### Backing property naming
+
+Allows property names to start with `_` in case the property is a backing property. `ktlint_official` and `android_studio` code styles require the correlated property/function to be defined as `public`.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    class Bar {
+        // Backing property
+        private val _elementList = mutableListOf<Element>()
+        val elementList: List<Element>
+            get() = _elementList
+    }
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    class Bar {
+        // Incomplete backing property as public property 'elementList1' is missing
+        private val _elementList1 = mutableListOf<Element>()
+
+        // Invalid backing property as '_elementList2' is not a private property
+        val _elementList2 = mutableListOf<Element>()
+        val elementList2: List<Element>
+            get() = _elementList2
+    }
+    ```
+
+Rule id: `backing-property-naming` (`standard` rule set)
+
 ## Binary expression wrapping
 
 Wraps binary expression at the operator reference whenever the binary expression does not fit on the line. In case the binary expression is nested, the expression is evaluated from outside to inside. If the left and right hand sides of the binary expression, after wrapping, fit on a single line then the inner binary expressions will not be wrapped. If one or both inner binary expression still do not fit on a single after wrapping of the outer binary expression, then each of those inner binary expressions will be wrapped.
