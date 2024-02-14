@@ -61,7 +61,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.RETURN_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SAFE_ACCESS_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SECONDARY_CONSTRUCTOR
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.SHORT_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_TYPE_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.THEN
@@ -1046,7 +1045,7 @@ public class IndentationRule :
                 val nodeIndentLevel = indentConfig.indentLevelFrom(indentContext.nodeIndent)
                 val childIndentLevel = indentConfig.indentLevelFrom(indentContext.childIndent)
                 "Remove indent context with level ($nodeIndentLevel, $childIndentLevel) for ${indentContext.fromASTNode.elementType}: " +
-                    "${indentContext.nodes}"
+                    indentContext.nodes
             }
             indentContextStack
                 .removeLast()
@@ -1356,7 +1355,6 @@ private class StringTemplateIndenter(
                     return
                 }
 
-                val prefixLength = node.getCommonPrefixLength()
                 val prevLeaf = node.prevLeaf()
                 val correctedExpectedIndent =
                     if (codeStyle == ktlint_official && node.isRawStringLiteralReturnInFunctionBodyBlock()) {
@@ -1388,44 +1386,15 @@ private class StringTemplateIndenter(
                     }
                 node
                     .children()
+                    .filter { it.isIndentBeforeClosingQuote() }
                     .forEach {
-                        if (it.prevLeaf()?.text == "\n" &&
-                            (
-                                it.isLiteralStringTemplateEntry() ||
-                                    it.isVariableStringTemplateEntry() ||
-                                    it.isClosingQuote()
-                            )
-                        ) {
-                            val (actualIndent, actualContent) =
-                                if (it.isIndentBeforeClosingQuote()) {
-                                    it.text.splitIndentAt(it.text.length)
-                                } else if (it.isVariableStringTemplateEntry() && it.isFirstNonBlankElementOnLine()) {
-                                    it.getFirstElementOnSameLine().text.splitIndentAt(correctedExpectedIndent.length)
-                                } else {
-                                    it.text.splitIndentAt(prefixLength)
-                                }
-                            if (indentConfig.containsUnexpectedIndentChar(actualIndent)) {
-                                val offsetFirstWrongIndentChar =
-                                    indentConfig.indexOfFirstUnexpectedIndentChar(actualIndent)
-                                emit(
-                                    it.startOffset + offsetFirstWrongIndentChar,
-                                    "Unexpected '${indentConfig.unexpectedIndentCharDescription}' character(s) in margin of multiline " +
-                                        "string",
-                                    true,
-                                )
-                                if (autoCorrect) {
-                                    (it.firstChildNode as LeafPsiElement).rawReplaceWithText(
-                                        correctedExpectedIndent + actualContent,
-                                    )
-                                }
-                            } else if (actualIndent != correctedExpectedIndent && it.isIndentBeforeClosingQuote()) {
-                                // It is a deliberate choice not to fix the indents inside the string literal except the line which only contains
-                                // the closing quotes.
-                                emit(
-                                    it.startOffset,
-                                    "Unexpected indent of multiline string closing quotes",
-                                    true,
-                                )
+                        if (it.prevLeaf()?.text == "\n") {
+                            val (actualIndent, actualContent) = it.text.splitIndentAt(it.text.length)
+                            if (actualIndent != correctedExpectedIndent) {
+                                // It is a deliberate choice not to fix the indents inside the string literal except the line which only
+                                // contains the closing quotes. See 'string-template-indent` rule for fixing the content of the string
+                                // template itself
+                                emit(it.startOffset, "Unexpected indent of multiline string closing quotes", true)
                                 if (autoCorrect) {
                                     if (it.firstChildNode == null) {
                                         (it as LeafPsiElement).rawInsertBeforeMe(
@@ -1452,29 +1421,6 @@ private class StringTemplateIndenter(
                 ?.elementType
 
     private fun ASTNode.isRawStringLiteralReturnInFunctionBodyBlock() = RETURN_KEYWORD == prevCodeLeaf()?.elementType
-
-    /**
-     * Get the length of the indent which is shared by all lines inside the string template except for the indent of
-     * the closing quotes.
-     */
-    private fun ASTNode.getCommonPrefixLength() =
-        children()
-            .filterNot { it.elementType == OPEN_QUOTE }
-            .filterNot { it.elementType == CLOSING_QUOTE }
-            .filter { it.prevLeaf()?.text == "\n" }
-            .filterNot { it.text == "\n" }
-            .let { indents ->
-                val indentsExceptBlankIndentBeforeClosingQuote =
-                    indents
-                        .filterNot { it.isIndentBeforeClosingQuote() }
-                if (indentsExceptBlankIndentBeforeClosingQuote.count() > 0) {
-                    indentsExceptBlankIndentBeforeClosingQuote
-                } else {
-                    indents
-                }
-            }.map { it.text.indentLength() }
-            .minOrNull()
-            ?: 0
 
     private fun KtStringTemplateExpression.isFollowedByTrimIndent() = isFollowedBy("trimIndent()")
 
@@ -1521,13 +1467,6 @@ private class StringTemplateIndenter(
     private fun ASTNode.isIndentBeforeClosingQuote() =
         elementType == CLOSING_QUOTE || (text.isBlank() && nextCodeSibling()?.elementType == CLOSING_QUOTE)
 
-    private fun ASTNode.isLiteralStringTemplateEntry() = elementType == LITERAL_STRING_TEMPLATE_ENTRY && text != "\n"
-
-    private fun ASTNode.isVariableStringTemplateEntry() =
-        elementType == LONG_STRING_TEMPLATE_ENTRY || elementType == SHORT_STRING_TEMPLATE_ENTRY
-
-    private fun ASTNode.isClosingQuote() = elementType == CLOSING_QUOTE
-
     private fun String.indentLength() = indexOfFirst { !it.isWhitespace() }.let { if (it == -1) length else it }
 
     /**
@@ -1538,6 +1477,9 @@ private class StringTemplateIndenter(
      */
     private fun String.splitIndentAt(index: Int): Pair<String, String> {
         assert(index >= 0)
+        if (this == "\n") {
+            return Pair("", "")
+        }
         val firstNonWhitespaceIndex =
             indexOfFirst { !it.isWhitespace() }.let {
                 if (it == -1) {
@@ -1552,25 +1494,6 @@ private class StringTemplateIndenter(
             second = this.substring(safeIndex),
         )
     }
-
-    private fun ASTNode.getFirstElementOnSameLine(): ASTNode {
-        val firstLeafOnLine = prevLeaf { it.text == "\n" }
-        return if (firstLeafOnLine == null) {
-            this
-        } else {
-            firstLeafOnLine.nextLeaf(includeEmpty = true) ?: this
-        }
-    }
-
-    private fun ASTNode.isFirstNonBlankElementOnLine(): Boolean {
-        var node: ASTNode? = getFirstElementOnSameLine()
-        while (node != null && node != this && node.text.isWhitespace()) {
-            node = node.nextLeaf()
-        }
-        return node != this
-    }
-
-    private fun String.isWhitespace() = none { !it.isWhitespace() }
 }
 
 public val INDENTATION_RULE_ID: RuleId = IndentationRule().ruleId

@@ -240,20 +240,26 @@ public class StringTemplateIndentRule :
                         } else {
                             it.text.splitIndentAt(prefixLength)
                         }
+                    val expectedIndent =
+                        if (it.isIndentBeforeClosingQuote() || prefixLength > 0) {
+                            newIndent
+                        } else {
+                            ""
+                        }
                     if (currentIndent.contains(wrongIndentChar)) {
                         checkAndFixWrongIndentationChar(
                             node = it,
                             oldIndent = currentIndent,
-                            newIndent = newIndent,
+                            newIndent = expectedIndent,
                             newContent = currentContent,
                             emit = emit,
                             autoCorrect = autoCorrect,
                         )
-                    } else if (currentIndent != newIndent) {
+                    } else if (currentIndent != expectedIndent) {
                         checkAndFixIndent(
                             node = it,
                             oldIndentLength = currentIndent.length,
-                            newIndent = newIndent,
+                            newIndent = expectedIndent,
                             newContent = currentContent,
                             autoCorrect = autoCorrect,
                             emit = emit,
@@ -314,11 +320,7 @@ public class StringTemplateIndentRule :
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
-        emit(
-            node.startOffset + oldIndentLength,
-            "Unexpected indent of raw string literal",
-            true,
-        )
+        emit(node.startOffset + oldIndentLength, "Unexpected indent of raw string literal", true)
         if (autoCorrect) {
             if (node.elementType == CLOSING_QUOTE) {
                 (node as LeafPsiElement).rawInsertBeforeMe(

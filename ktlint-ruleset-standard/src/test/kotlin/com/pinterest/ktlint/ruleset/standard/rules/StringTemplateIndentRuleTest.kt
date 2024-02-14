@@ -7,6 +7,7 @@ import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilde
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import com.pinterest.ktlint.test.TAB
+import com.pinterest.ktlint.test.replaceStringTemplatePlaceholder
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -216,7 +217,7 @@ class StringTemplateIndentRuleTest {
     }
 
     @Test
-    fun `Format a multiline string literal with text starting at position 1 of the line`() {
+    fun `Format a multiline string literal with text starting at position 1 of the line then do not indent the content`() {
         val code =
             """
             fun foo() {
@@ -224,8 +225,7 @@ class StringTemplateIndentRuleTest {
             Some text starting at the beginning of the line
 
                 Some text not starting at the beginning of the line
-            $MULTILINE_STRING_QUOTE.trimIndent()
-                )
+            $MULTILINE_STRING_QUOTE.trimIndent())
             }
             """.trimIndent()
         val formattedCode =
@@ -233,19 +233,19 @@ class StringTemplateIndentRuleTest {
             fun foo() {
                 println(
                     $MULTILINE_STRING_QUOTE
-                    Some text starting at the beginning of the line
+            Some text starting at the beginning of the line
 
-                        Some text not starting at the beginning of the line
+                Some text not starting at the beginning of the line
                     $MULTILINE_STRING_QUOTE.trimIndent()
                 )
             }
             """.trimIndent()
         stringTemplateIndentRuleAssertThat(code)
-            .hasLintViolations(
+            .hasLintViolationsForAdditionalRule(
+                LintViolation(6, 1, "Unexpected indent of multiline string closing quotes"),
+            ).hasLintViolations(
                 LintViolation(2, 13, "Expected newline before multiline string template"),
-                LintViolation(3, 1, "Unexpected indent of raw string literal"),
-                LintViolation(5, 1, "Unexpected indent of raw string literal"),
-                LintViolation(6, 1, "Unexpected indent of raw string literal"),
+                LintViolation(6, 17, "Expected newline after multiline string template"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -444,5 +444,30 @@ class StringTemplateIndentRuleTest {
         stringTemplateIndentRuleAssertThat(code)
             .hasLintViolation(1, 11, "Expected newline before multiline string template")
             .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 2530 - Given a raw string literal containing string templates at position 1 of the line`() {
+        // Interpret "$." in code sample below as "$". It is used whenever the code which has to be inspected should
+        // actually contain a string template. Using "$" instead of "$." would result in a String in which the string
+        // templates would have been evaluated before the code would actually be processed by the rule.
+        val code =
+            """
+            fun foo() {
+                val strings = listOf("a")
+                println(
+                    $MULTILINE_STRING_QUOTE
+            $.{strings.joinToString { "a" }}
+            $.strings
+                    $MULTILINE_STRING_QUOTE
+                )
+            }
+            val foo =
+                $MULTILINE_STRING_QUOTE
+            $.{strings.joinToString { "a" }}
+            $.strings
+                $MULTILINE_STRING_QUOTE.trimIndent()
+            """.trimIndent().replaceStringTemplatePlaceholder()
+        stringTemplateIndentRuleAssertThat(code).hasNoLintViolations()
     }
 }
