@@ -648,3 +648,37 @@ Braces required for multiline for, while, and do statements.
     ```
 
 Rule id: `multiline-loop` (`standard` rule set)
+
+## Square brackets spacing
+
+Check for spacing around square brackets.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val foo1 = bar[1]
+    val foo2 =
+       bar[
+           1,
+           2,
+       ]
+
+    @Foo(
+        fooBar = ["foo", "bar"],
+        fooBaz = [
+            "foo",
+            "baz",
+        ],
+    )
+    fun foo() {}
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val foo1 = bar [1]
+    val foo2 = bar[ 1]
+    val foo3 = bar[1 ]
+    ```
+
+Rule id: `square-brackets-spacing` (`standard` rule set)
