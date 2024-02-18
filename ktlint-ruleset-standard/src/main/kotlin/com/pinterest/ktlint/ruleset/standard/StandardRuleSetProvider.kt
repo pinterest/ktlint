@@ -80,6 +80,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundKeywordRule
 import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundOperatorsRule
 import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundParensRule
 import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundRangeOperatorRule
+import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundSquareBracketsRule
 import com.pinterest.ktlint.ruleset.standard.rules.SpacingAroundUnaryOperatorRule
 import com.pinterest.ktlint.ruleset.standard.rules.SpacingBetweenDeclarationsWithAnnotationsRule
 import com.pinterest.ktlint.ruleset.standard.rules.SpacingBetweenDeclarationsWithCommentsRule
@@ -179,6 +180,7 @@ public class StandardRuleSetProvider : RuleSetProviderV3(RuleSetId.STANDARD) {
             RuleProvider { SpacingAroundOperatorsRule() },
             RuleProvider { SpacingAroundParensRule() },
             RuleProvider { SpacingAroundRangeOperatorRule() },
+            RuleProvider { SpacingAroundSquareBracketsRule() },
             RuleProvider { SpacingAroundUnaryOperatorRule() },
             RuleProvider { SpacingBetweenDeclarationsWithAnnotationsRule() },
             RuleProvider { SpacingBetweenDeclarationsWithCommentsRule() },
