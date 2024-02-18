@@ -1,20 +1,12 @@
 package com.pinterest.ktlint.cli.internal
 
-import picocli.CommandLine
-
-@CommandLine.Command(
-    description = ["Install git hook to automatically check files for style violations before push"],
-    mixinStandardHelpOptions = true,
-    versionProvider = KtlintVersionProvider::class,
-)
-internal class GitPrePushHookSubCommand : Runnable {
-    @CommandLine.Spec
-    private lateinit var commandSpec: CommandLine.Model.CommandSpec
-
+internal class GitPrePushHookSubCommand :
+    GitHookCliktCommand(
+        name = "installGitPrePushHook",
+        help = "Install git hook to automatically check files for style violations before push",
+    ) {
     override fun run() {
-        commandSpec.commandLine().printCommandLineHelpOrVersionUsage()
-
-        GitHookInstaller.installGitHook("pre-push") {
+        installGitHook(gitHookName = "pre-push") {
             """
             #!/bin/sh
 
@@ -23,9 +15,5 @@ internal class GitPrePushHookSubCommand : Runnable {
             git diff --name-only -z HEAD "origin/${'$'}(git rev-parse --abbrev-ref HEAD)" -- '*.kt' '*.kts' | ktlint --relative --patterns-from-stdin=''
             """.trimIndent().toByteArray()
         }
-    }
-
-    internal companion object {
-        internal const val COMMAND_NAME = "installGitPrePushHook"
     }
 }

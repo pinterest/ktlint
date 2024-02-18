@@ -26,7 +26,7 @@ dependencies {
     implementation(projects.ktlintCliReporterPlain)
     implementation(projects.ktlintRuleEngine)
     implementation(projects.ktlintRulesetStandard)
-    implementation(libs.picocli)
+    implementation(libs.clikt)
     implementation(libs.logback)
 
     runtimeOnly(projects.ktlintCliReporterCheckstyle)

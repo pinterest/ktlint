@@ -24,7 +24,7 @@ class SimpleCLITest {
                         assertNormalExitCode()
                         assertThat(normalOutput).containsLineMatching("An anti-bikeshedding Kotlin linter with built-in formatter.")
                         assertThat(normalOutput).containsLineMatching("Usage:")
-                        assertThat(normalOutput).containsLineMatching("Examples:")
+                        assertThat(normalOutput).containsLineMatching("EXAMPLES")
                     }.assertAll()
             }
     }
@@ -42,7 +42,7 @@ class SimpleCLITest {
                 SoftAssertions()
                     .apply {
                         assertNormalExitCode()
-                        assertThat(normalOutput).contains(System.getProperty("ktlint-version"))
+                        assertThat(normalOutput).contains("ktlint version ${System.getProperty("ktlint-version")}")
                     }.assertAll()
             }
     }
@@ -269,14 +269,14 @@ class SimpleCLITest {
     @Nested
     inner class `Generate 'editorconfig' file` {
         @Test
-        fun `Given that the code-style is specified`(
+        fun `Given that the code-style is specified then exit with error`(
             @TempDir
             tempDir: Path,
         ) {
             CommandLineTestRunner(tempDir)
                 .run(
                     "too-many-empty-lines",
-                    listOf("generateEditorConfig", "ktlint_official"),
+                    listOf("generateEditorConfig", "--code-style ktlint_official"),
                 ) {
                     SoftAssertions()
                         .apply {
@@ -299,9 +299,7 @@ class SimpleCLITest {
                     SoftAssertions()
                         .apply {
                             assertErrorExitCode()
-                            assertThat(errorOutput).containsLineMatching(
-                                "Missing required parameter: 'code-style'",
-                            )
+                            assertThat(errorOutput).containsLineMatching("Error: missing option --code-style")
                         }.assertAll()
                 }
         }
@@ -418,11 +416,9 @@ class SimpleCLITest {
                 testProjectName = "too-many-empty-lines",
                 arguments = listOf("--code-style=android_studio"),
             ) {
-                assertThat(normalOutput).containsLineMatching(
-                    Regex(
-                        ".*ERROR.*Parameter '--code-style=android_studio' is ignored. The code style should be defined as " +
-                            "'.editorconfig' property 'ktlint_code_style='.*",
-                    ),
+                assertThat(errorOutput).containsLineMatching(
+                    "Parameter '--code-style' is no longer valid. The code style should be defined as '.editorconfig' property " +
+                        "'ktlint_code_style='",
                 )
             }
     }
