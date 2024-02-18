@@ -8,5 +8,6 @@ dependencies {
     implementation(projects.ktlintCliRulesetCore)
     api(libs.assertj)
     api(libs.junit5)
+    api(libs.janino)
     api(libs.jimfs)
 }
