@@ -11,6 +11,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.LAMBDA_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACKET
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LPAR
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.RANGE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.RANGE_UNTIL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACKET
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
@@ -182,7 +184,9 @@ public class SpacingAroundCurlyRule :
                 nextElementType == EXCLEXCL ||
                 nextElementType == LBRACKET ||
                 nextElementType == LPAR ||
-                nextElementType == COLONCOLON
+                nextElementType == COLONCOLON ||
+                nextElementType == RANGE ||
+                nextElementType == RANGE_UNTIL
         )
     }
 }

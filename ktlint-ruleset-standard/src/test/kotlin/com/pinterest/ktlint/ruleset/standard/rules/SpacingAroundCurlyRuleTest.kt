@@ -562,4 +562,22 @@ class SpacingAroundCurlyRuleTest {
                 .isFormattedAs(formattedCode)
         }
     }
+
+    @Test
+    fun `Issue 2359 - Given RBRACE followed by range operator then do not emit`() {
+        val code =
+            """
+            val foo = emptyList<String>().count { true }..1
+            """.trimIndent()
+        spacingAroundCurlyRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 2359 - Given RBRACE followed by range until operator then do not emit`() {
+        val code =
+            """
+            val foo = emptyList<String>().count { true }..<2
+            """.trimIndent()
+        spacingAroundCurlyRuleAssertThat(code).hasNoLintViolations()
+    }
 }
