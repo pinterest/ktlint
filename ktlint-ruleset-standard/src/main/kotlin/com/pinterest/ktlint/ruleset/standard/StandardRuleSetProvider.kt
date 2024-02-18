@@ -179,7 +179,7 @@ public class StandardRuleSetProvider : RuleSetProviderV3(RuleSetId.STANDARD) {
             RuleProvider { SpacingAroundOperatorsRule() },
             RuleProvider { SpacingAroundParensRule() },
             RuleProvider { SpacingAroundRangeOperatorRule() },
-            RuleProvider { SpacingAroundUnaryOperatorRule() }, //
+            RuleProvider { SpacingAroundUnaryOperatorRule() },
             RuleProvider { SpacingBetweenDeclarationsWithAnnotationsRule() },
             RuleProvider { SpacingBetweenDeclarationsWithCommentsRule() },
             RuleProvider { SpacingBetweenFunctionNameAndOpeningParenthesisRule() },
