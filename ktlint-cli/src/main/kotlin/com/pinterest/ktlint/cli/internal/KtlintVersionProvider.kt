@@ -1,14 +1,12 @@
 package com.pinterest.ktlint.cli.internal
 
 import com.pinterest.ktlint.cli.reporter.core.api.ktlintVersion
-import picocli.CommandLine
 
 /**
- * Dynamically provides current ktlint version as [CommandLine.IVersionProvider]
+ * Dynamically provides current ktlint version
  */
-internal class KtlintVersionProvider : CommandLine.IVersionProvider {
-    override fun getVersion(): Array<String> =
+internal class KtlintVersionProvider {
+    val version: String =
         ktlintVersion(KtlintVersionProvider::class.java)
-            ?.let { version -> arrayOf(version) }
             ?: error("Failed to determine ktlint version")
 }

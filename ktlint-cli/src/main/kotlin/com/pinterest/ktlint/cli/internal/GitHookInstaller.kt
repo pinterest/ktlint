@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.cli.internal
 
+import com.github.ajalt.clikt.core.CliktCommand
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.io.File
@@ -12,7 +13,10 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 private const val DEFAULT_GIT_DIR = ".git"
 private const val DEFAULT_GIT_HOOKS_DIR = "hooks"
 
-internal object GitHookInstaller {
+internal abstract class GitHookCliktCommand(
+    name: String,
+    help: String,
+) : CliktCommand(name = name, help = help) {
     fun installGitHook(
         gitHookName: String,
         hookContentProvider: () -> ByteArray,
@@ -21,7 +25,7 @@ internal object GitHookInstaller {
             try {
                 resolveGitHooksDir()
             } catch (e: IOException) {
-                System.err.println(e.message)
+                echo(e.message, err = true)
                 exitKtLintProcess(1)
             }
         val gitHookFile = gitHooksDir.resolve(gitHookName)
@@ -33,11 +37,11 @@ internal object GitHookInstaller {
 
         gitHookFile.writeBytes(hookContent)
         gitHookFile.setExecutable(true)
-        LOGGER.info {
+        echo(
             "${gitHookFile.path} is installed. Be aware that this hook assumes to find ktlint on the PATH. Either " +
                 "ensure that ktlint is actually added to the path or expand the ktlint command in the hook with the " +
-                "path."
-        }
+                "path.",
+        )
     }
 
     @Throws(IOException::class)
@@ -104,7 +108,7 @@ internal object GitHookInstaller {
             !actualHookContent.contentEquals(expectedHookContent)
         ) {
             val backupFile = hooksDir.resolve("$gitHookName.ktlint-backup.${actualHookContent.toUniqueId()}")
-            LOGGER.info { "Existing git hook ${hookFile.path} is copied to ${backupFile.path}" }
+            echo("Existing git hook ${hookFile.path} is copied to ${backupFile.path}")
             hookFile.copyTo(backupFile, overwrite = true)
         }
     }

@@ -153,7 +153,7 @@ class CommandLineTestRunner(
                 // Always run with debug logging as this is convenient when test fails and when ktlint is finished it
                 // prints the log line "Finished in ###ms / ... " which is used as fallback to determine whether ktlint
                 // did finish correctly.
-                add("-l=trace")
+                add("--log-level=trace")
 
                 addAll(arguments)
             }.joinToString(separator = " ")
