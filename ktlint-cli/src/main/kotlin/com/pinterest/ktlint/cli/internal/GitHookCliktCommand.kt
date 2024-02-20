@@ -1,14 +1,10 @@
 package com.pinterest.ktlint.cli.internal
 
 import com.github.ajalt.clikt.core.CliktCommand
-import com.pinterest.ktlint.logger.api.initKtLintKLogger
-import io.github.oshai.kotlinlogging.KotlinLogging
 import java.io.File
 import java.io.IOException
 import java.math.BigInteger
 import java.security.MessageDigest
-
-private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 private const val DEFAULT_GIT_DIR = ".git"
 private const val DEFAULT_GIT_HOOKS_DIR = "hooks"
