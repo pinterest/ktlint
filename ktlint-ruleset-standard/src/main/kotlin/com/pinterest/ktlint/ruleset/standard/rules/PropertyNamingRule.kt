@@ -50,9 +50,11 @@ public class PropertyNamingRule : StandardRule("property-naming") {
                     property.hasConstModifier() -> {
                         visitConstProperty(identifier, emit)
                     }
+
                     property.hasCustomGetter() || property.isTopLevelValue() || property.isObjectValue() -> {
                         // Can not reliably determine whether the value is immutable or not
                     }
+
                     else -> {
                         visitNonConstProperty(identifier, emit)
                     }

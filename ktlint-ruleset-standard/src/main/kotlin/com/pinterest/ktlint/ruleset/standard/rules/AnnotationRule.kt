@@ -118,17 +118,21 @@ public class AnnotationRule :
                 visitAnnotationList(node, emit, autoCorrect)
                 visitFileAnnotationList(node, emit, autoCorrect)
             }
+
             ANNOTATED_EXPRESSION, MODIFIER_LIST -> {
                 visitAnnotationList(node, emit, autoCorrect)
             }
+
             ANNOTATION -> {
                 // Annotation array
                 //     @[...]
                 visitAnnotation(node, emit, autoCorrect)
             }
+
             ANNOTATION_ENTRY -> {
                 visitAnnotationEntry(node, emit, autoCorrect)
             }
+
             TYPE_ARGUMENT_LIST -> {
                 visitTypeArgumentList(node, emit, autoCorrect)
             }
@@ -147,8 +151,10 @@ public class AnnotationRule :
                 when {
                     node.elementType == ANNOTATED_EXPRESSION ->
                         indentConfig.siblingIndentOf(node)
+
                     node.hasAnnotationBeforeConstructor() ->
                         indentConfig.siblingIndentOf(node.treeParent)
+
                     else ->
                         indentConfig.parentIndentOf(node)
                 }

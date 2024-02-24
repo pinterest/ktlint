@@ -38,6 +38,7 @@ public class SpacingAroundSquareBracketsRule : StandardRule("square-brackets-spa
                         //     fun foo() {}
                         false
                     }
+
                     COLLECTION_LITERAL_EXPRESSION -> {
                         // Allow:
                         //     @Foo(
@@ -49,6 +50,7 @@ public class SpacingAroundSquareBracketsRule : StandardRule("square-brackets-spa
                         //     @Foo(fooBar = ["foo", "bar" ])
                         node.elementType == RBRACKET && prevLeaf.isWhiteSpaceWithoutNewline()
                     }
+
                     else -> {
                         prevLeaf.isWhiteSpaceWithoutNewline()
                     }
@@ -76,12 +78,14 @@ public class SpacingAroundSquareBracketsRule : StandardRule("square-brackets-spa
                         nextLeaf!!.treeParent.removeChild(nextLeaf)
                     }
                 }
+
                 spacingBefore -> {
                     emit(prevLeaf!!.startOffset, "Unexpected spacing before '${node.text}'", true)
                     if (autoCorrect) {
                         prevLeaf.treeParent.removeChild(prevLeaf)
                     }
                 }
+
                 spacingAfter -> {
                     emit(node.startOffset + 1, "Unexpected spacing after '${node.text}'", true)
                     if (autoCorrect) {

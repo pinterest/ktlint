@@ -220,6 +220,7 @@ internal object SuppressionLocatorBuilder {
             .let { suppressedRuleIds ->
                 when {
                     suppressedRuleIds.isEmpty() -> null
+
                     suppressedRuleIds.contains(ALL_KTLINT_RULES_SUPPRESSION_ID) ->
                         SuppressionHint(
                             IntRange(startOffset, endOffset - 1),
@@ -244,6 +245,7 @@ internal object SuppressionLocatorBuilder {
                         // Disable all rules
                         ALL_KTLINT_RULES_SUPPRESSION_ID
                     }
+
                     argumentExpressionText.startsWith("ktlint:") -> {
                         // Disable specific rule. For backwards compatibility prefix rules without rule set id with the "standard" rule set
                         // id. Note that the KtlintSuppressionRule will emit a lint violation on the id. So this fix is only applicable for
@@ -252,6 +254,7 @@ internal object SuppressionLocatorBuilder {
                             .removePrefix("ktlint:")
                             .let { RuleId.prefixWithStandardRuleSetIdWhenMissing(it) }
                     }
+
                     else -> {
                         // Disable specific rule if the annotation value is mapped to a specific rule
                         annotationValueToRuleMapping[argumentExpressionText]

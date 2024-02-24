@@ -58,6 +58,7 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
                 val packageDirective = node.psi as KtPackageDirective
                 packageName = packageDirective.qualifiedName
             }
+
             IMPORT_DIRECTIVE -> {
                 val importPath = (node.psi as KtImportDirective).importPath!!
                 if (imports.containsKey(importPath)) {
@@ -70,11 +71,13 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
                     imports[importPath] = node
                 }
             }
+
             DOT_QUALIFIED_EXPRESSION -> {
                 if (node.isExpressionForStaticImportWithExistingParentImport()) {
                     parentExpressions.add(node.text.substringBeforeLast("("))
                 }
             }
+
             MARKDOWN_LINK -> {
                 node
                     .psi
@@ -85,6 +88,7 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
                         ref.add(Reference(linkText.split('.').last(), false))
                     }
             }
+
             REFERENCE_EXPRESSION, OPERATION_REFERENCE -> {
                 if (!node.isPartOf(IMPORT_DIRECTIVE)) {
                     val identifier =
@@ -106,6 +110,7 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
                         }
                 }
             }
+
             BY_KEYWORD -> foundByKeyword = true
         }
     }
@@ -208,11 +213,13 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
                     ?.takeIf { it.isWhiteSpaceWithNewline() }
                     ?.let { it.treeParent.removeChild(it) }
             }
+
             treeParent.lastChildNode == this -> {
                 prevSibling()
                     ?.takeIf { it.isWhiteSpaceWithNewline() }
                     ?.let { it.treeParent.removeChild(it) }
             }
+
             else -> {
                 nextLeaf(true)
                     ?.takeIf { it.isWhiteSpaceWithNewline() }

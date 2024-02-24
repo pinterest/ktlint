@@ -302,6 +302,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                         this.removeChild(trailingCommaNode)
                     }
                 }
+
             TrailingCommaState.MISSING ->
                 if (isTrailingCommaAllowed) {
                     val leafBeforeArrowOrNull = leafBeforeArrowOrNull()
@@ -361,6 +362,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                         }
                     }
                 }
+
             TrailingCommaState.REDUNDANT -> {
                 emit(
                     trailingCommaNode!!.startOffset,
@@ -371,6 +373,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                     this.removeChild(trailingCommaNode)
                 }
             }
+
             TrailingCommaState.NOT_EXISTS -> Unit
         }
     }
@@ -380,15 +383,19 @@ public class TrailingCommaOnDeclarationSiteRule :
             element.parent is KtFunctionLiteral -> {
                 isMultiline(element.parent)
             }
+
             element is KtFunctionLiteral -> {
                 containsLineBreakInLeavesRange(element.valueParameterList!!, element.arrow!!)
             }
+
             element is KtWhenEntry -> {
                 containsLineBreakInLeavesRange(element.firstChild, element.arrow!!)
             }
+
             element is KtDestructuringDeclaration -> {
                 containsLineBreakInLeavesRange(element.lPar!!, element.rPar!!)
             }
+
             element is KtValueArgumentList &&
                 element.children.size == 1 &&
                 element.anyDescendantOfType<KtCollectionLiteralExpression>() -> {
@@ -399,9 +406,11 @@ public class TrailingCommaOnDeclarationSiteRule :
                 val lastChild = element.collectDescendantsOfType<KtCollectionLiteralExpression>().last()
                 containsLineBreakInLeavesRange(lastChild.rightBracket!!, element.rightParenthesis!!)
             }
+
             element is KtParameterList && element.parameters.isEmpty() -> {
                 false
             }
+
             else -> {
                 element.textContains('\n')
             }

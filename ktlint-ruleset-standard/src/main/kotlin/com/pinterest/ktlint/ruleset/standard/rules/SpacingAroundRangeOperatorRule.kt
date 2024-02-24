@@ -30,12 +30,14 @@ public class SpacingAroundRangeOperatorRule : StandardRule("range-spacing") {
                         nextLeaf.node.treeParent.removeChild(nextLeaf.node)
                     }
                 }
+
                 prevLeaf is PsiWhiteSpace -> {
                     emit(prevLeaf.node.startOffset, "Unexpected spacing before \"${node.elementTypeDescription()}\"", true)
                     if (autoCorrect) {
                         prevLeaf.node.treeParent.removeChild(prevLeaf.node)
                     }
                 }
+
                 nextLeaf is PsiWhiteSpace -> {
                     emit(nextLeaf.node.startOffset, "Unexpected spacing after \"${node.elementTypeDescription()}\"", true)
                     if (autoCorrect) {

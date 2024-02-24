@@ -105,6 +105,7 @@ public class ParameterListSpacingRule :
                         replaceWithSingleSpace(el, emit, autoCorrect)
                     }
                 }
+
                 COMMA -> {
                     // Comma must be followed by whitespace
                     el
@@ -112,6 +113,7 @@ public class ParameterListSpacingRule :
                         ?.takeIf { it.elementType != WHITE_SPACE }
                         ?.let { addMissingWhiteSpaceAfterMe(el, emit, autoCorrect) }
                 }
+
                 VALUE_PARAMETER -> {
                     valueParameterCount += 1
                     visitValueParameter(el, emit, autoCorrect)

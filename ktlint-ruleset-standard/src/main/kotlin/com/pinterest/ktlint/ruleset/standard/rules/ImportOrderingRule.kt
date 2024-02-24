@@ -222,6 +222,7 @@ public class ImportOrderingRule :
                             value,
                             "Import layout must contain at least one entry of a wildcard symbol (*)",
                         )
+
                     value == "idea" -> {
                         LOGGER.warn {
                             "`idea` is deprecated! Please use `*,java.**,javax.**,kotlin.**,^` instead to ensure that the Kotlin IDE " +
@@ -232,6 +233,7 @@ public class ImportOrderingRule :
                             IDEA_PATTERN,
                         )
                     }
+
                     value == "ascii" -> {
                         LOGGER.warn {
                             "`ascii` is deprecated! Please use `*` instead to ensure that the Kotlin IDE plugin recognizes the value"
@@ -241,6 +243,7 @@ public class ImportOrderingRule :
                             ASCII_PATTERN,
                         )
                     }
+
                     else ->
                         try {
                             PropertyType.PropertyValue.valid(

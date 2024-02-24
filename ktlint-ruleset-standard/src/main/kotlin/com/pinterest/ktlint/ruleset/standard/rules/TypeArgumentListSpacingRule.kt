@@ -56,6 +56,7 @@ public class TypeArgumentListSpacingRule :
                 visitFunctionDeclaration(node, autoCorrect, emit)
                 visitInsideTypeArgumentList(node, autoCorrect, emit)
             }
+
             ElementType.SUPER_TYPE_LIST, ElementType.SUPER_EXPRESSION ->
                 visitInsideTypeArgumentList(node, autoCorrect, emit)
         }

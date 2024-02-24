@@ -29,6 +29,7 @@ public class FormatReporter(
                 countAutoCorrectPossibleOrDone.putIfAbsent(file, 0)
                 countAutoCorrectPossibleOrDone.replace(file, countAutoCorrectPossibleOrDone.getOrDefault(file, 0) + 1)
             }
+
             else -> {
                 countCanNotBeAutoCorrected.putIfAbsent(file, 0)
                 countCanNotBeAutoCorrected.replace(file, countCanNotBeAutoCorrected.getOrDefault(file, 0) + 1)
@@ -46,18 +47,21 @@ public class FormatReporter(
                     } else {
                         "Format required (1 violation needs manual fixing)"
                     }
+
                 canNotBeAutocorrected > 1 ->
                     if (format) {
                         "Format not completed ($canNotBeAutocorrected violations need manual fixing)"
                     } else {
                         "Format required ($canNotBeAutocorrected violations need manual fixing)"
                     }
+
                 countAutoCorrectPossibleOrDone.getOrDefault(file, 0) > 0 ->
                     if (format) {
                         "Format completed (all violations have been fixed)"
                     } else {
                         "Format required (all violations can be autocorrected)"
                     }
+
                 else ->
                     "Format not needed (no violations found)"
             }

@@ -64,6 +64,7 @@ public class TryCatchFinallySpacingRule :
             BLOCK -> {
                 visitBlock(node, emit, autoCorrect)
             }
+
             CATCH, FINALLY -> {
                 visitClause(node, emit, autoCorrect)
             }

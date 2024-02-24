@@ -28,7 +28,9 @@ public class SpacingAroundDoubleColonRule : StandardRule("double-colon-spacing")
             var removeSingleWhiteSpace = false
             val spacingBefore =
                 when {
-                    node.isPartOf(CLASS_LITERAL_EXPRESSION) && prevLeaf is PsiWhiteSpace -> true // Clazz::class
+                    node.isPartOf(CLASS_LITERAL_EXPRESSION) && prevLeaf is PsiWhiteSpace -> true
+
+                    // Clazz::class
                     node.isPartOf(CALLABLE_REFERENCE_EXPRESSION) && prevLeaf is PsiWhiteSpace -> // String::length, ::isOdd
                         if (node.treePrev == null) { // compose(length, ::isOdd), val predicate = ::isOdd
                             removeSingleWhiteSpace = true
@@ -36,6 +38,7 @@ public class SpacingAroundDoubleColonRule : StandardRule("double-colon-spacing")
                         } else { // String::length, List<String>::isEmpty
                             !prevLeaf.textContains('\n')
                         }
+
                     else -> false
                 }
             val spacingAfter = nextLeaf is PsiWhiteSpace
@@ -47,12 +50,14 @@ public class SpacingAroundDoubleColonRule : StandardRule("double-colon-spacing")
                         nextLeaf!!.treeParent.removeChild(nextLeaf)
                     }
                 }
+
                 spacingBefore -> {
                     emit(prevLeaf!!.startOffset, "Unexpected spacing before \"${node.text}\"", true)
                     if (autoCorrect) {
                         prevLeaf.removeSelf(removeSingleWhiteSpace)
                     }
                 }
+
                 spacingAfter -> {
                     emit(nextLeaf!!.startOffset, "Unexpected spacing after \"${node.text}\"", true)
                     if (autoCorrect) {

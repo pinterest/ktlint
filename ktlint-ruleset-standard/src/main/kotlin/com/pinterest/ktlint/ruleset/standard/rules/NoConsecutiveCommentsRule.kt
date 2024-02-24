@@ -131,6 +131,7 @@ public class NoConsecutiveCommentsRule :
             KDOC_START,
             ->
                 true
+
             else ->
                 false
         }
@@ -142,6 +143,7 @@ public class NoConsecutiveCommentsRule :
             KDOC_END,
             ->
                 true
+
             else ->
                 false
         }
@@ -149,10 +151,13 @@ public class NoConsecutiveCommentsRule :
     private fun ASTNode.commentType() =
         when (this.elementType) {
             EOL_COMMENT -> "an EOL comment"
+
             BLOCK_COMMENT -> "a block comment"
+
             KDOC_START,
             KDOC_END,
             -> "a KDoc"
+
             else -> this.elementType.toString().lowercase()
         }
 }

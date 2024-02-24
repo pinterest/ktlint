@@ -78,6 +78,7 @@ public class StringTemplateIndentRule :
                 wrongIndentChar = "\t"
                 wrongIndentDescription = "tab"
             }
+
             IndentConfig.IndentStyle.TAB -> {
                 wrongIndentChar = " "
                 wrongIndentDescription = "space"

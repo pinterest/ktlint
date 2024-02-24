@@ -112,6 +112,7 @@ public class IndentConfig(
         require(indent.matches(TABS_AND_SPACES))
         return when (indentStyle) {
             SPACE -> indent.replaceTabWithSpaces()
+
             TAB -> {
                 "\t".repeat(indentLevelFrom(indent))
                 // Silently swallow spaces if not enough spaces present to convert to a tab
