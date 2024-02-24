@@ -75,6 +75,87 @@ Wraps binary expression at the operator reference whenever the binary expression
 
 Rule id: `binary-expression-wrapping` (`standard` rule set)
 
+## Blank lines between when-conditions
+
+Consistently add or remove blank lines between when-conditions in a when-statement. A blank line is only added between when-conditions if the when-statement contains at lease one multiline when-condition. If a when-statement only contains single line when-conditions, then the blank lines between the when-conditions are removed.
+
+!!! note
+    Ktlint uses `.editorconfig` property `ij_kotlin_line_break_after_multiline_when_entry` but applies it also on single line entries to increase consistency.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val foo1 =
+        when (bar) {
+            BAR1 -> "bar1"
+            BAR2 -> "bar2"
+            else -> null
+        }
+
+    // ij_kotlin_line_break_after_multiline_when_entry = true
+    val foo2 =
+        when (bar) {
+            BAR1 -> "bar1"
+
+            BAR2 -> {
+                "bar2"
+            }
+
+            else -> null
+        }
+
+    // ij_kotlin_line_break_after_multiline_when_entry = false
+    val foo2 =
+        when (bar) {
+            BAR1 -> "bar1"
+            BAR2 -> {
+                "bar2"
+            }
+            else -> null
+        }
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    // ij_kotlin_line_break_after_multiline_when_entry = true | false (no blank lines in simple when-statement)
+    val foo1 =
+        when (bar) {
+            BAR1 -> "bar1"
+
+            BAR2 -> "bar2"
+
+            else -> null
+        }
+
+    // ij_kotlin_line_break_after_multiline_when_entry = true (missing newline after BAR1)
+    val foo2 =
+        when (bar) {
+            BAR1 -> "bar1"
+            BAR2 -> {
+                "bar2"
+            }
+
+            else -> null
+        }
+
+    // ij_kotlin_line_break_after_multiline_when_entry = false (unexpected newline after BAR2)
+    val foo2 =
+        when (bar) {
+            BAR1 -> "bar1"
+            BAR2 -> {
+                "bar2"
+            }
+
+            else -> null
+        }
+    ```
+
+| Configuration setting                                                                                                                                                                                                     | ktlint_official | intellij_idea | android_studio |
+|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `ij_kotlin_line_break_after_multiline_when_entry`<br/><i>Despite its name, forces a blank line between single line and multiline when-entries when at least one multiline when-entry is found in the when-statement.</i> |      `true`       |    `true`     |     `true`     |
+
+Rule id: `blank-lines-between-when-conditions` (`standard` rule set)
+
 ## Chain method continuation
 
 In a multiline method chain, the chain operators (`.` or `?.`) have to be aligned with each other. 
