@@ -225,7 +225,7 @@ internal class KtlintCommandLine :
                 "WARN" -> Level.WARN
                 "ERROR" -> Level.ERROR
                 "NONE" -> Level.OFF
-                else -> throw IllegalStateException("Invalid log level '$it'")
+                else -> error("Invalid log level '$it'")
             }
         }.default(Level.INFO)
 
