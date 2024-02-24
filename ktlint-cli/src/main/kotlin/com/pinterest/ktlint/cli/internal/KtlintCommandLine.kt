@@ -111,7 +111,7 @@ internal class KtlintCommandLine :
             """.trimIndent(),
     ) {
     init {
-        versionOption(KtlintVersionProvider().version)
+        versionOption(KtlintVersionProvider().version, names = setOf("-v", "--version"))
     }
 
     @Deprecated("Remove in Ktlint 1.3 (or later) as some users will skip multiple versions.")

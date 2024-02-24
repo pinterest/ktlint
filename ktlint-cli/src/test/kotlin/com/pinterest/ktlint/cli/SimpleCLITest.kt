@@ -5,6 +5,8 @@ import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import java.io.ByteArrayInputStream
 import java.nio.file.Path
 
@@ -29,15 +31,22 @@ class SimpleCLITest {
             }
     }
 
-    @Test
+    @ParameterizedTest(name = "Options: {0}")
+    @ValueSource(
+        strings = [
+            "-v",
+            "--version",
+        ],
+    )
     fun `Given CLI argument --version then return the version information output`(
+        version: String,
         @TempDir
         tempDir: Path,
     ) {
         CommandLineTestRunner(tempDir)
             .run(
                 "no-code-style-error",
-                listOf("--version"),
+                listOf(version),
             ) {
                 SoftAssertions()
                     .apply {
