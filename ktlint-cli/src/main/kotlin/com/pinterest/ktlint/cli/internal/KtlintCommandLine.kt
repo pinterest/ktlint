@@ -2,6 +2,22 @@ package com.pinterest.ktlint.cli.internal
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
+import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.MutuallyExclusiveGroupException
+import com.github.ajalt.clikt.parameters.arguments.argument
+import com.github.ajalt.clikt.parameters.arguments.multiple
+import com.github.ajalt.clikt.parameters.options.check
+import com.github.ajalt.clikt.parameters.options.convert
+import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.deprecated
+import com.github.ajalt.clikt.parameters.options.flag
+import com.github.ajalt.clikt.parameters.options.multiple
+import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.options.optionalValue
+import com.github.ajalt.clikt.parameters.options.split
+import com.github.ajalt.clikt.parameters.options.versionOption
+import com.github.ajalt.clikt.parameters.types.enum
+import com.github.ajalt.clikt.parameters.types.int
 import com.pinterest.ktlint.cli.reporter.baseline.Baseline
 import com.pinterest.ktlint.cli.reporter.baseline.BaselineErrorHandling
 import com.pinterest.ktlint.cli.reporter.baseline.doesNotContain
@@ -33,11 +49,6 @@ import io.github.oshai.kotlinlogging.DelegatingKLogger
 import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
-import picocli.CommandLine
-import picocli.CommandLine.Command
-import picocli.CommandLine.Option
-import picocli.CommandLine.ParameterException
-import picocli.CommandLine.Parameters
 import java.io.File
 import java.nio.file.FileSystems
 import java.nio.file.Paths
@@ -54,202 +65,191 @@ import kotlin.system.exitProcess
 
 private lateinit var logger: KLogger
 
-@Command(
-    headerHeading =
-        """
-An anti-bikeshedding Kotlin linter with built-in formatter.
-(https://pinterest.github.io/ktlint/latest/).
+internal class KtlintCommandLine :
+    CliktCommand(
+        name = "ktlint",
+        invokeWithoutSubcommand = true,
+        help =
+            """
+            An anti-bikeshedding Kotlin linter with built-in formatter.
+            (https://pinterest.github.io/ktlint/latest/).
 
-Usage:
-  ktlint <flags> [patterns]
-  java -jar ktlint.jar <flags> [patterns]
+            Usage on Windows:
+              java -jar ktlint.jar  [<options>] [<arguments>]... <command> [<args>]...
 
-Examples:
-  # Check the style of all Kotlin files (ending with '.kt' or '.kts') inside the current dir (recursively).
-  #
-  # Hidden folders will be skipped.
-  ktlint
+            # EXAMPLES
 
-  # Check only certain locations starting from the current directory.
-  #
-  # Prepend ! to negate the pattern, KtLint uses .gitignore pattern style syntax.
-  # Globs are applied starting from the last one.
-  #
-  # Hidden folders will be skipped.
-  # Check all '.kt' files in 'src/' directory, but ignore files ending with 'Test.kt':
-  ktlint "src/**/*.kt" "!src/**/*Test.kt"
-  # Check all '.kt' files in 'src/' directory, but ignore 'generated' directory and its subdirectories:
-  ktlint "src/**/*.kt" "!src/**/generated/**"
+            ## Use default patterns
 
-  # Auto-correct style violations.
-  ktlint -F "src/**/*.kt"
+            Check the style of all Kotlin files (ending with '.kt' or '.kts') inside the current dir (recursively). Hidden folders will be skipped.
 
-  # Using custom reporter jar and overriding report location
-  ktlint --reporter=csv,artifact=/path/to/reporter/csv.jar,output=my-custom-report.csv
-Flags:
-""",
-    synopsisHeading = "",
-    customSynopsis = [""],
-    sortOptions = false,
-    mixinStandardHelpOptions = true,
-    versionProvider = KtlintVersionProvider::class,
-)
-internal class KtlintCommandLine {
-    @CommandLine.Spec
-    private lateinit var commandSpec: CommandLine.Model.CommandSpec
+            `ktlint`
 
-    @Option(
-        // Ensure that the code-style can be set on sub commands and is visible in the help documentation
-        scope = CommandLine.ScopeType.INHERIT,
-        names = ["--code-style"],
-        // Keep as hidden option, so that a customized error can be printed when still used.
-        hidden = true,
-    )
-    @Deprecated("Remove in Ktlint 1.2 (or later) as some users will skip multiple versions.")
-    var codeStyle: CodeStyleValue? = null
+            ## Specify patterns
 
-    @Option(
-        names = ["--color"],
-        description = ["Make output colorful"],
-    )
-    var color: Boolean = false
+            Check only certain locations starting from the current directory.  Prepend ! to negate the pattern, KtLint uses .gitignore pattern style syntax. Globs are applied starting from the last one.
 
-    @Option(
-        names = ["--color-name"],
-        description = ["Customize the output color"],
-    )
-    var colorName: String = Color.DARK_GRAY.name
+            Check all '.kt' files in 'src/' directory, but ignore files ending with 'Test.kt':
 
-    @Option(
-        names = ["--disabled_rules"],
-        hidden = true,
-    )
-    @Deprecated("Remove in Ktlint 1.2 (or later) as some users will skip multiple versions.")
-    var disabledRules: String = ""
+            `ktlint "src/**/*.kt" "!src/**/*Test.kt"`
 
-    @Option(
-        names = ["--format", "-F"],
-        description = ["Fix deviations from the code style when possible"],
-    )
-    private var format: Boolean = false
+            Check all '.kt' files in 'src/' directory, but ignore 'generated' directory and its subdirectories:
 
-    @Option(
-        names = ["--limit"],
-        description = ["Maximum number of errors to show (default: show all)"],
-    )
-    private var limit: Int = -1
-        get() = if (field < 0) Int.MAX_VALUE else field
+            `ktlint "src/**/*.kt" "!src/**/generated/**"`
 
-    @Option(
-        names = ["--relative"],
-        description = [
-            "Print files relative to the working directory " +
-                "(e.g. dir/file.kt instead of /home/user/project/dir/file.kt)",
-        ],
-    )
-    var relative: Boolean = false
+            ## Auto-correct style violations
 
-    @Option(
-        names = ["--reporter"],
-        description = [
-            "A reporter to use (built-in: plain (default), plain?group_by_file, plain-summary, json, sarif, " +
-                "checkstyle, html). To use a third-party reporter specify a path to a JAR file on the filesystem " +
-                "via ',artifact=' option. To override reporter output, use ',output=' option.",
-        ],
-    )
-    private var reporterConfigurations: List<String> = ArrayList()
+            Check all '.kt' files in 'src/' directory, and when possible automatically correct the lint violations:
 
-    @Option(
-        names = ["--ruleset", "-R"],
-        description = ["A path to a JAR file containing additional ruleset(s)"],
-    )
-    var rulesetJarPaths: List<String> = ArrayList()
+            `ktlint -F "src/**/*.kt"`
 
-    @Option(
-        names = ["--stdin"],
-        description = ["Read file from stdin"],
-    )
-    private var stdin: Boolean = false
+            ## Using custom reporter jar and overriding report location
 
-    @Option(
-        names = ["--patterns-from-stdin"],
-        description = [
-            "Read additional patterns to check/format from stdin. " +
-                "Patterns are delimited by the given argument. (default is newline) " +
-                "If the argument is an empty string, the NUL byte is used.",
-        ],
-        arity = "0..1",
-        fallbackValue = "\n",
-    )
-    private var stdinDelimiter: String? = null
+            `ktlint --reporter=csv,artifact=/path/to/reporter/csv.jar,output=my-custom-report.csv`
 
-    @Option(
-        names = ["--editorconfig"],
-        description = [
-            "Path to the default '.editorconfig'. A property value from this file is used only when no " +
-                "'.editorconfig' file on the path to the source file specifies that property. Note: up until ktlint " +
-                "0.46 the property value in this file used to override values found in '.editorconfig' files on the " +
-                "path to the source file.",
-        ],
-    )
-    private var editorConfigPath: String? = null
+            # Options and commands
+            """.trimIndent(),
+    ) {
+    init {
+        versionOption(KtlintVersionProvider().version, names = setOf("-v", "--version"))
+    }
 
-    @Option(
-        names = ["--experimental"],
-        hidden = true,
-    )
-    @Deprecated("Remove in Ktlint 1.2 (or later) as some users will skip multiple versions.")
-    var experimental: Boolean = false
+    @Deprecated("Remove in Ktlint 1.3 (or later) as some users will skip multiple versions.")
+    private val codeStyle by
+        option("--code-style")
+            .enum<CodeStyleValue>()
+            .deprecated(
+                message =
+                    "Parameter '--code-style' is no longer valid. The code style should be defined as '.editorconfig' property " +
+                        "'ktlint_code_style='",
+                error = true,
+            )
 
-    @Option(
-        names = ["--baseline"],
-        description = ["Defines a baseline file to check against"],
-    )
-    private var baselinePath: String = ""
+    private val color: Boolean by
+        option("--color", help = "Make output colorful")
+            .flag(default = false)
 
-    @Parameters(hidden = true)
-    private var patterns = emptyList<String>()
+    private val colorName: String by
+        option("--color-name", help = "Customize the output color")
+            .default(Color.DARK_GRAY.name)
 
-    @Option(
-        names = ["--log-level", "-l"],
-        description = ["Defines the minimum log level (trace, debug, info, warn, error) or none to suppress all logging"],
-        converter = [LogLevelConverter::class],
-    )
-    private var minLogLevel: Level = Level.INFO
+    @Deprecated("Remove in Ktlint 1.3 (or later) as some users will skip multiple versions.")
+    private var disabledRules =
+        option("--disabled_rules", hidden = true)
+            .deprecated(
+                "Parameter '--disabled-rules' is no longer valid. The disabled rules have to be defined as '.editorconfig' " +
+                    "properties. See https://pinterest.github.io/ktlint/1.0.0/faq/#how-do-i-enable-or-disable-a-rule",
+                error = true,
+            )
+
+    private val format: Boolean by
+        option("--format", "-F", help = "Fix deviations from the code style when possible")
+            .flag(default = false)
+
+    private val limit: Int by
+        option("--limit", help = "Maximum number of errors to show (default: show all)")
+            .int()
+            .default(Int.MAX_VALUE)
+            .check("Value must be bigger than 0") { it > 0 }
+
+    private val relative: Boolean by
+        option(
+            "--relative",
+            help = "Print files relative to the working directory (e.g. dir/file.kt instead of /home/user/project/dir/file.kt)",
+        ).flag(default = false)
+
+    private val reporterConfigurations: List<String> by
+        option(
+            "--reporter",
+            help =
+                "A reporter to use (built-in: plain (default), plain?group_by_file, plain-summary, json, sarif, checkstyle, html). To use" +
+                    "a third-party reporter specify a path to a JAR file on the filesystem via ',artifact=' option. To override reporter " +
+                    "output, use ',output=' option.",
+        ).split(",").default(emptyList())
+
+    private val rulesetJarPaths: List<String> by
+        option(
+            "--ruleset",
+            "-R",
+            help = "A path to a JAR file containing additional ruleset(s)",
+        ).split(",").default(emptyList())
+
+    private val stdin: Boolean by
+        option(
+            "--stdin",
+            help = "Read file from stdin",
+        ).flag()
+
+    private val patternsFromStdin: String? by
+        option(
+            "--patterns-from-stdin",
+            help =
+                "Read additional patterns to check/format from stdin. Patterns are delimited by the given argument. (default is " +
+                    "newline). If the argument is an empty string, the NUL byte is used.",
+        ).optionalValue(default = "\n", acceptsUnattachedValue = false)
+
+    private val editorConfigPath: String? by
+        option(
+            "--editorconfig",
+            help =
+                "Path to the default '.editorconfig'. A property value from this file is used only when no '.editorconfig' file on the " +
+                    "path to the source file specifies that property. Note: up until ktlint 0.46 the property value in this file used to " +
+                    "override values found in '.editorconfig' files on the path to the source file.",
+        )
+
+    @Deprecated("Remove in Ktlint 1.3 (or later) as some users will skip multiple versions.")
+    var experimental =
+        option("--experimental", hidden = true)
+            .flag()
+            .deprecated(
+                "Option '--experimental' is no longer supported. Set '.editorconfig' property 'ktlint_experimental' instead.",
+                error = true,
+            )
+
+    private val baselinePath: String by
+        option("--baseline", help = "Defines a baseline file to check against")
+            .default("")
+
+    private val arguments: List<String> by argument().multiple()
+
+    private val minLogLevel: Level by
+        option(
+            "--log-level",
+            "-l",
+            help = "Defines the minimum log level (trace, debug, info, warn, error) or none to suppress all logging",
+        ).convert {
+            when (it.uppercase()) {
+                "TRACE" -> Level.TRACE
+                "DEBUG" -> Level.DEBUG
+                "INFO" -> Level.INFO
+                "WARN" -> Level.WARN
+                "ERROR" -> Level.ERROR
+                "NONE" -> Level.OFF
+                else -> error("Invalid log level '$it'")
+            }
+        }.default(Level.INFO)
+
+    private lateinit var patterns: List<String>
 
     private val tripped = AtomicBoolean()
     private val fileNumber = AtomicInteger()
     private val errorNumber = AtomicInteger()
     private val adviseToUseFormat = AtomicBoolean()
 
-    internal var debug: Boolean = false
-        get() = Level.DEBUG.isGreaterOrEqual(minLogLevel)
-        private set
+    override fun run() {
+        // Ensure the logger is configured for the subcommands as well
+        logger = configureLogger()
 
-    fun run() {
-        if (experimental) {
-            logger.error {
-                "Parameter `--experimental is ignored. The experimental rules have to be enabled via '.editorconfig' property " +
-                    "'ktlint_experimental = enabled'."
-            }
-            exitKtLintProcess(2)
+        if (currentContext.invokedSubcommand == null) {
+            lintOrFormat()
         }
+    }
 
-        if (disabledRules.isNotBlank()) {
-            logger.error {
-                "Parameter '--disabled-rules' is ignored. The disabled rules have to be defined as '.editorconfig' properties. " +
-                    "See https://pinterest.github.io/ktlint/1.0.0/faq/#how-do-i-enable-or-disable-a-rule"
-            }
-            exitKtLintProcess(3)
+    private fun lintOrFormat() {
+        if (stdin && patternsFromStdin != null) {
+            throw MutuallyExclusiveGroupException(listOf("--stdin", "--patterns-from-stdin"))
         }
-
-        if (codeStyle != null) {
-            logger.error {
-                "Parameter '--code-style=${codeStyle?.name}' is ignored. The code style should be defined as '.editorconfig' " +
-                    "property 'ktlint_code_style='."
-            }
-            exitKtLintProcess(4)
-        }
+        patterns = arguments.replaceWithPatternsFromStdinOrDefaultPatternsWhenEmpty()
 
         val editorConfigOverride =
             EditorConfigOverride
@@ -262,12 +262,8 @@ internal class KtlintCommandLine {
                     plus(FILENAME_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.disabled)
                 }
 
-        assertStdinAndPatternsFromStdinOptionsMutuallyExclusive()
-        patterns = patterns.replaceWithPatternsFromStdinOrDefaultPatternsWhenEmpty()
-
         val start = System.currentTimeMillis()
 
-        val ruleProviders = ruleProviders()
         val ktLintRuleEngine =
             KtLintRuleEngine(
                 ruleProviders = ruleProviders,
@@ -338,42 +334,46 @@ internal class KtlintCommandLine {
         return EditorConfigDefaults.load(fullyExpandedEditorConfigPath, ruleProviders.propertyTypes())
     }
 
-    private fun List<String>.replaceWithPatternsFromStdinOrDefaultPatternsWhenEmpty(): List<String> {
-        val localStdinDelimiter: String? = stdinDelimiter
-        return when {
-            localStdinDelimiter != null -> {
-                val stdinPatterns: Set<String> = readPatternsFromStdin(localStdinDelimiter.ifEmpty { "\u0000" })
-                if (isNotEmpty() && stdinPatterns.isNotEmpty()) {
-                    logger.warn {
-                        "Patterns specified at command line ($this) and patterns from 'stdin' due to flag '--patterns-from-stdin' " +
-                            "($stdinPatterns) are merged"
+    private fun List<String>.replaceWithPatternsFromStdinOrDefaultPatternsWhenEmpty(): List<String> =
+        when {
+            patternsFromStdin != null -> {
+                readPatternsFromStdin(patternsFromStdin!!)
+                    .let { stdinPatterns ->
+                        if (stdinPatterns.isNotEmpty()) {
+                            if (isEmpty()) {
+                                logger.debug { "Patterns read from 'stdin' due to flag '--patterns-from-stdin': $stdinPatterns" }
+                            } else {
+                                logger.warn {
+                                    "Patterns specified at command line ($this) and patterns from 'stdin' due to flag " +
+                                        "'--patterns-from-stdin' ($stdinPatterns) are merged"
+                                }
+                            }
+                        }
+                        // Note: it is okay in case both the original patterns and the patterns from stdin are empty
+                        this.plus(stdinPatterns)
                     }
-                }
-                // Note: it is okay in case both the original patterns and the patterns from stdin are empty
-                this.plus(stdinPatterns)
             }
+
             this.isEmpty() -> {
                 logger.info { "Enable default patterns $DEFAULT_PATTERNS" }
                 DEFAULT_PATTERNS
             }
+
             else -> {
                 // Keep original patterns
                 this
             }
         }
-    }
 
     // Do not convert to "val" as the function depends on PicoCli options which are not fully instantiated until the "run" method is started
-    internal fun ruleProviders(): Set<RuleProvider> = loadRuleProviders(rulesetJarPaths.toFilesURIList())
+    internal val ruleProviders: Set<RuleProvider>
+        get() = loadRuleProviders(rulesetJarPaths.toFilesURIList())
 
-    // Do not convert to "val" as the function depends on PicoCli options which are not fully instantiated until the "run" method is started
-    internal fun configureLogger() {
-        logger =
-            KotlinLogging
-                .logger {}
-                .setDefaultLoggerModifier { logger -> logger.level = minLogLevel }
-                .initKtLintKLogger()
-    }
+    private fun configureLogger() =
+        KotlinLogging
+            .logger {}
+            .setDefaultLoggerModifier { logger -> logger.level = minLogLevel }
+            .initKtLintKLogger()
 
     private var KLogger.level: Level?
         get() = underlyingLogger()?.level
@@ -385,15 +385,6 @@ internal class KtlintCommandLine {
         @Suppress("UNCHECKED_CAST")
         (this as? DelegatingKLogger<Logger>)
             ?.underlyingLogger
-
-    private fun assertStdinAndPatternsFromStdinOptionsMutuallyExclusive() {
-        if (stdin && stdinDelimiter != null) {
-            throw ParameterException(
-                commandSpec.commandLine(),
-                "Options --stdin and --patterns-from-stdin are mutually exclusive",
-            )
-        }
-    }
 
     private fun lintFiles(
         ktLintRuleEngine: KtLintRuleEngine,
@@ -722,20 +713,6 @@ internal class KtlintCommandLine {
     }
 }
 
-private class LogLevelConverter : CommandLine.ITypeConverter<Level> {
-    @Throws(Exception::class)
-    override fun convert(value: String?): Level =
-        when (value?.uppercase()) {
-            "TRACE" -> Level.TRACE
-            "DEBUG" -> Level.DEBUG
-            "INFO" -> Level.INFO
-            "WARN" -> Level.WARN
-            "ERROR" -> Level.ERROR
-            "NONE" -> Level.OFF
-            else -> throw IllegalStateException("Invalid log level '$value'")
-        }
-}
-
 // Do not convert to "val" as the function depends on PicoCli options which are not fully instantiated until the "run" method is started
 internal fun List<String>.toFilesURIList() =
     map {
@@ -754,4 +731,14 @@ internal fun List<String>.toFilesURIList() =
 internal fun exitKtLintProcess(status: Int): Nothing {
     logger.debug { "Exit ktlint with exit code: $status" }
     exitProcess(status)
+}
+
+private sealed class StdinOption {
+    data class Stdin(
+        val enabled: Boolean,
+    ) : StdinOption()
+
+    data class PatternsFromStdin(
+        val delimiter: String,
+    ) : StdinOption()
 }
