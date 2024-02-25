@@ -493,4 +493,17 @@ class FunctionLiteralRuleTest {
             """.trimIndent()
         functionLiteralRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 2450 - Given function literal with an EOL-comment as body then do not throw an exception`() {
+        val code =
+            """
+            fun foo() {
+                shouldFail<IllegalArgumentException>(sinceKotlin = "255.255.255") {
+                    // no-op
+                }
+            }
+            """.trimIndent()
+        functionLiteralRuleAssertThat(code).hasNoLintViolations()
+    }
 }

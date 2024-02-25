@@ -990,4 +990,25 @@ class ChainMethodContinuationRuleTest {
                 LintViolation(5, 60, "Exceeded max line length (59)", false),
             ).hasNoLintViolationsExceptInAdditionalRules()
     }
+
+    @Test
+    fun `Issue 2450 - Given a chained method and a chain contains an EOL comment that causes max line length to be exceeded then only report violation via max-line-length rule`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER                  $EOL_CHAR
+            val foo2 =
+                "foo"
+                    .filter {
+                         it
+                             .uppercase()  // Some comment
+                             .isUpperCase()
+                    }.lowercase()
+            """.trimIndent()
+        chainMethodContinuationRuleAssertThat(code)
+            .setMaxLineLength()
+            .addAdditionalRuleProvider { MaxLineLengthRule() }
+            .hasLintViolationsForAdditionalRule(
+                LintViolation(6, 46, "Exceeded max line length (45)", false),
+            ).hasNoLintViolationsExceptInAdditionalRules()
+    }
 }

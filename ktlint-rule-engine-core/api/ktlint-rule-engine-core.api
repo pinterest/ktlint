@@ -3,7 +3,6 @@ public final class com/pinterest/ktlint/rule/engine/core/api/ASTNodeExtensionKt 
 	public static final fun beforeCodeSibling (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;)Z
 	public static final fun betweenCodeSiblings (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;)Z
 	public static final fun children (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lkotlin/sequences/Sequence;
-	public static final fun dropTrailingEolComment (Lkotlin/sequences/Sequence;)Lkotlin/sequences/Sequence;
 	public static final fun findCompositeParentElementOfType (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
 	public static final fun firstChildLeafOrSelf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
 	public static final fun getColumn (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)I
@@ -29,6 +28,7 @@ public final class com/pinterest/ktlint/rule/engine/core/api/ASTNodeExtensionKt 
 	public static final fun leavesIncludingSelf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Z)Lkotlin/sequences/Sequence;
 	public static synthetic fun leavesIncludingSelf$default (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZILjava/lang/Object;)Lkotlin/sequences/Sequence;
 	public static final fun leavesOnLine (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lkotlin/sequences/Sequence;
+	public static final fun leavesOnLine (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Z)Lkotlin/sequences/Sequence;
 	public static final fun lineLength (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Z)I
 	public static synthetic fun lineLength$default (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZILjava/lang/Object;)I
 	public static final fun lineLengthWithoutNewlinePrefix (Lkotlin/sequences/Sequence;)I

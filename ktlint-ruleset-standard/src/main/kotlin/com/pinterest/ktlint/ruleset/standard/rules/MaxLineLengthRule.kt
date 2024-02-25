@@ -83,9 +83,14 @@ public class MaxLineLengthRule :
             ?.takeUnless { it.isPartOfRawMultiLineString() }
             ?.takeUnless { it.isLineOnlyContainingSingleTemplateString() }
             ?.takeUnless { it.isLineOnlyContainingComment() }
-            ?.let { lastNodeOnLine ->
+            ?.let {
                 // Calculate the offset at the last possible position at which the newline should be inserted on the line
-                val offset = node.leavesOnLine().first().startOffset + maxLineLength + 1
+                val offset =
+                    node
+                        .leavesOnLine(excludeEolComment = false)
+                        .first()
+                        .startOffset
+                        .plus(maxLineLength + 1)
                 emit(
                     offset,
                     "Exceeded max line length ($maxLineLength)",
@@ -95,7 +100,7 @@ public class MaxLineLengthRule :
     }
 
     private fun ASTNode.lineLength() =
-        leavesOnLine()
+        leavesOnLine(excludeEolComment = false)
             .sumOf {
                 when {
                     it.isWhiteSpaceWithNewline() -> {

@@ -633,6 +633,7 @@ class ASTNodeExtensionTest {
         )
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun `Given some line containing identifiers at different indentation levels then check that all leaves on those line are found`() {
         val code =
@@ -665,9 +666,9 @@ class ASTNodeExtensionTest {
         )
     }
 
-    @Suppress("DEPRECATION")
     @Nested
     inner class LineLengthWithoutNewlinePrefix {
+        @Suppress("DEPRECATION")
         @Test
         fun `Given some lines containing identifiers at different indentation levels then get line length exclusive the leading newline characters`() {
             val code =
@@ -697,6 +698,7 @@ class ASTNodeExtensionTest {
             )
         }
 
+        @Suppress("DEPRECATION")
         @Test
         fun `Given some lines containing identifiers and EOL comment then get line length exclusive the leading newline characters and exclusive EOL comment`() {
             val code =
@@ -726,6 +728,7 @@ class ASTNodeExtensionTest {
             )
         }
 
+        @Suppress("DEPRECATION")
         @Test
         fun `Given some lines containing identifiers at different indentation levels then get line length exclusive the leading newline characters until and including the identifier`() {
             val code =
@@ -847,6 +850,24 @@ class ASTNodeExtensionTest {
                 "    fun foo3() {".length,
                 "        val foo4 = \"foo4\"".length,
             )
+        }
+
+        @Test
+        fun `Given a line only containing an EOL-comment`() {
+            val code =
+                """
+                fun bar() {
+                    // no-op
+                }
+                """.trimIndent()
+            val actual =
+                transformCodeToAST(code)
+                    .firstChildLeafOrSelf()
+                    .leavesIncludingSelf()
+                    .first { it.elementType == ElementType.EOL_COMMENT }
+                    .lineLength(true)
+
+            assertThat(actual).isEqualTo(4)
         }
     }
 

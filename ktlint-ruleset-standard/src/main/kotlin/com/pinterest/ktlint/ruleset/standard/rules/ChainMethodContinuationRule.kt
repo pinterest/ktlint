@@ -231,7 +231,7 @@ public class ChainMethodContinuationRule :
                         .last()
                         .startOfLambdaArgumentInCallExpressionOrNull()
                         ?: lastChildLeafOrSelf().nextLeaf()
-                leavesOnLine()
+                leavesOnLine(excludeEolComment = true)
                     .takeWhile { it != stopAtLeaf }
                     .lineLengthWithoutNewlinePrefix() > maxLineLength
             }

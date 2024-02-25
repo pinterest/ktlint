@@ -478,4 +478,17 @@ class BinaryExpressionWrappingRuleTest {
                 LintViolation(5, 62, "Exceeded max line length (61)", false),
             ).hasNoLintViolationsExceptInAdditionalRules()
     }
+
+    @Test
+    fun `Issue 2450 - Given a binary expression including an EOL-comment that causes the max line length to be exceeded then ignore the EOL-comment`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER                               $EOL_CHAR
+            val foo1 = foo() ?: "foooooooooooooooooo" + // some comment
+                    "bar"
+            """.trimIndent()
+        binaryExpressionWrappingRuleAssertThat(code)
+            .setMaxLineLength()
+            .hasNoLintViolations()
+    }
 }
