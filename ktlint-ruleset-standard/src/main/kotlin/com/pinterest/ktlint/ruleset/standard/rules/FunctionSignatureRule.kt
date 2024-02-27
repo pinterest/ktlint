@@ -38,7 +38,6 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
@@ -732,12 +731,6 @@ public class FunctionSignatureRule :
             .children()
             .count { it.elementType == VALUE_PARAMETER }
     }
-
-    private fun ASTNode.getLastNodeOfFunctionSignatureWithBlockBody(): ASTNode? =
-        this
-            .findChildByType(BLOCK)
-            ?.firstChildNode
-            ?.prevCodeLeaf()
 
     public companion object {
         private const val FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY_UNSET = Int.MAX_VALUE

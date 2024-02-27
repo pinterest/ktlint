@@ -3,7 +3,9 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
 import com.pinterest.ktlint.ruleset.standard.rules.ArgumentListWrappingRule.Companion.IGNORE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY
-import com.pinterest.ktlint.ruleset.standard.rules.ClassSignatureRule.Companion.FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY
+import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.Companion.FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY
+import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.FunctionBodyExpressionWrapping
+import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.FunctionBodyExpressionWrapping.default
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
@@ -11,6 +13,9 @@ import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
+import com.pinterest.ktlint.ruleset.standard.rules.ClassSignatureRule.Companion.FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY as CLASS_SIGNATURE_FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY
 
 class ArgumentListWrappingRuleTest {
     private val argumentListWrappingRuleAssertThat =
@@ -931,11 +936,12 @@ class ArgumentListWrappingRuleTest {
                 // body
             }
             """.trimIndent()
+        @Suppress("ktlint:standard:max-line-length")
         argumentListWrappingRuleAssertThat(code)
             .setMaxLineLength()
             .addAdditionalRuleProvider { ClassSignatureRule() }
             .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
-            .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to 4)
+            .withEditorConfigOverride(CLASS_SIGNATURE_FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to 4)
             .hasLintViolationForAdditionalRule(5, 37, "Super type should start on a newline")
             .hasLintViolations(
                 LintViolation(5, 44, "Argument should be on a separate line (unless all arguments can fit a single line)"),
@@ -1009,5 +1015,209 @@ class ArgumentListWrappingRuleTest {
             .hasLintViolationsForAdditionalRule(
                 LintViolation(2, 45, "Exceeded max line length (44)", false),
             )
+    }
+
+    @Nested
+    inner class `Issue 2450 - Run 'argument-list-wrapping' after 'function-signature'` {
+        @Nested
+        inner class `Given default body expression wrapping` {
+            @Test
+            fun `Given a single line function signature`() {
+                val code =
+                    """
+                    // $MAX_LINE_LENGTH_MARKER         $EOL_CHAR
+                    fun foo(bar: String): Foo = Foo.baz(a = "looooooooooooooooooooong", b = "looooooooooooooooooooong")
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    // $MAX_LINE_LENGTH_MARKER         $EOL_CHAR
+                    fun foo(bar: String): Foo = Foo.baz(
+                        a = "looooooooooooooooooooong",
+                        b = "looooooooooooooooooooong"
+                    )
+                    """.trimIndent()
+                argumentListWrappingRuleAssertThat(code)
+                    .setMaxLineLength()
+                    .addAdditionalRuleProvider { FunctionSignatureRule() }
+                    .addAdditionalRuleProvider { IndentationRule() }
+                    .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to default)
+                    .isFormattedAs(formattedCode)
+            }
+
+            @Test
+            fun `Given a multiline function signature`() {
+                val code =
+                    """
+                    // $MAX_LINE_LENGTH_MARKER        $EOL_CHAR
+                    fun foo(
+                        bar1: String,
+                        bar2: String,
+                    ): Foo = Foo.baz(
+                        a = "looooooooooooooooooooong",
+                        b = "looooooooooooooooooooong",
+                    )
+                    """.trimIndent()
+                argumentListWrappingRuleAssertThat(code)
+                    .setMaxLineLength()
+                    .addAdditionalRuleProvider { FunctionSignatureRule() }
+                    .addAdditionalRuleProvider { IndentationRule() }
+                    .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to default)
+                    .hasNoLintViolations()
+            }
+
+            @Test
+            fun `Given a multiline function signature that should be single line`() {
+                val code =
+                    """
+                    // $MAX_LINE_LENGTH_MARKER        $EOL_CHAR
+                    fun foo(
+                        bar: String
+                    ): Foo = Foo.baz(
+                        a = "looooooooooooooooooooong",
+                        b = "looooooooooooooooooooong"
+                    )
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    // $MAX_LINE_LENGTH_MARKER        $EOL_CHAR
+                    fun foo(bar: String): Foo =
+                        Foo.baz(
+                            a = "looooooooooooooooooooong",
+                            b = "looooooooooooooooooooong"
+                        )
+                    """.trimIndent()
+                argumentListWrappingRuleAssertThat(code)
+                    .setMaxLineLength()
+                    .addAdditionalRuleProvider { FunctionSignatureRule() }
+                    .addAdditionalRuleProvider { IndentationRule() }
+                    .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to default)
+                    .hasNoLintViolationsExceptInAdditionalRules()
+                    .isFormattedAs(formattedCode)
+            }
+
+            @Test
+            fun `Given function and body which do not need wrapping as line length is not exceeded`() {
+                val code =
+                    """
+                    // $MAX_LINE_LENGTH_MARKER   $EOL_CHAR
+                    fun foo(bar: String): String =
+                        Foo.baz(a = "a", b = "b")
+                    """.trimIndent()
+                argumentListWrappingRuleAssertThat(code)
+                    .setMaxLineLength()
+                    .addAdditionalRuleProvider { FunctionSignatureRule() }
+                    .addAdditionalRuleProvider { IndentationRule() }
+                    .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to default)
+                    .hasNoLintViolations()
+            }
+        }
+
+        @Nested
+        inner class `Given non-default body expression wrapping` {
+            @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
+            @EnumSource(
+                value = FunctionBodyExpressionWrapping::class,
+                mode = EnumSource.Mode.EXCLUDE,
+                names = ["default"],
+            )
+            fun `Given a single line function signature`(functionBodyExpressionWrapping: FunctionBodyExpressionWrapping) {
+                val code =
+                    """
+                    // $MAX_LINE_LENGTH_MARKER         $EOL_CHAR
+                    fun foo(bar: String): Foo = Foo.baz(a = "looooooooooooooooooooong", b = "looooooooooooooooooooong")
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    // $MAX_LINE_LENGTH_MARKER         $EOL_CHAR
+                    fun foo(bar: String): Foo =
+                        Foo.baz(
+                            a = "looooooooooooooooooooong",
+                            b = "looooooooooooooooooooong"
+                        )
+                    """.trimIndent()
+                argumentListWrappingRuleAssertThat(code)
+                    .setMaxLineLength()
+                    .addAdditionalRuleProvider { FunctionSignatureRule() }
+                    .addAdditionalRuleProvider { IndentationRule() }
+                    .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to functionBodyExpressionWrapping)
+                    .isFormattedAs(formattedCode)
+            }
+
+            @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
+            @EnumSource(
+                value = FunctionBodyExpressionWrapping::class,
+                mode = EnumSource.Mode.EXCLUDE,
+                names = ["default"],
+            )
+            fun `Given a multiline function signature`(functionBodyExpressionWrapping: FunctionBodyExpressionWrapping) {
+                val code =
+                    """
+                    // $MAX_LINE_LENGTH_MARKER        $EOL_CHAR
+                    fun foo(
+                        bar1: String,
+                        bar2: String,
+                    ): Foo = Foo.baz(
+                        a = "looooooooooooooooooooong",
+                        b = "looooooooooooooooooooong",
+                    )
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    // $MAX_LINE_LENGTH_MARKER        $EOL_CHAR
+                    fun foo(
+                        bar1: String,
+                        bar2: String,
+                    ): Foo =
+                        Foo.baz(
+                            a = "looooooooooooooooooooong",
+                            b = "looooooooooooooooooooong",
+                        )
+                    """.trimIndent()
+                argumentListWrappingRuleAssertThat(code)
+                    .setMaxLineLength()
+                    .addAdditionalRuleProvider { FunctionSignatureRule() }
+                    .addAdditionalRuleProvider { IndentationRule() }
+                    .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to functionBodyExpressionWrapping)
+                    .hasNoLintViolationsExceptInAdditionalRules()
+                    .isFormattedAs(formattedCode)
+            }
+
+            @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
+            @EnumSource(
+                value = FunctionBodyExpressionWrapping::class,
+                mode = EnumSource.Mode.EXCLUDE,
+                names = ["default"],
+            )
+            fun `Given a multiline function signature that should be single line`(
+                functionBodyExpressionWrapping: FunctionBodyExpressionWrapping,
+            ) {
+                val code =
+                    """
+                    // $MAX_LINE_LENGTH_MARKER        $EOL_CHAR
+                    fun foo(
+                        bar: String
+                    ): Foo = Foo.baz(
+                        a = "looooooooooooooooooooong",
+                        b = "looooooooooooooooooooong"
+                    )
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    // $MAX_LINE_LENGTH_MARKER        $EOL_CHAR
+                    fun foo(bar: String): Foo =
+                        Foo.baz(
+                            a = "looooooooooooooooooooong",
+                            b = "looooooooooooooooooooong"
+                        )
+                    """.trimIndent()
+                argumentListWrappingRuleAssertThat(code)
+                    .setMaxLineLength()
+                    .addAdditionalRuleProvider { FunctionSignatureRule() }
+                    .addAdditionalRuleProvider { IndentationRule() }
+                    .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to functionBodyExpressionWrapping)
+                    .hasNoLintViolationsExceptInAdditionalRules()
+                    .isFormattedAs(formattedCode)
+            }
+        }
     }
 }
