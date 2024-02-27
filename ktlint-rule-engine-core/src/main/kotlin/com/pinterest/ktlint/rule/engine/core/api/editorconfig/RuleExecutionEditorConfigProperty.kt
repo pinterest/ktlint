@@ -16,7 +16,7 @@ public val RULE_EXECUTION_PROPERTY_TYPE: PropertyType.LowerCasingPropertyType<Ru
         "When enabled, rule execution is allowed. This property can de defined at different levels like an entire ruleset, a specific " +
             "rule or a specific property of the rule.",
         SafeEnumValueParser(RuleExecution::class.java),
-        RuleExecution.values().map { it.name }.toSet(),
+        RuleExecution.entries.map { it.name }.toSet(),
     )
 
 /**

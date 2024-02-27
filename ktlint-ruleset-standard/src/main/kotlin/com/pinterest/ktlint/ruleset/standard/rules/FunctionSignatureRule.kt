@@ -773,7 +773,7 @@ public class FunctionSignatureRule :
                             "line as the function signature. Use 'multiline' to force wrapping of body expressions that " +
                             "consists of multiple line. Use 'always' to force wrapping of body expression always.",
                         EnumValueParser(FunctionBodyExpressionWrapping::class.java),
-                        FunctionBodyExpressionWrapping.values().map { it.name }.toSet(),
+                        FunctionBodyExpressionWrapping.entries.map { it.name }.toSet(),
                     ),
                 defaultValue = default,
                 ktlintOfficialCodeStyleDefaultValue = multiline,

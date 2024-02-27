@@ -21,7 +21,7 @@ public class PlainReporterProvider : ReporterProviderV2<PlainReporter> {
     private fun String.emptyOrTrue() = this == "" || this == "true"
 
     private fun getColor(colorInput: String?): Color =
-        Color.values().firstOrNull {
+        Color.entries.firstOrNull {
             it.name == colorInput
         } ?: throw IllegalArgumentException("Invalid color parameter.")
 }

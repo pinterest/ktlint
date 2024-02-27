@@ -12,7 +12,7 @@ class SafeEnumValueParserTest {
                 "some-property-type",
                 null,
                 SafeEnumValueParser(SomePropertyType::class.java),
-                SomePropertyType.values().map { it.name }.toSet(),
+                SomePropertyType.entries.map { it.name }.toSet(),
             )
 
         val actual = propertyType.parse(" value2 ")
