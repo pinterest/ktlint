@@ -13,7 +13,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.ValueSource
 
-class BackingPropertyRuleTest {
+class BackingPropertyNamingRuleTest {
     private val backingPropertyNamingRuleAssertThat = assertThatRule { BackingPropertyNamingRule() }
 
     @Nested
