@@ -310,7 +310,7 @@ class EditorConfigTest {
                     name,
                     "",
                     SafeEnumValueParser(RuleExecution::class.java),
-                    RuleExecution.values().map { it.name }.toSet(),
+                    RuleExecution.entries.map { it.name }.toSet(),
                 ),
             defaultValue = RuleExecution.enabled,
         )

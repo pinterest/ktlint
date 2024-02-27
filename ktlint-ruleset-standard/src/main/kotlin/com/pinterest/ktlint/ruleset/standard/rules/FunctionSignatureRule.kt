@@ -38,7 +38,6 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
@@ -733,12 +732,6 @@ public class FunctionSignatureRule :
             .count { it.elementType == VALUE_PARAMETER }
     }
 
-    private fun ASTNode.getLastNodeOfFunctionSignatureWithBlockBody(): ASTNode? =
-        this
-            .findChildByType(BLOCK)
-            ?.firstChildNode
-            ?.prevCodeLeaf()
-
     public companion object {
         private const val FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY_UNSET = Int.MAX_VALUE
         public val FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY: EditorConfigProperty<Int> =
@@ -780,7 +773,7 @@ public class FunctionSignatureRule :
                             "line as the function signature. Use 'multiline' to force wrapping of body expressions that " +
                             "consists of multiple line. Use 'always' to force wrapping of body expression always.",
                         EnumValueParser(FunctionBodyExpressionWrapping::class.java),
-                        FunctionBodyExpressionWrapping.values().map { it.name }.toSet(),
+                        FunctionBodyExpressionWrapping.entries.map { it.name }.toSet(),
                     ),
                 defaultValue = default,
                 ktlintOfficialCodeStyleDefaultValue = multiline,

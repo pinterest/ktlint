@@ -40,7 +40,7 @@ public val CODE_STYLE_PROPERTY_TYPE: PropertyType.LowerCasingPropertyType<CodeSt
         "The code style ('ktlint_official', 'intellij_idea' or 'android_studio') to be applied. By default the 'ktlint_official' code " +
             "style is used",
         SafeEnumValueParser(CodeStyleValue::class.java),
-        CodeStyleValue.values().map { it.name }.toSet(),
+        CodeStyleValue.entries.map { it.name }.toSet(),
     )
 
 public val CODE_STYLE_PROPERTY: EditorConfigProperty<CodeStyleValue> =
