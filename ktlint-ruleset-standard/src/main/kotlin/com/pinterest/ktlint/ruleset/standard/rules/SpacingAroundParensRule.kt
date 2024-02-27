@@ -71,12 +71,14 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
                         nextLeaf!!.treeParent.removeChild(nextLeaf)
                     }
                 }
+
                 spacingBefore -> {
                     emit(prevLeaf!!.startOffset, "Unexpected spacing before \"${node.text}\"", true)
                     if (autoCorrect) {
                         prevLeaf.treeParent.removeChild(prevLeaf)
                     }
                 }
+
                 spacingAfter -> {
                     emit(node.startOffset + 1, "Unexpected spacing after \"${node.text}\"", true)
                     if (autoCorrect) {

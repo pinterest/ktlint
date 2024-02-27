@@ -147,7 +147,6 @@ public class ArgumentListWrappingRule :
             //         2
             //     )
             child.treeParent.hasTypeArgumentListInFront() -> -1
-
             // IDEA quirk:
             // foo
             //     .bar = Baz(
@@ -161,7 +160,6 @@ public class ArgumentListWrappingRule :
             //         2
             //     )
             child.treeParent.isPartOfDotQualifiedAssignmentExpression() -> -1
-
             else -> 0
         }.let {
             if (child.treeParent.isOnSameLineAsControlFlowKeyword()) {
@@ -198,6 +196,7 @@ public class ArgumentListWrappingRule :
                     }
                 }
             }
+
             VALUE_ARGUMENT,
             RPAR,
             -> {

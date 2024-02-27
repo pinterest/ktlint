@@ -188,6 +188,7 @@ class CommandLineTestRunner(
                         key.equals(PATH, ignoreCase = true)
                     } ?: PATH
                 }
+
                 else -> PATH
             }
         environment[pathKey] = "$JAVA_HOME_BIN_DIR${File.pathSeparator}${OsEnvironment()[PATH]}"

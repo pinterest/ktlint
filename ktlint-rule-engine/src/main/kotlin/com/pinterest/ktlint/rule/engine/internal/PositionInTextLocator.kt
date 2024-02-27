@@ -59,6 +59,7 @@ private class SegmentTree(
     ): Int =
         when {
             l > r -> -1
+
             else -> {
                 val i = l + (r - l) / 2
                 val s = segments[i]

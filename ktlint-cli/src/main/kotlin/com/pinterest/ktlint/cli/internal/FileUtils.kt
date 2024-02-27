@@ -160,8 +160,10 @@ private fun Path.findCommonParentDir(path: Path): Path =
     when {
         path.startsWith(this) ->
             this
+
         startsWith(path) ->
             path
+
         else ->
             this@findCommonParentDir.findCommonParentDir(path.parent)
     }

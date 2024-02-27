@@ -151,12 +151,14 @@ public class SpacingAroundCurlyRule :
                         node.upsertWhitespaceAfterMe(" ")
                     }
                 }
+
                 !spacingBefore -> {
                     emit(node.startOffset, "Missing spacing before \"${node.text}\"", true)
                     if (autoCorrect) {
                         node.upsertWhitespaceBeforeMe(" ")
                     }
                 }
+
                 !spacingAfter -> {
                     emit(node.startOffset + 1, "Missing spacing after \"${node.text}\"", true)
                     if (autoCorrect) {

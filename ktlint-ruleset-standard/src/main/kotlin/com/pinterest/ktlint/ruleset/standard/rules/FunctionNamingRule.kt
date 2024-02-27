@@ -154,9 +154,11 @@ public class FunctionNamingRule :
                     ANNOTATION -> {
                         it.containsAnnotationEntryWithIdentifierIn(excludeWhenAnnotatedWith)
                     }
+
                     ANNOTATION_ENTRY -> {
                         it.annotationEntryName() in excludeWhenAnnotatedWith
                     }
+
                     else -> false
                 }
             }

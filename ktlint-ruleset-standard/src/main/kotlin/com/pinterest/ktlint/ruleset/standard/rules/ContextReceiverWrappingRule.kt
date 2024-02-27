@@ -67,6 +67,7 @@ public class ContextReceiverWrappingRule :
         when {
             node.elementType == CONTEXT_RECEIVER_LIST ->
                 visitContextReceiverList(node, autoCorrect, emit)
+
             node.elementType == TYPE_ARGUMENT_LIST && node.isPartOf(CONTEXT_RECEIVER) ->
                 visitContextReceiverTypeArgumentList(node, autoCorrect, emit)
         }

@@ -499,6 +499,7 @@ internal class KtlintCommandLine :
                 }.also { formattedFileContent ->
                     when {
                         code.isStdIn -> print(formattedFileContent)
+
                         code.content != formattedFileContent ->
                             code
                                 .filePath
@@ -616,6 +617,7 @@ internal class KtlintCommandLine :
                         detail = "Not a valid Kotlin file (${e.message?.lowercase(Locale.getDefault())})",
                         status = KOTLIN_PARSE_EXCEPTION,
                     )
+
                 is KtLintRuleException -> {
                     logger.debug(e) { "Internal Error (${e.ruleId}) in ${code.fileNameOrStdin()} at position '${e.line}:${e.col}" }
                     KtlintCliError(
@@ -630,6 +632,7 @@ internal class KtlintCommandLine :
                         status = KTLINT_RULE_ENGINE_EXCEPTION,
                     )
                 }
+
                 else -> throw e
             }
         }

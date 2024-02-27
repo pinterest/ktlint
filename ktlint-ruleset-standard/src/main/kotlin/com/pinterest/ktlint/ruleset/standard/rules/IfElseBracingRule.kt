@@ -104,12 +104,15 @@ public class IfElseBracingRule :
             this == null -> {
                 false
             }
+
             this.elementType == BLOCK -> {
                 true
             }
+
             this.elementType == IF -> {
                 findChildByType(THEN).hasBracing() || findChildByType(ELSE).hasBracing()
             }
+
             else -> {
                 this.firstChildNode.hasBracing()
             }

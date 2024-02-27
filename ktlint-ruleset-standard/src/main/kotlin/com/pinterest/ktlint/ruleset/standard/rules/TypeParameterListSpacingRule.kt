@@ -270,6 +270,7 @@ public class TypeParameterListSpacingRule :
     ) {
         when {
             node.text == " " -> Unit
+
             node.textContains('\n') -> {
                 emit(
                     node.startOffset,
@@ -280,6 +281,7 @@ public class TypeParameterListSpacingRule :
                     (node as LeafPsiElement).rawReplaceWithText(" ")
                 }
             }
+
             else -> {
                 emit(
                     node.startOffset,

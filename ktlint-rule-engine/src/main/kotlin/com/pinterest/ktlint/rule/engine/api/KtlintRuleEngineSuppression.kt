@@ -73,14 +73,17 @@ private fun KtlintSuppressionAtOffset.offsetFromStartOf(code: String): Int {
         col == 1 && codeLine.isEmpty() -> {
             startOffsetOfLineContainingLintError
         }
+
         col <= codeLine.length -> {
             startOffsetOfLineContainingLintError + (col - 1)
         }
+
         col == codeLine.length + 1 -> {
             // Offset of suppression is set at EOL of the line. This is visually correct for the reader. But the newline character was stripped
             // from the line because the lines were split using that character.
             startOffsetOfLineContainingLintError + col
         }
+
         else -> {
             throw KtlintSuppressionOutOfBoundsException(this)
         }

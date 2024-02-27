@@ -132,12 +132,18 @@ public class ParameterListWrappingRule :
     private fun ASTNode.needToWrapParameterList() =
         when {
             hasNoParameters() -> false
+
             codeStyle != ktlint_official && isPartOfFunctionLiteralInNonKtlintOfficialCodeStyle() -> false
+
             codeStyle == ktlint_official && containsAnnotatedParameter() -> true
+
             codeStyle == ktlint_official && isPartOfFunctionLiteralStartingOnSameLineAsClosingParenthesisOfPrecedingReferenceExpression() ->
                 false
+
             textContains('\n') -> true
+
             isOnLineExceedingMaxLineLength() -> true
+
             else -> false
         }
 
@@ -219,7 +225,6 @@ public class ParameterListWrappingRule :
             //         param2: R
             //     )
             child.treeParent.isFunWithTypeParameterListInFront() -> -1
-
             else -> 0
         }.let {
             if (child.elementType == VALUE_PARAMETER) {
@@ -252,6 +257,7 @@ public class ParameterListWrappingRule :
                     }
                 }
             }
+
             VALUE_PARAMETER,
             RPAR,
             -> {
@@ -312,9 +318,12 @@ public class ParameterListWrappingRule :
     private fun errorMessage(node: ASTNode) =
         when (node.elementType) {
             LPAR -> """Unnecessary newline before "(""""
+
             VALUE_PARAMETER ->
                 "Parameter should start on a newline"
+
             RPAR -> """Missing newline before ")""""
+
             else -> throw UnsupportedOperationException()
         }
 

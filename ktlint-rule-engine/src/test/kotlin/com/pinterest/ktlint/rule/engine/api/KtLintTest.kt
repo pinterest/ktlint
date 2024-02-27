@@ -506,6 +506,7 @@ private class AutoCorrectErrorRule :
                         (node as LeafElement).rawReplaceWithText(STRING_VALUE_AFTER_AUTOCORRECT)
                     }
                 }
+
                 STRING_VALUE_NOT_TO_BE_CORRECTED ->
                     emit(node.startOffset, ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED, false)
             }

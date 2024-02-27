@@ -89,12 +89,14 @@ public class SpacingAroundOperatorsRule : StandardRule("op-spacing") {
                         node.upsertWhitespaceAfterMe(" ")
                     }
                 }
+
                 !spacingBefore -> {
                     emit(node.startOffset, "Missing spacing before \"${node.text}\"", true)
                     if (autoCorrect) {
                         node.upsertWhitespaceBeforeMe(" ")
                     }
                 }
+
                 !spacingAfter -> {
                     emit(node.startOffset + node.textLength, "Missing spacing after \"${node.text}\"", true)
                     if (autoCorrect) {

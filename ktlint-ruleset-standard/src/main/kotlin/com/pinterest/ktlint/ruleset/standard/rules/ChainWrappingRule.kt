@@ -138,7 +138,9 @@ public class ChainWrappingRule :
                                 // change the indent of the next line
                                 prevLeaf
                             }
+
                             nextLeaf.isWhiteSpaceWithoutNewline() -> nextLeaf
+
                             else -> null
                         }
 
