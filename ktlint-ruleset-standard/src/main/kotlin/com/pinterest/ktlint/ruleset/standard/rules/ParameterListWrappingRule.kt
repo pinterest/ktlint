@@ -15,7 +15,6 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.column
-import com.pinterest.ktlint.rule.engine.core.api.dropTrailingEolComment
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
@@ -27,7 +26,7 @@ import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
+import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -304,14 +303,11 @@ public class ParameterListWrappingRule :
     private fun ASTNode.isOnLineExceedingMaxLineLength(): Boolean {
         val stopLeaf = nextLeaf { it.textContains('\n') }?.nextLeaf()
         val lineContent =
-            prevLeaf { it.textContains('\n') }
-                ?.leavesIncludingSelf()
-                ?.takeWhile { it.prevLeaf() != stopLeaf }
-                ?.dropTrailingEolComment()
-                ?.joinToString(separator = "") { it.text }
-                ?.substringAfter('\n')
-                ?.substringBefore('\n')
-                .orEmpty()
+            leavesOnLine(excludeEolComment = true)
+                .takeWhile { it.prevLeaf() != stopLeaf }
+                .joinToString(separator = "") { it.text }
+                .substringAfter('\n')
+                .substringBefore('\n')
         return lineContent.length > maxLineLength
     }
 

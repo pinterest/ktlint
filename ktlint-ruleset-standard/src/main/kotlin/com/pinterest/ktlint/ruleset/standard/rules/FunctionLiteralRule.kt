@@ -176,7 +176,7 @@ public class FunctionLiteralRule :
         require(elementType == VALUE_PARAMETER_LIST && treeParent.elementType == FUNCTION_LITERAL)
         val lbrace = treeParent.findChildByType(LBRACE)!!
         return lbrace
-            .leavesOnLine()
+            .leavesOnLine(excludeEolComment = true)
             .takeWhile { it.prevLeaf() != lbrace }
             .lineLengthWithoutNewlinePrefix()
     }
@@ -210,7 +210,7 @@ public class FunctionLiteralRule :
                     .first { it.elementType == VALUE_PARAMETER }
                     .lastChildLeafOrSelf()
                     .nextLeaf { !it.isWhiteSpaceWithoutNewline() && !it.isPartOfComment() }
-            leavesOnLine()
+            leavesOnLine(excludeEolComment = true)
                 .takeWhile { it.prevLeaf() != stopAtLeaf }
                 .lineLengthWithoutNewlinePrefix()
                 .let { it > maxLineLength }

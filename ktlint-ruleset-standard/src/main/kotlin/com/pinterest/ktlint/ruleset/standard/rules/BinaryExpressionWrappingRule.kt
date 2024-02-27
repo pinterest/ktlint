@@ -21,7 +21,6 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.children
-import com.pinterest.ktlint.rule.engine.core.api.dropTrailingEolComment
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
@@ -32,6 +31,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
+import com.pinterest.ktlint.rule.engine.core.api.lineLength
 import com.pinterest.ktlint.rule.engine.core.api.lineLengthWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
@@ -248,15 +248,11 @@ public class BinaryExpressionWrappingRule :
             }
     }
 
-    private fun ASTNode.isOnLineExceedingMaxLineLength() =
-        maxLineLength <
-            leavesOnLine()
-                .dropTrailingEolComment()
-                .lineLengthWithoutNewlinePrefix()
+    private fun ASTNode.isOnLineExceedingMaxLineLength() = maxLineLength < lineLength(excludeEolComment = true)
 
     private fun ASTNode.causesMaxLineLengthToBeExceeded() =
         lastChildLeafOrSelf().let { lastChildLeaf ->
-            leavesOnLine()
+            leavesOnLine(excludeEolComment = true)
                 .takeWhile { it.prevLeaf() != lastChildLeaf }
                 .lineLengthWithoutNewlinePrefix()
         } > maxLineLength

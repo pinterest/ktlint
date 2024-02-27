@@ -438,20 +438,32 @@ public fun ASTNode.leavesIncludingSelf(forward: Boolean = true): Sequence<ASTNod
  * Get all leaves on the same line as the given node including the whitespace indentation. Note that the whitespace indentation may start
  * with zero or more newline characters.
  */
-public fun ASTNode.leavesOnLine(): Sequence<ASTNode> {
+@Deprecated(
+    message =
+        "Marked for removal in Ktlint 2.x. Rules should not modify code in case the EOL comment causes the max_line_length to be exceeded.",
+    replaceWith = ReplaceWith("leavesOnLine(excludeEolComment = false)"),
+)
+public fun ASTNode.leavesOnLine(): Sequence<ASTNode> = leavesOnLine(excludeEolComment = false)
+
+/**
+ * Get all leaves on the same line as the given node including the whitespace indentation. Note that the whitespace indentation may start
+ * with zero or more newline characters.
+ */
+public fun ASTNode.leavesOnLine(excludeEolComment: Boolean): Sequence<ASTNode> {
     val lastLeafOnLineOrNull = getLastLeafOnLineOrNull()
     return getFirstLeafOnLineOrSelf()
         .leavesIncludingSelf()
+        .applyIf(excludeEolComment) { dropTrailingEolComment() }
         .takeWhile { lastLeafOnLineOrNull == null || it.prevLeaf() != lastLeafOnLineOrNull }
 }
 
 /**
  * Take all nodes preceding the whitespace before the EOL comment
  */
-public fun Sequence<ASTNode>.dropTrailingEolComment(): Sequence<ASTNode> =
+private fun Sequence<ASTNode>.dropTrailingEolComment(): Sequence<ASTNode> =
     takeWhile {
-        !(it.isWhiteSpace() && it.nextLeaf()?.elementType == EOL_COMMENT) &&
-            // But if EOL-comment not preceded by whitespace than take all node before the EOL comment
+        !(it.isWhiteSpaceWithoutNewline() && it.nextLeaf()?.elementType == EOL_COMMENT) &&
+            // But if EOL-comment not preceded by whitespace than take all nodes before the EOL comment
             it.elementType != EOL_COMMENT
     }
 
@@ -473,7 +485,7 @@ internal fun ASTNode.getLastLeafOnLineOrNull() = nextLeaf { it.textContains('\n'
         "Marked for removal in Ktlint 2.x. Rules should not modify code in case the EOL comment causes the max_line_length to be exceeded.",
     replaceWith = ReplaceWith("lineLength(excludeEolComment = false)"),
 )
-public fun ASTNode.lineLengthWithoutNewlinePrefix(): Int = leavesOnLine().lineLengthWithoutNewlinePrefix()
+public fun ASTNode.lineLengthWithoutNewlinePrefix(): Int = leavesOnLine(excludeEolComment = false).lineLengthWithoutNewlinePrefix()
 
 /**
  * Get the total length of all leaves on the same line as the given node including the whitespace indentation but excluding all leading
@@ -482,18 +494,16 @@ public fun ASTNode.lineLengthWithoutNewlinePrefix(): Int = leavesOnLine().lineLe
  * max-line-length rule report this violation so that the developer can choose whether the comment can be shortened or that it can be placed
  * on a separate line.
  */
-public fun ASTNode.lineLength(excludeEolComment: Boolean = false): Int =
-    leavesOnLine()
-        .applyIf(excludeEolComment) { dropTrailingEolComment() }
-        .lineLengthWithoutNewlinePrefix()
+public fun ASTNode.lineLength(excludeEolComment: Boolean = false): Int = leavesOnLine(excludeEolComment).lineLengthWithoutNewlinePrefix()
 
 /**
  * Get the total length of all leaves in the sequence including the whitespace indentation but excluding all leading newline characters in
  * the whitespace indentation. The first leaf node in the sequence must be a white space starting with at least one newline.
  */
 public fun Sequence<ASTNode>.lineLengthWithoutNewlinePrefix(): Int {
-    require(first().text.startsWith('\n') || first().prevLeaf() == null) {
-        "First node in sequence must be a whitespace containing a newline"
+    val first = firstOrNull() ?: return 0
+    require(first.text.startsWith('\n') || first.prevLeaf() == null) {
+        "First node in non-empty sequence must be a whitespace containing a newline"
     }
     return joinToString(separator = "") { it.text }
         // If a line is preceded by a blank line then the ident contains multiple newline chars
