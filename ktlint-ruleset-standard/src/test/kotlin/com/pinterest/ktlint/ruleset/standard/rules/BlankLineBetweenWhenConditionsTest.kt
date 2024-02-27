@@ -122,7 +122,7 @@ class BlankLineBetweenWhenConditionsTest {
             }
 
             @Test
-            fun `Given xx a when-condition preceded by a comment and the when-condition needs to be preceded by blank line then add this line before the comment`() {
+            fun `Given a when-condition with a single line body on the next line then add blank lines`() {
                 val code =
                     """
                     val foo =
@@ -178,6 +178,33 @@ class BlankLineBetweenWhenConditionsTest {
                             // Some comment
                             else ->
                                 null
+                        }
+                    """.trimIndent()
+                @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+                blankLineAfterWhenConditionRuleAssertThat(code)
+                    .hasLintViolation(4, 1, "Add a blank line between all when-condition in case at least one multiline when-condition is found in the statement")
+                    .isFormattedAs(formattedCode)
+            }
+
+            @Test
+            fun `Given a simple when-statement in which a when condition is preceded by a comment then add blank lines between the when-conditions`() {
+                val code =
+                    """
+                    val foo =
+                        when (bar) {
+                            BAR -> "bar"
+                            // Some comment
+                            else -> null
+                        }
+                    """.trimIndent()
+                val formattedCode =
+                    """
+                    val foo =
+                        when (bar) {
+                            BAR -> "bar"
+
+                            // Some comment
+                            else -> null
                         }
                     """.trimIndent()
                 @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")

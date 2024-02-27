@@ -10,10 +10,12 @@ import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.ec4j.core.model.PropertyType
@@ -92,7 +94,11 @@ public class BlankLineBetweenWhenConditions :
 
     private fun ASTNode.containsBlankLine(): Boolean = elementType == WHITE_SPACE && text.count { it == '\n' } > 1
 
-    private fun ASTNode.hasAnyMultilineWhenCondition() = children().any { it.elementType == WHEN_ENTRY && it.textContains('\n') }
+    private fun ASTNode.hasAnyMultilineWhenCondition() =
+        children()
+            .any { it.elementType == WHEN_ENTRY && (it.textContains('\n') || it.isPrecededByComment()) }
+
+    private fun ASTNode.isPrecededByComment() = prevSibling { !it.isWhiteSpace() }?.isPartOfComment() ?: false
 
     private fun ASTNode.findWhitespaceAfterPreviousCodeSibling() =
         prevCodeSibling()

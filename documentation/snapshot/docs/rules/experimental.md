@@ -104,8 +104,19 @@ Consistently add or remove blank lines between when-conditions in a when-stateme
             else -> null
         }
 
+    // ij_kotlin_line_break_after_multiline_when_entry = true
+    val foo3 =
+        when (bar) {
+            BAR1 -> "bar1"
+
+            // BAR2 comment
+            BAR2 -> "bar2"
+
+            else -> null
+        }
+
     // ij_kotlin_line_break_after_multiline_when_entry = false
-    val foo2 =
+    val foo4 =
         when (bar) {
             BAR1 -> "bar1"
             BAR2 -> {
@@ -138,8 +149,17 @@ Consistently add or remove blank lines between when-conditions in a when-stateme
             else -> null
         }
 
+    // ij_kotlin_line_break_after_multiline_when_entry = true (missing newline after BAR1, and BAR2)
+    val foo3 =
+        when (bar) {
+            BAR1 -> "bar1"
+            // BAR2 comment
+            BAR2 -> "bar2"
+            else -> null
+        }
+
     // ij_kotlin_line_break_after_multiline_when_entry = false (unexpected newline after BAR2)
-    val foo2 =
+    val foo4 =
         when (bar) {
             BAR1 -> "bar1"
             BAR2 -> {
