@@ -1011,4 +1011,31 @@ class ChainMethodContinuationRuleTest {
                 LintViolation(6, 46, "Exceeded max line length (45)", false),
             ).hasNoLintViolationsExceptInAdditionalRules()
     }
+
+    @Test
+    fun `Issue 2455 - Given a chained method including some simple reference expressions then do not wrap simple reference expressions`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER      $EOL_CHAR
+            fun buildBar(): Foo.Bar = Foo.Bar.builder().baz().baz.build()
+            """.trimIndent()
+        val formattedCode =
+            """
+            // $MAX_LINE_LENGTH_MARKER      $EOL_CHAR
+            fun buildBar(): Foo.Bar = Foo.Bar
+                .builder()
+                .baz()
+                .baz
+                .build()
+            """.trimIndent()
+        chainMethodContinuationRuleAssertThat(code)
+            .setMaxLineLength()
+            .addAdditionalRuleProvider { MaxLineLengthRule() }
+            .hasLintViolations(
+                LintViolation(2, 34, "Expected newline before '.'"),
+                LintViolation(2, 44, "Expected newline before '.'"),
+                LintViolation(2, 50, "Expected newline before '.'"),
+                LintViolation(2, 54, "Expected newline before '.'"),
+            ).isFormattedAs(formattedCode)
+    }
 }
