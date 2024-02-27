@@ -141,6 +141,7 @@ public class ChainMethodContinuationRule :
         chainedExpression
             .chainOperators
             .filterNot { it.isJavaClassReferenceExpression() }
+            .filterNot { it.isSimpleReferenceExpression() }
             .forEach { chainOperator ->
                 when {
                     chainOperator.shouldBeOnSameLineAsClosingElementOfPreviousExpressionInMethodChain() -> {
@@ -159,6 +160,11 @@ public class ChainMethodContinuationRule :
             prevCodeSibling()?.elementType == CLASS_LITERAL_EXPRESSION &&
             nextCodeSibling()?.elementType == REFERENCE_EXPRESSION &&
             nextCodeSibling()?.firstChildLeafOrSelf()?.text == "java"
+
+    private fun ASTNode.isSimpleReferenceExpression() =
+        treeParent.elementType == DOT_QUALIFIED_EXPRESSION &&
+            prevCodeSibling()?.elementType == REFERENCE_EXPRESSION &&
+            nextCodeSibling()?.elementType == REFERENCE_EXPRESSION
 
     private fun ChainedExpression.wrapBeforeChainOperator() =
         when {
