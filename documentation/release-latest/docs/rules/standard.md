@@ -918,10 +918,13 @@ Ensures that lines do not exceed the maximum length of a line. This rule does no
     package com.toooooooooooooooooooooooooooo.long
     import com.tooooooooooooooooooooooooooooo.long
 
-    val foo =
+    val foo1 =
         """
         fooooooooooooooooooooooooooooooooooooooooo
         """
+
+    val foo2 =
+        "fooooooooooooooooooooooooooooooooooooooo"
 
     @Test
     fun `Test description which is toooooooooooo long`() {
@@ -933,9 +936,8 @@ Ensures that lines do not exceed the maximum length of a line. This rule does no
     // Assume that the last allowed character is
     // at the X character on the right           X
     val fooooooooooooooo = "fooooooooooooooooooooo"
+    val foo = "foo" + "ooooooooooooooooooooooooooo"
     val foooooooooooooo = "foooooooooooooooooooo" // some comment
-    val fooooooooooooo =
-        "foooooooooooooooooooooooooooooooooooooooo"
     ```
 
 
@@ -1241,7 +1243,7 @@ Rule id: `no-trailing-spaces` (`standard` rule set)
 
 ## No `Unit` as return type 
 
-The `Unit` type is not allowed as return type of a function.
+The `Unit` type is not allowed as return-type of a function.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -2120,7 +2122,7 @@ Rule id: `trailing-comma-on-declaration-site` (`standard` rule set)
 
 ## Type argument comment
 
-Disallows comments to be placed at certain locations inside a type argument (list). A KDoc is not allowed.
+Disallows comments to be placed at certain locations inside a type argument.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -2142,11 +2144,6 @@ Disallows comments to be placed at certain locations inside a type argument (lis
     fun Foo<
         out Any, // some comment
         >.foo() {}
-    val fooBar: FooBar<
-        /** some comment */
-        Foo,
-        Bar
-        >
     ```
 
 !!! note
@@ -2163,16 +2160,16 @@ Rule id: `type-argument-comment` (`standard` rule set)
 
 ## Type parameter comment
 
-Disallows comments to be placed at certain locations inside a type parameter (list). A KDoc is not allowed.
+Disallows comments to be placed at certain locations inside a type parameter.
 
 === "[:material-heart:](#) Ktlint"
 
     ```kotlin
-    class Foo2<
+    class Foo1<
         /* some comment */ 
         out Bar
         >
-    class Foo3<
+    class Foo2<
         // some comment 
         out Bar
         >
@@ -2181,12 +2178,8 @@ Disallows comments to be placed at certain locations inside a type parameter (li
 === "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
-    class Foo1<
-        /** some comment */
-        in Bar
-        >
-    class Foo2<in /* some comment */ Bar>
-    class Foo3<
+    class Foo1<in /* some comment */ Bar>
+    class Foo2<
         in Bar, // some comment
         >
     ```
@@ -2223,17 +2216,17 @@ Rule id: `unnecessary-parentheses-before-trailing-lambda` (`standard` rule set)
 
 ## Value argument comment
 
-Disallows comments to be placed at certain locations inside a value argument (list). A KDoc is not allowed.
+Disallows comments to be placed at certain locations inside a value argument.
 
 === "[:material-heart:](#) Ktlint"
 
     ```kotlin
-    val foo2 =
+    val foo1 =
         foo(
             /* some comment */
             bar = "bar"
         )
-    val foo3 =
+    val foo2 =
         foo(
             // some comment
             bar = "bar"
@@ -2243,22 +2236,11 @@ Disallows comments to be placed at certain locations inside a value argument (li
 === "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
-    val foo1 = foo(bar /** some comment */ = "bar")
-    val foo2 = foo(bar /* some comment */ = "bar")
-    val foo3 = 
+    val foo1 = foo(bar /* some comment */ = "bar")
+    val foo2 = 
         foo(
             bar = // some comment
                 "bar"
-        )
-    ```
-
-!!! note
-    In Ktlint 1.1.x EOL comments like below are disallowed. This will be reverted in Ktlint 1.2.
-    ```kotlin
-    val foo1 =
-        foo(
-            bar1: Bar1, // some comment
-            bar2: Bar2, // some other comment
         )
     ```
 
@@ -2266,13 +2248,13 @@ Rule id: `value-argument-comment` (`standard` rule set)
 
 ## Value parameter comment
 
-Disallows comments to be placed at certain locations inside a value argument (list). A KDoc is allowed but must start on a separate line.
+Disallows comments to be placed at certain locations inside a value argument.
 
 === "[:material-heart:](#) Ktlint"
 
     ```kotlin
     class Foo1(
-        /** some comment */
+        /** some kdoc */
         bar = "bar"
     )
     class Foo2(
@@ -2288,8 +2270,8 @@ Disallows comments to be placed at certain locations inside a value argument (li
 === "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
-    class Foo2(
-       bar /** some comment */ = "bar"
+    class Foo1(
+       bar = /** some kdoc */ "bar"
     )
     class Foo2(
        bar = /* some comment */ "bar"
@@ -2298,15 +2280,6 @@ Disallows comments to be placed at certain locations inside a value argument (li
         bar =
            // some comment
            "bar"
-    )
-    ```
-
-!!! note
-    In Ktlint 1.1.x EOL comments like below are disallowed. This will be reverted in Ktlint 1.2.
-    ```kotlin
-    class Foo(
-        bar1: Bar1, // some comment
-        bar2: Bar2, // some other comment
     )
     ```
 
@@ -2337,6 +2310,10 @@ All arguments should be on the same line, or every argument should be on a separ
             b, c,
         )
     ```
+
+| Configuration setting                                                             | ktlint_official | intellij_idea | android_studio |
+|:----------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `ktlint_argument_list_wrapping_ignore_when_parameter_count_greater_or_equal_than` |     `unset`     |       8       |       8        |
 
 Rule-id: `argument-list-wrapping` (`standard` rule set)
 

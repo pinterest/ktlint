@@ -8,6 +8,36 @@ ktlint_experimental=enabled
 ```
 Also see [enable/disable specific rules](../configuration-ktlint/#disabled-rules).
 
+### Backing property naming
+
+Allows property names to start with `_` in case the property is a backing property. `ktlint_official` and `android_studio` code styles require the correlated property/function to be defined as `public`.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    class Bar {
+        // Backing property
+        private val _elementList = mutableListOf<Element>()
+        val elementList: List<Element>
+            get() = _elementList
+    }
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    class Bar {
+        // Incomplete backing property as public property 'elementList1' is missing
+        private val _elementList1 = mutableListOf<Element>()
+
+        // Invalid backing property as '_elementList2' is not a private property
+        val _elementList2 = mutableListOf<Element>()
+        val elementList2: List<Element>
+            get() = _elementList2
+    }
+    ```
+
+Rule id: `backing-property-naming` (`standard` rule set)
+
 ## Binary expression wrapping
 
 Wraps binary expression at the operator reference whenever the binary expression does not fit on the line. In case the binary expression is nested, the expression is evaluated from outside to inside. If the left and right hand sides of the binary expression, after wrapping, fit on a single line then the inner binary expressions will not be wrapped. If one or both inner binary expression still do not fit on a single after wrapping of the outer binary expression, then each of those inner binary expressions will be wrapped.
@@ -44,6 +74,107 @@ Wraps binary expression at the operator reference whenever the binary expression
     ```
 
 Rule id: `binary-expression-wrapping` (`standard` rule set)
+
+## Blank lines between when-conditions
+
+Consistently add or remove blank lines between when-conditions in a when-statement. A blank line is only added between when-conditions if the when-statement contains at lease one multiline when-condition. If a when-statement only contains single line when-conditions, then the blank lines between the when-conditions are removed.
+
+!!! note
+    Ktlint uses `.editorconfig` property `ij_kotlin_line_break_after_multiline_when_entry` but applies it also on single line entries to increase consistency.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val foo1 =
+        when (bar) {
+            BAR1 -> "bar1"
+            BAR2 -> "bar2"
+            else -> null
+        }
+
+    // ij_kotlin_line_break_after_multiline_when_entry = true
+    val foo2 =
+        when (bar) {
+            BAR1 -> "bar1"
+
+            BAR2 -> {
+                "bar2"
+            }
+
+            else -> null
+        }
+
+    // ij_kotlin_line_break_after_multiline_when_entry = true
+    val foo3 =
+        when (bar) {
+            BAR1 -> "bar1"
+
+            // BAR2 comment
+            BAR2 -> "bar2"
+
+            else -> null
+        }
+
+    // ij_kotlin_line_break_after_multiline_when_entry = false
+    val foo4 =
+        when (bar) {
+            BAR1 -> "bar1"
+            BAR2 -> {
+                "bar2"
+            }
+            else -> null
+        }
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    // ij_kotlin_line_break_after_multiline_when_entry = true | false (no blank lines in simple when-statement)
+    val foo1 =
+        when (bar) {
+            BAR1 -> "bar1"
+
+            BAR2 -> "bar2"
+
+            else -> null
+        }
+
+    // ij_kotlin_line_break_after_multiline_when_entry = true (missing newline after BAR1)
+    val foo2 =
+        when (bar) {
+            BAR1 -> "bar1"
+            BAR2 -> {
+                "bar2"
+            }
+
+            else -> null
+        }
+
+    // ij_kotlin_line_break_after_multiline_when_entry = true (missing newline after BAR1, and BAR2)
+    val foo3 =
+        when (bar) {
+            BAR1 -> "bar1"
+            // BAR2 comment
+            BAR2 -> "bar2"
+            else -> null
+        }
+
+    // ij_kotlin_line_break_after_multiline_when_entry = false (unexpected newline after BAR2)
+    val foo4 =
+        when (bar) {
+            BAR1 -> "bar1"
+            BAR2 -> {
+                "bar2"
+            }
+
+            else -> null
+        }
+    ```
+
+| Configuration setting                                                                                                                                                                                                     | ktlint_official | intellij_idea | android_studio |
+|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `ij_kotlin_line_break_after_multiline_when_entry`<br/><i>Despite its name, forces a blank line between single line and multiline when-entries when at least one multiline when-entry is found in the when-statement.</i> |      `true`       |    `true`     |     `true`     |
+
+Rule id: `blank-lines-between-when-conditions` (`standard` rule set)
 
 ## Chain method continuation
 
@@ -541,6 +672,63 @@ Conditions should not use a both `&&` and `||` operators between operators at th
 
 Rule id: `mixed-condition-operators` (`standard` rule set)
 
+## KDoc
+
+KDoc's should only be used on elements for which KDoc is to be transformed to documentation. Normal block comments should be used in other cases.
+
+!!! note:
+    Access modifiers are ignored. Strictly speaking, one could argue that private declarations should not have a KDoc as no documentation will be generated for it. However, for internal use of developers the KDoc still serves documentation purposes.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    /** some KDoc */
+    class FooBar(
+        /** some KDoc */
+        val foo: Foo
+    ) {
+        /**
+         * Some bar KDoc
+         */
+        constructor() : this()
+
+        /** some KDoc */
+        val bar: Bar
+    }
+
+    enum class Foo {
+        /** some KDoc */
+        BAR
+    }
+
+    /** some KDoc */
+    interface Foo
+    /** some KDoc */
+    fun foo()
+    /** some KDoc */
+    val foo: Foo
+    /** some KDoc */
+    object foo: Foo
+    /** some KDoc */
+    typealias FooBar = (Foo) -> Bar
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    /**
+     * Some dangling Kdoc (e.g. not followed by a declaration)
+     */
+
+    val foo /** Some KDoc */ = "foo"
+
+    class Foo(
+        /** some dangling KDoc inside a parameter list */
+    )
+    ```
+
+Rule id: `kdoc` (`standard` rule set)
+
 ## Multiline loop
 
 Braces required for multiline for, while, and do statements.
@@ -561,3 +749,37 @@ Braces required for multiline for, while, and do statements.
     ```
 
 Rule id: `multiline-loop` (`standard` rule set)
+
+## Square brackets spacing
+
+Check for spacing around square brackets.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val foo1 = bar[1]
+    val foo2 =
+       bar[
+           1,
+           2,
+       ]
+
+    @Foo(
+        fooBar = ["foo", "bar"],
+        fooBaz = [
+            "foo",
+            "baz",
+        ],
+    )
+    fun foo() {}
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val foo1 = bar [1]
+    val foo2 = bar[ 1]
+    val foo3 = bar[1 ]
+    ```
+
+Rule id: `square-brackets-spacing` (`standard` rule set)
