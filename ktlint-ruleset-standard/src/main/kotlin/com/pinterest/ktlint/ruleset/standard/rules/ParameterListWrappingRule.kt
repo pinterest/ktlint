@@ -224,6 +224,7 @@ public class ParameterListWrappingRule :
             //         param2: R
             //     )
             child.treeParent.isFunWithTypeParameterListInFront() -> -1
+
             else -> 0
         }.let {
             if (child.elementType == VALUE_PARAMETER) {

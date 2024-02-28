@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLOSING_QUOTE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
@@ -43,8 +44,6 @@ public class StringTemplateIndentRule :
         id = "string-template-indent",
         visitorModifiers =
             setOf(
-                // Wrap all multiline string templates to a separate line
-//                VisitorModifier.RunAfterRule(MULTILINE_EXPRESSION_WRAPPING_RULE_ID, ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED),
                 // The IndentationRule first needs to fix the indentation of the opening quotes of the string template. The indentation inside
                 // the string template is relative to the opening quotes. Running this rule before the IndentationRule results in a wrong
                 // indentation whenever the indent level of the root of the string template is changed.
@@ -99,6 +98,7 @@ public class StringTemplateIndentRule :
                     stringTemplate
                         .takeUnless { it.isPrecededByWhitespaceWithNewline() }
                         ?.takeUnless { it.isPrecededByReturnKeyword() }
+                        ?.takeUnless { it.isFunctionBodyExpressionOnSameLine() }
                         ?.let { whiteSpace ->
                             emit(stringTemplate.startOffset, "Expected newline before multiline string template", true)
                             if (autoCorrect) {
@@ -150,6 +150,19 @@ public class StringTemplateIndentRule :
         //       some string
         //       """
         prevCodeLeaf()?.elementType == RETURN_KEYWORD
+
+    private fun ASTNode.isFunctionBodyExpressionOnSameLine() =
+        prevCodeLeaf()
+            ?.takeIf { it.elementType == ElementType.EQ }
+            ?.closingParenthesisOfFunctionOrNull()
+            ?.prevLeaf()
+            ?.let { it.isWhiteSpaceWithNewline() }
+            ?: false
+
+    private fun ASTNode.closingParenthesisOfFunctionOrNull() =
+        takeIf { treeParent.elementType == ElementType.FUN }
+            ?.prevCodeLeaf()
+            ?.takeIf { it.elementType == ElementType.RPAR }
 
     private fun ASTNode.getIndent(): String {
         // When executing this rule, the indentation rule may not have run yet. The functionality to determine the correct indentation level
