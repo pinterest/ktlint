@@ -2,15 +2,79 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [1.2.0] - 2024-02-28
 
-### Added
+### 🆕 Features
 
-### Removed
 
-### Fixed
+* Break dependency between string-template-indent and multiline-expression-wrapping - [#2505](https://github.com/pinterest/ktlint/pull/2505), by @paul-dingemans
 
-### Changed
+* Allow string template to exceed max line length when it is the only element on a line - [#2480](https://github.com/pinterest/ktlint/pull/2480), by @paul-dingemans
+
+* Add configuration setting for ignoring `argument-list-wrapping` above treshold of argument - [#2481](https://github.com/pinterest/ktlint/pull/2481), by @paul-dingemans  
+  NOTE: In code style `ktlint_official` this threshold is `unset` so that arguments are always wrapped. If this impacts your code too much, you can make it backward compatible by setting `.editorconfig` property `ktlint_argument_list_wrapping_ignore_when_parameter_count_greater_or_equal_than` to value `8`. For other code styles this property is initialized with value `8` and as of that backward compatible by default.
+
+* Ignore EOL comment that causes max_line_length to be exceeded, except in max-line-length rule - [#2516](https://github.com/pinterest/ktlint/pull/2516), by @paul-dingemans
+
+* Add new rule for disallowing KDoc at non-whitelisted locations - [#2548](https://github.com/pinterest/ktlint/pull/2548), by @paul-dingemans
+
+* Improve insert of suppression - [#2546](https://github.com/pinterest/ktlint/pull/2546), by @paul-dingemans
+
+* Ignore modifier of backing property in `android_studio` code style - [#2552](https://github.com/pinterest/ktlint/pull/2552), by @paul-dingemans
+
+* Add rule to check spacing around square brackets 'square-brackets-spacing' - [#2555](https://github.com/pinterest/ktlint/pull/2555), by @paul-dingemans
+
+* Add rule `blank-line-between-when-conditions` - [#2564](https://github.com/pinterest/ktlint/pull/2564), by @paul-dingemans
+
+### 🔧 Fixes
+
+* Prevent IllegalArgumentException in `argument-list-wrapping` rule - [#2500](https://github.com/pinterest/ktlint/pull/2500), by @paul-dingemans
+
+* Ignore function which is returned as result in a function body - [#2526](https://github.com/pinterest/ktlint/pull/2526), by @paul-dingemans
+
+* Fix false positive newline expected before comment in enum - [#2527](https://github.com/pinterest/ktlint/pull/2527), by @paul-dingemans
+
+* Report violation when parameter list is preceded by a comment - [#2541](https://github.com/pinterest/ktlint/pull/2541), by @paul-dingemans
+
+* Ignore EOL comments in `value-argument-comment` and `value-parameter-comment` - [#2551](https://github.com/pinterest/ktlint/pull/2551), by @paul-dingemans
+
+* Do not indent string template starting at first position of line - [#2553](https://github.com/pinterest/ktlint/pull/2553), by @paul-dingemans
+
+* Prevent conflict when curly closing brace is followed by range (until) operator - [#2554](https://github.com/pinterest/ktlint/pull/2554), by @paul-dingemans
+
+* Run argument-list-wrapping after function-signature - [#2568](https://github.com/pinterest/ktlint/pull/2568), by @paul-dingemans
+
+* Ignore simple reference expressions in `chain-method-continuation` - [#2569](https://github.com/pinterest/ktlint/pull/2569), by @paul-dingemans
+
+### 📦 Dependencies
+
+* chore(deps): update plugin org.gradle.toolchains.foojay-resolver-convention to v0.8.0 - [#2503](https://github.com/pinterest/ktlint/pull/2503), by @renovate[bot]
+
+* fix(deps): update dependency io.github.oshai:kotlin-logging-jvm to v6 - [#2440](https://github.com/pinterest/ktlint/pull/2440), by @renovate[bot]
+
+* Replace gradle/gradle-build-action@v3 with gradle/actions/setup-gradle@v3 - [#2518](https://github.com/pinterest/ktlint/pull/2518), by @paul-dingemans
+
+* chore(deps): update plugin kotlinx-binary-compatibiltiy-validator to v0.14.0 - [#2522](https://github.com/pinterest/ktlint/pull/2522), by @renovate[bot]
+
+* chore(deps): update gradle/wrapper-validation-action action to v2 - [#2523](https://github.com/pinterest/ktlint/pull/2523), by @renovate[bot]
+
+* chore(deps): update ffurrer2/extract-release-notes action to v2 - [#2515](https://github.com/pinterest/ktlint/pull/2515), by @renovate[bot]
+
+* chore(deps): update dependency gradle to v8.6 - [#2531](https://github.com/pinterest/ktlint/pull/2531), by @renovate[bot]
+
+* fix(deps): update dependency org.assertj:assertj-core to v3.25.3 - [#2536](https://github.com/pinterest/ktlint/pull/2536), by @renovate[bot]
+
+* fix(deps): update dependency org.junit.jupiter:junit-jupiter to v5.10.2 - [#2534](https://github.com/pinterest/ktlint/pull/2534), by @renovate[bot]
+
+* fix(deps): update dependency org.slf4j:slf4j-simple to v2.0.12 - [#2538](https://github.com/pinterest/ktlint/pull/2538), by @renovate[bot]
+
+* fix(deps): update dependency org.codehaus.janino:janino to v3.1.12 - [#2559](https://github.com/pinterest/ktlint/pull/2559), by @renovate[bot]
+
+### 💬 Other
+
+* Simplify BOM exclude list - [#2476](https://github.com/pinterest/ktlint/pull/2476), by @Goooler
+
+* 2550 clikt - [#2556](https://github.com/pinterest/ktlint/pull/2556), by @paul-dingemans
 
 ## [1.1.1] - 2024-01-08
 
@@ -2311,6 +2375,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[1.1.2]: https://github.com/pinterest/ktlint/compare/1.2.0...1.1.1
 [1.1.1]: https://github.com/pinterest/ktlint/compare/1.1.1...1.1.0
 [1.1.0]: https://github.com/pinterest/ktlint/compare/1.0.1...1.1.0
 [1.0.1]: https://github.com/pinterest/ktlint/compare/1.0.0...1.0.1
