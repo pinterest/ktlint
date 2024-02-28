@@ -470,4 +470,22 @@ class StringTemplateIndentRuleTest {
             """.trimIndent().replaceStringTemplatePlaceholder()
         stringTemplateIndentRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Given a string template on same line as closing parenthesis of multiline function signature`() {
+        // Interpret "$." in code sample below as "$". It is used whenever the code which has to be inspected should
+        // actually contain a string template. Using "$" instead of "$." would result in a String in which the string
+        // templates would have been evaluated before the code would actually be processed by the rule.
+        val code =
+            """
+            fun foo(
+                bar: String
+            ) = $MULTILINE_STRING_QUOTE
+                Bar: $.bar
+                $MULTILINE_STRING_QUOTE.trimIndent()
+            """.trimIndent()
+        stringTemplateIndentRuleAssertThat(code)
+            .addAdditionalRuleProvider { MultilineExpressionWrappingRule() }
+            .hasNoLintViolations()
+    }
 }
