@@ -353,7 +353,7 @@ class SimpleCLITest {
                             assertThat(normalOutput).containsLineMatching("ktlint_code_style = ktlint_official")
                         }.assertAll()
                 }
-        } // d
+        }
 
         @Test
         fun `Given that the code-style is not specified then the command should fail`(
