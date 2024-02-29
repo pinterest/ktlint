@@ -734,13 +734,3 @@ internal fun exitKtLintProcess(status: Int): Nothing {
     logger.debug { "Exit ktlint with exit code: $status" }
     exitProcess(status)
 }
-
-private sealed class StdinOption {
-    data class Stdin(
-        val enabled: Boolean,
-    ) : StdinOption()
-
-    data class PatternsFromStdin(
-        val delimiter: String,
-    ) : StdinOption()
-}
