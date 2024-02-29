@@ -2,6 +2,16 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.2.1] - 2024-02-29
+
+### 🆕 Features
+None
+
+### 🔧 Fixes
+* Mark new rules as experimental - [#2579](https://github.com/pinterest/ktlint/pull/2579), by @paul-dingemans
+* Fix null byte as default value for "--pattern-from-stdin" - [#2580](https://github.com/pinterest/ktlint/pull/2580), by @paul-dingemans
+* Fix handling of "--reporter" CLI parameter - [#2581](https://github.com/pinterest/ktlint/pull/2581), by @paul-dingemans
+
 ## [1.2.0] - 2024-02-28
 
 ### 🆕 Features
@@ -2375,7 +2385,8 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
-[1.1.2]: https://github.com/pinterest/ktlint/compare/1.2.0...1.1.1
+[1.2.1]: https://github.com/pinterest/ktlint/compare/1.2.1...1.2.0
+[1.2.0]: https://github.com/pinterest/ktlint/compare/1.2.0...1.1.1
 [1.1.1]: https://github.com/pinterest/ktlint/compare/1.1.1...1.1.0
 [1.1.0]: https://github.com/pinterest/ktlint/compare/1.0.1...1.1.0
 [1.0.1]: https://github.com/pinterest/ktlint/compare/1.0.0...1.0.1
