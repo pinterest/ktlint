@@ -10,6 +10,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SECONDARY_CONSTRUCTOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPEALIAS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
+import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
@@ -31,7 +32,8 @@ public class KdocRule :
                 INDENT_SIZE_PROPERTY,
                 INDENT_STYLE_PROPERTY,
             ),
-    ) {
+    ),
+    Rule.Experimental {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
