@@ -232,6 +232,66 @@ class SimpleCLITest {
     }
 
     @Test
+    fun `Issue 2576 - single reporter`(
+        @TempDir
+        tempDir: Path,
+    ) {
+        CommandLineTestRunner(tempDir)
+            .run(
+                "too-many-empty-lines",
+                listOf("**/*.test", "--reporter=plain"),
+            ) {
+                SoftAssertions()
+                    .apply {
+                        assertErrorExitCode()
+                        assertThat(normalOutput)
+                            .containsLineMatching("Main.kt.test:2:1: First line in a method block should not be empty")
+                    }.assertAll()
+            }
+    }
+
+    @Test
+    fun `Issue 2576 - multiple reporters`(
+        @TempDir
+        tempDir: Path,
+    ) {
+        CommandLineTestRunner(tempDir)
+            .run(
+                "too-many-empty-lines",
+                listOf("**/*.test", "--reporter=plain", "--reporter=json,output=ktlint-violations.json"),
+            ) {
+                SoftAssertions()
+                    .apply {
+                        assertErrorExitCode()
+                        assertThat(normalOutput)
+                            .containsLineMatching("Initializing \"plain\" reporter")
+                            .containsLineMatching(Regex(".*Initializing \"json\" reporter with .*, output=ktlint-violations.json"))
+                            .containsLineMatching("Main.kt.test:2:1: First line in a method block should not be empty")
+                            .containsLineMatching(Regex(".*ReporterAggregator -- \"json\" report written to .*ktlint-violations.json"))
+                    }.assertAll()
+            }
+    }
+
+    @Test
+    fun `Given a custom reporter which does not exist`(
+        @TempDir
+        tempDir: Path,
+    ) {
+        CommandLineTestRunner(tempDir)
+            .run(
+                "too-many-empty-lines",
+                listOf("**/*.test", "--reporter=custom,artifact=custom-reporter.jar"),
+            ) {
+                SoftAssertions()
+                    .apply {
+                        assertErrorExitCode()
+                        assertThat(normalOutput)
+                            .containsLineMatching("File 'custom-reporter.jar' does not exist")
+                    }.assertAll()
+            }
+    }
+
+    @Test
     fun `Generate git pre commit hook`(
         @TempDir
         tempDir: Path,
