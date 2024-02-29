@@ -11,7 +11,6 @@ import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.deprecated
 import com.github.ajalt.clikt.parameters.options.flag
-import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.optionalValue
 import com.github.ajalt.clikt.parameters.options.split
@@ -186,7 +185,7 @@ internal class KtlintCommandLine :
             help =
                 "Read additional patterns to check/format from stdin. Patterns are delimited by the given argument. (default is " +
                     "newline). If the argument is an empty string, the NUL byte is used.",
-        ).optionalValue(default = "\n", acceptsUnattachedValue = false)
+        ).optionalValue(default = "", acceptsUnattachedValue = false)
 
     private val editorConfigPath: String? by
         option(
@@ -637,15 +636,15 @@ internal class KtlintCommandLine :
             }
         }
 
-    private fun readPatternsFromStdin(delimiter: String): Set<String> {
-        require(delimiter.isNotEmpty())
-
-        return String(System.`in`.readBytes())
-            .split(delimiter)
+    private fun readPatternsFromStdin(delimiter: String): Set<String> =
+        String(System.`in`.readBytes())
+            // The NUL byte (\u0000) is used as separator of file names, for example produced by the command "git diff --name-only  -z".
+            // The output looks like:
+            //     src/main/kotlin/Foo.kt src/main/kotlin/FooComposable.kt 
+            .split(delimiter.ifEmpty { "\u0000" })
             .let { patterns: List<String> ->
                 patterns.filterTo(LinkedHashSet(patterns.size), String::isNotEmpty)
             }
-    }
 
     /**
      * Executes "Callable"s in parallel (lazily).

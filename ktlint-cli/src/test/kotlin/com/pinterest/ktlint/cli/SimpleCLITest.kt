@@ -173,22 +173,31 @@ class SimpleCLITest {
             }
     }
 
-    @Test
+    @ParameterizedTest(name = "Option: {0}")
+    @ValueSource(
+        strings = [
+            "--patterns-from-stdin",
+            "--patterns-from-stdin=",
+        ],
+    )
     fun `Given some code with an error and a pattern which is read in from stdin which does not select the file then return the no files matched warning`(
+        patternsFromStdin: String,
         @TempDir
         tempDir: Path,
     ) {
-        val somePatternProvidedViaStdin = "some-pattern-provided-via-stdin"
+        val pathToFile1 = "path/to/file/1.kt"
+        val pathToFile2 = "path/to/file/2.kts"
+        val somePatternProvidedViaStdin = "$pathToFile1\u0000$pathToFile2\u0000"
         CommandLineTestRunner(tempDir)
             .run(
                 "too-many-empty-lines",
-                listOf("--patterns-from-stdin"),
+                listOf(patternsFromStdin),
                 stdin = ByteArrayInputStream(somePatternProvidedViaStdin.toByteArray()),
             ) {
                 SoftAssertions()
                     .apply {
                         assertNormalExitCode()
-                        assertThat(normalOutput).containsLineMatching("No files matched [$somePatternProvidedViaStdin]")
+                        assertThat(normalOutput).containsLineMatching("No files matched [$pathToFile1, $pathToFile2]")
                     }.assertAll()
             }
     }
