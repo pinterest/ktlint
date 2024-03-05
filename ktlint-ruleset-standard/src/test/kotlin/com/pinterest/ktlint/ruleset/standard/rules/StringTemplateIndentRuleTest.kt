@@ -488,4 +488,16 @@ class StringTemplateIndentRuleTest {
             .addAdditionalRuleProvider { MultilineExpressionWrappingRule() }
             .hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 2577 - Given a multiline string template as left hand side in a binary expression then do not wrap the operator to the next line`() {
+        val code =
+            """
+            val foo =
+                $MULTILINE_STRING_QUOTE
+                Some text
+                $MULTILINE_STRING_QUOTE.trimIndent() + "more texttttttttttt"
+            """.trimIndent()
+        stringTemplateIndentRuleAssertThat(code).hasNoLintViolations()
+    }
 }
