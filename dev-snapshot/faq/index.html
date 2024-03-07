@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.12">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.13">
     
     
       
@@ -1610,7 +1610,7 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 To do so, you must include the dependencies <code>com.pinterest.ktlint:ktlint-core</code> and <code>com.pinterest.ktlint:ktlint-ruleset-standard</code> in your Gradle/Maven project.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Do not include the dependency <code>com.pinterest:ktlint</code> as that would import the entire ktlint project including unwanted dependencies. Besides a much bigger artifact, it might also result in problems regarding logging.</p>
+<p>Do not include the dependency <code>com.pinterest.ktlint:ktlint-cli</code> as that would import the entire ktlint project including unwanted dependencies. Besides a much bigger artifact, it might also result in problems regarding logging.</p>
 </div>
 <p>To format the output of KotlinPoet with KtLint, you can use the following snippet:</p>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kd">val</span><span class="w"> </span><span class="nv">ruleProviders</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buildSet</span><span class="w"> </span><span class="p">{</span>
