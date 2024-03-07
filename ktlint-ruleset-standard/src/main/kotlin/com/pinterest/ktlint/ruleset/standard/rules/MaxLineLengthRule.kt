@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
@@ -82,6 +83,7 @@ public class MaxLineLengthRule :
             ?.takeUnless { it.isPartOf(KDoc::class) }
             ?.takeUnless { it.isPartOfRawMultiLineString() }
             ?.takeUnless { it.isLineOnlyContainingSingleTemplateString() }
+            ?.takeUnless { it.elementType == COMMA && it.prevLeaf()?.isLineOnlyContainingSingleTemplateString() ?: false }
             ?.takeUnless { it.isLineOnlyContainingComment() }
             ?.let {
                 // Calculate the offset at the last possible position at which the newline should be inserted on the line
