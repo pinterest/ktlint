@@ -201,7 +201,7 @@ Yes, it is possible to use KtLint to directly format the code generated with Kot
 To do so, you must include the dependencies `com.pinterest.ktlint:ktlint-core` and `com.pinterest.ktlint:ktlint-ruleset-standard` in your Gradle/Maven project.
 
 !!! warning
-    Do not include the dependency `com.pinterest:ktlint` as that would import the entire ktlint project including unwanted dependencies. Besides a much bigger artifact, it might also result in problems regarding logging.
+    Do not include the dependency `com.pinterest.ktlint:ktlint-cli` as that would import the entire ktlint project including unwanted dependencies. Besides a much bigger artifact, it might also result in problems regarding logging.
 
 To format the output of KotlinPoet with KtLint, you can use the following snippet:
 
