@@ -532,16 +532,13 @@ class ChainMethodContinuationRuleTest {
             """
             // $MAX_LINE_LENGTH_MARKER                        $EOL_CHAR
             val foo1 = Foo::class.java.canonicalName
-            val foo2 = Foo::class.java
-                .canonicalName
+            val foo2 = Foo::class.java.canonicalName
                 .uppercase()
             """.trimIndent()
         chainMethodContinuationRuleAssertThat(code)
             .setMaxLineLength()
-            .hasLintViolations(
-                LintViolation(3, 27, "Expected newline before '.'"),
-                LintViolation(3, 41, "Expected newline before '.'"),
-            ).isFormattedAs(formattedCode)
+            .hasLintViolation(3, 41, "Expected newline before '.'")
+            .isFormattedAs(formattedCode)
     }
 
     @Nested
@@ -1036,6 +1033,88 @@ class ChainMethodContinuationRuleTest {
                 LintViolation(2, 44, "Expected newline before '.'"),
                 LintViolation(2, 50, "Expected newline before '.'"),
                 LintViolation(2, 54, "Expected newline before '.'"),
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 2602 - Given a chained method starting with some nested reference expressions then do not wrap the reference expressions`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER                        $EOL_CHAR
+            fun buildBar1(): Foo.Bar = Foo.Bar.builder().build()
+            fun buildBar2(): Foo.Bar = Foo.bar.Bar.builder().build()
+            fun buildBar3(): Foo.Bar = Foo.bar.bar.Bar.builder().build()
+            """.trimIndent()
+        val formattedCode =
+            """
+            // $MAX_LINE_LENGTH_MARKER                        $EOL_CHAR
+            fun buildBar1(): Foo.Bar = Foo.Bar
+                .builder()
+                .build()
+            fun buildBar2(): Foo.Bar = Foo.bar.Bar
+                .builder()
+                .build()
+            fun buildBar3(): Foo.Bar = Foo.bar.bar.Bar
+                .builder()
+                .build()
+            """.trimIndent()
+        chainMethodContinuationRuleAssertThat(code)
+            .setMaxLineLength()
+            .addAdditionalRuleProvider { MaxLineLengthRule() }
+            .hasLintViolations(
+                LintViolation(2, 35, "Expected newline before '.'"),
+                LintViolation(2, 45, "Expected newline before '.'"),
+                LintViolation(3, 39, "Expected newline before '.'"),
+                LintViolation(3, 49, "Expected newline before '.'"),
+                LintViolation(4, 43, "Expected newline before '.'"),
+                LintViolation(4, 53, "Expected newline before '.'"),
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a chained method having some nested reference expressions after chained method call then do not wrap the reference expressions`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER                        $EOL_CHAR
+            fun buildBar1(): Foo.Bar = Foo.baz().Bar.builder().build()
+            fun buildBar2(): Foo.Bar = Foo.baz().bar.Bar.builder().build()
+            fun buildBar3(): Foo.Bar = Foo.baz().bar.bar.Bar.builder().build()
+            """.trimIndent()
+        val formattedCode =
+            """
+            // $MAX_LINE_LENGTH_MARKER                        $EOL_CHAR
+            fun buildBar1(): Foo.Bar = Foo
+                .baz()
+                .Bar
+                .builder()
+                .build()
+            fun buildBar2(): Foo.Bar = Foo
+                .baz()
+                .bar.Bar
+                .builder()
+                .build()
+            fun buildBar3(): Foo.Bar = Foo
+                .baz()
+                .bar.bar.Bar
+                .builder()
+                .build()
+            """.trimIndent()
+        chainMethodContinuationRuleAssertThat(code)
+            .setMaxLineLength()
+            .addAdditionalRuleProvider { MaxLineLengthRule() }
+            .hasLintViolations(
+                LintViolation(2, 31, "Expected newline before '.'"),
+                LintViolation(2, 37, "Expected newline before '.'"),
+                LintViolation(2, 41, "Expected newline before '.'"),
+                LintViolation(2, 51, "Expected newline before '.'"),
+                LintViolation(3, 31, "Expected newline before '.'"),
+                LintViolation(3, 37, "Expected newline before '.'"),
+                LintViolation(3, 45, "Expected newline before '.'"),
+                LintViolation(3, 55, "Expected newline before '.'"),
+                LintViolation(4, 31, "Expected newline before '.'"),
+                LintViolation(4, 37, "Expected newline before '.'"),
+                LintViolation(4, 49, "Expected newline before '.'"),
+                LintViolation(4, 59, "Expected newline before '.'"),
             ).isFormattedAs(formattedCode)
     }
 }
