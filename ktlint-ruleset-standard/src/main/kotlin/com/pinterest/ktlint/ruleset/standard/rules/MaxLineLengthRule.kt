@@ -14,6 +14,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
+import com.pinterest.ktlint.rule.engine.core.api.lineLengthWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -100,25 +101,12 @@ public class MaxLineLengthRule :
     }
 
     private fun ASTNode.lineLength() =
-        leavesOnLine(excludeEolComment = false)
-            .sumOf {
-                when {
-                    it.isWhiteSpaceWithNewline() -> {
-                        it.text.substringAfterLast('\n').length
-                    }
-
+        leavesOnLine(false)
+            .filterNot {
+                ignoreBackTickedIdentifier &&
                     it.elementType == IDENTIFIER &&
-                        it.text.matches(BACKTICKED_IDENTIFIER_REGEX) &&
-                        ignoreBackTickedIdentifier
-                    -> {
-                        0
-                    }
-
-                    else -> {
-                        it.textLength
-                    }
-                }
-            }
+                    it.text.matches(BACKTICKED_IDENTIFIER_REGEX)
+            }.lineLengthWithoutNewlinePrefix()
 
     private fun ASTNode.isPartOfRawMultiLineString() =
         parent(STRING_TEMPLATE, strict = false)

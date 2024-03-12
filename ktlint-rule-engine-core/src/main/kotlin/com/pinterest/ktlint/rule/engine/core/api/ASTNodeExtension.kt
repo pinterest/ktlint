@@ -468,7 +468,7 @@ private fun Sequence<ASTNode>.dropTrailingEolComment(): Sequence<ASTNode> =
     }
 
 internal fun ASTNode.getFirstLeafOnLineOrSelf() =
-    prevLeaf { it.textContains('\n') || it.prevLeaf() == null }
+    prevLeaf { (it.textContains('\n') && !it.isPartOfComment()) || it.prevLeaf() == null }
         ?: this
 
 internal fun ASTNode.getLastLeafOnLineOrNull() = nextLeaf { it.textContains('\n') }?.prevLeaf()
