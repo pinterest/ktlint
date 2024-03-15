@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATED_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
@@ -33,6 +34,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY_OFF
 import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.isCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
@@ -563,14 +565,16 @@ public class FunctionSignatureRule :
                             return
                         }
                     val mergeWithFunctionSignature =
-                        if (firstLineOfBodyExpression.length < maxLengthRemainingForFirstLineOfBodyExpression) {
-                            functionBodyExpressionWrapping == default ||
-                                (functionBodyExpressionWrapping == multiline && functionBodyExpressionLines.size == 1) ||
-                                node.isMultilineFunctionSignatureWithoutExplicitReturnType(
-                                    lastNodeOfFunctionSignatureWithBodyExpression,
-                                )
-                        } else {
-                            false
+                        when {
+                            firstLineOfBodyExpression.length < maxLengthRemainingForFirstLineOfBodyExpression -> {
+                                (functionBodyExpressionWrapping == default && !functionBodyExpressionNodes.isMultilineStringTemplate()) ||
+                                    (functionBodyExpressionWrapping == multiline && functionBodyExpressionLines.size == 1) ||
+                                    node.isMultilineFunctionSignatureWithoutExplicitReturnType(
+                                        lastNodeOfFunctionSignatureWithBodyExpression,
+                                    )
+                            }
+
+                            else -> false
                         }
                     if (mergeWithFunctionSignature) {
                         emit(
@@ -620,6 +624,17 @@ public class FunctionSignatureRule :
                 }
             }
     }
+
+    private fun List<ASTNode>.isMultilineStringTemplate() =
+        first { it.isCodeLeaf() }
+            .let {
+                it.elementType == ElementType.OPEN_QUOTE &&
+                    it
+                        .nextLeaf()
+                        ?.text
+                        .orEmpty()
+                        .startsWith("\n")
+            }
 
     private fun ASTNode.isMultilineFunctionSignatureWithoutExplicitReturnType(lastNodeOfFunctionSignatureWithBodyExpression: ASTNode?) =
         functionSignatureNodes()

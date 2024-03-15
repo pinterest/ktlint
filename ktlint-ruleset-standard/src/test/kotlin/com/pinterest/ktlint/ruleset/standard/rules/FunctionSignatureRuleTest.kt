@@ -13,6 +13,7 @@ import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import com.pinterest.ktlint.test.LintViolation
+import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.DisplayName
@@ -1311,6 +1312,56 @@ class FunctionSignatureRuleTest {
             .setMaxLineLength()
             .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to default)
             .hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 2592 - Given a function signature with an expression body that is multiline raw string literal then do not join the first leaf with the function signature`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER        $EOL_CHAR
+            fun foo1(): String =
+                $MULTILINE_STRING_QUOTE
+                some text
+                $MULTILINE_STRING_QUOTE.trimIndent()
+            fun foo2() =
+                $MULTILINE_STRING_QUOTE
+                some text
+                $MULTILINE_STRING_QUOTE.trimIndent()
+            """.trimIndent()
+        functionSignatureWrappingRuleAssertThat(code)
+            .setMaxLineLength()
+            .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to default)
+            .hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 2592 - Given a multiline function signature with an expression body that is multiline raw string literal then do join the first leaf with the function signature`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER        $EOL_CHAR
+            fun foo(
+                foo: Foo,
+                bar: Bar,
+            ) =
+                $MULTILINE_STRING_QUOTE
+                some text
+                $MULTILINE_STRING_QUOTE.trimIndent()
+            """.trimIndent()
+        val formattedCode =
+            """
+            // $MAX_LINE_LENGTH_MARKER        $EOL_CHAR
+            fun foo(
+                foo: Foo,
+                bar: Bar,
+            ) = $MULTILINE_STRING_QUOTE
+                some text
+                $MULTILINE_STRING_QUOTE.trimIndent()
+            """.trimIndent()
+        functionSignatureWrappingRuleAssertThat(code)
+            .setMaxLineLength()
+            .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to default)
+            .hasLintViolation(5, 4, "First line of body expression fits on same line as function signature")
+            .isFormattedAs(formattedCode)
     }
 
     private companion object {
