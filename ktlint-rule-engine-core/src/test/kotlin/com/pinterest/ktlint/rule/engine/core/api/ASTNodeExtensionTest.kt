@@ -948,6 +948,25 @@ class ASTNodeExtensionTest {
         assertThat(actual).contains(code)
     }
 
+    @Test
+    fun `Issue 2602 - Given that getFirstLeafOnLineOrSelf is called for a block comment containing a new line then do not throw a null pointer exception`() {
+        val code =
+            """
+            val foo = /* some
+                comment */ "foo"
+            """.trimIndent()
+
+        val actual =
+            transformCodeToAST(code)
+                .lastChildLeafOrSelf()
+                .getFirstLeafOnLineOrSelf()
+                .text
+
+        // The newline (and indentation spaces) before the word "comment" inside the block comment is entirely ignored. As there are no
+        // whitespace nodes containing a newline, this piece of code is considered to be a oneliner starting with the word "val".
+        assertThat(actual).contains("val")
+    }
+
     @Nested
     inner class HasModifier {
         @Test
