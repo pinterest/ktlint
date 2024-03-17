@@ -205,4 +205,25 @@ class MaxLineLengthRuleTest {
             .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 40)
             .hasNoLintViolations()
     }
+
+    @Test
+    fun `Given a line containing a string template followed by comma then do not report it`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER                                      $EOL_CHAR
+            fun foo() {
+                throw SomeException(
+                    "A long exception message followed by a comma-----------",
+                    e,
+                )
+                // or
+                throw SomeException(
+                    "A long exception message followed by a (trailing) comma",
+                )
+            }
+            """.trimIndent()
+        maxLineLengthRuleAssertThat(code)
+            .setMaxLineLength()
+            .hasNoLintViolations()
+    }
 }
