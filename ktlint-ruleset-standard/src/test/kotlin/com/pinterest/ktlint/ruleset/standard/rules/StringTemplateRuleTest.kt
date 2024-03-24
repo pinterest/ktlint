@@ -345,4 +345,27 @@ class StringTemplateRuleTest {
             """.trimIndent()
         stringTemplateRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 2615 - Given a string template with redundant curly braces then do not remove the corresponding import`() {
+        // Interpret "$." in code samples below as "$". It is used whenever the code which has to be inspected should
+        // actually contain a string template. Using "$" instead of "$." would result in a String in which the string
+        // templates would have been evaluated before the code would actually be processed by the rule.
+        val code =
+            """
+            import java.io.File.separator
+
+            val s = "$.{separator} is a file separator"
+            """.trimIndent().replaceStringTemplatePlaceholder()
+        val formattedCode =
+            """
+            import java.io.File.separator
+
+            val s = "$.separator is a file separator"
+            """.trimIndent().replaceStringTemplatePlaceholder()
+        stringTemplateRuleAssertThat(code)
+            .addAdditionalRuleProvider { NoUnusedImportsRule() }
+            .hasNoLintViolationsForRuleId(NO_UNUSED_IMPORTS_RULE_ID)
+            .isFormattedAs(formattedCode)
+    }
 }
