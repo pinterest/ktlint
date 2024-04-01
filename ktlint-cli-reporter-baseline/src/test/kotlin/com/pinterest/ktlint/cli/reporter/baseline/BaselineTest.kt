@@ -157,6 +157,7 @@ class BaselineTest {
         }
 
         private fun setLocaleToEnglish() = Locale.setDefault(Locale.ENGLISH)
+
         private fun resetLocale(default: Locale) = Locale.setDefault(default)
     }
 
