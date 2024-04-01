@@ -12,6 +12,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import nl.altindag.log.LogCaptor
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -44,6 +46,14 @@ private fun KLogger.underlyingLogger(): Logger? =
         ?.underlyingLogger
 
 class BaselineTest {
+    private val currentLocale = Locale.getDefault()
+
+    @BeforeEach
+    fun setLocaleEnglish() = Locale.setDefault(Locale.ENGLISH)
+
+    @AfterEach
+    fun resetLocaleDefault() = Locale.setDefault(currentLocale)
+
     @Nested
     inner class `Given a valid baseline file` {
         @Test
