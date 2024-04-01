@@ -20,6 +20,7 @@ import org.junit.jupiter.params.provider.EnumSource
 import org.xml.sax.SAXParseException
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.Locale
 import kotlin.io.path.Path
 import kotlin.io.path.copyTo
 import kotlin.io.path.pathString
@@ -106,11 +107,14 @@ class BaselineTest {
 
     @Nested
     inner class `Baseline has invalid xml structure` {
+        private val currentLocale = Locale.getDefault()
+
         @Test
         fun `Given that the baseline is loaded with classic loader then the log contains an error message`(
             @TempDir
             tempDir: Path,
         ) {
+            setLocaleToEnglish()
             val path = "baseline-invalid.xml".copyResourceToFileIn(tempDir)
 
             val logCaptor = LogCaptor.forClass(Baseline::class.java)
@@ -118,6 +122,7 @@ class BaselineTest {
             loadBaseline(path)
 
             assertThat(logCaptor.errorLogs).contains("Unable to parse baseline file: $path")
+            resetLocale(default = currentLocale)
         }
 
         @Test
@@ -125,6 +130,7 @@ class BaselineTest {
             @TempDir
             tempDir: Path,
         ) {
+            setLocaleToEnglish()
             val path = "baseline-invalid.xml".copyResourceToFileIn(tempDir)
 
             assertThatExceptionOfType(BaselineLoaderException::class.java)
@@ -133,6 +139,7 @@ class BaselineTest {
                 .withCauseInstanceOf(SAXParseException::class.java)
                 .havingCause()
                 .withMessage("The element type \"file\" must be terminated by the matching end-tag \"</file>\".")
+            resetLocale(default = currentLocale)
         }
 
         @Test
@@ -148,6 +155,9 @@ class BaselineTest {
 
             assertThat(logCaptor.errorLogs).contains("Unable to parse baseline file: $path")
         }
+
+        private fun setLocaleToEnglish() = Locale.setDefault(Locale.ENGLISH)
+        private fun resetLocale(default: Locale) = Locale.setDefault(default)
     }
 
     /**
