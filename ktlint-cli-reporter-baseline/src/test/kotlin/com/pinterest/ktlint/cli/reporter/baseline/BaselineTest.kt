@@ -49,7 +49,10 @@ class BaselineTest {
     private val currentLocale = Locale.getDefault()
 
     @BeforeEach
-    fun setLocaleEnglish() = Locale.setDefault(Locale.ENGLISH)
+    fun setLocaleEnglish() {
+        // SAXParseException messages are localized. Prevent tests from failing when run on a system for which local is not set to English.
+        Locale.setDefault(Locale.ENGLISH)
+    }
 
     @AfterEach
     fun resetLocaleDefault() = Locale.setDefault(currentLocale)
