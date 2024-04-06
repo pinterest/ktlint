@@ -1,23 +1,28 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLOSING_QUOTE
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LITERAL_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LONG_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LONG_TEMPLATE_ENTRY_END
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LONG_TEMPLATE_ENTRY_START
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
+import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
+import org.jetbrains.kotlin.idea.KotlinLanguage
+import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtBlockStringTemplateEntry
 import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtNameReferenceExpression
+import org.jetbrains.kotlin.psi.KtProperty
+import org.jetbrains.kotlin.psi.KtScript
+import org.jetbrains.kotlin.psi.KtSimpleNameStringTemplateEntry
+import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.KtSuperExpression
 import org.jetbrains.kotlin.psi.KtThisExpression
+import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 
 @SinceKtlint("0.9", STABLE)
 public class StringTemplateRule : StandardRule("string-template") {
@@ -37,7 +42,7 @@ public class StringTemplateRule : StandardRule("string-template") {
         //        node.treeParent.treeParent.replaceChild(node.treeParent, entryStart.nextSibling.node)
         //    }
         if (elementType == LONG_STRING_TEMPLATE_ENTRY) {
-            var entryExpression = (node.psi as? KtBlockStringTemplateEntry)?.expression
+            val entryExpression = (node.psi as? KtBlockStringTemplateEntry)?.expression
             if (entryExpression is KtDotQualifiedExpression) {
                 val receiver = entryExpression.receiverExpression
                 if (entryExpression.selectorExpression?.text == "toString()" && receiver !is KtSuperExpression) {
@@ -84,14 +89,9 @@ public class StringTemplateRule : StandardRule("string-template") {
             if (leftCurlyBraceNode != null && rightCurlyBraceNode != null) {
                 removeChild(leftCurlyBraceNode)
                 removeChild(rightCurlyBraceNode)
-                val remainingNode = firstChildNode
-                val newNode =
-                    if (remainingNode.elementType == DOT_QUALIFIED_EXPRESSION) {
-                        LeafPsiElement(REGULAR_STRING_PART, "\$${remainingNode.text}")
-                    } else {
-                        LeafPsiElement(remainingNode.elementType, "\$${remainingNode.text}")
-                    }
-                replaceChild(firstChildNode, newNode)
+                firstChildNode
+                    .toShortStringTemplateNode()
+                    .let { replaceChild(firstChildNode, it) }
             }
         }
     }
@@ -101,6 +101,22 @@ public class StringTemplateRule : StandardRule("string-template") {
             text.substring(2, text.length - 1).isPartOfIdentifier()
 
     private fun String.isPartOfIdentifier() = this == "_" || this.all { it.isLetterOrDigit() }
+
+    private fun ASTNode.toShortStringTemplateNode() =
+        PsiFileFactory
+            .getInstance(psi.project)
+            .createFileFromText(
+                KotlinLanguage.INSTANCE,
+                """
+                val foo = "${'$'}$text"
+                """.trimIndent(),
+            ).getChildOfType<KtScript>()
+            ?.getChildOfType<KtBlockExpression>()
+            ?.getChildOfType<KtProperty>()
+            ?.getChildOfType<KtStringTemplateExpression>()
+            ?.getChildOfType<KtSimpleNameStringTemplateEntry>()
+            ?.node
+            ?: throw IllegalStateException("Cannot create short string template for string '$text")
 }
 
 public val STRING_TEMPLATE_RULE_ID: RuleId = StringTemplateRule().ruleId
