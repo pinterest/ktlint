@@ -9,6 +9,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.LPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PRIMARY_CONSTRUCTOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_KEYWORD
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
@@ -46,7 +47,8 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
                                 node.treeParent?.treeParent?.elementType != FUNCTION_TYPE ||
                                 // Super keyword needs special-casing
                                 prevLeaf.prevLeaf()?.elementType == SUPER_KEYWORD ||
-                                prevLeaf.prevLeaf()?.treeParent?.elementType == PRIMARY_CONSTRUCTOR
+                                prevLeaf.prevLeaf()?.treeParent?.elementType == PRIMARY_CONSTRUCTOR ||
+                                prevLeaf.prevLeaf()?.treeParent?.elementType == TYPE_ARGUMENT_LIST
                         ) &&
                         (
                             node.treeParent?.elementType == VALUE_PARAMETER_LIST ||

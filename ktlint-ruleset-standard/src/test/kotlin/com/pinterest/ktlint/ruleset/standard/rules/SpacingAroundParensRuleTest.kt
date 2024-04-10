@@ -29,6 +29,40 @@ class SpacingAroundParensRuleTest {
     }
 
     @Test
+    fun `Given class with superclass constructor call`() {
+        val code =
+            """
+            open class Bar(param: String)
+            class Foo : Bar ("test")
+            """.trimIndent()
+        val formattedCode =
+            """
+            open class Bar(param: String)
+            class Foo : Bar("test")
+            """.trimIndent()
+        spacingAroundParensRuleAssertThat(code)
+            .hasLintViolation(2, 16, "Unexpected spacing before \"(\"")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given class with superclass constructor call with type parameter`() {
+        val code =
+            """
+            open class Bar<T>(param: T)
+            class Foo : Bar<String> ("test")
+            """.trimIndent()
+        val formattedCode =
+            """
+            open class Bar<T>(param: T)
+            class Foo : Bar<String>("test")
+            """.trimIndent()
+        spacingAroundParensRuleAssertThat(code)
+            .hasLintViolation(2, 24, "Unexpected spacing before \"(\"")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
     fun `Given a variable declaration with unexpected spacing around the opening parenthesis of the expression`() {
         val code =
             """
