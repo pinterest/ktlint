@@ -12,6 +12,10 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.END_OF_LINE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
 import com.pinterest.ktlint.rule.engine.core.util.safeAs
+import com.pinterest.ktlint.rule.engine.internal.AutoCorrectDisabledHandler
+import com.pinterest.ktlint.rule.engine.internal.AutoCorrectEnabledHandler
+import com.pinterest.ktlint.rule.engine.internal.AutoCorrectHandler
+import com.pinterest.ktlint.rule.engine.internal.AutoCorrectOffsetRangeHandler
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigFinder
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigGenerator
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigLoader
@@ -97,7 +101,7 @@ public class KtLintRuleEngine(
         VisitorProvider(ruleExecutionContext.ruleProviders)
             .visitor()
             .invoke { rule ->
-                ruleExecutionContext.executeRule(rule, false) { offset, errorMessage, canBeAutoCorrected ->
+                ruleExecutionContext.executeRule(rule, AutoCorrectDisabledHandler) { offset, errorMessage, canBeAutoCorrected ->
                     val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
                     LintError(line, col, rule.ruleId, errorMessage, canBeAutoCorrected)
                         .let { lintError ->
@@ -127,6 +131,53 @@ public class KtLintRuleEngine(
     public fun format(
         code: Code,
         callback: (LintError, Boolean) -> Unit = { _, _ -> },
+    ): String = format(code, AutoCorrectEnabledHandler, callback)
+
+    /**
+     * Fix style violations in [code] for lint errors found in the [autoCorrectOffsetRange] when possible. If [code] is passed as file
+     * reference then the '.editorconfig' files on the path are taken into account. For each lint violation found, the [callback] is
+     * invoked.
+     *
+     * IMPORTANT: Partial formatting not always works as expected. The offset of the node which is triggering the violation does not
+     * necessarily to be close to the offset at which the violation is reported. Counter-intuitively the offset of the trigger node must be
+     * located inside the [autoCorrectOffsetRange] instead of the offset at which the violation is reported.
+     *
+     * For example, the given code might contain the when-statement below:
+     * ```
+     *    // code with lint violations
+     *
+     *     when(foobar) {
+     *         FOO -> "Single line"
+     *         BAR ->
+     *             """
+     *             Multi line
+     *             """.trimIndent()
+     *         else -> null
+     *     }
+     *
+     *    // more code with lint violations
+     * ```
+     * The `blank-line-between-when-conditions` rule requires blank lines to be added between the conditions. If the when-keyword above is
+     * included in the range which is to be formatted then the blank lines before the conditions are added. If only the when-conditions
+     * itself are selected, but not the when-keyword, then the blank lines are not added.
+     *
+     * This unexpected behavior is a side effect of the way the partial formatting is implemented currently. The side effects can be
+     * prevented by delaying the decision to autocorrect as late as possible and the exact offset of the error is known. This however would
+     * cause a breaking change, and needs to wait until Ktlint V2.x.
+     *
+     * @throws KtLintParseException if text is not a valid Kotlin code
+     * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
+     */
+    public fun format(
+        code: Code,
+        autoCorrectOffsetRange: IntRange,
+        callback: (LintError, Boolean) -> Unit = { _, _ -> },
+    ): String = format(code, AutoCorrectOffsetRangeHandler(autoCorrectOffsetRange), callback)
+
+    private fun format(
+        code: Code,
+        autoCorrectHandler: AutoCorrectHandler,
+        callback: (LintError, Boolean) -> Unit = { _, _ -> },
     ): String {
         LOGGER.debug { "Starting with formatting file '${code.fileNameOrStdin()}'" }
 
@@ -143,7 +194,7 @@ public class KtLintRuleEngine(
             visitorProvider
                 .visitor()
                 .invoke { rule ->
-                    ruleExecutionContext.executeRule(rule, true) { offset, errorMessage, canBeAutoCorrected ->
+                    ruleExecutionContext.executeRule(rule, autoCorrectHandler) { offset, errorMessage, canBeAutoCorrected ->
                         if (canBeAutoCorrected) {
                             mutated = true
                             /*
@@ -178,7 +229,7 @@ public class KtLintRuleEngine(
                 .visitor()
                 .invoke { rule ->
                     if (!hasErrorsWhichCanBeAutocorrected) {
-                        ruleExecutionContext.executeRule(rule, false) { _, _, canBeAutoCorrected ->
+                        ruleExecutionContext.executeRule(rule, AutoCorrectDisabledHandler) { _, _, canBeAutoCorrected ->
                             if (canBeAutoCorrected) {
                                 hasErrorsWhichCanBeAutocorrected = true
                             }

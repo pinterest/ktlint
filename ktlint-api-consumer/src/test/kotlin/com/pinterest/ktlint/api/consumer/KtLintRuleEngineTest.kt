@@ -272,6 +272,47 @@ class KtLintRuleEngineTest {
                 """.trimIndent(),
             )
         }
+
+        @Test
+        fun `Given a kotlin code snippet that does contain multiple indentation errors then only format errors found in given range`() {
+            val ktLintRuleEngine =
+                KtLintRuleEngine(
+                    ruleProviders =
+                        setOf(
+                            RuleProvider { IndentationRule() },
+                        ),
+                    fileSystem = ktlintTestFileSystem.fileSystem,
+                )
+
+            val originalCode =
+                """
+                fun main() {
+                println("Hello world!")
+                println("Hello world!")
+                println("Hello world!")
+                }
+                """.trimIndent()
+            val newlineIndexes =
+                Regex("\n")
+                    .findAll(originalCode)
+                    .map { it.range.first }
+                    .toList()
+            val actual =
+                ktLintRuleEngine.format(
+                    code = Code.fromSnippet(originalCode),
+                    autoCorrectOffsetRange = IntRange(newlineIndexes[1], newlineIndexes[2]),
+                )
+
+            assertThat(actual).isEqualTo(
+                """
+                fun main() {
+                println("Hello world!")
+                    println("Hello world!")
+                println("Hello world!")
+                }
+                """.trimIndent(),
+            )
+        }
     }
 
     @Test
