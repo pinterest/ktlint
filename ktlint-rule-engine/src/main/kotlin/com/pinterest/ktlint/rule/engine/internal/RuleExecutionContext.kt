@@ -140,7 +140,7 @@ internal class RuleExecutionContext private constructor(
             node
                 .getChildren(null)
                 .forEach { childNode ->
-                    suppressHandler.handle(childNode, rule.ruleId) { autoCorrect, emit ->
+                    suppressHandler.handle(childNode, rule.ruleId) { _, emit ->
                         this.executeRuleOnNodeRecursively(
                             childNode,
                             rule,
