@@ -584,6 +584,21 @@ public class ClassSignatureRule :
                 }
         }
 
+        // Disallow:
+        //    class Foo : Bar<String> ("foobar")
+        superTypes
+            .filter { it.elementType == SUPER_TYPE_CALL_ENTRY }
+            .forEach { superTypeCallEntry ->
+                superTypeCallEntry
+                    .findChildByType(WHITE_SPACE)
+                    ?.let { whitespace ->
+                        emit(whitespace.startOffset, "No whitespace expected", true)
+                        if (autoCorrect) {
+                            whitespace.treeParent.removeChild(whitespace)
+                        }
+                    }
+            }
+
         return whiteSpaceCorrection
     }
 

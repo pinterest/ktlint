@@ -1734,6 +1734,55 @@ class ClassSignatureRuleTest {
             .hasNoLintViolations()
     }
 
+    @Nested
+    inner class `Issue 2630 - White space in super type call entry` {
+        @Test
+        fun `Issue 2630 - Given a super type call entry without type argument list`() {
+            val code =
+                """
+                class Foo1 : Bar("foobar")
+                class Foo2 : Bar ("foobar")
+                class Foo3 : Bar
+                    ("foobar")
+                """.trimIndent()
+            val formattedCode =
+                """
+                class Foo1 : Bar("foobar")
+                class Foo2 : Bar("foobar")
+                class Foo3 : Bar("foobar")
+                """.trimIndent()
+            classSignatureWrappingRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(2, 17, "No whitespace expected"),
+                    LintViolation(3, 14, "Super type should start on a newline"),
+                    LintViolation(3, 17, "No whitespace expected"),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Issue 2630 - Given a super type call entry with type argument list`() {
+            val code =
+                """
+                class Foo1 : Bar<String>("foobar")
+                class Foo2 : Bar<String> ("foobar")
+                class Foo3 : Bar<String>
+                    ("foobar")
+                """.trimIndent()
+            val formattedCode =
+                """
+                class Foo1 : Bar<String>("foobar")
+                class Foo2 : Bar<String>("foobar")
+                class Foo3 : Bar<String>("foobar")
+                """.trimIndent()
+            classSignatureWrappingRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(2, 25, "No whitespace expected"),
+                    LintViolation(3, 14, "Super type should start on a newline"),
+                    LintViolation(3, 25, "No whitespace expected"),
+                ).isFormattedAs(formattedCode)
+        }
+    }
+
     private companion object {
         const val UNEXPECTED_SPACES = "  "
         const val NO_SPACE = ""
