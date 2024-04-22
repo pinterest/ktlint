@@ -36,7 +36,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     name: "[build] OS=${{ matrix.os }} Kotlin=stable"
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+      - uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f # v4
 
       - uses: ./.github/actions/setup-gradle-build
 
@@ -71,7 +71,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     name: "[build] OS=${{ matrix.os }}, Kotlin=dev"
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+      - uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f # v4
 
       - uses: ./.github/actions/setup-gradle-build
 
@@ -87,7 +87,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     name: "[tests] OS=${{ matrix.os }}, Java=${{ matrix.jdk }}"
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+      - uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f # v4
 
       - uses: ./.github/actions/setup-gradle-build
         with:
