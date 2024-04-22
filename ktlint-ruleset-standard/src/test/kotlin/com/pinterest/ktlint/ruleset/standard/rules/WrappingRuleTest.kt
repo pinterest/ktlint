@@ -584,7 +584,7 @@ internal class WrappingRuleTest {
 
     @Test
     fun `format multiline string containing a template string as the first non blank element on the line`() {
-        // Escape '${true}' as '${"$"}{true}' to prevent evaluation before actually processing the multiline sting
+        // Escape '${true}' as '${"$"}{true}' to prevent evaluation before actually processing the multiline string
         val code =
             """
             fun foo() {
@@ -1453,7 +1453,7 @@ internal class WrappingRuleTest {
     }
 
     @Test
-    fun `Given a function call and last parameter value is a function call then the clossing parenthesis may be on a single line`() {
+    fun `Given a function call and last parameter value is a function call then the closing parenthesis may be on a single line`() {
         val code =
             """
             val foobar = foo(""

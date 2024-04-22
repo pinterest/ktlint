@@ -169,7 +169,7 @@ See next section for special support regarding the `.editorconfig` property `max
 
 <h3>Set `.editorconfig` property `max_line_length`</h3>
 
-The `.editorconfig` property `max_line_length` can be set as any other property as described in section above. From a readability perspective it is better to use style below as it more cleary visualizes the end of the line with respect to the source code:
+The `.editorconfig` property `max_line_length` can be set as any other property as described in section above. From a readability perspective it is better to use style below as it more clearly visualizes the end of the line with respect to the source code:
 
 ```kotlin
  val code =

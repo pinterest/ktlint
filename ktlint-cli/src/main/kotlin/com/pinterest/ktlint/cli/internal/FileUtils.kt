@@ -263,7 +263,7 @@ private fun FileSystem.toGlob(
 
 /**
  * For each double star pattern in the path, create and additional path in which the double start pattern is removed.
- * In this way a pattern like some-directory/**/*.kt will match wile files in some-directory or any of its
+ * In this way a pattern like some-directory/**/*.kt will match while files in some-directory or any of its
  * subdirectories.
  */
 private fun String?.expandDoubleStarPatterns(): Set<String> {
@@ -278,7 +278,7 @@ private fun String?.expandDoubleStarPatterns(): Set<String> {
                         .filter { it !== doubleStarPart }
                         .joinToString(separator = "/")
                 // The original path can contain multiple double star patterns. Replace only one double start pattern
-                // with an additional path patter and call recursively for remain double star patterns
+                // with an additional path pattern and call recursively for remain double star patterns
                 paths.addAll(expandedPath.expandDoubleStarPatterns())
             }
         }

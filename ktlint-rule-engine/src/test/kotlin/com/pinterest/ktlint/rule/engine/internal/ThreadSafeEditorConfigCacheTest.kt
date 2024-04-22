@@ -34,7 +34,7 @@ class ThreadSafeEditorConfigCacheTest {
     }
 
     @Test
-    fun `Given that multiple files are stored into the cache and one of those files is requested another time then this file is still being retrived from the cache`() {
+    fun `Given that multiple files are stored into the cache and one of those files is requested another time then this file is still being retrieved from the cache`() {
         val threadSafeEditorConfigCache = ThreadSafeEditorConfigCache()
         val editorConfigLoaderFile1 = EditorConfigLoaderMock(EDIT_CONFIG_1)
         val editorConfigLoaderFile2 = EditorConfigLoaderMock(EDIT_CONFIG_2)

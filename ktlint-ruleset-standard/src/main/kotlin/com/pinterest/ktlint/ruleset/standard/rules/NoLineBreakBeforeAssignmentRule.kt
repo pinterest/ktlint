@@ -39,7 +39,7 @@ public class NoLineBreakBeforeAssignmentRule : StandardRule("no-line-break-befor
                 emit(unexpectedNewlineBeforeAssignment.startOffset, "Line break before assignment is not allowed", true)
                 if (autoCorrect) {
                     val parent = assignmentNode.treeParent
-                    // Insert assigment surrounded by whitespaces at new position
+                    // Insert assignment surrounded by whitespaces at new position
                     assignmentNode
                         .siblings(false)
                         .takeWhile { it.isWhiteSpace() || it.isPartOfComment() }

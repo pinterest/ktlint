@@ -50,7 +50,7 @@ class NoLineBreakAfterElseRuleTest {
     }
 
     @Test
-    fun `Given a valid if-else statement then do not return lint errrors`() {
+    fun `Given a valid if-else statement then do not return lint errors`() {
         val code =
             """
             fun funA() {

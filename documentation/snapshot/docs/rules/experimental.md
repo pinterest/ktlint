@@ -486,7 +486,7 @@ Wraps each operand in a multiline condition to a separate line.
         baz1 ||
         (baz2 && baz3)
     ) {
-       // do somthing
+       // do something
     }
     ```
 
@@ -500,7 +500,7 @@ Wraps each operand in a multiline condition to a separate line.
     if (bar1 || bar2 ||
         baz1 || (baz2 && baz3)
     ) {
-       // do somthing
+       // do something
     }
     ```
 

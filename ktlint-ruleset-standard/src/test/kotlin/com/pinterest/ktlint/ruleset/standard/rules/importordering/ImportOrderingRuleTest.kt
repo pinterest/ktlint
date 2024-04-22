@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 
 class ImportOrderingRuleTest {
     @Test
-    fun `Given a list of pattern entries then write the patters as comma separated string`() {
+    fun `Given a list of pattern entries then write the patterns as comma separated string`() {
         val actual =
             ImportOrderingRule.IJ_KOTLIN_IMPORTS_LAYOUT_PROPERTY.propertyWriter(
                 listOf(

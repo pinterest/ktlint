@@ -247,7 +247,7 @@ class BinaryExpressionWrappingRuleTest {
     }
 
     @Test
-    fun `Given a value argument containing a binary expression which causes the line to exceeds tbe maximum line length`() {
+    fun `Given a value argument containing a binary expression which causes the line to exceeds the maximum line length`() {
         val code =
             """
             // $MAX_LINE_LENGTH_MARKER    $EOL_CHAR
