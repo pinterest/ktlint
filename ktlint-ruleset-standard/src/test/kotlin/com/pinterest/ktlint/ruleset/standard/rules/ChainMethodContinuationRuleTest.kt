@@ -614,7 +614,7 @@ class ChainMethodContinuationRuleTest {
                 .addAdditionalRuleProvider { ArgumentListWrappingRule() }
                 .addAdditionalRuleProvider { FunctionLiteralRule() }
                 .hasLintViolations(
-                    // Lint violation below will not be triggered during format as argument-list-wrapping rule prevents this error from occuring
+                    // Lint violation below will not be triggered during format as argument-list-wrapping rule prevents this error from occurring
                     LintViolation(2, 30, "Expected newline before '.'"),
                     LintViolation(3, 30, "Expected newline before '?.'"),
                 ).isFormattedAs(formattedCode)
@@ -652,7 +652,7 @@ class ChainMethodContinuationRuleTest {
                 .addAdditionalRuleProvider { IndentationRule() }
                 .isFormattedAs(formattedCode)
                 .hasLintViolations(
-                    // Lint violation below will not be triggered during format as argument-list-wrapping rule prevents this error from occuring
+                    // Lint violation below will not be triggered during format as argument-list-wrapping rule prevents this error from occurring
                     LintViolation(2, 30, "Expected newline before '.'"),
                     LintViolation(3, 30, "Expected newline before '?.'"),
                 ).isFormattedAs(formattedCode)
@@ -957,7 +957,7 @@ class ChainMethodContinuationRuleTest {
     }
 
     @Test
-    fun `Issue 2304 - Given a dot qualified expression in which the call expression returns a function which is called with value argument ans has a trailing lambda`() {
+    fun `Issue 2304 - Given a dot qualified expression in which the call expression returns a function which is called with value argument and has a trailing lambda`() {
         val code =
             """
             fun foo(baz: Baz) =

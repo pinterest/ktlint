@@ -258,7 +258,7 @@ internal class FileUtilsTest {
     }
 
     @Test
-    fun `Given a pattern containing multiple double star patters and a workdir without subdirectories then find all files in that workdir`() {
+    fun `Given a pattern containing multiple double star patterns and a workdir without subdirectories then find all files in that workdir`() {
         val foundFiles =
             getFiles(
                 patterns =
@@ -409,7 +409,7 @@ internal class FileUtilsTest {
     }
 
     @Test
-    fun `Issue 1847 - Given a negate pattern only then include the default patters and select all files except files in the negate pattern`() {
+    fun `Issue 1847 - Given a negate pattern only then include the default patterns and select all files except files in the negate pattern`() {
         val foundFiles =
             getFiles(
                 patterns =

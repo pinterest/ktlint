@@ -156,7 +156,7 @@ class FunctionExpressionBodyRuleTest {
     }
 
     @Test
-    fun `Given a function with a single expression but having multiple return expression inside then do not covert as it results in a compilation error`() {
+    fun `Given a function with a single expression but having multiple return expression inside then do not convert as it results in a compilation error`() {
         val code =
             """
             fun foo(): Any {

@@ -482,7 +482,7 @@ class StatementWrappingRuleTest {
     }
 
     @Nested
-    inner class `Issue 1078 - Given multiple expression seperated with semi in a single line` {
+    inner class `Issue 1078 - Given multiple expression separated with semi in a single line` {
         @Nested
         inner class `Given multiple variables` {
             @Test

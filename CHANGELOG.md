@@ -21,7 +21,7 @@ None
 
 * Allow string template to exceed max line length when it is the only element on a line - [#2480](https://github.com/pinterest/ktlint/pull/2480), by @paul-dingemans
 
-* Add configuration setting for ignoring `argument-list-wrapping` above treshold of argument - [#2481](https://github.com/pinterest/ktlint/pull/2481), by @paul-dingemans  
+* Add configuration setting for ignoring `argument-list-wrapping` above threshold of argument - [#2481](https://github.com/pinterest/ktlint/pull/2481), by @paul-dingemans  
   NOTE: In code style `ktlint_official` this threshold is `unset` so that arguments are always wrapped. If this impacts your code too much, you can make it backward compatible by setting `.editorconfig` property `ktlint_argument_list_wrapping_ignore_when_parameter_count_greater_or_equal_than` to value `8`. For other code styles this property is initialized with value `8` and as of that backward compatible by default.
 
 * Ignore EOL comment that causes max_line_length to be exceeded, except in max-line-length rule - [#2516](https://github.com/pinterest/ktlint/pull/2516), by @paul-dingemans
@@ -715,7 +715,7 @@ Module `ktlint-reporter-sarif` has been renamed to `ktlint-cli-reporter-sarif`. 
 
 Custom rule sets build for older versions of KtLint are no longer supported by this version of KtLint. The `com.pinterest.ktlint.core.RuleSetProviderV2` interface has been replaced with `RuleSetProviderV3`. The accompanying interfaces `com.pinterest.ktlint.core.RuleProvider` and `com.pinterest.ktlint.core.Rule` have been replaced with `com.pinterest.ktlint.ruleset.core.api.RuleProvider` and `com.pinterest.ktlint.ruleset.core.api.Rule` respectively.
 
-Contrary to `RuleSetProviderV2`, the `RuleSetProviderV3` no longer contains information about the rule set. About information now has to be specified in the new `Rule` class. This allows custom rule set providers to combine rules originating from different rule sets into a new rule set without loosing information about its origin. The type of the id of the rule set is changed from `String` to `RuleSetId`. 
+Contrary to `RuleSetProviderV2`, the `RuleSetProviderV3` no longer contains information about the rule set. About information now has to be specified in the new `Rule` class. This allows custom rule set providers to combine rules originating from different rule sets into a new rule set without losing information about its origin. The type of the id of the rule set is changed from `String` to `RuleSetId`. 
 
 Note that due to renaming and relocation of the `RuleSetProviderV3` interface the name of the service provider in the custom reporter needs to be changed from `resources/META-INF/services/com.pinterest.ktlint.core.RuleSetProviderV2` to `resources/META-INF/services/com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3`.
 
@@ -1097,7 +1097,7 @@ The Rule class now offers new life cycle hooks:
 
 Optionally, a rule can stop the traversal of the remainder of the AST whenever the goal of the rule has been achieved. See KDoc on Rule class for more information.
 
-The "visit" life cycle hook will be removed in Ktlint 0.48. In KtLint 0.47 the "visit" life cycle hook will be called *only* when hook "beforeVisitChildNodes" is not overridden. It is recommended to migrate to the new lifecycle hooks in KtLint 0.47. Please create an issue, in case you need additional assistence to implement the new life cycle hooks in your rules.
+The "visit" life cycle hook will be removed in Ktlint 0.48. In KtLint 0.47 the "visit" life cycle hook will be called *only* when hook "beforeVisitChildNodes" is not overridden. It is recommended to migrate to the new lifecycle hooks in KtLint 0.47. Please create an issue, in case you need additional assistance to implement the new life cycle hooks in your rules.
 
 
 #### Ruleset providing by Custom Rule Set Provider
@@ -1380,7 +1380,7 @@ An AssertJ style API for testing KtLint rules ([#1444](https://github.com/pinter
 - Update Kotlin development version to `1.7.0` and Kotlin version to `1.7.0`.
 - Update shadow plugin to `7.1.2` release
 - Update picocli to `4.6.3` release
-- A file containing only one (non private) top level declaration (class, interface, object, type alias or function) must be named after that declaration. The name also must comply with the Pascal Case convention. The same applies to a file containing one single top level class declaration and one ore more extension functions for that class. `filename` ([#1004](https://github.com/pinterest/ktlint/pull/1117))
+- A file containing only one (non private) top level declaration (class, interface, object, type alias or function) must be named after that declaration. The name also must comply with the Pascal Case convention. The same applies to a file containing one single top level class declaration and one or more extension functions for that class. `filename` ([#1004](https://github.com/pinterest/ktlint/pull/1117))
 - Promote experimental rules to standard rules set: `annotation`, `annotation-spacing`, `argument-list-wrapping`, `double-colon-spacing`, `enum-entry-name-case`, `multiline-if-else`, `no-empty-first-line-in-method-block`, `package-name`, `traling-comma`, `spacing-around-angle-brackets`, `spacing-between-declarations-with-annotations`, `spacing-between-declarations-with-comments`, `unary-op-spacing` ([#1481](https://github.com/pinterest/ktlint/pull/1481))
 - The CLI parameter `--android` can be omitted when the `.editorconfig` property `ktlint_code_style = android` is defined
 
@@ -1612,12 +1612,12 @@ Special thanks to [t-kameyama](https://github.com/t-kameyama) for the huge numbe
 - Fix wrong indentation in named arguments (`indent`) ([#964](https://github.com/pinterest/ktlint/issues/964))
 - Fix wrong indentation when a function has multiline type arguments (`parameter-list-wrapping`) ([#965](https://github.com/pinterest/ktlint/issues/965))
 - Fix false positive for `spacing-between-declarations-with-annotations` ([#970](https://github.com/pinterest/ktlint/issues/970))
-- Fix ParseException when an assigment contains comments (`no-line-break-before-assignment`) ([#956](https://github.com/pinterest/ktlint/issues/956))
+- Fix ParseException when an assignment contains comments (`no-line-break-before-assignment`) ([#956](https://github.com/pinterest/ktlint/issues/956))
 - Fix false positive when right brace is after a try-catch block (`spacing-around-keyword`) ([#978](https://github.com/pinterest/ktlint/issues/978))
 - Fix false positive for control flow with empty body (`no-semicolons`) ([#955](https://github.com/pinterest/ktlint/issues/955))
 - Fix incorrect indentation for multi-line call expressions in conditions (`indent`) ([#959](https://github.com/pinterest/ktlint/issues/959))
 - Fix false positive for trailing comma before right parentheses|bracket|angle (`spacing-around-comma`) ([#975](https://github.com/pinterest/ktlint/issues/975))
-- Fix ktlint CLI could skip checking some of explicetly passed files ([#942](https://github.com/pinterest/ktlint/issues/942))
+- Fix ktlint CLI could skip checking some of explicitly passed files ([#942](https://github.com/pinterest/ktlint/issues/942))
 
 ### Changed
 - 'import-ordering' now supports `.editorconfig' default value generation ([#701](https://github.com/pinterest/ktlint/issues/701))

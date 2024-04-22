@@ -105,7 +105,7 @@ public class KtlintTestFileSystem(
                 // On Windows OS the exception below is thrown when not taking the file system root directory into account:
                 //     java.nio.file.InvalidPathException: Jimfs does not currently support the Windows syntax for an absolute path on the
                 //     current drive (e.g. "\foo\bar"): /project/
-                // So first resolve the path starting from the first root directory of the filesystem (not be confused wit the rootDirectory
+                // So first resolve the path starting from the first root directory of the filesystem (not be confused with the rootDirectory
                 // property of the KtLintTestFileSystem)
                 fileSystemRootPath.resolve(path)
             }

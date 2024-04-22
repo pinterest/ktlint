@@ -3270,7 +3270,7 @@ internal class IndentationRuleTest {
 
         @Test
         fun `format raw string literal containing a template string as the first non blank element on the line`() {
-            // Escape '${true}' as '${"$"}{true}' to prevent evaluation before actually processing the multiline sting
+            // Escape '${true}' as '${"$"}{true}' to prevent evaluation before actually processing the multiline string
             val code =
                 """
                 fun foo() {

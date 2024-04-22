@@ -178,7 +178,7 @@ public class KtLintAssertThat(
      * additional rule is run first, and if it modifies the AST, this could result in a [LintViolation] for the rule under test which is
      * executed later than the additional rule.
      *
-     * Prefer to use [addAdditionalRuleProvider] when only a singe provider of a rule is to be added.
+     * Prefer to use [addAdditionalRuleProvider] when only a single provider of a rule is to be added.
      */
     public fun addAdditionalRuleProviders(vararg providers: (() -> Rule)): KtLintAssertThat {
         additionalRuleProviders.addAll(

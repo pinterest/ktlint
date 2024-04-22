@@ -24,7 +24,7 @@ import org.jetbrains.kotlin.psi.KtImportDirective
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
- * Import ordering is configured via EditorConfig's property `ij_kotlin_imports_layout`, so the Kotlin IDE plugin also recongizes it. Supported values:
+ * Import ordering is configured via EditorConfig's property `ij_kotlin_imports_layout`, so the Kotlin IDE plugin also recognizes it. Supported values:
  * * "*,java.**,javax.**,kotlin.**,^" - default IntelliJ IDEA's order, see [IDEA_PATTERN]
  * * "*" - alphabetical order as recommended in Android's Kotlin style guide, see [ASCII_PATTERN]
  * * custom - defined by the following set of tokens. Tokens can be combined together in a group, groups/tokens must be comma separated:
