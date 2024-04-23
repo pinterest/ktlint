@@ -1282,15 +1282,11 @@ No wildcard imports except whitelisted imports.
     ```
 
 | Configuration setting                                                                     | ktlint_official |               intellij_idea                |                 android_studio                  |
-|:------------------------------------------------------------------------------------------|:---------------:|:------------------------------------------:|:-----------------------------------------------:|
-| `ij_kotlin_packages_to_use_import_on_demand`<br/><i>Defines allowed wildcard imports.</i> |        -        | `java.util.*,`<br/>`kotlinx.android.synthetic.**` | `java.util.*,`<br/>`kotlinx.android.synthetic.**` |
+|:--------------------------------------------------------------------------------------------------------------------|:---------------:|:------------------------------------------:|:-----------------------------------------------:|
+| `ij_kotlin_packages_to_use_import_on_demand`<br/><i>Defines allowed wildcard imports as a comma separated list.</i> |        -        | `java.util.*,`<br/>`kotlinx.android.synthetic.**` | `java.util.*,`<br/>`kotlinx.android.synthetic.**` |
 
 !!! warning
-    In case property `ij_kotlin_packages_to_use_import_on_demand` is not explicitly set, it allows wildcards imports like `java.util.*` by default to keep in sync with IntelliJ IDEA behavior. To disallow *all* wildcard imports, add property below to your `.editorconfig`:
-    ```editorconfig
-    [*.{kt,kts}]
-    ij_kotlin_packages_to_use_import_on_demand = unset
-    ```
+    In case property `ij_kotlin_packages_to_use_import_on_demand` is not explicitly set, Intellij IDEA allows wildcards imports like `java.util.*` which lead to conflicts with the `no-wildcard-imports` rule. See [Intellij IDEA configuration](configuration-intellij-idea.md) to prevent such conflicts.
 
 Configuration setting `ij_kotlin_packages_to_use_import_on_demand` is a comma separated string of import paths. This can be a full path, e.g. "java.util.List.*", or a wildcard path, e.g. "kotlin.**". Use "**" as wildcard for package and all subpackages.
 
