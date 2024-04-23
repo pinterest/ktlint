@@ -46,7 +46,7 @@ internal class RuleExecutionContext private constructor(
 
     fun executeRule(
         rule: Rule,
-        autoCorrect: Boolean,
+        autoCorrectHandler: AutoCorrectHandler,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
         try {
@@ -59,7 +59,7 @@ internal class RuleExecutionContext private constructor(
                 // EditorConfigProperty that is not explicitly defined.
                 editorConfig.filterBy(rule.usesEditorConfigProperties.plus(CODE_STYLE_PROPERTY)),
             )
-            this.executeRuleOnNodeRecursively(rootNode, rule, autoCorrect, emit)
+            this.executeRuleOnNodeRecursively(rootNode, rule, autoCorrectHandler, emit)
             rule.afterLastNode()
         } catch (e: RuleExecutionException) {
             throw KtLintRuleException(
@@ -80,9 +80,20 @@ internal class RuleExecutionContext private constructor(
     private fun executeRuleOnNodeRecursively(
         node: ASTNode,
         rule: Rule,
-        autoCorrect: Boolean,
+        autoCorrectHandler: AutoCorrectHandler,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
     ) {
+        // TODO: In Ktlint V2 the autocorrect handler should be passed down to the rules, so that the autocorrect handler can check the
+        //  offset at which the violation is found is in the autocorrect range or not. Currently it is checked whether the offset of the
+        //  node that is triggering the violation is in the range. This has following side effects:
+        //  * if the offset of the node which triggers the violation is inside the range, but the offset of the violation itself it outside
+        //    the autocorrect range than a change is made to code outside the selected range
+        //  * if the offset of the node which triggers the violation is outside the range, but the offset of the violation itself it inside
+        //    the autocorrect range than *not* change is made to code which is in the selected range while the user would have expected it
+        //    to be changed.
+        //  Passing down the autocorrectHandler to the rules is a breaking change as the Rule signature needs to be changed.
+        val autoCorrect = autoCorrectHandler.autoCorrect(node)
+
         /**
          * The [suppressionLocator] can be changed during each visit of node when running [KtLintRuleEngine.format]. So a new handler is to
          * be built before visiting the nodes.
@@ -90,7 +101,7 @@ internal class RuleExecutionContext private constructor(
         val suppressHandler = SuppressHandler(suppressionLocator, autoCorrect, emit)
         if (rule.shouldContinueTraversalOfAST()) {
             try {
-                executeRuleOnNodeRecursively(node, rule, suppressHandler)
+                executeRuleOnNodeRecursively(node, rule, autoCorrectHandler, suppressHandler)
             } catch (e: Exception) {
                 if (autoCorrect) {
                     // line/col cannot be reliably mapped as exception might originate from a node not present in the
@@ -119,6 +130,7 @@ internal class RuleExecutionContext private constructor(
     private fun executeRuleOnNodeRecursively(
         node: ASTNode,
         rule: Rule,
+        autoCorrectHandler: AutoCorrectHandler,
         suppressHandler: SuppressHandler,
     ) {
         suppressHandler.handle(node, rule.ruleId) { autoCorrect, emit ->
@@ -128,11 +140,11 @@ internal class RuleExecutionContext private constructor(
             node
                 .getChildren(null)
                 .forEach { childNode ->
-                    suppressHandler.handle(childNode, rule.ruleId) { autoCorrect, emit ->
+                    suppressHandler.handle(childNode, rule.ruleId) { _, emit ->
                         this.executeRuleOnNodeRecursively(
                             childNode,
                             rule,
-                            autoCorrect,
+                            autoCorrectHandler,
                             emit,
                         )
                     }
