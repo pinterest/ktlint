@@ -1,36 +1,27 @@
-!!! Warning
-    `ktlint` strives to prevent code formatting conflicts with IntelliJ IDEA / Android Studio. We recommend using either IDE formatting or `ktlint` formatting. However, if you persist on using both, then please ensure that the formatting settings are aligned as described below.  This reduces the chance that code which is formatted by ktlint conflicts with formatting by the IntelliJ IDEA built-in formatter.
+# Intellij IDEA configuration
 
-!!! Note
-    IntelliJ IDEA supports the [kotlin coding conventions](https://kotlinlang.org/docs/coding-conventions.html). As of version 0.47.x of ktlint, the support to overwrite some configuration files of IntelliJ IDEA has been dropped as it no longer fits the scope of the project. 
+`ktlint` strives to prevent code formatting conflicts with IntelliJ IDEA / Android Studio as much as possible. In some cases, `ktlint` deliberately deviates from IDEA formatting.
 
+## Preventing conflicts
 
-Steps:
+Many conflicts can be prevented by setting following `.editorconfig` settings:
+```
+root = true
 
-1. Go to your project directory
-2. Create or replace file `.idea/codeStyles/codeStyleConfig.xml` with content below:
-   ```xml
-   <component name="ProjectCodeStyleConfiguration">
-     <state>
-       <option name="USE_PER_PROJECT_SETTINGS" value="true" />
-     </state>
-   </component>
-   ```
-3. Create or replace file `.idea/codeStyles/Project.xml` with content below:
-   ```xml
-   <component name="ProjectCodeStyleConfiguration">
-     <code_scheme name="Project" version="173">
-       <JetCodeStyleSettings>
-         <option name="PACKAGES_TO_USE_STAR_IMPORTS">
-           <value />
-         </option>
-         <option name="NAME_COUNT_TO_USE_STAR_IMPORT" value="2147483647" />
-         <option name="NAME_COUNT_TO_USE_STAR_IMPORT_FOR_MEMBERS" value="2147483647" />
-         <option name="CODE_STYLE_DEFAULTS" value="KOTLIN_OFFICIAL" />
-       </JetCodeStyleSettings>
-       <codeStyleSettings language="kotlin">
-         <option name="CODE_STYLE_DEFAULTS" value="KOTLIN_OFFICIAL" />
-       </codeStyleSettings>
-     </code_scheme>
-   </component>
-   ```
+[*]
+insert_final_newline = true
+
+[{*.kt,*.kts}]
+ij_kotlin_code_style_defaults = KOTLIN_OFFICIAL
+
+#  Disable wildcard imports entirely
+ij_kotlin_name_count_to_use_star_import = 2147483647
+ij_kotlin_name_count_to_use_star_import_for_members = 2147483647
+ij_kotlin_packages_to_use_import_on_demand = unset
+```
+
+Conflicts between `ktlint` and IDEA formatting can also be resolved by using the [ktlint-intellij-plugin](https://plugins.jetbrains.com/plugin/15057-ktlint) (or install via Intellij IDEA plugin marketplace) in `distract free` mode. In this mode, the plugin formats your code with `ktlint` while you're editing the code.
+
+# Cleaning up old XML configuration settings
+
+Projects which have been created with (old)er versions of Intellij IDEA might still contain XML configuration regarding code styling. It is advised to remove the directory `.idea/codeStyles` whenever it still exists in your project directory.
