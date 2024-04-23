@@ -286,4 +286,26 @@ class PropertyNamingRuleTest {
             """.trimIndent()
         propertyNamingRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 2612 - Given a property name suppressed via 'PrivatePropertyName' then also suppress the ktlint violation`() {
+        val code =
+            """
+            class Foo {
+                @Suppress("PrivatePropertyName")
+                private val Bar = "Bar"
+            }
+            """.trimIndent()
+        propertyNamingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 2612 - Given a property name suppressed via 'ObjectPropertyName' then also suppress the ktlint violation`() {
+        val code =
+            """
+            @Suppress("ObjectPropertyName")
+            private const val _Foo_Bar = ""
+            """.trimIndent()
+        propertyNamingRuleAssertThat(code).hasNoLintViolations()
+    }
 }
