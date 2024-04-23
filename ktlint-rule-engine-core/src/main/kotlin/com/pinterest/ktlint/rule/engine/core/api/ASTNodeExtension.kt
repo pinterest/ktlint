@@ -502,7 +502,7 @@ public fun ASTNode.lineLength(excludeEolComment: Boolean = false): Int = leavesO
  */
 public fun Sequence<ASTNode>.lineLengthWithoutNewlinePrefix(): Int {
     val first = firstOrNull() ?: return 0
-    require(first.text.startsWith('\n') || first.prevLeaf() == null) {
+    require(first.textContains('\n') || first.prevLeaf() == null) {
         "First node in non-empty sequence must be a whitespace containing a newline"
     }
     return joinToString(separator = "") { it.text }

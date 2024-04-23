@@ -18,7 +18,9 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.test.SPACE
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatNoException
 import org.assertj.core.api.Assertions.entry
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
@@ -760,6 +762,30 @@ class ASTNodeExtensionTest {
                 "    fun foo3".length,
                 "        val foo4".length,
             )
+        }
+
+        @Suppress("DEPRECATION")
+        @Test
+        fun `xxGiven some lines containing identifiers at different indentation levels then get line length exclusive the leading newline characters until and including the identifier`() {
+            val code =
+                """
+                val foo1 = "foo1"$SPACE
+                val foo2 = "foo2"
+                """.trimIndent()
+
+            assertThatNoException()
+                .isThrownBy {
+                    transformCodeToAST(code)
+                        .firstChildLeafOrSelf()
+                        .leaves()
+                        .filter { it.elementType == IDENTIFIER }
+                        .map { identifier ->
+                            identifier
+                                .leavesOnLine()
+                                .takeWhile { it.prevLeaf() != identifier }
+                                .lineLengthWithoutNewlinePrefix()
+                        }.toList()
+                }
         }
     }
 
