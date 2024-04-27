@@ -20,7 +20,7 @@ public abstract class RuleSetProviderV3(
      * Intended usage:
      * ```
      * public class CustomRuleSetProvider :
-     *     RuleSetProviderV3("custom") {
+     *     RuleSetProviderV3(RuleSetId("custom")) {
      *     override fun getRuleProviders(): Set<RuleProvider> =
      *         setOf(
      *             RuleProvider { CustomRule1() },
