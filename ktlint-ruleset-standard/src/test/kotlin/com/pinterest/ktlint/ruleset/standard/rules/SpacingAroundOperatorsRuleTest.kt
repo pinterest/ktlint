@@ -314,4 +314,28 @@ class SpacingAroundOperatorsRuleTest {
                 LintViolation(4, 41, "Missing spacing after \"andThen\""),
             ).isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Given a binary operator inside a unary expression`() {
+        val code =
+            """
+            val foo1 = !(null?:true)
+            val foo2 = !(null?: true)
+            val foo3 = !(null ?:true)
+            val foo4 = !(null ?: true)
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo1 = !(null ?: true)
+            val foo2 = !(null ?: true)
+            val foo3 = !(null ?: true)
+            val foo4 = !(null ?: true)
+            """.trimIndent()
+        spacingAroundOperatorsRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 18, "Missing spacing around \"?:\""),
+                LintViolation(2, 18, "Missing spacing before \"?:\""),
+                LintViolation(3, 21, "Missing spacing after \"?:\""),
+            ).isFormattedAs(formattedCode)
+    }
 }
