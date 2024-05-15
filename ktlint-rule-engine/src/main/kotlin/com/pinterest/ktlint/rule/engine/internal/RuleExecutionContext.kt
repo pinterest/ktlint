@@ -7,6 +7,7 @@ import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine.Companion.UTF8_BOM
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
 import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
@@ -47,7 +48,7 @@ internal class RuleExecutionContext private constructor(
     fun executeRule(
         rule: Rule,
         autoCorrectHandler: AutoCorrectHandler,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
     ) {
         try {
             rule.startTraversalOfAST()
@@ -59,7 +60,7 @@ internal class RuleExecutionContext private constructor(
                 // EditorConfigProperty that is not explicitly defined.
                 editorConfig.filterBy(rule.usesEditorConfigProperties.plus(CODE_STYLE_PROPERTY)),
             )
-            this.executeRuleOnNodeRecursively(rootNode, rule, autoCorrectHandler, emit)
+            this.executeRuleOnNodeRecursively(rootNode, rule, autoCorrectHandler, emitAndApprove)
             rule.afterLastNode()
         } catch (e: RuleExecutionException) {
             throw KtLintRuleException(
@@ -81,29 +82,18 @@ internal class RuleExecutionContext private constructor(
         node: ASTNode,
         rule: Rule,
         autoCorrectHandler: AutoCorrectHandler,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
     ) {
-        // TODO: In Ktlint V2 the autocorrect handler should be passed down to the rules, so that the autocorrect handler can check the
-        //  offset at which the violation is found is in the autocorrect range or not. Currently it is checked whether the offset of the
-        //  node that is triggering the violation is in the range. This has following side effects:
-        //  * if the offset of the node which triggers the violation is inside the range, but the offset of the violation itself it outside
-        //    the autocorrect range than a change is made to code outside the selected range
-        //  * if the offset of the node which triggers the violation is outside the range, but the offset of the violation itself it inside
-        //    the autocorrect range than *not* change is made to code which is in the selected range while the user would have expected it
-        //    to be changed.
-        //  Passing down the autocorrectHandler to the rules is a breaking change as the Rule signature needs to be changed.
-        val autoCorrect = autoCorrectHandler.autoCorrect(node)
-
         /**
          * The [suppressionLocator] can be changed during each visit of node when running [KtLintRuleEngine.format]. So a new handler is to
          * be built before visiting the nodes.
          */
-        val suppressHandler = SuppressHandler(suppressionLocator, autoCorrect, emit)
+        val suppressHandler = SuppressHandler(suppressionLocator, autoCorrectHandler, emitAndApprove)
         if (rule.shouldContinueTraversalOfAST()) {
             try {
                 executeRuleOnNodeRecursively(node, rule, autoCorrectHandler, suppressHandler)
             } catch (e: Exception) {
-                if (autoCorrect) {
+                if (autoCorrectHandler.autoCorrect(node.startOffset)) {
                     // line/col cannot be reliably mapped as exception might originate from a node not present in the
                     // original AST
                     throw RuleExecutionException(
@@ -133,25 +123,43 @@ internal class RuleExecutionContext private constructor(
         autoCorrectHandler: AutoCorrectHandler,
         suppressHandler: SuppressHandler,
     ) {
-        suppressHandler.handle(node, rule.ruleId) { autoCorrect, emit ->
-            rule.beforeVisitChildNodes(node, autoCorrect, emit)
+        if (rule is RuleAutocorrectApproveHandler) {
+            suppressHandler.handle(node, rule.ruleId) { emitAndApprove ->
+                rule.beforeVisitChildNodes(
+                    node = node,
+                    emitAndApprove = emitAndApprove,
+                )
+            }
+        } else {
+            suppressHandler.handle(node, rule.ruleId) { autoCorrect, emit ->
+                rule.beforeVisitChildNodes(node, autoCorrect, emit)
+            }
         }
         if (rule.shouldContinueTraversalOfAST()) {
             node
                 .getChildren(null)
                 .forEach { childNode ->
-                    suppressHandler.handle(childNode, rule.ruleId) { _, emit ->
+                    suppressHandler.handle(childNode, rule.ruleId) { emitAndApprove ->
                         this.executeRuleOnNodeRecursively(
                             childNode,
                             rule,
                             autoCorrectHandler,
-                            emit,
+                            emitAndApprove,
                         )
                     }
                 }
         }
-        suppressHandler.handle(node, rule.ruleId) { autoCorrect, emit ->
-            rule.afterVisitChildNodes(node, autoCorrect, emit)
+        if (rule is RuleAutocorrectApproveHandler) {
+            suppressHandler.handle(node, rule.ruleId) { emitAndApprove ->
+                rule.afterVisitChildNodes(
+                    node = node,
+                    emitAndApprove = emitAndApprove,
+                )
+            }
+        } else {
+            suppressHandler.handle(node, rule.ruleId) { autoCorrect, emit ->
+                rule.afterVisitChildNodes(node, autoCorrect, emit)
+            }
         }
     }
 

@@ -1,24 +1,22 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-
 /**
  * Handler which determines whether autocorrect should be enabled or disabled for the given offset.
  */
 internal sealed interface AutoCorrectHandler {
-    fun autoCorrect(node: ASTNode): Boolean
+    fun autoCorrect(offset: Int): Boolean
 }
 
 internal data object AutoCorrectDisabledHandler : AutoCorrectHandler {
-    override fun autoCorrect(node: ASTNode) = false
+    override fun autoCorrect(offset: Int) = false
 }
 
 internal data object AutoCorrectEnabledHandler : AutoCorrectHandler {
-    override fun autoCorrect(node: ASTNode) = true
+    override fun autoCorrect(offset: Int) = true
 }
 
 internal class AutoCorrectOffsetRangeHandler(
     private val autoCorrectOffsetRange: IntRange,
 ) : AutoCorrectHandler {
-    override fun autoCorrect(node: ASTNode) = node.startOffset in autoCorrectOffsetRange
+    override fun autoCorrect(offset: Int) = offset in autoCorrectOffsetRange
 }

@@ -111,6 +111,8 @@ public class KtLintRuleEngine(
                             // exact order in which violations are being solved.
                             LOGGER.trace { "Lint violation: ${lintError.logMessage(code)}" }
                         }
+                    // No need to ask for approval in lint mode
+                    false
                 }
             }
 
@@ -196,6 +198,8 @@ public class KtLintRuleEngine(
                 .invoke { rule ->
                     ruleExecutionContext.executeRule(rule, autoCorrectHandler) { offset, errorMessage, canBeAutoCorrected ->
                         if (canBeAutoCorrected) {
+                            // TODO: send LintError to external approve handler
+
                             mutated = true
                             /*
                              * Rebuild the suppression locator after each change in the AST as the offsets of the suppression hints might
@@ -218,6 +222,7 @@ public class KtLintRuleEngine(
                                 // exact order in which violations are being solved.
                                 LOGGER.trace { "Format violation: ${lintError.logMessage(code)}" }
                             }
+                        canBeAutoCorrected
                     }
                 }
         } while (mutated && formatRunCount < MAX_FORMAT_RUNS_PER_FILE)
@@ -233,6 +238,8 @@ public class KtLintRuleEngine(
                             if (canBeAutoCorrected) {
                                 hasErrorsWhichCanBeAutocorrected = true
                             }
+                            // No need to ask for approval in lint mode
+                            false
                         }
                     }
                 }

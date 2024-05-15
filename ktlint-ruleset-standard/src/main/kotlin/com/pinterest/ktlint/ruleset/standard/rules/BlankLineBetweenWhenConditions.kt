@@ -4,6 +4,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
@@ -21,6 +22,7 @@ import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 
 /**
  * The Kotlin Coding Conventions suggest to consider using a blank line after a multiline when-condition
@@ -36,6 +38,7 @@ public class BlankLineBetweenWhenConditions :
         id = "blank-line-between-when-conditions",
         usesEditorConfigProperties = setOf(LINE_BREAK_AFTER_WHEN_CONDITION_PROPERTY),
     ),
+    RuleAutocorrectApproveHandler,
     Rule.Experimental {
     private var lineBreakAfterWhenCondition = LINE_BREAK_AFTER_WHEN_CONDITION_PROPERTY.defaultValue
 
@@ -45,31 +48,28 @@ public class BlankLineBetweenWhenConditions :
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
     ) {
         if (node.elementType == ElementType.WHEN) {
-            visitWhenStatement(node, autoCorrect, emit)
+            visitWhenStatement(node, emitAndApprove)
         }
     }
 
     private fun visitWhenStatement(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
     ) {
         val hasMultilineWhenCondition = node.hasAnyMultilineWhenCondition()
         if (hasMultilineWhenCondition && lineBreakAfterWhenCondition) {
-            addBlankLinesBetweenWhenConditions(node, autoCorrect, emit)
+            addBlankLinesBetweenWhenConditions(node, emitAndApprove)
         } else {
-            removeBlankLinesBetweenWhenConditions(node, autoCorrect, emit)
+            removeBlankLinesBetweenWhenConditions(node, emitAndApprove)
         }
     }
 
     private fun addBlankLinesBetweenWhenConditions(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
     ) {
         node
             .children()
@@ -81,13 +81,12 @@ public class BlankLineBetweenWhenConditions :
                     .findWhitespaceAfterPreviousCodeSibling()
                     ?.takeUnless { it.containsBlankLine() }
                     ?.let { whitespaceBeforeWhenEntry ->
-                        emit(
+                        emitAndApprove(
                             whitespaceBeforeWhenEntry.startOffset + 1,
                             "Add a blank line between all when-condition in case at least one multiline when-condition is found in the " +
                                 "statement",
                             true,
-                        )
-                        if (autoCorrect) {
+                        ).ifTrue {
                             whitespaceBeforeWhenEntry.upsertWhitespaceBeforeMe("\n${whenEntry.indent()}")
                         }
                     }
@@ -109,8 +108,7 @@ public class BlankLineBetweenWhenConditions :
 
     private fun removeBlankLinesBetweenWhenConditions(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
     ) {
         node
             .children()
@@ -122,12 +120,11 @@ public class BlankLineBetweenWhenConditions :
                     .findWhitespaceAfterPreviousCodeSibling()
                     ?.takeIf { it.containsBlankLine() }
                     ?.let { whitespaceBeforeWhenEntry ->
-                        emit(
+                        emitAndApprove(
                             whitespaceBeforeWhenEntry.startOffset + 1,
                             "Unexpected blank lines between when-condition if all when-conditions are single lines",
                             true,
-                        )
-                        if (autoCorrect) {
+                        ).ifTrue {
                             whitespaceBeforeWhenEntry.upsertWhitespaceBeforeMe("\n${whenEntry.indent(includeNewline = false)}")
                         }
                     }
