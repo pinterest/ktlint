@@ -2,39 +2,30 @@
 
 package com.pinterest.ktlint.rule.engine.api
 
-import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.END_OF_LINE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
 import com.pinterest.ktlint.rule.engine.core.util.safeAs
-import com.pinterest.ktlint.rule.engine.internal.AutoCorrectDisabledHandler
 import com.pinterest.ktlint.rule.engine.internal.AutoCorrectEnabledHandler
-import com.pinterest.ktlint.rule.engine.internal.AutoCorrectHandler
 import com.pinterest.ktlint.rule.engine.internal.AutoCorrectOffsetRangeHandler
+import com.pinterest.ktlint.rule.engine.internal.CodeFormatter
+import com.pinterest.ktlint.rule.engine.internal.CodeLinter
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigFinder
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigGenerator
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigLoader
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigLoaderEc4j
-import com.pinterest.ktlint.rule.engine.internal.RuleExecutionContext
 import com.pinterest.ktlint.rule.engine.internal.RuleExecutionContext.Companion.createRuleExecutionContext
 import com.pinterest.ktlint.rule.engine.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFE_EDITOR_CONFIG_CACHE
-import com.pinterest.ktlint.rule.engine.internal.VisitorProvider
-import io.github.oshai.kotlinlogging.KotlinLogging
 import org.ec4j.core.Resource
-import org.ec4j.core.model.PropertyType.EndOfLineValue.crlf
-import org.ec4j.core.model.PropertyType.EndOfLineValue.lf
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import java.nio.charset.StandardCharsets
 import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 import java.nio.file.Path
-
-private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 public class KtLintRuleEngine(
     /**
@@ -82,6 +73,9 @@ public class KtLintRuleEngine(
             editorConfigOverride,
         )
 
+    private val codeLinter = CodeLinter(this)
+    private val codeFormatter = CodeFormatter(this)
+
     /**
      * Check the [code] for lint errors. If [code] is path as file reference then the '.editorconfig' files on the path to file are taken
      * into account. For each lint violation found, the [callback] is invoked.
@@ -92,40 +86,14 @@ public class KtLintRuleEngine(
     public fun lint(
         code: Code,
         callback: (LintError) -> Unit = { },
-    ) {
-        LOGGER.debug { "Starting with linting file '${code.fileNameOrStdin()}'" }
-
-        val ruleExecutionContext = createRuleExecutionContext(this, code)
-        val errors = mutableListOf<LintError>()
-
-        VisitorProvider(ruleExecutionContext.ruleProviders)
-            .visitor()
-            .invoke { rule ->
-                ruleExecutionContext.executeRule(rule, AutoCorrectDisabledHandler) { offset, errorMessage, canBeAutoCorrected ->
-                    val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
-                    LintError(line, col, rule.ruleId, errorMessage, canBeAutoCorrected)
-                        .let { lintError ->
-                            errors.add(lintError)
-                            // In trace mode report the violation immediately. The order in which violations are actually found might be
-                            // different from the order in which they are reported. For debugging purposes it can be helpful to know the
-                            // exact order in which violations are being solved.
-                            LOGGER.trace { "Lint violation: ${lintError.logMessage(code)}" }
-                        }
-                    // No need to ask for approval in lint mode
-                    false
-                }
-            }
-
-        errors
-            .sortedWith { l, r -> if (l.line != r.line) l.line - r.line else l.col - r.col }
-            .forEach { e -> callback(e) }
-
-        LOGGER.debug { "Finished with linting file '${code.fileNameOrStdin()}'" }
-    }
+    ): Unit = codeLinter.lint(code, callback)
 
     /**
      * Fix style violations in [code] for lint errors when possible. If [code] is passed as file reference then the '.editorconfig' files on
      * the path are taken into account. For each lint violation found, the [callback] is invoked.
+     *
+     * If [code] contains lint errors which have been autocorrected, then the resulting code is formatted again (up until
+     * [MAX_FORMAT_RUNS_PER_FILE] times) in order to fix lint errors that might result from the previous formatting run.
      *
      * @throws KtLintParseException if text is not a valid Kotlin code
      * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
@@ -133,12 +101,15 @@ public class KtLintRuleEngine(
     public fun format(
         code: Code,
         callback: (LintError, Boolean) -> Unit = { _, _ -> },
-    ): String = format(code, AutoCorrectEnabledHandler, callback)
+    ): String = codeFormatter.format(code, AutoCorrectEnabledHandler, callback, MAX_FORMAT_RUNS_PER_FILE)
 
     /**
      * Fix style violations in [code] for lint errors found in the [autoCorrectOffsetRange] when possible. If [code] is passed as file
      * reference then the '.editorconfig' files on the path are taken into account. For each lint violation found, the [callback] is
      * invoked.
+     *
+     * If [code] contains lint errors which have been autocorrected, then the resulting code is formatted again (up until
+     * [MAX_FORMAT_RUNS_PER_FILE] times) in order to fix lint errors that might result from the previous formatting run.
      *
      * IMPORTANT: Partial formatting not always works as expected. The offset of the node which is triggering the violation does not
      * necessarily to be close to the offset at which the violation is reported. Counter-intuitively the offset of the trigger node must be
@@ -174,112 +145,34 @@ public class KtLintRuleEngine(
         code: Code,
         autoCorrectOffsetRange: IntRange,
         callback: (LintError, Boolean) -> Unit = { _, _ -> },
-    ): String = format(code, AutoCorrectOffsetRangeHandler(autoCorrectOffsetRange), callback)
+    ): String =
+        codeFormatter.format(
+            code,
+            AutoCorrectOffsetRangeHandler(autoCorrectOffsetRange),
+            callback,
+            MAX_FORMAT_RUNS_PER_FILE,
+        )
 
-    private fun format(
+    /**
+     * Formats style violations in [code]. Whenever a [LintError] is found which can be autocorrected by the rule that detected the
+     * violation, the [callback] is invoked to let the calling API Consumer to decide whether the [LintError] is actually to be fixed.
+     *
+     * Important: [callback] is only invoked if the rule that found that the violation has implemented the [RuleAutocorrectApproveHandler]
+     * and the violation can be autocorrected.
+     *
+     * @throws KtLintParseException if text is not a valid Kotlin code
+     * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
+     */
+    public fun interactiveFormat(
         code: Code,
-        autoCorrectHandler: AutoCorrectHandler,
-        callback: (LintError, Boolean) -> Unit = { _, _ -> },
-    ): String {
-        LOGGER.debug { "Starting with formatting file '${code.fileNameOrStdin()}'" }
-
-        val hasUTF8BOM = code.content.startsWith(UTF8_BOM)
-        val ruleExecutionContext = createRuleExecutionContext(this, code)
-
-        val visitorProvider = VisitorProvider(ruleExecutionContext.ruleProviders)
-        var formatRunCount = 0
-        var mutated: Boolean
-        val errors = mutableSetOf<Pair<LintError, Boolean>>()
-        do {
-            mutated = false
-            formatRunCount++
-            visitorProvider
-                .visitor()
-                .invoke { rule ->
-                    ruleExecutionContext.executeRule(rule, autoCorrectHandler) { offset, errorMessage, canBeAutoCorrected ->
-                        if (canBeAutoCorrected) {
-                            // TODO: send LintError to external approve handler
-
-                            mutated = true
-                            /*
-                             * Rebuild the suppression locator after each change in the AST as the offsets of the suppression hints might
-                             * have changed.
-                             */
-                            ruleExecutionContext.rebuildSuppressionLocator()
-                        }
-                        val (line, col) = ruleExecutionContext.positionInTextLocator(offset)
-                        LintError(line, col, rule.ruleId, errorMessage, canBeAutoCorrected)
-                            .let { lintError ->
-                                errors.add(
-                                    Pair(
-                                        lintError,
-                                        // It is assumed that a rule that emits that an error can be autocorrected, also does correct the error.
-                                        canBeAutoCorrected,
-                                    ),
-                                )
-                                // In trace mode report the violation immediately. The order in which violations are actually found might be
-                                // different from the order in which they are reported. For debugging purposes it can be helpful to know the
-                                // exact order in which violations are being solved.
-                                LOGGER.trace { "Format violation: ${lintError.logMessage(code)}" }
-                            }
-                        canBeAutoCorrected
-                    }
-                }
-        } while (mutated && formatRunCount < MAX_FORMAT_RUNS_PER_FILE)
-        if (formatRunCount == MAX_FORMAT_RUNS_PER_FILE && mutated) {
-            // It is unknown if the last format run introduces new lint violations which can be autocorrected. So run lint once more so that
-            // the user can be informed about this correctly.
-            var hasErrorsWhichCanBeAutocorrected = false
-            visitorProvider
-                .visitor()
-                .invoke { rule ->
-                    if (!hasErrorsWhichCanBeAutocorrected) {
-                        ruleExecutionContext.executeRule(rule, AutoCorrectDisabledHandler) { _, _, canBeAutoCorrected ->
-                            if (canBeAutoCorrected) {
-                                hasErrorsWhichCanBeAutocorrected = true
-                            }
-                            // No need to ask for approval in lint mode
-                            false
-                        }
-                    }
-                }
-            if (hasErrorsWhichCanBeAutocorrected) {
-                LOGGER.warn {
-                    "Format was not able to resolve all violations which (theoretically) can be autocorrected in file " +
-                        "${code.filePathOrStdin()} in $MAX_FORMAT_RUNS_PER_FILE consecutive runs of format."
-                }
-            }
-        }
-
-        errors
-            .sortedWith { (l), (r) -> if (l.line != r.line) l.line - r.line else l.col - r.col }
-            .forEach { (e, corrected) -> callback(e, corrected) }
-
-        if (!mutated && formatRunCount == 1) {
-            return code.content
-        }
-
-        val formattedCode =
-            ruleExecutionContext
-                .rootNode
-                .text
-                .replace("\n", ruleExecutionContext.determineLineSeparator(code.content))
-        return if (hasUTF8BOM) {
-            UTF8_BOM + formattedCode
-        } else {
-            formattedCode
-        }.also {
-            LOGGER.debug { "Finished with formatting file '${code.fileNameOrStdin()}'" }
-        }
-    }
-
-    private fun RuleExecutionContext.determineLineSeparator(fileContent: String): String {
-        val eol = editorConfig[END_OF_LINE_PROPERTY]
-        return when {
-            eol == crlf || eol != lf && fileContent.lastIndexOf('\r') != -1 -> "\r\n"
-            else -> "\n"
-        }
-    }
+        callback: (LintError) -> Boolean,
+    ): String =
+        codeFormatter.format(
+            code = code,
+            autoCorrectHandler = AutoCorrectEnabledHandler,
+            callback = { lintError, _ -> callback(lintError) },
+            maxFormatRunsPerFile = 1,
+        )
 
     /**
      * Generates Kotlin `.editorconfig` file section content based on a path to a file or directory. Given that path, all '.editorconfig'
@@ -330,7 +223,7 @@ public class KtLintRuleEngine(
     /**
      * Reloads an '.editorconfig' file given that it is currently loaded into the KtLint cache. This method is intended
      * to be called by the API consumer when it is aware of changes in the '.editorconfig' file that should be taken
-     * into account with next calls to [lint] and/or [format]. See [editorConfigFilePaths] to get the list of
+     * into account with next calls to [lint] and/or [formatBatch]. See [editorConfigFilePaths] to get the list of
      * '.editorconfig' files which need to be observed.
      */
     public fun reloadEditorConfigFile(path: Path) {
@@ -340,14 +233,6 @@ public class KtLintRuleEngine(
     }
 
     public fun transformToAst(code: Code): FileASTNode = createRuleExecutionContext(this, code).rootNode
-
-    private fun LintError.logMessage(code: Code) =
-        "${code.fileNameOrStdin()}:$line:$col: $detail ($ruleId)" +
-            if (canBeAutoCorrected) {
-                ""
-            } else {
-                " [cannot be autocorrected]"
-            }
 
     public companion object {
         internal const val UTF8_BOM = "\uFEFF"
