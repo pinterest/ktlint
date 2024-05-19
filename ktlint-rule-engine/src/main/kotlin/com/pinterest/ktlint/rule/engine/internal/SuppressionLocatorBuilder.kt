@@ -111,50 +111,33 @@ internal object SuppressionLocatorBuilder {
     }
 
     private fun ASTNode.createSuppressionHintFromComment(formatterTags: FormatterTags): CommentSuppressionHint? =
-        if (text.startsWith("//")) {
-            createSuppressionHintFromEolComment(formatterTags)
-        } else {
-            createSuppressionHintFromBlockComment(formatterTags)
-        }
-
-    private fun ASTNode.createSuppressionHintFromEolComment(formatterTags: FormatterTags): CommentSuppressionHint? =
         text
             .removePrefix("//")
-            .let { createCommentSuppressionHint(it, formatterTags) }
-
-    private fun ASTNode.createSuppressionHintFromBlockComment(formatterTags: FormatterTags): CommentSuppressionHint? =
-        text
             .removePrefix("/*")
             .removeSuffix("*/")
-            .let { createCommentSuppressionHint(it, formatterTags) }
+            .trim()
+            .split(" ")
+            .takeIf { it.isNotEmpty() }
+            ?.let { parts ->
+                when (parts[0]) {
+                    formatterTags.formatterTagOff ->
+                        CommentSuppressionHint(
+                            this,
+                            HashSet(parts.tail()),
+                            BLOCK_START,
+                        )
 
-    private fun ASTNode.createCommentSuppressionHint(
-        comment: String,
-        formatterTags: FormatterTags,
-    ) = comment
-        .trim()
-        .split(" ")
-        .takeIf { it.isNotEmpty() }
-        ?.let { parts ->
-            when (parts[0]) {
-                formatterTags.formatterTagOff ->
-                    CommentSuppressionHint(
-                        this,
-                        HashSet(parts.tail()),
-                        BLOCK_START,
-                    )
+                    formatterTags.formatterTagOn ->
+                        CommentSuppressionHint(
+                            this,
+                            HashSet(parts.tail()),
+                            BLOCK_END,
+                        )
 
-                formatterTags.formatterTagOn ->
-                    CommentSuppressionHint(
-                        this,
-                        HashSet(parts.tail()),
-                        BLOCK_END,
-                    )
-
-                else ->
-                    null
+                    else ->
+                        null
+                }
             }
-        }
 
     private fun MutableList<CommentSuppressionHint>.toSuppressionHints(rootNode: ASTNode): MutableList<SuppressionHint> {
         val suppressionHints = mutableListOf<SuppressionHint>()

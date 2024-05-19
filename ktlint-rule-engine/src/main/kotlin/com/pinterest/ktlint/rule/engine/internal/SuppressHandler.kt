@@ -13,19 +13,11 @@ internal class SuppressHandler(
         ruleId: RuleId,
         function: (Boolean, (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) -> Unit,
     ) {
-        val suppress =
-            suppressionLocator(
-                node.startOffset,
-                ruleId,
-            )
-        val autoCorrect = this.autoCorrectHandler !is AutoCorrectDisabledHandler && !suppress
-        val emit =
-            if (suppress) {
-                SUPPRESS_EMIT
-            } else {
-                this.emitAndApprove
-            }
-        function(autoCorrect, emit.onlyEmit())
+        val suppress = suppressionLocator(node.startOffset, ruleId)
+        if (!suppress) {
+            val autoCorrect = this.autoCorrectHandler !is AutoCorrectDisabledHandler
+            function(autoCorrect, this.emitAndApprove.onlyEmit())
+        }
     }
 
     fun handle(
@@ -37,9 +29,7 @@ internal class SuppressHandler(
         ) -> Unit,
     ) {
         val suppress = suppressionLocator(node.startOffset, ruleId)
-        if (suppress) {
-            function(SUPPRESS_EMIT)
-        } else {
+        if (!suppress) {
             function(emitAndApprove)
         }
     }
