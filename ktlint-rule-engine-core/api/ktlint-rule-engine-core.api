@@ -438,6 +438,16 @@ public final class com/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifie
 	public static final field INSTANCE Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAsLateAsPossible;
 }
 
+public abstract interface class com/pinterest/ktlint/rule/engine/core/api/RuleAutocorrectApproveHandler {
+	public abstract fun afterVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
+	public abstract fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
+}
+
+public final class com/pinterest/ktlint/rule/engine/core/api/RuleAutocorrectApproveHandler$DefaultImpls {
+	public static fun afterVisitChildNodes (Lcom/pinterest/ktlint/rule/engine/core/api/RuleAutocorrectApproveHandler;Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
+	public static fun beforeVisitChildNodes (Lcom/pinterest/ktlint/rule/engine/core/api/RuleAutocorrectApproveHandler;Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
+}
+
 public final class com/pinterest/ktlint/rule/engine/core/api/RuleId {
 	public static final field Companion Lcom/pinterest/ktlint/rule/engine/core/api/RuleId$Companion;
 	public fun <init> (Ljava/lang/String;)V

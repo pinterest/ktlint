@@ -72,11 +72,12 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/BlankLineBeforeDe
 	public static final fun getBLANK_LINE_BEFORE_DECLARATION_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
 }
 
-public final class com/pinterest/ktlint/ruleset/standard/rules/BlankLineBetweenWhenConditions : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$Experimental {
+public final class com/pinterest/ktlint/ruleset/standard/rules/BlankLineBetweenWhenConditions : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$Experimental, com/pinterest/ktlint/rule/engine/core/api/RuleAutocorrectApproveHandler {
 	public static final field Companion Lcom/pinterest/ktlint/ruleset/standard/rules/BlankLineBetweenWhenConditions$Companion;
 	public fun <init> ()V
+	public fun afterVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/BlankLineBetweenWhenConditions$Companion {
@@ -371,14 +372,14 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/ImportOrderingRul
 	public static final fun getIMPORT_ORDERING_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
 }
 
-public final class com/pinterest/ktlint/ruleset/standard/rules/IndentationRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
+public final class com/pinterest/ktlint/ruleset/standard/rules/IndentationRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/RuleAutocorrectApproveHandler {
 	public static final field KDOC_CONTINUATION_INDENT Ljava/lang/String;
 	public static final field TYPE_CONSTRAINT_CONTINUATION_INDENT Ljava/lang/String;
 	public fun <init> ()V
 	public fun afterLastNode ()V
-	public fun afterVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun afterVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/IndentationRuleKt {

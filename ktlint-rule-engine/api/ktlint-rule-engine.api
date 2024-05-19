@@ -77,6 +77,7 @@ public final class com/pinterest/ktlint/rule/engine/api/KtLintRuleEngine {
 	public final fun getEditorConfigOverride ()Lcom/pinterest/ktlint/rule/engine/api/EditorConfigOverride;
 	public final fun getFileSystem ()Ljava/nio/file/FileSystem;
 	public final fun getRuleProviders ()Ljava/util/Set;
+	public final fun interactiveFormat (Lcom/pinterest/ktlint/rule/engine/api/Code;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
 	public final fun isInvokedFromCli ()Z
 	public final fun lint (Lcom/pinterest/ktlint/rule/engine/api/Code;Lkotlin/jvm/functions/Function1;)V
 	public static synthetic fun lint$default (Lcom/pinterest/ktlint/rule/engine/api/KtLintRuleEngine;Lcom/pinterest/ktlint/rule/engine/api/Code;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
