@@ -2804,7 +2804,9 @@ internal class IndentationRuleTest {
             .withEditorConfigOverride(INDENT_STYLE_TAB)
             .hasLintViolations(
                 LintViolation(2, 1, "Unexpected space character(s)"),
+                LintViolation(2, 1, "Unexpected indentation (4) (should be 1)"),
                 LintViolation(3, 1, "Unexpected space character(s)"),
+                LintViolation(3, 1, "Unexpected indentation (2) (should be 0)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -2825,9 +2827,9 @@ internal class IndentationRuleTest {
         indentationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(2, 1, "Unexpected tab character(s)"),
-                LintViolation(2, 1, "Unexpected indentation (8) (should be 4)"),
+                LintViolation(2, 1, "Unexpected indentation (2) (should be 4)"),
                 LintViolation(3, 1, "Unexpected tab character(s)"),
-                LintViolation(3, 1, "Unexpected indentation (4) (should be 0)"),
+                LintViolation(3, 1, "Unexpected indentation (1) (should be 0)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -2852,8 +2854,11 @@ internal class IndentationRuleTest {
         indentationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(2, 1, "Unexpected tab character(s)"),
+                LintViolation(2, 1, "Unexpected indentation (1) (should be 4)"),
                 LintViolation(3, 1, "Unexpected tab character(s)"),
+                LintViolation(3, 1, "Unexpected indentation (2) (should be 8)"),
                 LintViolation(4, 1, "Unexpected tab character(s)"),
+                LintViolation(4, 1, "Unexpected indentation (1) (should be 4)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -2879,8 +2884,11 @@ internal class IndentationRuleTest {
             .withEditorConfigOverride(INDENT_SIZE_PROPERTY to 2)
             .hasLintViolations(
                 LintViolation(2, 1, "Unexpected tab character(s)"),
+                LintViolation(2, 1, "Unexpected indentation (1) (should be 2)"),
                 LintViolation(3, 1, "Unexpected tab character(s)"),
+                LintViolation(3, 1, "Unexpected indentation (2) (should be 4)"),
                 LintViolation(4, 1, "Unexpected tab character(s)"),
+                LintViolation(4, 1, "Unexpected indentation (1) (should be 2)"),
             ).isFormattedAs(formattedCode)
     }
 

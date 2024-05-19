@@ -18,7 +18,7 @@ internal class SuppressHandler(
                 node.startOffset,
                 ruleId,
             )
-        val autoCorrect = this.autoCorrectHandler.autoCorrect(node.startOffset) && !suppress
+        val autoCorrect = this.autoCorrectHandler !is AutoCorrectDisabledHandler && !suppress
         val emit =
             if (suppress) {
                 SUPPRESS_EMIT

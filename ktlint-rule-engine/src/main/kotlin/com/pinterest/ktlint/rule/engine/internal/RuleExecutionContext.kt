@@ -91,24 +91,24 @@ internal class RuleExecutionContext private constructor(
         val suppressHandler = SuppressHandler(suppressionLocator, autoCorrectHandler, emitAndApprove)
         if (rule.shouldContinueTraversalOfAST()) {
             try {
-                executeRuleOnNodeRecursively(node, rule, autoCorrectHandler, suppressHandler)
+                executeRuleOnNodeRecursively(node, rule, autoCorrectHandler, suppressHandler, emitAndApprove)
             } catch (e: Exception) {
-                if (autoCorrectHandler.autoCorrect(node.startOffset)) {
+                if (autoCorrectHandler is AutoCorrectDisabledHandler) {
+                    val (line, col) = positionInTextLocator(node.startOffset)
+                    throw RuleExecutionException(
+                        rule,
+                        line,
+                        col,
+                        // Prevent extreme long stack trace caused by recursive call and only pass root cause
+                        e.cause ?: e,
+                    )
+                } else {
                     // line/col cannot be reliably mapped as exception might originate from a node not present in the
                     // original AST
                     throw RuleExecutionException(
                         rule,
                         0,
                         0,
-                        // Prevent extreme long stack trace caused by recursive call and only pass root cause
-                        e.cause ?: e,
-                    )
-                } else {
-                    val (line, col) = positionInTextLocator(node.startOffset)
-                    throw RuleExecutionException(
-                        rule,
-                        line,
-                        col,
                         // Prevent extreme long stack trace caused by recursive call and only pass root cause
                         e.cause ?: e,
                     )
@@ -122,6 +122,7 @@ internal class RuleExecutionContext private constructor(
         rule: Rule,
         autoCorrectHandler: AutoCorrectHandler,
         suppressHandler: SuppressHandler,
+        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
     ) {
         if (rule is RuleAutocorrectApproveHandler) {
             suppressHandler.handle(node, rule.ruleId) { emitAndApprove ->
@@ -139,14 +140,12 @@ internal class RuleExecutionContext private constructor(
             node
                 .getChildren(null)
                 .forEach { childNode ->
-                    suppressHandler.handle(childNode, rule.ruleId) { emitAndApprove ->
-                        this.executeRuleOnNodeRecursively(
-                            childNode,
-                            rule,
-                            autoCorrectHandler,
-                            emitAndApprove,
-                        )
-                    }
+                    this.executeRuleOnNodeRecursively(
+                        childNode,
+                        rule,
+                        autoCorrectHandler,
+                        emitAndApprove,
+                    )
                 }
         }
         if (rule is RuleAutocorrectApproveHandler) {

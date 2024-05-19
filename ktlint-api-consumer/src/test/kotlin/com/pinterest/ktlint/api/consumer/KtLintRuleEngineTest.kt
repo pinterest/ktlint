@@ -7,6 +7,7 @@ import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.LintError
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
@@ -313,6 +314,42 @@ class KtLintRuleEngineTest {
                 """.trimIndent(),
             )
         }
+
+        @Test
+        fun `Given a kotlin code snippet that does contain multiple indentation errors then only format the lint error at specific offset and message`() {
+            val ktLintRuleEngine =
+                KtLintRuleEngine(
+                    ruleProviders =
+                        setOf(
+                            RuleProvider { IndentationRule() },
+                        ),
+                    fileSystem = ktlintTestFileSystem.fileSystem,
+                )
+
+            val originalCode =
+                """
+                fun main() {
+                println("Hello world!")
+                println("Hello world!")
+                println("Hello world!")
+                }
+                """.trimIndent()
+            val actual =
+                ktLintRuleEngine
+                    .interactiveFormat(Code.fromSnippet(originalCode)) { lintError ->
+                        lintError.line == 3 && lintError.detail == "Unexpected indentation (0) (should be 4)"
+                    }
+
+            assertThat(actual).isEqualTo(
+                """
+                fun main() {
+                println("Hello world!")
+                    println("Hello world!")
+                println("Hello world!")
+                }
+                """.trimIndent(),
+            )
+        }
     }
 
     @Test
@@ -358,14 +395,14 @@ class KtLintRuleEngineTest {
             ruleId = NO_VAR_RULE_ID,
             about = About(),
         ),
+        RuleAutocorrectApproveHandler,
         Rule.Experimental {
         override fun beforeVisitChildNodes(
             node: ASTNode,
-            autoCorrect: Boolean,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+            emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
         ) {
             if (node.elementType == ElementType.VAR_KEYWORD) {
-                emit(node.startOffset, "Unexpected var, use val instead", false)
+                emitAndApprove(node.startOffset, "Unexpected var, use val instead", false)
             }
         }
 

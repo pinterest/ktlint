@@ -18,6 +18,7 @@ import com.pinterest.ktlint.rule.engine.internal.EditorConfigFinder
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigGenerator
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigLoader
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigLoaderEc4j
+import com.pinterest.ktlint.rule.engine.internal.LintErrorAutoCorrectHandler
 import com.pinterest.ktlint.rule.engine.internal.RuleExecutionContext.Companion.createRuleExecutionContext
 import com.pinterest.ktlint.rule.engine.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFE_EDITOR_CONFIG_CACHE
 import org.ec4j.core.Resource
@@ -95,6 +96,9 @@ public class KtLintRuleEngine(
      * If [code] contains lint errors which have been autocorrected, then the resulting code is formatted again (up until
      * [MAX_FORMAT_RUNS_PER_FILE] times) in order to fix lint errors that might result from the previous formatting run.
      *
+     * [callback] is invoked once for each unique [LintError] found during all runs. Note that [callback] is only invoked once all format
+     * runs have been completed.
+     *
      * @throws KtLintParseException if text is not a valid Kotlin code
      * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
      */
@@ -169,8 +173,7 @@ public class KtLintRuleEngine(
     ): String =
         codeFormatter.format(
             code = code,
-            autoCorrectHandler = AutoCorrectEnabledHandler,
-            callback = { lintError, _ -> callback(lintError) },
+            autoCorrectHandler = LintErrorAutoCorrectHandler(callback),
             maxFormatRunsPerFile = 1,
         )
 

@@ -112,30 +112,37 @@ internal class CodeFormatter(
     ): Set<Pair<LintError, Boolean>> {
         val errors = mutableSetOf<Pair<LintError, Boolean>>()
         executeRule(rule, autoCorrectHandler) { offset, errorMessage, canBeAutoCorrected ->
-            if (canBeAutoCorrected) {
-                // TODO: send LintError to external approve handler
+            val (line, col) = positionInTextLocator(offset)
+            val lintError = LintError(line, col, rule.ruleId, errorMessage, canBeAutoCorrected)
+            val autoCorrect =
+                if (canBeAutoCorrected) {
+                    if (autoCorrectHandler is AutoCorrectOffsetRangeHandler) {
+                        autoCorrectHandler.autoCorrect(offset)
+                    } else {
+                        autoCorrectHandler.autoCorrect(lintError)
+                    }
+                } else {
+                    false
+                }
+            if (autoCorrect) {
                 /*
                  * Rebuild the suppression locator after each change in the AST as the offsets of the suppression hints might
                  * have changed.
                  */
                 rebuildSuppressionLocator()
             }
-            val (line, col) = positionInTextLocator(offset)
-            LintError(line, col, rule.ruleId, errorMessage, canBeAutoCorrected)
-                .let { lintError ->
-                    errors.add(
-                        Pair(
-                            lintError,
-                            // It is assumed that a rule that emits that an error can be autocorrected, also does correct the error.
-                            canBeAutoCorrected,
-                        ),
-                    )
-                    // In trace mode report the violation immediately. The order in which violations are actually found might be
-                    // different from the order in which they are reported. For debugging purposes it can be helpful to know the
-                    // exact order in which violations are being solved.
-                    LOGGER.trace { "Format violation: ${lintError.logMessage(code)}" }
-                }
-            canBeAutoCorrected
+            errors.add(
+                Pair(
+                    lintError,
+                    // It is assumed that a rule that asks for autocorrect approval, also does correct the error.
+                    autoCorrect,
+                ),
+            )
+            // In trace mode report the violation immediately. The order in which violations are actually found might be
+            // different from the order in which they are reported. For debugging purposes it can be helpful to know the
+            // exact order in which violations are being solved.
+            LOGGER.trace { "Format violation: ${lintError.logMessage(code)}" }
+            autoCorrect
         }
         return errors
     }
