@@ -88,10 +88,14 @@ internal class RuleExecutionContext private constructor(
          * The [suppressionLocator] can be changed during each visit of node when running [KtLintRuleEngine.format]. So a new handler is to
          * be built before visiting the nodes.
          */
-        val suppressHandler = SuppressHandler(suppressionLocator, autoCorrectHandler, emitAndApprove)
+        val suppress = suppressionLocator(node.startOffset, rule.ruleId)
         if (rule.shouldContinueTraversalOfAST()) {
             try {
-                executeRuleOnNodeRecursively(node, rule, autoCorrectHandler, suppressHandler, emitAndApprove)
+                if (rule is RuleAutocorrectApproveHandler) {
+                    executeRuleWithApproveHandlerOnNodeRecursivelyKtlint(node, rule, autoCorrectHandler, suppress, emitAndApprove)
+                } else {
+                    executeRuleOnNodeRecursivelyKtlint(node, rule, autoCorrectHandler, suppress, emitAndApprove)
+                }
             } catch (e: Exception) {
                 if (autoCorrectHandler is AutoCorrectDisabledHandler) {
                     val (line, col) = positionInTextLocator(node.startOffset)
@@ -117,24 +121,18 @@ internal class RuleExecutionContext private constructor(
         }
     }
 
-    private fun executeRuleOnNodeRecursively(
+    @Deprecated(message = "Remove in Ktlint 2.0")
+    private fun executeRuleOnNodeRecursivelyKtlint(
         node: ASTNode,
         rule: Rule,
         autoCorrectHandler: AutoCorrectHandler,
-        suppressHandler: SuppressHandler,
+        suppress: Boolean,
         emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
     ) {
-        if (rule is RuleAutocorrectApproveHandler) {
-            suppressHandler.handle(node, rule.ruleId) { emitAndApprove ->
-                rule.beforeVisitChildNodes(
-                    node = node,
-                    emitAndApprove = emitAndApprove,
-                )
-            }
-        } else {
-            suppressHandler.handle(node, rule.ruleId) { autoCorrect, emit ->
-                rule.beforeVisitChildNodes(node, autoCorrect, emit)
-            }
+        val autoCorrect = autoCorrectHandler !is AutoCorrectDisabledHandler
+        val emitOnly = emitAndApprove.onlyEmit()
+        if (!suppress) {
+            rule.beforeVisitChildNodes(node, autoCorrect, emitOnly)
         }
         if (rule.shouldContinueTraversalOfAST()) {
             node
@@ -148,19 +146,50 @@ internal class RuleExecutionContext private constructor(
                     )
                 }
         }
-        if (rule is RuleAutocorrectApproveHandler) {
-            suppressHandler.handle(node, rule.ruleId) { emitAndApprove ->
-                rule.afterVisitChildNodes(
-                    node = node,
-                    emitAndApprove = emitAndApprove,
-                )
-            }
-        } else {
-            suppressHandler.handle(node, rule.ruleId) { autoCorrect, emit ->
-                rule.afterVisitChildNodes(node, autoCorrect, emit)
-            }
+        if (!suppress) {
+            rule.afterVisitChildNodes(node, autoCorrect, emitOnly)
         }
     }
+
+    private fun executeRuleWithApproveHandlerOnNodeRecursivelyKtlint(
+        node: ASTNode,
+        rule: Rule,
+        autoCorrectHandler: AutoCorrectHandler,
+        suppress: Boolean,
+        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
+    ) {
+        require(rule is RuleAutocorrectApproveHandler)
+        if (!suppress) {
+            rule.beforeVisitChildNodes(node, emitAndApprove)
+        }
+        if (rule.shouldContinueTraversalOfAST()) {
+            node
+                .getChildren(null)
+                .forEach { childNode ->
+                    this.executeRuleOnNodeRecursively(
+                        childNode,
+                        rule,
+                        autoCorrectHandler,
+                        emitAndApprove,
+                    )
+                }
+        }
+        if (!suppress) {
+            rule.afterVisitChildNodes(node, emitAndApprove)
+        }
+    }
+
+    // Simplify the emitAndApprove to an emit only lambda which can be used in the legacy (deprecated) functions
+    @Deprecated(message = "Remove in Ktlint 2.0")
+    private fun ((offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean).onlyEmit() =
+        {
+                offset: Int,
+                errorMessage: String,
+                canBeAutoCorrected: Boolean,
+            ->
+            this(offset, errorMessage, canBeAutoCorrected)
+            Unit
+        }
 
     companion object {
         internal fun createRuleExecutionContext(
