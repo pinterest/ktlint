@@ -116,11 +116,7 @@ internal class CodeFormatter(
             val lintError = LintError(line, col, rule.ruleId, errorMessage, canBeAutoCorrected)
             val autoCorrect =
                 if (canBeAutoCorrected) {
-                    if (autoCorrectHandler is AutoCorrectOffsetRangeHandler) {
-                        autoCorrectHandler.autoCorrect(offset)
-                    } else {
-                        autoCorrectHandler.autoCorrect(lintError)
-                    }
+                    autoCorrectHandler.autoCorrect(lintError)
                 } else {
                     false
                 }

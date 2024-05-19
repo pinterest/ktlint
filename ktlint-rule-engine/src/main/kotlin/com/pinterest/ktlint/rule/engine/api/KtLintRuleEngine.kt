@@ -11,7 +11,6 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
 import com.pinterest.ktlint.rule.engine.core.util.safeAs
 import com.pinterest.ktlint.rule.engine.internal.AutoCorrectEnabledHandler
-import com.pinterest.ktlint.rule.engine.internal.AutoCorrectOffsetRangeHandler
 import com.pinterest.ktlint.rule.engine.internal.CodeFormatter
 import com.pinterest.ktlint.rule.engine.internal.CodeLinter
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigFinder
@@ -19,6 +18,7 @@ import com.pinterest.ktlint.rule.engine.internal.EditorConfigGenerator
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigLoader
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigLoaderEc4j
 import com.pinterest.ktlint.rule.engine.internal.LintErrorAutoCorrectHandler
+import com.pinterest.ktlint.rule.engine.internal.RangeAutoCorrectHandler
 import com.pinterest.ktlint.rule.engine.internal.RuleExecutionContext.Companion.createRuleExecutionContext
 import com.pinterest.ktlint.rule.engine.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFE_EDITOR_CONFIG_CACHE
 import org.ec4j.core.Resource
@@ -115,32 +115,7 @@ public class KtLintRuleEngine(
      * If [code] contains lint errors which have been autocorrected, then the resulting code is formatted again (up until
      * [MAX_FORMAT_RUNS_PER_FILE] times) in order to fix lint errors that might result from the previous formatting run.
      *
-     * IMPORTANT: Partial formatting not always works as expected. The offset of the node which is triggering the violation does not
-     * necessarily to be close to the offset at which the violation is reported. Counter-intuitively the offset of the trigger node must be
-     * located inside the [autoCorrectOffsetRange] instead of the offset at which the violation is reported.
-     *
-     * For example, the given code might contain the when-statement below:
-     * ```
-     *    // code with lint violations
-     *
-     *     when(foobar) {
-     *         FOO -> "Single line"
-     *         BAR ->
-     *             """
-     *             Multi line
-     *             """.trimIndent()
-     *         else -> null
-     *     }
-     *
-     *    // more code with lint violations
-     * ```
-     * The `blank-line-between-when-conditions` rule requires blank lines to be added between the conditions. If the when-keyword above is
-     * included in the range which is to be formatted then the blank lines before the conditions are added. If only the when-conditions
-     * itself are selected, but not the when-keyword, then the blank lines are not added.
-     *
-     * This unexpected behavior is a side effect of the way the partial formatting is implemented currently. The side effects can be
-     * prevented by delaying the decision to autocorrect as late as possible and the exact offset of the error is known. This however would
-     * cause a breaking change, and needs to wait until Ktlint V2.x.
+     * [callback] is invoked once for each unique [LintError] found. Note that [callback] is only invoked once format is completed.
      *
      * @throws KtLintParseException if text is not a valid Kotlin code
      * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
@@ -152,7 +127,7 @@ public class KtLintRuleEngine(
     ): String =
         codeFormatter.format(
             code,
-            AutoCorrectOffsetRangeHandler(autoCorrectOffsetRange),
+            RangeAutoCorrectHandler(code, autoCorrectOffsetRange),
             callback,
             MAX_FORMAT_RUNS_PER_FILE,
         )
