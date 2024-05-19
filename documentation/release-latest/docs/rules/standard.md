@@ -59,8 +59,8 @@ Requires a blank line before any class or function declaration. No blank line is
 === "[:material-heart:](#) Ktlint"
 
     ```kotlin
-    const val foo1 = "foo1"
-    
+    const val FOO_1 = "foo1"
+
     class FooBar {
         val foo2 = "foo2"
         val foo3 = "foo3"
@@ -71,7 +71,7 @@ Requires a blank line before any class or function declaration. No blank line is
         }
 
         fun bar2() = "bar"
-    
+
         val foo6 = "foo3"
         val foo7 = "foo4"
 
@@ -82,7 +82,8 @@ Requires a blank line before any class or function declaration. No blank line is
 === "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
-    const val foo1 = "foo1"
+    const val FOO_1 = "foo1"
+
     class FooBar {
         val foo2 = "foo2"
         val foo3 = "foo3"
