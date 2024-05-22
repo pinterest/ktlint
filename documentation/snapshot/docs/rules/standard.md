@@ -469,7 +469,7 @@ Enforce naming of function.
 
     fun fooBar() {}
 
-    fun `fun` {} // Any keyword is allowed when wrapped between backticks
+    fun `fun`() {} // Any keyword is allowed when wrapped between backticks
     ```
 === "[:material-heart:](#) Ktlint Test"
 
