@@ -38,7 +38,7 @@ internal class CodeLinter(
         code: Code,
     ): List<LintError> {
         val errors = mutableListOf<LintError>()
-        executeRule(rule, AutoCorrectDisabledHandler) { offset, errorMessage, canBeAutoCorrected ->
+        executeRule(rule, NoneAutocorrectHandler) { offset, errorMessage, canBeAutoCorrected ->
             val (line, col) = this.positionInTextLocator(offset)
             LintError(line, col, rule.ruleId, errorMessage, canBeAutoCorrected)
                 .let { lintError ->

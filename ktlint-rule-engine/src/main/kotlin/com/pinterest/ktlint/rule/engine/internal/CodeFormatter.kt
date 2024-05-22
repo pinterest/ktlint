@@ -16,13 +16,13 @@ internal class CodeFormatter(
 ) {
     fun format(
         code: Code,
-        autoCorrectHandler: AutoCorrectHandler,
+        autocorrectHandler: AutocorrectHandler,
         callback: (LintError, Boolean) -> Unit = { _, _ -> },
         maxFormatRunsPerFile: Int,
     ): String {
         LOGGER.debug { "Starting with formatting file '${code.fileNameOrStdin()}'" }
 
-        val (formattedCode, errors) = format(code, autoCorrectHandler, maxFormatRunsPerFile)
+        val (formattedCode, errors) = format(code, autocorrectHandler, maxFormatRunsPerFile)
 
         errors
             .sortedWith(lintErrorLineAndColumnComparator { it.first })
@@ -42,7 +42,7 @@ internal class CodeFormatter(
 
     private fun format(
         code: Code,
-        autoCorrectHandler: AutoCorrectHandler,
+        autocorrectHandler: AutocorrectHandler,
         maxFormatRunsPerFile: Int,
     ): Pair<String, MutableSet<Pair<LintError, Boolean>>> {
         with(RuleExecutionContext.createRuleExecutionContext(ktLintRuleEngine, code)) {
@@ -51,7 +51,7 @@ internal class CodeFormatter(
             var mutated: Boolean
             do {
                 mutated =
-                    format(autoCorrectHandler, code).let { ruleErrors ->
+                    format(autocorrectHandler, code).let { ruleErrors ->
                         errors.addAll(ruleErrors)
                         ruleErrors.any { it.first.canBeAutoCorrected }
                     }
@@ -75,14 +75,14 @@ internal class CodeFormatter(
     private fun RuleExecutionContext.formattedCode(lineSeparator: String) = rootNode.text.replace("\n", lineSeparator)
 
     private fun RuleExecutionContext.format(
-        autoCorrectHandler: AutoCorrectHandler,
+        autocorrectHandler: AutocorrectHandler,
         code: Code,
     ): Set<Pair<LintError, Boolean>> {
         val errors: MutableSet<Pair<LintError, Boolean>> = mutableSetOf()
         VisitorProvider(ruleProviders)
             .rules
             .forEach { rule ->
-                executeRule(rule, autoCorrectHandler, code).let { ruleErrors -> errors.addAll(ruleErrors) }
+                executeRule(rule, autocorrectHandler, code).let { ruleErrors -> errors.addAll(ruleErrors) }
             }
         return errors
     }
@@ -93,7 +93,7 @@ internal class CodeFormatter(
             .rules
             .forEach { rule ->
                 if (!hasErrorsWhichCanBeAutocorrected) {
-                    executeRule(rule, AutoCorrectDisabledHandler) { _, _, canBeAutoCorrected ->
+                    executeRule(rule, NoneAutocorrectHandler) { _, _, canBeAutoCorrected ->
                         if (canBeAutoCorrected) {
                             hasErrorsWhichCanBeAutocorrected = true
                         }
@@ -107,16 +107,16 @@ internal class CodeFormatter(
 
     private fun RuleExecutionContext.executeRule(
         rule: Rule,
-        autoCorrectHandler: AutoCorrectHandler,
+        autocorrectHandler: AutocorrectHandler,
         code: Code,
     ): Set<Pair<LintError, Boolean>> {
         val errors = mutableSetOf<Pair<LintError, Boolean>>()
-        executeRule(rule, autoCorrectHandler) { offset, errorMessage, canBeAutoCorrected ->
+        executeRule(rule, autocorrectHandler) { offset, errorMessage, canBeAutoCorrected ->
             val (line, col) = positionInTextLocator(offset)
             val lintError = LintError(line, col, rule.ruleId, errorMessage, canBeAutoCorrected)
             val autoCorrect =
                 if (canBeAutoCorrected) {
-                    autoCorrectHandler.autoCorrect(lintError)
+                    autocorrectHandler.autoCorrect(lintError)
                 } else {
                     false
                 }

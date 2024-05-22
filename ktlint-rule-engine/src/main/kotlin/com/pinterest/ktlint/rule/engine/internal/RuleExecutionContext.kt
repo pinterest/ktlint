@@ -47,7 +47,7 @@ internal class RuleExecutionContext private constructor(
 
     fun executeRule(
         rule: Rule,
-        autoCorrectHandler: AutoCorrectHandler,
+        autocorrectHandler: AutocorrectHandler,
         emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
     ) {
         try {
@@ -60,7 +60,7 @@ internal class RuleExecutionContext private constructor(
                 // EditorConfigProperty that is not explicitly defined.
                 editorConfig.filterBy(rule.usesEditorConfigProperties.plus(CODE_STYLE_PROPERTY)),
             )
-            this.executeRuleOnNodeRecursively(rootNode, rule, autoCorrectHandler, emitAndApprove)
+            this.executeRuleOnNodeRecursively(rootNode, rule, autocorrectHandler, emitAndApprove)
             rule.afterLastNode()
         } catch (e: RuleExecutionException) {
             throw KtLintRuleException(
@@ -81,7 +81,7 @@ internal class RuleExecutionContext private constructor(
     private fun executeRuleOnNodeRecursively(
         node: ASTNode,
         rule: Rule,
-        autoCorrectHandler: AutoCorrectHandler,
+        autocorrectHandler: AutocorrectHandler,
         emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
     ) {
         /**
@@ -92,12 +92,12 @@ internal class RuleExecutionContext private constructor(
         if (rule.shouldContinueTraversalOfAST()) {
             try {
                 if (rule is RuleAutocorrectApproveHandler) {
-                    executeRuleWithApproveHandlerOnNodeRecursivelyKtlint(node, rule, autoCorrectHandler, suppress, emitAndApprove)
+                    executeRuleWithApproveHandlerOnNodeRecursivelyKtlint(node, rule, autocorrectHandler, suppress, emitAndApprove)
                 } else {
-                    executeRuleOnNodeRecursivelyKtlint(node, rule, autoCorrectHandler, suppress, emitAndApprove)
+                    executeRuleOnNodeRecursivelyKtlint(node, rule, autocorrectHandler, suppress, emitAndApprove)
                 }
             } catch (e: Exception) {
-                if (autoCorrectHandler is AutoCorrectDisabledHandler) {
+                if (autocorrectHandler is NoneAutocorrectHandler) {
                     val (line, col) = positionInTextLocator(node.startOffset)
                     throw RuleExecutionException(
                         rule,
@@ -125,11 +125,11 @@ internal class RuleExecutionContext private constructor(
     private fun executeRuleOnNodeRecursivelyKtlint(
         node: ASTNode,
         rule: Rule,
-        autoCorrectHandler: AutoCorrectHandler,
+        autocorrectHandler: AutocorrectHandler,
         suppress: Boolean,
         emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
     ) {
-        val autoCorrect = autoCorrectHandler !is AutoCorrectDisabledHandler
+        val autoCorrect = autocorrectHandler is AllAutocorrectHandler
         val emitOnly = emitAndApprove.onlyEmit()
         if (!suppress) {
             rule.beforeVisitChildNodes(node, autoCorrect, emitOnly)
@@ -141,7 +141,7 @@ internal class RuleExecutionContext private constructor(
                     this.executeRuleOnNodeRecursively(
                         childNode,
                         rule,
-                        autoCorrectHandler,
+                        autocorrectHandler,
                         emitAndApprove,
                     )
                 }
@@ -154,7 +154,7 @@ internal class RuleExecutionContext private constructor(
     private fun executeRuleWithApproveHandlerOnNodeRecursivelyKtlint(
         node: ASTNode,
         rule: Rule,
-        autoCorrectHandler: AutoCorrectHandler,
+        autocorrectHandler: AutocorrectHandler,
         suppress: Boolean,
         emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
     ) {
@@ -169,7 +169,7 @@ internal class RuleExecutionContext private constructor(
                     this.executeRuleOnNodeRecursively(
                         childNode,
                         rule,
-                        autoCorrectHandler,
+                        autocorrectHandler,
                         emitAndApprove,
                     )
                 }
