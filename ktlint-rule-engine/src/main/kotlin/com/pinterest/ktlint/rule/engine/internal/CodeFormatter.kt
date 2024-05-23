@@ -3,6 +3,7 @@ package com.pinterest.ktlint.rule.engine.internal
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
+import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine.FormatDecision.ALLOW_AUTOCORRECT
 import com.pinterest.ktlint.rule.engine.api.LintError
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.END_OF_LINE_PROPERTY
@@ -121,9 +122,9 @@ internal class CodeFormatter(
                     // TODO: rename... "LintErrorHandler.emit" and let this function return an enum value as ALLOW_AUTOCORRECT and
                     //  NO_AUTOCORRECT
                     .autocorrect(lintError)
-                    .let { autocorrect ->
+                    .let { autocorrectDecision ->
                         // Ignore decision of the API Consumer in case the error can not be autocorrected
-                        autocorrect && canBeAutoCorrected
+                        autocorrectDecision == ALLOW_AUTOCORRECT && canBeAutoCorrected
                     }
             if (autocorrect) {
                 /*

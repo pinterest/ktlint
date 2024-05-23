@@ -5,6 +5,8 @@ import com.pinterest.ktlint.api.consumer.KtLintRuleEngineTest.RuleWithoutAutocor
 import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
+import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine.FormatDecision.ALLOW_AUTOCORRECT
+import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine.FormatDecision.NO_AUTOCORRECT
 import com.pinterest.ktlint.rule.engine.api.LintError
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.Rule
@@ -290,7 +292,7 @@ class KtLintRuleEngineTest {
                         code = Code.fromFile(File(filePath)),
                     ) { lintError ->
                         lintErrors.add(lintError)
-                        true
+                        ALLOW_AUTOCORRECT
                     }
 
                 assertThat(lintErrors).containsExactlyInAnyOrder(
@@ -330,7 +332,10 @@ class KtLintRuleEngineTest {
                     ktLintRuleEngine.format(
                         code = Code.fromFile(File(filePath)),
                         defaultAutocorrect = true,
-                    ) { lintError -> lintErrors.add(lintError) }
+                    ) { lintError ->
+                        lintErrors.add(lintError)
+                        ALLOW_AUTOCORRECT
+                    }
 
                 assertThat(lintErrors).containsExactlyInAnyOrder(
                     LintError(2, 5, RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER, "Foo comment without autocorrect approve handler", true),
@@ -369,7 +374,10 @@ class KtLintRuleEngineTest {
                     ktLintRuleEngine.format(
                         code = Code.fromFile(File(filePath)),
                         defaultAutocorrect = false,
-                    ) { lintError -> lintErrors.add(lintError) }
+                    ) { lintError ->
+                        lintErrors.add(lintError)
+                        ALLOW_AUTOCORRECT
+                    }
 
                 assertThat(lintErrors).containsExactlyInAnyOrder(
                     LintError(2, 5, RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER, "Foo comment without autocorrect approve handler", true),
@@ -405,7 +413,10 @@ class KtLintRuleEngineTest {
                                     }
                                 """.trimIndent(),
                             ),
-                    ) { lintError -> lintErrors.add(lintError) }
+                    ) { lintError ->
+                        lintErrors.add(lintError)
+                        ALLOW_AUTOCORRECT
+                    }
 
                 assertThat(lintErrors).containsExactlyInAnyOrder(
                     LintError(2, 5, RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER, "Foo comment without autocorrect approve handler", true),
@@ -437,7 +448,10 @@ class KtLintRuleEngineTest {
                                 """.trimIndent(),
                             ),
                         defaultAutocorrect = true,
-                    ) { lintError -> lintErrors.add(lintError) }
+                    ) { lintError ->
+                        lintErrors.add(lintError)
+                        ALLOW_AUTOCORRECT
+                    }
 
                 assertThat(lintErrors).containsExactlyInAnyOrder(
                     LintError(2, 5, RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER, "Foo comment without autocorrect approve handler", true),
@@ -469,7 +483,10 @@ class KtLintRuleEngineTest {
                                 """.trimIndent(),
                             ),
                         defaultAutocorrect = false,
-                    ) { lintError -> lintErrors.add(lintError) }
+                    ) { lintError ->
+                        lintErrors.add(lintError)
+                        ALLOW_AUTOCORRECT
+                    }
 
                 assertThat(lintErrors).containsExactlyInAnyOrder(
                     LintError(2, 5, RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER, "Foo comment without autocorrect approve handler", true),
@@ -506,7 +523,10 @@ class KtLintRuleEngineTest {
                                 """.trimIndent(),
                                 script = true,
                             ),
-                    ) { lintError -> lintErrors.add(lintError) }
+                    ) { lintError ->
+                        lintErrors.add(lintError)
+                        ALLOW_AUTOCORRECT
+                    }
 
                 assertThat(lintErrors).containsExactlyInAnyOrder(
                     LintError(2, 5, RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER, "Foo comment without autocorrect approve handler", true),
@@ -539,7 +559,10 @@ class KtLintRuleEngineTest {
                                 script = true,
                             ),
                         defaultAutocorrect = true,
-                    ) { lintError -> lintErrors.add(lintError) }
+                    ) { lintError ->
+                        lintErrors.add(lintError)
+                        ALLOW_AUTOCORRECT
+                    }
 
                 assertThat(lintErrors).containsExactlyInAnyOrder(
                     LintError(2, 5, RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER, "Foo comment without autocorrect approve handler", true),
@@ -572,7 +595,10 @@ class KtLintRuleEngineTest {
                                 script = true,
                             ),
                         defaultAutocorrect = false,
-                    ) { lintError -> lintErrors.add(lintError) }
+                    ) { lintError ->
+                        lintErrors.add(lintError)
+                        ALLOW_AUTOCORRECT
+                    }
 
                 assertThat(lintErrors).containsExactlyInAnyOrder(
                     LintError(2, 5, RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER, "Foo comment without autocorrect approve handler", true),

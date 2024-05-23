@@ -1,5 +1,8 @@
 package com.pinterest.ktlint.rule.engine.internal
 
+import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine.FormatDecision
+import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine.FormatDecision.ALLOW_AUTOCORRECT
+import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine.FormatDecision.NO_AUTOCORRECT
 import com.pinterest.ktlint.rule.engine.api.LintError
 import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 
@@ -7,7 +10,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
  * Handler which determines whether autocorrect should be enabled or disabled for the given offset.
  */
 internal sealed interface AutocorrectHandler {
-    fun autocorrect(lintError: LintError): Boolean
+    fun autocorrect(lintError: LintError): FormatDecision
 }
 
 /**
@@ -15,7 +18,7 @@ internal sealed interface AutocorrectHandler {
  * [RuleAutocorrectApproveHandler].
  */
 internal data object NoneAutocorrectHandler : AutocorrectHandler {
-    override fun autocorrect(lintError: LintError) = false
+    override fun autocorrect(lintError: LintError) = NO_AUTOCORRECT
 }
 
 /**
@@ -23,7 +26,7 @@ internal data object NoneAutocorrectHandler : AutocorrectHandler {
  * [RuleAutocorrectApproveHandler].
  */
 internal data object AllAutocorrectHandler : AutocorrectHandler {
-    override fun autocorrect(lintError: LintError) = true
+    override fun autocorrect(lintError: LintError) = ALLOW_AUTOCORRECT
 }
 
 /**
@@ -33,7 +36,7 @@ internal data object AllAutocorrectHandler : AutocorrectHandler {
  */
 internal class LintErrorAutocorrectHandler(
     val autocorrectRuleWithoutAutocorrectApproveHandler: Boolean,
-    private val callback: (LintError) -> Boolean,
+    private val callback: (LintError) -> FormatDecision,
 ) : AutocorrectHandler {
     override fun autocorrect(lintError: LintError) = callback(lintError)
 }

@@ -122,13 +122,25 @@ public class KtLintRuleEngine(
     public fun format(
         code: Code,
         defaultAutocorrect: Boolean = true,
-        callback: (LintError) -> Boolean,
+        callback: (LintError) -> FormatDecision,
     ): String =
         codeFormatter.format(
             code = code,
             autocorrectHandler = LintErrorAutocorrectHandler(defaultAutocorrect, callback),
             maxFormatRunsPerFile = 1,
         )
+
+    public enum class FormatDecision {
+        /**
+         * Autocorrect the [LintError] if supported by the rule.
+         */
+        ALLOW_AUTOCORRECT,
+
+        /**
+         * Do not autocorrect the [LintError] even when this is supported by the rule.
+         */
+        NO_AUTOCORRECT,
+    }
 
     /**
      * Generates Kotlin `.editorconfig` file section content based on a path to a file or directory. Given that path, all '.editorconfig'
