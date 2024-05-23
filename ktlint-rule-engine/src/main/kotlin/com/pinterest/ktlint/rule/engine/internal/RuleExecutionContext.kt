@@ -129,7 +129,12 @@ internal class RuleExecutionContext private constructor(
         suppress: Boolean,
         emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
     ) {
-        val autoCorrect = autocorrectHandler is AllAutocorrectHandler
+        val autoCorrect =
+            autocorrectHandler is AllAutocorrectHandler ||
+                (
+                    autocorrectHandler is LintErrorAutocorrectHandler &&
+                        autocorrectHandler.autocorrectRuleWithoutAutocorrectApproveHandler
+                )
         val emitOnly = emitAndApprove.onlyEmit()
         if (!suppress) {
             rule.beforeVisitChildNodes(node, autoCorrect, emitOnly)

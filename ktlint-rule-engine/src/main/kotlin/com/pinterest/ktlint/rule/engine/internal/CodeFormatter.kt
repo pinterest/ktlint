@@ -114,13 +114,18 @@ internal class CodeFormatter(
         executeRule(rule, autocorrectHandler) { offset, errorMessage, canBeAutoCorrected ->
             val (line, col) = positionInTextLocator(offset)
             val lintError = LintError(line, col, rule.ruleId, errorMessage, canBeAutoCorrected)
-            val autoCorrect =
-                if (canBeAutoCorrected) {
-                    autocorrectHandler.autoCorrect(lintError)
-                } else {
-                    false
-                }
-            if (autoCorrect) {
+            val autocorrect =
+                autocorrectHandler
+                    // The autocorrect is always to be called (even when the error can not be autocorrected) as it informs the API Consumer
+                    // about the LintError.
+                    // TODO: rename... "LintErrorHandler.emit" and let this function return an enum value as ALLOW_AUTOCORRECT and
+                    //  NO_AUTOCORRECT
+                    .autocorrect(lintError)
+                    .let { autocorrect ->
+                        // Ignore decision of the API Consumer in case the error can not be autocorrected
+                        autocorrect && canBeAutoCorrected
+                    }
+            if (autocorrect) {
                 /*
                  * Rebuild the suppression locator after each change in the AST as the offsets of the suppression hints might
                  * have changed.
@@ -131,14 +136,14 @@ internal class CodeFormatter(
                 Pair(
                     lintError,
                     // It is assumed that a rule that asks for autocorrect approval, also does correct the error.
-                    autoCorrect,
+                    autocorrect,
                 ),
             )
             // In trace mode report the violation immediately. The order in which violations are actually found might be
             // different from the order in which they are reported. For debugging purposes it can be helpful to know the
             // exact order in which violations are being solved.
             LOGGER.trace { "Format violation: ${lintError.logMessage(code)}" }
-            autoCorrect
+            autocorrect
         }
         return errors
     }

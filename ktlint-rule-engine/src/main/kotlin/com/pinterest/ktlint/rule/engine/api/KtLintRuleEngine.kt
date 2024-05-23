@@ -5,6 +5,7 @@ package com.pinterest.ktlint.rule.engine.api
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
 import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
@@ -89,8 +90,8 @@ public class KtLintRuleEngine(
     ): Unit = codeLinter.lint(code, callback)
 
     /**
-     * Fix style violations in [code] for lint errors when possible. If [code] is passed as file reference then the '.editorconfig' files on
-     * the path are taken into account. For each lint violation found, the [callback] is invoked.
+     * Fix all style violations in [code] for lint errors when possible. If [code] is passed as file reference then the '.editorconfig'
+     * files on the path are taken into account. For each lint violation found, the [callback] is invoked.
      *
      * If [code] contains lint errors which have been autocorrected, then the resulting code is formatted again (up until
      * [MAX_FORMAT_RUNS_PER_FILE] times) in order to fix lint errors that might result from the previous formatting run.
@@ -107,22 +108,25 @@ public class KtLintRuleEngine(
     ): String = codeFormatter.format(code, AllAutocorrectHandler, callback, MAX_FORMAT_RUNS_PER_FILE)
 
     /**
-     * Formats style violations in [code]. Whenever a [LintError] is found which can be autocorrected by the rule that detected the
-     * violation, the [callback] is invoked to let the calling API Consumer to decide whether the [LintError] is actually to be fixed.
+     * Formats style violations in [code]. Whenever a [LintError] is found the [callback] is invoked. If the [LintError] can be
+     * autocorrected *and* the rule that found that the violation has implemented the [RuleAutocorrectApproveHandler] interface, the API
+     * Consumer determines whether that [LintError] is to autocorrected, or not.
      *
-     * Important: [callback] is only invoked if the rule that found that the violation has implemented the [RuleAutocorrectApproveHandler]
-     * and the violation can be autocorrected.
+     * In case the rule has not implemented the [RuleAutocorrectApproveHandler] interface, then the result of the [callback] is ignored as
+     * the rule is not able to process it. For such rules the [defaultAutocorrect] determines whether autocorrect for this rule is to be
+     * applied, or not. By default, the autocorrect will be applied (backwards compatability).
      *
      * @throws KtLintParseException if text is not a valid Kotlin code
      * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
      */
-    public fun interactiveFormat(
+    public fun format(
         code: Code,
+        defaultAutocorrect: Boolean = true,
         callback: (LintError) -> Boolean,
     ): String =
         codeFormatter.format(
             code = code,
-            autocorrectHandler = LintErrorAutocorrectHandler(callback),
+            autocorrectHandler = LintErrorAutocorrectHandler(defaultAutocorrect, callback),
             maxFormatRunsPerFile = 1,
         )
 

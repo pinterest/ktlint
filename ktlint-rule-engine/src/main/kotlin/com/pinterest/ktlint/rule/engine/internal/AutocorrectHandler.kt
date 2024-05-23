@@ -7,7 +7,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
  * Handler which determines whether autocorrect should be enabled or disabled for the given offset.
  */
 internal sealed interface AutocorrectHandler {
-    fun autoCorrect(lintError: LintError): Boolean
+    fun autocorrect(lintError: LintError): Boolean
 }
 
 /**
@@ -15,7 +15,7 @@ internal sealed interface AutocorrectHandler {
  * [RuleAutocorrectApproveHandler].
  */
 internal data object NoneAutocorrectHandler : AutocorrectHandler {
-    override fun autoCorrect(lintError: LintError) = false
+    override fun autocorrect(lintError: LintError) = false
 }
 
 /**
@@ -23,7 +23,7 @@ internal data object NoneAutocorrectHandler : AutocorrectHandler {
  * [RuleAutocorrectApproveHandler].
  */
 internal data object AllAutocorrectHandler : AutocorrectHandler {
-    override fun autoCorrect(lintError: LintError) = true
+    override fun autocorrect(lintError: LintError) = true
 }
 
 /**
@@ -32,7 +32,8 @@ internal data object AllAutocorrectHandler : AutocorrectHandler {
  * be able to control whether a specific [LintError] is to be corrected or not.
  */
 internal class LintErrorAutocorrectHandler(
+    val autocorrectRuleWithoutAutocorrectApproveHandler: Boolean,
     private val callback: (LintError) -> Boolean,
 ) : AutocorrectHandler {
-    override fun autoCorrect(lintError: LintError) = callback(lintError)
+    override fun autocorrect(lintError: LintError) = callback(lintError)
 }
