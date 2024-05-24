@@ -1,16 +1,16 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine.FormatDecision
-import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine.FormatDecision.ALLOW_AUTOCORRECT
-import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine.FormatDecision.NO_AUTOCORRECT
 import com.pinterest.ktlint.rule.engine.api.LintError
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.ALLOW_AUTOCORRECT
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.NO_AUTOCORRECT
 import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 
 /**
  * Handler which determines whether autocorrect should be enabled or disabled for the given offset.
  */
 internal sealed interface AutocorrectHandler {
-    fun autocorrect(lintError: LintError): FormatDecision
+    fun autocorrectDecision(lintError: LintError): AutocorrectDecision
 }
 
 /**
@@ -18,7 +18,7 @@ internal sealed interface AutocorrectHandler {
  * [RuleAutocorrectApproveHandler].
  */
 internal data object NoneAutocorrectHandler : AutocorrectHandler {
-    override fun autocorrect(lintError: LintError) = NO_AUTOCORRECT
+    override fun autocorrectDecision(lintError: LintError) = NO_AUTOCORRECT
 }
 
 /**
@@ -26,7 +26,7 @@ internal data object NoneAutocorrectHandler : AutocorrectHandler {
  * [RuleAutocorrectApproveHandler].
  */
 internal data object AllAutocorrectHandler : AutocorrectHandler {
-    override fun autocorrect(lintError: LintError) = ALLOW_AUTOCORRECT
+    override fun autocorrectDecision(lintError: LintError) = ALLOW_AUTOCORRECT
 }
 
 /**
@@ -36,7 +36,7 @@ internal data object AllAutocorrectHandler : AutocorrectHandler {
  */
 internal class LintErrorAutocorrectHandler(
     val autocorrectRuleWithoutAutocorrectApproveHandler: Boolean,
-    private val callback: (LintError) -> FormatDecision,
+    private val callback: (LintError) -> AutocorrectDecision,
 ) : AutocorrectHandler {
-    override fun autocorrect(lintError: LintError) = callback(lintError)
+    override fun autocorrectDecision(lintError: LintError) = callback(lintError)
 }

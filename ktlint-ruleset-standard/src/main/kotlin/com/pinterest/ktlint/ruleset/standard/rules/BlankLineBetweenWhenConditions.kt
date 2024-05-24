@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
@@ -11,6 +12,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
@@ -22,7 +24,6 @@ import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 
 /**
  * The Kotlin Coding Conventions suggest to consider using a blank line after a multiline when-condition
@@ -48,7 +49,7 @@ public class BlankLineBetweenWhenConditions :
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
+        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == ElementType.WHEN) {
             visitWhenStatement(node, emitAndApprove)
@@ -57,7 +58,7 @@ public class BlankLineBetweenWhenConditions :
 
     private fun visitWhenStatement(
         node: ASTNode,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
+        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         val hasMultilineWhenCondition = node.hasAnyMultilineWhenCondition()
         if (hasMultilineWhenCondition && lineBreakAfterWhenCondition) {
@@ -69,7 +70,7 @@ public class BlankLineBetweenWhenConditions :
 
     private fun addBlankLinesBetweenWhenConditions(
         node: ASTNode,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
+        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
             .children()
@@ -86,7 +87,7 @@ public class BlankLineBetweenWhenConditions :
                             "Add a blank line between all when-condition in case at least one multiline when-condition is found in the " +
                                 "statement",
                             true,
-                        ).ifTrue {
+                        ).ifAutocorrectAllowed {
                             whitespaceBeforeWhenEntry.upsertWhitespaceBeforeMe("\n${whenEntry.indent()}")
                         }
                     }
@@ -108,7 +109,7 @@ public class BlankLineBetweenWhenConditions :
 
     private fun removeBlankLinesBetweenWhenConditions(
         node: ASTNode,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
+        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
             .children()
@@ -124,7 +125,7 @@ public class BlankLineBetweenWhenConditions :
                             whitespaceBeforeWhenEntry.startOffset + 1,
                             "Unexpected blank lines between when-condition if all when-conditions are single lines",
                             true,
-                        ).ifTrue {
+                        ).ifAutocorrectAllowed {
                             whitespaceBeforeWhenEntry.upsertWhitespaceBeforeMe("\n${whenEntry.indent(includeNewline = false)}")
                         }
                     }

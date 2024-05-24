@@ -3,8 +3,9 @@ package com.pinterest.ktlint.rule.engine.internal
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
-import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine.FormatDecision.ALLOW_AUTOCORRECT
 import com.pinterest.ktlint.rule.engine.api.LintError
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.ALLOW_AUTOCORRECT
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.NO_AUTOCORRECT
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.END_OF_LINE_PROPERTY
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -99,7 +100,7 @@ internal class CodeFormatter(
                             hasErrorsWhichCanBeAutocorrected = true
                         }
                         // No need to ask for approval in lint mode
-                        false
+                        NO_AUTOCORRECT
                     }
                 }
             }
@@ -115,36 +116,34 @@ internal class CodeFormatter(
         executeRule(rule, autocorrectHandler) { offset, errorMessage, canBeAutoCorrected ->
             val (line, col) = positionInTextLocator(offset)
             val lintError = LintError(line, col, rule.ruleId, errorMessage, canBeAutoCorrected)
-            val autocorrect =
-                autocorrectHandler
-                    // The autocorrect is always to be called (even when the error can not be autocorrected) as it informs the API Consumer
-                    // about the LintError.
-                    // TODO: rename... "LintErrorHandler.emit" and let this function return an enum value as ALLOW_AUTOCORRECT and
-                    //  NO_AUTOCORRECT
-                    .autocorrect(lintError)
-                    .let { autocorrectDecision ->
-                        // Ignore decision of the API Consumer in case the error can not be autocorrected
-                        autocorrectDecision == ALLOW_AUTOCORRECT && canBeAutoCorrected
-                    }
-            if (autocorrect) {
-                /*
-                 * Rebuild the suppression locator after each change in the AST as the offsets of the suppression hints might
-                 * have changed.
-                 */
-                rebuildSuppressionLocator()
-            }
-            errors.add(
-                Pair(
-                    lintError,
-                    // It is assumed that a rule that asks for autocorrect approval, also does correct the error.
-                    autocorrect,
-                ),
-            )
             // In trace mode report the violation immediately. The order in which violations are actually found might be
             // different from the order in which they are reported. For debugging purposes it can be helpful to know the
             // exact order in which violations are being solved.
             LOGGER.trace { "Format violation: ${lintError.logMessage(code)}" }
-            autocorrect
+
+            // Always request the autocorrectDecision, even in case it is already known that the LintError can not be autocorrected. In
+            // this way the API Consumer can still use data from the LintError for other purposes.
+            autocorrectHandler
+                .autocorrectDecision(lintError)
+                .also { autocorrectDecision ->
+                    // Ignore decision of the API Consumer in case the error can not be autocorrected
+                    val autocorrect = autocorrectDecision == ALLOW_AUTOCORRECT && canBeAutoCorrected
+                    if (autocorrect) {
+                        /*
+                         * Rebuild the suppression locator after each change in the AST as the offsets of the suppression hints might
+                         * have changed.
+                         */
+                        rebuildSuppressionLocator()
+                    }
+                    // TODO: There is no need to collect the errors anymore as the callback containing the lintError is already executed
+                    errors.add(
+                        Pair(
+                            lintError,
+                            // It is assumed that a rule that asks for autocorrect approval, also does correct the error.
+                            autocorrect,
+                        ),
+                    )
+                }
         }
         return errors
     }

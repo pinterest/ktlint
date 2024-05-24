@@ -5,9 +5,10 @@ import com.pinterest.ktlint.api.consumer.KtLintRuleEngineTest.RuleWithoutAutocor
 import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
-import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine.FormatDecision.ALLOW_AUTOCORRECT
-import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine.FormatDecision.NO_AUTOCORRECT
 import com.pinterest.ktlint.rule.engine.api.LintError
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.ALLOW_AUTOCORRECT
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.NO_AUTOCORRECT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
@@ -16,6 +17,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.util.safeAs
 import com.pinterest.ktlint.ruleset.standard.rules.FilenameRule
 import com.pinterest.ktlint.ruleset.standard.rules.INDENTATION_RULE_ID
@@ -24,7 +26,6 @@ import com.pinterest.ktlint.test.KtlintTestFileSystem
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
-import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -619,7 +620,7 @@ class KtLintRuleEngineTest {
         }
 
         @Test
-        fun `Given a kotlin code snippet that does contain multiple indentation errors then only format the lint error at specific offset and message`() {
+        fun `Given a kotlin code snippet that does contain multiple errors then only format the lint error at specific offset and message`() {
             val lintErrors = mutableListOf<LintError>()
             val actual =
                 ktLintRuleEngine
@@ -633,7 +634,12 @@ class KtLintRuleEngineTest {
                                 """.trimIndent(),
                             ),
                     ) { lintError ->
-                        if (lintError.line == 3 && lintError.detail == "Unexpected indentation (0) (should be 4)") {
+                        lintErrors.add(lintError)
+                        if (lintError.line == 2 &&
+                            lintError.col == 1 &&
+                            lintError.ruleId == RULE_WITH_AUTOCORRECT_APPROVE_HANDLER &&
+                            lintError.detail == "Bar comment with autocorrect approve handler"
+                        ) {
                             ALLOW_AUTOCORRECT
                         } else {
                             NO_AUTOCORRECT
@@ -699,6 +705,7 @@ class KtLintRuleEngineTest {
             about = About(),
         ),
         Rule.Experimental {
+        @Deprecated("Marked for removal in Ktlint 2.0. Please implement interface RuleAutocorrectApproveHandler.")
         override fun beforeVisitChildNodes(
             node: ASTNode,
             autoCorrect: Boolean,
@@ -728,11 +735,11 @@ class KtLintRuleEngineTest {
         Rule.Experimental {
         override fun beforeVisitChildNodes(
             node: ASTNode,
-            emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
+            emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         ) {
             if (node.elementType == ElementType.EOL_COMMENT && node.text == "// bar") {
                 emitAndApprove(node.startOffset, "Bar comment with autocorrect approve handler", true)
-                    .ifTrue {
+                    .ifAutocorrectAllowed {
                         node
                             .safeAs<LeafElement>()
                             ?.rawReplaceWithText("// BAR")

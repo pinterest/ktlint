@@ -4,6 +4,7 @@ package com.pinterest.ktlint.rule.engine.api
 
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
@@ -122,25 +123,13 @@ public class KtLintRuleEngine(
     public fun format(
         code: Code,
         defaultAutocorrect: Boolean = true,
-        callback: (LintError) -> FormatDecision,
+        callback: (LintError) -> AutocorrectDecision,
     ): String =
         codeFormatter.format(
             code = code,
             autocorrectHandler = LintErrorAutocorrectHandler(defaultAutocorrect, callback),
             maxFormatRunsPerFile = 1,
         )
-
-    public enum class FormatDecision {
-        /**
-         * Autocorrect the [LintError] if supported by the rule.
-         */
-        ALLOW_AUTOCORRECT,
-
-        /**
-         * Do not autocorrect the [LintError] even when this is supported by the rule.
-         */
-        NO_AUTOCORRECT,
-    }
 
     /**
      * Generates Kotlin `.editorconfig` file section content based on a path to a file or directory. Given that path, all '.editorconfig'

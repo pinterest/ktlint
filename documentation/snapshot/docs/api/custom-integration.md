@@ -111,12 +111,12 @@ val formattedCode =
   ktLintRuleEngine
     .format(code) { lintError ->
       if (lintError.canBeAutocorrected) {
-        // Return FormatDecision.ALLOW_AUTOCORRECT to execute the autocorrect of this lintError if this is supported by the rule.
-        // Return FormatDecision.NO_AUTOCORRECT if the LintError should not be corrected even if is supported by the rule.
+        // Return AutocorrectDecision.ALLOW_AUTOCORRECT to execute the autocorrect of this lintError if this is supported by the rule.
+        // Return AutocorrectDecision.NO_AUTOCORRECT if the LintError should not be corrected even if is supported by the rule.
       } else {
         // In case the LintError can not be autocorrected, the return value of the lambda will be ignored.
-        // For clarity reasons it is advised to return FormatDecision.NO_AUTOCORRECT in case the LintError can not be autocorrected.
-        FormatDecision.NO_AUTOCORRECT
+        // For clarity reasons it is advised to return AutocorrectDecision.NO_AUTOCORRECT in case the LintError can not be autocorrected.
+        AutocorrectDecision.NO_AUTOCORRECT
       }
     }
 ```

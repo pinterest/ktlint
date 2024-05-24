@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATED_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
@@ -98,6 +99,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
@@ -123,7 +125,6 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 import org.jetbrains.kotlin.psi.psiUtil.parents
-import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 import java.util.Deque
 import java.util.LinkedList
 
@@ -184,7 +185,7 @@ public class IndentationRule :
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
+        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.isRoot()) {
             // File should not start with a whitespace
@@ -193,7 +194,7 @@ public class IndentationRule :
                 ?.takeIf { it.isWhiteSpaceWithoutNewline() }
                 ?.let { whitespaceWithoutNewline ->
                     emitAndApprove(node.startOffset, "Unexpected indentation", true)
-                        .ifTrue { whitespaceWithoutNewline.treeParent.removeChild(whitespaceWithoutNewline) }
+                        .ifAutocorrectAllowed { whitespaceWithoutNewline.treeParent.removeChild(whitespaceWithoutNewline) }
                 }
             indentContextStack.addLast(startNoIndentZone(node))
         }
@@ -1036,7 +1037,7 @@ public class IndentationRule :
 
     override fun afterVisitChildNodes(
         node: ASTNode,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
+        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         while (indentContextStack.peekLast()?.toASTNode == node) {
             LOGGER.trace {
@@ -1069,7 +1070,7 @@ public class IndentationRule :
 
     private fun visitNewLineIndentation(
         node: ASTNode,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
+        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.ignoreIndent()) {
             return
@@ -1086,7 +1087,7 @@ public class IndentationRule :
                         node.startOffset + text.length - nodeIndent.length,
                         "Unexpected indentation (${normalizedNodeIndent.length}) (should be ${expectedIndentation.length})",
                         true,
-                    )
+                    ) == AutocorrectDecision.ALLOW_AUTOCORRECT
                 } else {
                     // Indentation was at correct level but contained invalid indent characters. This violation has already
                     // been emitted.
@@ -1154,7 +1155,7 @@ public class IndentationRule :
     }
 
     private fun ASTNode.normalizedIndent(
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
+        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ): String {
         val nodeIndent = text.substringAfterLast("\n")
         return when (indentConfig.indentStyle) {
@@ -1164,7 +1165,7 @@ public class IndentationRule :
                         startOffset + text.length - nodeIndent.length,
                         "Unexpected tab character(s)",
                         true,
-                    ).ifTrue {
+                    ).ifAutocorrectAllowed {
                         // Ignore approval and fix invalid indent character always
                         indentConfig.toNormalizedIndent(nodeIndent)
                     } ?: nodeIndent
@@ -1181,7 +1182,7 @@ public class IndentationRule :
                         startOffset + text.length - nodeIndent.length,
                         "Unexpected space character(s)",
                         true,
-                    ).ifTrue {
+                    ).ifAutocorrectAllowed {
                         indentConfig
                             .toNormalizedIndent(nodeIndentWithoutAcceptableTrailingSpaces)
                             .plus(acceptableTrailingSpaces)
@@ -1195,7 +1196,7 @@ public class IndentationRule :
 
     private fun visitWhiteSpaceBeforeClosingQuote(
         node: ASTNode,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
+        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (!this::stringTemplateIndenter.isInitialized) {
             stringTemplateIndenter = StringTemplateIndenter(codeStyle, indentConfig)
@@ -1338,7 +1339,7 @@ private class StringTemplateIndenter(
     fun visitClosingQuotes(
         expectedIndent: String,
         node: ASTNode,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
+        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         require(node.elementType == STRING_TEMPLATE)
         node
@@ -1398,7 +1399,7 @@ private class StringTemplateIndenter(
                                 // contains the closing quotes. See 'string-template-indent` rule for fixing the content of the string
                                 // template itself
                                 emitAndApprove(it.startOffset, "Unexpected indent of multiline string closing quotes", true)
-                                    .ifTrue {
+                                    .ifAutocorrectAllowed {
                                         if (it.firstChildNode == null) {
                                             (it as LeafPsiElement).rawInsertBeforeMe(
                                                 LeafPsiElement(REGULAR_STRING_PART, correctedExpectedIndent),

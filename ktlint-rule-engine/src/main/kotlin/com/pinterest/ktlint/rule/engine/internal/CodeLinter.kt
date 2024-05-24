@@ -4,6 +4,7 @@ import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.LintError
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.internal.RuleExecutionContext.Companion.createRuleExecutionContext
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -49,7 +50,7 @@ internal class CodeLinter(
                     LOGGER.trace { "Lint violation: ${lintError.logMessage(code)}" }
                 }
             // No need to ask for approval in lint mode
-            false
+            AutocorrectDecision.NO_AUTOCORRECT
         }
         return errors
     }

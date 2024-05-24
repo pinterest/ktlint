@@ -88,14 +88,6 @@ public final class com/pinterest/ktlint/rule/engine/api/KtLintRuleEngine {
 public final class com/pinterest/ktlint/rule/engine/api/KtLintRuleEngine$Companion {
 }
 
-public final class com/pinterest/ktlint/rule/engine/api/KtLintRuleEngine$FormatDecision : java/lang/Enum {
-	public static final field ALLOW_AUTOCORRECT Lcom/pinterest/ktlint/rule/engine/api/KtLintRuleEngine$FormatDecision;
-	public static final field NO_AUTOCORRECT Lcom/pinterest/ktlint/rule/engine/api/KtLintRuleEngine$FormatDecision;
-	public static fun getEntries ()Lkotlin/enums/EnumEntries;
-	public static fun valueOf (Ljava/lang/String;)Lcom/pinterest/ktlint/rule/engine/api/KtLintRuleEngine$FormatDecision;
-	public static fun values ()[Lcom/pinterest/ktlint/rule/engine/api/KtLintRuleEngine$FormatDecision;
-}
-
 public final class com/pinterest/ktlint/rule/engine/api/KtLintRuleException : java/lang/RuntimeException {
 	public fun <init> (IILjava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)V
 	public fun getCause ()Ljava/lang/Throwable;

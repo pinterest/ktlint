@@ -6,6 +6,7 @@ import com.pinterest.ktlint.rule.engine.api.KtLintParseException
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine.Companion.UTF8_BOM
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
@@ -48,7 +49,7 @@ internal class RuleExecutionContext private constructor(
     fun executeRule(
         rule: Rule,
         autocorrectHandler: AutocorrectHandler,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
+        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         try {
             rule.startTraversalOfAST()
@@ -82,7 +83,7 @@ internal class RuleExecutionContext private constructor(
         node: ASTNode,
         rule: Rule,
         autocorrectHandler: AutocorrectHandler,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
+        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         /**
          * The [suppressionLocator] can be changed during each visit of node when running [KtLintRuleEngine.format]. So a new handler is to
@@ -127,7 +128,7 @@ internal class RuleExecutionContext private constructor(
         rule: Rule,
         autocorrectHandler: AutocorrectHandler,
         suppress: Boolean,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
+        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         val autoCorrect =
             autocorrectHandler is AllAutocorrectHandler ||
@@ -161,7 +162,7 @@ internal class RuleExecutionContext private constructor(
         rule: Rule,
         autocorrectHandler: AutocorrectHandler,
         suppress: Boolean,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean,
+        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         require(rule is RuleAutocorrectApproveHandler)
         if (!suppress) {
@@ -186,7 +187,7 @@ internal class RuleExecutionContext private constructor(
 
     // Simplify the emitAndApprove to an emit only lambda which can be used in the legacy (deprecated) functions
     @Deprecated(message = "Remove in Ktlint 2.0")
-    private fun ((offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Boolean).onlyEmit() =
+    private fun ((offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision).onlyEmit() =
         {
                 offset: Int,
                 errorMessage: String,
