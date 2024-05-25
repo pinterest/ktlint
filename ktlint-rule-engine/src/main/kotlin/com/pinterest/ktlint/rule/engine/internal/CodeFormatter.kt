@@ -135,7 +135,6 @@ internal class CodeFormatter(
                          */
                         rebuildSuppressionLocator()
                     }
-                    // TODO: There is no need to collect the errors anymore as the callback containing the lintError is already executed
                     errors.add(
                         Pair(
                             lintError,
