@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONTEXT_RECEIVER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONTEXT_RECEIVER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.GT
@@ -18,6 +19,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
@@ -61,22 +63,20 @@ public class ContextReceiverWrappingRule :
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         when {
             node.elementType == CONTEXT_RECEIVER_LIST ->
-                visitContextReceiverList(node, autoCorrect, emit)
+                visitContextReceiverList(node, emit)
 
             node.elementType == TYPE_ARGUMENT_LIST && node.isPartOf(CONTEXT_RECEIVER) ->
-                visitContextReceiverTypeArgumentList(node, autoCorrect, emit)
+                visitContextReceiverTypeArgumentList(node, emit)
         }
     }
 
     private fun visitContextReceiverList(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         // Context receiver must be followed by new line or comment
         node
@@ -85,11 +85,11 @@ public class ContextReceiverWrappingRule :
             ?.takeIf { !it.isWhiteSpaceWithNewline() }
             ?.let { nodeAfterContextReceiver ->
                 emit(nodeAfterContextReceiver.startOffset, "Expected a newline after the context receiver", true)
-                if (autoCorrect) {
-                    nodeAfterContextReceiver
-                        .firstChildLeafOrSelf()
-                        .upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(node))
-                }
+                    .ifAutocorrectAllowed {
+                        nodeAfterContextReceiver
+                            .firstChildLeafOrSelf()
+                            .upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(node))
+                    }
             }
 
         // Check line length assuming that the context receiver is indented correctly. Wrapping rule must however run before indenting.
@@ -104,8 +104,7 @@ public class ContextReceiverWrappingRule :
                         it.startOffset,
                         "Newline expected before context receiver as max line length is violated",
                         true,
-                    )
-                    if (autoCorrect) {
+                    ).ifAutocorrectAllowed {
                         it
                             .prevLeaf(includeEmpty = true)
                             ?.upsertWhitespaceAfterMe(indentConfig.childIndentOf(node))
@@ -118,8 +117,7 @@ public class ContextReceiverWrappingRule :
                         rpar.startOffset,
                         "Newline expected before closing parenthesis as max line length is violated",
                         true,
-                    )
-                    if (autoCorrect) {
+                    ).ifAutocorrectAllowed {
                         rpar.upsertWhitespaceBeforeMe(node.indent())
                     }
                 }
@@ -128,8 +126,7 @@ public class ContextReceiverWrappingRule :
 
     private fun visitContextReceiverTypeArgumentList(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         val contextReceiver = node.treeParent.text
         // Check line length assuming that the context receiver is indented correctly. Wrapping rule must however run
@@ -145,8 +142,7 @@ public class ContextReceiverWrappingRule :
                         it.startOffset,
                         "Newline expected before context receiver type projection as max line length is violated",
                         true,
-                    )
-                    if (autoCorrect) {
+                    ).ifAutocorrectAllowed {
                         it.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
                     }
                 }
@@ -157,10 +153,9 @@ public class ContextReceiverWrappingRule :
                         gt.startOffset,
                         "Newline expected before closing angle bracket as max line length is violated",
                         true,
-                    )
-                    if (autoCorrect) {
+                    ).ifAutocorrectAllowed {
                         // Ideally, the closing angle bracket should be de-indented to make it consistent with
-                        // de-intentation of closing ")", "}" and "]". This however would be inconsistent with how the
+                        // de-indentation of closing ")", "}" and "]". This however would be inconsistent with how the
                         // type argument lists are formatted by IntelliJ IDEA default formatter.
                         gt.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
                     }

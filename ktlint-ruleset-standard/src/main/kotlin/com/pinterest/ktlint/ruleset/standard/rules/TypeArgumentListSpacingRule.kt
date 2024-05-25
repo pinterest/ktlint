@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
@@ -10,6 +11,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.findCompositeParentElementOfType
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfCompositeElementOfType
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
@@ -48,31 +50,29 @@ public class TypeArgumentListSpacingRule :
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         when (node.elementType) {
             ElementType.TYPE_ARGUMENT_LIST -> {
-                visitFunctionDeclaration(node, autoCorrect, emit)
-                visitInsideTypeArgumentList(node, autoCorrect, emit)
+                visitFunctionDeclaration(node, emit)
+                visitInsideTypeArgumentList(node, emit)
             }
 
             ElementType.SUPER_TYPE_LIST, ElementType.SUPER_EXPRESSION ->
-                visitInsideTypeArgumentList(node, autoCorrect, emit)
+                visitInsideTypeArgumentList(node, emit)
         }
     }
 
     private fun visitFunctionDeclaration(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         // No whitespace expected before type argument list of function call
         //    val list = listOf <String>()
         node
             .prevLeaf(includeEmpty = true)
             ?.takeIf { it.elementType == ElementType.WHITE_SPACE }
-            ?.let { noWhitespaceExpected(it, autoCorrect, emit) }
+            ?.let { noWhitespaceExpected(it, emit) }
 
         // No whitespace expected after type argument list of function call
         //    val list = listOf<String> ()
@@ -89,13 +89,12 @@ public class TypeArgumentListSpacingRule :
             }?.lastChildNode
             ?.nextLeaf(includeEmpty = true)
             ?.takeIf { it.elementType == ElementType.WHITE_SPACE }
-            ?.let { noWhitespaceExpected(it, autoCorrect, emit) }
+            ?.let { noWhitespaceExpected(it, emit) }
     }
 
     private fun visitInsideTypeArgumentList(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         val multiline = node.textContains('\n')
         val expectedIndent =
@@ -113,9 +112,9 @@ public class TypeArgumentListSpacingRule :
                     if (nextSibling.text != expectedIndent) {
                         if (nextSibling.isWhiteSpaceWithoutNewline()) {
                             emit(nextSibling.startOffset, "Expected newline", true)
-                            if (autoCorrect) {
-                                nextSibling.upsertWhitespaceAfterMe(expectedIndent)
-                            }
+                                .ifAutocorrectAllowed {
+                                    nextSibling.upsertWhitespaceAfterMe(expectedIndent)
+                                }
                         } else {
                             // Let Indentation rule fix the indentation
                         }
@@ -124,7 +123,7 @@ public class TypeArgumentListSpacingRule :
                     if (nextSibling.isWhiteSpace()) {
                         // Disallow
                         //    val list = listOf< String>()
-                        noWhitespaceExpected(nextSibling, autoCorrect, emit)
+                        noWhitespaceExpected(nextSibling, emit)
                     }
                 }
             }
@@ -137,9 +136,9 @@ public class TypeArgumentListSpacingRule :
                     if (prevSibling.text != expectedIndent) {
                         if (prevSibling.isWhiteSpaceWithoutNewline()) {
                             emit(prevSibling.startOffset, "Expected newline", true)
-                            if (autoCorrect) {
-                                prevSibling.upsertWhitespaceBeforeMe(expectedIndent)
-                            }
+                                .ifAutocorrectAllowed {
+                                    prevSibling.upsertWhitespaceBeforeMe(expectedIndent)
+                                }
                         } else {
                             // Let Indentation rule fix the indentation
                         }
@@ -148,7 +147,7 @@ public class TypeArgumentListSpacingRule :
                     if (prevSibling.isWhiteSpace()) {
                         // Disallow
                         //    val list = listOf<String >()
-                        noWhitespaceExpected(prevSibling, autoCorrect, emit)
+                        noWhitespaceExpected(prevSibling, emit)
                     }
                 }
             }
@@ -156,16 +155,14 @@ public class TypeArgumentListSpacingRule :
 
     private fun noWhitespaceExpected(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.text != "") {
             emit(
                 node.startOffset,
                 "No whitespace expected at this position",
                 true,
-            )
-            if (autoCorrect) {
+            ).ifAutocorrectAllowed {
                 node.treeParent.removeChild(node)
             }
         }

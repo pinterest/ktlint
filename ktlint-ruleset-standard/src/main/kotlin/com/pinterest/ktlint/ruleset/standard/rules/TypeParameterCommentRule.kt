@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER
@@ -25,8 +26,7 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 public class TypeParameterCommentRule : StandardRule("type-parameter-comment") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.isPartOfComment() && node.treeParent.elementType in typeParameterTokenSet) {
             when (node.elementType) {

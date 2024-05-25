@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
@@ -26,8 +27,7 @@ public class ClassNamingRule : StandardRule("class-naming") {
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (!allowBacktickedClassName && node.elementType == IMPORT_DIRECTIVE) {
             node

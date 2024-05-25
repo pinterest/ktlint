@@ -1,11 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.GT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACKET
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfString
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -26,36 +28,35 @@ public class SpacingAroundCommaRule : StandardRule("comma-spacing") {
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node is LeafPsiElement && node.textMatches(",") && !node.isPartOfString()) {
             val prevLeaf = node.prevLeaf()
             if (prevLeaf is PsiWhiteSpace) {
                 emit(prevLeaf.startOffset, "Unexpected spacing before \"${node.text}\"", true)
-                if (autoCorrect) {
-                    val isPrecededByComment = prevLeaf.prevLeaf { it !is PsiWhiteSpace } is PsiComment
-                    if (isPrecededByComment && prevLeaf.isWhiteSpaceWithNewline()) {
-                        // If comma is on new line and preceded by a comment, it should be moved before this comment
-                        // https://github.com/pinterest/ktlint/issues/367
-                        val previousStatement = node.prevCodeLeaf()!!
-                        previousStatement.treeParent.addChild(node.clone(), previousStatement.nextSibling())
-                        val nextLeaf = node.nextLeaf()
-                        if (nextLeaf is PsiWhiteSpace) {
-                            nextLeaf.treeParent.removeChild(nextLeaf)
+                    .ifAutocorrectAllowed {
+                        val isPrecededByComment = prevLeaf.prevLeaf { it !is PsiWhiteSpace } is PsiComment
+                        if (isPrecededByComment && prevLeaf.isWhiteSpaceWithNewline()) {
+                            // If comma is on new line and preceded by a comment, it should be moved before this comment
+                            // https://github.com/pinterest/ktlint/issues/367
+                            val previousStatement = node.prevCodeLeaf()!!
+                            previousStatement.treeParent.addChild(node.clone(), previousStatement.nextSibling())
+                            val nextLeaf = node.nextLeaf()
+                            if (nextLeaf is PsiWhiteSpace) {
+                                nextLeaf.treeParent.removeChild(nextLeaf)
+                            }
+                            node.treeParent.removeChild(node)
+                        } else {
+                            prevLeaf.treeParent.removeChild(prevLeaf)
                         }
-                        node.treeParent.removeChild(node)
-                    } else {
-                        prevLeaf.treeParent.removeChild(prevLeaf)
                     }
-                }
             }
             val nextLeaf = node.nextLeaf()
             if (nextLeaf !is PsiWhiteSpace && nextLeaf?.elementType !in rTokenSet) {
                 emit(node.startOffset + 1, "Missing spacing after \"${node.text}\"", true)
-                if (autoCorrect) {
-                    (node as ASTNode).upsertWhitespaceAfterMe(" ")
-                }
+                    .ifAutocorrectAllowed {
+                        (node as ASTNode).upsertWhitespaceAfterMe(" ")
+                    }
             }
         }
     }

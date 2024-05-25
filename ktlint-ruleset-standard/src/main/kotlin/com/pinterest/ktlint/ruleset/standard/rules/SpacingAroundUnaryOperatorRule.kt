@@ -1,11 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -21,8 +23,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 public class SpacingAroundUnaryOperatorRule : StandardRule("unary-op-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == ElementType.PREFIX_EXPRESSION ||
             node.elementType == ElementType.POSTFIX_EXPRESSION
@@ -39,10 +40,9 @@ public class SpacingAroundUnaryOperatorRule : StandardRule("unary-op-spacing") {
                     .firstOrNull { it.isWhiteSpace() }
                     ?: return
             emit(whiteSpace.startOffset, "Unexpected spacing in ${node.text.replace("\n", "\\n")}", true)
-
-            if (autoCorrect) {
-                node.removeChild(whiteSpace)
-            }
+                .ifAutocorrectAllowed {
+                    node.removeChild(whiteSpace)
+                }
         }
     }
 }

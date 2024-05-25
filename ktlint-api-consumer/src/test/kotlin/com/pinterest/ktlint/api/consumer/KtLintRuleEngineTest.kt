@@ -735,10 +735,10 @@ class KtLintRuleEngineTest {
         Rule.Experimental {
         override fun beforeVisitChildNodes(
             node: ASTNode,
-            emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         ) {
             if (node.elementType == ElementType.EOL_COMMENT && node.text == "// bar") {
-                emitAndApprove(node.startOffset, "Bar comment with autocorrect approve handler", true)
+                emit(node.startOffset, "Bar comment with autocorrect approve handler", true)
                     .ifAutocorrectAllowed {
                         node
                             .safeAs<LeafElement>()

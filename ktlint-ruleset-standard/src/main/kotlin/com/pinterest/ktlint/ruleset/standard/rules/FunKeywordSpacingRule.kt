@@ -1,11 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -19,8 +21,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 public class FunKeywordSpacingRule : StandardRule("fun-keyword-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
             .takeIf { it.elementType == FUN_KEYWORD }
@@ -31,8 +32,7 @@ public class FunKeywordSpacingRule : StandardRule("fun-keyword-spacing") {
                     whiteSpaceAfterFunKeyword.startOffset,
                     "Single space expected after the fun keyword",
                     true,
-                )
-                if (autoCorrect) {
+                ).ifAutocorrectAllowed {
                     (whiteSpaceAfterFunKeyword as LeafPsiElement).rawReplaceWithText(" ")
                 }
             }

@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
@@ -16,6 +17,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
@@ -55,37 +57,34 @@ public class EnumWrappingRule :
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
             .takeIf { node.elementType == CLASS }
             ?.takeIf { (node.psi as KtClass).isEnum() }
             ?.findChildByType(CLASS_BODY)
             ?.let { classBody ->
-                visitEnumClass(classBody, autoCorrect, emit)
+                visitEnumClass(classBody, emit)
             }
     }
 
     private fun visitEnumClass(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         require(node.elementType == CLASS_BODY)
 
-        val commentBeforeFirstEnumEntry = wrapCommentBeforeFirstEnumEntry(node, emit, autoCorrect)
+        val commentBeforeFirstEnumEntry = wrapCommentBeforeFirstEnumEntry(node, emit)
         if (commentBeforeFirstEnumEntry || node.isMultiline() || node.hasAnnotatedEnumEntry() || node.hasCommentedEnumEntry()) {
-            wrapEnumEntries(node, autoCorrect, emit)
-            wrapClosingBrace(node, emit, autoCorrect)
+            wrapEnumEntries(node, emit)
+            wrapClosingBrace(node, emit)
         }
-        addBlankLineBetweenEnumEntriesAndOtherDeclarations(node, emit, autoCorrect)
+        addBlankLineBetweenEnumEntriesAndOtherDeclarations(node, emit)
     }
 
     private fun wrapCommentBeforeFirstEnumEntry(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ): Boolean {
         val firstEnumEntry = node.findChildByType(ENUM_ENTRY)?.firstChildLeafOrSelf()
         if (firstEnumEntry != null) {
@@ -98,9 +97,9 @@ public class EnumWrappingRule :
                     val expectedIndent = indentConfig.childIndentOf(node)
                     if (commentBeforeFirstEnumEntry.prevLeaf()?.text != expectedIndent) {
                         emit(node.startOffset, "Expected a (single) newline before comment", true)
-                        if (autoCorrect) {
-                            commentBeforeFirstEnumEntry.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
-                        }
+                            .ifAutocorrectAllowed {
+                                commentBeforeFirstEnumEntry.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
+                            }
                         return true
                     }
                 }
@@ -127,37 +126,34 @@ public class EnumWrappingRule :
 
     private fun wrapEnumEntries(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
             .children()
             .filter { it.elementType == ENUM_ENTRY }
             .forEach { enumEntry ->
-                wrapEnumEntry(enumEntry, autoCorrect, emit)
+                wrapEnumEntry(enumEntry, emit)
             }
     }
 
     private fun wrapEnumEntry(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
             .prevLeaf { !it.isPartOfComment() && !it.isWhiteSpaceWithoutNewline() }
             ?.takeUnless { it.isWhiteSpaceWithNewline() }
             ?.let { prevLeaf ->
                 emit(node.startOffset, "Enum entry should start on a separate line", true)
-                if (autoCorrect) {
-                    prevLeaf.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(node))
-                }
+                    .ifAutocorrectAllowed {
+                        prevLeaf.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(node))
+                    }
             }
     }
 
     private fun wrapClosingBrace(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
             .findChildByType(RBRACE)
@@ -166,17 +162,16 @@ public class EnumWrappingRule :
                 val expectedIndent = indentConfig.parentIndentOf(node)
                 if (prevLeaf?.text != expectedIndent) {
                     emit(rbrace.startOffset, "Expected newline before '}'", true)
-                    if (autoCorrect) {
-                        rbrace.upsertWhitespaceBeforeMe(expectedIndent)
-                    }
+                        .ifAutocorrectAllowed {
+                            rbrace.upsertWhitespaceBeforeMe(expectedIndent)
+                        }
                 }
             }
     }
 
     private fun addBlankLineBetweenEnumEntriesAndOtherDeclarations(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
             .children()
@@ -187,9 +182,9 @@ public class EnumWrappingRule :
                 val expectedIndent = "\n".plus(indentConfig.siblingIndentOf(node))
                 if (nextSibling.text != expectedIndent) {
                     emit(nextSibling.startOffset + 1, "Expected blank line between enum entries and other declaration(s)", true)
-                    if (autoCorrect) {
-                        nextSibling.upsertWhitespaceBeforeMe(expectedIndent)
-                    }
+                        .ifAutocorrectAllowed {
+                            nextSibling.upsertWhitespaceBeforeMe(expectedIndent)
+                        }
                 }
             }
     }

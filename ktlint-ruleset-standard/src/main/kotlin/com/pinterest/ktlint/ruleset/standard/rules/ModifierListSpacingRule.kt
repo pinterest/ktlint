@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
@@ -9,6 +10,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
@@ -25,22 +27,20 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 public class ModifierListSpacingRule : StandardRule("modifier-list-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == MODIFIER_LIST) {
             node
                 .children()
-                .forEach { visitModifierChild(it, autoCorrect, emit) }
+                .forEach { visitModifierChild(it, emit) }
             // The whitespace of the last entry of the modifier list is actually placed outside the modifier list
-            visitModifierChild(node, autoCorrect, emit)
+            visitModifierChild(node, emit)
         }
     }
 
     private fun visitModifierChild(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == WHITE_SPACE) {
             return
@@ -60,22 +60,23 @@ public class ModifierListSpacingRule : StandardRule("modifier-list-spacing") {
                 ) {
                     if (whitespace.text.contains("\n\n")) {
                         emit(whitespace.startOffset, "Single newline expected after annotation", true)
-                        if (autoCorrect) {
-                            (whitespace as LeafPsiElement).rawReplaceWithText(
-                                "\n".plus(whitespace.text.substringAfterLast("\n")),
-                            )
-                        }
+                            .ifAutocorrectAllowed {
+                                (whitespace as LeafPsiElement).rawReplaceWithText(
+                                    "\n".plus(whitespace.text.substringAfterLast("\n")),
+                                )
+                            }
                     } else if (!whitespace.text.contains('\n') && whitespace.text != " ") {
                         emit(whitespace.startOffset, "Single whitespace or newline expected after annotation", true)
-                        if (autoCorrect) {
-                            (whitespace as LeafPsiElement).rawReplaceWithText(" ")
-                        }
+                            .ifAutocorrectAllowed {
+                                (whitespace as LeafPsiElement).rawReplaceWithText(" ")
+                            }
                     }
+                    Unit
                 } else {
                     emit(whitespace.startOffset, "Single whitespace expected after modifier", true)
-                    if (autoCorrect) {
-                        (whitespace as LeafPsiElement).rawReplaceWithText(" ")
-                    }
+                        .ifAutocorrectAllowed {
+                            (whitespace as LeafPsiElement).rawReplaceWithText(" ")
+                        }
                 }
             }
     }

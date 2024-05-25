@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONST_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE
@@ -30,8 +31,7 @@ import org.jetbrains.kotlin.lexer.KtTokens
 public class PropertyNamingRule : StandardRule("property-naming") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
             .takeIf { node.elementType == PROPERTY }
@@ -40,7 +40,7 @@ public class PropertyNamingRule : StandardRule("property-naming") {
 
     private fun visitProperty(
         property: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         property
             .findChildByType(IDENTIFIER)
@@ -64,7 +64,7 @@ public class PropertyNamingRule : StandardRule("property-naming") {
 
     private fun visitConstProperty(
         identifier: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         identifier
             .text
@@ -86,7 +86,7 @@ public class PropertyNamingRule : StandardRule("property-naming") {
 
     private fun visitNonConstProperty(
         identifier: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         identifier
             .text

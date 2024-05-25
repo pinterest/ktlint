@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC_END
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC_START
@@ -10,6 +11,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -33,8 +35,7 @@ public class KdocWrappingRule :
     ) {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == KDOC) {
             node
@@ -57,9 +58,9 @@ public class KdocWrappingRule :
                 ?.takeIf { isNonIndentLeafOnSameLine(it) }
                 ?.let { nextLeaf ->
                     emit(nextLeaf.startOffset, "A KDoc comment may not be followed by any other element on that same line", true)
-                    if (autoCorrect) {
-                        node.upsertWhitespaceAfterMe(node.indent())
-                    }
+                        .ifAutocorrectAllowed {
+                            node.upsertWhitespaceAfterMe(node.indent())
+                        }
                 }
         }
     }

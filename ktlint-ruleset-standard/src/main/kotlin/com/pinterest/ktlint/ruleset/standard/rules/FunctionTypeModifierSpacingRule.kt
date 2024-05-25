@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_TYPE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
@@ -7,6 +8,7 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -22,8 +24,7 @@ public class FunctionTypeModifierSpacingRule :
     Rule.Experimental {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
             .takeIf { it.elementType == MODIFIER_LIST }
@@ -32,9 +33,9 @@ public class FunctionTypeModifierSpacingRule :
             ?.takeUnless { it.isPrecededBySingleSpace() }
             ?.let { functionTypeNode ->
                 emit(functionTypeNode.startOffset, "Expected a single space between the modifier list and the function type", true)
-                if (autoCorrect) {
-                    functionTypeNode.upsertWhitespaceBeforeMe(" ")
-                }
+                    .ifAutocorrectAllowed {
+                        functionTypeNode.upsertWhitespaceBeforeMe(" ")
+                    }
             }
     }
 

@@ -91,6 +91,12 @@ class SpacingAroundAngleBracketsRuleTest {
                     List< String >
                     >
                 > {}
+            public class Foo8<
+
+                Bar1 : String,
+                Bar2 : String
+
+            > {}
             """.trimIndent()
         val formattedCode =
             """
@@ -107,6 +113,10 @@ class SpacingAroundAngleBracketsRuleTest {
                     List<String>
                 >
             > {}
+            public class Foo8<
+                Bar1 : String,
+                Bar2 : String
+            > {}
             """.trimIndent()
         spacingAroundAngleBracketsRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
@@ -120,6 +130,8 @@ class SpacingAroundAngleBracketsRuleTest {
                 LintViolation(8, 19, "Unexpected spacing before \">\""),
                 LintViolation(13, 14, "Unexpected spacing after \"<\""),
                 LintViolation(13, 21, "Unexpected spacing before \">\""),
+                LintViolation(16, 19, "Single newline expected after \"<\""),
+                LintViolation(19, 18, "Single newline expected before \">\""),
             ).isFormattedAs(formattedCode)
     }
 

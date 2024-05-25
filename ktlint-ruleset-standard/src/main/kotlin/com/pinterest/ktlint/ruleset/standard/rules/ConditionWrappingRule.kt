@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANDAND
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BINARY_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPERATION_REFERENCE
@@ -14,13 +15,13 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
-import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -53,14 +54,13 @@ public class ConditionWrappingRule :
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
             .takeIf { it.isLogicalBinaryExpression() }
             ?.takeIf { it.isMultiline() }
             ?.let {
-                visitLogicalExpression(it, emit, autoCorrect)
+                visitLogicalExpression(it, emit)
             }
     }
 
@@ -72,8 +72,7 @@ public class ConditionWrappingRule :
 
     private fun visitLogicalExpression(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
             .findChildByType(OPERATION_REFERENCE)
@@ -89,9 +88,9 @@ public class ConditionWrappingRule :
                                 ?: 0,
                         )
                 emit(startOffset, "Newline expected before operand in multiline condition", true)
-                if (autoCorrect) {
-                    operationReference.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(node))
-                }
+                    .ifAutocorrectAllowed {
+                        operationReference.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(node))
+                    }
             }
     }
 

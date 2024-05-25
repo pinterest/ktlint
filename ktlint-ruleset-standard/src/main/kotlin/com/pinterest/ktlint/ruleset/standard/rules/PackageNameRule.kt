@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PACKAGE_DIRECTIVE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
@@ -17,8 +18,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 public class PackageNameRule : StandardRule("package-name") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
             .takeIf { node.elementType == PACKAGE_DIRECTIVE }
@@ -31,6 +31,7 @@ public class PackageNameRule : StandardRule("package-name") {
                     // underscores as well. But as this has been forbidden by KtLint since early versions, this is still
                     // prohibited.
                     emit(expression.startOffset, "Package name must not contain underscore", false)
+                    Unit
                 } else if (!expression.text.matches(VALID_PACKAGE_NAME_REGEXP)) {
                     emit(expression.startOffset, "Package name contains a disallowed character", false)
                 }

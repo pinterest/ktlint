@@ -12,6 +12,7 @@ import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.RuleMethod.BEFORE_
 import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.RuleMethod.BEFORE_FIRST
 import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.VisitNodeType.CHILD
 import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.VisitNodeType.ROOT
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
@@ -20,9 +21,11 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.PACKAGE_DIRECTIVE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAsLateAsPossible
+import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isRoot
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -475,11 +478,11 @@ private open class DummyRule(
 ) : Rule(
         ruleId = RuleId("test:dummy"),
         about = About(),
-    ) {
+    ),
+    RuleAutocorrectApproveHandler {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         block(node)
     }
@@ -492,19 +495,19 @@ private class AutoCorrectErrorRule :
     Rule(
         ruleId = AUTOCORRECT_ERROR_RULE_ID,
         about = About(),
-    ) {
+    ),
+    RuleAutocorrectApproveHandler {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == REGULAR_STRING_PART) {
             when (node.text) {
                 STRING_VALUE_TO_BE_AUTOCORRECTED -> {
                     emit(node.startOffset, ERROR_MESSAGE_CAN_BE_AUTOCORRECTED, true)
-                    if (autoCorrect) {
-                        (node as LeafElement).rawReplaceWithText(STRING_VALUE_AFTER_AUTOCORRECT)
-                    }
+                        .ifAutocorrectAllowed {
+                            (node as LeafElement).rawReplaceWithText(STRING_VALUE_AFTER_AUTOCORRECT)
+                        }
                 }
 
                 STRING_VALUE_NOT_TO_BE_CORRECTED ->
@@ -541,7 +544,8 @@ private class SimpleTestRule(
         ruleId = ruleId,
         about = About(),
         visitorModifiers,
-    ) {
+    ),
+    RuleAutocorrectApproveHandler {
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         ruleExecutionCalls.add(RuleExecutionCall(ruleId, BEFORE_FIRST))
         if (stopTraversalInBeforeFirstNode) {
@@ -551,8 +555,7 @@ private class SimpleTestRule(
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         ruleExecutionCalls.add(node.toRuleExecutionCall(ruleId, BEFORE_CHILDREN))
         if (stopTraversalInBeforeVisitChildNodes(node)) {
@@ -562,8 +565,7 @@ private class SimpleTestRule(
 
     override fun afterVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         ruleExecutionCalls.add(node.toRuleExecutionCall(ruleId, AFTER_CHILDREN))
         if (stopTraversalInAfterVisitChildNodes(node)) {
@@ -609,7 +611,7 @@ private data class RuleExecutionCall(
     val elementType: IElementType? = null,
     val classIdentifier: String? = null,
 ) {
-    enum class RuleMethod { BEFORE_FIRST, BEFORE_CHILDREN, VISIT, AFTER_CHILDREN, AFTER_LAST }
+    enum class RuleMethod { BEFORE_FIRST, BEFORE_CHILDREN, AFTER_CHILDREN, AFTER_LAST }
 
     enum class VisitNodeType { ROOT, CHILD }
 }
@@ -643,7 +645,8 @@ private class WithStateRule :
     Rule(
         ruleId = RuleId("test:with-state"),
         about = About(),
-    ) {
+    ),
+    RuleAutocorrectApproveHandler {
     private var hasNotBeenVisitedYet = true
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
@@ -655,8 +658,7 @@ private class WithStateRule :
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         emit(node.startOffset, "Fake violation which can be autocorrected", true)
     }

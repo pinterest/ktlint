@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
@@ -11,6 +12,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.hasNewLineInClosedRange
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
@@ -38,8 +40,7 @@ public class CommentWrappingRule :
     ) {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == BLOCK_COMMENT) {
             val beforeBlockComment =
@@ -99,8 +100,7 @@ public class CommentWrappingRule :
                             node.startOffset,
                             "A single line block comment after a code element on the same line must be replaced with an EOL comment",
                             true,
-                        )
-                        if (autoCorrect) {
+                        ).ifAutocorrectAllowed {
                             node.upsertWhitespaceBeforeMe(" ")
                         }
                     }
@@ -114,8 +114,7 @@ public class CommentWrappingRule :
                         nextLeaf.startOffset,
                         "A block comment may not be followed by any other element on that same line",
                         true,
-                    )
-                    if (autoCorrect) {
+                    ).ifAutocorrectAllowed {
                         nextLeaf.upsertWhitespaceBeforeMe(node.indent())
                     }
                 }

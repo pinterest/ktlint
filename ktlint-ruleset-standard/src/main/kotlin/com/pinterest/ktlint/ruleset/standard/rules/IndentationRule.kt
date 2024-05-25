@@ -185,7 +185,7 @@ public class IndentationRule :
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.isRoot()) {
             // File should not start with a whitespace
@@ -193,7 +193,7 @@ public class IndentationRule :
                 .nextLeaf()
                 ?.takeIf { it.isWhiteSpaceWithoutNewline() }
                 ?.let { whitespaceWithoutNewline ->
-                    emitAndApprove(node.startOffset, "Unexpected indentation", true)
+                    emit(node.startOffset, "Unexpected indentation", true)
                         .ifAutocorrectAllowed { whitespaceWithoutNewline.treeParent.removeChild(whitespaceWithoutNewline) }
                 }
             indentContextStack.addLast(startNoIndentZone(node))
@@ -208,7 +208,7 @@ public class IndentationRule :
                         lastIndentContext.copy(activated = true),
                     )
                 }
-                visitNewLineIndentation(node, emitAndApprove)
+                visitNewLineIndentation(node, emit)
             }
 
             node.elementType == CONTEXT_RECEIVER_LIST ||
@@ -356,7 +356,7 @@ public class IndentationRule :
 
             node.elementType == LITERAL_STRING_TEMPLATE_ENTRY &&
                 node.nextCodeSibling()?.elementType == CLOSING_QUOTE ->
-                visitWhiteSpaceBeforeClosingQuote(node, emitAndApprove)
+                visitWhiteSpaceBeforeClosingQuote(node, emit)
 
             node.elementType == WHEN ->
                 visitWhen(node)
@@ -1037,7 +1037,7 @@ public class IndentationRule :
 
     override fun afterVisitChildNodes(
         node: ASTNode,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         while (indentContextStack.peekLast()?.toASTNode == node) {
             LOGGER.trace {

@@ -1,11 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
@@ -28,18 +30,16 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
 public class SpacingBetweenDeclarationsWithAnnotationsRule : StandardRule("spacing-between-declarations-with-annotations") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.psi is KtDeclaration && node.isAnnotated()) {
-            visitDeclaration(node, emit, autoCorrect)
+            visitDeclaration(node, emit)
         }
     }
 
     private fun visitDeclaration(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
             .psi
@@ -52,8 +52,7 @@ public class SpacingBetweenDeclarationsWithAnnotationsRule : StandardRule("spaci
                     prevLeaf.startOffset + 1,
                     "Declarations and declarations with annotations should have an empty space between.",
                     true,
-                )
-                if (autoCorrect) {
+                ).ifAutocorrectAllowed {
                     prevLeaf.upsertWhitespaceBeforeMe("\n".plus(node.indent()))
                 }
             }

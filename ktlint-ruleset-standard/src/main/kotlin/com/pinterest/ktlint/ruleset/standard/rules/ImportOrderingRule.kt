@@ -1,12 +1,14 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.ImportOrderingRule.Companion.ASCII_PATTERN
@@ -56,8 +58,7 @@ public class ImportOrderingRule :
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == ElementType.IMPORT_LIST) {
             val children = node.getChildren(null)
@@ -109,14 +110,15 @@ public class ImportOrderingRule :
                 } else {
                     val autoCorrectWhitespace = hasTooMuchWhitespace(children) && !isCustomLayout()
                     val autoCorrectSortOrder = !importsAreEqual(imports, sortedImportsWithSpaces)
+                    var autocorrect = autoCorrectDuplicateImports
                     if (autoCorrectSortOrder || autoCorrectWhitespace) {
                         emit(
                             node.startOffset,
                             ERROR_MESSAGES.getOrDefault(importsLayout, CUSTOM_ERROR_MESSAGE),
                             true,
-                        )
+                        ).ifAutocorrectAllowed { autocorrect = true }
                     }
-                    if (autoCorrect && (autoCorrectDuplicateImports || autoCorrectSortOrder || autoCorrectWhitespace)) {
+                    if (autocorrect) {
                         node.removeRange(node.firstChildNode, node.lastChildNode.treeNext)
                         sortedImportsWithSpaces.reduce { current, next ->
                             node.addChild(current, null)
@@ -134,7 +136,7 @@ public class ImportOrderingRule :
 
     private fun getUniqueImportsAndBlankLines(
         children: Array<ASTNode>,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ): Pair<Boolean, List<ASTNode>> {
         var autoCorrectDuplicateImports = false
         val imports = mutableListOf<ASTNode>()
@@ -150,7 +152,7 @@ public class ImportOrderingRule :
                         imports += current
                     } else {
                         emit(current.startOffset, "Duplicate '${current.text}' found", true)
-                        autoCorrectDuplicateImports = true
+                            .ifAutocorrectAllowed { autoCorrectDuplicateImports = true }
                     }
                 }
             }

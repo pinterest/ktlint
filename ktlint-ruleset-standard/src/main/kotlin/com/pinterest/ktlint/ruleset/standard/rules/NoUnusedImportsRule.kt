@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BY_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE
@@ -11,6 +12,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.REFERENCE_EXPRESSIO
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isRoot
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
@@ -47,8 +49,7 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.isRoot()) {
             rootNode = node
@@ -64,9 +65,9 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
                 if (imports.containsKey(importPath)) {
                     // Emit directly when same import occurs more than once
                     emit(node.startOffset, "Unused import", true)
-                    if (autoCorrect) {
-                        node.psi.delete()
-                    }
+                        .ifAutocorrectAllowed {
+                            node.psi.delete()
+                        }
                 } else {
                     imports[importPath] = node
                 }
@@ -117,8 +118,7 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
 
     override fun afterVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == FILE) {
             val directCalls = ref.filter { !it.inDotQualifiedExpression }.map { it.text }
@@ -129,10 +129,10 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
                         importPath.endsWith(".$parent") && directCalls.none { importPath.endsWith(".$it") }
                     }.forEach { (importPath, importNode) ->
                         emit(importNode.startOffset, "Unused import", true)
-                        if (autoCorrect) {
-                            imports.remove(importPath, importNode)
-                            importNode.removeImportDirective()
-                        }
+                            .ifAutocorrectAllowed {
+                                imports.remove(importPath, importNode)
+                                importNode.removeImportDirective()
+                            }
                     }
             }
 
@@ -150,9 +150,9 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
                     importPath.substring(packageName.length + 1).indexOf('.') == -1
                 ) {
                     emit(node.startOffset, "Unnecessary import", true)
-                    if (autoCorrect) {
-                        importDirective.delete()
-                    }
+                        .ifAutocorrectAllowed {
+                            importDirective.delete()
+                        }
                 } else if (name != null &&
                     (!ref.map { it.text }.contains(name) || !isAValidImport(importPath)) &&
                     !OPERATOR_SET.contains(name) &&
@@ -160,38 +160,38 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
                     !importPath.ignoreProvideDelegate()
                 ) {
                     emit(node.startOffset, "Unused import", true)
-                    if (autoCorrect) {
-                        val nextSibling = node.nextSibling()
-                        if (nextSibling == null) {
-                            // Last import
-                            node
-                                .lastChildLeafOrSelf()
-                                .nextLeaf()
-                                ?.takeIf { it.isWhiteSpaceWithNewline() }
-                                ?.let { whitespace ->
-                                    if (node.prevLeaf() == null) {
-                                        // Also it was the first import, and it is not preceded by any other node containing some text. So
-                                        // all whitespace until the next is redundant
-                                        whitespace.treeParent.removeChild(whitespace)
-                                    } else {
-                                        val textAfterFirstNewline =
-                                            whitespace
-                                                .text
-                                                .substringAfter("\n")
-                                        if (textAfterFirstNewline.isNotBlank()) {
-                                            (whitespace as LeafElement).rawReplaceWithText(textAfterFirstNewline)
+                        .ifAutocorrectAllowed {
+                            val nextSibling = node.nextSibling()
+                            if (nextSibling == null) {
+                                // Last import
+                                node
+                                    .lastChildLeafOrSelf()
+                                    .nextLeaf()
+                                    ?.takeIf { it.isWhiteSpaceWithNewline() }
+                                    ?.let { whitespace ->
+                                        if (node.prevLeaf() == null) {
+                                            // Also it was the first import, and it is not preceded by any other node containing some text. So
+                                            // all whitespace until the next is redundant
+                                            whitespace.treeParent.removeChild(whitespace)
+                                        } else {
+                                            val textAfterFirstNewline =
+                                                whitespace
+                                                    .text
+                                                    .substringAfter("\n")
+                                            if (textAfterFirstNewline.isNotBlank()) {
+                                                (whitespace as LeafElement).rawReplaceWithText(textAfterFirstNewline)
+                                            }
                                         }
                                     }
-                                }
-                        } else {
-                            nextSibling
-                                .takeIf { it.isWhiteSpaceWithNewline() }
-                                ?.let { whitespace ->
-                                    whitespace.treeParent.removeChild(whitespace)
-                                }
+                            } else {
+                                nextSibling
+                                    .takeIf { it.isWhiteSpaceWithNewline() }
+                                    ?.let { whitespace ->
+                                        whitespace.treeParent.removeChild(whitespace)
+                                    }
+                            }
+                            importDirective.delete()
                         }
-                        importDirective.delete()
-                    }
                 }
             }
         }

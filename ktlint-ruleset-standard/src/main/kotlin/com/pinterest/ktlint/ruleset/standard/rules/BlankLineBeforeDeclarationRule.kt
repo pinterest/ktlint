@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
@@ -20,6 +21,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
@@ -44,8 +46,7 @@ public class BlankLineBeforeDeclarationRule :
     Rule.OfficialCodeStyle {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         when (node.elementType) {
             CLASS,
@@ -55,14 +56,13 @@ public class BlankLineBeforeDeclarationRule :
             PROPERTY,
             PROPERTY_ACCESSOR,
             ->
-                visitDeclaration(node, autoCorrect, emit)
+                visitDeclaration(node, emit)
         }
     }
 
     private fun visitDeclaration(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.isFirstCodeSiblingInClassBody()) {
             // No blank line between class signature and first declaration in class body:
@@ -148,9 +148,9 @@ public class BlankLineBeforeDeclarationRule :
                 prevLeaf != null && (!prevLeaf.isWhiteSpace() || !prevLeaf.text.startsWith("\n\n"))
             }?.let { insertBeforeNode ->
                 emit(insertBeforeNode.startOffset, "Expected a blank line for this declaration", true)
-                if (autoCorrect) {
-                    insertBeforeNode.upsertWhitespaceBeforeMe("\n".plus(node.indent()))
-                }
+                    .ifAutocorrectAllowed {
+                        insertBeforeNode.upsertWhitespaceBeforeMe("\n".plus(node.indent()))
+                    }
             }
     }
 

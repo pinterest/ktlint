@@ -15,10 +15,10 @@ public class NoVarRule :
     RuleAutocorrectApproveHandler {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == ElementType.VAR_KEYWORD) {
-            emitAndApprove(node.startOffset, "Unexpected var, use val instead", false)
+            emit(node.startOffset, "Unexpected var, use val instead", false)
             // In case that LintError can be autocorrected, use syntax below
             //   .ifAutocorrectAllowed {
             //       // Fix

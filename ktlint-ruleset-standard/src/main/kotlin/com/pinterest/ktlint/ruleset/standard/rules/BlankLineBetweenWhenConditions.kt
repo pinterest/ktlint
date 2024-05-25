@@ -49,10 +49,10 @@ public class BlankLineBetweenWhenConditions :
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == ElementType.WHEN) {
-            visitWhenStatement(node, emitAndApprove)
+            visitWhenStatement(node, emit)
         }
     }
 

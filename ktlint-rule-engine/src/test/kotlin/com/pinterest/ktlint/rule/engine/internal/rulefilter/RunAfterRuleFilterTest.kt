@@ -1,8 +1,10 @@
 package com.pinterest.ktlint.rule.engine.internal.rulefilter
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
+import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
@@ -374,13 +376,13 @@ class RunAfterRuleFilterTest {
             ruleId = ruleId,
             about = About(),
             visitorModifiers,
-        ) {
+        ),
+        RuleAutocorrectApproveHandler {
         constructor(ruleId: RuleId, visitorModifier: VisitorModifier) : this(ruleId, setOf(visitorModifier))
 
         override fun beforeVisitChildNodes(
             node: ASTNode,
-            autoCorrect: Boolean,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         ): Unit =
             throw UnsupportedOperationException(
                 "Rule should never be really invoked because that is not the aim of this unit test.",

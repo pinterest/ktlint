@@ -18,16 +18,16 @@ public interface RuleAutocorrectApproveHandler {
      * child nodes resulting in a depth first traversal of the AST.
      *
      * When a rule overrides this method, the API Consumer can decide per violation whether the violation needs to be autocorrected. For
-     * this the [emitAndApprove] function is called, and its result can be used to determine whether the violation is to be corrected. In
-     * lint mode the [emitAndApprove] should always return false.
+     * this the [emit] function is called, and its result can be used to determine whether the violation is to be corrected. In
+     * lint mode the [emit] should always return false.
      *
      * @param node AST node
-     * @param emitAndApprove a way for rule to notify about a violation (lint error) and get approval to actually autocorrect the violation
+     * @param emit a way for rule to notify about a violation (lint error) and get approval to actually autocorrect the violation
      * if that is supported by the rule
      */
     public fun beforeVisitChildNodes(
         node: ASTNode,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
     }
 
@@ -35,17 +35,17 @@ public interface RuleAutocorrectApproveHandler {
      * This method is called on a node in AST after all its child nodes have been visited.
      *
      * When a rule overrides this method, the API Consumer can decide per violation whether the violation needs to be autocorrected. For
-     * this the [emitAndApprove] function is called, and its result can be used to determine whether the violation is to be corrected. In
-     * lint mode the [emitAndApprove] should always return false.
+     * this the [emit] function is called, and its result can be used to determine whether the violation is to be corrected. In
+     * lint mode the [emit] should always return false.
      *
      * @param node AST node
-     * @param emitAndApprove a way for rule to notify about a violation (lint error) and get approval to actually autocorrect the violation
+     * @param emit a way for rule to notify about a violation (lint error) and get approval to actually autocorrect the violation
      * if that is supported by the rule
      */
     @Suppress("unused")
-    public open fun afterVisitChildNodes(
+    public fun afterVisitChildNodes(
         node: ASTNode,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
     }
 }

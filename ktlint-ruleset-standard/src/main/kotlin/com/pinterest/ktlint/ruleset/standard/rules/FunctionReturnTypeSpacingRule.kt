@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
@@ -9,6 +10,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -32,23 +34,21 @@ public class FunctionReturnTypeSpacingRule :
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node.firstChildNode
         node
             .takeIf { node.elementType == FUN }
             ?.let { node.findChildByType(COLON) }
             ?.let { colonNode ->
-                removeWhiteSpaceBetweenClosingParenthesisAndColon(colonNode, emit, autoCorrect)
-                fixWhiteSpaceBetweenColonAndReturnType(colonNode, emit, autoCorrect)
+                removeWhiteSpaceBetweenClosingParenthesisAndColon(colonNode, emit)
+                fixWhiteSpaceBetweenColonAndReturnType(colonNode, emit)
             }
     }
 
     private fun removeWhiteSpaceBetweenClosingParenthesisAndColon(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         require(node.elementType == COLON)
         node
@@ -56,16 +56,15 @@ public class FunctionReturnTypeSpacingRule :
             ?.takeIf { it.elementType == WHITE_SPACE }
             ?.let { whitespaceBeforeColonNode ->
                 emit(whitespaceBeforeColonNode.startOffset, "Unexpected whitespace", true)
-                if (autoCorrect) {
-                    whitespaceBeforeColonNode.treeParent?.removeChild(whitespaceBeforeColonNode)
-                }
+                    .ifAutocorrectAllowed {
+                        whitespaceBeforeColonNode.treeParent?.removeChild(whitespaceBeforeColonNode)
+                    }
             }
     }
 
     private fun fixWhiteSpaceBetweenColonAndReturnType(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         require(node.elementType == COLON)
         node
@@ -89,9 +88,9 @@ public class FunctionReturnTypeSpacingRule :
                             whiteSpaceAfterColon.lengthUntilNewline(true) // Length of the line after but excluding the whitespace
                     if (newLineLength <= maxLineLength) {
                         emit(node.startOffset, "Single space expected between colon and return type", true)
-                        if (autoCorrect) {
-                            node.upsertWhitespaceAfterMe(" ")
-                        }
+                            .ifAutocorrectAllowed {
+                                node.upsertWhitespaceAfterMe(" ")
+                            }
                     }
                 }
             }

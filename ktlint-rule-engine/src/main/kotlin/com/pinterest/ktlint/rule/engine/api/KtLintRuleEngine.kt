@@ -180,7 +180,7 @@ public class KtLintRuleEngine(
     /**
      * Reloads an '.editorconfig' file given that it is currently loaded into the KtLint cache. This method is intended
      * to be called by the API consumer when it is aware of changes in the '.editorconfig' file that should be taken
-     * into account with next calls to [lint] and/or [formatBatch]. See [editorConfigFilePaths] to get the list of
+     * into account with next calls to [lint] and/or [format]. See [editorConfigFilePaths] to get the list of
      * '.editorconfig' files which need to be observed.
      */
     public fun reloadEditorConfigFile(path: Path) {

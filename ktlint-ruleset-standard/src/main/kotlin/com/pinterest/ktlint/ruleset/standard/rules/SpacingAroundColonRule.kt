@@ -1,10 +1,12 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EQ
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
@@ -34,157 +36,153 @@ import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 public class SpacingAroundColonRule : StandardRule("colon-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == COLON) {
-            removeUnexpectedNewlineBefore(node, emit, autoCorrect)
-            removeUnexpectedSpacingAround(node, emit, autoCorrect)
-            addMissingSpacingAround(node, emit, autoCorrect)
+            removeUnexpectedNewlineBefore(node, emit)
+            removeUnexpectedSpacingAround(node, emit)
+            addMissingSpacingAround(node, emit)
         }
     }
 
     private fun removeUnexpectedNewlineBefore(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         val psiParent = node.psi.parent
         val prevLeaf = node.prevLeaf()
         if (prevLeaf != null && prevLeaf.isWhiteSpaceWithNewline()) {
             emit(prevLeaf.startOffset, "Unexpected newline before \":\"", true)
-            if (autoCorrect) {
-                val prevNonCodeElements =
-                    node
-                        .siblings(forward = false)
-                        .takeWhile { it.isWhiteSpace() || it.isPartOfComment() }
-                        .toList()
-                        .reversed()
-                when {
-                    psiParent is KtProperty || psiParent is KtNamedFunction -> {
-                        val equalsSignElement =
-                            node
-                                .siblings(forward = true)
-                                .firstOrNull { it.elementType == EQ }
-                        if (equalsSignElement != null) {
-                            equalsSignElement
-                                .treeNext
-                                ?.let { treeNext ->
-                                    prevNonCodeElements.forEach {
-                                        node.treeParent.addChild(it, treeNext)
+                .ifAutocorrectAllowed {
+                    val prevNonCodeElements =
+                        node
+                            .siblings(forward = false)
+                            .takeWhile { it.isWhiteSpace() || it.isPartOfComment() }
+                            .toList()
+                            .reversed()
+                    when {
+                        psiParent is KtProperty || psiParent is KtNamedFunction -> {
+                            val equalsSignElement =
+                                node
+                                    .siblings(forward = true)
+                                    .firstOrNull { it.elementType == EQ }
+                            if (equalsSignElement != null) {
+                                equalsSignElement
+                                    .treeNext
+                                    ?.let { treeNext ->
+                                        prevNonCodeElements.forEach {
+                                            node.treeParent.addChild(it, treeNext)
+                                        }
+                                        if (treeNext.isWhiteSpace()) {
+                                            equalsSignElement.treeParent.removeChild(treeNext)
+                                        }
+                                        Unit
                                     }
-                                    if (treeNext.isWhiteSpace()) {
-                                        equalsSignElement.treeParent.removeChild(treeNext)
+                            }
+                            val blockElement =
+                                node
+                                    .siblings(forward = true)
+                                    .firstIsInstanceOrNull<KtBlockExpression>()
+                            if (blockElement != null) {
+                                val before =
+                                    blockElement
+                                        .firstChildNode
+                                        .nextSibling()
+                                prevNonCodeElements
+                                    .let {
+                                        if (it.first().isWhiteSpace()) {
+                                            blockElement.treeParent.removeChild(it.first())
+                                            it.drop(1)
+                                        }
+                                        if (it.last().isWhiteSpaceWithNewline()) {
+                                            blockElement.treeParent.removeChild(it.last())
+                                            it.dropLast(1)
+                                        } else {
+                                            it
+                                        }
+                                    }.forEach {
+                                        blockElement.addChild(it, before)
                                     }
-                                    Unit
-                                }
+                            }
                         }
-                        val blockElement =
-                            node
-                                .siblings(forward = true)
-                                .firstIsInstanceOrNull<KtBlockExpression>()
-                        if (blockElement != null) {
-                            val before =
-                                blockElement
-                                    .firstChildNode
-                                    .nextSibling()
-                            prevNonCodeElements
-                                .let {
-                                    if (it.first().isWhiteSpace()) {
-                                        blockElement.treeParent.removeChild(it.first())
-                                        it.drop(1)
-                                    }
-                                    if (it.last().isWhiteSpaceWithNewline()) {
-                                        blockElement.treeParent.removeChild(it.last())
-                                        it.dropLast(1)
-                                    } else {
-                                        it
-                                    }
-                                }.forEach {
-                                    blockElement.addChild(it, before)
-                                }
-                        }
-                    }
 
-                    prevLeaf.prevLeaf()?.isPartOfComment() == true -> {
-                        val nextLeaf = node.nextLeaf()
-                        prevNonCodeElements.forEach {
-                            node.treeParent.addChild(it, nextLeaf)
+                        prevLeaf.prevLeaf()?.isPartOfComment() == true -> {
+                            val nextLeaf = node.nextLeaf()
+                            prevNonCodeElements.forEach {
+                                node.treeParent.addChild(it, nextLeaf)
+                            }
+                            if (nextLeaf != null && nextLeaf.isWhiteSpace()) {
+                                node.treeParent.removeChild(nextLeaf)
+                            }
                         }
-                        if (nextLeaf != null && nextLeaf.isWhiteSpace()) {
-                            node.treeParent.removeChild(nextLeaf)
-                        }
-                    }
 
-                    else -> {
-                        val text = prevLeaf.text
-                        if (node.spacingBefore) {
-                            (prevLeaf as LeafPsiElement).rawReplaceWithText(" ")
-                        } else {
-                            prevLeaf.treeParent.removeChild(prevLeaf)
+                        else -> {
+                            val text = prevLeaf.text
+                            if (node.spacingBefore) {
+                                (prevLeaf as LeafPsiElement).rawReplaceWithText(" ")
+                            } else {
+                                prevLeaf.treeParent.removeChild(prevLeaf)
+                            }
+                            node.upsertWhitespaceAfterMe(text)
                         }
-                        node.upsertWhitespaceAfterMe(text)
                     }
                 }
-            }
         }
     }
 
     private fun removeUnexpectedSpacingAround(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.prevSibling().isWhiteSpaceWithoutNewline() && node.noSpacingBefore) {
             emit(node.startOffset, "Unexpected spacing before \":\"", true)
-            if (autoCorrect) {
-                node
-                    .prevSibling()
-                    ?.let { prevSibling ->
-                        prevSibling.treeParent.removeChild(prevSibling)
-                    }
-            }
+                .ifAutocorrectAllowed {
+                    node
+                        .prevSibling()
+                        ?.let { prevSibling ->
+                            prevSibling.treeParent.removeChild(prevSibling)
+                        }
+                }
         }
         if (node.nextSibling().isWhiteSpaceWithoutNewline() && node.spacingAfter) {
             emit(node.startOffset, "Unexpected spacing after \":\"", true)
-            if (autoCorrect) {
-                node
-                    .nextSibling()
-                    ?.let { nextSibling ->
-                        nextSibling.treeParent.removeChild(nextSibling)
-                    }
-            }
+                .ifAutocorrectAllowed {
+                    node
+                        .nextSibling()
+                        ?.let { nextSibling ->
+                            nextSibling.treeParent.removeChild(nextSibling)
+                        }
+                }
         }
     }
 
     private fun addMissingSpacingAround(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         val missingSpacingBefore = !node.prevSibling().isWhiteSpace() && node.spacingBefore
         val missingSpacingAfter = !node.nextSibling().isWhiteSpace() && node.noSpacingAfter
         when {
             missingSpacingBefore && missingSpacingAfter -> {
                 emit(node.startOffset, "Missing spacing around \":\"", true)
-                if (autoCorrect) {
-                    node.upsertWhitespaceBeforeMe(" ")
-                    node.upsertWhitespaceAfterMe(" ")
-                }
+                    .ifAutocorrectAllowed {
+                        node.upsertWhitespaceBeforeMe(" ")
+                        node.upsertWhitespaceAfterMe(" ")
+                    }
             }
 
             missingSpacingBefore -> {
                 emit(node.startOffset, "Missing spacing before \":\"", true)
-                if (autoCorrect) {
-                    node.upsertWhitespaceBeforeMe(" ")
-                }
+                    .ifAutocorrectAllowed {
+                        node.upsertWhitespaceBeforeMe(" ")
+                    }
             }
 
             missingSpacingAfter -> {
                 emit(node.startOffset + 1, "Missing spacing after \":\"", true)
-                if (autoCorrect) {
-                    node.upsertWhitespaceAfterMe(" ")
-                }
+                    .ifAutocorrectAllowed {
+                        node.upsertWhitespaceAfterMe(" ")
+                    }
             }
         }
     }

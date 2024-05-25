@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_TYPE_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
@@ -13,6 +14,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -27,8 +29,7 @@ public class NoBlankLineInListRule :
     Rule.OfficialCodeStyle {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType != WHITE_SPACE) {
             return
@@ -39,7 +40,7 @@ public class NoBlankLineInListRule :
             .elementType
             .takeIf { it in LIST_TYPES }
             ?.let { treeParentElementType ->
-                visitWhiteSpace(node, emit, autoCorrect, treeParentElementType)
+                visitWhiteSpace(node, emit, treeParentElementType)
             }
 
         // Note: depending on the implementation of the list type in the Kotlin language, the whitespace before the first and after the last
@@ -55,7 +56,6 @@ public class NoBlankLineInListRule :
                 visitWhiteSpace(
                     node = node,
                     emit = emit,
-                    autoCorrect = autoCorrect,
                     partOfElementType = treeParentElementType,
                     replaceWithSingeSpace = treeParentElementType == TYPE_CONSTRAINT_LIST,
                 )
@@ -74,7 +74,6 @@ public class NoBlankLineInListRule :
                 visitWhiteSpace(
                     node = node,
                     emit = emit,
-                    autoCorrect = autoCorrect,
                     partOfElementType = treeParentElementType,
                     replaceWithSingeSpace = node.nextSibling()?.elementType == CLASS_BODY,
                 )
@@ -83,8 +82,7 @@ public class NoBlankLineInListRule :
 
     private fun visitWhiteSpace(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         partOfElementType: IElementType,
         replaceWithSingeSpace: Boolean = false,
     ) {
@@ -97,8 +95,7 @@ public class NoBlankLineInListRule :
                         node.startOffset + 1,
                         "Unexpected blank line(s) in ${partOfElementType.elementTypeDescription()}",
                         true,
-                    )
-                    if (autoCorrect) {
+                    ).ifAutocorrectAllowed {
                         if (replaceWithSingeSpace) {
                             (node as LeafPsiElement).rawReplaceWithText(" ")
                         } else {

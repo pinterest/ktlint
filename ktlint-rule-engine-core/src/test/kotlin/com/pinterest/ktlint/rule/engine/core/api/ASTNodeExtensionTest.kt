@@ -989,7 +989,7 @@ class ASTNodeExtensionTest {
                 .text
 
         // The newline (and indentation spaces) before the word "comment" inside the block comment is entirely ignored. As there are no
-        // whitespace nodes containing a newline, this piece of code is considered to be a oneliner starting with the word "val".
+        // whitespace nodes containing a newline, this piece of code is considered to be an oneliner starting with the word "val".
         assertThat(actual).contains("val")
     }
 
@@ -1075,11 +1075,11 @@ class ASTNodeExtensionTest {
     ) : Rule(
             ruleId = RuleId("test:dummy-rule"),
             about = About(),
-        ) {
+        ),
+        RuleAutocorrectApproveHandler {
         override fun beforeVisitChildNodes(
             node: ASTNode,
-            autoCorrect: Boolean,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         ) {
             block(node)
         }

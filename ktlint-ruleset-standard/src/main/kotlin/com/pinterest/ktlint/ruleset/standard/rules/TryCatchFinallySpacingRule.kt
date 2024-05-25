@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CATCH
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FINALLY
@@ -16,6 +17,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -53,8 +55,7 @@ public class TryCatchFinallySpacingRule :
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.isPartOfComment() && node.treeParent.elementType in TRY_CATCH_FINALLY_TOKEN_SET) {
             emit(node.startOffset, "No comment expected at this location", false)
@@ -62,19 +63,18 @@ public class TryCatchFinallySpacingRule :
         }
         when (node.elementType) {
             BLOCK -> {
-                visitBlock(node, emit, autoCorrect)
+                visitBlock(node, emit)
             }
 
             CATCH, FINALLY -> {
-                visitClause(node, emit, autoCorrect)
+                visitClause(node, emit)
             }
         }
     }
 
     private fun visitBlock(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.treeParent.elementType !in TRY_CATCH_FINALLY_TOKEN_SET) {
             return
@@ -86,9 +86,9 @@ public class TryCatchFinallySpacingRule :
                 val nextSibling = lbrace.nextSibling { !it.isPartOfComment() }!!
                 if (!nextSibling.text.startsWith("\n")) {
                     emit(lbrace.startOffset + 1, "Expected a newline after '{'", true)
-                    if (autoCorrect) {
-                        lbrace.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(node))
-                    }
+                        .ifAutocorrectAllowed {
+                            lbrace.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(node))
+                        }
                 }
             }
 
@@ -98,24 +98,23 @@ public class TryCatchFinallySpacingRule :
                 val prevSibling = rbrace.prevSibling { !it.isPartOfComment() }!!
                 if (!prevSibling.text.startsWith("\n")) {
                     emit(rbrace.startOffset, "Expected a newline before '}'", true)
-                    if (autoCorrect) {
-                        rbrace.upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(node))
-                    }
+                        .ifAutocorrectAllowed {
+                            rbrace.upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(node))
+                        }
                 }
             }
     }
 
     private fun visitClause(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         val prevLeaf = node.prevLeaf { !it.isPartOfComment() }!!
         if (prevLeaf.text != " ") {
             emit(node.startOffset, "A single space is required before '${node.elementTypeName()}'", true)
-            if (autoCorrect) {
-                node.upsertWhitespaceBeforeMe(" ")
-            }
+                .ifAutocorrectAllowed {
+                    node.upsertWhitespaceBeforeMe(" ")
+                }
         }
     }
 

@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLLECTION_LITERAL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC_MARKDOWN_LINK
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACKET
@@ -8,6 +9,7 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -25,8 +27,7 @@ public class SpacingAroundSquareBracketsRule :
     Rule.Experimental {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == LBRACKET || node.elementType == RBRACKET) {
             val prevLeaf = node.prevLeaf()
@@ -76,24 +77,24 @@ public class SpacingAroundSquareBracketsRule :
             when {
                 spacingBefore && spacingAfter -> {
                     emit(node.startOffset, "Unexpected spacing around '${node.text}'", true)
-                    if (autoCorrect) {
-                        prevLeaf!!.treeParent.removeChild(prevLeaf)
-                        nextLeaf!!.treeParent.removeChild(nextLeaf)
-                    }
+                        .ifAutocorrectAllowed {
+                            prevLeaf!!.treeParent.removeChild(prevLeaf)
+                            nextLeaf!!.treeParent.removeChild(nextLeaf)
+                        }
                 }
 
                 spacingBefore -> {
                     emit(prevLeaf!!.startOffset, "Unexpected spacing before '${node.text}'", true)
-                    if (autoCorrect) {
-                        prevLeaf.treeParent.removeChild(prevLeaf)
-                    }
+                        .ifAutocorrectAllowed {
+                            prevLeaf.treeParent.removeChild(prevLeaf)
+                        }
                 }
 
                 spacingAfter -> {
                     emit(node.startOffset + 1, "Unexpected spacing after '${node.text}'", true)
-                    if (autoCorrect) {
-                        nextLeaf!!.treeParent.removeChild(nextLeaf)
-                    }
+                        .ifAutocorrectAllowed {
+                            nextLeaf!!.treeParent.removeChild(nextLeaf)
+                        }
                 }
             }
         }

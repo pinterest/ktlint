@@ -1,6 +1,8 @@
 package com.pinterest.ktlint.rule.engine.api
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
@@ -61,11 +63,11 @@ class DisabledRulesTest {
     ) : Rule(
             ruleId = ruleId,
             about = About(),
-        ) {
+        ),
+        RuleAutocorrectApproveHandler {
         override fun beforeVisitChildNodes(
             node: ASTNode,
-            autoCorrect: Boolean,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         ) {
             emit(node.startOffset, SOME_NO_VAR_RULE_VIOLATION, false)
         }

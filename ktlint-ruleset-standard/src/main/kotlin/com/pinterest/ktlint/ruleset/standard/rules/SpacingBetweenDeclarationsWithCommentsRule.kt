@@ -1,11 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -25,8 +27,7 @@ import org.jetbrains.kotlin.psi.psiUtil.startOffset
 public class SpacingBetweenDeclarationsWithCommentsRule : StandardRule("spacing-between-declarations-with-comments") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node is PsiComment) {
             val declaration = node.parent as? KtDeclaration ?: return
@@ -43,8 +44,7 @@ public class SpacingBetweenDeclarationsWithCommentsRule : StandardRule("spacing-
                         node.startOffset,
                         "Declarations and declarations with comments should have an empty space between.",
                         true,
-                    )
-                    if (autoCorrect) {
+                    ).ifAutocorrectAllowed {
                         val indent = node.prevLeaf()?.text?.trim('\n') ?: ""
                         (declaration.prevSibling.node as LeafPsiElement).rawReplaceWithText("\n\n$indent")
                     }

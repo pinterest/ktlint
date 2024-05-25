@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLOSING_QUOTE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LITERAL_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LONG_STRING_TEMPLATE_ENTRY
@@ -8,6 +9,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.LONG_TEMPLATE_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
@@ -28,8 +30,7 @@ import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 public class StringTemplateRule : StandardRule("string-template") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         val elementType = node.elementType
         // code below is commented out because (setting aside potentially dangerous replaceChild part)
@@ -50,8 +51,7 @@ public class StringTemplateRule : StandardRule("string-template") {
                         entryExpression.operationTokenNode.startOffset,
                         "Redundant \"toString()\" call in string template",
                         true,
-                    )
-                    if (autoCorrect) {
+                    ).ifAutocorrectAllowed {
                         entryExpression
                             .node
                             .let { entryExpressionNode ->
@@ -75,9 +75,9 @@ public class StringTemplateRule : StandardRule("string-template") {
                 }
             ) {
                 emit(node.treePrev.startOffset + 2, "Redundant curly braces", true)
-                if (autoCorrect) {
-                    node.removeCurlyBracesIfRedundant()
-                }
+                    .ifAutocorrectAllowed {
+                        node.removeCurlyBracesIfRedundant()
+                    }
             }
         }
     }

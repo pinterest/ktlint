@@ -1,11 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -15,8 +17,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 public class SpacingBetweenFunctionNameAndOpeningParenthesisRule : StandardRule("spacing-between-function-name-and-opening-parenthesis") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
             .takeIf { node.elementType == ElementType.FUN }
@@ -25,9 +26,9 @@ public class SpacingBetweenFunctionNameAndOpeningParenthesisRule : StandardRule(
             ?.takeIf { it.elementType == WHITE_SPACE }
             ?.let { whiteSpace ->
                 emit(whiteSpace.startOffset, "Unexpected whitespace", true)
-                if (autoCorrect) {
-                    whiteSpace.treeParent.removeChild(whiteSpace)
-                }
+                    .ifAutocorrectAllowed {
+                        whiteSpace.treeParent.removeChild(whiteSpace)
+                    }
             }
     }
 }

@@ -1,10 +1,12 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC_MARKDOWN_LINK
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC_TAG
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
@@ -14,8 +16,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 public class NoMultipleSpacesRule : StandardRule("no-multi-spaces") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
             .takeIf { node is PsiWhiteSpace }
@@ -24,10 +25,10 @@ public class NoMultipleSpacesRule : StandardRule("no-multi-spaces") {
                 val beforeIndentation = node.removeIndentation()
                 if (beforeIndentation.length > 1) {
                     emit(node.startOffset + 1, "Unnecessary long whitespace", true)
-                    if (autoCorrect) {
-                        val remainder = node.text.substring(beforeIndentation.length)
-                        (node as LeafPsiElement).rawReplaceWithText(" $remainder")
-                    }
+                        .ifAutocorrectAllowed {
+                            val remainder = node.text.substring(beforeIndentation.length)
+                            (node as LeafPsiElement).rawReplaceWithText(" $remainder")
+                        }
                 }
             }
     }
