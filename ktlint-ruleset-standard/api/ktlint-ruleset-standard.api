@@ -1,4 +1,6 @@
-public class com/pinterest/ktlint/ruleset/standard/StandardRule : com/pinterest/ktlint/rule/engine/core/api/Rule {
+public class com/pinterest/ktlint/ruleset/standard/StandardRule : com/pinterest/ktlint/rule/engine/core/api/Rule, com/pinterest/ktlint/rule/engine/core/api/RuleAutocorrectApproveHandler {
+	public fun afterVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 	public fun getUsesEditorConfigProperties ()Ljava/util/Set;
 	public fun getVisitorModifiers ()Ljava/util/Set;
 }
@@ -11,7 +13,7 @@ public final class com/pinterest/ktlint/ruleset/standard/StandardRuleSetProvider
 public final class com/pinterest/ktlint/ruleset/standard/rules/AnnotationRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/AnnotationRuleKt {
@@ -21,7 +23,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/AnnotationRuleKt 
 public final class com/pinterest/ktlint/ruleset/standard/rules/AnnotationSpacingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public static final field ERROR_MESSAGE Ljava/lang/String;
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/AnnotationSpacingRuleKt {
@@ -32,7 +34,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/ArgumentListWrapp
 	public static final field Companion Lcom/pinterest/ktlint/ruleset/standard/rules/ArgumentListWrappingRule$Companion;
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/ArgumentListWrappingRule$Companion {
@@ -46,7 +48,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/ArgumentListWrapp
 public final class com/pinterest/ktlint/ruleset/standard/rules/BackingPropertyNamingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/BackingPropertyNamingRuleKt {
@@ -56,7 +58,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/BackingPropertyNa
 public final class com/pinterest/ktlint/ruleset/standard/rules/BinaryExpressionWrappingRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$Experimental {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/BinaryExpressionWrappingRuleKt {
@@ -65,7 +67,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/BinaryExpressionW
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/BlankLineBeforeDeclarationRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$OfficialCodeStyle {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/BlankLineBeforeDeclarationRuleKt {
@@ -75,7 +77,6 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/BlankLineBeforeDe
 public final class com/pinterest/ktlint/ruleset/standard/rules/BlankLineBetweenWhenConditions : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$Experimental, com/pinterest/ktlint/rule/engine/core/api/RuleAutocorrectApproveHandler {
 	public static final field Companion Lcom/pinterest/ktlint/ruleset/standard/rules/BlankLineBetweenWhenConditions$Companion;
 	public fun <init> ()V
-	public fun afterVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
 	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
@@ -90,7 +91,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/BlankLineBetweenW
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/BlockCommentInitialStarAlignmentRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/BlockCommentInitialStarAlignmentRuleKt {
@@ -101,7 +102,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/ChainMethodContin
 	public static final field Companion Lcom/pinterest/ktlint/ruleset/standard/rules/ChainMethodContinuationRule$Companion;
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/ChainMethodContinuationRule$Companion {
@@ -115,7 +116,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/ChainMethodContin
 public final class com/pinterest/ktlint/ruleset/standard/rules/ChainWrappingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/ChainWrappingRuleKt {
@@ -124,7 +125,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/ChainWrappingRule
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/ClassNamingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/ClassNamingRuleKt {
@@ -135,7 +136,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/ClassSignatureRul
 	public static final field Companion Lcom/pinterest/ktlint/ruleset/standard/rules/ClassSignatureRule$Companion;
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/ClassSignatureRule$Companion {
@@ -148,7 +149,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/ClassSignatureRul
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/CommentSpacingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/CommentSpacingRuleKt {
@@ -157,7 +158,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/CommentSpacingRul
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/CommentWrappingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/CommentWrappingRuleKt {
@@ -167,7 +168,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/CommentWrappingRu
 public final class com/pinterest/ktlint/ruleset/standard/rules/ConditionWrappingRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$Experimental {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/ConditionWrappingRuleKt {
@@ -177,7 +178,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/ConditionWrapping
 public final class com/pinterest/ktlint/ruleset/standard/rules/ContextReceiverWrappingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/ContextReceiverWrappingRuleKt {
@@ -186,7 +187,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/ContextReceiverWr
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/DiscouragedCommentLocationRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/DiscouragedCommentLocationRuleKt {
@@ -195,7 +196,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/DiscouragedCommen
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/EnumEntryNameCaseRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/EnumEntryNameCaseRuleKt {
@@ -205,7 +206,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/EnumEntryNameCase
 public final class com/pinterest/ktlint/ruleset/standard/rules/EnumWrappingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/EnumWrappingRuleKt {
@@ -214,7 +215,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/EnumWrappingRuleK
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/FilenameRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/FilenameRuleKt {
@@ -224,7 +225,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/FilenameRuleKt {
 public final class com/pinterest/ktlint/ruleset/standard/rules/FinalNewlineRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/FinalNewlineRuleKt {
@@ -233,7 +234,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/FinalNewlineRuleK
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/FunKeywordSpacingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/FunKeywordSpacingRuleKt {
@@ -243,7 +244,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/FunKeywordSpacing
 public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionExpressionBodyRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$Experimental {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionExpressionBodyRuleKt {
@@ -253,7 +254,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionExpressio
 public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionLiteralRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$Experimental {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionLiteralRuleKt {
@@ -264,7 +265,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionNamingRul
 	public static final field Companion Lcom/pinterest/ktlint/ruleset/standard/rules/FunctionNamingRule$Companion;
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionNamingRule$Companion {
@@ -278,7 +279,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionNamingRul
 public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionReturnTypeSpacingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionReturnTypeSpacingRuleKt {
@@ -289,7 +290,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionSignature
 	public static final field Companion Lcom/pinterest/ktlint/ruleset/standard/rules/FunctionSignatureRule$Companion;
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionSignatureRule$Companion {
@@ -312,7 +313,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionSignature
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionStartOfBodySpacingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionStartOfBodySpacingRuleKt {
@@ -321,7 +322,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionStartOfBo
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionTypeModifierSpacingRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$Experimental {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionTypeModifierSpacingRuleKt {
@@ -330,7 +331,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionTypeModif
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionTypeReferenceSpacingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionTypeReferenceSpacingRuleKt {
@@ -340,7 +341,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/FunctionTypeRefer
 public final class com/pinterest/ktlint/ruleset/standard/rules/IfElseBracingRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$OfficialCodeStyle {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/IfElseBracingRuleKt {
@@ -350,7 +351,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/IfElseBracingRule
 public final class com/pinterest/ktlint/ruleset/standard/rules/IfElseWrappingRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$OfficialCodeStyle {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/IfElseWrappingRuleKt {
@@ -361,7 +362,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/ImportOrderingRul
 	public static final field Companion Lcom/pinterest/ktlint/ruleset/standard/rules/ImportOrderingRule$Companion;
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/ImportOrderingRule$Companion {
@@ -388,7 +389,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/IndentationRuleKt
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/KdocRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$Experimental {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/KdocRuleKt {
@@ -397,7 +398,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/KdocRuleKt {
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/KdocWrappingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/KdocWrappingRuleKt {
@@ -408,7 +409,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/MaxLineLengthRule
 	public static final field Companion Lcom/pinterest/ktlint/ruleset/standard/rules/MaxLineLengthRule$Companion;
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/MaxLineLengthRule$Companion {
@@ -421,7 +422,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/MaxLineLengthRule
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/MixedConditionOperatorsRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$Experimental {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/MixedConditionOperatorsRuleKt {
@@ -430,7 +431,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/MixedConditionOpe
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/ModifierListSpacingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/ModifierListSpacingRuleKt {
@@ -439,7 +440,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/ModifierListSpaci
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/ModifierOrderRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/ModifierOrderRuleKt {
@@ -449,7 +450,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/ModifierOrderRule
 public final class com/pinterest/ktlint/ruleset/standard/rules/MultiLineIfElseRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/MultiLineIfElseRuleKt {
@@ -459,7 +460,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/MultiLineIfElseRu
 public final class com/pinterest/ktlint/ruleset/standard/rules/MultilineExpressionWrappingRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$OfficialCodeStyle {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/MultilineExpressionWrappingRuleKt {
@@ -469,7 +470,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/MultilineExpressi
 public final class com/pinterest/ktlint/ruleset/standard/rules/MultilineLoopRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$Experimental {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/MultilineLoopRuleKt {
@@ -478,7 +479,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/MultilineLoopRule
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoBlankLineBeforeRbraceRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoBlankLineBeforeRbraceRuleKt {
@@ -487,7 +488,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/NoBlankLineBefore
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoBlankLineInListRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$OfficialCodeStyle {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoBlankLineInListRuleKt {
@@ -496,7 +497,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/NoBlankLineInList
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoBlankLinesInChainedMethodCallsRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoBlankLinesInChainedMethodCallsRuleKt {
@@ -505,7 +506,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/NoBlankLinesInCha
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoConsecutiveBlankLinesRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoConsecutiveBlankLinesRuleKt {
@@ -514,7 +515,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/NoConsecutiveBlan
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoConsecutiveCommentsRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$OfficialCodeStyle {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoConsecutiveCommentsRuleKt {
@@ -523,7 +524,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/NoConsecutiveComm
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoEmptyClassBodyRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoEmptyClassBodyRuleKt {
@@ -532,7 +533,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/NoEmptyClassBodyR
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoEmptyFileRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoEmptyFileRuleKt {
@@ -542,7 +543,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/NoEmptyFileRuleKt
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoEmptyFirstLineInClassBodyRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$OfficialCodeStyle {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoEmptyFirstLineInClassBodyRuleKt {
@@ -551,7 +552,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/NoEmptyFirstLineI
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoEmptyFirstLineInMethodBlockRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoEmptyFirstLineInMethodBlockRuleKt {
@@ -560,7 +561,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/NoEmptyFirstLineI
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoLineBreakAfterElseRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoLineBreakAfterElseRuleKt {
@@ -569,7 +570,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/NoLineBreakAfterE
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoLineBreakBeforeAssignmentRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoLineBreakBeforeAssignmentRuleKt {
@@ -578,7 +579,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/NoLineBreakBefore
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoMultipleSpacesRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoMultipleSpacesRuleKt {
@@ -587,7 +588,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/NoMultipleSpacesR
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoSemicolonsRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoSemicolonsRuleKt {
@@ -596,7 +597,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/NoSemicolonsRuleK
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoSingleLineBlockCommentRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$OfficialCodeStyle {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoSingleLineBlockCommentRuleKt {
@@ -605,7 +606,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/NoSingleLineBlock
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoTrailingSpacesRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoTrailingSpacesRuleKt {
@@ -614,7 +615,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/NoTrailingSpacesR
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoUnitReturnRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoUnitReturnRuleKt {
@@ -623,8 +624,8 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/NoUnitReturnRuleK
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoUnusedImportsRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun afterVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun afterVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoUnusedImportsRuleKt {
@@ -635,7 +636,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/NoWildcardImports
 	public static final field Companion Lcom/pinterest/ktlint/ruleset/standard/rules/NoWildcardImportsRule$Companion;
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NoWildcardImportsRule$Companion {
@@ -648,7 +649,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/NoWildcardImports
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NullableTypeSpacingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/NullableTypeSpacingRuleKt {
@@ -657,7 +658,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/NullableTypeSpaci
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/PackageNameRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/PackageNameRuleKt {
@@ -667,7 +668,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/PackageNameRuleKt
 public final class com/pinterest/ktlint/ruleset/standard/rules/ParameterListSpacingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/ParameterListSpacingRuleKt {
@@ -677,7 +678,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/ParameterListSpac
 public final class com/pinterest/ktlint/ruleset/standard/rules/ParameterListWrappingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/ParameterListWrappingRuleKt {
@@ -687,7 +688,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/ParameterListWrap
 public final class com/pinterest/ktlint/ruleset/standard/rules/ParameterWrappingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/ParameterWrappingRuleKt {
@@ -697,7 +698,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/ParameterWrapping
 public final class com/pinterest/ktlint/ruleset/standard/rules/PropertyNamingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public static final field SERIAL_VERSION_UID_PROPERTY_NAME Ljava/lang/String;
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/PropertyNamingRuleKt {
@@ -707,7 +708,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/PropertyNamingRul
 public final class com/pinterest/ktlint/ruleset/standard/rules/PropertyWrappingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/PropertyWrappingRuleKt {
@@ -716,7 +717,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/PropertyWrappingR
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundAngleBracketsRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundAngleBracketsRuleKt {
@@ -725,7 +726,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundAngl
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundColonRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundColonRuleKt {
@@ -734,7 +735,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundColo
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundCommaRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundCommaRuleKt {
@@ -744,7 +745,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundComm
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundCurlyRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundCurlyRuleKt {
@@ -753,7 +754,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundCurl
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundDotRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundDotRuleKt {
@@ -762,7 +763,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundDotR
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundDoubleColonRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundDoubleColonRuleKt {
@@ -771,7 +772,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundDoub
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundKeywordRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundKeywordRuleKt {
@@ -780,7 +781,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundKeyw
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundOperatorsRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundOperatorsRuleKt {
@@ -789,7 +790,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundOper
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundParensRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundParensRuleKt {
@@ -798,7 +799,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundPare
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundRangeOperatorRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundRangeOperatorRuleKt {
@@ -807,7 +808,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundRang
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundSquareBracketsRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$Experimental {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundSquareBracketsRuleKt {
@@ -816,7 +817,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundSqua
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundUnaryOperatorRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundUnaryOperatorRuleKt {
@@ -825,7 +826,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundUnar
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingBetweenDeclarationsWithAnnotationsRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingBetweenDeclarationsWithAnnotationsRuleKt {
@@ -834,7 +835,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingBetweenDec
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingBetweenDeclarationsWithCommentsRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingBetweenDeclarationsWithCommentsRuleKt {
@@ -843,7 +844,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingBetweenDec
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingBetweenFunctionNameAndOpeningParenthesisRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingBetweenFunctionNameAndOpeningParenthesisRuleKt {
@@ -853,7 +854,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingBetweenFun
 public final class com/pinterest/ktlint/ruleset/standard/rules/StatementWrappingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/StatementWrappingRuleKt {
@@ -864,7 +865,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/StringTemplateInd
 	public static final field RAW_STRING_LITERAL_QUOTES Ljava/lang/String;
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/StringTemplateIndentRuleKt {
@@ -873,7 +874,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/StringTemplateInd
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/StringTemplateRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/StringTemplateRuleKt {
@@ -884,7 +885,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/TrailingCommaOnCa
 	public static final field Companion Lcom/pinterest/ktlint/ruleset/standard/rules/TrailingCommaOnCallSiteRule$Companion;
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/TrailingCommaOnCallSiteRule$Companion {
@@ -899,7 +900,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/TrailingCommaOnDe
 	public static final field Companion Lcom/pinterest/ktlint/ruleset/standard/rules/TrailingCommaOnDeclarationSiteRule$Companion;
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/TrailingCommaOnDeclarationSiteRule$Companion {
@@ -913,7 +914,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/TrailingCommaOnDe
 public final class com/pinterest/ktlint/ruleset/standard/rules/TryCatchFinallySpacingRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$OfficialCodeStyle {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/TryCatchFinallySpacingRuleKt {
@@ -922,7 +923,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/TryCatchFinallySp
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/TypeArgumentCommentRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/TypeArgumentCommentRuleKt {
@@ -932,7 +933,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/TypeArgumentComme
 public final class com/pinterest/ktlint/ruleset/standard/rules/TypeArgumentListSpacingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/TypeArgumentListSpacingRuleKt {
@@ -941,7 +942,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/TypeArgumentListS
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/TypeParameterCommentRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/TypeParameterCommentRuleKt {
@@ -951,7 +952,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/TypeParameterComm
 public final class com/pinterest/ktlint/ruleset/standard/rules/TypeParameterListSpacingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/TypeParameterListSpacingRuleKt {
@@ -960,7 +961,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/TypeParameterList
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/UnnecessaryParenthesesBeforeTrailingLambdaRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/UnnecessaryParenthesesBeforeTrailingLambdaRuleKt {
@@ -969,7 +970,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/UnnecessaryParent
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/ValueArgumentCommentRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/ValueArgumentCommentRuleKt {
@@ -978,7 +979,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/ValueArgumentComm
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/ValueParameterCommentRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/ValueParameterCommentRuleKt {
@@ -987,9 +988,9 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/ValueParameterCom
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/WrappingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
-	public fun afterVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun afterVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/WrappingRuleKt {
