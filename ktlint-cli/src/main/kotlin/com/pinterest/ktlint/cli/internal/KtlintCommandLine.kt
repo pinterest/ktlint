@@ -233,7 +233,7 @@ internal class KtlintCommandLine :
 
     private lateinit var patterns: List<String>
 
-    private val tripped = AtomicBoolean()
+    private val containsUnfixedLintErrors = AtomicBoolean()
     private val fileNumber = AtomicInteger()
     private val errorNumber = AtomicInteger()
     private val adviseToUseFormat = AtomicBoolean()
@@ -321,7 +321,7 @@ internal class KtlintCommandLine :
             // at least one kotlin file.
             logger.warn { "No files matched $patterns" }
         }
-        if (tripped.get()) {
+        if (containsUnfixedLintErrors.get()) {
             exitKtLintProcess(1)
         } else {
             exitKtLintProcess(0)
@@ -496,7 +496,7 @@ internal class KtlintCommandLine :
                             if (lintError.canBeAutoCorrected) {
                                 ALLOW_AUTOCORRECT
                             } else {
-                                tripped.set(true)
+                                containsUnfixedLintErrors.set(true)
                                 NO_AUTOCORRECT
                             }
                         } ?: NO_AUTOCORRECT
@@ -541,7 +541,7 @@ internal class KtlintCommandLine :
                 }
             } else {
                 ktlintCliErrors.add(e.toKtlintCliError(code))
-                tripped.set(true)
+                containsUnfixedLintErrors.set(true)
                 code.content // making sure `cat file | ktlint --stdin > file` is (relatively) safe
             }
         }
@@ -571,7 +571,7 @@ internal class KtlintCommandLine :
                     )
                 if (baselineLintErrors.doesNotContain(ktlintCliError)) {
                     ktlintCliErrors.add(ktlintCliError)
-                    tripped.set(true)
+                    containsUnfixedLintErrors.set(true)
                 }
             }
         } catch (e: Exception) {
@@ -604,7 +604,7 @@ internal class KtlintCommandLine :
                 }
             } else {
                 ktlintCliErrors.add(e.toKtlintCliError(code))
-                tripped.set(true)
+                containsUnfixedLintErrors.set(true)
             }
         }
         return ktlintCliErrors.toList()
