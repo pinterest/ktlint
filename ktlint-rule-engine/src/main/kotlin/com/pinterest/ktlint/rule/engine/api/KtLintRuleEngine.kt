@@ -103,6 +103,7 @@ public class KtLintRuleEngine(
      * @throws KtLintParseException if text is not a valid Kotlin code
      * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
      */
+    @Deprecated(message = "Marked for removal in Ktlint 2.0")
     public fun format(
         code: Code,
         callback: (LintError, Boolean) -> Unit = { _, _ -> },
