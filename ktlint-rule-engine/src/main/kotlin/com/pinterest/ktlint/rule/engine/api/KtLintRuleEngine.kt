@@ -97,8 +97,8 @@ public class KtLintRuleEngine(
      * If [code] contains lint errors which have been autocorrected, then the resulting code is formatted again (up until
      * [MAX_FORMAT_RUNS_PER_FILE] times) in order to fix lint errors that might result from the previous formatting run.
      *
-     * [callback] is invoked once for each unique [LintError] found during all runs. Note that [callback] is only invoked once all format
-     * runs have been completed.
+     * [callback] is invoked once for each [LintError] found during any runs. As of that the [callback] might be invoked multiple times for
+     * the same [LintError].
      *
      * @throws KtLintParseException if text is not a valid Kotlin code
      * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
@@ -123,6 +123,9 @@ public class KtLintRuleEngine(
      * In case the rule has not implemented the [RuleAutocorrectApproveHandler] interface, then the result of the [callback] is ignored as
      * the rule is not able to process it. For such rules the [defaultAutocorrect] determines whether autocorrect for this rule is to be
      * applied, or not. By default, the autocorrect will be applied (backwards compatability).
+     *
+     * [callback] is invoked once for each [LintError] found during any runs. As of that the [callback] might be invoked multiple times for
+     * the same [LintError].
      *
      * @throws KtLintParseException if text is not a valid Kotlin code
      * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
