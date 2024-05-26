@@ -94,45 +94,45 @@ val code = Code.fromSnippet(
 The `lint` function is invoked with an optional lambda. Once linting is complete, the lambda will be called for each `LintError` which is found.
 ```kotlin title="Invoking lint"
 ktLintRuleEngine
-  .lint(code) { lintError ->
-    // handle
-  }
-```
-
-The `format` function is invoked with a lambda. The lambda is called for each `LintError` which is found. If the `LintError` can be autocorrected, the return value of the lambda instructs the rule whether this specific `LintError` is to be autocorrect, or not. If the `LintError` can not be autocorrected, the return result of the lambda is ignored. The formatted code is returned as result of the function.
-
-The new `format` function allows the API Consumer to decided which LintError is to be autocorrected, or not. This is most interesting for API Consumers that let their user interactively decide per LintError how it has to be handled. For example see the `ktlint-intellij-plugin` which in 'manual' mode displays all lint violations, which that on a case by case basis can be autocorrected.
-
-!!! note
-    The lambda of the legacy version of the `format` just takes a single parameter and does not return a value.
-
-```kotlin title="Invoke format (preferred starting from Ktlint 1.3)"
-val formattedCode =
-  ktLintRuleEngine
-    .format(code) { lintError ->
-      if (lintError.canBeAutocorrected) {
-        // Return AutocorrectDecision.ALLOW_AUTOCORRECT to execute the autocorrect of this lintError if this is supported by the rule.
-        // Return AutocorrectDecision.NO_AUTOCORRECT if the LintError should not be corrected even if is supported by the rule.
-      } else {
-        // In case the LintError can not be autocorrected, the return value of the lambda will be ignored.
-        // For clarity reasons it is advised to return AutocorrectDecision.NO_AUTOCORRECT in case the LintError can not be autocorrected.
-        AutocorrectDecision.NO_AUTOCORRECT
-      }
+    .lint(code) { lintError ->
+        // handle
     }
 ```
 
+The `format` function is invoked with a lambda. The lambda is called for each `LintError` which is found. If the `LintError` can be autocorrected, the return value of the lambda instructs the rule whether this specific `LintError` is to be autocorrected, or not. If the `LintError` can not be autocorrected, the return result of the lambda is ignored. The formatted code is returned as result of the function.
+
+The new `format` function allows the API Consumer to decided which LintError is to be autocorrected, or not. This is most interesting for API Consumers that let their user interactively decide per `LintError` how it has to be handled. For example see the `ktlint-intellij-plugin` which in 'manual' mode displays all lint violations, which allows the user to decide which `LintError` is to be autocorrected.
+
+!!! note
+    The difference with the legacy version of the `format` is subtle. It takes two parameters (a `LintError` and `Boolean` denoting whether the `LintError` is corrected), and it does not return a value.
+
+```kotlin title="Invoke format (preferred starting from Ktlint 1.3)"
+val formattedCode =
+    ktLintRuleEngine
+      .format(code) { lintError ->
+          if (lintError.canBeAutoCorrected) {
+              // Return AutocorrectDecision.ALLOW_AUTOCORRECT to execute the autocorrect of this lintError if this is supported by the rule.
+              // Return AutocorrectDecision.NO_AUTOCORRECT if the LintError should not be corrected even if is supported by the rule.
+          } else {
+              // In case the LintError can not be autocorrected, the return value of the lambda will be ignored.
+              // For clarity reasons it is advised to return AutocorrectDecision.NO_AUTOCORRECT in case the LintError can not be autocorrected.
+              AutocorrectDecision.NO_AUTOCORRECT
+          }
+      }
+```
+
 !!! warning
-    Rules need to implement the interface `RuleAutocorrectApproveHandler` in order to let the API Consumer to decide whether a `LintError` is to be autocorrected, or not. This interface is implemented for all rules provided via the Ktlint project starting from version 1.3. However, external rulesets may not have implemented this interface on their rulesets though. Contact the maintainer of such ruleset to implement this.
+    Rules need to implement the interface `RuleAutocorrectApproveHandler` in order to let the API Consumer decide whether a `LintError` is to be autocorrected, or not. This interface is implemented for all rules provided via the Ktlint project starting from version 1.3. However, external rulesets may not have implemented this interface on their rulesets though. Contact the maintainer of such a ruleset to implement this interface.
 
 The (legacy) `format` function is invoked with an optional lambda. Once formatting is complete, the lambda will be called for each `LintError` which is found. The (legacy) `format` function fixes all `LintErrors` for which an autocorrect is available. The formatted code is returned as result of the function.
 
 ```kotlin title="Invoke format (deprecated as of Ktlint 1.3, will be removed in Ktlint 2.0)"
 // Up until Ktlint 1.2.1 the format was invoked with a lambda having two parameters and not returning a result. This function will be removed in Ktlint 2.0 
 val formattedCode =
-  ktLintRuleEngine
-    .format(code) { lintError, corrected ->
-      // handle
-    }
+    ktLintRuleEngine
+        .format(code) { lintError, corrected ->
+            // handle
+        }
 ```
 
 ## Logging
