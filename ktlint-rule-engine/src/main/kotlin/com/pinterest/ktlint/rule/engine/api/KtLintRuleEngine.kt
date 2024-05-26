@@ -113,6 +113,12 @@ public class KtLintRuleEngine(
      * autocorrected *and* the rule that found that the violation has implemented the [RuleAutocorrectApproveHandler] interface, the API
      * Consumer determines whether that [LintError] is to autocorrected, or not.
      *
+     * When autocorrecting a [LintError] it is possible that other violations are introduced. By default, format is run up until
+     * [MAX_FORMAT_RUNS_PER_FILE] times. It is still possible that violations remain after the last run. This is a trait-off between solving
+     * as many errors as possible versus bad performance in case an endless loop of violations exists. In case the [callback] is implemented
+     * to let the user of the API Consumer to decide which [LintError] it to be autocorrected, or not, it might be better to disable this
+     * behavior by disabling [rerunWhenLintErrorIsAutocorrected].
+     *
      * In case the rule has not implemented the [RuleAutocorrectApproveHandler] interface, then the result of the [callback] is ignored as
      * the rule is not able to process it. For such rules the [defaultAutocorrect] determines whether autocorrect for this rule is to be
      * applied, or not. By default, the autocorrect will be applied (backwards compatability).
@@ -122,13 +128,19 @@ public class KtLintRuleEngine(
      */
     public fun format(
         code: Code,
+        rerunWhenLintErrorIsAutocorrected: Boolean = true,
         defaultAutocorrect: Boolean = true,
         callback: (LintError) -> AutocorrectDecision,
     ): String =
         codeFormatter.format(
             code = code,
             autocorrectHandler = LintErrorAutocorrectHandler(defaultAutocorrect, callback),
-            maxFormatRunsPerFile = 1,
+            maxFormatRunsPerFile =
+                if (rerunWhenLintErrorIsAutocorrected) {
+                    MAX_FORMAT_RUNS_PER_FILE
+                } else {
+                    1
+                },
         )
 
     /**

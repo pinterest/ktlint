@@ -39,6 +39,8 @@ import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.plus
 import com.pinterest.ktlint.rule.engine.api.KtLintParseException
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.ALLOW_AUTOCORRECT
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.NO_AUTOCORRECT
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
@@ -473,29 +475,31 @@ internal class KtlintCommandLine :
         val ktlintCliErrors = mutableListOf<KtlintCliError>()
         try {
             ktLintRuleEngine
-                .format(code) { lintError, corrected ->
-                    val ktlintCliError =
-                        KtlintCliError(
-                            line = lintError.line,
-                            col = lintError.col,
-                            ruleId = lintError.ruleId.value,
-                            detail =
-                                lintError
-                                    .detail
-                                    .applyIf(!corrected) { "$this (cannot be auto-corrected)" },
-                            status =
-                                if (corrected) {
-                                    FORMAT_IS_AUTOCORRECTED
-                                } else {
-                                    LINT_CAN_NOT_BE_AUTOCORRECTED
-                                },
-                        )
-                    if (baselineLintErrors.doesNotContain(ktlintCliError)) {
-                        ktlintCliErrors.add(ktlintCliError)
-                        if (!corrected) {
-                            tripped.set(true)
-                        }
-                    }
+                .format(code) { lintError ->
+                    KtlintCliError(
+                        line = lintError.line,
+                        col = lintError.col,
+                        ruleId = lintError.ruleId.value,
+                        detail =
+                            lintError
+                                .detail
+                                .applyIf(!lintError.canBeAutoCorrected) { "$this (cannot be auto-corrected)" },
+                        status =
+                            if (lintError.canBeAutoCorrected) {
+                                FORMAT_IS_AUTOCORRECTED
+                            } else {
+                                LINT_CAN_NOT_BE_AUTOCORRECTED
+                            },
+                    ).takeIf { baselineLintErrors.doesNotContain(it) }
+                        ?.let { ktlintCliError ->
+                            ktlintCliErrors.add(ktlintCliError)
+                            if (lintError.canBeAutoCorrected) {
+                                ALLOW_AUTOCORRECT
+                            } else {
+                                tripped.set(true)
+                                NO_AUTOCORRECT
+                            }
+                        } ?: NO_AUTOCORRECT
                 }.also { formattedFileContent ->
                     when {
                         code.isStdIn -> print(formattedFileContent)

@@ -370,7 +370,7 @@ class KtLintRuleEngineTest {
                     )
                 }
 
-                val lintErrors = mutableListOf<LintError>()
+                val lintErrors = mutableSetOf<LintError>()
                 val actual =
                     ktLintRuleEngine.format(
                         code = Code.fromFile(File(filePath)),
@@ -471,7 +471,7 @@ class KtLintRuleEngineTest {
 
             @Test
             fun `Given defaultAutocorrect is disabled`() {
-                val lintErrors = mutableListOf<LintError>()
+                val lintErrors = mutableSetOf<LintError>()
                 val actual =
                     ktLintRuleEngine.format(
                         code =
@@ -582,7 +582,7 @@ class KtLintRuleEngineTest {
 
             @Test
             fun `Given defaultAutocorrect is disabled`() {
-                val lintErrors = mutableListOf<LintError>()
+                val lintErrors = mutableSetOf<LintError>()
                 val actual =
                     ktLintRuleEngine.format(
                         code =
@@ -621,7 +621,7 @@ class KtLintRuleEngineTest {
 
         @Test
         fun `Given a kotlin code snippet that does contain multiple errors then only format the lint error at specific offset and message`() {
-            val lintErrors = mutableListOf<LintError>()
+            val lintErrors = mutableSetOf<LintError>()
             val actual =
                 ktLintRuleEngine
                     .format(

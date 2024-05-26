@@ -46,7 +46,7 @@ internal class CodeFormatter(
         code: Code,
         autocorrectHandler: AutocorrectHandler,
         maxFormatRunsPerFile: Int,
-    ): Pair<String, MutableSet<Pair<LintError, Boolean>>> {
+    ): Pair<String, Set<Pair<LintError, Boolean>>> {
         with(RuleExecutionContext.createRuleExecutionContext(ktLintRuleEngine, code)) {
             val errors = mutableSetOf<Pair<LintError, Boolean>>()
             var formatRunCount = 0

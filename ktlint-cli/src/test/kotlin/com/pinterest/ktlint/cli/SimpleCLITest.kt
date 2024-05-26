@@ -153,7 +153,7 @@ class SimpleCLITest {
     }
 
     @Test
-    fun `Given some code with an error which can be autocorrected then return from from with the normal exit code`(
+    fun `Given some code with an error which can be autocorrected then return with the normal exit code`(
         @TempDir
         tempDir: Path,
     ) {
