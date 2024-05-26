@@ -482,7 +482,7 @@ internal class KtlintCommandLine :
                             detail =
                                 lintError
                                     .detail
-                                    .applyIf(corrected) { "$this (cannot be auto-corrected)" },
+                                    .applyIf(!corrected) { "$this (cannot be auto-corrected)" },
                             status =
                                 if (corrected) {
                                     FORMAT_IS_AUTOCORRECTED
