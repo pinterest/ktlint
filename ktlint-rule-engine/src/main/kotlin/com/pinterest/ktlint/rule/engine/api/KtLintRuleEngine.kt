@@ -14,12 +14,12 @@ import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
 import com.pinterest.ktlint.rule.engine.core.util.safeAs
 import com.pinterest.ktlint.rule.engine.internal.AllAutocorrectHandler
 import com.pinterest.ktlint.rule.engine.internal.CodeFormatter
-import com.pinterest.ktlint.rule.engine.internal.CodeLinter
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigFinder
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigGenerator
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigLoader
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigLoaderEc4j
 import com.pinterest.ktlint.rule.engine.internal.LintErrorAutocorrectHandler
+import com.pinterest.ktlint.rule.engine.internal.NoneAutocorrectHandler
 import com.pinterest.ktlint.rule.engine.internal.RuleExecutionContext.Companion.createRuleExecutionContext
 import com.pinterest.ktlint.rule.engine.internal.ThreadSafeEditorConfigCache.Companion.THREAD_SAFE_EDITOR_CONFIG_CACHE
 import org.ec4j.core.Resource
@@ -75,7 +75,6 @@ public class KtLintRuleEngine(
             editorConfigOverride,
         )
 
-    private val codeLinter = CodeLinter(this)
     private val codeFormatter = CodeFormatter(this)
 
     /**
@@ -88,7 +87,14 @@ public class KtLintRuleEngine(
     public fun lint(
         code: Code,
         callback: (LintError) -> Unit = { },
-    ): Unit = codeLinter.lint(code, callback)
+    ) {
+        codeFormatter.format(
+            code = code,
+            autocorrectHandler = NoneAutocorrectHandler,
+            callback = { lintError, _ -> callback(lintError) },
+            maxFormatRunsPerFile = 1,
+        )
+    }
 
     /**
      * Fix all style violations in [code] for lint errors when possible. If [code] is passed as file reference then the '.editorconfig'
@@ -118,7 +124,7 @@ public class KtLintRuleEngine(
      * [MAX_FORMAT_RUNS_PER_FILE] times. It is still possible that violations remain after the last run. This is a trait-off between solving
      * as many errors as possible versus bad performance in case an endless loop of violations exists. In case the [callback] is implemented
      * to let the user of the API Consumer to decide which [LintError] it to be autocorrected, or not, it might be better to disable this
-     * behavior by disabling [rerunWhenLintErrorIsAutocorrected].
+     * behavior by disabling [rerunAfterAutocorrect].
      *
      * In case the rule has not implemented the [RuleAutocorrectApproveHandler] interface, then the result of the [callback] is ignored as
      * the rule is not able to process it. For such rules the [defaultAutocorrect] determines whether autocorrect for this rule is to be
@@ -132,7 +138,7 @@ public class KtLintRuleEngine(
      */
     public fun format(
         code: Code,
-        rerunWhenLintErrorIsAutocorrected: Boolean = true,
+        rerunAfterAutocorrect: Boolean = true,
         defaultAutocorrect: Boolean = true,
         callback: (LintError) -> AutocorrectDecision,
     ): String =
@@ -140,7 +146,7 @@ public class KtLintRuleEngine(
             code = code,
             autocorrectHandler = LintErrorAutocorrectHandler(defaultAutocorrect, callback),
             maxFormatRunsPerFile =
-                if (rerunWhenLintErrorIsAutocorrected) {
+                if (rerunAfterAutocorrect) {
                     MAX_FORMAT_RUNS_PER_FILE
                 } else {
                     1
