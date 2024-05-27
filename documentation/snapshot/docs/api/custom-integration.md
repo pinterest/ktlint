@@ -15,7 +15,7 @@ val ktLintRuleEngine =
 
 ### Rule provider
 
-The `KtLintRuleEngine` must be configured with at least one `RuleProvider`. A `RuleProvider` is a lambda which upon request of the `KtLintRuleEngine` provides a new instance of a specific rule. You can either provide any of the standard rules provided by KtLint or with your own custom rules, or with a combination of both.
+The `KtLintRuleEngine` must be configured with at least one `RuleProvider`. A `RuleProvider` is a lambda which upon request of the `KtLintRuleEngine` provides a new instance of a specific rule. You can either provide any of the standard rules provided by KtLint, or your own custom rules, or a combination of both.
 ```kotlin title="Creating a set of RuleProviders"
 val KTLINT_API_CONSUMER_RULE_PROVIDERS =
   setOf(
@@ -101,12 +101,12 @@ ktLintRuleEngine
 
 The `format` function is invoked with a lambda. The lambda is called for each `LintError` which is found. If the `LintError` can be autocorrected, the return value of the lambda instructs the rule whether this specific `LintError` is to be autocorrected, or not. If the `LintError` can not be autocorrected, the return result of the lambda is ignored. The formatted code is returned as result of the function.
 
-The new `format` function allows the API Consumer to decided which LintError is to be autocorrected, or not. This is most interesting for API Consumers that let their user interactively decide per `LintError` how it has to be handled. For example see the `ktlint-intellij-plugin` which in 'manual' mode displays all lint violations, which allows the user to decide which `LintError` is to be autocorrected.
+The new `format` function allows the API Consumer to decide which LintError is to be autocorrected, or not. This is most interesting for API Consumers that let their user interactively decide per `LintError` how it has to be handled. For example see the `ktlint-intellij-plugin` which in 'manual' mode displays all lint violations, which allows the user to decide which `LintError` is to be autocorrected.
 
 !!! note
     The difference with the legacy version of the `format` is subtle. It takes two parameters (a `LintError` and `Boolean` denoting whether the `LintError` is corrected), and it does not return a value.
 
-```kotlin title="Invoke format (preferred starting from Ktlint 1.3)"
+```kotlin title="Invoke format (preferred, starting from Ktlint 1.3)"
 val formattedCode =
     ktLintRuleEngine
       .format(code) { lintError ->
@@ -133,6 +133,63 @@ val formattedCode =
         .format(code) { lintError, corrected ->
             // handle
         }
+```
+
+### Rule & RuleAutocorrectApproveHandler
+
+!!! note
+    Providers of custom rules are strongly encouraged to implement `RuleAutocorrectApproveHandler` interface as described below. The `ktlint-intellij-plugin`, which will be updated soon after the 1.3 release of Ktlint, make use of this new functionality. If your ruleset is used by users of the plugin, it is very likely that they want to be able to autocorrect individual `LintErrors` or to format a block of code (e.g. a selection) in a file. This functionality will only be available for rules that have implemented this interface.
+
+In Ktlint 1.3 the `RuleAutocorrectApproveHandler` interface is added. This interface adds the ability that the API Consumer decides per `LintError` whether it needs to autocorrected, or not. In Ktlint 2.0 the methods `beforeVisitChildNodes` and `afterVisitChildNodes` of the `Rule` class will be replaced with the new versions which are now added to the `RuleAutocorrectApproveHandler` interface as is shown below (the signature for `afterVisitChildNodes` is changed similarly):
+
+<table>
+<tr>
+<td> 
+
+```kotlin title="Deprecated signature in `Rule` class"
+public open fun beforeVisitChildNodes(
+    node: ASTNode,
+    autoCorrect: Boolean,
+    emit: (
+        offset: Int,
+        errorMessage: String,
+        canBeAutoCorrected: Boolean
+    ) -> Unit,
+)  
+```
+
+</td>
+<td>
+
+```kotlin title="New signature in `RuleAutocorrectApproveHandler` interface"
+public fun beforeVisitChildNodes(
+    node: ASTNode,
+    emit: (
+        offset: Int,
+        errorMessage: String,
+        canBeAutoCorrected: Boolean
+    ) -> AutocorrectDecision,
+)
+```
+
+</td>
+</tr>
+</table>
+
+The `autoCorrect` parameter is no longer passed to the method. Instead, the `emit` lambda now returns the value `AutocorrectDecision.ALLOW_AUTOCORRECT` or `AutocorrectDecision.NO_AUTOCORRECT`.
+
+In case a `LintError` is detected, and can be autocorrected, the `LintError` can be processed as shown below:
+
+```kotlin
+emit(node.startOffset, "some detail message", true)
+   .ifAutocorrectAllowed {
+       // Autocorrect the LintError
+   }
+```
+
+In case the `LintError` can not be autocorrected, if suffices to emit the violation only: 
+```kotlin
+emit(node.startOffset, "some detail message", false)
 ```
 
 ## Logging
