@@ -12,10 +12,9 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.RETURN_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.THROW
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
-import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
@@ -66,7 +65,7 @@ import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
  * }
  * ```
  */
-@SinceKtlint("1.0", EXPERIMENTAL)
+@SinceKtlint("1.0", STABLE)
 public class FunctionExpressionBodyRule :
     StandardRule(
         id = "function-expression-body",
@@ -77,8 +76,7 @@ public class FunctionExpressionBodyRule :
                 INDENT_STYLE_PROPERTY,
                 MAX_LINE_LENGTH_PROPERTY,
             ),
-    ),
-    Rule.Experimental {
+    ) {
     private var codeStyle = CODE_STYLE_PROPERTY.defaultValue
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 

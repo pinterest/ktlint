@@ -6,7 +6,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.BINARY_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OROR
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
@@ -40,8 +39,7 @@ public class ConditionWrappingRule :
                 INDENT_SIZE_PROPERTY,
                 INDENT_STYLE_PROPERTY,
             ),
-    ),
-    Rule.Experimental {
+    ) {
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {

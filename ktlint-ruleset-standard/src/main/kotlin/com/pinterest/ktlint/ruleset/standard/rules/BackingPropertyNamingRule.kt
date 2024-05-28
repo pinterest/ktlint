@@ -11,7 +11,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
-import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.android_studio
@@ -25,7 +25,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  * https://kotlinlang.org/docs/coding-conventions.html#property-names
  * https://developer.android.com/kotlin/style-guide#backing_properties
  */
-@SinceKtlint("1.2.0", EXPERIMENTAL)
+@SinceKtlint("1.2.0", STABLE)
 public class BackingPropertyNamingRule :
     StandardRule(
         id = "backing-property-naming",
