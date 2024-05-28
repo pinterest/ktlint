@@ -158,4 +158,16 @@ internal class CodeFormatter(
         }
 
     private fun Code.doesNotContain(char: Char) = content.lastIndexOf(char) != -1
+
+    private fun <T> lintErrorLineAndColumnComparator(transformer: (T) -> LintError) =
+        compareBy<T> { transformer(it).line }
+            .then(compareBy { transformer(it).col })
+
+    private fun LintError.logMessage(code: Code) =
+        "${code.fileNameOrStdin()}:$line:$col: $detail ($ruleId)" +
+            if (canBeAutoCorrected) {
+                ""
+            } else {
+                " [cannot be autocorrected]"
+            }
 }
