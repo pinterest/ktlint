@@ -183,6 +183,7 @@ class KtLintRuleEngineTest {
 
             val lintErrors = mutableListOf<LintError>()
             val actual =
+                @Suppress("DEPRECATION")
                 ktLintRuleEngine.format(
                     code = Code.fromFile(File(filePath)),
                 ) { lintError, _ -> lintErrors.add(lintError) }
@@ -206,6 +207,7 @@ class KtLintRuleEngineTest {
         fun `Given a kotlin code snippet that does contain an indentation error`() {
             val lintErrors = mutableListOf<LintError>()
             val actual =
+                @Suppress("DEPRECATION")
                 ktLintRuleEngine.format(
                     code =
                         Code.fromSnippet(
@@ -237,6 +239,7 @@ class KtLintRuleEngineTest {
         fun `Given a kotlin script code snippet that does contain an indentation error`() {
             val lintErrors = mutableListOf<LintError>()
             val actual =
+                @Suppress("DEPRECATION")
                 ktLintRuleEngine.format(
                     code =
                         Code.fromSnippet(

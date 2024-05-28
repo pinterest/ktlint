@@ -366,7 +366,7 @@ class SuppressionLocatorBuilderTest {
                         .plus(
                             STANDARD_NO_FOO_IDENTIFIER_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled,
                         ),
-            ).format(Code.fromSnippet(code)) { _, _ -> }
+            ).format(Code.fromSnippet(code)) { _ -> AutocorrectDecision.ALLOW_AUTOCORRECT }
 
         assertThat(actual).isEqualTo(formattedCode)
     }

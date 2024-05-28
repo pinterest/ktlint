@@ -124,7 +124,7 @@ class KtLintTest {
                                 }
                             },
                         ),
-                ).format(Code.fromSnippet("fun main() {}"))
+                ).format(Code.fromSnippet("fun main() {}")) { _ -> AutocorrectDecision.ALLOW_AUTOCORRECT }
                 assertThat(numberOfRootNodesVisited).isEqualTo(1)
             }
 
@@ -140,14 +140,14 @@ class KtLintTest {
                     val foo = "$STRING_VALUE_NOT_TO_BE_CORRECTED"
                     val bar = "$STRING_VALUE_AFTER_AUTOCORRECT"
                     """.trimIndent()
-                val callbacks = mutableListOf<CallbackResult>()
+                val callbacks = mutableSetOf<CallbackResult>()
                 val actualFormattedCode =
                     KtLintRuleEngine(
                         ruleProviders =
                             setOf(
                                 RuleProvider { AutoCorrectErrorRule() },
                             ),
-                    ).format(Code.fromSnippet(code)) { e, corrected ->
+                    ).format(Code.fromSnippet(code)) { e ->
                         callbacks.add(
                             CallbackResult(
                                 line = e.line,
@@ -155,9 +155,14 @@ class KtLintTest {
                                 ruleId = e.ruleId,
                                 detail = e.detail,
                                 canBeAutoCorrected = e.canBeAutoCorrected,
-                                corrected = corrected,
+                                corrected = e.canBeAutoCorrected,
                             ),
                         )
+                        if (e.canBeAutoCorrected) {
+                            AutocorrectDecision.ALLOW_AUTOCORRECT
+                        } else {
+                            AutocorrectDecision.NO_AUTOCORRECT
+                        }
                     }
                 assertThat(actualFormattedCode).isEqualTo(formattedCode)
                 assertThat(callbacks).containsExactly(
@@ -301,7 +306,7 @@ class KtLintTest {
                         // breaks on Windows OS
                         END_OF_LINE_PROPERTY to PropertyType.EndOfLineValue.lf,
                     ),
-            ).format(Code.fromSnippet(code))
+            ).format(Code.fromSnippet(code)) { _ -> AutocorrectDecision.ALLOW_AUTOCORRECT }
 
         assertThat(actual).isEqualTo(code)
     }
@@ -322,7 +327,7 @@ class KtLintTest {
                             )
                         },
                     ),
-            ).format(Code.fromSnippet("class Foo"))
+            ).format(Code.fromSnippet("class Foo")) { _ -> AutocorrectDecision.ALLOW_AUTOCORRECT }
 
             assertThat(ruleExecutionCalls).containsExactly(
                 RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, BEFORE_FIRST),
@@ -357,7 +362,7 @@ class KtLintTest {
                             )
                         },
                     ),
-            ).format(Code.fromSnippet(code))
+            ).format(Code.fromSnippet(code)) { _ -> AutocorrectDecision.ALLOW_AUTOCORRECT }
 
             assertThat(ruleExecutionCalls)
                 .filteredOn { it.elementType == null || it.classIdentifier != null }
@@ -398,7 +403,7 @@ class KtLintTest {
                             )
                         },
                     ),
-            ).format(Code.fromSnippet(code))
+            ).format(Code.fromSnippet(code)) { _ -> AutocorrectDecision.ALLOW_AUTOCORRECT }
 
             assertThat(ruleExecutionCalls)
                 .filteredOn { it.elementType == null || it.classIdentifier != null }
@@ -428,7 +433,7 @@ class KtLintTest {
                             )
                         },
                     ),
-            ).format(Code.fromSnippet("class Foo"))
+            ).format(Code.fromSnippet("class Foo")) { _ -> AutocorrectDecision.ALLOW_AUTOCORRECT }
 
             assertThat(ruleExecutionCalls).containsExactly(
                 RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, BEFORE_FIRST),
@@ -448,7 +453,7 @@ class KtLintTest {
                 setOf(
                     RuleProvider { WithStateRule() },
                 ),
-        ).format(EMPTY_CODE_SNIPPET)
+        ).format(EMPTY_CODE_SNIPPET) { _ -> AutocorrectDecision.ALLOW_AUTOCORRECT }
     }
 
     @Test
@@ -465,7 +470,7 @@ class KtLintTest {
                     setOf(
                         RuleProvider { AutoCorrectErrorRule() },
                     ),
-            ).format(Code.fromSnippet(code))
+            ).format(Code.fromSnippet(code)) { _ -> AutocorrectDecision.ALLOW_AUTOCORRECT }
         assertThat(actualFormattedCode).isEqualTo(code)
     }
 

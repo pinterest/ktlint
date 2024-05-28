@@ -8,6 +8,7 @@ import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
 import com.pinterest.ktlint.rule.engine.api.EditorConfigPropertyRegistry
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
@@ -112,7 +113,7 @@ public fun main() {
         """.trimIndent()
     }
     apiConsumerKtLintRuleEngine
-        .format(codeFile)
+        .format(codeFile) { _ -> AutocorrectDecision.ALLOW_AUTOCORRECT }
         .also {
             LOGGER.info { "Code formatted by KtLint:\n$it" }
         }
