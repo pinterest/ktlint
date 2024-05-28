@@ -24,14 +24,15 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAsLateA
 import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.END_OF_LINE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isRoot
 import org.assertj.core.api.Assertions.assertThat
+import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
-import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -286,12 +287,7 @@ class KtLintTest {
 
     @Test
     fun testFormatUnicodeBom() {
-        val code =
-            getResourceAsText("spec/format-unicode-bom.kt.spec")
-                .applyIf(System.lineSeparator() != "\n") {
-                    // On Windows change the input code to conform with the default lineSeparator "\r\n" as otherwise the assertion fails
-                    replace("\n", System.lineSeparator())
-                }
+        val code = getResourceAsText("spec/format-unicode-bom.kt.spec")
 
         val actual =
             KtLintRuleEngine(
@@ -299,10 +295,14 @@ class KtLintTest {
                     setOf(
                         RuleProvider { DummyRule() },
                     ),
+                editorConfigOverride =
+                    EditorConfigOverride.from(
+                        // The code sample use LF as line separator, so ensure that formatted code uses that as well, as otherwise the test
+                        // breaks on Windows OS
+                        END_OF_LINE_PROPERTY to PropertyType.EndOfLineValue.lf,
+                    ),
             ).format(Code.fromSnippet(code))
 
-        //
-        assertThat(code.toByteArray()).isEqualTo(actual.toByteArray())
         assertThat(actual).isEqualTo(code)
     }
 
