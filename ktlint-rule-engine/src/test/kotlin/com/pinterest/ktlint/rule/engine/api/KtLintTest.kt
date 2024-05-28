@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.rule.engine.api
 
-import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.AutoCorrectErrorRule.Companion.AUTOCORRECT_ERROR_RULE_ID
 import com.pinterest.ktlint.rule.engine.api.AutoCorrectErrorRule.Companion.ERROR_MESSAGE_CAN_BE_AUTOCORRECTED
 import com.pinterest.ktlint.rule.engine.api.AutoCorrectErrorRule.Companion.ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED
@@ -29,7 +28,6 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.END_OF_LINE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isRoot
-import io.github.oshai.kotlinlogging.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -37,8 +35,6 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-
-private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 class KtLintTest {
     /**
@@ -296,20 +292,11 @@ class KtLintTest {
 
     @Test
     fun testFormatUnicodeBom() {
-        val originalCode =
-            getResourceAsText("spec/format-unicode-bom.kt.spec")
         val code =
-            originalCode
+            getResourceAsText("spec/format-unicode-bom.kt.spec")
+                // Standardize code to use LF as line separator regardless of OS
                 .replace("\r\n", "\n")
                 .replace("\r", "\n")
-        if (code != originalCode) {
-            LOGGER.debug {
-                """
-                Original code: ${originalCode.toByteArray()}
-                Changed code : ${code.toByteArray()}
-                """.trimIndent()
-            }
-        }
 
         val actual =
             KtLintRuleEngine(
@@ -325,7 +312,6 @@ class KtLintTest {
                     ),
             ).format(Code.fromSnippet(code)) { _ -> AutocorrectDecision.ALLOW_AUTOCORRECT }
 
-        assertThat(actual.toByteArray()).isEqualTo(code.toByteArray())
         assertThat(actual).isEqualTo(code)
     }
 
