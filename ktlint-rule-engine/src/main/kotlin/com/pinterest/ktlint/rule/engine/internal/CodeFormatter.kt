@@ -22,7 +22,7 @@ internal class CodeFormatter(
         callback: (LintError, Boolean) -> Unit = { _, _ -> },
         maxFormatRunsPerFile: Int,
     ): String {
-        LOGGER.debug { "Starting with formatting file '${code.fileNameOrStdin()}'" }
+        LOGGER.debug { "Starting with processing file '${code.fileNameOrStdin()}'" }
 
         val (formattedCode, errors) = format(code, autocorrectHandler, maxFormatRunsPerFile)
 
@@ -31,7 +31,7 @@ internal class CodeFormatter(
             .forEach { (e, corrected) -> callback(e, corrected) }
 
         return (code.utf8Bom() + formattedCode).also {
-            LOGGER.debug { "Finished with formatting file '${code.fileNameOrStdin()}'" }
+            LOGGER.debug { "Finished with processing file '${code.fileNameOrStdin()}'" }
         }
     }
 
