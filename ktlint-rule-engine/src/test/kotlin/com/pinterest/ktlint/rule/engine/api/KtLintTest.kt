@@ -308,6 +308,7 @@ class KtLintTest {
                     ),
             ).format(Code.fromSnippet(code)) { _ -> AutocorrectDecision.ALLOW_AUTOCORRECT }
 
+        assertThat(actual.toByteArray()).isEqualTo(code.toByteArray())
         assertThat(actual).isEqualTo(code)
     }
 

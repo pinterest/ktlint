@@ -152,9 +152,9 @@ internal class CodeFormatter(
             eolEditorConfigProperty == PropertyType.EndOfLineValue.crlf ||
                 eolEditorConfigProperty != PropertyType.EndOfLineValue.lf &&
                 doesNotContain('\r') ->
-                "\r\n"
+                "\r\n".also { LOGGER.debug { "line separator: ${eolEditorConfigProperty.name} --> CRLF" } }
 
-            else -> "\n"
+            else -> "\n".also { LOGGER.debug { "line separator: ${eolEditorConfigProperty.name} --> LF" } }
         }
 
     private fun Code.doesNotContain(char: Char) = content.lastIndexOf(char) != -1
