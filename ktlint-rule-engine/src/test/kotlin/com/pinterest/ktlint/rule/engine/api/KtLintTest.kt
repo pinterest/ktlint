@@ -28,6 +28,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.END_OF_LINE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isRoot
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -35,6 +36,8 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 class KtLintTest {
     /**
@@ -292,7 +295,20 @@ class KtLintTest {
 
     @Test
     fun testFormatUnicodeBom() {
-        val code = getResourceAsText("spec/format-unicode-bom.kt.spec")
+        val originalCode =
+            getResourceAsText("spec/format-unicode-bom.kt.spec")
+        val code =
+            originalCode
+                .replace("\r\n", "\n")
+                .replace("\r", "\n")
+        if (code != originalCode) {
+            LOGGER.debug {
+                """
+                Original code: ${originalCode.toByteArray()}
+                Changed code : ${code.toByteArray()}
+                """.trimIndent()
+            }
+        }
 
         val actual =
             KtLintRuleEngine(
