@@ -93,9 +93,9 @@ internal class RuleExecutionContext private constructor(
         if (rule.shouldContinueTraversalOfAST()) {
             try {
                 if (rule is RuleAutocorrectApproveHandler) {
-                    executeRuleWithApproveHandlerOnNodeRecursivelyKtlint(node, rule, autocorrectHandler, suppress, emitAndApprove)
+                    executeRuleWithAutocorrectApproveHandlerOnNodeRecursively(node, rule, autocorrectHandler, suppress, emitAndApprove)
                 } else {
-                    executeRuleOnNodeRecursivelyKtlint(node, rule, autocorrectHandler, suppress, emitAndApprove)
+                    executeRuleWithoutAutocorrectApproveHandlerOnNodeRecursively(node, rule, autocorrectHandler, suppress, emitAndApprove)
                 }
             } catch (e: Exception) {
                 if (autocorrectHandler is NoneAutocorrectHandler) {
@@ -123,13 +123,14 @@ internal class RuleExecutionContext private constructor(
     }
 
     @Deprecated(message = "Remove in Ktlint 2.0")
-    private fun executeRuleOnNodeRecursivelyKtlint(
+    private fun executeRuleWithoutAutocorrectApproveHandlerOnNodeRecursively(
         node: ASTNode,
         rule: Rule,
         autocorrectHandler: AutocorrectHandler,
         suppress: Boolean,
         emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
+        require(rule !is RuleAutocorrectApproveHandler)
         val autoCorrect =
             autocorrectHandler is AllAutocorrectHandler ||
                 (
@@ -157,7 +158,7 @@ internal class RuleExecutionContext private constructor(
         }
     }
 
-    private fun executeRuleWithApproveHandlerOnNodeRecursivelyKtlint(
+    private fun executeRuleWithAutocorrectApproveHandlerOnNodeRecursively(
         node: ASTNode,
         rule: Rule,
         autocorrectHandler: AutocorrectHandler,
