@@ -1,9 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EQ
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
@@ -19,49 +21,47 @@ import org.jetbrains.kotlin.psi.psiUtil.siblings
 public class NoLineBreakBeforeAssignmentRule : StandardRule("no-line-break-before-assignment") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == EQ) {
-            visitEquals(node, emit, autoCorrect)
+            visitEquals(node, emit)
         }
     }
 
     private fun visitEquals(
         assignmentNode: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         assignmentNode
             .prevSibling()
             .takeIf { it.isWhiteSpaceWithNewline() }
             ?.let { unexpectedNewlineBeforeAssignment ->
                 emit(unexpectedNewlineBeforeAssignment.startOffset, "Line break before assignment is not allowed", true)
-                if (autoCorrect) {
-                    val parent = assignmentNode.treeParent
-                    // Insert assignment surrounded by whitespaces at new position
-                    assignmentNode
-                        .siblings(false)
-                        .takeWhile { it.isWhiteSpace() || it.isPartOfComment() }
-                        .last()
-                        .let { before ->
-                            if (!before.prevSibling().isWhiteSpace()) {
-                                parent.addChild(PsiWhiteSpaceImpl(" "), before)
+                    .ifAutocorrectAllowed {
+                        val parent = assignmentNode.treeParent
+                        // Insert assignment surrounded by whitespaces at new position
+                        assignmentNode
+                            .siblings(false)
+                            .takeWhile { it.isWhiteSpace() || it.isPartOfComment() }
+                            .last()
+                            .let { before ->
+                                if (!before.prevSibling().isWhiteSpace()) {
+                                    parent.addChild(PsiWhiteSpaceImpl(" "), before)
+                                }
+                                parent.addChild(LeafPsiElement(EQ, "="), before)
+                                if (!before.isWhiteSpace()) {
+                                    parent.addChild(PsiWhiteSpaceImpl(" "), before)
+                                }
                             }
-                            parent.addChild(LeafPsiElement(EQ, "="), before)
-                            if (!before.isWhiteSpace()) {
-                                parent.addChild(PsiWhiteSpaceImpl(" "), before)
+                        // Cleanup old assignment and whitespace after it. The indent before the old assignment is kept unchanged
+                        assignmentNode
+                            .nextSibling()
+                            .takeIf { it.isWhiteSpace() }
+                            ?.let { whiteSpaceAfterEquals ->
+                                parent.removeChild(whiteSpaceAfterEquals)
                             }
-                        }
-                    // Cleanup old assignment and whitespace after it. The indent before the old assignment is kept unchanged
-                    assignmentNode
-                        .nextSibling()
-                        .takeIf { it.isWhiteSpace() }
-                        ?.let { whiteSpaceAfterEquals ->
-                            parent.removeChild(whiteSpaceAfterEquals)
-                        }
-                    parent.removeChild(assignmentNode)
-                }
+                        parent.removeChild(assignmentNode)
+                    }
             }
     }
 }

@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LAMBDA_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LPAR
@@ -10,6 +11,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -23,8 +25,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 public class UnnecessaryParenthesesBeforeTrailingLambdaRule : StandardRule("unnecessary-parentheses-before-trailing-lambda") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.isPartOf(CALL_EXPRESSION) &&
             node.isEmptyArgumentList() &&
@@ -34,8 +35,7 @@ public class UnnecessaryParenthesesBeforeTrailingLambdaRule : StandardRule("unne
                 node.startOffset,
                 "Empty parentheses in function call followed by lambda are unnecessary",
                 true,
-            )
-            if (autoCorrect) {
+            ).ifAutocorrectAllowed {
                 node.removeChild(node)
             }
         }

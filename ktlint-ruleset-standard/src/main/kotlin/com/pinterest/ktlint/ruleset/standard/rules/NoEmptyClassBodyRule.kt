@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
@@ -8,6 +9,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -18,8 +20,7 @@ import org.jetbrains.kotlin.psi.KtObjectLiteralExpression
 public class NoEmptyClassBodyRule : StandardRule("no-empty-class-body") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == CLASS_BODY &&
             node.firstChildNode?.let { n ->
@@ -34,15 +35,15 @@ public class NoEmptyClassBodyRule : StandardRule("no-empty-class-body") {
                 .none { it.text == "companion" }
         ) {
             emit(node.startOffset, "Unnecessary block (\"{}\")", true)
-            if (autoCorrect) {
-                val prevNode = node.treePrev
-                if (prevNode.elementType == WHITE_SPACE) {
-                    // remove space between declaration and block
-                    prevNode.treeParent.removeChild(prevNode)
+                .ifAutocorrectAllowed {
+                    val prevNode = node.treePrev
+                    if (prevNode.elementType == WHITE_SPACE) {
+                        // remove space between declaration and block
+                        prevNode.treeParent.removeChild(prevNode)
+                    }
+                    // remove block
+                    node.treeParent.removeChild(node)
                 }
-                // remove block
-                node.treeParent.removeChild(node)
-            }
         }
     }
 }

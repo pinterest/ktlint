@@ -1,7 +1,9 @@
 package com.pinterest.ktlint.rule.engine.internal.rulefilter
 
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
@@ -46,11 +48,11 @@ class InternalRuleProvidersFilterTest {
             ruleId = ruleId,
             about = About(),
             visitorModifiers,
-        ) {
+        ),
+        RuleAutocorrectApproveHandler {
         override fun beforeVisitChildNodes(
             node: ASTNode,
-            autoCorrect: Boolean,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         ): Unit =
             throw UnsupportedOperationException(
                 "Rule should never be really invoked because that is not the aim of this unit test.",

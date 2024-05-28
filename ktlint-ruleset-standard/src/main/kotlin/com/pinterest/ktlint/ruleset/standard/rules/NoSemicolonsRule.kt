@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_KEYWORD
@@ -8,6 +9,7 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRu
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -41,8 +43,7 @@ public class NoSemicolonsRule :
     ) {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType != SEMICOLON) {
             return
@@ -50,13 +51,13 @@ public class NoSemicolonsRule :
         val nextLeaf = node.nextLeaf()
         if (nextLeaf.doesNotRequirePreSemi() && isNoSemicolonRequiredAfter(node)) {
             emit(node.startOffset, "Unnecessary semicolon", true)
-            if (autoCorrect) {
-                val prevLeaf = node.prevLeaf(true)
-                node.treeParent.removeChild(node)
-                if (prevLeaf.isWhiteSpace() && (nextLeaf == null || nextLeaf.isWhiteSpace())) {
-                    node.treeParent.removeChild(prevLeaf!!)
+                .ifAutocorrectAllowed {
+                    val prevLeaf = node.prevLeaf(true)
+                    node.treeParent.removeChild(node)
+                    if (prevLeaf.isWhiteSpace() && (nextLeaf == null || nextLeaf.isWhiteSpace())) {
+                        node.treeParent.removeChild(prevLeaf!!)
+                    }
                 }
-            }
         } else if (nextLeaf !is PsiWhiteSpace) {
             val prevLeaf = node.prevLeaf()
             if (prevLeaf is PsiWhiteSpace && prevLeaf.textContains('\n')) {
@@ -64,9 +65,9 @@ public class NoSemicolonsRule :
             }
             // todo: move to a separate rule
             emit(node.startOffset + 1, "Missing spacing after \";\"", true)
-            if (autoCorrect) {
-                node.upsertWhitespaceAfterMe(" ")
-            }
+                .ifAutocorrectAllowed {
+                    node.upsertWhitespaceAfterMe(" ")
+                }
         }
     }
 

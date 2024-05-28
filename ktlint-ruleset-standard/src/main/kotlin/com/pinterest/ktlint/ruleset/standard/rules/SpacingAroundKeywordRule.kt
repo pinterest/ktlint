@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CATCH_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DO_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ELSE_KEYWORD
@@ -16,6 +17,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
@@ -50,23 +52,22 @@ public class SpacingAroundKeywordRule : StandardRule("keyword-spacing") {
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node is LeafPsiElement) {
             if (tokenSet.contains(node.elementType) && node.parent !is KDocName && node.nextLeaf() !is PsiWhiteSpace) {
                 emit(node.startOffset + node.text.length, "Missing spacing after \"${node.text}\"", true)
-                if (autoCorrect) {
-                    (node as ASTNode).upsertWhitespaceAfterMe(" ")
-                }
+                    .ifAutocorrectAllowed {
+                        (node as ASTNode).upsertWhitespaceAfterMe(" ")
+                    }
             } else if (keywordsWithoutSpaces.contains(node.elementType) && node.nextLeaf() is PsiWhiteSpace) {
                 val parent = node.parent
                 val nextLeaf = node.nextLeaf()
                 if (parent is KtPropertyAccessor && parent.hasBody() && nextLeaf != null) {
                     emit(node.startOffset, "Unexpected spacing after \"${node.text}\"", true)
-                    if (autoCorrect) {
-                        nextLeaf.treeParent.removeChild(nextLeaf)
-                    }
+                        .ifAutocorrectAllowed {
+                            nextLeaf.treeParent.removeChild(nextLeaf)
+                        }
                 }
             }
             if (noLFBeforeSet.contains(node.elementType)) {
@@ -84,9 +85,9 @@ public class SpacingAroundKeywordRule : StandardRule("keyword-spacing") {
                         (!isElseKeyword || parentOfRBrace.treeParent?.treeParent == node.treeParent)
                     ) {
                         emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
-                        if (autoCorrect) {
-                            (prevLeaf as LeafElement).rawReplaceWithText(" ")
-                        }
+                            .ifAutocorrectAllowed {
+                                (prevLeaf as LeafElement).rawReplaceWithText(" ")
+                            }
                     }
                 }
             }

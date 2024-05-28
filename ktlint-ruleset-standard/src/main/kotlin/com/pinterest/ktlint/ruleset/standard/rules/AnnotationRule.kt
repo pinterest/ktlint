@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATED_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
@@ -29,6 +30,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
@@ -110,39 +112,37 @@ public class AnnotationRule :
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         when (node.elementType) {
             FILE_ANNOTATION_LIST -> {
-                visitAnnotationList(node, emit, autoCorrect)
-                visitFileAnnotationList(node, emit, autoCorrect)
+                visitAnnotationList(node, emit)
+                visitFileAnnotationList(node, emit)
             }
 
             ANNOTATED_EXPRESSION, MODIFIER_LIST -> {
-                visitAnnotationList(node, emit, autoCorrect)
+                visitAnnotationList(node, emit)
             }
 
             ANNOTATION -> {
                 // Annotation array
                 //     @[...]
-                visitAnnotation(node, emit, autoCorrect)
+                visitAnnotation(node, emit)
             }
 
             ANNOTATION_ENTRY -> {
-                visitAnnotationEntry(node, emit, autoCorrect)
+                visitAnnotationEntry(node, emit)
             }
 
             TYPE_ARGUMENT_LIST -> {
-                visitTypeArgumentList(node, emit, autoCorrect)
+                visitTypeArgumentList(node, emit)
             }
         }
     }
 
     private fun visitAnnotationList(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         require(node.elementType in ANNOTATION_CONTAINER)
 
@@ -182,14 +182,14 @@ public class AnnotationRule :
                             // wrapped
                             if (!prevLeaf.textContains('\n')) {
                                 emit(prevLeaf.startOffset, "Expected newline before annotation", true)
-                                if (autoCorrect) {
-                                    prevLeaf.upsertWhitespaceBeforeMe(
-                                        prevLeaf
-                                            .text
-                                            .substringBeforeLast('\n', "")
-                                            .plus(expectedIndent),
-                                    )
-                                }
+                                    .ifAutocorrectAllowed {
+                                        prevLeaf.upsertWhitespaceBeforeMe(
+                                            prevLeaf
+                                                .text
+                                                .substringBeforeLast('\n', "")
+                                                .plus(expectedIndent),
+                                        )
+                                    }
                             }
                         }
                 }
@@ -204,9 +204,9 @@ public class AnnotationRule :
                     // Let the indentation rule determine the exact indentation and only report and fix when the line needs to be wrapped
                     if (!prevLeaf.textContains('\n')) {
                         emit(prevLeaf.startOffset, "Expected newline after last annotation", true)
-                        if (autoCorrect) {
-                            prevLeaf.upsertWhitespaceAfterMe(expectedIndent)
-                        }
+                            .ifAutocorrectAllowed {
+                                prevLeaf.upsertWhitespaceAfterMe(expectedIndent)
+                            }
                     }
                 }
 
@@ -219,9 +219,9 @@ public class AnnotationRule :
                     // Let the indentation rule determine the exact indentation and only report and fix when the line needs to be wrapped
                     if (!leaf.textContains('\n')) {
                         emit(leaf.startOffset, "Expected newline", true)
-                        if (autoCorrect) {
-                            leaf.upsertWhitespaceBeforeMe(node.indent())
-                        }
+                            .ifAutocorrectAllowed {
+                                leaf.upsertWhitespaceBeforeMe(node.indent())
+                            }
                     }
                 }
         }
@@ -269,8 +269,7 @@ public class AnnotationRule :
 
     private fun visitTypeArgumentList(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
             .children()
@@ -280,13 +279,12 @@ public class AnnotationRule :
             .mapNotNull { it.findChildByType(MODIFIER_LIST) }
             .filter { it.elementType == MODIFIER_LIST }
             .any { it.shouldWrapAnnotations() }
-            .ifTrue { wrapTypeArgumentList(node, emit, autoCorrect) }
+            .ifTrue { wrapTypeArgumentList(node, emit) }
     }
 
     private fun wrapTypeArgumentList(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
             .children()
@@ -295,9 +293,9 @@ public class AnnotationRule :
                 val prevLeaf = typeProjection.prevLeaf().takeIf { it.isWhiteSpace() }
                 if (prevLeaf == null || prevLeaf.isWhiteSpaceWithoutNewline()) {
                     emit(typeProjection.startOffset - 1, "Expected newline", true)
-                    if (autoCorrect) {
-                        typeProjection.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
-                    }
+                        .ifAutocorrectAllowed {
+                            typeProjection.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
+                        }
                 }
             }
 
@@ -307,17 +305,16 @@ public class AnnotationRule :
                 val prevLeaf = gt.prevLeaf().takeIf { it.isWhiteSpace() }
                 if (prevLeaf == null || prevLeaf.isWhiteSpaceWithoutNewline()) {
                     emit(gt.startOffset, "Expected newline", true)
-                    if (autoCorrect) {
-                        gt.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
-                    }
+                        .ifAutocorrectAllowed {
+                            gt.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
+                        }
                 }
             }
     }
 
     private fun visitAnnotationEntry(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         require(node.elementType == ANNOTATION_ENTRY)
         if (node.isPrecededByOtherAnnotationEntryOnTheSameLine() && node.isPrecededByAnnotationOnAnotherLine()) {
@@ -329,8 +326,7 @@ public class AnnotationRule :
                 node.startOffset,
                 "All annotations should either be on a single line or all annotations should be on a separate line",
                 true,
-            )
-            if (autoCorrect) {
+            ).ifAutocorrectAllowed {
                 node
                     .firstChildLeafOrSelf()
                     .upsertWhitespaceBeforeMe(getNewlineWithIndent(node.treeParent))
@@ -409,8 +405,7 @@ public class AnnotationRule :
 
     private fun visitFileAnnotationList(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
             .lastChildLeafOrSelf()
@@ -423,8 +418,7 @@ public class AnnotationRule :
                         codeLeaf.startOffset,
                         "File annotations should be separated from file contents with a blank line",
                         true,
-                    )
-                    if (autoCorrect) {
+                    ).ifAutocorrectAllowed {
                         codeLeaf.upsertWhitespaceBeforeMe("\n\n")
                     }
                 }
@@ -433,26 +427,21 @@ public class AnnotationRule :
 
     private fun visitAnnotation(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         require(node.elementType == ANNOTATION)
 
         if ((node.isFollowedByOtherAnnotationEntry() && node.isOnSameLineAsNextAnnotationEntry()) ||
             (node.isPrecededByOtherAnnotationEntry() && node.isOnSameLineAsPreviousAnnotationEntry())
         ) {
-            emit(
-                node.startOffset,
-                "@[...] style annotations should be on a separate line from other annotations.",
-                true,
-            )
-            if (autoCorrect) {
-                if (node.isFollowedByOtherAnnotationEntry()) {
-                    node.upsertWhitespaceAfterMe(getNewlineWithIndent(node.treeParent))
-                } else if (node.isPrecededByOtherAnnotationEntry()) {
-                    node.upsertWhitespaceBeforeMe(getNewlineWithIndent(node.treeParent))
+            emit(node.startOffset, "@[...] style annotations should be on a separate line from other annotations.", true)
+                .ifAutocorrectAllowed {
+                    if (node.isFollowedByOtherAnnotationEntry()) {
+                        node.upsertWhitespaceAfterMe(getNewlineWithIndent(node.treeParent))
+                    } else if (node.isPrecededByOtherAnnotationEntry()) {
+                        node.upsertWhitespaceBeforeMe(getNewlineWithIndent(node.treeParent))
+                    }
                 }
-            }
         }
     }
 

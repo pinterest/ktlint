@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE
@@ -36,8 +37,7 @@ public class KdocRule :
     Rule.Experimental {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
             .takeIf { it.elementType == KDOC }
@@ -50,6 +50,7 @@ public class KdocRule :
                             false,
                         )
                     }
+                    Unit
                 } else {
                     if (it.treeParent.elementType == FILE) {
                         emit(node.startOffset, "A dangling toplevel KDoc is not allowed", false)

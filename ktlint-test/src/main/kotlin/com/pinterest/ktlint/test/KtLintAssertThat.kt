@@ -9,6 +9,7 @@ import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.EMPTY
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.plus
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.LintError
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
@@ -699,7 +700,12 @@ public class KtLintAssertThatAssertable(
 
     private fun format(): Pair<String, Set<LintError>> {
         val lintErrors = mutableSetOf<LintError>()
-        val formattedCode = createKtLintRuleEngine().format(code) { lintError, _ -> lintErrors.add(lintError) }
+        val formattedCode =
+            createKtLintRuleEngine()
+                .format(code) { lintError ->
+                    lintErrors.add(lintError)
+                    AutocorrectDecision.ALLOW_AUTOCORRECT
+                }
         return Pair(formattedCode, lintErrors)
     }
 

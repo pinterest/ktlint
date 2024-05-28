@@ -12,6 +12,7 @@ import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.RuleMethod.BEFORE_
 import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.RuleMethod.BEFORE_FIRST
 import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.VisitNodeType.CHILD
 import com.pinterest.ktlint.rule.engine.api.RuleExecutionCall.VisitNodeType.ROOT
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
@@ -20,11 +21,15 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.PACKAGE_DIRECTIVE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAsLateAsPossible
+import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.END_OF_LINE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isRoot
 import org.assertj.core.api.Assertions.assertThat
+import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
@@ -119,7 +124,7 @@ class KtLintTest {
                                 }
                             },
                         ),
-                ).format(Code.fromSnippet("fun main() {}"))
+                ).format(Code.fromSnippet("fun main() {}")) { _ -> AutocorrectDecision.ALLOW_AUTOCORRECT }
                 assertThat(numberOfRootNodesVisited).isEqualTo(1)
             }
 
@@ -135,14 +140,14 @@ class KtLintTest {
                     val foo = "$STRING_VALUE_NOT_TO_BE_CORRECTED"
                     val bar = "$STRING_VALUE_AFTER_AUTOCORRECT"
                     """.trimIndent()
-                val callbacks = mutableListOf<CallbackResult>()
+                val callbacks = mutableSetOf<CallbackResult>()
                 val actualFormattedCode =
                     KtLintRuleEngine(
                         ruleProviders =
                             setOf(
                                 RuleProvider { AutoCorrectErrorRule() },
                             ),
-                    ).format(Code.fromSnippet(code)) { e, corrected ->
+                    ).format(Code.fromSnippet(code)) { e ->
                         callbacks.add(
                             CallbackResult(
                                 line = e.line,
@@ -150,9 +155,14 @@ class KtLintTest {
                                 ruleId = e.ruleId,
                                 detail = e.detail,
                                 canBeAutoCorrected = e.canBeAutoCorrected,
-                                corrected = corrected,
+                                corrected = e.canBeAutoCorrected,
                             ),
                         )
+                        if (e.canBeAutoCorrected) {
+                            AutocorrectDecision.ALLOW_AUTOCORRECT
+                        } else {
+                            AutocorrectDecision.NO_AUTOCORRECT
+                        }
                     }
                 assertThat(actualFormattedCode).isEqualTo(formattedCode)
                 assertThat(callbacks).containsExactly(
@@ -282,7 +292,11 @@ class KtLintTest {
 
     @Test
     fun testFormatUnicodeBom() {
-        val code = getResourceAsText("spec/format-unicode-bom.kt.spec")
+        val code =
+            getResourceAsText("spec/format-unicode-bom.kt.spec")
+                // Standardize code to use LF as line separator regardless of OS
+                .replace("\r\n", "\n")
+                .replace("\r", "\n")
 
         val actual =
             KtLintRuleEngine(
@@ -290,7 +304,13 @@ class KtLintTest {
                     setOf(
                         RuleProvider { DummyRule() },
                     ),
-            ).format(Code.fromSnippet(code))
+                editorConfigOverride =
+                    EditorConfigOverride.from(
+                        // The code sample use LF as line separator, so ensure that formatted code uses that as well, as otherwise the test
+                        // breaks on Windows OS
+                        END_OF_LINE_PROPERTY to PropertyType.EndOfLineValue.lf,
+                    ),
+            ).format(Code.fromSnippet(code)) { _ -> AutocorrectDecision.ALLOW_AUTOCORRECT }
 
         assertThat(actual).isEqualTo(code)
     }
@@ -311,7 +331,7 @@ class KtLintTest {
                             )
                         },
                     ),
-            ).format(Code.fromSnippet("class Foo"))
+            ).format(Code.fromSnippet("class Foo")) { _ -> AutocorrectDecision.ALLOW_AUTOCORRECT }
 
             assertThat(ruleExecutionCalls).containsExactly(
                 RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, BEFORE_FIRST),
@@ -346,7 +366,7 @@ class KtLintTest {
                             )
                         },
                     ),
-            ).format(Code.fromSnippet(code))
+            ).format(Code.fromSnippet(code)) { _ -> AutocorrectDecision.ALLOW_AUTOCORRECT }
 
             assertThat(ruleExecutionCalls)
                 .filteredOn { it.elementType == null || it.classIdentifier != null }
@@ -387,7 +407,7 @@ class KtLintTest {
                             )
                         },
                     ),
-            ).format(Code.fromSnippet(code))
+            ).format(Code.fromSnippet(code)) { _ -> AutocorrectDecision.ALLOW_AUTOCORRECT }
 
             assertThat(ruleExecutionCalls)
                 .filteredOn { it.elementType == null || it.classIdentifier != null }
@@ -417,7 +437,7 @@ class KtLintTest {
                             )
                         },
                     ),
-            ).format(Code.fromSnippet("class Foo"))
+            ).format(Code.fromSnippet("class Foo")) { _ -> AutocorrectDecision.ALLOW_AUTOCORRECT }
 
             assertThat(ruleExecutionCalls).containsExactly(
                 RuleExecutionCall(SimpleTestRule.RULE_ID_STOP_TRAVERSAL, BEFORE_FIRST),
@@ -437,7 +457,7 @@ class KtLintTest {
                 setOf(
                     RuleProvider { WithStateRule() },
                 ),
-        ).format(EMPTY_CODE_SNIPPET)
+        ).format(EMPTY_CODE_SNIPPET) { _ -> AutocorrectDecision.ALLOW_AUTOCORRECT }
     }
 
     @Test
@@ -454,7 +474,7 @@ class KtLintTest {
                     setOf(
                         RuleProvider { AutoCorrectErrorRule() },
                     ),
-            ).format(Code.fromSnippet(code))
+            ).format(Code.fromSnippet(code)) { _ -> AutocorrectDecision.ALLOW_AUTOCORRECT }
         assertThat(actualFormattedCode).isEqualTo(code)
     }
 
@@ -475,11 +495,11 @@ private open class DummyRule(
 ) : Rule(
         ruleId = RuleId("test:dummy"),
         about = About(),
-    ) {
+    ),
+    RuleAutocorrectApproveHandler {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         block(node)
     }
@@ -492,19 +512,19 @@ private class AutoCorrectErrorRule :
     Rule(
         ruleId = AUTOCORRECT_ERROR_RULE_ID,
         about = About(),
-    ) {
+    ),
+    RuleAutocorrectApproveHandler {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == REGULAR_STRING_PART) {
             when (node.text) {
                 STRING_VALUE_TO_BE_AUTOCORRECTED -> {
                     emit(node.startOffset, ERROR_MESSAGE_CAN_BE_AUTOCORRECTED, true)
-                    if (autoCorrect) {
-                        (node as LeafElement).rawReplaceWithText(STRING_VALUE_AFTER_AUTOCORRECT)
-                    }
+                        .ifAutocorrectAllowed {
+                            (node as LeafElement).rawReplaceWithText(STRING_VALUE_AFTER_AUTOCORRECT)
+                        }
                 }
 
                 STRING_VALUE_NOT_TO_BE_CORRECTED ->
@@ -541,7 +561,8 @@ private class SimpleTestRule(
         ruleId = ruleId,
         about = About(),
         visitorModifiers,
-    ) {
+    ),
+    RuleAutocorrectApproveHandler {
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         ruleExecutionCalls.add(RuleExecutionCall(ruleId, BEFORE_FIRST))
         if (stopTraversalInBeforeFirstNode) {
@@ -551,8 +572,7 @@ private class SimpleTestRule(
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         ruleExecutionCalls.add(node.toRuleExecutionCall(ruleId, BEFORE_CHILDREN))
         if (stopTraversalInBeforeVisitChildNodes(node)) {
@@ -562,8 +582,7 @@ private class SimpleTestRule(
 
     override fun afterVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         ruleExecutionCalls.add(node.toRuleExecutionCall(ruleId, AFTER_CHILDREN))
         if (stopTraversalInAfterVisitChildNodes(node)) {
@@ -609,7 +628,7 @@ private data class RuleExecutionCall(
     val elementType: IElementType? = null,
     val classIdentifier: String? = null,
 ) {
-    enum class RuleMethod { BEFORE_FIRST, BEFORE_CHILDREN, VISIT, AFTER_CHILDREN, AFTER_LAST }
+    enum class RuleMethod { BEFORE_FIRST, BEFORE_CHILDREN, AFTER_CHILDREN, AFTER_LAST }
 
     enum class VisitNodeType { ROOT, CHILD }
 }
@@ -643,7 +662,8 @@ private class WithStateRule :
     Rule(
         ruleId = RuleId("test:with-state"),
         about = About(),
-    ) {
+    ),
+    RuleAutocorrectApproveHandler {
     private var hasNotBeenVisitedYet = true
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
@@ -655,8 +675,7 @@ private class WithStateRule :
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         emit(node.startOffset, "Fake violation which can be autocorrected", true)
     }

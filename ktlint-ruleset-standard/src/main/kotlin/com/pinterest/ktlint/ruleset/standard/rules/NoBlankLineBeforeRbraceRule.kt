@@ -1,9 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -14,8 +16,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 public class NoBlankLineBeforeRbraceRule : StandardRule("no-blank-line-before-rbrace") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node is PsiWhiteSpace &&
             node.textContains('\n') &&
@@ -27,8 +28,7 @@ public class NoBlankLineBeforeRbraceRule : StandardRule("no-blank-line-before-rb
                     node.startOffset + split[0].length + split[1].length + 1,
                     "Unexpected blank line(s) before \"}\"",
                     true,
-                )
-                if (autoCorrect) {
+                ).ifAutocorrectAllowed {
                     (node as LeafPsiElement).rawReplaceWithText("${split.first()}\n${split.last()}")
                 }
             }

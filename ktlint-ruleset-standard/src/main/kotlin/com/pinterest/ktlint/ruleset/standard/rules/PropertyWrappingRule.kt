@@ -1,6 +1,8 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.NO_AUTOCORRECT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLON
@@ -16,6 +18,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
@@ -65,18 +68,16 @@ public class PropertyWrappingRule :
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == PROPERTY) {
-            rearrangeProperty(node, autoCorrect, emit)
+            rearrangeProperty(node, emit)
         }
     }
 
     private fun rearrangeProperty(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         require(node.elementType == PROPERTY)
 
@@ -96,7 +97,7 @@ public class PropertyWrappingRule :
             ?.let { colon ->
                 if (baseIndentLength + fromNode.sumOfTextLengthUntil(colon) > maxLineLength) {
                     fromNode.sumOfTextLengthUntil(colon)
-                    requireNewlineAfterLeaf(colon, autoCorrect, emit)
+                    requireNewlineAfterLeaf(colon, emit)
                     return
                 }
             }
@@ -105,7 +106,7 @@ public class PropertyWrappingRule :
             .findChildByType(TYPE_REFERENCE)
             ?.let { typeReference ->
                 if (baseIndentLength + fromNode.sumOfTextLengthUntil(typeReference) > maxLineLength) {
-                    requireNewlineBeforeLeaf(typeReference, autoCorrect, emit)
+                    requireNewlineBeforeLeaf(typeReference, emit)
                     return
                 }
             }
@@ -114,7 +115,7 @@ public class PropertyWrappingRule :
             .findChildByType(EQ)
             ?.let { equal ->
                 if (baseIndentLength + fromNode.sumOfTextLengthUntil(equal) > maxLineLength) {
-                    requireNewlineAfterLeaf(equal, autoCorrect, emit)
+                    requireNewlineAfterLeaf(equal, emit)
                     return
                 }
             }
@@ -123,7 +124,7 @@ public class PropertyWrappingRule :
             .findChildByType(CALL_EXPRESSION)
             ?.let { callExpression ->
                 if (baseIndentLength + fromNode.sumOfTextLengthUntil(callExpression) > maxLineLength) {
-                    requireNewlineBeforeLeaf(callExpression, autoCorrect, emit)
+                    requireNewlineBeforeLeaf(callExpression, emit)
                     return
                 }
             }
@@ -138,35 +139,36 @@ public class PropertyWrappingRule :
 
     private fun requireNewlineBeforeLeaf(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         emit(
             node.startOffset - 1,
             """Missing newline before "${node.text}"""",
             true,
-        )
-        LOGGER.trace { "$line: " + ((if (!autoCorrect) "would have " else "") + "inserted newline before ${node.text}") }
-        if (autoCorrect) {
+        ).also { autocorrectDecision ->
+            LOGGER.trace {
+                "$line: " + (if (autocorrectDecision == NO_AUTOCORRECT) "would have " else "") + "inserted newline before ${node.text}"
+            }
+        }.ifAutocorrectAllowed {
             node.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
         }
     }
 
     private fun requireNewlineAfterLeaf(
         nodeAfterWhichNewlineIsRequired: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         nodeToFix: ASTNode = nodeAfterWhichNewlineIsRequired,
     ) {
         emit(
             nodeAfterWhichNewlineIsRequired.startOffset + 1,
             """Missing newline after "${nodeAfterWhichNewlineIsRequired.text}"""",
             true,
-        )
-        LOGGER.trace {
-            "$line: " + (if (!autoCorrect) "would have " else "") + "inserted newline after ${nodeAfterWhichNewlineIsRequired.text}"
-        }
-        if (autoCorrect) {
+        ).also { autocorrectDecision ->
+            LOGGER.trace {
+                "$line: " + (if (autocorrectDecision == NO_AUTOCORRECT) "would have " else "") +
+                    "inserted newline after ${nodeAfterWhichNewlineIsRequired.text}"
+            }
+        }.ifAutocorrectAllowed {
             nodeToFix.upsertWhitespaceAfterMe(indentConfig.childIndentOf(nodeToFix))
         }
     }

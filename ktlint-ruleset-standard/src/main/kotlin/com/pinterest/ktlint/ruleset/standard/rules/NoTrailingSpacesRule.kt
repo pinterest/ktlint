@@ -1,10 +1,12 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.parent
@@ -17,8 +19,7 @@ import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.isPartOfKDoc()) {
             if (node.elementType == WHITE_SPACE && node.hasTrailingSpacesBeforeNewline()) {
@@ -30,13 +31,13 @@ public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
                         .dropLastWhile { it == ' ' }
                         .length
                 emit(node.startOffset + offsetOfFirstSpaceBeforeNewlineInText, "Trailing space(s)", true)
-                if (autoCorrect) {
-                    node.removeTrailingSpacesBeforeNewline()
-                }
+                    .ifAutocorrectAllowed {
+                        node.removeTrailingSpacesBeforeNewline()
+                    }
             }
         } else if (node.elementType == WHITE_SPACE || node.isPartOfComment()) {
             val lines = node.text.split("\n")
-            var violated = false
+            var autocorrect = false
             var violationOffset = node.startOffset
 
             val modifiedLines =
@@ -53,7 +54,9 @@ public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
                                     val modifiedLine = line.trimEnd()
                                     val firstTrailingSpaceOffset = violationOffset + modifiedLine.length
                                     emit(firstTrailingSpaceOffset, "Trailing space(s)", true)
-                                    violated = true
+                                        .ifAutocorrectAllowed {
+                                            autocorrect = true
+                                        }
                                     modifiedLine
                                 }
 
@@ -62,7 +65,7 @@ public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
                         violationOffset += line.length + 1
                         modifiedLine
                     }
-            if (violated && autoCorrect) {
+            if (autocorrect) {
                 (node as LeafPsiElement).rawReplaceWithText(modifiedLines.joinToString(separator = "\n"))
             }
         }

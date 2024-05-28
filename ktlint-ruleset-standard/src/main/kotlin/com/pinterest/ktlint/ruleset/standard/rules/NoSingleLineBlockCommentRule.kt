@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.Rule
@@ -11,6 +12,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
@@ -39,8 +41,7 @@ public class NoSingleLineBlockCommentRule :
     Rule.OfficialCodeStyle {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == BLOCK_COMMENT) {
             val afterBlockComment =
@@ -54,9 +55,9 @@ public class NoSingleLineBlockCommentRule :
                 afterBlockComment.nextLeaf().isWhitespaceWithNewlineOrNull()
             ) {
                 emit(node.startOffset, "Replace the block comment with an EOL comment", true)
-                if (autoCorrect) {
-                    node.replaceWithEndOfLineComment()
-                }
+                    .ifAutocorrectAllowed {
+                        node.replaceWithEndOfLineComment()
+                    }
             }
         }
     }

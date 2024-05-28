@@ -12,12 +12,11 @@ class VisitorProviderTest {
                 VisitorProvider(
                     ruleProviders = emptySet(),
                     recreateRuleSorter = true,
-                ).visitor()
-                    .invoke { _ ->
-                        assertThat(false)
-                            .withFailMessage("The visitor provider should not have called this lambda in case it has no rule providers")
-                            .isTrue
-                    }
+                ).rules.forEach { _ ->
+                    assertThat(false)
+                        .withFailMessage("The visitor provider should not have called this lambda in case it has no rule providers")
+                        .isTrue
+                }
             }
     }
 }

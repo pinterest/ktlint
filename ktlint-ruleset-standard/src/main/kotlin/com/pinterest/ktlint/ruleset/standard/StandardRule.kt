@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard
 
 import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
@@ -25,4 +26,5 @@ public open class StandardRule internal constructor(
         visitorModifiers = visitorModifiers,
         usesEditorConfigProperties = usesEditorConfigProperties,
         about = STANDARD_RULE_ABOUT,
-    )
+    ),
+    RuleAutocorrectApproveHandler

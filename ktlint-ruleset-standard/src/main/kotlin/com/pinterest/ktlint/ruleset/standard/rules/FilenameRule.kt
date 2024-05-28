@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
@@ -46,8 +47,7 @@ import org.jetbrains.kotlin.psi.KtFile
 public class FilenameRule : StandardRule("filename") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.isRoot()) {
             node as FileASTNode? ?: error("node is not ${FileASTNode::class} but ${node::class}")
@@ -125,7 +125,7 @@ public class FilenameRule : StandardRule("filename") {
 
     private fun String.shouldMatchClassName(
         className: String,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (this != className) {
             emit(
@@ -141,7 +141,7 @@ public class FilenameRule : StandardRule("filename") {
 
     private fun String.shouldMatchFileName(
         filename: String,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (this != filename) {
             emit(
@@ -152,7 +152,9 @@ public class FilenameRule : StandardRule("filename") {
         }
     }
 
-    private fun String.shouldMatchPascalCase(emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit) {
+    private fun String.shouldMatchPascalCase(
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+    ) {
         if (!this.matches(PASCAL_CASE_REGEX)) {
             emit(0, "File name '$this.kt' should conform PascalCase", false)
         }

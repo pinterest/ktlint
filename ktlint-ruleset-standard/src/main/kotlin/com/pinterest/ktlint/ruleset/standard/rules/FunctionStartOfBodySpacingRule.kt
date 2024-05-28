@@ -1,11 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
@@ -21,33 +23,30 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 public class FunctionStartOfBodySpacingRule : StandardRule("function-start-of-body-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == FUN) {
             node
                 .findChildByType(ElementType.EQ)
-                ?.let { visitFunctionFollowedByBodyExpression(node, emit, autoCorrect) }
+                ?.let { visitFunctionFollowedByBodyExpression(node, emit) }
 
             node
                 .findChildByType(ElementType.BLOCK)
-                ?.let { visitFunctionFollowedByBodyBlock(node, emit, autoCorrect) }
+                ?.let { visitFunctionFollowedByBodyBlock(node, emit) }
         }
     }
 
     private fun visitFunctionFollowedByBodyExpression(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        fixWhiteSpaceBeforeAssignmentOfBodyExpression(node, emit, autoCorrect)
-        fixWhiteSpaceBetweenAssignmentAndBodyExpression(node, emit, autoCorrect)
+        fixWhiteSpaceBeforeAssignmentOfBodyExpression(node, emit)
+        fixWhiteSpaceBetweenAssignmentAndBodyExpression(node, emit)
     }
 
     private fun fixWhiteSpaceBeforeAssignmentOfBodyExpression(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
             .findChildByType(ElementType.EQ)
@@ -61,15 +60,15 @@ public class FunctionStartOfBodySpacingRule : StandardRule("function-start-of-bo
                                 assignmentExpression.startOffset,
                                 "Expected a single white space before assignment of expression body",
                                 true,
-                            )
-                            if (autoCorrect) {
+                            ).ifAutocorrectAllowed {
                                 assignmentExpression.upsertWhitespaceBeforeMe(" ")
                             }
+                            Unit
                         } else if (whiteSpaceBeforeAssignment.text != " ") {
                             emit(whiteSpaceBeforeAssignment.startOffset, "Unexpected whitespace", true)
-                            if (autoCorrect) {
-                                assignmentExpression.upsertWhitespaceBeforeMe(" ")
-                            }
+                                .ifAutocorrectAllowed {
+                                    assignmentExpression.upsertWhitespaceBeforeMe(" ")
+                                }
                         }
                     }
             }
@@ -77,8 +76,7 @@ public class FunctionStartOfBodySpacingRule : StandardRule("function-start-of-bo
 
     private fun fixWhiteSpaceBetweenAssignmentAndBodyExpression(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
             .findChildByType(ElementType.EQ)
@@ -92,8 +90,7 @@ public class FunctionStartOfBodySpacingRule : StandardRule("function-start-of-bo
                                 assignmentExpression.startOffset,
                                 "Expected a single white space between assignment and expression body on same line",
                                 true,
-                            )
-                            if (autoCorrect) {
+                            ).ifAutocorrectAllowed {
                                 assignmentExpression.upsertWhitespaceAfterMe(" ")
                             }
                         }
@@ -103,8 +100,7 @@ public class FunctionStartOfBodySpacingRule : StandardRule("function-start-of-bo
 
     private fun visitFunctionFollowedByBodyBlock(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
             .findChildByType(ElementType.BLOCK)
@@ -115,12 +111,12 @@ public class FunctionStartOfBodySpacingRule : StandardRule("function-start-of-bo
                     .let { whiteSpaceBeforeExpressionBlock ->
                         if (whiteSpaceBeforeExpressionBlock?.text != " ") {
                             emit(block.startOffset, "Expected a single white space before start of function body", true)
-                            if (autoCorrect) {
-                                block
-                                    .firstChildNode
-                                    .prevLeaf(true)
-                                    ?.upsertWhitespaceAfterMe(" ")
-                            }
+                                .ifAutocorrectAllowed {
+                                    block
+                                        .firstChildNode
+                                        .prevLeaf(true)
+                                        ?.upsertWhitespaceAfterMe(" ")
+                                }
                         }
                     }
             }

@@ -6,8 +6,10 @@ import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.EMPTY
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.plus
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.LintError
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
@@ -364,7 +366,7 @@ class SuppressionLocatorBuilderTest {
                         .plus(
                             STANDARD_NO_FOO_IDENTIFIER_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled,
                         ),
-            ).format(Code.fromSnippet(code)) { _, _ -> }
+            ).format(Code.fromSnippet(code)) { _ -> AutocorrectDecision.ALLOW_AUTOCORRECT }
 
         assertThat(actual).isEqualTo(formattedCode)
     }
@@ -374,11 +376,11 @@ class SuppressionLocatorBuilderTest {
     ) : Rule(
             ruleId = id,
             about = About(),
-        ) {
+        ),
+        RuleAutocorrectApproveHandler {
         override fun beforeVisitChildNodes(
             node: ASTNode,
-            autoCorrect: Boolean,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         ) {
             if (node.elementType == ElementType.IDENTIFIER && node.text.startsWith("foo")) {
                 emit(node.startOffset, "Line should not contain a foo identifier", false)

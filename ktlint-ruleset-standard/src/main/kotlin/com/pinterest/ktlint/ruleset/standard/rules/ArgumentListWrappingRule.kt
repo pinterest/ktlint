@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BINARY_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLLECTION_LITERAL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
@@ -24,6 +25,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProper
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
@@ -96,8 +98,7 @@ public class ArgumentListWrappingRule :
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (editorConfigIndent.disabled) {
             return
@@ -107,7 +108,7 @@ public class ArgumentListWrappingRule :
             if (needToWrapArgumentList(node)) {
                 node
                     .children()
-                    .forEach { child -> wrapArgumentInList(child, emit, autoCorrect) }
+                    .forEach { child -> wrapArgumentInList(child, emit) }
             }
         }
     }
@@ -186,17 +187,16 @@ public class ArgumentListWrappingRule :
 
     private fun wrapArgumentInList(
         child: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         when (child.elementType) {
             LPAR -> {
                 val prevLeaf = child.prevLeaf()
                 if (prevLeaf is PsiWhiteSpace && prevLeaf.textContains('\n')) {
                     emit(child.startOffset, errorMessage(child), true)
-                    if (autoCorrect) {
-                        prevLeaf.delete()
-                    }
+                        .ifAutocorrectAllowed {
+                            prevLeaf.delete()
+                        }
                 }
             }
 
@@ -217,20 +217,20 @@ public class ArgumentListWrappingRule :
                     } else {
                         // The current child needs to be wrapped to a newline.
                         emit(child.startOffset, errorMessage(child), true)
-                        if (autoCorrect) {
-                            // The indentation is purely based on the previous leaf only. Note that in
-                            // autoCorrect mode the indent rule, if enabled, runs after this rule and
-                            // determines the final indentation. But if the indent rule is disabled then the
-                            // indent of this rule is kept.
-                            (prevLeaf as LeafPsiElement).rawReplaceWithText(intendedIndent)
-                        }
+                            .ifAutocorrectAllowed {
+                                // The indentation is purely based on the previous leaf only. Note that in
+                                // autoCorrect mode the indent rule, if enabled, runs after this rule and
+                                // determines the final indentation. But if the indent rule is disabled then the
+                                // indent of this rule is kept.
+                                (prevLeaf as LeafPsiElement).rawReplaceWithText(intendedIndent)
+                            }
                     }
                 } else {
                     // Insert a new whitespace element in order to wrap the current child to a new line.
                     emit(child.startOffset, errorMessage(child), true)
-                    if (autoCorrect) {
-                        child.treeParent.addChild(PsiWhiteSpaceImpl(intendedIndent), child)
-                    }
+                        .ifAutocorrectAllowed {
+                            child.treeParent.addChild(PsiWhiteSpaceImpl(intendedIndent), child)
+                        }
                 }
                 // Indentation of child nodes need to be fixed by the IndentationRule.
             }

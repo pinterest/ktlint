@@ -36,15 +36,14 @@ internal class VisitorProvider(
             RULE_PROVIDER_SORTER
         }.getSortedRuleProviders(ruleProviders)
 
-    internal fun visitor(): ((rule: Rule) -> Unit) -> Unit {
-        if (ruleProvidersSorted.isEmpty()) {
-            LOGGER.debug { "Skipping file as no enabled rules are found to be executed" }
-            return { _ -> }
-        }
-        return { visit ->
-            ruleProvidersSorted.forEach {
-                visit(it.createNewRuleInstance())
+    internal val rules: List<Rule>
+        get() {
+            if (ruleProvidersSorted.isEmpty()) {
+                LOGGER.debug { "Skipping file as no enabled rules are found to be executed" }
+                return emptyList()
+            }
+            return ruleProvidersSorted.map {
+                it.createNewRuleInstance()
             }
         }
-    }
 }

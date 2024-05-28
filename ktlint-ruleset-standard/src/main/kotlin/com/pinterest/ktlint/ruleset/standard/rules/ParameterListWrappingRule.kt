@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
@@ -22,6 +23,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
@@ -71,19 +73,17 @@ public class ParameterListWrappingRule :
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         when (node.elementType) {
-            NULLABLE_TYPE -> visitNullableType(node, emit, autoCorrect)
-            VALUE_PARAMETER_LIST -> visitParameterList(node, emit, autoCorrect)
+            NULLABLE_TYPE -> visitNullableType(node, emit)
+            VALUE_PARAMETER_LIST -> visitParameterList(node, emit)
         }
     }
 
     private fun visitNullableType(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         require(node.elementType == NULLABLE_TYPE)
         node
@@ -101,8 +101,7 @@ public class ParameterListWrappingRule :
                             lpar.startOffset + 1,
                             "Expected new line before function type as it does not fit on a single line",
                             true,
-                        )
-                        if (autoCorrect) {
+                        ).ifAutocorrectAllowed {
                             lpar.upsertWhitespaceAfterMe(indentConfig.childIndentOf(node))
                         }
                     }
@@ -114,8 +113,7 @@ public class ParameterListWrappingRule :
                             rpar.startOffset,
                             "Expected new line after function type as it does not fit on a single line",
                             true,
-                        )
-                        if (autoCorrect) {
+                        ).ifAutocorrectAllowed {
                             rpar.upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(node))
                         }
                     }
@@ -188,15 +186,14 @@ public class ParameterListWrappingRule :
 
     private fun visitParameterList(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (isPrecededByComment(node)) {
             emit(node.startOffset, "Parameter list should not be preceded by a comment", false)
         } else if (node.needToWrapParameterList()) {
             node
                 .children()
-                .forEach { child -> wrapParameterInList(child, emit, autoCorrect) }
+                .forEach { child -> wrapParameterInList(child, emit) }
         }
     }
 
@@ -242,8 +239,7 @@ public class ParameterListWrappingRule :
 
     private fun wrapParameterInList(
         child: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        autoCorrect: Boolean,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         when (child.elementType) {
             LPAR -> {
@@ -252,9 +248,9 @@ public class ParameterListWrappingRule :
                     prevLeaf.isWhiteSpaceWithNewline()
                 ) {
                     emit(child.startOffset, errorMessage(child), true)
-                    if (autoCorrect) {
-                        (prevLeaf as PsiWhiteSpace).delete()
-                    }
+                        .ifAutocorrectAllowed {
+                            (prevLeaf as PsiWhiteSpace).delete()
+                        }
                 }
             }
 
@@ -275,20 +271,20 @@ public class ParameterListWrappingRule :
                     } else {
                         // The current child needs to be wrapped to a newline.
                         emit(child.startOffset, errorMessage(child), true)
-                        if (autoCorrect) {
-                            // The indentation is purely based on the previous leaf only. Note that in
-                            // autoCorrect mode the indent rule, if enabled, runs after this rule and
-                            // determines the final indentation. But if the indent rule is disabled then the
-                            // indent of this rule is kept.
-                            (prevLeaf as LeafPsiElement).rawReplaceWithText(intendedIndent)
-                        }
+                            .ifAutocorrectAllowed {
+                                // The indentation is purely based on the previous leaf only. Note that in
+                                // autoCorrect mode the indent rule, if enabled, runs after this rule and
+                                // determines the final indentation. But if the indent rule is disabled then the
+                                // indent of this rule is kept.
+                                (prevLeaf as LeafPsiElement).rawReplaceWithText(intendedIndent)
+                            }
                     }
                 } else {
                     // Insert a new whitespace element in order to wrap the current child to a new line.
                     emit(child.startOffset, errorMessage(child), true)
-                    if (autoCorrect) {
-                        child.treeParent.addChild(PsiWhiteSpaceImpl(intendedIndent), child)
-                    }
+                        .ifAutocorrectAllowed {
+                            child.treeParent.addChild(PsiWhiteSpaceImpl(intendedIndent), child)
+                        }
                 }
                 // Indentation of child nodes need to be fixed by the IndentationRule.
             }

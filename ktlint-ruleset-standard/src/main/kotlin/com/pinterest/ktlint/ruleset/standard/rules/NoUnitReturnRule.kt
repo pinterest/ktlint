@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
@@ -7,6 +8,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIS
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -15,8 +17,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 public class NoUnitReturnRule : StandardRule("no-unit-return") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == TYPE_REFERENCE &&
             node.treeParent.elementType == FUN &&
@@ -24,13 +25,13 @@ public class NoUnitReturnRule : StandardRule("no-unit-return") {
             node.nextCodeLeaf(skipSubtree = true)?.elementType == LBRACE
         ) {
             emit(node.startOffset, "Unnecessary \"Unit\" return type", true)
-            if (autoCorrect) {
-                var prevNode = node
-                while (prevNode.treePrev.elementType != VALUE_PARAMETER_LIST) {
-                    prevNode = prevNode.treePrev
+                .ifAutocorrectAllowed {
+                    var prevNode = node
+                    while (prevNode.treePrev.elementType != VALUE_PARAMETER_LIST) {
+                        prevNode = prevNode.treePrev
+                    }
+                    node.treeParent.removeRange(prevNode, node.treeNext)
                 }
-                node.treeParent.removeRange(prevNode, node.treeNext)
-            }
         }
     }
 }

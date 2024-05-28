@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ELSE
@@ -20,6 +21,7 @@ import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
@@ -63,37 +65,34 @@ public class IfElseWrappingRule :
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         when {
-            node.elementType == IF -> visitIf(node, autoCorrect, emit)
+            node.elementType == IF -> visitIf(node, emit)
             node.isPartOfComment() && node.treeParent.elementType == IF -> visitComment(node, emit)
         }
     }
 
     private fun visitIf(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         val outerIf = node.outerIf()
         val multilineIf = outerIf.textContains('\n')
         val nestedIf = outerIf.isNestedIf()
         with(node) {
             findChildByType(THEN)
-                ?.let { visitElement(it, autoCorrect, emit, multilineIf, nestedIf) }
+                ?.let { visitElement(it, emit, multilineIf, nestedIf) }
             findChildByType(ELSE_KEYWORD)
-                ?.let { visitElement(it, autoCorrect, emit, multilineIf, nestedIf) }
+                ?.let { visitElement(it, emit, multilineIf, nestedIf) }
             findChildByType(ELSE)
-                ?.let { visitElement(it, autoCorrect, emit, multilineIf, nestedIf) }
+                ?.let { visitElement(it, emit, multilineIf, nestedIf) }
         }
     }
 
     private fun visitElement(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         multilineIf: Boolean,
         nestedIf: Boolean,
     ) {
@@ -101,13 +100,13 @@ public class IfElseWrappingRule :
             visitBranchSingleLineIf(node, emit)
         }
         if (multilineIf || nestedIf) {
-            visitBranch(node, autoCorrect, emit, multilineIf)
+            visitBranch(node, emit, multilineIf)
         }
     }
 
     private fun visitBranchSingleLineIf(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
             .findChildByType(BLOCK)
@@ -124,8 +123,7 @@ public class IfElseWrappingRule :
 
     private fun visitBranch(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         multilineIf: Boolean,
     ) {
         if (multilineIf) {
@@ -158,9 +156,9 @@ public class IfElseWrappingRule :
                 ?.let {
                     // Expected a newline with indent. Leave it up to the IndentationRule to determine exact indent
                     emit(startOffset, "Expected a newline", true)
-                    if (autoCorrect) {
-                        upsertWhitespaceBeforeMe(expectedIndent)
-                    }
+                        .ifAutocorrectAllowed {
+                            upsertWhitespaceBeforeMe(expectedIndent)
+                        }
                 }
         }
     }
@@ -199,7 +197,7 @@ public class IfElseWrappingRule :
 
     private fun visitComment(
         comment: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         require(comment.isPartOfComment())
         if (comment.betweenCodeSiblings(ElementType.RPAR, THEN) ||

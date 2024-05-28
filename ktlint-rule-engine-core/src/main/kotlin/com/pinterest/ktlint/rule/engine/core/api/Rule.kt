@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.rule.engine.core.api
 
+import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.internal.IdNamingPolicy
@@ -61,6 +62,11 @@ public class RuleSetId(
  * When wrapping a rule from the ktlint project and modifying its behavior, please change the [ruleId] and [about] fields, so that it is
  * clear to users whenever they used the original rule provided by KtLint versus a modified version which is not maintained by the KtLint
  * project.
+ *
+ * Note:
+ * In Ktlint 2.0 the methods from interface [RuleAutocorrectApproveHandler] interface will be merged into the [Rule] class. Consider to
+ * implement this interface on your Ktlint 1.x compatible rules in order to make your rules suitable for API Consumers, like the
+ * ktlint-intellij-plugin, that allow their users to fix violations that can be autocorrected on an interactive 1-by-1 basis.
  */
 public open class Rule(
     /**
@@ -96,10 +102,17 @@ public open class Rule(
      * This method is called on a node in AST before visiting the child nodes. This is repeated recursively for the
      * child nodes resulting in a depth first traversal of the AST.
      *
+     * When a rule overrides this method, it only supports linting and formatting of an entire file. All violations which are found are
+     * being emitted. The rule can not support manual autocorrect of a specific single violation in the intellij-ktlint-plugin in case that
+     * files contains multiple violations caused by the same, or by different rules.
+     *
+     * IMPORTANT: This method will *not* be called in case the rule implements the [RuleAutocorrectApproveHandler] interface!
+     *
      * @param node AST node
      * @param autoCorrect indicates whether rule should attempt autocorrection
      * @param emit a way for rule to notify about a violation (lint error)
      */
+    @Deprecated(message = "Marked for removal in Ktlint 2.0. Please implement interface RuleAutocorrectApproveHandler.")
     public open fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
@@ -109,8 +122,18 @@ public open class Rule(
 
     /**
      * This method is called on a node in AST after all its child nodes have been visited.
+     *
+     * When a rule overrides this method, it only supports linting and formatting of an entire file. All violations which are found are
+     * being emitted. The rule can not support manual autocorrect of a specific single violation in the intellij-ktlint-plugin in case that
+     * files contains multiple violations caused by the same, or by different rules.
+     *
+     * IMPORTANT: This method will *not* be called in case the rule implements the [RuleAutocorrectApproveHandler] interface!
+     *
+     * @param node AST node
+     * @param autoCorrect indicates whether rule should attempt autocorrection
+     * @param emit a way for rule to notify about a violation (lint error)
      */
-    @Suppress("unused")
+    @Deprecated(message = "Marked for removal in Ktlint 2.0. Please implement interface RuleAutocorrectApproveHandler.")
     public open fun afterVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,

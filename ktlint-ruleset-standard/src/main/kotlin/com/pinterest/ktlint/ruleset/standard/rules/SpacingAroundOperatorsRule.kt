@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANDAND
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ARROW
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DIV
@@ -29,6 +30,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.parent
@@ -47,8 +49,7 @@ import org.jetbrains.kotlin.psi.KtPrefixExpression
 public class SpacingAroundOperatorsRule : StandardRule("op-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.isUnaryOperator()) {
             // Allow:
@@ -86,24 +87,24 @@ public class SpacingAroundOperatorsRule : StandardRule("op-spacing") {
             when {
                 !spacingBefore && !spacingAfter -> {
                     emit(node.startOffset, "Missing spacing around \"${node.text}\"", true)
-                    if (autoCorrect) {
-                        node.upsertWhitespaceBeforeMe(" ")
-                        node.upsertWhitespaceAfterMe(" ")
-                    }
+                        .ifAutocorrectAllowed {
+                            node.upsertWhitespaceBeforeMe(" ")
+                            node.upsertWhitespaceAfterMe(" ")
+                        }
                 }
 
                 !spacingBefore -> {
                     emit(node.startOffset, "Missing spacing before \"${node.text}\"", true)
-                    if (autoCorrect) {
-                        node.upsertWhitespaceBeforeMe(" ")
-                    }
+                        .ifAutocorrectAllowed {
+                            node.upsertWhitespaceBeforeMe(" ")
+                        }
                 }
 
                 !spacingAfter -> {
                     emit(node.startOffset + node.textLength, "Missing spacing after \"${node.text}\"", true)
-                    if (autoCorrect) {
-                        node.upsertWhitespaceAfterMe(" ")
-                    }
+                        .ifAutocorrectAllowed {
+                            node.upsertWhitespaceAfterMe(" ")
+                        }
                 }
             }
         }

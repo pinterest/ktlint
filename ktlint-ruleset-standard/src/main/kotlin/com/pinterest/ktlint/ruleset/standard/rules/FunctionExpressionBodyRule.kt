@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EQ
@@ -22,6 +23,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesInClosedRange
@@ -94,18 +96,16 @@ public class FunctionExpressionBodyRule :
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
             .takeIf { it.elementType == BLOCK && it.treeParent.elementType == FUN }
-            ?.let { visitFunctionBody(node, autoCorrect, emit) }
+            ?.let { visitFunctionBody(node, emit) }
     }
 
     private fun visitFunctionBody(
         block: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         require(block.elementType == BLOCK)
         block
@@ -116,43 +116,43 @@ public class FunctionExpressionBodyRule :
             ?.nextSibling { !it.isWhiteSpace() }
             ?.let { codeSibling ->
                 emit(block.startOffset, "Function body should be replaced with body expression", true)
-                if (autoCorrect) {
-                    with(block.treeParent) {
-                        // Insert the code sibling before the block
-                        addChild(LeafPsiElement(EQ, "="), block)
-                        addChild(PsiWhiteSpaceImpl(" "), block)
-                        addChild(codeSibling, block)
-                        // Remove old (and now empty block)
-                        removeChild(block)
+                    .ifAutocorrectAllowed {
+                        with(block.treeParent) {
+                            // Insert the code sibling before the block
+                            addChild(LeafPsiElement(EQ, "="), block)
+                            addChild(PsiWhiteSpaceImpl(" "), block)
+                            addChild(codeSibling, block)
+                            // Remove old (and now empty block)
+                            removeChild(block)
+                        }
                     }
-                }
             }
         block
             .takeIf { it.containingOnly(THROW) }
             ?.findChildByType(THROW)
             ?.let { throwNode ->
                 emit(block.startOffset, "Function body should be replaced with body expression", true)
-                if (autoCorrect) {
-                    with(block.treeParent) {
-                        // Remove whitespace before block
-                        block
-                            .prevSibling()
-                            .takeIf { it.isWhiteSpace() }
-                            ?.let { removeChild(it) }
-                        if (findChildByType(TYPE_REFERENCE) == null) {
-                            // Insert Unit as return type as otherwise a compilation error results
-                            addChild(LeafPsiElement(COLON, ":"), block)
+                    .ifAutocorrectAllowed {
+                        with(block.treeParent) {
+                            // Remove whitespace before block
+                            block
+                                .prevSibling()
+                                .takeIf { it.isWhiteSpace() }
+                                ?.let { removeChild(it) }
+                            if (findChildByType(TYPE_REFERENCE) == null) {
+                                // Insert Unit as return type as otherwise a compilation error results
+                                addChild(LeafPsiElement(COLON, ":"), block)
+                                addChild(PsiWhiteSpaceImpl(" "), block)
+                                addChild(createUnitTypeReference(), block)
+                            }
                             addChild(PsiWhiteSpaceImpl(" "), block)
-                            addChild(createUnitTypeReference(), block)
+                            addChild(LeafPsiElement(EQ, "="), block)
+                            addChild(PsiWhiteSpaceImpl(" "), block)
+                            addChild(throwNode, block)
+                            // Remove old (and now empty block)
+                            removeChild(block)
                         }
-                        addChild(PsiWhiteSpaceImpl(" "), block)
-                        addChild(LeafPsiElement(EQ, "="), block)
-                        addChild(PsiWhiteSpaceImpl(" "), block)
-                        addChild(throwNode, block)
-                        // Remove old (and now empty block)
-                        removeChild(block)
                     }
-                }
             }
     }
 

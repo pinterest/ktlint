@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ABSTRACT_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ACTUAL_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
@@ -29,26 +30,26 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VARARG_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtDeclarationModifierList
-import java.util.Arrays
 
 @SinceKtlint("0.7", STABLE)
 public class ModifierOrderRule : StandardRule("modifier-order") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.psi is KtDeclarationModifierList) {
             val modifierArr = node.getChildren(tokenSet)
             val sorted = modifierArr.copyOf().apply { sortWith(compareBy { ORDERED_MODIFIERS.indexOf(it.elementType) }) }
-            if (!Arrays.equals(modifierArr, sorted)) {
+            if (!modifierArr.contentEquals(sorted)) {
                 // Since annotations can be fairly lengthy and/or span multiple lines we are
                 // squashing them into a single placeholder text to guarantee a single line output
+                var autocorrect = false
                 squashAnnotations(sorted)
                     .joinToString(" ")
                     .let { squashedAnnotations ->
@@ -56,9 +57,9 @@ public class ModifierOrderRule : StandardRule("modifier-order") {
                             node.startOffset,
                             "Incorrect modifier order (should be \"$squashedAnnotations\")",
                             true,
-                        )
+                        ).ifAutocorrectAllowed { autocorrect = true }
                     }
-                if (autoCorrect) {
+                if (autocorrect) {
                     modifierArr.forEachIndexed { i, n ->
                         node.replaceChild(n, sorted[i].clone() as ASTNode)
                     }
