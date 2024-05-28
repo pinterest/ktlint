@@ -31,6 +31,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
+import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -285,7 +286,12 @@ class KtLintTest {
 
     @Test
     fun testFormatUnicodeBom() {
-        val code = getResourceAsText("spec/format-unicode-bom.kt.spec")
+        val code =
+            getResourceAsText("spec/format-unicode-bom.kt.spec")
+                .applyIf(System.lineSeparator() != "\n") {
+                    // On Windows change the input code to conform with the default lineSeparator "\r\n" as otherwise the assertion fails
+                    replace("\n", System.lineSeparator())
+                }
 
         val actual =
             KtLintRuleEngine(
@@ -295,6 +301,8 @@ class KtLintTest {
                     ),
             ).format(Code.fromSnippet(code))
 
+        //
+        assertThat(code.toByteArray()).isEqualTo(actual.toByteArray())
         assertThat(actual).isEqualTo(code)
     }
 
