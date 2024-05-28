@@ -535,8 +535,8 @@ Enforce naming of property.
 === "[:material-heart:](#) Ktlint"
 
     ```kotlin
-    val foo1 = Foo() // In case developer want to communicate that Foo is mutable
-    val FOO1 = Foo() // In case developer want to communicate that Foo is deeply immutable
+    val foo1 = Foo() // In case developers want to tell that Foo is mutable
+    val FOO1 = Foo() // In case developers want to tell that Foo is deeply immutable
 
     const val FOO_BAR = "FOO-BAR" // By definition deeply immutable
 
