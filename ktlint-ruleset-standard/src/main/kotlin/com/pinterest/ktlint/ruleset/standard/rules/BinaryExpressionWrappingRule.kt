@@ -17,10 +17,9 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
-import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
@@ -51,7 +50,7 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
  * Wraps a binary expression whenever the expression does not fit on the line. Wrapping a binary expression should take precedence before
  * argument of function calls inside that binary expression are wrapped.
  */
-@SinceKtlint("0.50", EXPERIMENTAL)
+@SinceKtlint("0.50", STABLE)
 public class BinaryExpressionWrappingRule :
     StandardRule(
         id = "binary-expression-wrapping",
@@ -61,8 +60,7 @@ public class BinaryExpressionWrappingRule :
                 INDENT_STYLE_PROPERTY,
                 MAX_LINE_LENGTH_PROPERTY,
             ),
-    ),
-    Rule.Experimental {
+    ) {
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
     private var maxLineLength = MAX_LINE_LENGTH_PROPERTY.defaultValue
 

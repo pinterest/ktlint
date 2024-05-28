@@ -30,7 +30,7 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRu
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
-import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
@@ -69,7 +69,7 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
  *
  * As of that the rule is restricted to ktlint_official code style unless explicitly enabled.
  */
-@SinceKtlint("1.0", EXPERIMENTAL)
+@SinceKtlint("1.0", STABLE)
 public class ChainMethodContinuationRule :
     StandardRule(
         id = "chain-method-continuation",
@@ -83,7 +83,6 @@ public class ChainMethodContinuationRule :
                 MAX_LINE_LENGTH_PROPERTY,
             ),
     ),
-    Rule.Experimental,
     Rule.OfficialCodeStyle {
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
     private var maxLineLength: Int = MAX_LINE_LENGTH_PROPERTY.defaultValue
