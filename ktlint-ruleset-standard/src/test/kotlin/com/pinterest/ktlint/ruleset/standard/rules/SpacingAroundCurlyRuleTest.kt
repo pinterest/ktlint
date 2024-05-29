@@ -180,6 +180,29 @@ class SpacingAroundCurlyRuleTest {
     }
 
     @Test
+    fun `Issue 2675 - array access expression containing a lambda expression`() {
+        val code =
+            """
+            val foo1 = bar[{a -> a}]
+            val foo2 = bar[{ }]
+            val foo3 = bar[{}]
+            """.trimIndent()
+
+        val formattedCode =
+            """
+            val foo1 = bar[{ a -> a }]
+            val foo2 = bar[{ }]
+            val foo3 = bar[{}]
+            """.trimIndent()
+
+        spacingAroundCurlyRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 17, "Missing spacing after \"{\"", canBeAutoCorrected = true),
+                LintViolation(1, 23, "Missing spacing before \"}\"", canBeAutoCorrected = true),
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
     fun `Given curly braces inside a string template`() {
         val code =
             """
