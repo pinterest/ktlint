@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
+import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class SpacingAroundSquareBracketsRuleTest {
@@ -124,5 +125,24 @@ class SpacingAroundSquareBracketsRuleTest {
             fun foo() {}
             """.trimIndent()
         spacingAroundSquareBracketsRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 2675 - operator get with lambda`() {
+        val code =
+            """
+            val foo = bar[ { 123 } ]
+            """.trimIndent()
+
+        val formattedCode =
+            """
+            val foo = bar[{ 123 }]
+            """.trimIndent()
+
+        spacingAroundSquareBracketsRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(line = 1, col = 15, detail = "Unexpected spacing after '['", canBeAutoCorrected = true),
+                LintViolation(line = 1, col = 23, detail = "Unexpected spacing before ']'", canBeAutoCorrected = true),
+            ).isFormattedAs(formattedCode)
     }
 }

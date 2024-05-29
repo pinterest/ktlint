@@ -87,7 +87,7 @@ public class SpacingAroundCurlyRule :
                         prevLeaf is PsiWhiteSpace ||
                         prevLeaf?.elementType == AT ||
                         (
-                            prevLeaf?.elementType == LPAR &&
+                            (prevLeaf?.elementType == LPAR || prevLeaf?.elementType == LBRACKET) &&
                                 ((node as LeafPsiElement).parent is KtLambdaExpression || node.parent.parent is KtLambdaExpression)
                         )
                     spacingAfter = nextLeaf is PsiWhiteSpace || nextLeaf?.elementType == RBRACE
