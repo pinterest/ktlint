@@ -180,7 +180,7 @@ class SpacingAroundCurlyRuleTest {
     }
 
     @Test
-    fun `Issue 2675 - operator get with lambda`() {
+    fun `Issue 2675 - array access expression containing a lambda expression`() {
         val code =
             """
             val foo1 = bar[{a -> a}]
@@ -197,8 +197,8 @@ class SpacingAroundCurlyRuleTest {
 
         spacingAroundCurlyRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(line = 1, col = 17, detail = "Missing spacing after \"{\"", canBeAutoCorrected = true),
-                LintViolation(line = 1, col = 23, detail = "Missing spacing before \"}\"", canBeAutoCorrected = true),
+                LintViolation(1, 17, "Missing spacing after \"{\"", canBeAutoCorrected = true),
+                LintViolation(1, 23, "Missing spacing before \"}\"", canBeAutoCorrected = true),
             ).isFormattedAs(formattedCode)
     }
 

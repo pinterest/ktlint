@@ -128,7 +128,7 @@ class SpacingAroundSquareBracketsRuleTest {
     }
 
     @Test
-    fun `Issue 2675 - operator get with lambda`() {
+    fun `Issue 2675 - array access expression containing a lambda expression`() {
         val code =
             """
             val foo = bar[ { 123 } ]
@@ -141,8 +141,8 @@ class SpacingAroundSquareBracketsRuleTest {
 
         spacingAroundSquareBracketsRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(line = 1, col = 15, detail = "Unexpected spacing after '['", canBeAutoCorrected = true),
-                LintViolation(line = 1, col = 23, detail = "Unexpected spacing before ']'", canBeAutoCorrected = true),
+                LintViolation(1, 15, "Unexpected spacing after '['", canBeAutoCorrected = true),
+                LintViolation(1, 23, "Unexpected spacing before ']'", canBeAutoCorrected = true),
             ).isFormattedAs(formattedCode)
     }
 }
