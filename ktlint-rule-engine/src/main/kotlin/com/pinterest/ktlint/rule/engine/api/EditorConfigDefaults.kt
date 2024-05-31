@@ -36,13 +36,9 @@ public class EditorConfigDefaults(
             path: Path?,
             propertyTypes: Set<PropertyType<*>>,
         ): EditorConfigDefaults =
-            if (path == null) {
-                EMPTY_EDITOR_CONFIG_DEFAULTS
-            } else {
-                EditorConfigDefaultsLoader(
-                    EditorConfigLoaderEc4j(propertyTypes),
-                ).load(path)
-            }
+            EditorConfigDefaultsLoader(
+                EditorConfigLoaderEc4j(propertyTypes),
+            ).load(path)
 
         /**
          * Empty representation of [EditorConfigDefaults].
