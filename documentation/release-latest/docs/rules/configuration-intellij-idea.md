@@ -21,7 +21,7 @@ ij_kotlin_packages_to_use_import_on_demand = unset
 ```
 
 Conflicts between `ktlint` and IDEA formatting can also be resolved by using the [ktlint-intellij-plugin](https://plugins.jetbrains.com/plugin/15057-ktlint) (or install via Intellij IDEA plugin marketplace) in `distract free` mode. In this mode, the plugin formats your code with `ktlint` while you're editing the code.
-
+ 
 # Cleaning up old XML configuration settings
 
 Projects which have been created with (old)er versions of Intellij IDEA might still contain XML configuration regarding code styling. It is advised to remove the directory `.idea/codeStyles` whenever it still exists in your project directory.
