@@ -22,16 +22,3 @@ Note: These steps should be done directly in the pinterest/ktlint repository, no
 13. Verify that the published documentation does not contain broken links with [Broken Link Checker Tool](https://www.deadlinkchecker.com/website-dead-link-checker.asp).
 14. Announce release on Ktlint Slack channel but wait with doing so until sonatype release is closed by Pinterest.
 15. Update `gradle.properties` with the new `SNAPSHOT` version
-16. [[NOT DONE AFTER RELEASE 1.2.0 AS TRY-OUT. DECIDE ON NEXT RELEASE TO REMOVE PERMANENTLY OR RESTORE]], and add the section below to the top of `CHANGELOG.md` and commit. (This can be done directly in the main repo or in your fork.)
-```markdown
-## [Unreleased]
-
-### Added
-
-### Removed
-
-### Fixed
-
-### Changed
-```
-Note: the heading "[Unreleased]" may not be changed as this will result in incorrect release notes being extracted from the 'changelog.md' file. 
