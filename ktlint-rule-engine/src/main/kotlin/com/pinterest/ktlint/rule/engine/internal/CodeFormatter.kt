@@ -59,7 +59,7 @@ internal class CodeFormatter(
                     }
                 formatRunCount++
             } while (mutated && formatRunCount < maxFormatRunsPerFile)
-            if (mutated && formatRunCount == maxFormatRunsPerFile) {
+            if (mutated && formatRunCount == maxFormatRunsPerFile && autocorrectHandler !is NoneAutocorrectHandler) {
                 // It is unknown if the last format run introduces new lint violations which can be autocorrected. So run lint once more
                 // so that the user can be informed about this correctly.
                 lintAfterFormat().also {
