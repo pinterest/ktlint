@@ -139,23 +139,26 @@ To disable a specific rule you'll need the fully qualified rule identifier. This
 
 As of Ktlint 0.50, an error can only be suppressed using @Suppress or @SuppressWarnings annotations
 
+!!! warning
+    Import statements can not be annotated in Kotlin. The rules related to import statements can be suppressed with file annotations only.
+
 === "[:material-heart:](#) Allowed"
 
     ```kotlin
     // Suppressing all rules for the entire file
     @file:Suppress("ktlint")
 
-    // Suppress a single rule (with id 'rule-id', defined in rule set with id 'rule-set-id') in the scope of the annotated construct
-    @Suppress("ktlint:rule-set-id:rule-id")
-    class Foo {}
-
-    // Suppress multiple rules for the annotated construct
-    @Suppress("ktlint:standard:no-wildcard-imports", "ktlint:custom-rule-set-id:custom-rule-id")
-    import foo.*
+    // Suppressing specific rules for the entire file
+    // Rules related to import statements can only be suppressed using file annotations
+    @file:Suppress("ktlint:standard:no-wildcard-imports", "ktlint:custom-rule-set-id:custom-rule-id")
 
     // Suppress all rules for the annotated construct
     @Suppress("ktlint")
-    import foo.*
+    class Foo {}
+
+    // Suppress a single rule (with id 'rule-id', defined in rule set with id 'rule-set-id') in the scope of the annotated construct
+    @Suppress("ktlint:rule-set-id:rule-id")
+    class Foo {}
     ```
 
 ## Why is `.editorconfig` property `disabled_rules` deprecated and how do I resolve this?
