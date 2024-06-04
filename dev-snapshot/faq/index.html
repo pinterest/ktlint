@@ -1555,23 +1555,27 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 </div>
 <p>To disable a specific rule you'll need the fully qualified rule identifier. This identifier is displayed at the end of the lint error. In case your code was autocorrected, you need to revert the code and run the <code>lint</code> task instead of the <code>format</code> to find the rule identifier.</p>
 <p>As of Ktlint 0.50, an error can only be suppressed using @Suppress or @SuppressWarnings annotations</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Import statements can not be annotated in Kotlin. The rules related to import statements can be suppressed with file annotations only.</p>
+</div>
 <div class="tabbed-set tabbed-alternate" data-tabs="3:1"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53L12 21.35Z"/></svg></span></a> Allowed</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1">// Suppressing all rules for the entire file</span>
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nd">@file</span><span class="p">:</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;ktlint&quot;</span><span class="p">)</span>
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="c1">// Suppress a single rule (with id &#39;rule-id&#39;, defined in rule set with id &#39;rule-set-id&#39;) in the scope of the annotated construct</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:rule-set-id:rule-id&quot;</span><span class="p">)</span>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo</span><span class="w"> </span><span class="p">{}</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="c1">// Suppressing specific rules for the entire file</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="c1">// Rules related to import statements can only be suppressed using file annotations</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="nd">@file</span><span class="p">:</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:standard:no-wildcard-imports&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ktlint:custom-rule-set-id:custom-rule-id&quot;</span><span class="p">)</span>
 <a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="c1">// Suppress multiple rules for the annotated construct</span>
-<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:standard:no-wildcard-imports&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ktlint:custom-rule-set-id:custom-rule-id&quot;</span><span class="p">)</span>
-<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="k">import</span><span class="w"> </span><span class="nn">foo.*</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="c1">// Suppress all rules for the annotated construct</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint&quot;</span><span class="p">)</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo</span><span class="w"> </span><span class="p">{}</span>
 <a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>
-<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="c1">// Suppress all rules for the annotated construct</span>
-<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint&quot;</span><span class="p">)</span>
-<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="k">import</span><span class="w"> </span><span class="nn">foo.*</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="c1">// Suppress a single rule (with id &#39;rule-id&#39;, defined in rule set with id &#39;rule-set-id&#39;) in the scope of the annotated construct</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:rule-set-id:rule-id&quot;</span><span class="p">)</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo</span><span class="w"> </span><span class="p">{}</span>
 </code></pre></div>
 </div>
 </div>
