@@ -15,6 +15,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -74,7 +75,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                                             node.treeParent.addChild(it, treeNext)
                                         }
                                         if (treeNext.isWhiteSpace()) {
-                                            equalsSignElement.treeParent.removeChild(treeNext)
+                                            treeNext.remove()
                                         }
                                         Unit
                                     }
@@ -91,11 +92,11 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                                 prevNonCodeElements
                                     .let {
                                         if (it.first().isWhiteSpace()) {
-                                            blockElement.treeParent.removeChild(it.first())
+                                            it.first().remove()
                                             it.drop(1)
                                         }
                                         if (it.last().isWhiteSpaceWithNewline()) {
-                                            blockElement.treeParent.removeChild(it.last())
+                                            it.last().remove()
                                             it.dropLast(1)
                                         } else {
                                             it
@@ -112,7 +113,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                                 node.treeParent.addChild(it, nextLeaf)
                             }
                             if (nextLeaf != null && nextLeaf.isWhiteSpace()) {
-                                node.treeParent.removeChild(nextLeaf)
+                                nextLeaf.remove()
                             }
                         }
 
@@ -121,7 +122,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                             if (node.spacingBefore) {
                                 (prevLeaf as LeafPsiElement).rawReplaceWithText(" ")
                             } else {
-                                prevLeaf.treeParent.removeChild(prevLeaf)
+                                prevLeaf.remove()
                             }
                             node.upsertWhitespaceAfterMe(text)
                         }
@@ -139,9 +140,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                 .ifAutocorrectAllowed {
                     node
                         .prevSibling()
-                        ?.let { prevSibling ->
-                            prevSibling.treeParent.removeChild(prevSibling)
-                        }
+                        ?.remove()
                 }
         }
         if (node.nextSibling().isWhiteSpaceWithoutNewline() && node.spacingAfter) {
@@ -149,9 +148,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                 .ifAutocorrectAllowed {
                     node
                         .nextSibling()
-                        ?.let { nextSibling ->
-                            nextSibling.treeParent.removeChild(nextSibling)
-                        }
+                        ?.remove()
                 }
         }
     }

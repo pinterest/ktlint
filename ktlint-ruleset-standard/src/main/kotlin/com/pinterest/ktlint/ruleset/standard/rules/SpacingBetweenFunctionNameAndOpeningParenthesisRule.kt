@@ -9,6 +9,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
@@ -26,9 +27,7 @@ public class SpacingBetweenFunctionNameAndOpeningParenthesisRule : StandardRule(
             ?.takeIf { it.elementType == WHITE_SPACE }
             ?.let { whiteSpace ->
                 emit(whiteSpace.startOffset, "Unexpected whitespace", true)
-                    .ifAutocorrectAllowed {
-                        whiteSpace.treeParent.removeChild(whiteSpace)
-                    }
+                    .ifAutocorrectAllowed { whiteSpace.remove() }
             }
     }
 }

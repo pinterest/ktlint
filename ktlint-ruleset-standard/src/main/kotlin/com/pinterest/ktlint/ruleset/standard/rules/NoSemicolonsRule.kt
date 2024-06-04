@@ -16,6 +16,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -53,9 +54,9 @@ public class NoSemicolonsRule :
             emit(node.startOffset, "Unnecessary semicolon", true)
                 .ifAutocorrectAllowed {
                     val prevLeaf = node.prevLeaf(true)
-                    node.treeParent.removeChild(node)
+                    node.remove()
                     if (prevLeaf.isWhiteSpace() && (nextLeaf == null || nextLeaf.isWhiteSpace())) {
-                        node.treeParent.removeChild(prevLeaf!!)
+                        prevLeaf?.remove()
                     }
                 }
         } else if (nextLeaf !is PsiWhiteSpace) {

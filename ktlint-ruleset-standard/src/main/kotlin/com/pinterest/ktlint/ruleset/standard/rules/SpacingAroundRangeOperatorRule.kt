@@ -9,6 +9,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
@@ -27,23 +28,19 @@ public class SpacingAroundRangeOperatorRule : StandardRule("range-spacing") {
                 prevLeaf is PsiWhiteSpace && nextLeaf is PsiWhiteSpace -> {
                     emit(node.startOffset, "Unexpected spacing around \"${node.elementTypeDescription()}\"", true)
                         .ifAutocorrectAllowed {
-                            prevLeaf.node.treeParent.removeChild(prevLeaf.node)
-                            nextLeaf.node.treeParent.removeChild(nextLeaf.node)
+                            prevLeaf.node.remove()
+                            nextLeaf.node.remove()
                         }
                 }
 
                 prevLeaf is PsiWhiteSpace -> {
                     emit(prevLeaf.node.startOffset, "Unexpected spacing before \"${node.elementTypeDescription()}\"", true)
-                        .ifAutocorrectAllowed {
-                            prevLeaf.node.treeParent.removeChild(prevLeaf.node)
-                        }
+                        .ifAutocorrectAllowed { prevLeaf.node.remove() }
                 }
 
                 nextLeaf is PsiWhiteSpace -> {
                     emit(nextLeaf.node.startOffset, "Unexpected spacing after \"${node.elementTypeDescription()}\"", true)
-                        .ifAutocorrectAllowed {
-                            nextLeaf.node.treeParent.removeChild(nextLeaf.node)
-                        }
+                        .ifAutocorrectAllowed { nextLeaf.node.remove() }
                 }
             }
         }

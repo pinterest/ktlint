@@ -47,6 +47,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -268,9 +269,7 @@ public class ClassSignatureRule :
             }?.let { parameterList ->
                 if (!dryRun) {
                     emit(parameterList.startOffset, "No parenthesis expected", true)
-                        .ifAutocorrectAllowed {
-                            parameterList.treeParent.removeChild(parameterList)
-                        }
+                        .ifAutocorrectAllowed { parameterList.remove() }
                 } else {
                     whiteSpaceCorrection -= parameterList.textLength
                 }
@@ -323,9 +322,7 @@ public class ClassSignatureRule :
                                 firstParameter!!.startOffset,
                                 "No whitespace expected between opening parenthesis and first parameter name",
                                 true,
-                            ).ifAutocorrectAllowed {
-                                whiteSpaceBeforeIdentifier.treeParent.removeChild(whiteSpaceBeforeIdentifier)
-                            }
+                            ).ifAutocorrectAllowed { whiteSpaceBeforeIdentifier.remove() }
                         } else {
                             whiteSpaceCorrection -= whiteSpaceBeforeIdentifier.textLength
                         }
@@ -434,9 +431,7 @@ public class ClassSignatureRule :
                                 whiteSpaceBeforeClosingParenthesis.startOffset,
                                 "No whitespace expected between last parameter and closing parenthesis",
                                 true,
-                            ).ifAutocorrectAllowed {
-                                whiteSpaceBeforeClosingParenthesis.treeParent.removeChild(whiteSpaceBeforeClosingParenthesis)
-                            }
+                            ).ifAutocorrectAllowed { whiteSpaceBeforeClosingParenthesis.remove() }
                         } else {
                             whiteSpaceCorrection -= whiteSpaceBeforeClosingParenthesis.textLength
                         }
@@ -582,9 +577,7 @@ public class ClassSignatureRule :
                     .findChildByType(WHITE_SPACE)
                     ?.let { whitespace ->
                         emit(whitespace.startOffset, "No whitespace expected", true)
-                            .ifAutocorrectAllowed {
-                                whitespace.treeParent.removeChild(whitespace)
-                            }
+                            .ifAutocorrectAllowed { whitespace.remove() }
                     }
             }
 

@@ -28,6 +28,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -225,33 +226,22 @@ public class TypeParameterListSpacingRule :
 
         when {
             expectedWhitespace.isEmpty() -> {
-                emit(
-                    node.startOffset,
-                    "No whitespace expected",
-                    true,
-                ).ifAutocorrectAllowed {
-                    node.treeParent.removeChild(node)
-                }
+                emit(node.startOffset, "No whitespace expected", true)
+                    .ifAutocorrectAllowed { node.remove() }
             }
 
             node.isWhiteSpaceWithoutNewline() && expectedWhitespace.startsWith("\n") -> {
-                emit(
-                    node.startOffset,
-                    "Expected a newline",
-                    true,
-                ).ifAutocorrectAllowed {
-                    (node as LeafPsiElement).rawReplaceWithText(expectedWhitespace)
-                }
+                emit(node.startOffset, "Expected a newline", true)
+                    .ifAutocorrectAllowed {
+                        (node as LeafPsiElement).rawReplaceWithText(expectedWhitespace)
+                    }
             }
 
             expectedWhitespace == " " -> {
-                emit(
-                    node.startOffset,
-                    "Expected a single space",
-                    true,
-                ).ifAutocorrectAllowed {
-                    (node as LeafPsiElement).rawReplaceWithText(expectedWhitespace)
-                }
+                emit(node.startOffset, "Expected a single space", true)
+                    .ifAutocorrectAllowed {
+                        (node as LeafPsiElement).rawReplaceWithText(expectedWhitespace)
+                    }
             }
         }
     }
@@ -264,23 +254,17 @@ public class TypeParameterListSpacingRule :
             node.text == " " -> Unit
 
             node.textContains('\n') -> {
-                emit(
-                    node.startOffset,
-                    "Expected a single space instead of newline",
-                    true,
-                ).ifAutocorrectAllowed {
-                    (node as LeafPsiElement).rawReplaceWithText(" ")
-                }
+                emit(node.startOffset, "Expected a single space instead of newline", true)
+                    .ifAutocorrectAllowed {
+                        (node as LeafPsiElement).rawReplaceWithText(" ")
+                    }
             }
 
             else -> {
-                emit(
-                    node.startOffset,
-                    "Expected a single space",
-                    true,
-                ).ifAutocorrectAllowed {
-                    node.upsertWhitespaceBeforeMe(" ")
-                }
+                emit(node.startOffset, "Expected a single space", true)
+                    .ifAutocorrectAllowed {
+                        node.upsertWhitespaceBeforeMe(" ")
+                    }
             }
         }
     }

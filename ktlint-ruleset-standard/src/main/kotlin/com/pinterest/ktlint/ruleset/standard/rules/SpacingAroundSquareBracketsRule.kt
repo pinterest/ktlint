@@ -13,6 +13,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
@@ -78,23 +79,19 @@ public class SpacingAroundSquareBracketsRule :
                 spacingBefore && spacingAfter -> {
                     emit(node.startOffset, "Unexpected spacing around '${node.text}'", true)
                         .ifAutocorrectAllowed {
-                            prevLeaf!!.treeParent.removeChild(prevLeaf)
-                            nextLeaf!!.treeParent.removeChild(nextLeaf)
+                            prevLeaf?.remove()
+                            nextLeaf?.remove()
                         }
                 }
 
                 spacingBefore -> {
                     emit(prevLeaf!!.startOffset, "Unexpected spacing before '${node.text}'", true)
-                        .ifAutocorrectAllowed {
-                            prevLeaf.treeParent.removeChild(prevLeaf)
-                        }
+                        .ifAutocorrectAllowed { prevLeaf.remove() }
                 }
 
                 spacingAfter -> {
                     emit(node.startOffset + 1, "Unexpected spacing after '${node.text}'", true)
-                        .ifAutocorrectAllowed {
-                            nextLeaf!!.treeParent.removeChild(nextLeaf)
-                        }
+                        .ifAutocorrectAllowed { nextLeaf!!.remove() }
                 }
             }
         }

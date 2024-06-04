@@ -117,6 +117,7 @@ import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -194,7 +195,7 @@ public class IndentationRule :
                 ?.takeIf { it.isWhiteSpaceWithoutNewline() }
                 ?.let { whitespaceWithoutNewline ->
                     emit(node.startOffset, "Unexpected indentation", true)
-                        .ifAutocorrectAllowed { whitespaceWithoutNewline.treeParent.removeChild(whitespaceWithoutNewline) }
+                        .ifAutocorrectAllowed { whitespaceWithoutNewline.remove() }
                 }
             indentContextStack.addLast(startNoIndentZone(node))
         }

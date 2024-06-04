@@ -37,6 +37,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -98,9 +99,7 @@ public class SpacingAroundCurlyRule :
                         } == true
                     ) {
                         emit(node.startOffset, "Unexpected space before \"${node.text}\"", true)
-                            .ifAutocorrectAllowed {
-                                prevLeaf.node.treeParent.removeChild(prevLeaf.node)
-                            }
+                            .ifAutocorrectAllowed { prevLeaf.node.remove() }
                     }
                     prevLeaf
                         ?.takeIf { it.isWhiteSpaceWithNewline() }
@@ -140,9 +139,7 @@ public class SpacingAroundCurlyRule :
                         ?.takeIf { shouldNotToBeSeparatedBySpace(it.nextLeaf()) }
                         ?.let { leaf ->
                             emit(node.startOffset, "Unexpected space after \"${node.text}\"", true)
-                                .ifAutocorrectAllowed {
-                                    leaf.treeParent.removeChild(leaf)
-                                }
+                                .ifAutocorrectAllowed { leaf.remove() }
                         }
                 }
 

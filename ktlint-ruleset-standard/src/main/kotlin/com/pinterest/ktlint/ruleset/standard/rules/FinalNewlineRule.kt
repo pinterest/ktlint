@@ -8,6 +8,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isRoot
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
@@ -45,9 +46,7 @@ public class FinalNewlineRule :
             } else {
                 if (lastNode is PsiWhiteSpace && lastNode.textContains('\n')) {
                     emit(lastNode.startOffset, "Redundant newline (\\n) at the end of file", true)
-                        .ifAutocorrectAllowed {
-                            lastNode.node.treeParent.removeChild(lastNode.node)
-                        }
+                        .ifAutocorrectAllowed { lastNode.node.remove() }
                 }
             }
         }

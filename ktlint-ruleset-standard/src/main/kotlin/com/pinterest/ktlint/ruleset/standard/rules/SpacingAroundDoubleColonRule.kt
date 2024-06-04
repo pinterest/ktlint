@@ -11,6 +11,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
@@ -48,7 +49,7 @@ public class SpacingAroundDoubleColonRule : StandardRule("double-colon-spacing")
                     emit(node.startOffset, "Unexpected spacing around \"${node.text}\"", true)
                         .ifAutocorrectAllowed {
                             prevLeaf!!.removeSelf(removeSingleWhiteSpace)
-                            nextLeaf!!.treeParent.removeChild(nextLeaf)
+                            nextLeaf!!.remove()
                         }
                 }
 
@@ -61,9 +62,7 @@ public class SpacingAroundDoubleColonRule : StandardRule("double-colon-spacing")
 
                 spacingAfter -> {
                     emit(nextLeaf!!.startOffset, "Unexpected spacing after \"${node.text}\"", true)
-                        .ifAutocorrectAllowed {
-                            nextLeaf.treeParent.removeChild(nextLeaf)
-                        }
+                        .ifAutocorrectAllowed { nextLeaf.remove() }
                 }
             }
         }
@@ -73,7 +72,7 @@ public class SpacingAroundDoubleColonRule : StandardRule("double-colon-spacing")
         if (removeSingleWhiteSpace) {
             (this as LeafPsiElement).rawReplaceWithText(text.substring(0, textLength - 1))
         } else {
-            treeParent.removeChild(this)
+            this.remove()
         }
     }
 }

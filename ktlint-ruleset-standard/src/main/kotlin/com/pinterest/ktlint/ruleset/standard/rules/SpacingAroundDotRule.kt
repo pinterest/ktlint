@@ -9,6 +9,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfString
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
@@ -25,14 +26,14 @@ public class SpacingAroundDotRule : StandardRule("dot-spacing") {
             if (prevLeaf is PsiWhiteSpace && !prevLeaf.textContains('\n')) {
                 emit(prevLeaf.startOffset, "Unexpected spacing before \"${node.text}\"", true)
                     .ifAutocorrectAllowed {
-                        prevLeaf.node.treeParent.removeChild(prevLeaf.node)
+                        prevLeaf.node.remove()
                     }
             }
             val nextLeaf = node.nextLeaf()
             if (nextLeaf is PsiWhiteSpace) {
                 emit(nextLeaf.startOffset, "Unexpected spacing after \"${node.text}\"", true)
                     .ifAutocorrectAllowed {
-                        nextLeaf.node.treeParent.removeChild(nextLeaf.node)
+                        nextLeaf.node.remove()
                     }
             }
         }
