@@ -144,14 +144,18 @@ class SpacingAroundParensRuleTest {
         val code =
             """
             val foo = fn("foo" )
+            val foo = fn( )
             """.trimIndent()
         val formattedCode =
             """
             val foo = fn("foo")
+            val foo = fn()
             """.trimIndent()
         spacingAroundParensRuleAssertThat(code)
-            .hasLintViolation(1, 19, "Unexpected spacing before \")\"")
-            .isFormattedAs(formattedCode)
+            .hasLintViolations(
+                LintViolation(1, 19, "Unexpected spacing before \")\""),
+                LintViolation(2, 14, "Unexpected spacing after \"(\""),
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
