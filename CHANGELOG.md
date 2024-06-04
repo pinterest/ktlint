@@ -2,6 +2,89 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.3.0] - 2024-06-04
+
+### 🆕 Features
+
+* Support partial formatting - [#2631](https://github.com/pinterest/ktlint/pull/2631), by @paul-dingemans
+
+* Suppress `property-name` rule for `ObjectPropertyName` or `PrivatePropertyName` - [#2643](https://github.com/pinterest/ktlint/pull/2643), by @paul-dingemans
+
+* Let API Consumer decide whether a LintError has to be autocorrected, or not - [#2671](https://github.com/pinterest/ktlint/pull/2671), by @paul-dingemans
+
+* Promote experimental rules to non-experimental - [#2674](https://github.com/pinterest/ktlint/pull/2674), by @paul-dingemans
+  - [binary-expression-wrapping](https://pinterest.github.io/ktlint/latest/rules/standard/#backing-property-naming)
+  - [chain-method-continuation](https://pinterest.github.io/ktlint/latest/rules/standard/#chain-method-continuation)
+  - [class-signature](https://pinterest.github.io/ktlint/latest/rules/standard/#class-signature)
+  - [condition-wrapping](https://pinterest.github.io/ktlint/latest/rules/standard/#condition-wrapping)
+  - [function-expression-body](https://pinterest.github.io/ktlint/latest/rules/standard/#function-expression-body)
+  - [function-literal](https://pinterest.github.io/ktlint/latest/rules/standard/#function-literal)
+  - [function-type-modifier-spacing](https://pinterest.github.io/ktlint/latest/rules/standard/#function-type-modifier-spacing)
+  - [multiline-loop](https://pinterest.github.io/ktlint/latest/rules/standard/#multiline-loop)
+
+### 🔧 Fixes
+
+
+* Do not wrap operation reference after multiline string template - [#2591](https://github.com/pinterest/ktlint/pull/2591), by @paul-dingemans
+
+* Ignore max line length in case the line contains only a string template followed by a comma - [#2598](https://github.com/pinterest/ktlint/pull/2598), by @paul-dingemans
+
+* Ignore nested reference expressions in `chain-method-continuation` - [#2606](https://github.com/pinterest/ktlint/pull/2606), by @paul-dingemans
+
+* Prevent exception in `binary-expression-wrapping` rule - [#2607](https://github.com/pinterest/ktlint/pull/2607), by @paul-dingemans
+
+* Do not merge opening quotes of multiline string template with (single line) function signature - [#2609](https://github.com/pinterest/ktlint/pull/2609), by @paul-dingemans
+
+* Fix replacement of redundant curly braces - [#2617](https://github.com/pinterest/ktlint/pull/2617), by @paul-dingemans
+
+* Set and reset Locale to pass test for non-english contributor. - [#2622](https://github.com/pinterest/ktlint/pull/2622), by @Jaehwa-Noh
+
+* Fix unwanted whitespace between super class constructor and its argument list - [#2630](https://github.com/pinterest/ktlint/pull/2630), by @tKe
+
+* Fix typo's - [#2641](https://github.com/pinterest/ktlint/pull/2641), by @paul-dingemans
+
+* Handle trailing space on preceding line in call to `lineLengthWithoutNewlinePrefix` - [#2644](https://github.com/pinterest/ktlint/pull/2644), by @paul-dingemans
+
+* Fix KDoc for RuleSetProviderV3 - [#2645](https://github.com/pinterest/ktlint/pull/2645), by @gumimin
+
+* Fix not checking for spacing around binary operators inside unary expression - [#2653](https://github.com/pinterest/ktlint/pull/2653), by @cflee
+
+* Fix `blank line before declarations` rule code example - [#2657](https://github.com/pinterest/ktlint/pull/2657), by @k-taro56
+
+* Fixed [{ }] notation for issue #2675 - [#2677](https://github.com/pinterest/ktlint/pull/2677), by @Jolanrensen
+
+* Simplify default properties loading - [#2679](https://github.com/pinterest/ktlint/pull/2679), by @Goooler
+
+### 📦 Dependencies
+
+* Update dependency org.jetbrains.dokka:dokka-gradle-plugin to v1.9.20 - [#2590](https://github.com/pinterest/ktlint/pull/2590), by @renovate[bot]
+
+* Update softprops/action-gh-release action to v2 - [#2600](https://github.com/pinterest/ktlint/pull/2600), by @renovate[bot]
+
+* Update dependency io.github.detekt.sarif4k:sarif4k to v0.6.0 - [#2605](https://github.com/pinterest/ktlint/pull/2605), by @renovate[bot]
+
+* Update dependency gradle to v8.7 - [#2616](https://github.com/pinterest/ktlint/pull/2616), by @renovate[bot]
+
+* Migrate to develocity plugin - [#2625](https://github.com/pinterest/ktlint/pull/2625), by @Goooler
+
+* Update dependency org.slf4j:slf4j-simple to v2.0.13 - [#2632](https://github.com/pinterest/ktlint/pull/2632), by @renovate[bot]
+
+* Update gradle/wrapper-validation-action action to v3 - [#2633](https://github.com/pinterest/ktlint/pull/2633), by @renovate[bot]
+
+* Update dependency io.github.oshai:kotlin-logging-jvm to v6.0.9 - [#2634](https://github.com/pinterest/ktlint/pull/2634), by @renovate[bot]
+
+* Update dependency com.github.ajalt.clikt:clikt to v4.4.0 - [#2647](https://github.com/pinterest/ktlint/pull/2647), by @renovate[bot]
+
+* Update kotlin monorepo to v1.9.24 - [#2649](https://github.com/pinterest/ktlint/pull/2649), by @renovate[bot]
+
+* Update plugin com.gradle.develocity to v3.17.4 - [#2660](https://github.com/pinterest/ktlint/pull/2660), by @renovate[bot]
+
+* Update dependency dev.drewhamilton.poko:poko-gradle-plugin to v0.15.3 - [#2662](https://github.com/pinterest/ktlint/pull/2662), by @renovate[bot]
+
+* Update actions/checkout digest to a5ac7e5 - [#2664](https://github.com/pinterest/ktlint/pull/2664), by @renovate[bot]
+
+* Update dependency org.assertj:assertj-core to v3.26.0 - [#2669](https://github.com/pinterest/ktlint/pull/2669), by @renovate[bot]
+
 ## [1.2.1] - 2024-02-29
 
 ### 🆕 Features
@@ -2385,6 +2468,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[1.3.0]: https://github.com/pinterest/ktlint/compare/1.3.0...1.2.1
 [1.2.1]: https://github.com/pinterest/ktlint/compare/1.2.1...1.2.0
 [1.2.0]: https://github.com/pinterest/ktlint/compare/1.2.0...1.1.1
 [1.1.1]: https://github.com/pinterest/ktlint/compare/1.1.1...1.1.0
