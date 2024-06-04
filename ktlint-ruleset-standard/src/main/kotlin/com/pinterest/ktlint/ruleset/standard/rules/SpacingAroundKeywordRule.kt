@@ -20,6 +20,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -65,9 +66,7 @@ public class SpacingAroundKeywordRule : StandardRule("keyword-spacing") {
                 val nextLeaf = node.nextLeaf()
                 if (parent is KtPropertyAccessor && parent.hasBody() && nextLeaf != null) {
                     emit(node.startOffset, "Unexpected spacing after \"${node.text}\"", true)
-                        .ifAutocorrectAllowed {
-                            nextLeaf.treeParent.removeChild(nextLeaf)
-                        }
+                        .ifAutocorrectAllowed { nextLeaf.remove() }
                 }
             }
             if (noLFBeforeSet.contains(node.elementType)) {

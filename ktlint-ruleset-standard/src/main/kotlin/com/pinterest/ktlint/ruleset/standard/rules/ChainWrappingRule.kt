@@ -35,6 +35,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -96,7 +97,7 @@ public class ChainWrappingRule :
                             node.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
                             node.upsertWhitespaceAfterMe(" ")
                         } else {
-                            node.treeParent.removeChild(node)
+                            node.remove()
                             (nextLeaf as LeafElement).rawInsertAfterMe(node as LeafElement)
                         }
                     }
@@ -150,12 +151,12 @@ public class ChainWrappingRule :
                                 operationReference
                                     .prevCodeSibling()
                                     ?.nextSibling()
-                            operationReference.treeParent.removeChild(operationReference)
+                            operationReference.remove()
                             insertBeforeSibling?.treeParent?.addChild(operationReference, insertBeforeSibling)
                             node.treeParent.upsertWhitespaceBeforeMe(" ")
                         } else {
                             val insertionPoint = prevLeaf.prevCodeLeaf() as LeafPsiElement
-                            (node as LeafPsiElement).treeParent.removeChild(node)
+                            (node as LeafPsiElement).remove()
                             insertionPoint.rawInsertAfterMe(node)
                             (insertionPoint as ASTNode).upsertWhitespaceAfterMe(" ")
                         }

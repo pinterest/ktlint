@@ -29,6 +29,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.noNewLineInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.util.cast
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -335,7 +336,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                                 this.treeParent.addChild(PsiWhiteSpaceImpl(parentIndent), null)
                                 this.treeParent.addChild(LeafPsiElement(SEMICOLON, ";"), null)
                             }
-                            inspectNode.treeParent.removeChild(inspectNode)
+                            inspectNode.remove()
                         } else {
                             inspectNode
                                 .prevCodeLeaf()

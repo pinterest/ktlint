@@ -21,6 +21,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.util.safeAs
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -172,7 +173,7 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
                                         if (node.prevLeaf() == null) {
                                             // Also it was the first import, and it is not preceded by any other node containing some text. So
                                             // all whitespace until the next is redundant
-                                            whitespace.treeParent.removeChild(whitespace)
+                                            whitespace.remove()
                                         } else {
                                             val textAfterFirstNewline =
                                                 whitespace
@@ -186,9 +187,7 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
                             } else {
                                 nextSibling
                                     .takeIf { it.isWhiteSpaceWithNewline() }
-                                    ?.let { whitespace ->
-                                        whitespace.treeParent.removeChild(whitespace)
-                                    }
+                                    ?.remove()
                             }
                             importDirective.delete()
                         }
@@ -217,7 +216,7 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
             treeParent.lastChildNode == this -> {
                 prevSibling()
                     ?.takeIf { it.isWhiteSpaceWithNewline() }
-                    ?.let { it.treeParent.removeChild(it) }
+                    ?.remove()
             }
 
             else -> {
@@ -226,7 +225,7 @@ public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
                     ?.let { it.treeParent.removeChild(it) }
             }
         }
-        treeParent.removeChild(this)
+        this.remove()
     }
 
     private fun ASTNode.isExpressionForStaticImportWithExistingParentImport(): Boolean {

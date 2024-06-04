@@ -15,6 +15,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
@@ -97,11 +98,11 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
                         // Remove the annotation and the following whitespace
                         val eolComment = node.nextSibling { it.isCommentOnSameLineAsPrevLeaf() }
                         if (eolComment != null) {
-                            eolComment.prevSibling { it.isWhiteSpace() }?.let { it.treeParent.removeChild(it) }
-                            eolComment.nextSibling { it.isWhiteSpace() }?.let { it.treeParent.removeChild(it) }
+                            eolComment.prevSibling { it.isWhiteSpace() }?.remove()
+                            eolComment.nextSibling { it.isWhiteSpace() }?.remove()
                             eolComment.treeParent?.removeChild(eolComment)
                         } else {
-                            node.nextSibling { it.isWhiteSpace() }?.let { it.treeParent?.removeChild(it) }
+                            node.nextSibling { it.isWhiteSpace() }?.remove()
                         }
                         node.treeParent.removeChild(node)
 

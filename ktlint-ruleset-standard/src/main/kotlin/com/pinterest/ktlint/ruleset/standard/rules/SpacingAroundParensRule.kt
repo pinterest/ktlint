@@ -2,6 +2,7 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK_COMMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONSTRUCTOR_CALLEE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_TYPE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
@@ -10,19 +11,23 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.LPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PRIMARY_CONSTRUCTOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_KEYWORD
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_TYPE_CALL_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
+import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 
 /**
  * Ensures there are no extra spaces around parentheses.
@@ -36,65 +41,140 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == LPAR || node.elementType == RPAR) {
-            val prevLeaf = node.prevLeaf()
-            val nextLeaf = node.nextLeaf()
-            val spacingBefore =
-                if (node.elementType == LPAR) {
-                    prevLeaf is PsiWhiteSpace &&
-                        !prevLeaf.textContains('\n') &&
-                        (
-                            prevLeaf.prevLeaf()?.elementType == IDENTIFIER &&
-                                // val foo: @Composable () -> Unit
-                                node.treeParent?.treeParent?.elementType != FUNCTION_TYPE ||
-                                // Super keyword needs special-casing
-                                prevLeaf.prevLeaf()?.elementType == SUPER_KEYWORD ||
-                                prevLeaf.prevLeaf()?.treeParent?.elementType == PRIMARY_CONSTRUCTOR ||
-                                prevLeaf.prevLeaf()?.treeParent?.elementType == TYPE_ARGUMENT_LIST
-                        ) &&
-                        (
-                            node.treeParent?.elementType == VALUE_PARAMETER_LIST ||
-                                node.treeParent?.elementType == VALUE_ARGUMENT_LIST
-                        )
-                } else {
-                    prevLeaf.isWhiteSpaceWithoutNewline() && prevLeaf?.prevLeaf()?.elementType != LPAR
-                }
-            val spacingAfter =
-                if (node.elementType == LPAR) {
-                    nextLeaf is PsiWhiteSpace &&
-                        (!nextLeaf.textContains('\n') || nextLeaf.nextLeaf()?.elementType == RPAR) &&
-                        !nextLeaf.isNextLeafAComment()
-                } else {
-                    nextLeaf.isWhiteSpaceWithoutNewline() && nextLeaf?.nextLeaf()?.elementType == RPAR
-                }
+            val spacingBefore = node.isUnexpectedSpacingBeforeParenthesis()
+            val spacingAfter = node.isUnexpectedSpacingAfterParenthesis()
             when {
-                spacingBefore && spacingAfter -> {
-                    emit(node.startOffset, "Unexpected spacing around \"${node.text}\"", true)
-                        .ifAutocorrectAllowed {
-                            prevLeaf!!.treeParent.removeChild(prevLeaf)
-                            nextLeaf!!.treeParent.removeChild(nextLeaf)
-                        }
-                }
-
-                spacingBefore -> {
-                    emit(prevLeaf!!.startOffset, "Unexpected spacing before \"${node.text}\"", true)
-                        .ifAutocorrectAllowed {
-                            prevLeaf.treeParent.removeChild(prevLeaf)
-                        }
-                }
-
-                spacingAfter -> {
-                    emit(node.startOffset + 1, "Unexpected spacing after \"${node.text}\"", true)
-                        .ifAutocorrectAllowed {
-                            nextLeaf!!.treeParent.removeChild(nextLeaf)
-                        }
-                }
+                spacingBefore && spacingAfter -> node.fixUnexpectedSpacingAround(emit)
+                spacingBefore -> node.fixUnexpectedSpacingBefore(emit)
+                spacingAfter -> node.fixUnexpectSpacingAfter(emit)
             }
         }
     }
 
-    private fun ASTNode.isNextLeafAComment(): Boolean {
-        val commentTypes = setOf(EOL_COMMENT, BLOCK_COMMENT, KDOC_START)
-        return nextLeaf()?.elementType in commentTypes
+    private fun ASTNode.isUnexpectedSpacingBeforeParenthesis(): Boolean =
+        when {
+            !prevLeaf().isWhiteSpaceWithoutNewline() -> false
+
+            elementType == LPAR -> {
+                treeParent?.elementType in elementListTokenSet &&
+                    (
+                        isUnexpectedSpacingBetweenIdentifierAndElementList() ||
+                            isUnexpectedSpacingInCallToSuper() ||
+                            isUnexpectedSpacingInExplicitConstructor() ||
+                            isUnexpectedSpacingInSuperTypeCallEntry()
+                    )
+            }
+
+            elementType == RPAR -> {
+                // Disallow:
+                //    val foo = fn("foo" )
+                //    val foo = fn( )
+                prevLeaf()?.prevSibling()?.elementType != LPAR
+            }
+
+            else -> false
+        }
+
+    private fun ASTNode.isUnexpectedSpacingBetweenIdentifierAndElementList() =
+        prevLeaf()
+            ?.takeIf { it.isWhiteSpace() }
+            ?.takeIf {
+                // Disallow:
+                //     fun foo () {}
+                // and
+                //     @Deprecated ("bar)
+                //     fun foo() {}
+                it.prevLeaf()?.elementType == IDENTIFIER
+            }?.let {
+                // But do allow:
+                //     val foo: @Composable () -> Unit
+                treeParent?.treeParent?.elementType != FUNCTION_TYPE
+            }
+            ?: false
+
+    private fun ASTNode.isUnexpectedSpacingInCallToSuper() =
+        prevLeaf()
+            ?.takeIf { it.isWhiteSpace() }
+            ?.let {
+                // Disallow:
+                //     class Foo : Bar {
+                //         constructor(string: String) : super ()
+                //     }
+                it.prevLeaf()?.elementType == SUPER_KEYWORD
+            }
+            ?: false
+
+    private fun ASTNode.isUnexpectedSpacingInExplicitConstructor() =
+        prevLeaf()
+            ?.takeIf { it.isWhiteSpace() }
+            ?.let {
+                // Disallow:
+                //     class Foo constructor ()
+                it.prevLeaf()?.treeParent?.elementType == PRIMARY_CONSTRUCTOR
+            }
+            ?: false
+
+    private fun ASTNode.isUnexpectedSpacingInSuperTypeCallEntry() =
+        prevLeaf()
+            ?.takeIf { it.isWhiteSpace() }
+            ?.let {
+                // Disallow:
+                //     class Foo : Bar ("test")
+                //     class Foo : Bar<String> ("test")
+                treeParent.treeParent.elementType == SUPER_TYPE_CALL_ENTRY &&
+                    it.prevSibling()?.elementType == CONSTRUCTOR_CALLEE
+            }
+            ?: false
+
+    private fun ASTNode.isUnexpectedSpacingAfterParenthesis(): Boolean =
+        takeIf { elementType == LPAR }
+            ?.nextLeaf()
+            ?.takeUnless { it.isNextLeafAComment() }
+            ?.let { it.isUnexpectedSpaceAfterLpar() || it.isUnexpectedNewlineAfterLpar() }
+            ?: false
+
+    private fun ASTNode.isUnexpectedSpaceAfterLpar() =
+        // Disallow:
+        //     val foo = fn( )
+        //     val foo = fn( "bar")
+        //     val foo = ( (1 + 2) / 3)
+        isWhiteSpaceWithoutNewline()
+
+    private fun ASTNode.isUnexpectedNewlineAfterLpar() =
+        // Disallow:
+        //     val foo = fn(
+        //         )
+        isWhiteSpaceWithNewline() && nextLeaf()?.elementType == RPAR
+
+    private fun ASTNode.isNextLeafAComment(): Boolean = nextLeaf()?.elementType in commentTypes
+
+    private fun ASTNode.fixUnexpectedSpacingAround(
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+    ) {
+        emit(startOffset, "Unexpected spacing around \"$text\"", true)
+            .ifAutocorrectAllowed {
+                prevLeaf()!!.remove()
+                nextLeaf()!!.remove()
+            }
+    }
+
+    private fun ASTNode.fixUnexpectedSpacingBefore(
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+    ) {
+        emit(prevLeaf()!!.startOffset, "Unexpected spacing before \"${text}\"", true)
+            .ifAutocorrectAllowed { prevLeaf()?.remove() }
+    }
+
+    private fun ASTNode.fixUnexpectSpacingAfter(
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+    ) {
+        emit(startOffset + 1, "Unexpected spacing after \"$text\"", true)
+            .ifAutocorrectAllowed { nextLeaf()!!.remove() }
+    }
+
+    private companion object {
+        val elementListTokenSet = TokenSet.create(VALUE_PARAMETER_LIST, VALUE_ARGUMENT_LIST)
+        val commentTypes = TokenSet.create(EOL_COMMENT, BLOCK_COMMENT, KDOC_START)
     }
 }
 

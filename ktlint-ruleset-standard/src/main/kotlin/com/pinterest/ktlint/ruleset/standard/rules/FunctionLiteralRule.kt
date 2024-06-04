@@ -40,6 +40,7 @@ import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -372,8 +373,8 @@ public class FunctionLiteralRule :
                         arrow
                             .nextSibling()
                             .takeIf { it.isWhiteSpace() }
-                            ?.let { it.treeParent.removeChild(it) }
-                        arrow.treeParent.removeChild(arrow)
+                            ?.remove()
+                        arrow.remove()
                     }
             }
     }

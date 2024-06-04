@@ -12,6 +12,7 @@ import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.psi.KtObjectLiteralExpression
@@ -39,10 +40,10 @@ public class NoEmptyClassBodyRule : StandardRule("no-empty-class-body") {
                     val prevNode = node.treePrev
                     if (prevNode.elementType == WHITE_SPACE) {
                         // remove space between declaration and block
-                        prevNode.treeParent.removeChild(prevNode)
+                        prevNode.remove()
                     }
                     // remove block
-                    node.treeParent.removeChild(node)
+                    node.remove()
                 }
         }
     }

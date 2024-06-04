@@ -53,6 +53,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.ec4j.core.model.PropertyType
@@ -368,9 +369,7 @@ public class ChainMethodContinuationRule :
                     .takeIf { it.isWhiteSpaceWithNewline() }
                     ?.let { whiteSpace ->
                         emit(whiteSpace.startOffset - 1, "Unexpected newline after '${chainOperator.text}'", true)
-                            .ifAutocorrectAllowed {
-                                whiteSpace.treeParent.removeChild(whiteSpace)
-                            }
+                            .ifAutocorrectAllowed { whiteSpace.remove() }
                     }
             }
     }

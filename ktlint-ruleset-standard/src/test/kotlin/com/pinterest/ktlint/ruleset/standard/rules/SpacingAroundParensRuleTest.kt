@@ -63,6 +63,15 @@ class SpacingAroundParensRuleTest {
     }
 
     @Test
+    fun `Given a function type inside a type projection then do not remove space before the opening parenthesis`() {
+        val code =
+            """
+            val foo: Map<Foo, (Foo) -> Foo> = emptyMap()
+            """.trimIndent()
+        spacingAroundParensRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
     fun `Given a variable declaration with unexpected spacing around the opening parenthesis of the expression`() {
         val code =
             """
@@ -135,14 +144,18 @@ class SpacingAroundParensRuleTest {
         val code =
             """
             val foo = fn("foo" )
+            val foo = fn( )
             """.trimIndent()
         val formattedCode =
             """
             val foo = fn("foo")
+            val foo = fn()
             """.trimIndent()
         spacingAroundParensRuleAssertThat(code)
-            .hasLintViolation(1, 19, "Unexpected spacing before \")\"")
-            .isFormattedAs(formattedCode)
+            .hasLintViolations(
+                LintViolation(1, 19, "Unexpected spacing before \")\""),
+                LintViolation(2, 14, "Unexpected spacing after \"(\""),
+            ).isFormattedAs(formattedCode)
     }
 
     @Test

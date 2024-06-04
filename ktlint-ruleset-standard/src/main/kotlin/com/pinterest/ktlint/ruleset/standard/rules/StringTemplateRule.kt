@@ -10,6 +10,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
@@ -56,7 +57,7 @@ public class StringTemplateRule : StandardRule("string-template") {
                             .node
                             .let { entryExpressionNode ->
                                 entryExpressionNode.treeParent.addChild(receiver.node, entryExpressionNode)
-                                entryExpressionNode.treeParent.removeChild(entryExpressionNode)
+                                entryExpressionNode.remove()
                             }
                         node
                             .takeIf { it.isStringTemplate() }

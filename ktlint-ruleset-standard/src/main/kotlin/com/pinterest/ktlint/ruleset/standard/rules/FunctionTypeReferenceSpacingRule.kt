@@ -11,6 +11,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
@@ -69,9 +70,7 @@ public class FunctionTypeReferenceSpacingRule : StandardRule("function-type-refe
     ) {
         if (node.elementType == WHITE_SPACE && node.text.isNotEmpty()) {
             emit(node.startOffset, "Unexpected whitespace", true)
-                .ifAutocorrectAllowed {
-                    node.treeParent.removeChild(node)
-                }
+                .ifAutocorrectAllowed { node.remove() }
         }
     }
 }

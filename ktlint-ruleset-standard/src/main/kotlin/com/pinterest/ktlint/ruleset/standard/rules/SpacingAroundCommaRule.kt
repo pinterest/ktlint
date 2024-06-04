@@ -14,6 +14,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -43,11 +44,11 @@ public class SpacingAroundCommaRule : StandardRule("comma-spacing") {
                             previousStatement.treeParent.addChild(node.clone(), previousStatement.nextSibling())
                             val nextLeaf = node.nextLeaf()
                             if (nextLeaf is PsiWhiteSpace) {
-                                nextLeaf.treeParent.removeChild(nextLeaf)
+                                nextLeaf.remove()
                             }
-                            node.treeParent.removeChild(node)
+                            node.remove()
                         } else {
-                            prevLeaf.treeParent.removeChild(prevLeaf)
+                            prevLeaf.remove()
                         }
                     }
             }
