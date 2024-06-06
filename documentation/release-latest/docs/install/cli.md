@@ -48,11 +48,6 @@ Install with [MacPorts](https://www.macports.org/)
 port install ktlint
 ```
 
-Install with [SDKMAN! on macOS and Linux](https://sdkman.io/)
-```sh
-sdk install ktlint
-```
-
 On Arch Linux install package [ktlint <sup>AUR</sup>](https://aur.archlinux.org/packages/ktlint/).
 
 ## Command line usage

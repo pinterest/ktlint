@@ -4,7 +4,6 @@ plugins {
     id("ktlint-publication-library")
     alias(libs.plugins.shadow)
     alias(libs.plugins.checksum)
-    alias(libs.plugins.sdkman)
     signing
 }
 
@@ -163,12 +162,4 @@ tasks.withType<Test>().configureEach {
         )
         systemProperty("ktlint-version", ktlintVersion)
     }
-}
-
-sdkman {
-    val sdkmanVersion = providers.environmentVariable("SDKMAN_VERSION").orElse(project.version.toString())
-    candidate = "ktlint"
-    version = sdkmanVersion
-    url = "https://github.com/pinterest/ktlint/releases/download/$sdkmanVersion/ktlint-$sdkmanVersion.zip"
-    hashtag = "ktlint"
 }
