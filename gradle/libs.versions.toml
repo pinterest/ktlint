@@ -10,7 +10,6 @@ kotlinDev = "1.9.24"
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 checksum = "org.gradle.crypto.checksum:1.4.0"
 shadow = "com.github.johnrengelman.shadow:8.1.1"
-sdkman = "io.sdkman.vendors:3.0.0"
 kotlinx-binary-compatibiltiy-validator = "org.jetbrains.kotlinx.binary-compatibility-validator:0.14.0"
 
 [libraries]
