@@ -107,7 +107,7 @@ Consistently add or remove blank lines between when-conditions in a when-stateme
 |:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
 | `ij_kotlin_line_break_after_multiline_when_entry`<br/><i>Despite its name, forces a blank line between single line and multiline when-entries when at least one multiline when-entry is found in the when-statement.</i> |      `true`       |    `true`     |     `true`     |
 
-Rule id: `blank-lines-between-when-conditions` (`standard` rule set)
+Rule id: `standard:blank-lines-between-when-conditions`
 
 ## KDoc
 
@@ -164,7 +164,7 @@ Access modifiers are ignored. Strictly speaking, one could argue that private de
     )
     ```
 
-Rule id: `kdoc` (`standard` rule set)
+Rule id: `standard:kdoc`
 
 ## Mixed condition operators
 
@@ -185,7 +185,7 @@ Conditions should not use a both `&&` and `||` operators between operators at th
     val foo = bar1 && (bar2 || bar3 && bar4) && bar5
     ```
 
-Rule id: `mixed-condition-operators` (`standard` rule set)
+Rule id: `standard:mixed-condition-operators`
 
 ## Square brackets spacing
 
@@ -219,4 +219,4 @@ Check for spacing around square brackets.
     val foo3 = bar[1 ]
     ```
 
-Rule id: `square-brackets-spacing` (`standard` rule set)
+Rule id: `standard:square-brackets-spacing`
