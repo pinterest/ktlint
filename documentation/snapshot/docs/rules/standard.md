@@ -50,7 +50,7 @@ Multiple annotations should be on a separate line than the annotated declaration
     }
     ```
 
-Rule-id: `annotation` (`standard` rule set)
+Rule id: `standard:annotation`
 
 ## Binary expression wrapping
 
@@ -87,7 +87,7 @@ Wraps binary expression at the operator reference whenever the binary expression
     }
     ```
 
-Rule id: `binary-expression-wrapping` (`standard` rule set)
+Rule id: `standard:binary-expression-wrapping`
 
 ## Blank line before declarations
 
@@ -135,7 +135,7 @@ Requires a blank line before any class or function declaration. No blank line is
     }
     ```
 
-Rule id: `blank-line-before-declaration` (`standard` rule set)
+Rule id: `standard:blank-line-before-declaration`
 
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
@@ -159,7 +159,7 @@ Lines in a block comment which (exclusive the indentation) start with a `*` shou
         */
     ```
 
-Rule id: `block-comment-initial-star-alignment` (`standard` rule set)
+Rule id: `standard:block-comment-initial-star-alignment`
 
 ## Chain method continuation
 
@@ -244,7 +244,7 @@ The `.` in `java.class` is ignored when wrapping on chain operators.
 | `ktlint_chain_method_rule_force_multiline_when_chain_operator_count_greater_or_equal_than`<br/><i>Force wrapping of chained methods in case an expression contains at least the specified number of chain operators. If a chained method contains nested expressions, the chain operators of the inner expression are not taken into account. Use value `unset` (default) to disable this setting.</i> |        4        |       4       |       4        |
 
 
-Rule id: `chain-method-continuation` (`standard` rule set)
+Rule id: `standard:chain-method-continuation`
 
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
@@ -454,7 +454,7 @@ The other code styles allow an infinite amount of parameters on the same line (a
 |:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
 | `ktlint_class_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than`<br/><i>Force wrapping of the parameters of the class signature in case it contains at least the specified number of parameters, even in case the entire class signature would fit on a single line. Use value `unset` to disable this setting.</i> |        1        |    `unset`    |    `unset`     |
 
-Rule id: `class-signature` (`standard` rule set)
+Rule id: `standard:class-signature`
 
 ## Enum entry
 
@@ -480,13 +480,13 @@ Enum entry names should be uppercase underscore-separated or upper camel-case se
     }
     ```
 
-Rule id: `enum-entry-name-case` (`standard` rule set)
+Rule id: `standard:enum-entry-name-case`
 
 ## File name
 
 A file containing only one visible (e.g. non-private) class, and visible declarations related to that class only, should be named according to that element. The same applies if the file does not contain a visible class but exactly one type alias or one object declaration. Otherwise, the PascalCase notation should be used.
 
-Rule id: `filename` (`standard` rule set)
+Rule id: `standard:filename`
 
 ## Final newline
 
@@ -496,7 +496,7 @@ Ensures consistent usage of a newline at the end of each file.
 |:----------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
 | `insert_final_newline` |     `true`      |       `true`        |       `true`        |
 
-Rule id: `final-newline` (`standard` rule set)
+Rule id: `standard:final-newline`
 
 ## Function expression body
 
@@ -555,7 +555,7 @@ Rewrites a function body only containing a `return` or `throw` expression to an 
     }
     ```
 
-Rule id: `function-expression-body` (`standard` rule set)
+Rule id: `standard:function-expression-body`
 
 ## Function literal
 
@@ -619,7 +619,7 @@ If the function literal contains multiple parameters and at least one parameter 
         }
     ```
 
-Rule id: `function-literal` (`standard` rule set)
+Rule id: `standard:function-literal`
 
 ## Function signature
 
@@ -773,7 +773,7 @@ Rewrites the function signature to a single line when possible (e.g. when not ex
             .uppercase()
     ```
 
-Rule id: `function-signature` (`standard` rule set)
+Rule id: `standard:function-signature`
 
 ## Function type modifier spacing
 
@@ -795,7 +795,7 @@ Enforce a single whitespace between the modifier list and the function type.
     suspend fun bar(baz: suspend   () -> Unit) = baz()
     ```
 
-Rule id: `function-type-modifier-spacing` (`standard` rule set)
+Rule id: `standard:function-type-modifier-spacing`
 
 ## If else bracing
 
@@ -828,7 +828,7 @@ If at least one branch of an if-else statement or an if-else-if statement is wra
     }
     ```
 
-Rule id: `if-else-bracing` (`standard` rule set)
+Rule id: `standard:if-else-bracing`
 
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
@@ -854,7 +854,7 @@ Ensures that imports are ordered consistently (see [Import Layouts](../configura
     import com.foo.Foo
     ```
 
-Rule id: `import-ordering` (`standard` rule set)
+Rule id: `standard:import-ordering`
 
 ## Indentation
 
@@ -891,7 +891,7 @@ Indentation formatting - respects `.editorconfig` `indent_size` with no continua
 | `indent_size`</br><i>The size of an indentation level when `indent_style` is set to `space`. Use value `unset` to ignore indentation.</i> |        4        |       4       |       4        |
 | `indent_style`</br><i>Style of indentation. Set this value to `space` or `tab`.</i>                                                       |     `space`     |    `space`    |    `space`     |
 
-Rule id: `indent` (`standard` rule set)
+Rule id: `standard:indent`
 
 ## Naming
 
@@ -923,7 +923,7 @@ Allows property names to start with `_` in case the property is a backing proper
     }
     ```
 
-Rule id: `backing-property-naming` (`standard` rule set)
+Rule id: `standard:backing-property-naming`
 
 ### Class naming
 
@@ -963,7 +963,7 @@ Enforce naming of class and objects.
 
 This rule can also be suppressed with the IntelliJ IDEA inspection suppression `ClassName`.
 
-Rule id: `class-naming` (`standard` rule set)
+Rule id: `standard:class-naming`
 
 ### Function naming
 
@@ -1009,7 +1009,7 @@ Enforce naming of function.
 
 This rule can also be suppressed with the IntelliJ IDEA inspection suppression `FunctionName`.
 
-Rule id: `function-naming` (`standard` rule set)
+Rule id: `standard:function-naming`
 
 ### Package name
 
@@ -1030,7 +1030,7 @@ Validates that the package name matches the regular expression `[a-z][a-zA-Z\d]*
     package foo.`foo bar`
     ```
 
-Rule id: `package-name` (`standard` rule set)
+Rule id: `standard:package-name`
 
 ### Property naming
 
@@ -1091,7 +1091,7 @@ Enforce naming of property.
 
 This rule is suppressed whenever the IntelliJ IDEA inspection suppression `PropertyName`, `ConstPropertyName`, `ObjectPropertyName` or `PrivatePropertyName` is used.
 
-Rule id: `property-naming` (`standard` rule set)
+Rule id: `standard:property-naming`
 
 ## No blank lines in list
 
@@ -1248,7 +1248,7 @@ Disallow blank lines to be used in lists before the first element, between eleme
     )
     ```
 
-Rule id: `no-blank-line-in-list` (`standard` rule set)
+Rule id: `standard:no-blank-line-in-list`
 
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
@@ -1299,7 +1299,7 @@ Consecutive EOL comments are always allowed as they are often used instead of a 
     // ... even not when separated by a new line.
     ```
 
-Rule id: `no-consecutive-comments` (`standard` rule set)
+Rule id: `standard:no-consecutive-comments`
 
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
@@ -1308,7 +1308,7 @@ Rule id: `no-consecutive-comments` (`standard` rule set)
 
 A kotlin (script) file should not be empty. It needs to contain at least one declaration. Files only contain a package and/or import statements are as of that disallowed.
 
-Rule id: `no-empty-file`
+Rule id: `standard:no-empty-file`
 
 ## No empty first line at start in class body
 
@@ -1331,7 +1331,7 @@ Detect blank lines at start of a class body.
     }
     ```
 
-Rule id: `no-empty-first-line-in-class-body` (`standard` rule set)
+Rule id: `standard:no-empty-first-line-in-class-body`
 
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
@@ -1357,7 +1357,7 @@ A single line block comment should be replaced with an EOL comment when possible
     val foo = "foo" /* Some comment */
     ```
 
-Rule id: `no-single-line-block-comment` (`standard` rule set)
+Rule id: `standard:no-single-line-block-comment`
 
 ## Ktlint-suppression rule
 
@@ -1402,7 +1402,7 @@ Identifiers in the @Suppress and @SuppressWarnings annotations to suppress ktlin
     }
     ```
 
-Rule id: `ktlint-suppression` (`standard` rule set)
+Rule id: `standard:ktlint-suppression`
 
 !!! note
     This rule can not be disabled in the `.editorconfig`.
@@ -1449,7 +1449,7 @@ Ensures that lines do not exceed the maximum length of a line. This rule does no
 | `ktlint_ignore_back_ticked_identifier`<br/><i>Defines whether the backticked identifier (``) should be ignored.</i> |     `false`     |    `false`    |    `false`     |
 | `max_line_length`<br/><i>Maximum length of a (regular) line.</i>                                                    |       140       |     `off`     |     `100`      |
 
-Rule id: `max-line-length` (`standard` rule set)
+Rule id: `standard:max-line-length`
 
 ## Modifier order
 
@@ -1478,7 +1478,7 @@ Consistent order of modifiers
     }
     ```
 
-Rule id: `modifier-order` (`standard` rule set)
+Rule id: `standard:modifier-order`
 
 ## Multiline if-else
 
@@ -1504,7 +1504,7 @@ Braces required for multiline if/else statements.
             return 1
     ```
 
-Rule id: `multiline-if-else` (`standard` rule set)
+Rule id: `standard:multiline-if-else`
 
 ## Multiline loop
 
@@ -1525,7 +1525,7 @@ Braces required for multiline for, while, and do statements.
         println(i)
     ```
 
-Rule id: `multiline-loop` (`standard` rule set)
+Rule id: `standard:multiline-loop`
 
 ## No blank lines before `}`
 
@@ -1553,7 +1553,7 @@ No blank lines before `}`.
     }
     ```
 
-Rule id: `no-blank-line-before-rbrace` (`standard` rule set)
+Rule id: `standard:no-blank-line-before-rbrace`
 
 ## No blank lines in chained method calls
 
@@ -1575,7 +1575,7 @@ Rule id: `no-blank-line-before-rbrace` (`standard` rule set)
     }
     ```
 
-Rule id: `no-blank-lines-in-chained-method-calls` (`standard` rule set)
+Rule id: `standard:no-blank-lines-in-chained-method-calls`
 
 ## No consecutive blank lines
 
@@ -1612,7 +1612,7 @@ Rule id: `no-blank-lines-in-chained-method-calls` (`standard` rule set)
     fun c()
     ```
  
-Rule id: `no-consecutive-blank-lines` (`standard` rule set)
+Rule id: `standard:no-consecutive-blank-lines`
 
 ## No empty (`{}`) class bodies
 
@@ -1640,7 +1640,7 @@ Rule id: `no-consecutive-blank-lines` (`standard` rule set)
     object O{}
     ```
 
-Rule id: `no-empty-class-body` (`standard` rule set)
+Rule id: `standard:no-empty-class-body`
 
 ## No leading empty lines in method blocks
 
@@ -1660,7 +1660,7 @@ Rule id: `no-empty-class-body` (`standard` rule set)
     }
     ```
 
-Rule id: `no-empty-first-line-in-method-block` (`standard` rule set)
+Rule id: `standard:no-empty-first-line-in-method-block`
 
 ## No line break after else
 
@@ -1690,7 +1690,7 @@ Disallows line breaks after the else keyword if that could lead to confusion, fo
     }
     ```
 
-Rule id: `no-line-break-after-else` (`standard` rule set)
+Rule id: `standard:no-line-break-after-else`
 
 ## No line break before assignment 
 
@@ -1709,7 +1709,7 @@ When a line is broken at an assignment (`=`) operator the break comes after the 
         = ""
     ```
 
-Rule id: `no-line-break-before-assignment` (`standard` rule set)
+Rule id: `standard:no-line-break-before-assignment`
 
 ## No multi spaces
 
@@ -1730,7 +1730,7 @@ Except in indentation and in KDoc's it is not allowed to have multiple consecuti
     }
     ```
 
-Rule id: `no-multi-spaces` (`standard` rule set)
+Rule id: `standard:no-multi-spaces`
 
 ## No semicolons
 
@@ -1759,11 +1759,11 @@ Avoid using unnecessary semicolons.
     }
     ```
 
-Rule id: `no-semi` (`standard` rule set)
+Rule id: `standard:no-semi`
 
 ## No trailing whitespaces
 
-Rule id: `no-trailing-spaces` (`standard` rule set)
+Rule id: `standard:no-trailing-spaces`
 
 ## No `Unit` as return type 
 
@@ -1780,14 +1780,14 @@ The `Unit` type is not allowed as return-type of a function.
     fun fn(): Unit {}
     ```
 
-Rule id: `no-unit-return` (`standard` rule set)
+Rule id: `standard:no-unit-return`
 
 ## No unused imports
 
 !!! warning
     This rule is not able to detect *all* unused imports as mentioned in this [issue comment](https://github.com/pinterest/ktlint/issues/1754#issuecomment-1368201667).
 
-Rule id: `no-unused-imports` (`standard` rule set)
+Rule id: `standard:no-unused-imports`
 
 ## No wildcard imports
 
@@ -1827,7 +1827,7 @@ ij_kotlin_imports_layout=*,java.**,javax.**,kotlin.**,^ # default IntelliJ IDEA 
 ij_kotlin_imports_layout=android.**,|,^org.junit.**,kotlin.io.Closeable.*,|,*,^ # custom imports layout
 ```
 
-Rule id: `no-wildcard-imports` (`standard` rule set)
+Rule id: `standard:no-wildcard-imports`
 
 ## Spacing
 
@@ -1850,7 +1850,7 @@ No spaces around angle brackets when used for typing.
     val c: Map <Int, String> = mapOf()
     ```
 
-Rule id: `spacing-around-angle-brackets` (`standard` rule set)
+Rule id: `standard:spacing-around-angle-brackets`
 
 ### Annotation spacing
 
@@ -1884,7 +1884,7 @@ Annotations should be separated by a single line break.
     }
     ```
 
-Rule id: `annotation-spacing` (`standard` rule set)
+Rule id: `standard:annotation-spacing`
 
 ### Blank line between declarations with annotations
 
@@ -1906,7 +1906,7 @@ Declarations with annotations should be separated by a blank line.
     fun b()
     ```
 
-Rule id: `spacing-between-declarations-with-annotations` (`standard` rule set)
+Rule id: `standard:spacing-between-declarations-with-annotations`
 
 ### Blank line between declaration with comments
 
@@ -1934,7 +1934,7 @@ Declarations with comments should be separated by a blank line.
     foo()
     ```
 
-Rule id: `spacing-between-declarations-with-comments` (`standard` rule set)
+Rule id: `standard:spacing-between-declarations-with-comments`
 
 ### Colon spacing
 
@@ -1955,7 +1955,7 @@ Consistent spacing around colon.
     class A2  :  B2
     ```
 
-Rule id: `colon-spacing` (`standard` rule set)
+Rule id: `standard:colon-spacing`
 
 ### Comma spacing
 
@@ -1974,7 +1974,7 @@ Consistent spacing around comma.
     val foo2 = Foo(1,3)
     ```
 
-Rule id: `comma-spacing` (`standard` rule set)
+Rule id: `standard:comma-spacing`
 
 ### Comment spacing
 
@@ -2012,7 +2012,7 @@ The end of line comment sign `//` should be preceded and followed by exactly a s
     }//comment
     ```
 
-Rule id: `comment-spacing` (`standard` rule set)
+Rule id: `standard:comment-spacing`
 
 ### Curly spacing
 
@@ -2029,7 +2029,7 @@ Consistent spacing around curly braces.
     val foo = bar{foo()}
     ```
 
-Rule id: `curly-spacing` (`standard` rule set)
+Rule id: `standard:curly-spacing`
 
 ### Dot spacing
 
@@ -2046,7 +2046,7 @@ Consistent spacing around dots.
     fun String . foo() = "foo"
     ```
 
-Rule id: `dot-spacing` (`standard` rule set)
+Rule id: `standard:dot-spacing`
 
 ### Double colon spacing
 
@@ -2067,7 +2067,7 @@ No spaces around `::`.
         class
     ```
 
-Rule id: `double-colon-spacing` (`standard` rule set)
+Rule id: `standard:double-colon-spacing`
 
 ### Function return type spacing
 
@@ -2091,7 +2091,7 @@ Consistent spacing around the function return type.
         String = "some-result"
     ```
 
-Rule id: `function-return-type-spacing` (`standard` rule set)
+Rule id: `standard:function-return-type-spacing`
 
 ### Function start of body spacing
 
@@ -2147,7 +2147,7 @@ Consistent spacing before start of function body.
     }
     ```
 
-Rule id: `function-start-of-body-spacing` (`standard` rule set)
+Rule id: `standard:function-start-of-body-spacing`
 
 ### Function type reference spacing
 
@@ -2169,7 +2169,7 @@ Consistent spacing in the type reference before a function.
         .foo() = "some-result"
     ```
 
-Rule id: `function-type-reference-spacing` (`standard` rule set)
+Rule id: `standard:function-type-reference-spacing`
 
 ### Fun keyword spacing
 
@@ -2188,7 +2188,7 @@ Consistent spacing after the fun keyword.
     foo() = "some-result"
     ```
 
-Rule id: `fun-keyword-spacing` (`standard` rule set)
+Rule id: `standard:fun-keyword-spacing`
 
 ### Kdoc wrapping
 
@@ -2209,7 +2209,7 @@ A KDoc comment should start and end on a line that does not contain any other el
                        */
     ```
 
-Rule id: `kdoc-wrapping` (`standard` rule set)
+Rule id: `standard:kdoc-wrapping`
 
 ### Keyword spacing
 
@@ -2234,7 +2234,7 @@ Consistent spacing around keywords.
     }
     ```
 
-Rule id: `keyword-spacing` (`standard` rule set)
+Rule id: `standard:keyword-spacing`
 
 ### Modifier list spacing
 
@@ -2262,7 +2262,7 @@ Consistent spacing between modifiers in and after the last modifier in a modifie
     }
     ```
 
-Rule id: `modifier-list-spacing` (`standard` rule set)
+Rule id: `standard:modifier-list-spacing`
 
 ### Nullable type spacing
 
@@ -2281,7 +2281,7 @@ No spaces in a nullable type.
     val foo: List<String ?> = listOf(null)
     ```
 
-Rule id: `nullable-type-spacing` (`standard` rule set)
+Rule id: `standard:nullable-type-spacing`
 
 ### Operator spacing
 
@@ -2304,7 +2304,7 @@ Consistent spacing around operators.
     val foo4 = 1  /  2
     ```
 
-Rule id: `op-spacing` (`standard` rule set)
+Rule id: `standard:op-spacing`
 
 ### Parameter list spacing
 
@@ -2325,7 +2325,7 @@ Consistent spacing inside the parameter list.
     ) = "some-result"
     ```
 
-Rule id: `parameter-list-spacing` (`standard` rule set)
+Rule id: `standard:parameter-list-spacing`
 
 ### Parenthesis spacing
 
@@ -2350,7 +2350,7 @@ Consistent spacing around parenthesis.
     val foo1 = ( (1 + 2 ) / 3)
     ```
 
-Rule id: `paren-spacing` (`standard` rule set)
+Rule id: `standard:paren-spacing`
 
 ### Range spacing
 
@@ -2371,7 +2371,7 @@ Consistent spacing around range operators.
     val foo3 = (1 ..12 step 2).last
     ```
 
-Rule id: `range-spacing` (`standard` rule set)
+Rule id: `standard:range-spacing`
 
 ### Spacing between function name and opening parenthesis
 
@@ -2388,7 +2388,7 @@ Consistent spacing between function name and opening parenthesis.
     fun foo () = "foo"
     ```
 
-Rule id: `spacing-between-function-name-and-opening-parenthesis` (`standard` rule set)
+Rule id: `standard:spacing-between-function-name-and-opening-parenthesis`
 
 ### Try catch finally spacing
 
@@ -2422,7 +2422,7 @@ Enforce consistent spacing in `try { .. } catch { .. } finally { .. }`.
         }
     ```
 
-Rule id: `try-catch-finally-spacing` (`standard` rule set)
+Rule id: `standard:try-catch-finally-spacing`
 
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
@@ -2450,7 +2450,7 @@ Spacing before and after the angle brackets of a type argument list.
     }
     ```
 
-Rule id: `type-argument-list-spacing` (`standard` rule set)
+Rule id: `standard:type-argument-list-spacing`
 
 ### Type parameter list spacing
 
@@ -2475,7 +2475,7 @@ Spacing after a type parameter list in function and class declarations.
     fun<T>foo3(t: T) = "some-result"
     ```
 
-Rule id: `type-parameter-list-spacing` (`standard` rule set)
+Rule id: `standard:type-parameter-list-spacing`
 
 ### Unary operator spacing
 
@@ -2501,7 +2501,7 @@ No spaces around unary operators.
         i
     ```
 
-Rule id: `unary-op-spacing` (`standard` rule set)
+Rule id: `standard:unary-op-spacing`
 
 ## String template
 
@@ -2518,7 +2518,7 @@ Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.
     val foo = "${foo} hello"
     ```
 
-Rule id: `string-template` (`standard` rule set)
+Rule id: `standard:string-template`
 
 ## String template indent
 
@@ -2557,7 +2557,7 @@ Enforce consistent string template indentation for multiline string templates wh
     }
     ```
 
-Rule id: `string-template-indent` (`standard` rule set)
+Rule id: `standard:string-template-indent`
 
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
@@ -2600,7 +2600,7 @@ Consistent removal (default) or adding of trailing commas on call site.
 
     KtLint values *consistent* formatting more than a per-situation decision, and therefore uses this setting to *enforce/disallow* usage of trailing comma's on the calling site.
 
-Rule id: `trailing-comma-on-call-site` (`standard` rule set)
+Rule id: `standard:trailing-comma-on-call-site`
 
 ## Trailing comma on declaration site
 
@@ -2638,7 +2638,7 @@ Consistent removal (default) or adding of trailing commas on declaration site.
 
    KtLint values *consistent* formatting more than a per-situation decision, and therefore uses this setting to *enforce/disallow* usage of trailing comma's in declarations.
 
-Rule id: `trailing-comma-on-declaration-site` (`standard` rule set)
+Rule id: `standard:trailing-comma-on-declaration-site`
 
 ## Type argument comment
 
@@ -2676,7 +2676,7 @@ Disallows comments to be placed at certain locations inside a type argument.
     ```
     Although this code sample might look ok, it is semantically and programmatically unclear to which type `some comment` refers. From the developer perspective it might be clear that it belongs to type `Bar1`. From the parsers perspective, it does belong to type `Bar2`.
 
-Rule id: `type-argument-comment` (`standard` rule set)
+Rule id: `standard:type-argument-comment`
 
 ## Type parameter comment
 
@@ -2714,7 +2714,7 @@ Disallows comments to be placed at certain locations inside a type parameter.
     ```
    Although this code sample might look ok, it is semantically and programmatically unclear on which parameter `some comment` refers. From the developer perspective it might be clear that it belongs to type `Bar1`. From the parsers perspective, it does belong to type `Bar2`.
 
-Rule id: `type-parameter-comment` (`standard` rule set)
+Rule id: `standard:type-parameter-comment`
 
 ## Unnecessary parenthesis before trailing lambda
 
@@ -2732,7 +2732,7 @@ An empty parentheses block before a lambda is redundant.
     val foo = "some-string".count() { it == '-' }
     ```
 
-Rule id: `unnecessary-parentheses-before-trailing-lambda` (`standard` rule set)
+Rule id: `standard:unnecessary-parentheses-before-trailing-lambda`
 
 ## Value argument comment
 
@@ -2764,7 +2764,7 @@ Disallows comments to be placed at certain locations inside a value argument.
         )
     ```
 
-Rule id: `value-argument-comment` (`standard` rule set)
+Rule id: `standard:value-argument-comment`
 
 ## Value parameter comment
 
@@ -2803,7 +2803,7 @@ Disallows comments to be placed at certain locations inside a value argument.
     )
     ```
 
-Rule id: `value-parameter-comment` (`standard` rule set)
+Rule id: `standard:value-parameter-comment`
 
 ## Wrapping
 
@@ -2835,7 +2835,7 @@ All arguments should be on the same line, or every argument should be on a separ
 |:----------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
 | `ktlint_argument_list_wrapping_ignore_when_parameter_count_greater_or_equal_than` |     `unset`     |       8       |       8        |
 
-Rule-id: `argument-list-wrapping` (`standard` rule set)
+Rule id: `standard:argument-list-wrapping`
 
 ### Chain wrapping
 
@@ -2866,7 +2866,7 @@ When wrapping chained calls `.`, `?.` and `?:` should be placed on the next line
             bar
     ```
 
-Rule id: `chain-wrapping` (`standard` rule set)
+Rule id: `standard:chain-wrapping`
 
 ### Comment wrapping
 
@@ -2890,7 +2890,7 @@ A block comment should start and end on a line that does not contain any other e
                       */
     ```
 
-Rule id: `comment-wrapping` (`standard` rule set)
+Rule id: `standard:comment-wrapping`
 
 ### Condition wrapping
 
@@ -2923,7 +2923,7 @@ Wraps each operand in a multiline condition to a separate line.
     }
     ```
 
-Rule id: `condition-wrapping` (`standard` rule set)
+Rule id: `standard:condition-wrapping`
 
 ### Content receiver wrapping
 
@@ -2977,7 +2977,7 @@ Wraps the content receiver list to a separate line regardless of maximum line le
     fun fooBar()
     ```
 
-Rule id: `context-receiver-wrapping` (`standard` rule set)
+Rule id: `standard:context-receiver-wrapping`
 
 ### Enum wrapping
 
@@ -3014,7 +3014,7 @@ An enum should be a single line, or each enum entry has to be placed on a separa
     }
     ```
 
-Rule id: `enum-wrapping` (`standard` rule set)
+Rule id: `standard:enum-wrapping`
 
 ### If else wrapping
 
@@ -3040,7 +3040,7 @@ A single line if-statement should be kept simple. It may contain no more than on
     }
     ```
 
-Rule id: `if-else-wrapping` (`standard` rule set)
+Rule id: `standard:if-else-wrapping`
 
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
@@ -3071,7 +3071,7 @@ Multiline expression on the right hand side of an expression are forced to start
     )
     ```
 
-Rule id: `multiline-expression-wrapping` (`standard` rule set)
+Rule id: `standard:multiline-expression-wrapping`
 
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
@@ -3139,7 +3139,7 @@ When class/function signature doesn't fit on a single line, each parameter must 
     )
     ```
 
-Rule id: `parameter-list-wrapping` (`standard` rule set)
+Rule id: `standard:parameter-list-wrapping`
 
 ### Parameter wrapping
 
@@ -3189,7 +3189,7 @@ When a function or class parameter doesn't fit on a single line, wrap the type o
     )
     ```
 
-Rule id: `parameter-wrapping` (`standard` rule set)
+Rule id: `standard:parameter-wrapping`
 
 ### Property wrapping
 
@@ -3211,7 +3211,7 @@ When a property doesn't fit on a single line, wrap the type or value to a separa
     val aVariableWithALooooooooooooongName: String
     ```
 
-Rule id: `property-wrapping` (`standard` rule set)
+Rule id: `standard:property-wrapping`
 
 ### Statement wrapping
 
@@ -3251,7 +3251,7 @@ A function, class/object body or other block body statement has to be placed on 
         val b = 1 }
     ```
 
-Rule id: `statement-wrapping`
+Rule id: `standard:statement-wrapping`
 
 ### Wrapping
 
@@ -3277,4 +3277,4 @@ Inserts missing newlines (for example between parentheses of a multi-line functi
         c)
     ```
 
-Rule id: `wrapping` (`standard` rule set)
+Rule id: `standard:wrapping`
