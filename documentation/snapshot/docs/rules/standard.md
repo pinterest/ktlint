@@ -52,6 +52,22 @@ Multiple annotations should be on a separate line than the annotated declaration
 
 Rule id: `standard:annotation`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:annotation")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_annotation = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_annotation = disabled
+    ```
+
 ## Binary expression wrapping
 
 Wraps binary expression at the operator reference whenever the binary expression does not fit on the line. In case the binary expression is nested, the expression is evaluated from outside to inside. If the left and right hand sides of the binary expression, after wrapping, fit on a single line then the inner binary expressions will not be wrapped. If one or both inner binary expression still do not fit on a single after wrapping of the outer binary expression, then each of those inner binary expressions will be wrapped.
@@ -88,6 +104,22 @@ Wraps binary expression at the operator reference whenever the binary expression
     ```
 
 Rule id: `standard:binary-expression-wrapping`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:binary-expression-wrapping")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_binary-expression-wrapping = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_binary-expression-wrapping = disabled
+    ```
 
 ## Blank line before declarations
 
@@ -137,6 +169,22 @@ Requires a blank line before any class or function declaration. No blank line is
 
 Rule id: `standard:blank-line-before-declaration`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:xxx")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_xxx = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_xxx = disabled
+    ```
+
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
 
@@ -160,6 +208,22 @@ Lines in a block comment which (exclusive the indentation) start with a `*` shou
     ```
 
 Rule id: `standard:block-comment-initial-star-alignment`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:block-comment-initial-star-alignment")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_block-comment-initial-star-alignment = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_block-comment-initial-star-alignment = disabled
+    ```
 
 ## Chain method continuation
 
@@ -245,6 +309,22 @@ The `.` in `java.class` is ignored when wrapping on chain operators.
 
 
 Rule id: `standard:chain-method-continuation`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:chain-method-continuation")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_chain-method-continuation = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_chain-method-continuation = disabled
+    ```
 
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
@@ -456,6 +536,22 @@ The other code styles allow an infinite amount of parameters on the same line (a
 
 Rule id: `standard:class-signature`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:class-signature")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_class-signature = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_class-signature = disabled
+    ```
+
 ## Enum entry
 
 Enum entry names should be uppercase underscore-separated or upper camel-case separated.
@@ -482,21 +578,69 @@ Enum entry names should be uppercase underscore-separated or upper camel-case se
 
 Rule id: `standard:enum-entry-name-case`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:enum-entry-name-case")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_enum-entry-name-case = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_enum-entry-name-case = disabled
+    ```
+
 ## File name
 
 A file containing only one visible (e.g. non-private) class, and visible declarations related to that class only, should be named according to that element. The same applies if the file does not contain a visible class but exactly one type alias or one object declaration. Otherwise, the PascalCase notation should be used.
 
 Rule id: `standard:filename`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:filename")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_filename = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_filename = disabled
+    ```
+
 ## Final newline
 
-Ensures consistent usage of a newline at the end of each file. 
+Ensures consistent usage of a newline at the end of each file.
 
 | Configuration setting                                                             | ktlint_official | intellij_idea | android_studio |
 |:----------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
 | `insert_final_newline` |     `true`      |       `true`        |       `true`        |
 
 Rule id: `standard:final-newline`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:final-newline")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_final-newline = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_final-newline = disabled
+    ```
 
 ## Function expression body
 
@@ -556,6 +700,22 @@ Rewrites a function body only containing a `return` or `throw` expression to an 
     ```
 
 Rule id: `standard:function-expression-body`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:function-expression-body")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_function-expression-body = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_function-expression-body = disabled
+    ```
 
 ## Function literal
 
@@ -621,9 +781,25 @@ If the function literal contains multiple parameters and at least one parameter 
 
 Rule id: `standard:function-literal`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:function-literal")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_function-literal = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_function-literal = disabled
+    ```
+
 ## Function signature
 
-Rewrites the function signature to a single line when possible (e.g. when not exceeding the `max_line_length` property) or a multiline signature otherwise. 
+Rewrites the function signature to a single line when possible (e.g. when not exceeding the `max_line_length` property) or a multiline signature otherwise.
 
 !!! note
     Wrapping of parameters is also influenced by the `parameter-list-wrapping` rule.
@@ -775,6 +951,22 @@ Rewrites the function signature to a single line when possible (e.g. when not ex
 
 Rule id: `standard:function-signature`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:function-signature")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_function-signature = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_function-signature = disabled
+    ```
+
 ## Function type modifier spacing
 
 Enforce a single whitespace between the modifier list and the function type.
@@ -796,6 +988,22 @@ Enforce a single whitespace between the modifier list and the function type.
     ```
 
 Rule id: `standard:function-type-modifier-spacing`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:function-type-modifier-spacing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_function-type-modifier-spacing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_function-type-modifier-spacing = disabled
+    ```
 
 ## If else bracing
 
@@ -830,6 +1038,22 @@ If at least one branch of an if-else statement or an if-else-if statement is wra
 
 Rule id: `standard:if-else-bracing`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:if-else-bracing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_if-else-bracing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_if-else-bracing = disabled
+    ```
+
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
 
@@ -855,6 +1079,22 @@ Ensures that imports are ordered consistently (see [Import Layouts](../configura
     ```
 
 Rule id: `standard:import-ordering`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:import-ordering")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_import-ordering = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_import-ordering = disabled
+    ```
 
 ## Indentation
 
@@ -893,6 +1133,22 @@ Indentation formatting - respects `.editorconfig` `indent_size` with no continua
 
 Rule id: `standard:indent`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:indent")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_indent = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_indent = disabled
+    ```
+
 ## Naming
 
 ### Backing property naming
@@ -924,6 +1180,22 @@ Allows property names to start with `_` in case the property is a backing proper
     ```
 
 Rule id: `standard:backing-property-naming`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:backing-property-naming")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_backing-property-naming = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_backing-property-naming = disabled
+    ```
 
 ### Class naming
 
@@ -964,6 +1236,22 @@ Enforce naming of class and objects.
 This rule can also be suppressed with the IntelliJ IDEA inspection suppression `ClassName`.
 
 Rule id: `standard:class-naming`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:class-naming")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_class-naming = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_class-naming = disabled
+    ```
 
 ### Function naming
 
@@ -1011,6 +1299,22 @@ This rule can also be suppressed with the IntelliJ IDEA inspection suppression `
 
 Rule id: `standard:function-naming`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:function-naming")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_function-naming = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_function-naming = disabled
+    ```
+
 ### Package name
 
 Validates that the package name matches the regular expression `[a-z][a-zA-Z\d]*(\.[a-z][a-zA-Z\d]*)*`.
@@ -1031,6 +1335,22 @@ Validates that the package name matches the regular expression `[a-z][a-zA-Z\d]*
     ```
 
 Rule id: `standard:package-name`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:package-name")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_package-name = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_package-name = disabled
+    ```
 
 ### Property naming
 
@@ -1092,6 +1412,22 @@ Enforce naming of property.
 This rule is suppressed whenever the IntelliJ IDEA inspection suppression `PropertyName`, `ConstPropertyName`, `ObjectPropertyName` or `PrivatePropertyName` is used.
 
 Rule id: `standard:property-naming`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:property-naming")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_property-naming = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_property-naming = disabled
+    ```
 
 ## No blank lines in list
 
@@ -1250,6 +1586,22 @@ Disallow blank lines to be used in lists before the first element, between eleme
 
 Rule id: `standard:no-blank-line-in-list`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:no-blank-line-in-list")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-blank-line-in-list = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-blank-line-in-list = disabled
+    ```
+
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
 
@@ -1301,6 +1653,22 @@ Consecutive EOL comments are always allowed as they are often used instead of a 
 
 Rule id: `standard:no-consecutive-comments`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:no-consecutive-comments")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-consecutive-comments = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-consecutive-comments = disabled
+    ```
+
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
 
@@ -1309,6 +1677,22 @@ Rule id: `standard:no-consecutive-comments`
 A kotlin (script) file should not be empty. It needs to contain at least one declaration. Files only contain a package and/or import statements are as of that disallowed.
 
 Rule id: `standard:no-empty-file`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:no-empty-file")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-empty-file = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-empty-file = disabled
+    ```
 
 ## No empty first line at start in class body
 
@@ -1332,6 +1716,22 @@ Detect blank lines at start of a class body.
     ```
 
 Rule id: `standard:no-empty-first-line-in-class-body`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:no-empty-first-line-in-class-body")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-empty-first-line-in-class-body = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-empty-first-line-in-class-body = disabled
+    ```
 
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
@@ -1359,11 +1759,27 @@ A single line block comment should be replaced with an EOL comment when possible
 
 Rule id: `standard:no-single-line-block-comment`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:no-single-line-block-comment")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-single-line-block-comment = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-single-line-block-comment = disabled
+    ```
+
 ## Ktlint-suppression rule
 
 The `ktlint-disable` and `ktlint-enable` directives are no longer supported as of ktlint version `0.50.0`. This rule migrates the directives to Suppress or SuppressWarnings annotations.
 
-Identifiers in the @Suppress and @SuppressWarnings annotations to suppress ktlint rules are checked for validity and autocorrected when possible. 
+Identifiers in the @Suppress and @SuppressWarnings annotations to suppress ktlint rules are checked for validity and autocorrected when possible.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -1405,7 +1821,7 @@ Identifiers in the @Suppress and @SuppressWarnings annotations to suppress ktlin
 Rule id: `standard:ktlint-suppression`
 
 !!! note
-    This rule can not be disabled in the `.editorconfig`.
+    This rule cannot be suppressed via `@Suppress` or be disabled in the `.editorconfig`.
 
 ## Max line length
 
@@ -1451,6 +1867,22 @@ Ensures that lines do not exceed the maximum length of a line. This rule does no
 
 Rule id: `standard:max-line-length`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:max-line-length")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_max-line-length = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_max-line-length = disabled
+    ```
+
 ## Modifier order
 
 Consistent order of modifiers
@@ -1480,6 +1912,22 @@ Consistent order of modifiers
 
 Rule id: `standard:modifier-order`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:modifier-order")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_modifier-order = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_modifier-order = disabled
+    ```
+
 ## Multiline if-else
 
 Braces required for multiline if/else statements.
@@ -1506,6 +1954,22 @@ Braces required for multiline if/else statements.
 
 Rule id: `standard:multiline-if-else`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:multiline-if-else")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_multiline-if-else = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_multiline-if-else = disabled
+    ```
+
 ## Multiline loop
 
 Braces required for multiline for, while, and do statements.
@@ -1526,6 +1990,22 @@ Braces required for multiline for, while, and do statements.
     ```
 
 Rule id: `standard:multiline-loop`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:multiline-loop")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_multiline-loop = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_multiline-loop = disabled
+    ```
 
 ## No blank lines before `}`
 
@@ -1555,6 +2035,22 @@ No blank lines before `}`.
 
 Rule id: `standard:no-blank-line-before-rbrace`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:no-blank-line-before-rbrace")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-blank-line-before-rbrace = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-blank-line-before-rbrace = disabled
+    ```
+
 ## No blank lines in chained method calls
 
 === "[:material-heart:](#) Ktlint"
@@ -1576,6 +2072,22 @@ Rule id: `standard:no-blank-line-before-rbrace`
     ```
 
 Rule id: `standard:no-blank-lines-in-chained-method-calls`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:no-blank-lines-in-chained-method-calls")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-blank-lines-in-chained-method-calls = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-blank-lines-in-chained-method-calls = disabled
+    ```
 
 ## No consecutive blank lines
 
@@ -1611,8 +2123,24 @@ Rule id: `standard:no-blank-lines-in-chained-method-calls`
 
     fun c()
     ```
- 
+
 Rule id: `standard:no-consecutive-blank-lines`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:no-consecutive-blank-lines")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-consecutive-blank-lines = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-consecutive-blank-lines = disabled
+    ```
 
 ## No empty (`{}`) class bodies
 
@@ -1642,6 +2170,22 @@ Rule id: `standard:no-consecutive-blank-lines`
 
 Rule id: `standard:no-empty-class-body`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:no-empty-class-body")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-empty-class-body = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-empty-class-body = disabled
+    ```
+
 ## No leading empty lines in method blocks
 
 === "[:material-heart:](#) Ktlint"
@@ -1661,6 +2205,22 @@ Rule id: `standard:no-empty-class-body`
     ```
 
 Rule id: `standard:no-empty-first-line-in-method-block`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:no-empty-first-line-in-method-block")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-empty-first-line-in-method-block = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-empty-first-line-in-method-block = disabled
+    ```
 
 ## No line break after else
 
@@ -1692,7 +2252,23 @@ Disallows line breaks after the else keyword if that could lead to confusion, fo
 
 Rule id: `standard:no-line-break-after-else`
 
-## No line break before assignment 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:no-line-break-after-else")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-line-break-after-else = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-line-break-after-else = disabled
+    ```
+
+## No line break before assignment
 
 When a line is broken at an assignment (`=`) operator the break comes after the symbol.
 
@@ -1710,6 +2286,22 @@ When a line is broken at an assignment (`=`) operator the break comes after the 
     ```
 
 Rule id: `standard:no-line-break-before-assignment`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:no-line-break-before-assignment")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-line-break-before-assignment = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-line-break-before-assignment = disabled
+    ```
 
 ## No multi spaces
 
@@ -1731,6 +2323,22 @@ Except in indentation and in KDoc's it is not allowed to have multiple consecuti
     ```
 
 Rule id: `standard:no-multi-spaces`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:no-multi-spaces")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-multi-spaces = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-multi-spaces = disabled
+    ```
 
 ## No semicolons
 
@@ -1761,11 +2369,43 @@ Avoid using unnecessary semicolons.
 
 Rule id: `standard:no-semi`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:no-semi")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-semi = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-semi = disabled
+    ```
+
 ## No trailing whitespaces
 
 Rule id: `standard:no-trailing-spaces`
 
-## No `Unit` as return type 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:no-trailing-spaces")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-trailing-spaces = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-trailing-spaces = disabled
+    ```
+
+## No `Unit` as return type
 
 The `Unit` type is not allowed as return-type of a function.
 
@@ -1782,12 +2422,44 @@ The `Unit` type is not allowed as return-type of a function.
 
 Rule id: `standard:no-unit-return`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:no-unit-return")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-unit-return = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-unit-return = disabled
+    ```
+
 ## No unused imports
 
 !!! warning
     This rule is not able to detect *all* unused imports as mentioned in this [issue comment](https://github.com/pinterest/ktlint/issues/1754#issuecomment-1368201667).
 
 Rule id: `standard:no-unused-imports`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:no-unused-imports")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-unused-imports = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-unused-imports = disabled
+    ```
 
 ## No wildcard imports
 
@@ -1829,6 +2501,22 @@ ij_kotlin_imports_layout=android.**,|,^org.junit.**,kotlin.io.Closeable.*,|,*,^ 
 
 Rule id: `standard:no-wildcard-imports`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:no-wildcard-imports")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-wildcard-imports = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-wildcard-imports = disabled
+    ```
+
 ## Spacing
 
 ### Angle bracket spacing
@@ -1851,6 +2539,22 @@ No spaces around angle brackets when used for typing.
     ```
 
 Rule id: `standard:spacing-around-angle-brackets`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:spacing-around-angle-brackets")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_spacing-around-angle-brackets = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_spacing-around-angle-brackets = disabled
+    ```
 
 ### Annotation spacing
 
@@ -1886,6 +2590,22 @@ Annotations should be separated by a single line break.
 
 Rule id: `standard:annotation-spacing`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:annotation-spacing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_annotation-spacing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_annotation-spacing = disabled
+    ```
+
 ### Blank line between declarations with annotations
 
 Declarations with annotations should be separated by a blank line.
@@ -1907,6 +2627,22 @@ Declarations with annotations should be separated by a blank line.
     ```
 
 Rule id: `standard:spacing-between-declarations-with-annotations`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:spacing-between-declarations-with-annotations")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_spacing-between-declarations-with-annotations = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_spacing-between-declarations-with-annotations = disabled
+    ```
 
 ### Blank line between declaration with comments
 
@@ -1936,6 +2672,22 @@ Declarations with comments should be separated by a blank line.
 
 Rule id: `standard:spacing-between-declarations-with-comments`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:spacing-between-declarations-with-comments")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_spacing-between-declarations-with-comments = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_spacing-between-declarations-with-comments = disabled
+    ```
+
 ### Colon spacing
 
 Consistent spacing around colon.
@@ -1957,6 +2709,22 @@ Consistent spacing around colon.
 
 Rule id: `standard:colon-spacing`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:colon-spacing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_colon-spacing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_colon-spacing = disabled
+    ```
+
 ### Comma spacing
 
 Consistent spacing around comma.
@@ -1975,6 +2743,22 @@ Consistent spacing around comma.
     ```
 
 Rule id: `standard:comma-spacing`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:comma-spacing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_comma-spacing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_comma-spacing = disabled
+    ```
 
 ### Comment spacing
 
@@ -2014,6 +2798,22 @@ The end of line comment sign `//` should be preceded and followed by exactly a s
 
 Rule id: `standard:comment-spacing`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:comment-spacing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_comment-spacing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_comment-spacing = disabled
+    ```
+
 ### Curly spacing
 
 Consistent spacing around curly braces.
@@ -2031,6 +2831,22 @@ Consistent spacing around curly braces.
 
 Rule id: `standard:curly-spacing`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:curly-spacing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_curly-spacing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_curly-spacing = disabled
+    ```
+
 ### Dot spacing
 
 Consistent spacing around dots.
@@ -2047,6 +2863,22 @@ Consistent spacing around dots.
     ```
 
 Rule id: `standard:dot-spacing`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:dot-spacing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_dot-spacing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_dot-spacing = disabled
+    ```
 
 ### Double colon spacing
 
@@ -2068,6 +2900,22 @@ No spaces around `::`.
     ```
 
 Rule id: `standard:double-colon-spacing`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:double-colon-spacing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_double-colon-spacing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_double-colon-spacing = disabled
+    ```
 
 ### Function return type spacing
 
@@ -2092,6 +2940,22 @@ Consistent spacing around the function return type.
     ```
 
 Rule id: `standard:function-return-type-spacing`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:function-return-type-spacing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_function-return-type-spacing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_function-return-type-spacing = disabled
+    ```
 
 ### Function start of body spacing
 
@@ -2149,6 +3013,22 @@ Consistent spacing before start of function body.
 
 Rule id: `standard:function-start-of-body-spacing`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:function-start-of-body-spacing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_function-start-of-body-spacing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_function-start-of-body-spacing = disabled
+    ```
+
 ### Function type reference spacing
 
 Consistent spacing in the type reference before a function.
@@ -2171,6 +3051,22 @@ Consistent spacing in the type reference before a function.
 
 Rule id: `standard:function-type-reference-spacing`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:function-type-reference-spacing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_function-type-reference-spacing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_function-type-reference-spacing = disabled
+    ```
+
 ### Fun keyword spacing
 
 Consistent spacing after the fun keyword.
@@ -2189,6 +3085,22 @@ Consistent spacing after the fun keyword.
     ```
 
 Rule id: `standard:fun-keyword-spacing`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:fun-keyword-spacing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_fun-keyword-spacing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_fun-keyword-spacing = disabled
+    ```
 
 ### Kdoc wrapping
 
@@ -2210,6 +3122,22 @@ A KDoc comment should start and end on a line that does not contain any other el
     ```
 
 Rule id: `standard:kdoc-wrapping`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:kdoc-wrapping")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_kdoc-wrapping = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_kdoc-wrapping = disabled
+    ```
 
 ### Keyword spacing
 
@@ -2235,6 +3163,22 @@ Consistent spacing around keywords.
     ```
 
 Rule id: `standard:keyword-spacing`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:keyword-spacing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_keyword-spacing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_keyword-spacing = disabled
+    ```
 
 ### Modifier list spacing
 
@@ -2264,6 +3208,22 @@ Consistent spacing between modifiers in and after the last modifier in a modifie
 
 Rule id: `standard:modifier-list-spacing`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:modifier-list-spacing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_modifier-list-spacing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_modifier-list-spacing = disabled
+    ```
+
 ### Nullable type spacing
 
 No spaces in a nullable type.
@@ -2282,6 +3242,22 @@ No spaces in a nullable type.
     ```
 
 Rule id: `standard:nullable-type-spacing`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:nullable-type-spacing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_nullable-type-spacing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_nullable-type-spacing = disabled
+    ```
 
 ### Operator spacing
 
@@ -2306,6 +3282,22 @@ Consistent spacing around operators.
 
 Rule id: `standard:op-spacing`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:op-spacing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_op-spacing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_op-spacing = disabled
+    ```
+
 ### Parameter list spacing
 
 Consistent spacing inside the parameter list.
@@ -2326,6 +3318,22 @@ Consistent spacing inside the parameter list.
     ```
 
 Rule id: `standard:parameter-list-spacing`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:parameter-list-spacing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_parameter-list-spacing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_parameter-list-spacing = disabled
+    ```
 
 ### Parenthesis spacing
 
@@ -2352,6 +3360,22 @@ Consistent spacing around parenthesis.
 
 Rule id: `standard:paren-spacing`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:paren-spacing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_paren-spacing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_paren-spacing = disabled
+    ```
+
 ### Range spacing
 
 Consistent spacing around range operators.
@@ -2373,6 +3397,22 @@ Consistent spacing around range operators.
 
 Rule id: `standard:range-spacing`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:range-spacing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_range-spacing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_range-spacing = disabled
+    ```
+
 ### Spacing between function name and opening parenthesis
 
 Consistent spacing between function name and opening parenthesis.
@@ -2389,6 +3429,22 @@ Consistent spacing between function name and opening parenthesis.
     ```
 
 Rule id: `standard:spacing-between-function-name-and-opening-parenthesis`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:spacing-between-function-name-and-opening-parenthesis")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_spacing-between-function-name-and-opening-parenthesis = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_spacing-between-function-name-and-opening-parenthesis = disabled
+    ```
 
 ### Try catch finally spacing
 
@@ -2424,6 +3480,22 @@ Enforce consistent spacing in `try { .. } catch { .. } finally { .. }`.
 
 Rule id: `standard:try-catch-finally-spacing`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:try-catch-finally-spacing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_try-catch-finally-spacing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_try-catch-finally-spacing = disabled
+    ```
+
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
 
@@ -2452,6 +3524,22 @@ Spacing before and after the angle brackets of a type argument list.
 
 Rule id: `standard:type-argument-list-spacing`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:type-argument-list-spacing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_type-argument-list-spacing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_type-argument-list-spacing = disabled
+    ```
+
 ### Type parameter list spacing
 
 Spacing after a type parameter list in function and class declarations.
@@ -2476,6 +3564,22 @@ Spacing after a type parameter list in function and class declarations.
     ```
 
 Rule id: `standard:type-parameter-list-spacing`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:type-parameter-list-spacing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_type-parameter-list-spacing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_type-parameter-list-spacing = disabled
+    ```
 
 ### Unary operator spacing
 
@@ -2503,6 +3607,22 @@ No spaces around unary operators.
 
 Rule id: `standard:unary-op-spacing`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:unary-op-spacing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_unary-op-spacing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_unary-op-spacing = disabled
+    ```
+
 ## String template
 
 Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`)
@@ -2519,6 +3639,22 @@ Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.
     ```
 
 Rule id: `standard:string-template`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:string-template")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_string-template = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_string-template = disabled
+    ```
 
 ## String template indent
 
@@ -2602,6 +3738,22 @@ Consistent removal (default) or adding of trailing commas on call site.
 
 Rule id: `standard:trailing-comma-on-call-site`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:trailing-comma-on-call-site")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_trailing-comma-on-call-site = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_trailing-comma-on-call-site = disabled
+    ```
+
 ## Trailing comma on declaration site
 
 Consistent removal (default) or adding of trailing commas on declaration site.
@@ -2640,6 +3792,22 @@ Consistent removal (default) or adding of trailing commas on declaration site.
 
 Rule id: `standard:trailing-comma-on-declaration-site`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:trailing-comma-on-declaration-site")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_trailing-comma-on-declaration-site = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_trailing-comma-on-declaration-site = disabled
+    ```
+
 ## Type argument comment
 
 Disallows comments to be placed at certain locations inside a type argument.
@@ -2677,6 +3845,22 @@ Disallows comments to be placed at certain locations inside a type argument.
     Although this code sample might look ok, it is semantically and programmatically unclear to which type `some comment` refers. From the developer perspective it might be clear that it belongs to type `Bar1`. From the parsers perspective, it does belong to type `Bar2`.
 
 Rule id: `standard:type-argument-comment`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:type-argument-comment")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_type-argument-comment = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_type-argument-comment = disabled
+    ```
 
 ## Type parameter comment
 
@@ -2733,6 +3917,22 @@ An empty parentheses block before a lambda is redundant.
     ```
 
 Rule id: `standard:unnecessary-parentheses-before-trailing-lambda`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:unnecessary-parentheses-before-trailing-lambda")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_unnecessary-parentheses-before-trailing-lambda = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_unnecessary-parentheses-before-trailing-lambda = disabled
+    ```
 
 ## Value argument comment
 
@@ -2805,6 +4005,22 @@ Disallows comments to be placed at certain locations inside a value argument.
 
 Rule id: `standard:value-parameter-comment`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:value-parameter-comment")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_value-parameter-comment = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_value-parameter-comment = disabled
+    ```
+
 ## Wrapping
 
 ### Argument list wrapping
@@ -2836,6 +4052,22 @@ All arguments should be on the same line, or every argument should be on a separ
 | `ktlint_argument_list_wrapping_ignore_when_parameter_count_greater_or_equal_than` |     `unset`     |       8       |       8        |
 
 Rule id: `standard:argument-list-wrapping`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:argument-list-wrapping")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_argument-list-wrapping = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_argument-list-wrapping = disabled
+    ```
 
 ### Chain wrapping
 
@@ -2891,6 +4123,22 @@ A block comment should start and end on a line that does not contain any other e
     ```
 
 Rule id: `standard:comment-wrapping`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:comment-wrapping")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_comment-wrapping = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_comment-wrapping = disabled
+    ```
 
 ### Condition wrapping
 
@@ -2979,6 +4227,22 @@ Wraps the content receiver list to a separate line regardless of maximum line le
 
 Rule id: `standard:context-receiver-wrapping`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:context-receiver-wrapping")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_context-receiver-wrapping = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_context-receiver-wrapping = disabled
+    ```
+
 ### Enum wrapping
 
 An enum should be a single line, or each enum entry has to be placed on a separate line. In case the enumeration contains enum entries and declarations those are to be separated by a blank line.
@@ -3042,6 +4306,22 @@ A single line if-statement should be kept simple. It may contain no more than on
 
 Rule id: `standard:if-else-wrapping`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:if-else-wrapping")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_if-else-wrapping = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_if-else-wrapping = disabled
+    ```
+
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
 
@@ -3072,6 +4352,22 @@ Multiline expression on the right hand side of an expression are forced to start
     ```
 
 Rule id: `standard:multiline-expression-wrapping`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:multiline-expression-wrapping")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_multiline-expression-wrapping = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_multiline-expression-wrapping = disabled
+    ```
 
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
@@ -3191,6 +4487,22 @@ When a function or class parameter doesn't fit on a single line, wrap the type o
 
 Rule id: `standard:parameter-wrapping`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:parameter-wrapping")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_parameter-wrapping = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_parameter-wrapping = disabled
+    ```
+
 ### Property wrapping
 
 When a property doesn't fit on a single line, wrap the type or value to a separate line
@@ -3253,6 +4565,22 @@ A function, class/object body or other block body statement has to be placed on 
 
 Rule id: `standard:statement-wrapping`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:statement-wrapping")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_statement-wrapping = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_statement-wrapping = disabled
+    ```
+
 ### Wrapping
 
 Inserts missing newlines (for example between parentheses of a multi-line function call).
@@ -3278,3 +4606,19 @@ Inserts missing newlines (for example between parentheses of a multi-line functi
     ```
 
 Rule id: `standard:wrapping`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:wrapping")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_wrapping = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_wrapping = disabled
+    ```
