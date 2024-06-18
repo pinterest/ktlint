@@ -13,7 +13,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 * Let API Consumer decide whether a LintError has to be autocorrected, or not - [#2671](https://github.com/pinterest/ktlint/pull/2671), by @paul-dingemans
 
 * Promote experimental rules to non-experimental - [#2674](https://github.com/pinterest/ktlint/pull/2674), by @paul-dingemans
-  - [binary-expression-wrapping](https://pinterest.github.io/ktlint/latest/rules/standard/#backing-property-naming)
+  - [backing-property-naming](https://pinterest.github.io/ktlint/latest/rules/standard/#backing-property-naming)
+  - [binary-expression-wrapping](https://pinterest.github.io/ktlint/latest/rules/standard/#binary-expression-wrapping)
   - [chain-method-continuation](https://pinterest.github.io/ktlint/latest/rules/standard/#chain-method-continuation)
   - [class-signature](https://pinterest.github.io/ktlint/latest/rules/standard/#class-signature)
   - [condition-wrapping](https://pinterest.github.io/ktlint/latest/rules/standard/#condition-wrapping)
