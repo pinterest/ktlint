@@ -36,6 +36,7 @@ theme:
     - navigation.expand
     - search.suggest
     - search.share
+    - content.code.copy
 
 nav:
   - Home:
@@ -83,6 +84,8 @@ markdown_extensions:
       anchor_linenums: true
   - pymdownx.mark
   - pymdownx.smartsymbols
+  - attr_list
+  - md_in_html
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid

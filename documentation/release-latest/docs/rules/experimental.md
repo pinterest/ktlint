@@ -109,6 +109,22 @@ Consistently add or remove blank lines between when-conditions in a when-stateme
 
 Rule id: `standard:blank-lines-between-when-conditions`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:blank-lines-between-when-conditions")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_blank-lines-between-when-conditions = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_blank-lines-between-when-conditions = disabled
+    ```
+
 ## KDoc
 
 KDoc's should only be used on elements for which KDoc is to be transformed to documentation. Normal block comments should be used in other cases.
@@ -166,6 +182,22 @@ Access modifiers are ignored. Strictly speaking, one could argue that private de
 
 Rule id: `standard:kdoc`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:kdoc")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_kdoc = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_kdoc = disabled
+    ```
+
 ## Mixed condition operators
 
 Conditions should not use a both `&&` and `||` operators between operators at the same level. By using parenthesis the expression is to be clarified.
@@ -186,6 +218,22 @@ Conditions should not use a both `&&` and `||` operators between operators at th
     ```
 
 Rule id: `standard:mixed-condition-operators`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:mixed-condition-operators")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_mixed-condition-operators = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_mixed-condition-operators = disabled
+    ```
 
 ## Square brackets spacing
 
@@ -220,3 +268,20 @@ Check for spacing around square brackets.
     ```
 
 Rule id: `standard:square-brackets-spacing`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:square-brackets-spacing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_square-brackets-spacing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_square-brackets-spacing = disabled
+    ```
+
