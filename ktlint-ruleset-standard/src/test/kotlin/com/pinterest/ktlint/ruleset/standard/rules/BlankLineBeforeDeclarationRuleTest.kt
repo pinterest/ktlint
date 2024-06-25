@@ -506,4 +506,18 @@ class BlankLineBeforeDeclarationRuleTest {
             """.trimIndent()
         blankLineBeforeDeclarationRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 2694 - Given a call expression with an anonymous function as argument`() {
+        val code =
+            """
+            val foo1 =
+                foo(
+                    fun() = 42,
+                )
+
+            val foo2 = foo(fun() = 42)
+            """.trimIndent()
+        blankLineBeforeDeclarationRuleAssertThat(code).hasNoLintViolations()
+    }
 }

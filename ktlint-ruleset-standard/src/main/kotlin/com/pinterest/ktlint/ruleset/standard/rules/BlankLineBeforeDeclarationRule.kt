@@ -14,6 +14,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY_ACCESSOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RETURN_KEYWORD
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
@@ -129,6 +130,12 @@ public class BlankLineBeforeDeclarationRule :
             //       fun(): String {
             //           return "foo"
             //       }
+            return
+        }
+
+        if (node.elementType == FUN && node.treeParent.elementType == VALUE_ARGUMENT) {
+            // Allow:
+            //   val foo1 = foo2(fun() = 42)
             return
         }
 
