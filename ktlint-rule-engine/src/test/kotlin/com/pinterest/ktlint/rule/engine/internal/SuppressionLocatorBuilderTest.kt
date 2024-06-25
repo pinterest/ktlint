@@ -229,6 +229,58 @@ class SuppressionLocatorBuilderTest {
         }
 
         @Test
+        fun `Issue 2695 - Given that the formatter-on tag is not found in a block containing the formatter-off tag then the IndentationRule should not throw an exception`() {
+            val code =
+                """
+                val fooReported1 = "foo"
+                fun bar() {
+                    // @formatter:off
+                    val fooNotReported1 = "foo"
+                    val fooNotReported2 = "foo"
+                }
+                val fooReported2 = "foo"
+                """.trimIndent()
+
+            val actual =
+                lint(
+                    code,
+                    editorConfigOverride = EditorConfigOverride.from(FORMATTER_TAGS_ENABLED_PROPERTY to true),
+                    ruleProviders = setOf(RuleProvider { IndentationRule() }),
+                )
+            assertThat(actual).containsExactly(
+                lintError(1, 5, "standard:no-foo-identifier-standard"),
+                lintError(1, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
+                lintError(7, 5, "standard:no-foo-identifier-standard"),
+                lintError(7, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
+            )
+        }
+
+        @Test
+        fun `Issue 2695 - Given that the formatter-on tag is applied on a non-block element then the IndentationRule should not throw an exception`() {
+            val code =
+                """
+                val bar1 = fooReported()
+                fun bar() =
+                    // @formatter:off
+                    fooNotReported()
+                val bar2 = fooReported()
+                """.trimIndent()
+
+            val actual =
+                lint(
+                    code,
+                    editorConfigOverride = EditorConfigOverride.from(FORMATTER_TAGS_ENABLED_PROPERTY to true),
+                    ruleProviders = setOf(RuleProvider { IndentationRule() }),
+                )
+            assertThat(actual).containsExactly(
+                lintError(1, 12, "standard:no-foo-identifier-standard"),
+                lintError(1, 12, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
+                lintError(5, 12, "standard:no-foo-identifier-standard"),
+                lintError(5, 12, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
+            )
+        }
+
+        @Test
         fun `Given that a NoFooIdentifierRule violation is suppressed with custom formatter tags in block comments then do not find a violation in that block`() {
             val code =
                 """
@@ -329,6 +381,50 @@ class SuppressionLocatorBuilderTest {
 
     @Test
     fun `Given a suppression of a rule which alphabetically comes before rule id ktlint-suppression`() {
+        val code =
+            """
+            fun bar() {
+                /* ktlint-disable standard:indent */
+                return mapOf(
+                       1 to "   1 ms",
+                      10 to "  10 ms",
+                     999 to " 999 ms",
+                    1000 to "   1 sec",
+                )
+                /* ktlint-enable standard:indent */
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            @Suppress("ktlint:standard:indent")
+            fun bar() {
+                return mapOf(
+                       1 to "   1 ms",
+                      10 to "  10 ms",
+                     999 to " 999 ms",
+                    1000 to "   1 sec",
+                )
+            }
+            """.trimIndent()
+
+        val actual =
+            KtLintRuleEngine(
+                ruleProviders =
+                    setOf(
+                        RuleProvider { IndentationRule() },
+                    ),
+                editorConfigOverride =
+                    EMPTY_EDITOR_CONFIG_OVERRIDE
+                        .plus(
+                            STANDARD_NO_FOO_IDENTIFIER_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled,
+                        ),
+            ).format(Code.fromSnippet(code)) { _ -> AutocorrectDecision.ALLOW_AUTOCORRECT }
+
+        assertThat(actual).isEqualTo(formattedCode)
+    }
+
+    @Test
+    fun `Issue 2695 - `() {
         val code =
             """
             fun bar() {
