@@ -238,13 +238,17 @@ public fun ASTNode.upsertWhitespaceBeforeMe(text: String) {
             return replaceWhitespaceWith(text)
         }
         val previous = treePrev ?: prevLeaf()
-        if (previous != null && previous.elementType == WHITE_SPACE) {
-            previous.replaceWhitespaceWith(text)
-        } else {
-            if (treeParent.firstChildNode == this) {
+        when {
+            previous?.elementType == WHITE_SPACE -> {
+                previous.replaceWhitespaceWith(text)
+            }
+
+            treeParent.firstChildNode == this -> {
                 // Never insert a whitespace node as first node in a composite node
                 treeParent.upsertWhitespaceBeforeMe(text)
-            } else {
+            }
+
+            else -> {
                 PsiWhiteSpaceImpl(text).also { psiWhiteSpace ->
                     (psi as LeafElement).rawInsertBeforeMe(psiWhiteSpace)
                 }
@@ -289,13 +293,17 @@ public fun ASTNode.upsertWhitespaceAfterMe(text: String) {
             return replaceWhitespaceWith(text)
         }
         val next = treeNext ?: nextLeaf()
-        if (next != null && next.elementType == WHITE_SPACE) {
-            next.replaceWhitespaceWith(text)
-        } else {
-            if (treeParent.lastChildNode == this) {
+        when {
+            next?.elementType == WHITE_SPACE -> {
+                next.replaceWhitespaceWith(text)
+            }
+
+            treeParent.lastChildNode == this -> {
                 // Never insert a whitespace as last node in a composite node
                 treeParent.upsertWhitespaceAfterMe(text)
-            } else {
+            }
+
+            else -> {
                 PsiWhiteSpaceImpl(text).also { psiWhiteSpace ->
                     (psi as LeafElement).rawInsertAfterMe(psiWhiteSpace)
                 }
