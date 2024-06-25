@@ -4,6 +4,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERT
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.intellij_idea
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.ec4j.toPropertyWithValue
 import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
 import com.pinterest.ktlint.ruleset.standard.rules.ClassSignatureRule.Companion.FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY
@@ -1780,6 +1781,57 @@ class ClassSignatureRuleTest {
                     LintViolation(3, 14, "Super type should start on a newline"),
                     LintViolation(3, 25, "No whitespace expected"),
                 ).isFormattedAs(formattedCode)
+        }
+    }
+
+    @Nested
+    inner class `Issue 2689 - Given a multiline class containing an EOL comment` {
+        @Test
+        fun `Issue 2689 - Given ktlint_official code style`() {
+            val code =
+                """
+                data class Foo(
+                    // Foo
+                    val foo: String,
+                    val bar: String,
+                )
+                """.trimIndent()
+            classSignatureWrappingRuleAssertThat(code)
+                // Unset the property that forces the class always to be written as multiline signature
+                .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
+                .hasNoLintViolations()
+        }
+
+        @Test
+        fun `Issue 2689 - Given android_studio code style`() {
+            val code =
+                """
+                data class Foo(
+                    // Foo
+                    val foo: String,
+                    val bar: String,
+                )
+                """.trimIndent()
+            classSignatureWrappingRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.android_studio)
+                .hasNoLintViolations()
+        }
+
+        @Test
+        fun `Issue 2689 - Given intellij_idea code style`() {
+            val code =
+                """
+                data class Foo(
+                    // Foo
+                    val foo: String,
+                    val bar: String,
+                )
+                """.trimIndent()
+            classSignatureWrappingRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.intellij_idea)
+                // Set max_line_length as other the class signature would not be rewritten to single line
+                .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 999)
+                .hasNoLintViolations()
         }
     }
 
