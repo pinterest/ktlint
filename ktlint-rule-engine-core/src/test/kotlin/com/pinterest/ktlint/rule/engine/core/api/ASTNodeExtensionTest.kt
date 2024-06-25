@@ -10,6 +10,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PRIVATE_KEYWORD
@@ -457,6 +458,31 @@ class ASTNodeExtensionTest {
 
             assertThat(actual).isEqualTo(formattedCode)
         }
+
+        @Test
+        fun `Issue 2688 - Given a class without a space between the identifier and the left curly brace then insert the whitespace at the correct position in the AST`() {
+            val code =
+                """
+                class Foo{
+                    // some comment
+                }
+                """.trimIndent()
+
+            val actual =
+                code
+                    .transformAst {
+                        findChildByType(CLASS)
+                            ?.findChildByType(CLASS_BODY)
+                            ?.findChildByType(LBRACE)
+                            ?.upsertWhitespaceBeforeMe(" ")
+                    }.findChildByType(CLASS)
+                    ?.findChildByType(CLASS_BODY)
+                    ?.prevSibling()
+                    ?.let { it.elementType == WHITE_SPACE && it.text == " " }
+                    ?: false
+
+            assertThat(actual).isTrue()
+        }
     }
 
     @Nested
@@ -603,6 +629,31 @@ class ASTNodeExtensionTest {
                     }.text
 
             assertThat(actual).isEqualTo(formattedCode)
+        }
+
+        @Test
+        fun `Issue 2688 - Given a class without a space between the identifier and the left curly brace then insert the whitespace at the correct position in the AST`() {
+            val code =
+                """
+                fun foo(){
+                    // some comment
+                }
+                """.trimIndent()
+
+            val actual =
+                code
+                    .transformAst {
+                        findChildByType(FUN)
+                            ?.findChildByType(VALUE_PARAMETER_LIST)
+                            ?.findChildByType(RPAR)
+                            ?.upsertWhitespaceAfterMe(" ")
+                    }.findChildByType(FUN)
+                    ?.findChildByType(VALUE_PARAMETER_LIST)
+                    ?.nextSibling()
+                    ?.let { it.elementType == WHITE_SPACE && it.text == " " }
+                    ?: false
+
+            assertThat(actual).isTrue()
         }
     }
 
