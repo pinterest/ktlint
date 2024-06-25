@@ -170,11 +170,18 @@ public class ClassSignatureRule :
                 node.containsMultilineParameter() ||
                 (codeStyle == ktlint_official && node.containsAnnotatedParameter()) ||
                 (isMaxLineLengthSet() && classSignatureExcludingSuperTypesExceedsMaxLineLength(node, emit)) ||
-                (!isMaxLineLengthSet() && node.classSignatureExcludingSuperTypesIsMultiline())
+                (!isMaxLineLengthSet() && node.classSignatureExcludingSuperTypesIsMultiline()) ||
+                node.containsEolComment()
         fixWhiteSpacesInValueParameterList(node, emit, multiline = wrapPrimaryConstructorParameters, dryRun = false)
         fixWhitespacesInSuperTypeList(node, emit, wrappedPrimaryConstructor = wrapPrimaryConstructorParameters)
         fixClassBody(node, emit)
     }
+
+    private fun ASTNode.containsEolComment() =
+        getPrimaryConstructorParameterListOrNull()
+            ?.children()
+            ?.any { it.elementType == EOL_COMMENT }
+            ?: false
 
     private fun classSignatureExcludingSuperTypesExceedsMaxLineLength(
         node: ASTNode,
