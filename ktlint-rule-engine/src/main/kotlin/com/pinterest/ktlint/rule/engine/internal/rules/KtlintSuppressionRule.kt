@@ -8,6 +8,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
+import com.pinterest.ktlint.rule.engine.core.api.IgnoreKtlintSuppressions
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
@@ -65,7 +66,10 @@ import org.jetbrains.kotlin.utils.addToStdlib.applyIf
  */
 public class KtlintSuppressionRule(
     private val allowedRuleIds: List<RuleId>,
-) : InternalRule("ktlint-suppression") {
+) : InternalRule("ktlint-suppression"),
+    // The SuppressionLocatorBuilder no longer support the old ktlint suppression directives using comments. This rule may not be disabled
+    // in any way as it would fail to process suppressions.
+    IgnoreKtlintSuppressions {
     private val allowedRuleIdAsStrings = allowedRuleIds.map { it.value }
 
     private val ruleIdValidator: (String) -> Boolean = { ruleId -> allowedRuleIdAsStrings.contains(ruleId) }

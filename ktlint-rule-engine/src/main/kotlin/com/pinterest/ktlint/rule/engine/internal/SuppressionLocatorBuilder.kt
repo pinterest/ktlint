@@ -1,12 +1,13 @@
 package com.pinterest.ktlint.rule.engine.internal
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
+import com.pinterest.ktlint.rule.engine.core.api.IgnoreKtlintSuppressions
+import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.internal.SuppressionLocatorBuilder.CommentSuppressionHint.Type.BLOCK_END
 import com.pinterest.ktlint.rule.engine.internal.SuppressionLocatorBuilder.CommentSuppressionHint.Type.BLOCK_START
-import com.pinterest.ktlint.rule.engine.internal.rules.KTLINT_SUPPRESSION_RULE_ID
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.psi.KtAnnotated
@@ -18,7 +19,7 @@ import org.jetbrains.kotlin.psi.psiUtil.startOffset
 /**
  * Detects if given `ruleId` at given `offset` is suppressed.
  */
-internal typealias SuppressionLocator = (offset: Int, ruleId: RuleId) -> Boolean
+internal typealias SuppressionLocator = (offset: Int, rule: Rule) -> Boolean
 
 internal object SuppressionLocatorBuilder {
     /**
@@ -65,15 +66,13 @@ internal object SuppressionLocatorBuilder {
     }
 
     private fun toSuppressedRegionsLocator(hintsList: List<SuppressionHint>): SuppressionLocator =
-        { offset, ruleId ->
-            if (ruleId == KTLINT_SUPPRESSION_RULE_ID) {
-                // The rule to detect deprecated rule directives may not be disabled itself as otherwise the directives
-                // will not be reported and fixed.
+        { offset, rule ->
+            if (rule is IgnoreKtlintSuppressions) {
                 false
             } else {
                 hintsList
                     .filter { offset in it.range }
-                    .any { hint -> hint.disabledRuleIds.isEmpty() || hint.disabledRuleIds.contains(ruleId.value) }
+                    .any { hint -> hint.disabledRuleIds.isEmpty() || hint.disabledRuleIds.contains(rule.ruleId.value) }
             }
         }
 
