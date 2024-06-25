@@ -1,12 +1,11 @@
 package com.pinterest.ktlint.rule.engine.internal
 
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.internal.SuppressionLocatorBuilder.CommentSuppressionHint.Type.BLOCK_END
 import com.pinterest.ktlint.rule.engine.internal.SuppressionLocatorBuilder.CommentSuppressionHint.Type.BLOCK_START
-import com.pinterest.ktlint.rule.engine.internal.SuppressionLocatorBuilder.CommentSuppressionHint.Type.EOL
 import com.pinterest.ktlint.rule.engine.internal.rules.KTLINT_SUPPRESSION_RULE_ID
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
@@ -99,7 +98,7 @@ internal object SuppressionLocatorBuilder {
         }
 
         return suppressionHints.plus(
-            commentSuppressionsHints.toSuppressionHints(rootNode),
+            commentSuppressionsHints.toSuppressionHints(),
         )
     }
 
@@ -139,21 +138,11 @@ internal object SuppressionLocatorBuilder {
                 }
             }
 
-    private fun MutableList<CommentSuppressionHint>.toSuppressionHints(rootNode: ASTNode): MutableList<SuppressionHint> {
+    private fun MutableList<CommentSuppressionHint>.toSuppressionHints(): MutableList<SuppressionHint> {
         val suppressionHints = mutableListOf<SuppressionHint>()
         val blockCommentSuppressionHints = mutableListOf<CommentSuppressionHint>()
         forEach { commentSuppressionHint ->
             when (commentSuppressionHint.type) {
-                EOL -> {
-                    val commentNode = commentSuppressionHint.node
-                    suppressionHints.add(
-                        SuppressionHint(
-                            IntRange(commentNode.prevNewLineOffset(), commentNode.startOffset),
-                            commentSuppressionHint.disabledRuleIds,
-                        ),
-                    )
-                }
-
                 BLOCK_START -> {
                     blockCommentSuppressionHints.add(commentSuppressionHint)
                 }
@@ -175,20 +164,38 @@ internal object SuppressionLocatorBuilder {
             }
         }
         suppressionHints.addAll(
+            // Remaining hints were not properly closed
             blockCommentSuppressionHints.map {
-                SuppressionHint(
-                    IntRange(it.node.startOffset, rootNode.textLength),
-                    it.disabledRuleIds,
-                )
+                val rbraceOfContainingBlock = it.node.rbraceOfContainingBlock()
+                if (rbraceOfContainingBlock == null) {
+                    // Apply suppression on next sibling only, when the outer element does not end with a RBRACE
+                    it.node
+                        .nextSibling()
+                        .let { nextSibling ->
+                            SuppressionHint(
+                                IntRange(
+                                    it.node.startOffset,
+                                    nextSibling?.textRange?.endOffset ?: it.node.textRange.endOffset,
+                                ),
+                                it.disabledRuleIds,
+                            )
+                        }
+                } else {
+                    // Exclude closing curly brace of the containing block
+                    SuppressionHint(
+                        IntRange(it.node.startOffset, rbraceOfContainingBlock.startOffset - 1),
+                        it.disabledRuleIds,
+                    )
+                }
             },
         )
         return suppressionHints
     }
 
-    private fun ASTNode.prevNewLineOffset(): Int =
-        prevLeaf { it.isWhiteSpaceWithNewline() }
-            ?.let { it.startOffset + it.text.lastIndexOf('\n') + 1 }
-            ?: 0
+    private fun ASTNode.rbraceOfContainingBlock(): ASTNode? =
+        treeParent
+            .lastChildNode
+            ?.takeIf { it.elementType == RBRACE }
 
     private fun <T> List<T>.tail() = this.subList(1, this.size)
 
@@ -261,7 +268,6 @@ internal object SuppressionLocatorBuilder {
         val type: Type,
     ) {
         enum class Type {
-            EOL,
             BLOCK_START,
             BLOCK_END,
         }
