@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
+import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
@@ -273,6 +274,19 @@ public class ClassSignatureRule :
                 // Allow:
                 //     class Foo constructor() { ... }
                 it.prevCodeSibling()?.elementType == CONSTRUCTOR_KEYWORD
+            }?.takeUnless {
+                // Allow
+                //     class Foo() {
+                //         constructor(foo: String): this() {
+                //             println(foo)
+                //         }
+                //     }
+                node
+                    .findChildByType(CLASS_BODY)
+                    ?.findChildByType(ElementType.SECONDARY_CONSTRUCTOR)
+                    ?.findChildByType(ElementType.CONSTRUCTOR_DELEGATION_CALL)
+                    ?.firstChildNode
+                    ?.elementType == ElementType.CONSTRUCTOR_DELEGATION_REFERENCE
             }?.let { parameterList ->
                 if (!dryRun) {
                     emit(parameterList.startOffset, "No parenthesis expected", true)

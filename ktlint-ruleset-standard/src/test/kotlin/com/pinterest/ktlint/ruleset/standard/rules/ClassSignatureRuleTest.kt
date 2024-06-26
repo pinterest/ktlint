@@ -1835,6 +1835,19 @@ class ClassSignatureRuleTest {
         }
     }
 
+    @Test
+    fun `Issue 2690 - Given an empty primary constructor and secondary constructor with delegation reference`() {
+        val code =
+            """
+            class Foo() {
+                constructor(foo: String) : this() {
+                    // N/A
+                }
+            }
+            """.trimIndent()
+        classSignatureWrappingRuleAssertThat(code).hasNoLintViolations()
+    }
+
     private companion object {
         const val UNEXPECTED_SPACES = "  "
         const val NO_SPACE = ""
