@@ -358,6 +358,9 @@ public abstract interface annotation class com/pinterest/ktlint/rule/engine/core
 public abstract interface annotation class com/pinterest/ktlint/rule/engine/core/api/FeatureInBetaState : java/lang/annotation/Annotation {
 }
 
+public abstract interface class com/pinterest/ktlint/rule/engine/core/api/IgnoreKtlintSuppressions {
+}
+
 public final class com/pinterest/ktlint/rule/engine/core/api/IndentConfig {
 	public static final field Companion Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$Companion;
 	public fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle;I)V

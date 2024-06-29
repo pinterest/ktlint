@@ -9,6 +9,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.IMPORT_DIRECTIVE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PACKAGE_DIRECTIVE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REFERENCE_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.IgnoreKtlintSuppressions
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
@@ -37,7 +38,10 @@ import org.jetbrains.kotlin.psi.KtPackageDirective
 import org.jetbrains.kotlin.resolve.ImportPath
 
 @SinceKtlint("0.2", STABLE)
-public class NoUnusedImportsRule : StandardRule("no-unused-imports") {
+public class NoUnusedImportsRule :
+    StandardRule("no-unused-imports"),
+    // Prevent that imports which are only used inside code that is suppressed are (falsely) reported as unused.
+    IgnoreKtlintSuppressions {
     private val ref =
         mutableSetOf(
             Reference("*", false),

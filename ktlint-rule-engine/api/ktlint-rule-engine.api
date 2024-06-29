@@ -147,7 +147,7 @@ public class com/pinterest/ktlint/rule/engine/internal/rules/InternalRule : com/
 	public fun getVisitorModifiers ()Ljava/util/Set;
 }
 
-public final class com/pinterest/ktlint/rule/engine/internal/rules/KtlintSuppressionRule : com/pinterest/ktlint/rule/engine/internal/rules/InternalRule {
+public final class com/pinterest/ktlint/rule/engine/internal/rules/KtlintSuppressionRule : com/pinterest/ktlint/rule/engine/internal/rules/InternalRule, com/pinterest/ktlint/rule/engine/core/api/IgnoreKtlintSuppressions {
 	public fun <init> (Ljava/util/List;)V
 	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }

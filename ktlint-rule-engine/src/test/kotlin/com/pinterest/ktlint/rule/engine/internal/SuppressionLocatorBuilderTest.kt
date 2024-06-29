@@ -20,6 +20,7 @@ import com.pinterest.ktlint.rule.engine.internal.FormatterTags.Companion.FORMATT
 import com.pinterest.ktlint.rule.engine.internal.FormatterTags.Companion.FORMATTER_TAG_ON_ENABLED_PROPERTY
 import com.pinterest.ktlint.rule.engine.internal.rules.KTLINT_SUPPRESSION_RULE_ID
 import com.pinterest.ktlint.ruleset.standard.rules.IndentationRule
+import com.pinterest.ktlint.ruleset.standard.rules.NoUnusedImportsRule
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.junit.jupiter.api.Nested
@@ -465,6 +466,38 @@ class SuppressionLocatorBuilderTest {
             ).format(Code.fromSnippet(code)) { _ -> AutocorrectDecision.ALLOW_AUTOCORRECT }
 
         assertThat(actual).isEqualTo(formattedCode)
+    }
+
+    @Test
+    fun `Issue 2696 - Given an import which is only used in a block that is suppressed then do not report that import as unused`() {
+        val code =
+            """
+            import bar.Bar1
+            import bar.Bar2
+            import bar.Bar3
+
+            fun foo123() {
+                @Suppress("ktlint")
+                Bar1()
+
+                // @formatter:off
+                Bar2()
+                // @formatter:on
+
+                Bar3()
+            }
+            """.trimIndent()
+
+        val actual =
+            lint(
+                code,
+                editorConfigOverride = EditorConfigOverride.from(FORMATTER_TAGS_ENABLED_PROPERTY to true),
+                ruleProviders = setOf(RuleProvider { NoUnusedImportsRule() }),
+            )
+        assertThat(actual).containsExactly(
+            lintError(5, 5, "standard:no-foo-identifier-standard"),
+            lintError(5, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
+        )
     }
 
     private class NoFooIdentifierRule(
