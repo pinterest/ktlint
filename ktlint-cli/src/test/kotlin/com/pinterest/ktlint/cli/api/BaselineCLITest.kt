@@ -49,6 +49,7 @@ class BaselineCLITest {
                     projectName,
                     listOf(
                         "--baseline=$baselinePath",
+                        "--format",
                         "TestBaselineFile.kt.test",
                         "some/path/to/TestBaselineFile.kt.test",
                     ),
@@ -65,6 +66,10 @@ class BaselineCLITest {
                                         ".*Baseline file '$baselinePath' contains 4 reference\\(s\\) to rule ids without a rule set id. " +
                                             "For those references the rule set id 'standard' is assumed. It is advised to regenerate " +
                                             "this baseline file.*",
+                                    ),
+                                ).doesNotContainLineMatching(
+                                    Regex(
+                                        ".*Format was not able to resolve all violations which \\(theoretically\\) can be autocorrected in file.*",
                                     ),
                                 )
                         }.assertAll()
