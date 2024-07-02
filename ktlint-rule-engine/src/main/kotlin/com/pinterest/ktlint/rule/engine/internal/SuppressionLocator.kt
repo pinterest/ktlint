@@ -6,8 +6,8 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
-import com.pinterest.ktlint.rule.engine.internal.SuppressionLocatorBuilder.CommentSuppressionHint.Type.BLOCK_END
-import com.pinterest.ktlint.rule.engine.internal.SuppressionLocatorBuilder.CommentSuppressionHint.Type.BLOCK_START
+import com.pinterest.ktlint.rule.engine.internal.SuppressionLocator.CommentSuppressionHint.Type.BLOCK_END
+import com.pinterest.ktlint.rule.engine.internal.SuppressionLocator.CommentSuppressionHint.Type.BLOCK_START
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.psi.KtAnnotated
@@ -16,77 +16,52 @@ import org.jetbrains.kotlin.psi.ValueArgument
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
 
-/**
- * Detects if given `ruleId` at given `offset` is suppressed.
- */
-internal typealias SuppressionLocator = (offset: Int, rule: Rule) -> Boolean
+internal class SuppressionLocator(
+    private val editorConfig: EditorConfig,
+) {
+    private val formatterTags = FormatterTags.from(editorConfig)
 
-internal object SuppressionLocatorBuilder {
-    /**
-     * No suppression is detected. Always returns `false`.
-     */
-    private val NO_SUPPRESSION: SuppressionLocator = { _, _ -> false }
-
-    /**
-     * Mapping of non-ktlint annotations to ktlint-annotation so that ktlint rules will be suppressed automatically
-     * when specific non-ktlint annotations are found. The prevents that developers have to specify multiple annotations
-     * for the same violation.
-     */
-    private val SUPPRESS_ANNOTATION_RULE_MAP =
-        mapOf(
-            // It would have been nice if the official rule id's as defined in the Rules themselves could have been used here. But that
-            // would introduce a circular dependency between the ktlint-rule-engine and the ktlint-ruleset-standard modules.
-            "EnumEntryName" to "standard:enum-entry-name-case",
-            "RemoveCurlyBracesFromTemplate" to "standard:string-template",
-            "ClassName" to "standard:class-naming",
-            "FunctionName" to "standard:function-naming",
-            "PackageName" to "standard:package-name",
-            "PropertyName" to "standard:property-naming",
-            "ConstPropertyName" to "standard:property-naming",
-            "ObjectPropertyName" to "standard:property-naming",
-            "PrivatePropertyName" to "standard:property-naming",
-            "UnusedImport" to "standard:no-unused-imports",
-        )
-    private val SUPPRESS_ANNOTATIONS = setOf("Suppress", "SuppressWarnings")
-    private const val ALL_KTLINT_RULES_SUPPRESSION_ID = "ktlint:suppress-all-rules"
+    // Hashcode of the raw code for which the suppressionHints are collected. The raw code can be represented by different AST's. For the
+    // SuppressionLocator that is not relevant as the offsets refer to positions in the raw code and not in the AST.
+    private var hashcodeASTNodeText: Int? = null
+    private var suppressionHints: List<SuppressionHint> = emptyList()
 
     /**
-     * Builds [SuppressionLocator] for given [rootNode] of AST tree.
+     * Check if element at [offset] in [rootNode] has to be suppressed for given [rule].
      */
-    fun buildSuppressedRegionsLocator(
+    fun suppress(
         rootNode: ASTNode,
-        editorConfig: EditorConfig,
-    ): SuppressionLocator {
-        val hintsList = collect(rootNode, FormatterTags.from(editorConfig))
-        return if (hintsList.isEmpty()) {
-            NO_SUPPRESSION
+        offset: Int,
+        rule: Rule,
+    ): Boolean {
+        // (Re)build the list of suppressions for given [rootNode] of AST tree in case content of AST has changed. When linting, the
+        // rootNode is never changed. During format, the rootNode is changed whenever a LintError is corrected.
+        rootNode
+            .text
+            .hashCode()
+            .takeIf { it != hashcodeASTNodeText }
+            ?.let { hashCode ->
+                hashcodeASTNodeText = hashCode
+                suppressionHints = findSuppressionHints(rootNode)
+            }
+
+        return if (rule is IgnoreKtlintSuppressions || suppressionHints.isEmpty()) {
+            false
         } else {
-            toSuppressedRegionsLocator(hintsList)
+            suppressionHints
+                .filter { offset in it.range }
+                .any { hint -> hint.disabledRuleIds.isEmpty() || hint.disabledRuleIds.contains(rule.ruleId.value) }
         }
     }
 
-    private fun toSuppressedRegionsLocator(hintsList: List<SuppressionHint>): SuppressionLocator =
-        { offset, rule ->
-            if (rule is IgnoreKtlintSuppressions) {
-                false
-            } else {
-                hintsList
-                    .filter { offset in it.range }
-                    .any { hint -> hint.disabledRuleIds.isEmpty() || hint.disabledRuleIds.contains(rule.ruleId.value) }
-            }
-        }
-
-    private fun collect(
-        rootNode: ASTNode,
-        formatterTags: FormatterTags,
-    ): List<SuppressionHint> {
+    private fun findSuppressionHints(rootNode: ASTNode): List<SuppressionHint> {
         val suppressionHints = ArrayList<SuppressionHint>()
         val commentSuppressionsHints = mutableListOf<CommentSuppressionHint>()
-        rootNode.collect { node ->
+        rootNode.findSuppressionHints { node ->
             when (val psi = node.psi) {
                 is PsiComment ->
                     node
-                        .createSuppressionHintFromComment(formatterTags)
+                        .createSuppressionHintFromComment()
                         ?.let { commentSuppressionsHints.add(it) }
 
                 is KtAnnotated ->
@@ -101,14 +76,14 @@ internal object SuppressionLocatorBuilder {
         )
     }
 
-    private fun ASTNode.collect(block: (node: ASTNode) -> Unit) {
+    private fun ASTNode.findSuppressionHints(block: (node: ASTNode) -> Unit) {
         block(this)
         this
             .getChildren(null)
-            .forEach { it.collect(block) }
+            .forEach { it.findSuppressionHints(block) }
     }
 
-    private fun ASTNode.createSuppressionHintFromComment(formatterTags: FormatterTags): CommentSuppressionHint? =
+    private fun ASTNode.createSuppressionHintFromComment(): CommentSuppressionHint? =
         text
             .removePrefix("//")
             .removePrefix("/*")
@@ -270,5 +245,30 @@ internal object SuppressionLocatorBuilder {
             BLOCK_START,
             BLOCK_END,
         }
+    }
+
+    private companion object {
+        /**
+         * Mapping of non-ktlint annotations to ktlint-annotation so that ktlint rules will be suppressed automatically
+         * when specific non-ktlint annotations are found. The prevents that developers have to specify multiple annotations
+         * for the same violation.
+         */
+        val SUPPRESS_ANNOTATION_RULE_MAP =
+            mapOf(
+                // It would have been nice if the official rule id's as defined in the Rules themselves could have been used here. But that
+                // would introduce a circular dependency between the ktlint-rule-engine and the ktlint-ruleset-standard modules.
+                "EnumEntryName" to "standard:enum-entry-name-case",
+                "RemoveCurlyBracesFromTemplate" to "standard:string-template",
+                "ClassName" to "standard:class-naming",
+                "FunctionName" to "standard:function-naming",
+                "PackageName" to "standard:package-name",
+                "PropertyName" to "standard:property-naming",
+                "ConstPropertyName" to "standard:property-naming",
+                "ObjectPropertyName" to "standard:property-naming",
+                "PrivatePropertyName" to "standard:property-naming",
+                "UnusedImport" to "standard:no-unused-imports",
+            )
+        val SUPPRESS_ANNOTATIONS = setOf("Suppress", "SuppressWarnings")
+        const val ALL_KTLINT_RULES_SUPPRESSION_ID = "ktlint:suppress-all-rules"
     }
 }

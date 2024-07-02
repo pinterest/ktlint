@@ -36,15 +36,7 @@ internal class RuleExecutionContext private constructor(
     val editorConfig: EditorConfig,
     val positionInTextLocator: (offset: Int) -> LineAndColumn,
 ) {
-    private lateinit var suppressionLocator: SuppressionLocator
-
-    init {
-        rebuildSuppressionLocator()
-    }
-
-    fun rebuildSuppressionLocator() {
-        suppressionLocator = SuppressionLocatorBuilder.buildSuppressedRegionsLocator(rootNode, editorConfig)
-    }
+    private var suppressionLocator = SuppressionLocator(editorConfig)
 
     fun executeRule(
         rule: Rule,
@@ -85,17 +77,12 @@ internal class RuleExecutionContext private constructor(
         autocorrectHandler: AutocorrectHandler,
         emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        /**
-         * The [suppressionLocator] can be changed during each visit of node when running [KtLintRuleEngine.format]. So a new handler is to
-         * be built before visiting the nodes.
-         */
-        val suppress = suppressionLocator(node.startOffset, rule)
         if (rule.shouldContinueTraversalOfAST()) {
             try {
                 if (rule is RuleAutocorrectApproveHandler) {
-                    executeRuleWithAutocorrectApproveHandlerOnNodeRecursively(node, rule, autocorrectHandler, suppress, emitAndApprove)
+                    executeRuleWithAutocorrectApproveHandlerOnNodeRecursively(node, rule, autocorrectHandler, emitAndApprove)
                 } else {
-                    executeRuleWithoutAutocorrectApproveHandlerOnNodeRecursively(node, rule, autocorrectHandler, suppress, emitAndApprove)
+                    executeRuleWithoutAutocorrectApproveHandlerOnNodeRecursively(node, rule, autocorrectHandler, emitAndApprove)
                 }
             } catch (e: Exception) {
                 if (autocorrectHandler is NoneAutocorrectHandler) {
@@ -127,7 +114,6 @@ internal class RuleExecutionContext private constructor(
         node: ASTNode,
         rule: Rule,
         autocorrectHandler: AutocorrectHandler,
-        suppress: Boolean,
         emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         require(rule !is RuleAutocorrectApproveHandler)
@@ -138,6 +124,7 @@ internal class RuleExecutionContext private constructor(
                         autocorrectHandler.autocorrectRuleWithoutAutocorrectApproveHandler
                 )
         val emitOnly = emitAndApprove.onlyEmit()
+        val suppress = suppressionLocator.suppress(rootNode, node.startOffset, rule)
         if (!suppress) {
             rule.beforeVisitChildNodes(node, autoCorrect, emitOnly)
         }
@@ -162,10 +149,10 @@ internal class RuleExecutionContext private constructor(
         node: ASTNode,
         rule: Rule,
         autocorrectHandler: AutocorrectHandler,
-        suppress: Boolean,
         emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         require(rule is RuleAutocorrectApproveHandler)
+        val suppress = suppressionLocator.suppress(rootNode, node.startOffset, rule)
         if (!suppress) {
             rule.beforeVisitChildNodes(node, emitAndApprove)
         }
