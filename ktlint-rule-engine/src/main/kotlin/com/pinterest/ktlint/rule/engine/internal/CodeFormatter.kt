@@ -128,13 +128,6 @@ internal class CodeFormatter(
                 .also { autocorrectDecision ->
                     // Ignore decision of the API Consumer in case the error can not be autocorrected
                     val autocorrect = autocorrectDecision == ALLOW_AUTOCORRECT && canBeAutoCorrected
-                    if (autocorrect) {
-                        /*
-                         * Rebuild the suppression locator after each change in the AST as the offsets of the suppression hints might
-                         * have changed.
-                         */
-                        rebuildSuppressionLocator()
-                    }
                     errors.add(
                         Pair(
                             lintError,
