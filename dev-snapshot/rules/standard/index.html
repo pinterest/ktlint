@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.28">
     
     
       
@@ -3365,61 +3365,78 @@ The other code styles allow an infinite amount of parameters on the same line (a
 <a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="c1">// at the X character on the right           X</span>
 <a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo0</span>
 <a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>
-<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo1</span><span class="p">(</span>
-<a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a><span class="w">    </span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span>
-<a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a><span class="p">)</span>
-<a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a>
-<a id="__codelineno-27-9" name="__codelineno-27-9" href="#__codelineno-27-9"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo2</span><span class="p">(</span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">)</span>
-<a id="__codelineno-27-10" name="__codelineno-27-10" href="#__codelineno-27-10"></a>
-<a id="__codelineno-27-11" name="__codelineno-27-11" href="#__codelineno-27-11"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo3</span><span class="p">(</span>
-<a id="__codelineno-27-12" name="__codelineno-27-12" href="#__codelineno-27-12"></a><span class="w">    </span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span>
-<a id="__codelineno-27-13" name="__codelineno-27-13" href="#__codelineno-27-13"></a><span class="w">    </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span>
-<a id="__codelineno-27-14" name="__codelineno-27-14" href="#__codelineno-27-14"></a><span class="p">)</span>
-<a id="__codelineno-27-15" name="__codelineno-27-15" href="#__codelineno-27-15"></a>
-<a id="__codelineno-27-16" name="__codelineno-27-16" href="#__codelineno-27-16"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo4</span><span class="p">(</span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">)</span>
-<a id="__codelineno-27-17" name="__codelineno-27-17" href="#__codelineno-27-17"></a>
-<a id="__codelineno-27-18" name="__codelineno-27-18" href="#__codelineno-27-18"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo5</span><span class="p">(</span><span class="nd">@Foo</span><span class="w"> </span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">)</span>
-<a id="__codelineno-27-19" name="__codelineno-27-19" href="#__codelineno-27-19"></a>
-<a id="__codelineno-27-20" name="__codelineno-27-20" href="#__codelineno-27-20"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo6</span><span class="p">(</span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">)</span><span class="w"> </span><span class="p">:</span>
-<a id="__codelineno-27-21" name="__codelineno-27-21" href="#__codelineno-27-21"></a><span class="w">    </span><span class="n">FooBar</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">)</span>
-<a id="__codelineno-27-22" name="__codelineno-27-22" href="#__codelineno-27-22"></a>
-<a id="__codelineno-27-23" name="__codelineno-27-23" href="#__codelineno-27-23"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo7</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">FooBar</span><span class="p">(</span>
-<a id="__codelineno-27-24" name="__codelineno-27-24" href="#__codelineno-27-24"></a><span class="w">    </span><span class="s">&quot;bar1&quot;</span><span class="p">,</span>
-<a id="__codelineno-27-25" name="__codelineno-27-25" href="#__codelineno-27-25"></a><span class="w">    </span><span class="s">&quot;bar2&quot;</span><span class="p">,</span>
-<a id="__codelineno-27-26" name="__codelineno-27-26" href="#__codelineno-27-26"></a><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-27-27" name="__codelineno-27-27" href="#__codelineno-27-27"></a><span class="w">    </span><span class="c1">// body</span>
-<a id="__codelineno-27-28" name="__codelineno-27-28" href="#__codelineno-27-28"></a><span class="p">}</span>
-<a id="__codelineno-27-29" name="__codelineno-27-29" href="#__codelineno-27-29"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo8</span><span class="p">(</span>
-<a id="__codelineno-27-30" name="__codelineno-27-30" href="#__codelineno-27-30"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">bar1</span><span class="p">:</span><span class="w"> </span><span class="n">Bar</span><span class="p">,</span>
-<a id="__codelineno-27-31" name="__codelineno-27-31" href="#__codelineno-27-31"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">bar2</span><span class="p">:</span><span class="w"> </span><span class="n">Bar</span><span class="p">,</span>
-<a id="__codelineno-27-32" name="__codelineno-27-32" href="#__codelineno-27-32"></a><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">FooBar</span><span class="p">(</span>
-<a id="__codelineno-27-33" name="__codelineno-27-33" href="#__codelineno-27-33"></a><span class="w">    </span><span class="n">bar1</span><span class="p">,</span>
-<a id="__codelineno-27-34" name="__codelineno-27-34" href="#__codelineno-27-34"></a><span class="w">    </span><span class="n">bar2</span>
-<a id="__codelineno-27-35" name="__codelineno-27-35" href="#__codelineno-27-35"></a><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-27-36" name="__codelineno-27-36" href="#__codelineno-27-36"></a><span class="w">    </span><span class="c1">// body</span>
-<a id="__codelineno-27-37" name="__codelineno-27-37" href="#__codelineno-27-37"></a><span class="p">}</span>
-<a id="__codelineno-27-38" name="__codelineno-27-38" href="#__codelineno-27-38"></a>
-<a id="__codelineno-27-39" name="__codelineno-27-39" href="#__codelineno-27-39"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo9</span><span class="p">(</span>
-<a id="__codelineno-27-40" name="__codelineno-27-40" href="#__codelineno-27-40"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">bar1</span><span class="p">:</span><span class="w"> </span><span class="n">Bar</span><span class="p">,</span>
-<a id="__codelineno-27-41" name="__codelineno-27-41" href="#__codelineno-27-41"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">bar2</span><span class="p">:</span><span class="w"> </span><span class="n">Bar</span><span class="p">,</span>
-<a id="__codelineno-27-42" name="__codelineno-27-42" href="#__codelineno-27-42"></a><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">FooBar</span><span class="p">(</span>
-<a id="__codelineno-27-43" name="__codelineno-27-43" href="#__codelineno-27-43"></a><span class="w">    </span><span class="n">bar1</span><span class="p">,</span>
-<a id="__codelineno-27-44" name="__codelineno-27-44" href="#__codelineno-27-44"></a><span class="w">    </span><span class="n">bar2</span>
-<a id="__codelineno-27-45" name="__codelineno-27-45" href="#__codelineno-27-45"></a><span class="p">),</span>
-<a id="__codelineno-27-46" name="__codelineno-27-46" href="#__codelineno-27-46"></a><span class="w">    </span><span class="n">BarFoo1</span><span class="p">,</span>
-<a id="__codelineno-27-47" name="__codelineno-27-47" href="#__codelineno-27-47"></a><span class="w">    </span><span class="n">BarFoo2</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-27-48" name="__codelineno-27-48" href="#__codelineno-27-48"></a><span class="w">    </span><span class="c1">// body</span>
-<a id="__codelineno-27-49" name="__codelineno-27-49" href="#__codelineno-27-49"></a><span class="p">}</span>
-<a id="__codelineno-27-50" name="__codelineno-27-50" href="#__codelineno-27-50"></a>
-<a id="__codelineno-27-51" name="__codelineno-27-51" href="#__codelineno-27-51"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo10</span>
-<a id="__codelineno-27-52" name="__codelineno-27-52" href="#__codelineno-27-52"></a><span class="k">constructor</span><span class="p">(</span>
-<a id="__codelineno-27-53" name="__codelineno-27-53" href="#__codelineno-27-53"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">bar1</span><span class="p">:</span><span class="w"> </span><span class="n">Bar</span><span class="p">,</span>
-<a id="__codelineno-27-54" name="__codelineno-27-54" href="#__codelineno-27-54"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">bar2</span><span class="p">:</span><span class="w"> </span><span class="n">Bar</span><span class="p">,</span>
-<a id="__codelineno-27-55" name="__codelineno-27-55" href="#__codelineno-27-55"></a><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">FooBar</span><span class="p">(</span><span class="n">bar1</span><span class="p">,</span><span class="w"> </span><span class="n">bar2</span><span class="p">),</span>
-<a id="__codelineno-27-56" name="__codelineno-27-56" href="#__codelineno-27-56"></a><span class="w">    </span><span class="n">BarFoo1</span><span class="p">,</span>
-<a id="__codelineno-27-57" name="__codelineno-27-57" href="#__codelineno-27-57"></a><span class="w">    </span><span class="n">BarFoo2</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-27-58" name="__codelineno-27-58" href="#__codelineno-27-58"></a><span class="w">    </span><span class="c1">// body</span>
-<a id="__codelineno-27-59" name="__codelineno-27-59" href="#__codelineno-27-59"></a><span class="p">}</span>
+<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a><span class="c1">// Entire class signature does not fit on single line</span>
+<a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo1</span><span class="p">(</span>
+<a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a><span class="w">    </span><span class="n">aVeryLonggggggggggggggggggggggg</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span>
+<a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a><span class="p">)</span>
+<a id="__codelineno-27-9" name="__codelineno-27-9" href="#__codelineno-27-9"></a>
+<a id="__codelineno-27-10" name="__codelineno-27-10" href="#__codelineno-27-10"></a><span class="c1">// Entire class signature does fit on single line</span>
+<a id="__codelineno-27-11" name="__codelineno-27-11" href="#__codelineno-27-11"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo2</span><span class="p">(</span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">)</span>
+<a id="__codelineno-27-12" name="__codelineno-27-12" href="#__codelineno-27-12"></a>
+<a id="__codelineno-27-13" name="__codelineno-27-13" href="#__codelineno-27-13"></a><span class="c1">// Entire class signature does not fit on single line</span>
+<a id="__codelineno-27-14" name="__codelineno-27-14" href="#__codelineno-27-14"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo3</span><span class="p">(</span>
+<a id="__codelineno-27-15" name="__codelineno-27-15" href="#__codelineno-27-15"></a><span class="w">    </span><span class="n">aVeryLonggggggggggggggg</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span>
+<a id="__codelineno-27-16" name="__codelineno-27-16" href="#__codelineno-27-16"></a><span class="w">    </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span>
+<a id="__codelineno-27-17" name="__codelineno-27-17" href="#__codelineno-27-17"></a><span class="p">)</span>
+<a id="__codelineno-27-18" name="__codelineno-27-18" href="#__codelineno-27-18"></a>
+<a id="__codelineno-27-19" name="__codelineno-27-19" href="#__codelineno-27-19"></a><span class="c1">// Entire class signature does fit on single line</span>
+<a id="__codelineno-27-20" name="__codelineno-27-20" href="#__codelineno-27-20"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo4</span><span class="p">(</span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">)</span>
+<a id="__codelineno-27-21" name="__codelineno-27-21" href="#__codelineno-27-21"></a>
+<a id="__codelineno-27-22" name="__codelineno-27-22" href="#__codelineno-27-22"></a><span class="c1">// Entire class signature does fit on single line</span>
+<a id="__codelineno-27-23" name="__codelineno-27-23" href="#__codelineno-27-23"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo5</span><span class="p">(</span><span class="nd">@Foo</span><span class="w"> </span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">)</span>
+<a id="__codelineno-27-24" name="__codelineno-27-24" href="#__codelineno-27-24"></a>
+<a id="__codelineno-27-25" name="__codelineno-27-25" href="#__codelineno-27-25"></a><span class="c1">// Entire class signature does fit on single line</span>
+<a id="__codelineno-27-26" name="__codelineno-27-26" href="#__codelineno-27-26"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo6</span><span class="p">(</span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">)</span><span class="w"> </span><span class="p">:</span>
+<a id="__codelineno-27-27" name="__codelineno-27-27" href="#__codelineno-27-27"></a><span class="w">    </span><span class="n">FooBar</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">)</span>
+<a id="__codelineno-27-28" name="__codelineno-27-28" href="#__codelineno-27-28"></a>
+<a id="__codelineno-27-29" name="__codelineno-27-29" href="#__codelineno-27-29"></a><span class="c1">// Entire class signature (without constructor invocation) does fit on single line</span>
+<a id="__codelineno-27-30" name="__codelineno-27-30" href="#__codelineno-27-30"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo7</span><span class="w"> </span><span class="p">:</span>
+<a id="__codelineno-27-31" name="__codelineno-27-31" href="#__codelineno-27-31"></a><span class="w">    </span><span class="n">FooBar</span><span class="p">(</span>
+<a id="__codelineno-27-32" name="__codelineno-27-32" href="#__codelineno-27-32"></a><span class="w">        </span><span class="s">&quot;bar1&quot;</span><span class="p">,</span>
+<a id="__codelineno-27-33" name="__codelineno-27-33" href="#__codelineno-27-33"></a><span class="w">        </span><span class="s">&quot;bar2&quot;</span>
+<a id="__codelineno-27-34" name="__codelineno-27-34" href="#__codelineno-27-34"></a><span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-27-35" name="__codelineno-27-35" href="#__codelineno-27-35"></a><span class="w">    </span><span class="c1">// body</span>
+<a id="__codelineno-27-36" name="__codelineno-27-36" href="#__codelineno-27-36"></a><span class="p">}</span>
+<a id="__codelineno-27-37" name="__codelineno-27-37" href="#__codelineno-27-37"></a>
+<a id="__codelineno-27-38" name="__codelineno-27-38" href="#__codelineno-27-38"></a><span class="c1">// Entire class signature (without constructor invocation) does fit on single line</span>
+<a id="__codelineno-27-39" name="__codelineno-27-39" href="#__codelineno-27-39"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo8</span><span class="p">(</span><span class="kd">val</span><span class="w"> </span><span class="nv">bar1</span><span class="p">:</span><span class="w"> </span><span class="n">Bar</span><span class="p">,</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">bar2</span><span class="p">:</span><span class="w"> </span><span class="n">Bar</span><span class="p">)</span><span class="w"> </span><span class="p">:</span>
+<a id="__codelineno-27-40" name="__codelineno-27-40" href="#__codelineno-27-40"></a><span class="w">    </span><span class="n">FooBar</span><span class="p">(</span>
+<a id="__codelineno-27-41" name="__codelineno-27-41" href="#__codelineno-27-41"></a><span class="w">        </span><span class="n">bar1</span><span class="p">,</span>
+<a id="__codelineno-27-42" name="__codelineno-27-42" href="#__codelineno-27-42"></a><span class="w">        </span><span class="n">bar2</span>
+<a id="__codelineno-27-43" name="__codelineno-27-43" href="#__codelineno-27-43"></a><span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-27-44" name="__codelineno-27-44" href="#__codelineno-27-44"></a><span class="w">    </span><span class="c1">// body</span>
+<a id="__codelineno-27-45" name="__codelineno-27-45" href="#__codelineno-27-45"></a><span class="p">}</span>
+<a id="__codelineno-27-46" name="__codelineno-27-46" href="#__codelineno-27-46"></a>
+<a id="__codelineno-27-47" name="__codelineno-27-47" href="#__codelineno-27-47"></a><span class="c1">// Entire class signature (without constructor invocation) does not fit on single line</span>
+<a id="__codelineno-27-48" name="__codelineno-27-48" href="#__codelineno-27-48"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo9</span><span class="p">(</span>
+<a id="__codelineno-27-49" name="__codelineno-27-49" href="#__codelineno-27-49"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">aVeryLonggggggggggggggg</span><span class="p">:</span><span class="w"> </span><span class="n">Bar</span><span class="p">,</span>
+<a id="__codelineno-27-50" name="__codelineno-27-50" href="#__codelineno-27-50"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">bar2</span><span class="p">:</span><span class="w"> </span><span class="n">Bar</span>
+<a id="__codelineno-27-51" name="__codelineno-27-51" href="#__codelineno-27-51"></a><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">FooBar</span><span class="p">(</span>
+<a id="__codelineno-27-52" name="__codelineno-27-52" href="#__codelineno-27-52"></a><span class="w">    </span><span class="n">bar1</span><span class="p">,</span>
+<a id="__codelineno-27-53" name="__codelineno-27-53" href="#__codelineno-27-53"></a><span class="w">    </span><span class="n">bar2</span>
+<a id="__codelineno-27-54" name="__codelineno-27-54" href="#__codelineno-27-54"></a><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-27-55" name="__codelineno-27-55" href="#__codelineno-27-55"></a><span class="w">    </span><span class="c1">// body</span>
+<a id="__codelineno-27-56" name="__codelineno-27-56" href="#__codelineno-27-56"></a><span class="p">}</span>
+<a id="__codelineno-27-57" name="__codelineno-27-57" href="#__codelineno-27-57"></a>
+<a id="__codelineno-27-58" name="__codelineno-27-58" href="#__codelineno-27-58"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo10</span><span class="p">(</span><span class="kd">val</span><span class="w"> </span><span class="nv">bar1</span><span class="p">:</span><span class="w"> </span><span class="n">Bar</span><span class="p">,</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">bar2</span><span class="p">:</span><span class="w"> </span><span class="n">Bar</span><span class="p">)</span><span class="w"> </span><span class="p">:</span>
+<a id="__codelineno-27-59" name="__codelineno-27-59" href="#__codelineno-27-59"></a><span class="w">    </span><span class="n">FooBar</span><span class="p">(</span>
+<a id="__codelineno-27-60" name="__codelineno-27-60" href="#__codelineno-27-60"></a><span class="w">        </span><span class="n">bar1</span><span class="p">,</span>
+<a id="__codelineno-27-61" name="__codelineno-27-61" href="#__codelineno-27-61"></a><span class="w">        </span><span class="n">bar2</span>
+<a id="__codelineno-27-62" name="__codelineno-27-62" href="#__codelineno-27-62"></a><span class="w">    </span><span class="p">),</span>
+<a id="__codelineno-27-63" name="__codelineno-27-63" href="#__codelineno-27-63"></a><span class="w">    </span><span class="n">BarFoo1</span><span class="p">,</span>
+<a id="__codelineno-27-64" name="__codelineno-27-64" href="#__codelineno-27-64"></a><span class="w">    </span><span class="n">BarFoo2</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-27-65" name="__codelineno-27-65" href="#__codelineno-27-65"></a><span class="w">    </span><span class="c1">// body</span>
+<a id="__codelineno-27-66" name="__codelineno-27-66" href="#__codelineno-27-66"></a><span class="p">}</span>
+<a id="__codelineno-27-67" name="__codelineno-27-67" href="#__codelineno-27-67"></a>
+<a id="__codelineno-27-68" name="__codelineno-27-68" href="#__codelineno-27-68"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo11</span>
+<a id="__codelineno-27-69" name="__codelineno-27-69" href="#__codelineno-27-69"></a><span class="k">constructor</span><span class="p">(</span>
+<a id="__codelineno-27-70" name="__codelineno-27-70" href="#__codelineno-27-70"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">bar1</span><span class="p">:</span><span class="w"> </span><span class="n">Bar</span><span class="p">,</span>
+<a id="__codelineno-27-71" name="__codelineno-27-71" href="#__codelineno-27-71"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">bar2</span><span class="p">:</span><span class="w"> </span><span class="n">Bar</span>
+<a id="__codelineno-27-72" name="__codelineno-27-72" href="#__codelineno-27-72"></a><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">FooBar</span><span class="p">(</span><span class="n">bar1</span><span class="p">,</span><span class="w"> </span><span class="n">bar2</span><span class="p">),</span>
+<a id="__codelineno-27-73" name="__codelineno-27-73" href="#__codelineno-27-73"></a><span class="w">    </span><span class="n">BarFoo1</span><span class="p">,</span>
+<a id="__codelineno-27-74" name="__codelineno-27-74" href="#__codelineno-27-74"></a><span class="w">    </span><span class="n">BarFoo2</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-27-75" name="__codelineno-27-75" href="#__codelineno-27-75"></a><span class="w">    </span><span class="c1">// body</span>
+<a id="__codelineno-27-76" name="__codelineno-27-76" href="#__codelineno-27-76"></a><span class="p">}</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
@@ -3428,6 +3445,14 @@ The other code styles allow an infinite amount of parameters on the same line (a
 <a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo0</span><span class="p">()</span>
 <a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a>
 <a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo6</span><span class="p">(</span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">FooBar</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">)</span>
+<a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a>
+<a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a><span class="c1">// Entire class signature (without constructor invocation) does fit on single line</span>
+<a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo7</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">FooBar</span><span class="p">(</span>
+<a id="__codelineno-28-9" name="__codelineno-28-9" href="#__codelineno-28-9"></a><span class="w">    </span><span class="s">&quot;bar1&quot;</span><span class="p">,</span>
+<a id="__codelineno-28-10" name="__codelineno-28-10" href="#__codelineno-28-10"></a><span class="w">    </span><span class="s">&quot;bar2&quot;</span><span class="p">,</span>
+<a id="__codelineno-28-11" name="__codelineno-28-11" href="#__codelineno-28-11"></a><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-28-12" name="__codelineno-28-12" href="#__codelineno-28-12"></a><span class="w">    </span><span class="c1">// body</span>
+<a id="__codelineno-28-13" name="__codelineno-28-13" href="#__codelineno-28-13"></a><span class="p">}</span>
 </code></pre></div>
 </div>
 </div>
@@ -3451,6 +3476,10 @@ The other code styles allow an infinite amount of parameters on the same line (a
 </tbody>
 </table>
 <p>Rule id: <code>standard:class-signature</code></p>
+<div class="admonition warn">
+<p class="admonition-title">Warn</p>
+<p>For code styles <code>android_studio</code> and <code>intellij_idea</code> this rule rewrites multiline class signature to a single line class signature in case the entire class signature fits on a single line by default. In case you want to leave it to the discretion of the developer to decider whether a single or a multiline class signature is used, please suppress or disable this rule.</p>
+</div>
 <p class="annotate">Suppress or disable rule (1)</p>
 <ol>
 <li>Suppress rule in code with annotation below:
@@ -7209,7 +7238,7 @@ Although this code sample might look ok, it is semantically and programmatically
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "search.suggest", "search.share", "content.code.copy"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.ad660dcc.min.js"></script>
+      <script src="../../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
       
     
   </body>
