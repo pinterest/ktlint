@@ -2,6 +2,32 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.3.1] - 2024-07-02
+
+### 🔧 Fixes
+* Add link for backing-property-naming, correct binary-expression-wrapping - [#2704](https://github.com/pinterest/ktlint/pull/2704), by @rsmith20
+* Do not insert a whitespace element as first or last child inside a composite element - [#2715](https://github.com/pinterest/ktlint/pull/2715), by @paul-dingemans
+* Do not rewrite a class to a single line signature in case it contains an EOL comment - [#2716](https://github.com/pinterest/ktlint/pull/2716), by @paul-dingemans
+* Fix false positive when anonymous function is used as value argument - [#2718](https://github.com/pinterest/ktlint/pull/2718), by @paul-dingemans
+* Fix suppression handling when 'formatter:on' not properly specified - [#2719](https://github.com/pinterest/ktlint/pull/2719), by @paul-dingemans
+* Fix false positive when primary constructor has no arguments and a secondary constructor exists - [#2717](https://github.com/pinterest/ktlint/pull/2717), by @paul-dingemans
+* Ignore suppressions for no-unused-imports rule - [#2720](https://github.com/pinterest/ktlint/pull/2720), by @paul-dingemans
+* Ignore suppressions in rule `no-unused-imports` - [#2725](https://github.com/pinterest/ktlint/pull/2725), by @paul-dingemans
+* Fix false alert `Format was not able to resolve all violations which (theoretically) can be autocorrected` - [#2727](https://github.com/pinterest/ktlint/pull/2727), by @paul-dingemans
+* Fix "unset" value for property ktlint_chain_method_rule_force_multiline_when_chain_operator_count_greater_or_equal_than - [#2728](https://github.com/pinterest/ktlint/pull/2728), by @paul-dingemans
+
+### 📦 Dependencies
+
+* Update dependency gradle to v8.8 - [#2680](https://github.com/pinterest/ktlint/pull/2680), by @renovate[bot]
+* Update plugin com.gradle.develocity to v3.17.5 - [#2697](https://github.com/pinterest/ktlint/pull/2697), by @renovate[bot]
+* Update actions/checkout digest to 692973e - [#2699](https://github.com/pinterest/ktlint/pull/2699), by @renovate[bot]
+* Update dependency io.github.hakky54:logcaptor to v2.9.3 - [#2707](https://github.com/pinterest/ktlint/pull/2707), by @renovate[bot]
+* Update dependency org.junit.jupiter:junit-jupiter to v5.10.3 - [#2721](https://github.com/pinterest/ktlint/pull/2721), by @renovate[bot]
+
+### 💬 Other
+
+* Remove sdkman - [#2693](https://github.com/pinterest/ktlint/pull/2693), by @paul-dingemans
+
 ## [1.3.0] - 2024-06-04
 
 ### 🆕 Features
@@ -2469,6 +2495,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[1.3.1]: https://github.com/pinterest/ktlint/compare/1.3.1...1.3.0
 [1.3.0]: https://github.com/pinterest/ktlint/compare/1.3.0...1.2.1
 [1.2.1]: https://github.com/pinterest/ktlint/compare/1.2.1...1.2.0
 [1.2.0]: https://github.com/pinterest/ktlint/compare/1.2.0...1.1.1
