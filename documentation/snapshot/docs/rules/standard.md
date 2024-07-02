@@ -462,62 +462,80 @@ The other code styles allow an infinite amount of parameters on the same line (a
     // Assume that the last allowed character is
     // at the X character on the right           X
     class Foo0
-
+    
+    // Entire class signature does not fit on single line
     class Foo1(
-        a: Any,
+        aVeryLonggggggggggggggggggggggg: Any
     )
-
+    
+    // Entire class signature does fit on single line
     class Foo2(a: Any)
-
+    
+    // Entire class signature does not fit on single line
     class Foo3(
-        a: Any,
-        b: Any,
+        aVeryLonggggggggggggggg: Any,
+        b: Any
     )
-
+    
+    // Entire class signature does fit on single line
     class Foo4(a: Any, b: Any)
-
+    
+    // Entire class signature does fit on single line
     class Foo5(@Foo a: Any, b: Any, c: Any)
-
+    
+    // Entire class signature does fit on single line
     class Foo6(a: Any, b: Any, c: Any) :
         FooBar(a, c)
-
-    class Foo7 : FooBar(
-        "bar1",
-        "bar2",
-    ) {
+    
+    // Entire class signature (without constructor invocation) does fit on single line
+    class Foo7 :
+        FooBar(
+            "bar1",
+            "bar2"
+        ) {
         // body
     }
-    class Foo8(
-        val bar1: Bar,
-        val bar2: Bar,
-    ) : FooBar(
-        bar1,
-        bar2
-    ) {
+    
+    // Entire class signature (without constructor invocation) does fit on single line
+    class Foo8(val bar1: Bar, val bar2: Bar) :
+        FooBar(
+            bar1,
+            bar2
+        ) {
         // body
     }
-
+    
+    // Entire class signature (without constructor invocation) does not fit on single line
     class Foo9(
-        val bar1: Bar,
-        val bar2: Bar,
+        val aVeryLonggggggggggggggg: Bar,
+        val bar2: Bar
     ) : FooBar(
         bar1,
         bar2
-    ),
+    ) {
+        // body
+    }
+    
+    class Foo10(val bar1: Bar, val bar2: Bar) :
+        FooBar(
+            bar1,
+            bar2
+        ),
         BarFoo1,
         BarFoo2 {
         // body
     }
-
-    class Foo10
+    
+    class Foo11
     constructor(
         val bar1: Bar,
-        val bar2: Bar,
+        val bar2: Bar
     ) : FooBar(bar1, bar2),
         BarFoo1,
         BarFoo2 {
         // body
     }
+    
     ```
 
 === "[:material-heart-off-outline:](#) Disallowed (non ktlint_official)"
@@ -528,6 +546,14 @@ The other code styles allow an infinite amount of parameters on the same line (a
     class Foo0()
 
     class Foo6(a: Any, b: Any, c: Any) : FooBar(a, c)
+
+    // Entire class signature (without constructor invocation) does fit on single line
+    class Foo7 : FooBar(
+        "bar1",
+        "bar2",
+    ) {
+        // body
+    }
     ```
 
 | Configuration setting                                                                                                                                                                                                                                                                                                                       | ktlint_official | intellij_idea | android_studio |
@@ -535,6 +561,9 @@ The other code styles allow an infinite amount of parameters on the same line (a
 | `ktlint_class_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than`<br/><i>Force wrapping of the parameters of the class signature in case it contains at least the specified number of parameters, even in case the entire class signature would fit on a single line. Use value `unset` to disable this setting.</i> |        1        |    `unset`    |    `unset`     |
 
 Rule id: `standard:class-signature`
+
+!!! warn
+    For code styles `android_studio` and `intellij_idea` this rule rewrites multiline class signature to a single line class signature in case the entire class signature fits on a single line by default. In case you want to leave it to the discretion of the developer to decider whether a single or a multiline class signature is used, please suppress or disable this rule.
 
 Suppress or disable rule (1)
 { .annotate }
