@@ -489,7 +489,7 @@ public class ChainMethodContinuationRule :
         private val chainOperatorTokenSet = TokenSet.create(DOT, SAFE_ACCESS)
         private val groupClosingElementType = TokenSet.create(CLOSING_QUOTE, RBRACE, RBRACKET, RPAR)
 
-        private const val FORCE_MULTILINE_WHEN_CHAIN_OPERATOR_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY_UNSET = 4
+        private const val FORCE_MULTILINE_WHEN_CHAIN_OPERATOR_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY_UNSET = Int.MAX_VALUE
         public val FORCE_MULTILINE_WHEN_CHAIN_OPERATOR_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY: EditorConfigProperty<Int> =
             EditorConfigProperty(
                 type =
@@ -500,7 +500,7 @@ public class ChainMethodContinuationRule :
                         PropertyType.PropertyValueParser.POSITIVE_INT_VALUE_PARSER,
                         setOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "unset"),
                     ),
-                defaultValue = FORCE_MULTILINE_WHEN_CHAIN_OPERATOR_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY_UNSET,
+                defaultValue = 4,
                 propertyMapper = { property, _ ->
                     if (property?.isUnset == true) {
                         FORCE_MULTILINE_WHEN_CHAIN_OPERATOR_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY_UNSET
