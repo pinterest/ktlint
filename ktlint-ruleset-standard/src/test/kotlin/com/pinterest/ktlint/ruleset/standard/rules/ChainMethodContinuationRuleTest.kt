@@ -1117,4 +1117,16 @@ class ChainMethodContinuationRuleTest {
                 LintViolation(4, 59, "Expected newline before '.'"),
             ).isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Issue 2712 - Given some code having more chain operators than the default, but with ktlint_chain_method_rule_force_multiline_when_chain_operator_count_greater_or_equal_than unset`() {
+        val code =
+            """
+            val foo = listOf(1, 2, 3).plus(4).plus(5).plus(6).plus(7).plus(8)
+            """.trimIndent()
+        require(code.count { it == '.' } > FORCE_MULTILINE_WHEN_CHAIN_OPERATOR_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY.defaultValue)
+        chainMethodContinuationRuleAssertThat(code)
+            .withEditorConfigOverride(FORCE_MULTILINE_WHEN_CHAIN_OPERATOR_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
+            .hasNoLintViolations()
+    }
 }
