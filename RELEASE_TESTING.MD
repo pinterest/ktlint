@@ -40,7 +40,7 @@ Before releasing a new version of KtLint, the release candidate is tested on a s
    ```
 4. Create an alias or script to run the latest released version of ktlint (note that this script will print the version as reference to which version is used):
    ```shell
-   alias ktlint-prev="ktlint-1.2.1 $@" # Replace with the latest release version
+   alias ktlint-prev="ktlint-1.3.0 $@" # Replace with the latest release version
    ```
    Note that `~/git/ktlint` is the directory in which the ktlint project is checked out and that `~/git/ktlint/ktlint` refers to the `ktlint` CLI-module.
 5. Create an alias or script to run the latest development-version of ktlint (note that this script will print the version and the datetime of compilation as reference to which version is used):
@@ -79,16 +79,20 @@ Formatting projects in which ktlint is not used may result in a huge amount of f
 1. Define `.editorconfig` in the integration test directory with content below. Also follow up the instructions mentioned:
    ```editorconfig
    root = true
+
+   [graphql-kotlin/**/*.{kt,kts}]
+   ktlint_standard_no-unused-imports = disabled
+   ktlint_standard_import-ordering = disabled
+
+   [kotlinx.coroutines/**/*.{kt,kts}]
+   ktlint_standard_no-wildcard-imports = disabled
+
    [*.{kt,kts}]
    # The open source projects that are used for release testing of ktlint contain a few '.editorconfig' files which need to
    # be changed:
    #   1) Disable the "root = true" property so that each project ultimately falls back on this file. In this way offending
    #      rules can be easily enabled/disabled for all test projects
-   #   2) Remove property below from graphql-kotlin
-   #          disabled_rules=import-ordering
-   #      And add properties below:
-   #          ktlint_standard_import-ordering = disabled
-   #          ktlint_standard_package-name = disabled
+   #   2) From the graphql project remove the `disabled_rules` property
    ktlint_code_style = ktlint_official
    ktlint_experimental = enabled
    ktlint_standard = enabled
@@ -156,11 +160,24 @@ Formatting projects in which ktlint is not used may result in a huge amount of f
      rm baseline.xml
      ktlint-dev --baseline=baseline.xml --relative # Do not call this command via the "./exec-in-each-project.sh" script as we want to use the one combined baseline.xml file for all projects.
      ```
-    No violations, except error that can not be autocorrected, should be expected.
-12. Rerun with *latest development* version and verify that no violations are reported:
+    As the baseline is removed, thousands of violations are to be reported. Check at least in the summary that no internal errors are thrown like below:
+    ```plain
+    Internal Error (...) in file '...' at position '0:0. Please create a ticket at https://github.com/pinterest/ktlint/issues ...
+    ```
+12. Rerun lint with *latest development* version and verify that no violations are reported:
    ```shell
    ktlint-dev --baseline=baseline.xml --relative # Do not call this command via the "./exec-in-each-project.sh" script as we want one combined baseline.xml file for all projects.
    ```
+No violations should be reported in this run.
+13. Rerun format with *latest development* version without baseline:
+     ```shell
+     ktlint-dev -F --relative # Do not call this command via the "./exec-in-each-project.sh" script as we want to use the one combined baseline.xml file for all projects.
+     ```
+    As the baseline is removed, thousands of violations are to be expected. Check at least in the summary that no internal errors are thrown like below:
+    ```plain
+    Internal Error (...) in file '...' at position '0:0. Please create a ticket at https://github.com/pinterest/ktlint/issues ...
+    ```
+    As the baseline is removed, thousands of violations are to be reported and/or autocorrected. Check at least in the summary that no internal errors are thrown like below:
 
 ## Checking documentation
 [The documentation for KtLint](https://pinterest.github.io/ktlint/) should be checked for dead links.
