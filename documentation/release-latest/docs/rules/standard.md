@@ -174,15 +174,15 @@ Suppress or disable rule (1)
 
 1. Suppress rule in code with annotation below:
     ```kotlin
-    @Suppress("ktlint:standard:xxx")
+    @Suppress("ktlint:standard:blank-line-before-declaration")
     ```
    Enable rule via `.editorconfig`
     ```editorconfig
-    ktlint_standard_xxx = enabled
+    ktlint_standard_blank-line-before-declaration = enabled
     ```
    Disable rule via `.editorconfig`
     ```editorconfig
-    ktlint_standard_xxx = disabled
+    ktlint_standard_blank-line-before-declaration = disabled
     ```
 
 !!! Note
@@ -3724,6 +3724,22 @@ Enforce consistent string template indentation for multiline string templates wh
 
 Rule id: `standard:string-template-indent`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:string-template-indent")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_string-template-indent = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_string-template-indent = disabled
+    ```
+
 !!! Note
     This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
 
@@ -3929,6 +3945,22 @@ Disallows comments to be placed at certain locations inside a type parameter.
 
 Rule id: `standard:type-parameter-comment`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:type-parameter-comment")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_type-parameter-comment = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_type-parameter-comment = disabled
+    ```
+
 ## Unnecessary parenthesis before trailing lambda
 
 An empty parentheses block before a lambda is redundant.
@@ -3994,6 +4026,22 @@ Disallows comments to be placed at certain locations inside a value argument.
     ```
 
 Rule id: `standard:value-argument-comment`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:value-argument-comment")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_value-argument-comment = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_value-argument-comment = disabled
+    ```
 
 ## Value parameter comment
 
@@ -4129,6 +4177,22 @@ When wrapping chained calls `.`, `?.` and `?:` should be placed on the next line
 
 Rule id: `standard:chain-wrapping`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:chain-wrapping")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_chain-wrapping = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_chain-wrapping = disabled
+    ```
+
 ### Comment wrapping
 
 A block comment should start and end on a line that does not contain any other element.
@@ -4201,6 +4265,22 @@ Wraps each operand in a multiline condition to a separate line.
     ```
 
 Rule id: `standard:condition-wrapping`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:condition-wrapping")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_condition-wrapping = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_condition-wrapping = disabled
+    ```
 
 ### Content receiver wrapping
 
@@ -4308,6 +4388,22 @@ An enum should be a single line, or each enum entry has to be placed on a separa
     ```
 
 Rule id: `standard:enum-wrapping`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:enum-wrapping")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_enum-wrapping = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_enum-wrapping = disabled
+    ```
 
 ### If else wrapping
 
@@ -4466,6 +4562,22 @@ When class/function signature doesn't fit on a single line, each parameter must 
 
 Rule id: `standard:parameter-list-wrapping`
 
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:parameter-list-wrapping")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_parameter-list-wrapping = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_parameter-list-wrapping = disabled
+    ```
+
 ### Parameter wrapping
 
 When a function or class parameter doesn't fit on a single line, wrap the type or value to a separate line
@@ -4553,6 +4665,22 @@ When a property doesn't fit on a single line, wrap the type or value to a separa
     ```
 
 Rule id: `standard:property-wrapping`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:property-wrapping")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_property-wrapping = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_property-wrapping = disabled
+    ```
 
 ### Statement wrapping
 
