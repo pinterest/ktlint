@@ -144,7 +144,7 @@ class PropertyNamingRuleTest {
             "PropertyName", // IntelliJ IDEA suppression
         ],
     )
-    fun `Given a function with a disallowed name which is suppressed`(suppressionName: String) {
+    fun `Given a property with a disallowed name which is suppressed`(suppressionName: String) {
         val code =
             """
             @Suppress("$suppressionName")

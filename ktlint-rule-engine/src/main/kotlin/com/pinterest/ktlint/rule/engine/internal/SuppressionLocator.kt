@@ -17,7 +17,7 @@ import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
 
 internal class SuppressionLocator(
-    private val editorConfig: EditorConfig,
+    editorConfig: EditorConfig,
 ) {
     private val formatterTags = FormatterTags.from(editorConfig)
 
@@ -181,7 +181,7 @@ internal class SuppressionLocator(
                     ?.constructorReferenceExpression
                     ?.getReferencedName() in SUPPRESS_ANNOTATIONS
             }.flatMap(KtAnnotationEntry::getValueArguments)
-            .mapNotNull { it.toRuleId(SUPPRESS_ANNOTATION_RULE_MAP) }
+            .flatMap { it.findRuleSuppressionIds() }
             .let { suppressedRuleIds ->
                 when {
                     suppressedRuleIds.isEmpty() -> null
@@ -200,7 +200,7 @@ internal class SuppressionLocator(
                 }
             }
 
-    private fun ValueArgument.toRuleId(annotationValueToRuleMapping: Map<String, String>): String? =
+    private fun ValueArgument.findRuleSuppressionIds(): List<String> =
         getArgumentExpression()
             ?.text
             ?.removeSurrounding("\"")
@@ -208,7 +208,7 @@ internal class SuppressionLocator(
                 when {
                     argumentExpressionText == "ktlint" -> {
                         // Disable all rules
-                        ALL_KTLINT_RULES_SUPPRESSION_ID
+                        listOf(ALL_KTLINT_RULES_SUPPRESSION_ID)
                     }
 
                     argumentExpressionText.startsWith("ktlint:") -> {
@@ -217,15 +217,15 @@ internal class SuppressionLocator(
                         // code bases in which the rule and suppression id's have not yet been fixed.
                         argumentExpressionText
                             .removePrefix("ktlint:")
-                            .let { RuleId.prefixWithStandardRuleSetIdWhenMissing(it) }
+                            .let { listOf(RuleId.prefixWithStandardRuleSetIdWhenMissing(it)) }
                     }
 
                     else -> {
                         // Disable specific rule if the annotation value is mapped to a specific rule
-                        annotationValueToRuleMapping[argumentExpressionText]
+                        SUPPRESS_ANNOTATION_RULE_MAP[argumentExpressionText]
                     }
                 }
-            }
+            }.orEmpty()
 
     /**
      * @param range zero-based range of lines where lint errors should be suppressed
@@ -257,16 +257,16 @@ internal class SuppressionLocator(
             mapOf(
                 // It would have been nice if the official rule id's as defined in the Rules themselves could have been used here. But that
                 // would introduce a circular dependency between the ktlint-rule-engine and the ktlint-ruleset-standard modules.
-                "EnumEntryName" to "standard:enum-entry-name-case",
-                "RemoveCurlyBracesFromTemplate" to "standard:string-template",
-                "ClassName" to "standard:class-naming",
-                "FunctionName" to "standard:function-naming",
-                "PackageName" to "standard:package-name",
-                "PropertyName" to "standard:property-naming",
-                "ConstPropertyName" to "standard:property-naming",
-                "ObjectPropertyName" to "standard:property-naming",
-                "PrivatePropertyName" to "standard:property-naming",
-                "UnusedImport" to "standard:no-unused-imports",
+                "EnumEntryName" to listOf("standard:enum-entry-name-case"),
+                "RemoveCurlyBracesFromTemplate" to listOf("standard:string-template"),
+                "ClassName" to listOf("standard:class-naming"),
+                "FunctionName" to listOf("standard:function-naming"),
+                "PackageName" to listOf("standard:package-name"),
+                "PropertyName" to listOf("standard:property-naming", "standard:backing-property-naming"),
+                "ConstPropertyName" to listOf("standard:property-naming"),
+                "ObjectPropertyName" to listOf("standard:property-naming"),
+                "PrivatePropertyName" to listOf("standard:property-naming"),
+                "UnusedImport" to listOf("standard:no-unused-imports"),
             )
         val SUPPRESS_ANNOTATIONS = setOf("Suppress", "SuppressWarnings")
         const val ALL_KTLINT_RULES_SUPPRESSION_ID = "ktlint:suppress-all-rules"

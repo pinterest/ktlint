@@ -279,11 +279,11 @@ class BackingPropertyNamingRuleTest {
             "PropertyName", // IntelliJ IDEA suppression
         ],
     )
-    fun `Given class with a disallowed name which is suppressed`(suppressionName: String) {
+    fun `Given a property with a disallowed name which is suppressed`(suppressionName: String) {
         val code =
             """
             @Suppress("$suppressionName")
-            val foo = Foo()
+            val _foo = Foo()
             """.trimIndent()
         backingPropertyNamingRuleAssertThat(code).hasNoLintViolations()
     }
