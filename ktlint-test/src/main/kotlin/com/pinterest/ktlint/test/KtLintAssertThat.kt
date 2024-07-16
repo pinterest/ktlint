@@ -25,6 +25,7 @@ import dev.drewhamilton.poko.Poko
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatNoException
 import org.junit.jupiter.api.assertAll
 import kotlin.io.path.pathString
 
@@ -467,6 +468,11 @@ public class KtLintAssertThatAssertable(
                             },
                     ).isEqualTo(code.content)
             },
+            {
+                assertThatNoException()
+                    .describedAs("After reformat of code, it can no longer be successfully parsed")
+                    .isThrownBy { createKtLintRuleEngine().lint(Code.fromSnippet(actualFormattedCode, code.script)) }
+            },
         )
     }
 
@@ -474,11 +480,20 @@ public class KtLintAssertThatAssertable(
      * Asserts that the code does not contain any [LintViolation]s for the given rule id.
      */
     public fun hasNoLintViolationsForRuleId(ruleId: RuleId): KtLintAssertThatAssertable {
-        val (_, lintErrorsWhenFormatting) = format()
+        val (actualFormattedCode, lintErrorsWhenFormatting) = format()
 
-        assertThat(lintErrorsWhenFormatting.filter { it.ruleId == ruleId })
-            .describedAs("At least 1 lint violation was found for rule id '${ruleId.value}' while none were expected")
-            .isEmpty()
+        assertAll(
+            {
+                assertThat(lintErrorsWhenFormatting.filter { it.ruleId == ruleId })
+                    .describedAs("At least 1 lint violation was found for rule id '${ruleId.value}' while none were expected")
+                    .isEmpty()
+            },
+            {
+                assertThatNoException()
+                    .describedAs("After reformat of code, it can no longer be successfully parsed")
+                    .isThrownBy { createKtLintRuleEngine().lint(Code.fromSnippet(actualFormattedCode, code.script)) }
+            },
+        )
 
         return this
     }
@@ -593,9 +608,20 @@ public class KtLintAssertThatAssertable(
         // Also format the code to be absolutely sure that codes does not get changed
         val (actualFormattedCode, _) = format()
 
-        assertThat(actualFormattedCode)
-            .describedAs("Code is formatted as")
-            .isEqualTo(formattedCode)
+        assertAll(
+            {
+                assertThat(actualFormattedCode)
+                    .describedAs("Code is formatted as")
+                    .isEqualTo(formattedCode)
+            },
+            {
+                assertThatNoException()
+                    .describedAs("After reformat of code, it can no longer be successfully parsed")
+                    .isThrownBy {
+                        createKtLintRuleEngine().lint(Code.fromSnippet(actualFormattedCode, code.script))
+                    }
+            },
+        )
 
         return this
     }
