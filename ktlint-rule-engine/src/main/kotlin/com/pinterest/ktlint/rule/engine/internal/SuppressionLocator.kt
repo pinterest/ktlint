@@ -264,7 +264,7 @@ internal class SuppressionLocator(
                 "PackageName" to listOf("standard:package-name"),
                 "PropertyName" to listOf("standard:property-naming", "standard:backing-property-naming"),
                 "ConstPropertyName" to listOf("standard:property-naming"),
-                "ObjectPropertyName" to listOf("standard:property-naming"),
+                "ObjectPropertyName" to listOf("standard:property-naming", "standard:backing-property-naming"),
                 "PrivatePropertyName" to listOf("standard:property-naming"),
                 "UnusedImport" to listOf("standard:no-unused-imports"),
             )
