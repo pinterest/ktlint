@@ -13,14 +13,14 @@ Before releasing a new version of KtLint, the release candidate is tested on a s
    ```shell
    # Examples of usage
    #
+   #   Do not run ktlint commands with this script. Instead run them direct from the `sample-projects` directory
+   #     ktlint --version && ktlint "**/*.kt" -v --relative --format --force-lint-after-format
+   #
    #   Outstanding changes per project
    #     ./exec-in-each-project.sh "git status"
    #
    #   Rollback outstanding changes per project
    #     ./exec-in-each-project.sh "git reset --hard"
-   #
-   #   Run ktlint standard rules
-   #     ktlint --version && ktlint "**/*.kt" -v --relative -F
    #
    #   Commit changes of standard rules:
    #     ./exec-in-each-project.sh "git commit -m \"ktlint (0.43.2) -F\""
@@ -109,7 +109,7 @@ Formatting projects in which ktlint is not used may result in a huge amount of f
    Note: Ignore all output as this is the old version!
 4. Format the sample projects with the previous (*latest released*) ktlint version:
    ```shell
-   ktlint-prev -F --baseline=baseline.xml --relative # Do not call this command via the "./exec-in-each-project.sh" script.
+   ktlint-prev --format --force-lint-after-format --baseline=baseline.xml --relative # Do not call this command via the "./exec-in-each-project.sh" script.
    ```
    Note: Ignore all output as this is the old version!
 5. Commit changes:
@@ -140,7 +140,7 @@ Formatting projects in which ktlint is not used may result in a huge amount of f
     ```
 9. Format with *latest development* version:
    ```shell
-   ktlint-dev -F --baseline=baseline.xml --relative # Do not call this command via the "./exec-in-each-project.sh" script as we want to use the one combined baseline.xml file for all projects.
+   ktlint-dev --format --force-lint-after-format --baseline=baseline.xml --relative # Do not call this command via the "./exec-in-each-project.sh" script as we want to use the one combined baseline.xml file for all projects.
    ```
    Inspect the output carefully:
    * If you see an error like below, then this version obviously may *not* be released. It is best to fix this error before continuing with testing and validating!
@@ -165,14 +165,14 @@ Formatting projects in which ktlint is not used may result in a huge amount of f
     Internal Error (...) in file '...' at position '0:0. Please create a ticket at https://github.com/pinterest/ktlint/issues ...
     ```
 12. Rerun lint with *latest development* version and verify that no violations are reported:
-   ```shell
-   ktlint-dev --baseline=baseline.xml --relative # Do not call this command via the "./exec-in-each-project.sh" script as we want one combined baseline.xml file for all projects.
-   ```
-No violations should be reported in this run.
+    ```shell
+    ktlint-dev --baseline=baseline.xml --relative # Do not call this command via the "./exec-in-each-project.sh" script as we want one combined baseline.xml file for all projects.
+    ```
+    No violations should be reported in this run.
 13. Rerun format with *latest development* version without baseline:
-     ```shell
-     ktlint-dev -F --relative # Do not call this command via the "./exec-in-each-project.sh" script as we want to use the one combined baseline.xml file for all projects.
-     ```
+    ```shell
+    ktlint-dev --format --force-lint-after-format --relative # Do not call this command via the "./exec-in-each-project.sh" script as we want to use the one combined baseline.xml file for all projects.
+    ```
     As the baseline is removed, thousands of violations are to be expected. Check at least in the summary that no internal errors are thrown like below:
     ```plain
     Internal Error (...) in file '...' at position '0:0. Please create a ticket at https://github.com/pinterest/ktlint/issues ...

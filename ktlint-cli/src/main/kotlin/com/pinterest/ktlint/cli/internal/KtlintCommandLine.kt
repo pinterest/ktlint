@@ -200,13 +200,20 @@ internal class KtlintCommandLine :
         )
 
     @Deprecated("Remove in Ktlint 1.3 (or later) as some users will skip multiple versions.")
-    var experimental =
+    private var experimental =
         option("--experimental", hidden = true)
             .flag()
             .deprecated(
                 "Option '--experimental' is no longer supported. Set '.editorconfig' property 'ktlint_experimental' instead.",
                 error = true,
             )
+
+    private val forceLintAfterFormat: Boolean by
+        option(
+            "--force-lint-after-format",
+            help = "Force to run lint after code has been formatted to check that it still can be successfully parsed",
+            hidden = true,
+        ).flag()
 
     private val baselinePath: String by
         option("--baseline", help = "Defines a baseline file to check against")
@@ -501,6 +508,18 @@ internal class KtlintCommandLine :
                             }
                         } ?: NO_AUTOCORRECT
                 }.also { formattedFileContent ->
+                    if (forceLintAfterFormat && code.content != formattedFileContent) {
+                        // Rerun lint to check that the formatted code can still be successfully parsed.
+                        try {
+                            ktLintRuleEngine.lint(Code.fromSnippet(formattedFileContent, code.script))
+                        } catch (e: KtLintParseException) {
+                            logger.error(e) { "After formatting code in file '${code.filePath}' it cannot be successfully parsed anymore." }
+                            // Intentionally stop formatting other files. The '--force-lint-after-format' is only supposed to be used during
+                            // release testing of Ktlint CLI. Immediate exist forces to fix the issue immediately as release test can
+                            // otherwise not be completed.
+                            exitKtLintProcess(123)
+                        }
+                    }
                     when {
                         code.isStdIn -> print(formattedFileContent)
 
