@@ -10,6 +10,7 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.END_OF_LINE_PROPERTY
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.ec4j.core.model.PropertyType
+import org.jetbrains.kotlin.util.prefixIfNot
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -30,7 +31,7 @@ internal class CodeFormatter(
             .sortedWith(lintErrorLineAndColumnComparator { it.first })
             .forEach { (e, corrected) -> callback(e, corrected) }
 
-        return (code.utf8Bom() + formattedCode).also {
+        return (formattedCode.prefixIfNot(code.utf8Bom())).also {
             LOGGER.debug { "Finished with processing file '${code.fileNameOrStdin()}'" }
         }
     }
@@ -71,8 +72,13 @@ internal class CodeFormatter(
                     }
                 }
             }
-            val lineSeparator = code.determineLineSeparator(editorConfig[END_OF_LINE_PROPERTY])
-            return Pair(formattedCode(lineSeparator), errors)
+            return if (mutated || formatRunCount > 1) {
+                val lineSeparator = code.determineLineSeparator(editorConfig[END_OF_LINE_PROPERTY])
+                Pair(formattedCode(lineSeparator), errors)
+            } else {
+                // None of the format runs has found
+                Pair(code.content, errors)
+            }
         }
     }
 
@@ -149,9 +155,9 @@ internal class CodeFormatter(
             eolEditorConfigProperty == PropertyType.EndOfLineValue.crlf ||
                 eolEditorConfigProperty != PropertyType.EndOfLineValue.lf &&
                 doesNotContain('\r') ->
-                "\r\n".also { LOGGER.debug { "line separator: ${eolEditorConfigProperty.name} --> CRLF" } }
+                "\r\n".also { LOGGER.trace { "line separator: ${eolEditorConfigProperty.name} --> CRLF" } }
 
-            else -> "\n".also { LOGGER.debug { "line separator: ${eolEditorConfigProperty.name} --> LF" } }
+            else -> "\n".also { LOGGER.trace { "line separator: ${eolEditorConfigProperty.name} --> LF" } }
         }
 
     private fun Code.doesNotContain(char: Char) = content.lastIndexOf(char) != -1

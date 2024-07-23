@@ -272,7 +272,7 @@ class KtLintRuleEngineTest {
     @Nested
     inner class `Format with KtLintRuleEngine` {
         @Nested
-        inner class `Given a file that does not contain an error` {
+        inner class `Given a file that containing some errors` {
             @Test
             fun `Given defaultAutocorrect is not set`(
                 @TempDir
@@ -402,7 +402,7 @@ class KtLintRuleEngineTest {
         }
 
         @Nested
-        inner class `Given a kotlin code snippet that does contain an indentation error` {
+        inner class `Given a kotlin code snippet containing some errors` {
             @Test
             fun `Given defaultAutocorrect is not set`() {
                 val lintErrors = mutableListOf<LintError>()
@@ -511,7 +511,7 @@ class KtLintRuleEngineTest {
         }
 
         @Nested
-        inner class `Given a kotlin script code snippet that does contain an indentation error` {
+        inner class `Given a kotlin script code snippet containing some errors` {
             @Test
             fun `Given defaultAutocorrect is not set`() {
                 val lintErrors = mutableListOf<LintError>()
@@ -661,6 +661,51 @@ class KtLintRuleEngineTest {
                 // bar
                 """.trimIndent(),
             )
+        }
+
+        @Test
+        fun `Issue 2747 - Given some code with crlf separators instead of lfs, but not containing any lint error, then do no reformat the line separators`(
+            @TempDir
+            tempDir: Path,
+        ) {
+            val codeWithCrlfSeparators =
+                """
+                fun bar() {
+                    // FOO
+                    // BAR
+                }
+                """.trimIndent().replace("\n", "\r\n")
+            val filePath = "$tempDir/Code.kt"
+            FileWriter(filePath).use {
+                it.write(codeWithCrlfSeparators)
+            }
+
+            val lintErrors = mutableListOf<LintError>()
+            val actual =
+                KtLintRuleEngine(
+                    ruleProviders =
+                        setOf(
+                            RuleProvider { IndentationRule() },
+                            RuleProvider { RuleWithAutocorrectApproveHandler() },
+                            RuleProvider { RuleWithoutAutocorrectApproveHandler() },
+                        ),
+                    editorConfigOverride =
+                        EditorConfigOverride.from(
+                            // Do not set END_OF_LINE_PROPERTY explicitly!
+                            RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled,
+                            RULE_WITH_AUTOCORRECT_APPROVE_HANDLER.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled,
+                        ),
+                    fileSystem = ktlintTestFileSystem.fileSystem,
+                ).format(
+                    code = Code.fromFile(File(filePath)),
+                    defaultAutocorrect = true,
+                ) { lintError ->
+                    lintErrors.add(lintError)
+                    ALLOW_AUTOCORRECT
+                }
+
+            assertThat(lintErrors).isEmpty()
+            assertThat(actual).isEqualTo(codeWithCrlfSeparators)
         }
     }
 
