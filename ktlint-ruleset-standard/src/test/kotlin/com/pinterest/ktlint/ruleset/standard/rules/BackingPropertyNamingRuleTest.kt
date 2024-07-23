@@ -277,6 +277,7 @@ class BackingPropertyNamingRuleTest {
         strings = [
             "ktlint:standard:backing-property-naming",
             "PropertyName", // IntelliJ IDEA suppression
+            "ObjectPropertyName", // IntelliJ IDEA suppression
         ],
     )
     fun `Given a property with a disallowed name which is suppressed`(suppressionName: String) {
