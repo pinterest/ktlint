@@ -506,4 +506,69 @@ class FunctionLiteralRuleTest {
             """.trimIndent()
         functionLiteralRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `given function literal with an arrow without parameters arrow literal as leaf of when then do not remove the arrow`() {
+        val code =
+            """
+            val foo = when {
+                1 == 2 -> { -> "hi" }
+                else -> { -> "ho" }
+            }
+            """.trimIndent()
+        functionLiteralRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `given function literal with an arrow without parameters arrow literal not as leaf of when then do remove the arrow`() {
+        val code =
+            """
+            val foo = when {
+                else -> { { -> "ho" } }
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo = when {
+                else -> { { "ho" } }
+            }
+            """.trimIndent()
+        functionLiteralRuleAssertThat(code)
+            .hasLintViolation(2, 17, "Arrow is redundant when parameter list is empty")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `given function literal with an arrow without parameters arrow literal as leaf of if then do not remove the arrow`() {
+        val code =
+            """
+            val foo = if (cond) { -> "hi" } else { -> "ho" }
+            """.trimIndent()
+        functionLiteralRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `given function literal with an arrow without parameters arrow literal not as leaf of if then do remove the arrow`() {
+        val code =
+            """
+            val foo = if (cond) {
+                { -> "hi" }
+            } else {
+                { -> "ho" }
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo = if (cond) {
+                { "hi" }
+            } else {
+                { "ho" }
+            }
+            """.trimIndent()
+        functionLiteralRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 7, "Arrow is redundant when parameter list is empty"),
+                LintViolation(4, 7, "Arrow is redundant when parameter list is empty"),
+            ).isFormattedAs(formattedCode)
+    }
 }
