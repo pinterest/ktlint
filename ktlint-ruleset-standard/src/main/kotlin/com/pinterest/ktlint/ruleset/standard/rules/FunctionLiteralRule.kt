@@ -368,11 +368,10 @@ public class FunctionLiteralRule :
     ) {
         require(arrow.elementType == ARROW)
         arrow
-            .takeIf {
-                val parent = arrow.parent(LAMBDA_EXPRESSION)?.treeParent?.elementType
-                parent != WHEN_ENTRY && parent != THEN && parent != ELSE
-            }?.prevSibling { it.elementType == VALUE_PARAMETER_LIST }
-            ?.takeIf { it.findChildByType(VALUE_PARAMETER) == null && arrow.isFollowedByNonEmptyBlock() }
+            .prevSibling { it.elementType == VALUE_PARAMETER_LIST }
+            ?.takeIf { it.hasEmptyParameterList() }
+            ?.takeUnless { arrow.isLambdaExpressionNotWrappedInBlock() }
+            ?.takeIf { arrow.isFollowedByNonEmptyBlock() }
             ?.let {
                 emit(arrow.startOffset, "Arrow is redundant when parameter list is empty", true)
                     .ifAutocorrectAllowed {
@@ -383,6 +382,29 @@ public class FunctionLiteralRule :
                         arrow.remove()
                     }
             }
+    }
+
+    private fun ASTNode.hasEmptyParameterList(): Boolean {
+        require(elementType == VALUE_PARAMETER_LIST)
+        return findChildByType(VALUE_PARAMETER) == null
+    }
+
+    private fun ASTNode.isLambdaExpressionNotWrappedInBlock(): Boolean {
+        require(elementType == ARROW)
+        return parent(LAMBDA_EXPRESSION)
+            ?.treeParent
+            ?.elementType
+            ?.let { parentElementType ->
+                // Allow:
+                //     val foo = when {
+                //         1 == 2 -> { -> "hi" }
+                //         else -> { -> "ho" }
+                //     }
+                // or
+                //     val foo = if (cond) { -> "hi" } else { -> "ho" } parent ->
+                parentElementType == WHEN_ENTRY || parentElementType == THEN || parentElementType == ELSE
+            }
+            ?: false
     }
 
     private fun ASTNode.isFollowedByNonEmptyBlock(): Boolean {
