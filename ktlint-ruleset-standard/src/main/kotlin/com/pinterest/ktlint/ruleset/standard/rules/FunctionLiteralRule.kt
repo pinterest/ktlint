@@ -4,13 +4,16 @@ import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ARROW
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ELSE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LAMBDA_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LAMBDA_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.THEN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
@@ -366,7 +369,9 @@ public class FunctionLiteralRule :
         require(arrow.elementType == ARROW)
         arrow
             .prevSibling { it.elementType == VALUE_PARAMETER_LIST }
-            ?.takeIf { it.findChildByType(VALUE_PARAMETER) == null && arrow.isFollowedByNonEmptyBlock() }
+            ?.takeIf { it.hasEmptyParameterList() }
+            ?.takeUnless { arrow.isLambdaExpressionNotWrappedInBlock() }
+            ?.takeIf { arrow.isFollowedByNonEmptyBlock() }
             ?.let {
                 emit(arrow.startOffset, "Arrow is redundant when parameter list is empty", true)
                     .ifAutocorrectAllowed {
@@ -377,6 +382,29 @@ public class FunctionLiteralRule :
                         arrow.remove()
                     }
             }
+    }
+
+    private fun ASTNode.hasEmptyParameterList(): Boolean {
+        require(elementType == VALUE_PARAMETER_LIST)
+        return findChildByType(VALUE_PARAMETER) == null
+    }
+
+    private fun ASTNode.isLambdaExpressionNotWrappedInBlock(): Boolean {
+        require(elementType == ARROW)
+        return parent(LAMBDA_EXPRESSION)
+            ?.treeParent
+            ?.elementType
+            ?.let { parentElementType ->
+                // Allow:
+                //     val foo = when {
+                //         1 == 2 -> { -> "hi" }
+                //         else -> { -> "ho" }
+                //     }
+                // or
+                //     val foo = if (cond) { -> "hi" } else { -> "ho" } parent ->
+                parentElementType == WHEN_ENTRY || parentElementType == THEN || parentElementType == ELSE
+            }
+            ?: false
     }
 
     private fun ASTNode.isFollowedByNonEmptyBlock(): Boolean {
