@@ -4,6 +4,7 @@ import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.INTERNAL_KEYWORD
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.OVERRIDE_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PRIVATE_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROTECTED_KEYWORD
@@ -53,7 +54,10 @@ public class BackingPropertyNamingRule :
         property
             .findChildByType(IDENTIFIER)
             ?.takeIf { it.text.startsWith("_") }
-            ?.let { identifier ->
+            ?.takeUnless {
+                // Do not report overridden properties as they can only be changed by changing the base property
+                it.treeParent.hasModifier(OVERRIDE_KEYWORD)
+            }?.let { identifier ->
                 visitBackingProperty(identifier, emit)
             }
     }
