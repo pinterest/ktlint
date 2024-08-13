@@ -17,8 +17,6 @@ jobs:
           java-version: 21
 
       - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-home-cache-cleanup: true
 
       - name: Get last released version
         run: echo "version=$(git describe --abbrev=0 --tags)" >> $GITHUB_ENV
