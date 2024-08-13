@@ -8,9 +8,9 @@ ktlint_experimental=enabled
 ```
 Also see [enable/disable specific rules](../configuration-ktlint/#disabled-rules).
 
-## Blank lines between when-conditions
+## Blank line between when-conditions
 
-Consistently add or remove blank lines between when-conditions in a when-statement. A blank line is only added between when-conditions if the when-statement contains at lease one multiline when-condition. If a when-statement only contains single line when-conditions, then the blank lines between the when-conditions are removed.
+Consistently add or remove blank line between when-conditions in a when-statement. A blank line is only added between when-conditions if the when-statement contains at lease one multiline when-condition. If a when-statement only contains single line when-conditions, then the blank lines between the when-conditions are removed.
 
 !!! note
     Ktlint uses `.editorconfig` property `ij_kotlin_line_break_after_multiline_when_entry` but applies it also on single line entries to increase consistency.
@@ -107,22 +107,22 @@ Consistently add or remove blank lines between when-conditions in a when-stateme
 |:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
 | `ij_kotlin_line_break_after_multiline_when_entry`<br/><i>Despite its name, forces a blank line between single line and multiline when-entries when at least one multiline when-entry is found in the when-statement.</i> |      `true`       |    `true`     |     `true`     |
 
-Rule id: `standard:blank-lines-between-when-conditions`
+Rule id: `standard:blank-line-between-when-conditions`
 
 Suppress or disable rule (1)
 { .annotate }
 
 1. Suppress rule in code with annotation below:
     ```kotlin
-    @Suppress("ktlint:standard:blank-lines-between-when-conditions")
+    @Suppress("ktlint:standard:blank-line-between-when-conditions")
     ```
    Enable rule via `.editorconfig`
     ```editorconfig
-    ktlint_standard_blank-lines-between-when-conditions = enabled
+    ktlint_standard_blank-line-between-when-conditions = enabled
     ```
    Disable rule via `.editorconfig`
     ```editorconfig
-    ktlint_standard_blank-lines-between-when-conditions = disabled
+    ktlint_standard_blank-line-between-when-conditions = disabled
     ```
 
 ## KDoc
