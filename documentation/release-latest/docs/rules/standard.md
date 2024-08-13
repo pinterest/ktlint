@@ -1041,7 +1041,7 @@ If at least one branch of an if-else statement or an if-else-if statement is wra
 === "[:material-heart:](#) Ktlint"
 
     ```kotlin
-    fun foo(value: int) {
+    fun foo(value: Int) {
         if (value > 0) {
             doSomething()
         } else if (value < 0) {
@@ -1055,7 +1055,7 @@ If at least one branch of an if-else statement or an if-else-if statement is wra
 === "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
-    fun foo(value: int) {
+    fun foo(value: Int) {
         if (value > 0)
             doSomething()
         else if (value < 0) {

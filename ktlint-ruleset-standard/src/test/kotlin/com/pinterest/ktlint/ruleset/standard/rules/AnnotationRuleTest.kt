@@ -338,10 +338,10 @@ class AnnotationRuleTest {
         val code =
             """
             fun foo(
-                a: int,
-                @Bar1 b: int,
-                @Bar1 @Bar2 c: int,
-                @Bar3("bar3") @Bar1 d: int
+                a: Int,
+                @Bar1 b: Int,
+                @Bar1 @Bar2 c: Int,
+                @Bar3("bar3") @Bar1 d: Int
             ) {}
             """.trimIndent()
         annotationRuleAssertThat(code).hasNoLintViolations()
@@ -608,7 +608,8 @@ class AnnotationRuleTest {
         annotationRuleAssertThat(code).hasNoLintViolations()
     }
 
-    @Nested inner class `Array syntax annotations, Issue #1765` {
+    @Nested
+    inner class `Array syntax annotations, Issue #1765` {
         @Test
         fun `annotation preceded by array syntax annotation`() {
             val code =

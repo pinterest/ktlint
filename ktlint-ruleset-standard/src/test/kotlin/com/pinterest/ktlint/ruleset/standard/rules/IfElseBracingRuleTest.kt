@@ -196,7 +196,7 @@ class IfElseBracingRuleTest {
     inner class `Given an IF with ELSE-IF` {
         private val formattedCode =
             """
-            fun foo(value: int) {
+            fun foo(value: Int) {
                 if (value > 0) {
                     doSomething()
                 } else if (value < 0) {
@@ -211,7 +211,7 @@ class IfElseBracingRuleTest {
         fun `Given all branches without-braces then do not reformat`() {
             val code =
                 """
-                fun foo(value: int) {
+                fun foo(value: Int) {
                     if (value > 0)
                         doSomething()
                     else if (value < 0) doSomethingElse()
@@ -227,7 +227,7 @@ class IfElseBracingRuleTest {
         fun `Given if { -- } else if -- else -- then reformat`() {
             val code =
                 """
-                fun foo(value: int) {
+                fun foo(value: Int) {
                     if (value > 0) {
                         doSomething()
                     } else if (value < 0)
@@ -249,7 +249,7 @@ class IfElseBracingRuleTest {
         fun `Given if -- else if { -- } else -- then reformat`() {
             val code =
                 """
-                fun foo(value: int) {
+                fun foo(value: Int) {
                     if (value > 0)
                         doSomething()
                     else if (value < 0) {
@@ -271,7 +271,7 @@ class IfElseBracingRuleTest {
         fun `Given if -- else if -- else { -- } then reformat`() {
             val code =
                 """
-                fun foo(value: int) {
+                fun foo(value: Int) {
                     if (value > 0)
                         doSomething()
                     else if (value < 0)
@@ -294,7 +294,7 @@ class IfElseBracingRuleTest {
         fun `Given if { -- } else if { -- } else -- then reformat`() {
             val code =
                 """
-                fun foo(value: int) {
+                fun foo(value: Int) {
                     if (value > 0) {
                         doSomething()
                     } else if (value < 0) {
@@ -314,7 +314,7 @@ class IfElseBracingRuleTest {
         fun `Given if { -- } else if -- else { -- } then reformat`() {
             val code =
                 """
-                fun foo(value: int) {
+                fun foo(value: Int) {
                     if (value > 0) {
                         doSomething()
                     } else if (value < 0)
@@ -335,7 +335,7 @@ class IfElseBracingRuleTest {
         fun `Given if -- else if { -- } else { -- } then reformat`() {
             val code =
                 """
-                fun foo(value: int) {
+                fun foo(value: Int) {
                     if (value > 0)
                         doSomething()
                     else if (value < 0) {
@@ -356,7 +356,7 @@ class IfElseBracingRuleTest {
         fun `Given all branches with braces then do not reformat`() {
             val code =
                 """
-                fun foo(value: int) {
+                fun foo(value: Int) {
                     if (value > 0) {
                         doSomething()
                     } else if (value < 0) {
