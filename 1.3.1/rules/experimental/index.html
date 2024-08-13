@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#blank-lines-between-when-conditions" class="md-skip">
+        <a href="#blank-line-between-when-conditions" class="md-skip">
           Skip to content
         </a>
       
@@ -749,9 +749,9 @@ You're not viewing the latest version.
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#blank-lines-between-when-conditions" class="md-nav__link">
+  <a href="#blank-line-between-when-conditions" class="md-nav__link">
     <span class="md-ellipsis">
-      Blank lines between when-conditions
+      Blank line between when-conditions
     </span>
   </a>
   
@@ -1174,9 +1174,9 @@ You're not viewing the latest version.
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#blank-lines-between-when-conditions" class="md-nav__link">
+  <a href="#blank-line-between-when-conditions" class="md-nav__link">
     <span class="md-ellipsis">
-      Blank lines between when-conditions
+      Blank line between when-conditions
     </span>
   </a>
   
@@ -1238,8 +1238,8 @@ You're not viewing the latest version.
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="na">ktlint_experimental</span><span class="o">=</span><span class="s">enabled</span>
 </code></pre></div>
 Also see <a href="../configuration-ktlint/#disabled-rules">enable/disable specific rules</a>.</p>
-<h2 id="blank-lines-between-when-conditions">Blank lines between when-conditions<a class="headerlink" href="#blank-lines-between-when-conditions" title="Permanent link">&para;</a></h2>
-<p>Consistently add or remove blank lines between when-conditions in a when-statement. A blank line is only added between when-conditions if the when-statement contains at lease one multiline when-condition. If a when-statement only contains single line when-conditions, then the blank lines between the when-conditions are removed.</p>
+<h2 id="blank-line-between-when-conditions">Blank line between when-conditions<a class="headerlink" href="#blank-line-between-when-conditions" title="Permanent link">&para;</a></h2>
+<p>Consistently add or remove blank line between when-conditions in a when-statement. A blank line is only added between when-conditions if the when-statement contains at lease one multiline when-condition. If a when-statement only contains single line when-conditions, then the blank lines between the when-conditions are removed.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Ktlint uses <code>.editorconfig</code> property <code>ij_kotlin_line_break_after_multiline_when_entry</code> but applies it also on single line entries to increase consistency.</p>
@@ -1351,17 +1351,17 @@ Also see <a href="../configuration-ktlint/#disabled-rules">enable/disable specif
 </tr>
 </tbody>
 </table>
-<p>Rule id: <code>standard:blank-lines-between-when-conditions</code></p>
+<p>Rule id: <code>standard:blank-line-between-when-conditions</code></p>
 <p class="annotate">Suppress or disable rule (1)</p>
 <ol>
 <li>Suppress rule in code with annotation below:
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:standard:blank-lines-between-when-conditions&quot;</span><span class="p">)</span>
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:standard:blank-line-between-when-conditions&quot;</span><span class="p">)</span>
 </code></pre></div>
    Enable rule via <code>.editorconfig</code>
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>ktlint_standard_blank-lines-between-when-conditions = enabled
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>ktlint_standard_blank-line-between-when-conditions = enabled
 </code></pre></div>
    Disable rule via <code>.editorconfig</code>
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>ktlint_standard_blank-lines-between-when-conditions = disabled
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>ktlint_standard_blank-line-between-when-conditions = disabled
 </code></pre></div></li>
 </ol>
 <h2 id="kdoc">KDoc<a class="headerlink" href="#kdoc" title="Permanent link">&para;</a></h2>
