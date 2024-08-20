@@ -473,4 +473,35 @@ class NoSemicolonsRuleTest {
             """.trimIndent()
         noSemicolonsRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 2771 - Given an enum class without enum entry, and containing some code after the semi then do not report a lint error`() {
+        val code =
+            """
+            enum class Foo {
+                ;
+
+                fun foo() {
+                    // do something
+                }
+            }
+            """.trimIndent()
+        noSemicolonsRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 2771 - Given an enum class without enum entry, and some comment before and some code after the semi then do not report a lint error`() {
+        val code =
+            """
+            enum class Foo {
+                // NO-OP
+                ;
+
+                fun foo() {
+                    // do something
+                }
+            }
+            """.trimIndent()
+        noSemicolonsRuleAssertThat(code).hasNoLintViolations()
+    }
 }
