@@ -50,6 +50,8 @@ import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
+import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.Companion.FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY
+import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.FunctionBodyExpressionWrapping.default
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 /**
@@ -64,10 +66,12 @@ public class MultilineExpressionWrappingRule :
             setOf(
                 INDENT_SIZE_PROPERTY,
                 INDENT_STYLE_PROPERTY,
+                FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY,
             ),
     ),
     Rule.OfficialCodeStyle {
     private var indentConfig = DEFAULT_INDENT_CONFIG
+    private lateinit var functionBodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         indentConfig =
@@ -75,6 +79,7 @@ public class MultilineExpressionWrappingRule :
                 indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
                 tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
             )
+        functionBodyExpressionWrapping = editorConfig[FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY]
     }
 
     override fun beforeVisitChildNodes(
@@ -172,6 +177,7 @@ public class MultilineExpressionWrappingRule :
         null !=
             prevCodeSibling()
                 ?.takeIf { it.elementType == EQ || it.elementType == OPERATION_REFERENCE }
+                ?.takeUnless { functionBodyExpressionWrapping == default && it.treeParent.elementType == FUN }
                 ?.takeUnless { it.isElvisOperator() }
                 ?.takeUnless {
                     it
