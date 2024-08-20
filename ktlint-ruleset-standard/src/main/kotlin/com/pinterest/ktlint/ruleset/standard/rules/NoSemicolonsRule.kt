@@ -1,17 +1,21 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_ENTRY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SEMICOLON
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
@@ -114,6 +118,9 @@ public class NoSemicolonsRule :
         if (node.treeParent.elementType == ENUM_ENTRY) {
             return node.isLastCodeLeafBeforeClosingOfClassBody()
         }
+        if (node.isEnumClassWithoutValues()) {
+            return false
+        }
 
         return true
     }
@@ -125,6 +132,15 @@ public class NoSemicolonsRule :
             ?.parent(CLASS_BODY)
             ?.lastChildLeafOrSelf()
             ?.prevCodeLeaf()
+
+    private fun ASTNode?.isEnumClassWithoutValues() =
+        this
+            ?.takeIf { !it.isLastCodeLeafBeforeClosingOfClassBody() }
+            ?.parent(CLASS_BODY)
+            ?.takeIf { this == it.firstChildNode.nextCodeSibling() }
+            ?.parent(CLASS)
+            ?.hasModifier(ENUM_KEYWORD)
+            ?: false
 }
 
 public val NO_SEMICOLONS_RULE_ID: RuleId = NoSemicolonsRule().ruleId
