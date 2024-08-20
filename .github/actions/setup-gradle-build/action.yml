@@ -35,6 +35,4 @@ runs:
         printf "org.gradle.vfs.watch=false\n" >> ~/.gradle/gradle.properties
       shell: bash
 
-    - uses: gradle/actions/setup-gradle@v3
-      with:
-        gradle-home-cache-cleanup: true
+    - uses: gradle/actions/setup-gradle@v4
