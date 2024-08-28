@@ -493,6 +493,28 @@ internal class FileUtilsTest {
             )
     }
 
+    @Test
+    fun `Issue 2781 - Find files with correct glob for wildcards`() {
+        val ktFileInProjectOutsideFlavoredDirectoryWithOverlappingName = "project1/src/mock/kotlin/TestOneSetup.kt"
+        val ktFileInProjectFlavoredDirectoryWithoutOverlappingName = "project1/src/testMock/kotlin/TwoTest.kt"
+
+        ktlintTestFileSystem.createFile(ktFileInProjectOutsideFlavoredDirectoryWithOverlappingName)
+        ktlintTestFileSystem.createFile(ktFileInProjectFlavoredDirectoryWithoutOverlappingName)
+
+        val foundFiles =
+            getFiles(
+                patterns = listOf("**/test*/**"),
+                rootDir = ktlintTestFileSystem.resolve(ktFileInProjectRootDirectory).parent.toAbsolutePath(),
+            )
+
+        assertThat(foundFiles)
+            .containsExactlyInAnyOrder(
+                ktFileInProjectFlavoredDirectoryWithoutOverlappingName,
+            ).doesNotContain(
+                ktFileInProjectOutsideFlavoredDirectoryWithOverlappingName,
+            )
+    }
+
     private fun KtlintTestFileSystem.createFile(fileName: String) =
         writeFile(
             relativeDirectoryToRoot = fileName.substringBeforeLast("/", ""),
