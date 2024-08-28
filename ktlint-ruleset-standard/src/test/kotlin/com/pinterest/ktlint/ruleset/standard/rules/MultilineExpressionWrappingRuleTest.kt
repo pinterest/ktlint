@@ -2,6 +2,8 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
+import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.Companion.FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY
+import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.FunctionBodyExpressionWrapping.default
 import com.pinterest.ktlint.test.KtLintAssertThat
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
@@ -358,6 +360,22 @@ class MultilineExpressionWrappingRuleTest {
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
             .hasLintViolation(1, 13, "A multiline expression should start on a new line")
             .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a function with a multiline body expression, and the function signature body expression wrapping is set to 'default' (eg keep first line of expression on same line)`() {
+        val code =
+            """
+            fun foo() = bar(
+                "bar"
+            )
+            """.trimIndent()
+        multilineExpressionWrappingRuleAssertThat(code)
+            .addAdditionalRuleProvider { IndentationRule() }
+            .addAdditionalRuleProvider { FunctionSignatureRule() }
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.ktlint_official)
+            .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to default)
+            .hasNoLintViolations()
     }
 
     @Test
