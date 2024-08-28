@@ -100,7 +100,7 @@ public class ClassSignatureRule :
                 indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
                 tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
             )
-        maxLineLength = editorConfig[MAX_LINE_LENGTH_PROPERTY]
+        maxLineLength = editorConfig.maxLineLength()
     }
 
     override fun beforeVisitChildNodes(
@@ -467,7 +467,7 @@ public class ClassSignatureRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         wrappedPrimaryConstructor: Boolean,
     ): Int {
-        var whiteSpaceCorrection = 0
+        val whiteSpaceCorrection = 0
 
         val superTypes = node.superTypes() ?: return 0
 

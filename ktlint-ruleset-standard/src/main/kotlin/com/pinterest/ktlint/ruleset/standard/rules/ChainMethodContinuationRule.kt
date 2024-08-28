@@ -99,7 +99,7 @@ public class ChainMethodContinuationRule :
         if (indentConfig.disabled) {
             stopTraversalOfAST()
         }
-        maxLineLength = editorConfig[MAX_LINE_LENGTH_PROPERTY]
+        maxLineLength = editorConfig.maxLineLength()
         forceMultilineWhenChainOperatorCountGreaterOrEqualThanProperty =
             editorConfig[FORCE_MULTILINE_WHEN_CHAIN_OPERATOR_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY]
     }

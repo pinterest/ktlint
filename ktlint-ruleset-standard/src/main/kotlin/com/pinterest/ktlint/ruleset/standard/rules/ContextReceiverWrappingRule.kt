@@ -58,7 +58,7 @@ public class ContextReceiverWrappingRule :
                 indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
                 tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
             )
-        maxLineLength = editorConfig[MAX_LINE_LENGTH_PROPERTY]
+        maxLineLength = editorConfig.maxLineLength()
     }
 
     override fun beforeVisitChildNodes(

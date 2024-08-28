@@ -20,6 +20,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.ClassSignatureRule.Companion.
 class ArgumentListWrappingRuleTest {
     private val argumentListWrappingRuleAssertThat =
         assertThatRuleBuilder { ArgumentListWrappingRule() }
+            .addAdditionalRuleProvider { MaxLineLengthRule() }
             .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
             .assertThat()
 
@@ -311,7 +312,7 @@ class ArgumentListWrappingRuleTest {
             argumentListWrappingRuleAssertThat(code)
                 .setMaxLineLength()
                 .withEditorConfigOverride(IGNORE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to 8)
-                .hasNoLintViolations()
+                .hasNoLintViolationsExceptInAdditionalRules()
         }
 
         @Test
@@ -942,8 +943,10 @@ class ArgumentListWrappingRuleTest {
             .addAdditionalRuleProvider { ClassSignatureRule() }
             .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
             .withEditorConfigOverride(CLASS_SIGNATURE_FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to 4)
-            .hasLintViolationForAdditionalRule(5, 37, "Super type should start on a newline")
-            .hasLintViolations(
+            .hasLintViolationsForAdditionalRule(
+                LintViolation(5, 37, "Super type should start on a newline"),
+                LintViolation(5, 56, "Exceeded max line length (55)", canBeAutoCorrected = false),
+            ).hasLintViolations(
                 LintViolation(5, 44, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(5, 47, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(5, 88, "Missing newline before \")\""),
@@ -977,6 +980,7 @@ class ArgumentListWrappingRuleTest {
             .hasLintViolationsForAdditionalRule(
                 LintViolation(3, 12, "Newline expected after '{'"),
                 LintViolation(3, 12, "Missing newline after \"{\""),
+                LintViolation(3, 45, "Exceeded max line length (44)", canBeAutoCorrected = false),
                 LintViolation(3, 50, "Newline expected before '}'"),
                 // Lint violation below only occurs during linting. Resolving violations above, prevents the next violation from occurring
                 LintViolation(3, 59, "Line is exceeding max line length. Break line after 'returns' in binary expression"),

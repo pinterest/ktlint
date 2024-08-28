@@ -1,13 +1,16 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.test.KtLintAssertThat
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 internal class ParameterWrappingRuleTest {
-    private val parameterWrappingRuleAssertThat = KtLintAssertThat.assertThatRule { ParameterWrappingRule() }
+    private val parameterWrappingRuleAssertThat =
+        assertThatRuleBuilder { ParameterWrappingRule() }
+            .addAdditionalRuleProvider { MaxLineLengthRule() }
+            .assertThat()
 
     @Test
     fun `Given that the variable name and the following colon do not fit on the same line as val or var keyword then wrap after the colon`() {

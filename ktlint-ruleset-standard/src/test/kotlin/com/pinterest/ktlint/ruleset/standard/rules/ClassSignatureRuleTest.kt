@@ -25,6 +25,7 @@ import org.junit.jupiter.params.provider.ValueSource
 class ClassSignatureRuleTest {
     private val classSignatureWrappingRuleAssertThat =
         assertThatRuleBuilder { ClassSignatureRule() }
+            .addAdditionalRuleProvider { MaxLineLengthRule() }
             .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
             .assertThat()
 
@@ -56,7 +57,7 @@ class ClassSignatureRuleTest {
                 """.trimIndent()
             classSignatureWrappingRuleAssertThat(code)
                 .setMaxLineLength()
-                .hasNoLintViolations()
+                .hasNoLintViolationsExceptInAdditionalRules()
         }
 
         @Test
@@ -733,7 +734,7 @@ class ClassSignatureRuleTest {
         classSignatureWrappingRuleAssertThat(code)
             .setMaxLineLength()
             .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
-            .hasNoLintViolations()
+            .hasNoLintViolationsExceptInAdditionalRules()
     }
 
     @Test
@@ -1828,7 +1829,7 @@ class ClassSignatureRuleTest {
                 )
                 """.trimIndent()
             classSignatureWrappingRuleAssertThat(code)
-                .withEditorConfigOverride(CODE_STYLE_PROPERTY to CodeStyleValue.intellij_idea)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to intellij_idea)
                 // Set max_line_length as other the class signature would not be rewritten to single line
                 .withEditorConfigOverride(MAX_LINE_LENGTH_PROPERTY to 999)
                 .hasNoLintViolations()

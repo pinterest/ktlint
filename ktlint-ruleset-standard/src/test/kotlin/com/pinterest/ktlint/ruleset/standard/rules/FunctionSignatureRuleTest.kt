@@ -26,6 +26,7 @@ import org.junit.jupiter.params.provider.EnumSource
 class FunctionSignatureRuleTest {
     private val functionSignatureWrappingRuleAssertThat =
         assertThatRuleBuilder { FunctionSignatureRule() }
+            .addAdditionalRuleProvider { MaxLineLengthRule() }
             .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
             .assertThat()
 
@@ -224,9 +225,18 @@ class FunctionSignatureRuleTest {
             .setMaxLineLength()
             .addAdditionalRuleProvider { ValueParameterCommentRule() }
             .hasLintViolationsForAdditionalRule(
+                LintViolation(2, 49, "Exceeded max line length (48)", canBeAutoCorrected = false),
+                LintViolation(3, 49, "Exceeded max line length (48)", canBeAutoCorrected = false),
+                LintViolation(4, 49, "Exceeded max line length (48)", canBeAutoCorrected = false),
                 LintViolation(5, 18, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
+                LintViolation(5, 49, "Exceeded max line length (48)", canBeAutoCorrected = false),
                 LintViolation(6, 19, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
+                LintViolation(6, 49, "Exceeded max line length (48)", canBeAutoCorrected = false),
                 LintViolation(7, 23, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
+                LintViolation(7, 49, "Exceeded max line length (48)", canBeAutoCorrected = false),
+                LintViolation(8, 49, "Exceeded max line length (48)", canBeAutoCorrected = false),
+                LintViolation(9, 49, "Exceeded max line length (48)", canBeAutoCorrected = false),
+                LintViolation(10, 49, "Exceeded max line length (48)", canBeAutoCorrected = false),
             ).hasNoLintViolationsExceptInAdditionalRules()
     }
 
@@ -1031,7 +1041,7 @@ class FunctionSignatureRuleTest {
             .setMaxLineLength()
             .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to bodyExpressionWrapping)
             .addAdditionalRuleProvider { IndentationRule() }
-            .hasNoLintViolations()
+            .hasNoLintViolationsExceptInAdditionalRules()
     }
 
     @Nested
@@ -1142,7 +1152,7 @@ class FunctionSignatureRuleTest {
         functionSignatureWrappingRuleAssertThat(code)
             .setMaxLineLength()
             .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
-            .hasNoLintViolations()
+            .hasNoLintViolationsExceptInAdditionalRules()
     }
 
     @Nested
@@ -1157,7 +1167,7 @@ class FunctionSignatureRuleTest {
                 """.trimIndent()
             functionSignatureWrappingRuleAssertThat(code)
                 .setMaxLineLength()
-                .hasNoLintViolations()
+                .hasNoLintViolationsExceptInAdditionalRules()
         }
 
         @Test
@@ -1170,7 +1180,7 @@ class FunctionSignatureRuleTest {
                 """.trimIndent()
             functionSignatureWrappingRuleAssertThat(code)
                 .setMaxLineLength()
-                .hasNoLintViolations()
+                .hasNoLintViolationsExceptInAdditionalRules()
         }
 
         @Test
@@ -1184,7 +1194,7 @@ class FunctionSignatureRuleTest {
                 """.trimIndent()
             functionSignatureWrappingRuleAssertThat(code)
                 .setMaxLineLength()
-                .hasNoLintViolations()
+                .hasNoLintViolationsExceptInAdditionalRules()
         }
     }
 

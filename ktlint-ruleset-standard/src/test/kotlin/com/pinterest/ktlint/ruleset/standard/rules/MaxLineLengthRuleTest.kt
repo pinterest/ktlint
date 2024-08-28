@@ -1,12 +1,21 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution.disabled
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution.enabled
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.ec4j.toPropertyWithValue
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.ktLintRuleExecutionPropertyName
 import com.pinterest.ktlint.ruleset.standard.rules.MaxLineLengthRule.Companion.IGNORE_BACKTICKED_IDENTIFIER_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -225,5 +234,52 @@ class MaxLineLengthRuleTest {
         maxLineLengthRuleAssertThat(code)
             .setMaxLineLength()
             .hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given max_line_length property is set and max-line-length rule is enabled then return the max_line_length`() {
+        val editorConfig =
+            EditorConfig(
+                mapOf(
+                    MAX_LINE_LENGTH to MAX_LINE_LENGTH_PROPERTY.toPropertyWithValue(SOME_MAX_LINE_LENGTH.toString()),
+                    KTLINT_RULE_EXECUTION_PROPERTY_NAME to MAX_LINE_LENGTH_RULE_EXECUTION_PROPERTY.toPropertyWithValue(enabled.name),
+                ),
+            )
+
+        assertThat(editorConfig.maxLineLength()).isEqualTo(SOME_MAX_LINE_LENGTH)
+    }
+
+    @Test
+    fun `Given max_line_length property is set and max-line-length rule is disabled then return Int MAX_VALUE`() {
+        val editorConfig =
+            EditorConfig(
+                mapOf(
+                    MAX_LINE_LENGTH to MAX_LINE_LENGTH_PROPERTY.toPropertyWithValue(SOME_MAX_LINE_LENGTH.toString()),
+                    KTLINT_RULE_EXECUTION_PROPERTY_NAME to MAX_LINE_LENGTH_RULE_EXECUTION_PROPERTY.toPropertyWithValue(disabled.name),
+                ),
+            )
+
+        assertThat(editorConfig.maxLineLength()).isEqualTo(Int.MAX_VALUE)
+    }
+
+    @Test
+    fun `Given intellij_idea code style, and max_line_length property equals 'unset' and max-line-length rule is enabled then return Int MAX_VALUE`() {
+        val editorConfig =
+            EditorConfig(
+                mapOf(
+                    MAX_LINE_LENGTH to MAX_LINE_LENGTH_PROPERTY.toPropertyWithValue("unset"),
+                    CODE_STYLE_PROPERTY.name to CODE_STYLE_PROPERTY.toPropertyWithValue(CodeStyleValue.intellij_idea.name),
+                    KTLINT_RULE_EXECUTION_PROPERTY_NAME to MAX_LINE_LENGTH_RULE_EXECUTION_PROPERTY.toPropertyWithValue(enabled.name),
+                ),
+            )
+
+        assertThat(editorConfig.maxLineLength()).isEqualTo(Int.MAX_VALUE)
+    }
+
+    private companion object {
+        const val MAX_LINE_LENGTH = "max_line_length"
+        const val SOME_MAX_LINE_LENGTH = 123
+        val KTLINT_RULE_EXECUTION_PROPERTY_NAME = MAX_LINE_LENGTH_RULE_ID.ktLintRuleExecutionPropertyName()
+        val MAX_LINE_LENGTH_RULE_EXECUTION_PROPERTY = MAX_LINE_LENGTH_RULE_ID.createRuleExecutionEditorConfigProperty()
     }
 }

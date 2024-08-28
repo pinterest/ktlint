@@ -92,7 +92,7 @@ public class ArgumentListWrappingRule :
                 indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
                 tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
             )
-        maxLineLength = editorConfig[MAX_LINE_LENGTH_PROPERTY]
+        maxLineLength = editorConfig.maxLineLength()
         ignoreWhenParameterCountGreaterOrEqualThanProperty = editorConfig[IGNORE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY]
     }
 

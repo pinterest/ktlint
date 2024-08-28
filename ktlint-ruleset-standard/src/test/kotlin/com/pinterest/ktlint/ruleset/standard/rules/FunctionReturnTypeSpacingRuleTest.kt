@@ -2,11 +2,14 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import org.junit.jupiter.api.Test
 
 class FunctionReturnTypeSpacingRuleTest {
-    private val functionReturnTypeSpacingRuleAssertThat = assertThatRule { FunctionReturnTypeSpacingRule() }
+    private val functionReturnTypeSpacingRuleAssertThat =
+        assertThatRuleBuilder { FunctionReturnTypeSpacingRule() }
+            .addAdditionalRuleProvider { MaxLineLengthRule() }
+            .assertThat()
 
     @Test
     fun `Given a function signature without whitespace between the closing parenthesis and the colon of the return type then do not reformat`() {

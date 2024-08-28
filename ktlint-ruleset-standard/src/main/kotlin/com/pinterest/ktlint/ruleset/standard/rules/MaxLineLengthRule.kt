@@ -12,6 +12,9 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY_OFF
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RULE_EXECUTION_PROPERTY_TYPE
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.ktLintRuleExecutionPropertyName
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
@@ -62,7 +65,7 @@ public class MaxLineLengthRule :
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         ignoreBackTickedIdentifier = editorConfig[IGNORE_BACKTICKED_IDENTIFIER_PROPERTY]
-        maxLineLength = editorConfig[MAX_LINE_LENGTH_PROPERTY]
+        maxLineLength = editorConfig.maxLineLength()
         if (maxLineLength == MAX_LINE_LENGTH_PROPERTY_OFF) {
             stopTraversalOfAST()
         }
@@ -145,5 +148,27 @@ public class MaxLineLengthRule :
         private val BACKTICKED_IDENTIFIER_REGEX = Regex("`.*`")
     }
 }
+
+/**
+ * Gets the max_line_length property if the `max-line-length` rule is enabled. Otherwise, returns [Int.MAX_VALUE].
+ *
+ * Normally, rules should not have direct dependencies on other rules. This rule is an exception to that. In case the `max-line-length`
+ * property in the `.editorconfig` is set, or inferred via a default value based on the `ktlint_code_style`, but the `max-line-length` rule
+ * is disabled, then those other rules might start wrapping lines. Conceptually, the `max-line-length` rule determines whether ktlint should
+ * or should not use the `max_line_length` property.
+ */
+public fun EditorConfig.maxLineLength(): Int =
+    if (maxLineLengthRuleEnabled()) {
+        this[MAX_LINE_LENGTH_PROPERTY]
+    } else {
+        Int.MAX_VALUE
+    }
+
+private fun EditorConfig.maxLineLengthRuleEnabled(): Boolean =
+    RuleExecution.enabled ==
+        getEditorConfigValueOrNull(
+            RULE_EXECUTION_PROPERTY_TYPE,
+            MAX_LINE_LENGTH_RULE_ID.ktLintRuleExecutionPropertyName(),
+        )
 
 public val MAX_LINE_LENGTH_RULE_ID: RuleId = MaxLineLengthRule().ruleId

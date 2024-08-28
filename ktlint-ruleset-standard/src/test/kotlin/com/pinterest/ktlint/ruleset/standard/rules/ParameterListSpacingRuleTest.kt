@@ -2,12 +2,15 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class ParameterListSpacingRuleTest {
-    private val parameterListSpacingRuleAssertThat = assertThatRule { ParameterListSpacingRule() }
+    private val parameterListSpacingRuleAssertThat =
+        assertThatRuleBuilder { ParameterListSpacingRule() }
+            .addAdditionalRuleProvider { MaxLineLengthRule() }
+            .assertThat()
 
     @Test
     fun `Given a function signature which does not contain redundant spaces then do no reformat`() {

@@ -3,7 +3,7 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import com.pinterest.ktlint.test.TAB
@@ -13,7 +13,10 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 internal class WrappingRuleTest {
-    private val wrappingRuleAssertThat = assertThatRule { WrappingRule() }
+    private val wrappingRuleAssertThat =
+        assertThatRuleBuilder { WrappingRule() }
+            .addAdditionalRuleProvider { MaxLineLengthRule() }
+            .assertThat()
 
     @Test
     fun `Given a multiline string containing a string-template as parameter value but then wrap the value to a start and end on separate lines`() {

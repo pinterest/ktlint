@@ -103,6 +103,10 @@ Wraps binary expression at the operator reference whenever the binary expression
     }
     ```
 
+| Configuration setting                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i> |       140       |     `off`     |     `100`      |
+
 Rule id: `standard:binary-expression-wrapping`
 
 Suppress or disable rule (1)
@@ -306,6 +310,7 @@ The `.` in `java.class` is ignored when wrapping on chain operators.
 | Configuration setting                                                                                                                                                                                                                                                                                                                                                                                  | ktlint_official | intellij_idea | android_studio |
 |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
 | `ktlint_chain_method_rule_force_multiline_when_chain_operator_count_greater_or_equal_than`<br/><i>Force wrapping of chained methods in case an expression contains at least the specified number of chain operators. If a chained method contains nested expressions, the chain operators of the inner expression are not taken into account. Use value `unset` (default) to disable this setting.</i> |        4        |       4       |       4        |
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i>                                                                                                                                                                          |       140       |     `off`     |     `100`      |
 
 
 Rule id: `standard:chain-method-continuation`
@@ -559,6 +564,7 @@ The other code styles allow an infinite amount of parameters on the same line (a
 | Configuration setting                                                                                                                                                                                                                                                                                                                       | ktlint_official | intellij_idea | android_studio |
 |:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
 | `ktlint_class_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than`<br/><i>Force wrapping of the parameters of the class signature in case it contains at least the specified number of parameters, even in case the entire class signature would fit on a single line. Use value `unset` to disable this setting.</i> |        1        |    `unset`    |    `unset`     |
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i>                                                                                                               |       140       |     `off`     |     `100`      |
 
 Rule id: `standard:class-signature`
 
@@ -808,6 +814,10 @@ If the function literal contains multiple parameters and at least one parameter 
         }
     ```
 
+| Configuration setting                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i> |       140       |     `off`     |     `100`      |
+
 Rule id: `standard:function-literal`
 
 Suppress or disable rule (1)
@@ -977,6 +987,10 @@ Rewrites the function signature to a single line when possible (e.g. when not ex
         "some-result"
             .uppercase()
     ```
+
+| Configuration setting                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i> |       140       |     `off`     |     `100`      |
 
 Rule id: `standard:function-signature`
 
@@ -1854,7 +1868,9 @@ Rule id: `standard:ktlint-suppression`
 
 ## Max line length
 
-Ensures that lines do not exceed the maximum length of a line. This rule does not apply in a number of situations. The `.editorconfig` property `ktlint_ignore_back_ticked_identifier` can be set to ignore identifiers which are enclosed in backticks, which for example is very useful when you want to allow longer names for unit tests.
+Ensures that lines do not exceed the maximum length of a line as specified in `.editorconfig` property `max_line_length`.
+
+This rule does not apply in a number of situations. The `.editorconfig` property `ktlint_ignore_back_ticked_identifier` can be set to ignore identifiers which are enclosed in backticks, which for example is very useful when you want to allow longer names for unit tests.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -1889,10 +1905,10 @@ Ensures that lines do not exceed the maximum length of a line. This rule does no
     ```
 
 
-| Configuration setting                                                                                               | ktlint_official | intellij_idea | android_studio |
-|:--------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
-| `ktlint_ignore_back_ticked_identifier`<br/><i>Defines whether the backticked identifier (``) should be ignored.</i> |     `false`     |    `false`    |    `false`     |
-| `max_line_length`<br/><i>Maximum length of a (regular) line.</i>                                                    |       140       |     `off`     |     `100`      |
+| Configuration setting                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `ktlint_ignore_back_ticked_identifier`<br/><i>Defines whether the backticked identifier (``) should be ignored.</i>                                                                                                           |     `false`     |    `false`    |    `false`     |
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i> |       140       |     `off`     |     `100`      |
 
 Rule id: `standard:max-line-length`
 
@@ -2968,6 +2984,10 @@ Consistent spacing around the function return type.
         String = "some-result"
     ```
 
+| Configuration setting                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i> |       140       |     `off`     |     `100`      |
+
 Rule id: `standard:function-return-type-spacing`
 
 Suppress or disable rule (1)
@@ -3345,6 +3365,10 @@ Consistent spacing inside the parameter list.
     fun foo(
     ) = "some-result"
     ```
+
+| Configuration setting                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i> |       140       |     `off`     |     `100`      |
 
 Rule id: `standard:parameter-list-spacing`
 
@@ -4124,9 +4148,10 @@ All arguments should be on the same line, or every argument should be on a separ
         )
     ```
 
-| Configuration setting                                                             | ktlint_official | intellij_idea | android_studio |
-|:----------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
-| `ktlint_argument_list_wrapping_ignore_when_parameter_count_greater_or_equal_than` |     `unset`     |       8       |       8        |
+| Configuration setting                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `ktlint_argument_list_wrapping_ignore_when_parameter_count_greater_or_equal_than`                                                                                                                                             |     `unset`     |       8       |       8        |
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i> |       140       |     `off`     |     `100`      |
 
 Rule id: `standard:argument-list-wrapping`
 
@@ -4333,6 +4358,10 @@ Wraps the content receiver list to a separate line regardless of maximum line le
     context(Foooooooooooooooo<Foo, Bar>)
     fun fooBar()
     ```
+
+| Configuration setting                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i> |       140       |     `off`     |     `100`      |
 
 Rule id: `standard:context-receiver-wrapping`
 
@@ -4562,6 +4591,10 @@ When class/function signature doesn't fit on a single line, each parameter must 
     )
     ```
 
+| Configuration setting                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i> |       140       |     `off`     |     `100`      |
+
 Rule id: `standard:parameter-list-wrapping`
 
 Suppress or disable rule (1)
@@ -4628,6 +4661,10 @@ When a function or class parameter doesn't fit on a single line, wrap the type o
     )
     ```
 
+| Configuration setting                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i> |       140       |     `off`     |     `100`      |
+
 Rule id: `standard:parameter-wrapping`
 
 Suppress or disable rule (1)
@@ -4665,6 +4702,10 @@ When a property doesn't fit on a single line, wrap the type or value to a separa
     // at the X character on the right           X
     val aVariableWithALooooooooooooongName: String
     ```
+
+| Configuration setting                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i> |       140       |     `off`     |     `100`      |
 
 Rule id: `standard:property-wrapping`
 
@@ -4763,6 +4804,10 @@ Inserts missing newlines (for example between parentheses of a multi-line functi
         b,
         c)
     ```
+
+| Configuration setting                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i> |       140       |     `off`     |     `100`      |
 
 Rule id: `standard:wrapping`
 
