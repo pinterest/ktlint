@@ -29,7 +29,7 @@ public class FunctionReturnTypeSpacingRule :
     private var maxLineLength = MAX_LINE_LENGTH_PROPERTY.defaultValue
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
-        maxLineLength = editorConfig[MAX_LINE_LENGTH_PROPERTY]
+        maxLineLength = editorConfig.maxLineLength()
     }
 
     override fun beforeVisitChildNodes(

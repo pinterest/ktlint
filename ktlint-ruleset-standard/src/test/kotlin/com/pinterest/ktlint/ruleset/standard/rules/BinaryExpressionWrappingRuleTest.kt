@@ -3,13 +3,16 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
 import org.junit.jupiter.api.Test
 
 class BinaryExpressionWrappingRuleTest {
-    private val binaryExpressionWrappingRuleAssertThat = assertThatRule { BinaryExpressionWrappingRule() }
+    private val binaryExpressionWrappingRuleAssertThat =
+        assertThatRuleBuilder { BinaryExpressionWrappingRule() }
+            .addAdditionalRuleProvider { MaxLineLengthRule() }
+            .assertThat()
 
     @Test
     fun `Given a property with a binary expression on same line as equals, and it exceeds the max line length then wrap before the expression`() {
@@ -192,7 +195,7 @@ class BinaryExpressionWrappingRuleTest {
             """.trimIndent()
         binaryExpressionWrappingRuleAssertThat(code)
             .setMaxLineLength()
-            .hasNoLintViolations()
+            .hasNoLintViolationsExceptInAdditionalRules()
     }
 
     @Test
@@ -293,16 +296,20 @@ class BinaryExpressionWrappingRuleTest {
             ).hasLintViolationsForAdditionalRules(
                 LintViolation(2, 19, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(2, 32, "Missing newline before \")\""),
+                LintViolation(2, 32, "Exceeded max line length (31)", canBeAutoCorrected = false),
                 LintViolation(3, 19, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(3, 23, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(3, 32, "Missing newline before \")\""),
+                LintViolation(3, 32, "Exceeded max line length (31)", canBeAutoCorrected = false),
                 LintViolation(3, 33, "Missing newline before \")\""),
                 LintViolation(4, 19, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(4, 23, "Argument should be on a separate line (unless all arguments can fit a single line)"),
+                LintViolation(4, 32, "Exceeded max line length (31)", canBeAutoCorrected = false),
                 LintViolation(4, 46, "Missing newline before \")\""),
                 LintViolation(4, 47, "Missing newline before \")\""),
                 LintViolation(5, 19, "Argument should be on a separate line (unless all arguments can fit a single line)"),
                 LintViolation(5, 23, "Argument should be on a separate line (unless all arguments can fit a single line)"),
+                LintViolation(5, 32, "Exceeded max line length (31)", canBeAutoCorrected = false),
                 LintViolation(5, 47, "Missing newline before \")\""),
                 LintViolation(5, 48, "Missing newline before \")\""),
             ).isFormattedAs(formattedCode)
@@ -433,6 +440,7 @@ class BinaryExpressionWrappingRuleTest {
             .hasLintViolationsForAdditionalRule(
                 LintViolation(3, 12, "Missing newline after \"{\""),
                 LintViolation(3, 21, "Argument should be on a separate line (unless all arguments can fit a single line)"),
+                LintViolation(3, 45, "Exceeded max line length (44)", canBeAutoCorrected = false),
                 LintViolation(3, 48, "Missing newline before \")\""),
             ).hasLintViolations(
                 LintViolation(3, 12, "Newline expected after '{'"),
@@ -455,7 +463,7 @@ class BinaryExpressionWrappingRuleTest {
             """.trimIndent()
         binaryExpressionWrappingRuleAssertThat(code)
             .setMaxLineLength()
-            .hasNoLintViolations()
+            .hasNoLintViolationsExceptInAdditionalRules()
     }
 
     @Test
@@ -489,6 +497,6 @@ class BinaryExpressionWrappingRuleTest {
             """.trimIndent()
         binaryExpressionWrappingRuleAssertThat(code)
             .setMaxLineLength()
-            .hasNoLintViolations()
+            .hasNoLintViolationsExceptInAdditionalRules()
     }
 }

@@ -96,7 +96,7 @@ public class FunctionLiteralRule :
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         codeStyle = editorConfig[CODE_STYLE_PROPERTY]
-        maxLineLength = editorConfig[MAX_LINE_LENGTH_PROPERTY]
+        maxLineLength = editorConfig.maxLineLength()
         indentConfig =
             IndentConfig(
                 indentStyle = editorConfig[INDENT_STYLE_PROPERTY],

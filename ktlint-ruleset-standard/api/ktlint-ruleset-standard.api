@@ -418,6 +418,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/MaxLineLengthRule
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/MaxLineLengthRuleKt {
 	public static final fun getMAX_LINE_LENGTH_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+	public static final fun maxLineLength (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)I
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/MixedConditionOperatorsRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$Experimental {

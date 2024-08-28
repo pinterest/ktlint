@@ -1,14 +1,16 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.test.KtLintAssertThat
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Test
 
 class ContextReceiverWrappingRuleTest {
     private val contextReceiverWrappingRuleAssertThat =
-        KtLintAssertThat.assertThatRule { ContextReceiverWrappingRule() }
+        assertThatRuleBuilder { ContextReceiverWrappingRule() }
+            .addAdditionalRuleProvider { MaxLineLengthRule() }
+            .assertThat()
 
     @Test
     fun `Given a function without modifiers and with a context receiver on the same line as the fun keyword then wrap the fun keyword to a newline`() {

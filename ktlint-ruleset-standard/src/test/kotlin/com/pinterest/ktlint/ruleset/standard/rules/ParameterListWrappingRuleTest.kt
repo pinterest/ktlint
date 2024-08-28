@@ -15,6 +15,7 @@ import org.junit.jupiter.params.provider.EnumSource
 class ParameterListWrappingRuleTest {
     private val parameterListWrappingRuleAssertThat =
         assertThatRuleBuilder { ParameterListWrappingRule() }
+            .addAdditionalRuleProvider { MaxLineLengthRule() }
             // Keep formatted code readable
             .addAdditionalRuleProvider { IndentationRule() }
             .assertThat()
@@ -77,7 +78,7 @@ class ParameterListWrappingRuleTest {
             """.trimIndent()
         parameterListWrappingRuleAssertThat(code)
             .setMaxLineLength()
-            .hasNoLintViolations()
+            .hasNoLintViolationsExceptInAdditionalRules()
     }
 
     @Test

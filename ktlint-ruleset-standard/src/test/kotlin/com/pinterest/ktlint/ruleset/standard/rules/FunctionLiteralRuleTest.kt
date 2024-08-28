@@ -1,14 +1,21 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution.disabled
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution.enabled
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import com.pinterest.ktlint.test.LintViolation
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class FunctionLiteralRuleTest {
-    private val functionLiteralRuleAssertThat = assertThatRule { FunctionLiteralRule() }
+    private val functionLiteralRuleAssertThat =
+        assertThatRuleBuilder { FunctionLiteralRule() }
+            .addAdditionalRuleProvider { MaxLineLengthRule() }
+            .assertThat()
 
     @Test
     fun `Given a single line lambda without parameters`() {
@@ -99,7 +106,7 @@ class FunctionLiteralRuleTest {
             """.trimIndent()
         functionLiteralRuleAssertThat(code)
             .setMaxLineLength()
-            .hasNoLintViolations()
+            .hasNoLintViolationsExceptInAdditionalRules()
     }
 
     @Test
@@ -142,9 +149,9 @@ class FunctionLiteralRuleTest {
         functionLiteralRuleAssertThat(code).hasNoLintViolations()
     }
 
-    @Test
-    fun `Given a lambda with multiple parameters but not fitting on the first line`() {
-        val code =
+    @Nested
+    inner class `Given a lambda with multiple parameters but not fitting on the first line` {
+        private val code =
             """
             // $MAX_LINE_LENGTH_MARKER  $EOL_CHAR
             val foobar =
@@ -152,24 +159,37 @@ class FunctionLiteralRuleTest {
                     foo + bar
                 }
             """.trimIndent()
-        val formattedCode =
-            """
-            // $MAX_LINE_LENGTH_MARKER  $EOL_CHAR
-            val foobar =
-                {
-                    fooooo: Foo,
-                    bar: Bar
-                    ->
-                    foo + bar
-                }
-            """.trimIndent()
-        functionLiteralRuleAssertThat(code)
-            .setMaxLineLength()
-            .hasLintViolations(
-                LintViolation(3, 7, "Newline expected before parameter"),
-                LintViolation(3, 20, "Newline expected before parameter"),
-                LintViolation(3, 29, "Newline expected before arrow"),
-            ).isFormattedAs(formattedCode)
+
+        @Test
+        fun `Given that max-line-length rule is enabled`() {
+            val formattedCode =
+                """
+                // $MAX_LINE_LENGTH_MARKER  $EOL_CHAR
+                val foobar =
+                    {
+                        fooooo: Foo,
+                        bar: Bar
+                        ->
+                        foo + bar
+                    }
+                """.trimIndent()
+            functionLiteralRuleAssertThat(code)
+                .setMaxLineLength()
+                .withEditorConfigOverride(MAX_LINE_LENGTH_RULE_ID.createRuleExecutionEditorConfigProperty() to enabled)
+                .hasLintViolations(
+                    LintViolation(3, 7, "Newline expected before parameter"),
+                    LintViolation(3, 20, "Newline expected before parameter"),
+                    LintViolation(3, 29, "Newline expected before arrow"),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given that max-line-length rule is disabled`() {
+            functionLiteralRuleAssertThat(code)
+                .setMaxLineLength()
+                .withEditorConfigOverride(MAX_LINE_LENGTH_RULE_ID.createRuleExecutionEditorConfigProperty() to disabled)
+                .hasNoLintViolations()
+        }
     }
 
     @Test
@@ -359,7 +379,6 @@ class FunctionLiteralRuleTest {
             """.trimIndent()
         functionLiteralRuleAssertThat(code)
             .setMaxLineLength()
-            .addAdditionalRuleProvider { MaxLineLengthRule() }
             .hasLintViolationsForAdditionalRule(
                 LintViolation(3, 30, "Exceeded max line length (29)", false),
                 LintViolation(5, 30, "Exceeded max line length (29)", false),

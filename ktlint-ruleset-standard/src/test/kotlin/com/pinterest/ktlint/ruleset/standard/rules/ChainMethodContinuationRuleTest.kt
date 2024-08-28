@@ -16,6 +16,7 @@ import org.junit.jupiter.params.provider.ValueSource
 class ChainMethodContinuationRuleTest {
     private val chainMethodContinuationRuleAssertThat =
         assertThatRuleBuilder { ChainMethodContinuationRule() }
+            .addAdditionalRuleProvider { MaxLineLengthRule() }
             .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
             .assertThat()
 
@@ -613,6 +614,7 @@ class ChainMethodContinuationRuleTest {
                 .setMaxLineLength()
                 .addAdditionalRuleProvider { ArgumentListWrappingRule() }
                 .addAdditionalRuleProvider { FunctionLiteralRule() }
+                .addAdditionalRuleProvider { MaxLineLengthRule() }
                 .hasLintViolations(
                     // Lint violation below will not be triggered during format as argument-list-wrapping rule prevents this error from occurring
                     LintViolation(2, 30, "Expected newline before '.'"),
@@ -650,6 +652,7 @@ class ChainMethodContinuationRuleTest {
                 .addAdditionalRuleProvider { FunctionLiteralRule() }
                 .addAdditionalRuleProvider { MultilineExpressionWrappingRule() }
                 .addAdditionalRuleProvider { IndentationRule() }
+                .addAdditionalRuleProvider { MaxLineLengthRule() }
                 .isFormattedAs(formattedCode)
                 .hasLintViolations(
                     // Lint violation below will not be triggered during format as argument-list-wrapping rule prevents this error from occurring

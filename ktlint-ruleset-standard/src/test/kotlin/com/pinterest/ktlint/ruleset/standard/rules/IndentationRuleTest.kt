@@ -5058,6 +5058,7 @@ internal class IndentationRuleTest {
                 """.trimIndent()
             indentationRuleAssertThat(code)
                 .addAdditionalRuleProvider { ParameterWrappingRule() }
+                .addAdditionalRuleProvider { MaxLineLengthRule() }
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
                 .setMaxLineLength()
                 .isFormattedAs(formattedCode)

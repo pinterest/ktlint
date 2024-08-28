@@ -9,9 +9,12 @@ import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
+import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import com.pinterest.ktlint.rule.engine.internal.rulefilter.InternalRuleProvidersFilter
 import com.pinterest.ktlint.rule.engine.internal.rulefilter.RuleExecutionRuleFilter
 import com.pinterest.ktlint.rule.engine.internal.rulefilter.RunAfterRuleFilter
@@ -46,12 +49,28 @@ internal class RuleExecutionContext private constructor(
         try {
             rule.startTraversalOfAST()
             rule.beforeFirstNode(
-                // The rule get access to an EditConfig which is filtered by the properties which are actually registered as being used by
+                // The rule gets access to an EditConfig which is filtered by the properties which are actually registered as being used by
                 // the rule. In this way it can be forced that the rule actually registers the properties that it uses and the field becomes
                 // reliable to be used by for example the ".editorconfig" file generator.
-                // Note that also the CODE_STYLE_PROPERTY is provided because that property is needed to determine the default value of an
-                // EditorConfigProperty that is not explicitly defined.
-                editorConfig.filterBy(rule.usesEditorConfigProperties.plus(CODE_STYLE_PROPERTY)),
+                editorConfig.filterBy(
+                    rule.usesEditorConfigProperties
+                        // Provide the CODE_STYLE_PROPERTY as this property is needed to determine the default value of an
+                        // EditorConfigProperty that is not explicitly defined.
+                        .plus(CODE_STYLE_PROPERTY)
+                        // Provide the rule execution property for the "standard:max-line-length" property based on whether a rule provider
+                        // for this rule exists. This property is required to determine whether the property `max_line_length` needs to be
+                        // taken into account.
+                        .plus(
+                            RuleId("standard:max-line-length")
+                                .createRuleExecutionEditorConfigProperty(
+                                    if (ruleProviders.any { it.ruleId.value == "standard:max-line-length" }) {
+                                        RuleExecution.enabled
+                                    } else {
+                                        RuleExecution.disabled
+                                    },
+                                ),
+                        ),
+                ),
             )
             this.executeRuleOnNodeRecursively(rootNode, rule, autocorrectHandler, emitAndApprove)
             rule.afterLastNode()
