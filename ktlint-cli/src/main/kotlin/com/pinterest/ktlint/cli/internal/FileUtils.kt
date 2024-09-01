@@ -278,7 +278,7 @@ private fun String?.expandDoubleStarPatterns(): Set<String> {
                     parts
                         .filter { it !== doubleStarPart }
                         .joinToString(separator = "/")
-                // The original path can contain multiple double star patterns. Replace only one double start pattern
+                // The original path can contain multiple double star patterns. Replace only one double star pattern
                 // with an additional path pattern and call recursively for remaining double star patterns
                 paths.addAll(expandedPath.expandDoubleStarPatterns())
             }

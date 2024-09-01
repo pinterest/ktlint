@@ -530,23 +530,49 @@ internal class FileUtilsTest {
 
         assertThat(foundFiles)
             .containsExactlyInAnyOrder(
-                ktFileInProjectFlavoredDirectoryWithoutOverlappingName + "c",
+                ktFileInProjectFlavoredDirectoryWithoutOverlappingName,
             ).doesNotContain(
                 ktFileInProjectOutsideFlavoredDirectoryWithOverlappingName,
             )
     }
 
     @Test
-    fun `Issue 2781b  - Find files with correct glob for wildcards`() {
-        val ktFileInProjectOutsideFlavoredDirectoryWithOverlappingName = "project1/src/mock/kotlin/Foo.kt"
-        val ktFileInProjectFlavoredDirectoryWithoutOverlappingName = "project1/src/testMock/kotlin/Bar.kt"
+    fun `Issue 2781b - Find files with correct glob for wildcards`() {
+        val ktFileInProjectOutsideFlavoredDirectoryWithOverlappingName = "project1/src/mock/kotlin/TestOneSetup.kt"
+        // Path "testMock" changed to "TestMock" so that results on Windows and Linux are comparable
+        val ktFileInProjectFlavoredDirectoryWithoutOverlappingName = "project1/src/TestMock/kotlin/TwoTest.kt"
 
         ktlintTestFileSystem.createFile(ktFileInProjectOutsideFlavoredDirectoryWithOverlappingName)
         ktlintTestFileSystem.createFile(ktFileInProjectFlavoredDirectoryWithoutOverlappingName)
 
         val foundFiles =
             getFiles(
-                patterns = listOf("**/test*/**"),
+                // Linux has case-sensitive path. This test should now fail on both Linux and Windows
+                patterns = listOf("**/Test*/**"),
+                rootDir = ktlintTestFileSystem.resolve(ktFileInProjectRootDirectory).parent.toAbsolutePath(),
+            )
+
+        assertThat(foundFiles)
+            .containsExactlyInAnyOrder(
+                ktFileInProjectFlavoredDirectoryWithoutOverlappingName,
+            ).doesNotContain(
+                ktFileInProjectOutsideFlavoredDirectoryWithOverlappingName,
+            )
+    }
+
+    @Test
+    fun `Issue 2781c - Find files with correct glob for wildcards`() {
+        val ktFileInProjectOutsideFlavoredDirectoryWithOverlappingName = "project1/src/mock/kotlin/TestOneSetup.kt"
+        // Path "testMock" changed to "TestMock" so that results on Windows and Linux are comparable
+        val ktFileInProjectFlavoredDirectoryWithoutOverlappingName = "project1/src/TestMock/kotlin/TwoTest.kt"
+
+        ktlintTestFileSystem.createFile(ktFileInProjectOutsideFlavoredDirectoryWithOverlappingName)
+        ktlintTestFileSystem.createFile(ktFileInProjectFlavoredDirectoryWithoutOverlappingName)
+
+        val foundFiles =
+            getFiles(
+                // Add wildcards to match the filename itself. Should pass on Windows and Linux
+                patterns = listOf("**/Test*/**/*.kt*"),
                 rootDir = ktlintTestFileSystem.resolve(ktFileInProjectRootDirectory).parent.toAbsolutePath(),
             )
 
