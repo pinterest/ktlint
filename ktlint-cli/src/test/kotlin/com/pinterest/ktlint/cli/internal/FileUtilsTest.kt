@@ -1,7 +1,12 @@
 package com.pinterest.ktlint.cli.internal
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
+import com.pinterest.ktlint.logger.api.setDefaultLoggerModifier
 import com.pinterest.ktlint.test.KtlintTestFileSystem
+import io.github.oshai.kotlinlogging.DelegatingKLogger
+import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -15,7 +20,23 @@ import org.junit.jupiter.params.provider.ValueSource
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 
-private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
+@Suppress("unused")
+private val LOGGER =
+    KotlinLogging
+        .logger {}
+        .setDefaultLoggerModifier { logger -> logger.level = Level.TRACE }
+        .initKtLintKLogger()
+
+private var KLogger.level: Level?
+    get() = underlyingLogger()?.level
+    set(value) {
+        underlyingLogger()?.level = value
+    }
+
+private fun KLogger.underlyingLogger(): Logger? =
+    @Suppress("UNCHECKED_CAST")
+    (this as? DelegatingKLogger<Logger>)
+        ?.underlyingLogger
 
 /**
  * Tests for [fileSequence] method.
@@ -497,6 +518,28 @@ internal class FileUtilsTest {
     fun `Issue 2781 - Find files with correct glob for wildcards`() {
         val ktFileInProjectOutsideFlavoredDirectoryWithOverlappingName = "project1/src/mock/kotlin/TestOneSetup.kt"
         val ktFileInProjectFlavoredDirectoryWithoutOverlappingName = "project1/src/testMock/kotlin/TwoTest.kt"
+
+        ktlintTestFileSystem.createFile(ktFileInProjectOutsideFlavoredDirectoryWithOverlappingName)
+        ktlintTestFileSystem.createFile(ktFileInProjectFlavoredDirectoryWithoutOverlappingName)
+
+        val foundFiles =
+            getFiles(
+                patterns = listOf("**/test*/**"),
+                rootDir = ktlintTestFileSystem.resolve(ktFileInProjectRootDirectory).parent.toAbsolutePath(),
+            )
+
+        assertThat(foundFiles)
+            .containsExactlyInAnyOrder(
+                ktFileInProjectFlavoredDirectoryWithoutOverlappingName + "c",
+            ).doesNotContain(
+                ktFileInProjectOutsideFlavoredDirectoryWithOverlappingName,
+            )
+    }
+
+    @Test
+    fun `Issue 2781b  - Find files with correct glob for wildcards`() {
+        val ktFileInProjectOutsideFlavoredDirectoryWithOverlappingName = "project1/src/mock/kotlin/Foo.kt"
+        val ktFileInProjectFlavoredDirectoryWithoutOverlappingName = "project1/src/testMock/kotlin/Bar.kt"
 
         ktlintTestFileSystem.createFile(ktFileInProjectOutsideFlavoredDirectoryWithOverlappingName)
         ktlintTestFileSystem.createFile(ktFileInProjectFlavoredDirectoryWithoutOverlappingName)

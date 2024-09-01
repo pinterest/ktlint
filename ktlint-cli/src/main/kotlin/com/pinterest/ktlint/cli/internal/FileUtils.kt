@@ -124,7 +124,8 @@ internal fun FileSystem.fileSequence(
                         if (negatedPathMatchers.none { it.matches(path) } &&
                             pathMatchers.any { it.matches(path) }
                         ) {
-                            LOGGER.trace { "- File: $path: Include" }
+                            val matchingPathMatchers = pathMatchers.filter { it.matches(path) }
+                            LOGGER.debug { "- File: $path: Include as it matches with $matchingPathMatchers" }
                             result.add(path)
                         } else {
                             LOGGER.trace { "- File: $path: Ignore" }
@@ -262,7 +263,7 @@ private fun FileSystem.toGlob(
 }
 
 /**
- * For each double star pattern in the path, create and additional path in which the double start pattern is removed.
+ * For each double star pattern in the path, create and additional path in which the double star pattern is removed.
  * In this way a pattern like some-directory/**/*.kt will match while files in some-directory or any of its
  * subdirectories.
  */
@@ -278,7 +279,7 @@ private fun String?.expandDoubleStarPatterns(): Set<String> {
                         .filter { it !== doubleStarPart }
                         .joinToString(separator = "/")
                 // The original path can contain multiple double star patterns. Replace only one double start pattern
-                // with an additional path pattern and call recursively for remain double star patterns
+                // with an additional path pattern and call recursively for remaining double star patterns
                 paths.addAll(expandedPath.expandDoubleStarPatterns())
             }
         }
