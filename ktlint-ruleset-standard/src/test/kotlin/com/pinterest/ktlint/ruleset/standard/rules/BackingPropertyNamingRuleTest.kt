@@ -359,4 +359,17 @@ class BackingPropertyNamingRuleTest {
             """.trimIndent()
         backingPropertyNamingRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 2779 - Given a property name suppressed via 'LocalVariableName' then also suppress the ktlint violation`() {
+        val code =
+            """
+            @Suppress("LocalVariableName")
+            fun test() {
+                val _test = "test"
+                println(_test)
+            }
+            """.trimIndent()
+        backingPropertyNamingRuleAssertThat(code).hasNoLintViolations()
+    }
 }
