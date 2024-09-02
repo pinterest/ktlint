@@ -1849,6 +1849,20 @@ class ClassSignatureRuleTest {
         classSignatureWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
+    @Test
+    fun `Issue 2755 - Given a class preceded by an annotation, and EOL comment, and another class modifier then ignore the EOL comment in determination of class signature length`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER                           $EOL_CHAR
+            @Suppress("UnnecessaryAbstractClass") // some comment
+            abstract class Bar(val baz1: String, val baz2: String)
+            """.trimIndent()
+        classSignatureWrappingRuleAssertThat(code)
+            .setMaxLineLength()
+            .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
+            .hasNoLintViolations()
+    }
+
     private companion object {
         const val UNEXPECTED_SPACES = "  "
         const val NO_SPACE = ""
