@@ -261,6 +261,7 @@ internal class SuppressionLocator(
                 "RemoveCurlyBracesFromTemplate" to listOf("standard:string-template"),
                 "ClassName" to listOf("standard:class-naming"),
                 "FunctionName" to listOf("standard:function-naming"),
+                "LocalVariableName" to listOf("standard:backing-property-naming"),
                 "PackageName" to listOf("standard:package-name"),
                 "PropertyName" to listOf("standard:property-naming", "standard:backing-property-naming"),
                 "ConstPropertyName" to listOf("standard:property-naming"),
