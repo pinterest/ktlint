@@ -149,7 +149,8 @@ public class ClassSignatureRule :
                     currentNode = iterator.next()
                     if (currentNode.elementType != ANNOTATION &&
                         currentNode.elementType != ANNOTATION_ENTRY &&
-                        currentNode.elementType != WHITE_SPACE
+                        currentNode.elementType != WHITE_SPACE &&
+                        currentNode.elementType != EOL_COMMENT
                     ) {
                         return currentNode
                     }
