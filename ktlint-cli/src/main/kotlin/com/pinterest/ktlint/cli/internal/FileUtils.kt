@@ -296,7 +296,7 @@ private fun String?.expandDoubleStarPatterns(): Set<String> {
             // trailing "**" matches any file in the directory.
             // Given pattern "**/Test*/**" the file "src/Foo/TestFoo.kt" should not be matched, and file "src/TestFoo/FooTest.kt" is
             // matched. If the original pattern would be expanded with additional pattern "**/Test*" then both files would have been
-            //  matched.
+            // matched.
             it === parts.last()
         }.forEach { doubleStarPart ->
             run {
