@@ -1,7 +1,12 @@
 package com.pinterest.ktlint.cli.internal
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
+import com.pinterest.ktlint.logger.api.setDefaultLoggerModifier
 import com.pinterest.ktlint.test.KtlintTestFileSystem
+import io.github.oshai.kotlinlogging.DelegatingKLogger
+import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -15,7 +20,22 @@ import org.junit.jupiter.params.provider.ValueSource
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 
-private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
+private val LOGGER =
+    KotlinLogging
+        .logger {}
+        .setDefaultLoggerModifier { it.level = Level.TRACE }
+        .initKtLintKLogger()
+
+private var KLogger.level: Level?
+    get() = underlyingLogger()?.level
+    set(value) {
+        underlyingLogger()?.level = value
+    }
+
+private fun KLogger.underlyingLogger(): Logger? =
+    @Suppress("UNCHECKED_CAST")
+    (this as? DelegatingKLogger<Logger>)
+        ?.underlyingLogger
 
 /**
  * Tests for [fileSequence] method.
@@ -491,6 +511,25 @@ internal class FileUtilsTest {
                 ktFileRootDirectory,
                 ktsFileRootDirectory,
             )
+    }
+
+    @Test
+    fun `Issue 2781 - Given a glob containing a subdirectory matcher with wildcard, and ending with a double star then the subdirectory wildcard may not be used to match the filename`() {
+        val ktFileInProjectOutsideTargetedDirectory = "project1/src/TestFoo.kt"
+        val ktFileInProjectInsideTargetedDirectory = "project1/src/Foo/FooTest.kt"
+
+        ktlintTestFileSystem.createFile(ktFileInProjectOutsideTargetedDirectory)
+        ktlintTestFileSystem.createFile(ktFileInProjectInsideTargetedDirectory)
+
+        val foundFiles =
+            getFiles(
+                patterns = listOf("**/*Foo*/**"),
+                rootDir = ktlintTestFileSystem.resolve(ktFileInProjectRootDirectory).parent.toAbsolutePath(),
+            )
+
+        assertThat(foundFiles)
+            .containsExactlyInAnyOrder(ktFileInProjectInsideTargetedDirectory)
+            .doesNotContain(ktFileInProjectOutsideTargetedDirectory)
     }
 
     private fun KtlintTestFileSystem.createFile(fileName: String) =

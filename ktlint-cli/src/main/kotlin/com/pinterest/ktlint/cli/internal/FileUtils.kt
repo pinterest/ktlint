@@ -1,6 +1,11 @@
 package com.pinterest.ktlint.cli.internal
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
+import com.pinterest.ktlint.logger.api.setDefaultLoggerModifier
+import io.github.oshai.kotlinlogging.DelegatingKLogger
+import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.kotlin.util.prefixIfNot
 import java.io.File
@@ -20,7 +25,22 @@ import kotlin.io.path.pathString
 import kotlin.io.path.relativeToOrSelf
 import kotlin.system.measureTimeMillis
 
-private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
+private val LOGGER =
+    KotlinLogging
+        .logger {}
+        .setDefaultLoggerModifier { it.level = Level.TRACE }
+        .initKtLintKLogger()
+
+private var KLogger.level: Level?
+    get() = underlyingLogger()?.level
+    set(value) {
+        underlyingLogger()?.level = value
+    }
+
+private fun KLogger.underlyingLogger(): Logger? =
+    @Suppress("UNCHECKED_CAST")
+    (this as? DelegatingKLogger<Logger>)
+        ?.underlyingLogger
 
 private val ROOT_DIR_PATH: Path = Paths.get("").toAbsolutePath()
 
@@ -124,7 +144,7 @@ internal fun FileSystem.fileSequence(
                         if (negatedPathMatchers.none { it.matches(path) } &&
                             pathMatchers.any { it.matches(path) }
                         ) {
-                            LOGGER.trace { "- File: $path: Include" }
+                            LOGGER.trace { "- File: $path: Include as it matches patterns ${pathMatchers.filter { it.matches(path) }}" }
                             result.add(path)
                         } else {
                             LOGGER.trace { "- File: $path: Ignore" }
@@ -262,7 +282,7 @@ private fun FileSystem.toGlob(
 }
 
 /**
- * For each double star pattern in the path, create and additional path in which the double start pattern is removed.
+ * For each double star pattern in the path, create an additional path in which the double star pattern is removed.
  * In this way a pattern like some-directory/**/*.kt will match while files in some-directory or any of its
  * subdirectories.
  */
@@ -271,14 +291,21 @@ private fun String?.expandDoubleStarPatterns(): Set<String> {
     val parts = this?.split("/").orEmpty()
     parts
         .filter { it == "**" }
-        .forEach { doubleStarPart ->
+        .filterNot {
+            // When the pattern ends with a double star, it might not be expanded. According to the https://git-scm.com/docs/gitignore a
+            // trailing "**" matches any file in the directory.
+            // Given pattern "**/Test*/**" the file "src/Foo/TestFoo.kt" should not be matched, and file "src/TestFoo/FooTest.kt" is
+            // matched. If the original pattern would be expanded with additional pattern "**/Test*" then both files would have been
+            // matched.
+            it === parts.last()
+        }.forEach { doubleStarPart ->
             run {
+                // The original path can contain multiple double star patterns. Replace only one double star pattern
+                // with an additional path pattern and call recursively for remaining double star patterns
                 val expandedPath =
                     parts
                         .filter { it !== doubleStarPart }
                         .joinToString(separator = "/")
-                // The original path can contain multiple double star patterns. Replace only one double start pattern
-                // with an additional path pattern and call recursively for remain double star patterns
                 paths.addAll(expandedPath.expandDoubleStarPatterns())
             }
         }
