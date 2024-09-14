@@ -920,6 +920,11 @@ class ChainMethodContinuationRuleTest {
             fun foo(bar: FooBar.() -> Unit) {}
             """,
             """
+            fun foo(): Foo {
+                return dev.foo.p1.p2.Foo("bar")
+            }
+            """,
+            """
             /**
              * Some comment with [Foo.Bar] reference
              */
