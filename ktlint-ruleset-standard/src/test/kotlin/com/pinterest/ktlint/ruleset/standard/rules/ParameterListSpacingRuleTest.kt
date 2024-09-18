@@ -511,6 +511,16 @@ class ParameterListSpacingRuleTest {
             .isFormattedAs(formattedCode)
     }
 
+    @Test
+    fun `Issue 2794 - Given a single line function signature and the last parameter is followed by a trailing comma`() {
+        val code =
+            """
+            fun foo(bar: Int,) {
+            }
+            """.trimIndent()
+        parameterListSpacingRuleAssertThat(code).hasNoLintViolations()
+    }
+
     private companion object {
         const val TOO_MANY_SPACES = "  "
     }

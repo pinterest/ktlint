@@ -5,6 +5,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
@@ -107,10 +108,10 @@ public class ParameterListSpacingRule :
                 }
 
                 COMMA -> {
-                    // Comma must be followed by whitespace
+                    // Comma, except when it is the trailing comma, must be followed by whitespace
                     el
                         .nextLeaf()
-                        ?.takeIf { it.elementType != WHITE_SPACE }
+                        ?.takeUnless { it.elementType == WHITE_SPACE || it.elementType == RPAR }
                         ?.let { addMissingWhiteSpaceAfterMe(el, emit) }
                 }
 
