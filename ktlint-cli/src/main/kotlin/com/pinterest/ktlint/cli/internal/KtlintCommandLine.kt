@@ -3,6 +3,7 @@ package com.pinterest.ktlint.cli.internal
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.MutuallyExclusiveGroupException
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
@@ -67,51 +68,50 @@ import kotlin.system.exitProcess
 
 private lateinit var logger: KLogger
 
-internal class KtlintCommandLine :
-    CliktCommand(
-        name = "ktlint",
-        invokeWithoutSubcommand = true,
-        help =
-            """
-            An anti-bikeshedding Kotlin linter with built-in formatter.
-            (https://pinterest.github.io/ktlint/latest/).
+internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
+    override fun help(context: Context) =
+        """
+        An anti-bikeshedding Kotlin linter with built-in formatter.
+        (https://pinterest.github.io/ktlint/latest/).
 
-            Usage on Windows:
-              java -jar ktlint.jar  [<options>] [<arguments>]... <command> [<args>]...
+        Usage on Windows:
+          java -jar ktlint.jar  [<options>] [<arguments>]... <command> [<args>]...
 
-            # EXAMPLES
+        # EXAMPLES
 
-            ## Use default patterns
+        ## Use default patterns
 
-            Check the style of all Kotlin files (ending with '.kt' or '.kts') inside the current dir (recursively). Hidden folders will be skipped.
+        Check the style of all Kotlin files (ending with '.kt' or '.kts') inside the current dir (recursively). Hidden folders will be skipped.
 
-            `ktlint`
+        `ktlint`
 
-            ## Specify patterns
+        ## Specify patterns
 
-            Check only certain locations starting from the current directory.  Prepend ! to negate the pattern, KtLint uses .gitignore pattern style syntax. Globs are applied starting from the last one.
+        Check only certain locations starting from the current directory.  Prepend ! to negate the pattern, KtLint uses .gitignore pattern style syntax. Globs are applied starting from the last one.
 
-            Check all '.kt' files in 'src/' directory, but ignore files ending with 'Test.kt':
+        Check all '.kt' files in 'src/' directory, but ignore files ending with 'Test.kt':
 
-            `ktlint "src/**/*.kt" "!src/**/*Test.kt"`
+        `ktlint "src/**/*.kt" "!src/**/*Test.kt"`
 
-            Check all '.kt' files in 'src/' directory, but ignore 'generated' directory and its subdirectories:
+        Check all '.kt' files in 'src/' directory, but ignore 'generated' directory and its subdirectories:
 
-            `ktlint "src/**/*.kt" "!src/**/generated/**"`
+        `ktlint "src/**/*.kt" "!src/**/generated/**"`
 
-            ## Auto-correct style violations
+        ## Auto-correct style violations
 
-            Check all '.kt' files in 'src/' directory, and when possible automatically correct the lint violations:
+        Check all '.kt' files in 'src/' directory, and when possible automatically correct the lint violations:
 
-            `ktlint -F "src/**/*.kt"`
+        `ktlint -F "src/**/*.kt"`
 
-            ## Using custom reporter jar and overriding report location
+        ## Using custom reporter jar and overriding report location
 
-            `ktlint --reporter=csv,artifact=/path/to/reporter/csv.jar,output=my-custom-report.csv`
+        `ktlint --reporter=csv,artifact=/path/to/reporter/csv.jar,output=my-custom-report.csv`
 
-            # Options and commands
-            """.trimIndent(),
-    ) {
+        # Options and commands
+        """.trimIndent()
+
+    override val invokeWithoutSubcommand = true
+
     init {
         versionOption(KtlintVersionProvider().version, names = setOf("-v", "--version"))
     }

@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.cli.internal
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.enum
@@ -14,11 +15,10 @@ import java.nio.file.Paths
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
-internal class GenerateEditorConfigSubCommand :
-    CliktCommand(
-        name = "generateEditorConfig",
-        help = "Generate kotlin style section for '.editorconfig' file. Output should be copied manually to the '.editorconfig' file.",
-    ) {
+internal class GenerateEditorConfigSubCommand : CliktCommand(name = "generateEditorConfig") {
+    override fun help(context: Context) =
+        "Generate kotlin style section for '.editorconfig' file. Output should be copied manually to the '.editorconfig' file."
+
     // No default value is set as users should explicitly choose one of the code styles. In this way, it is more clear that the generated
     // content is determined by the chosen value. If a default (ktlint_official) is set, and the user has not specified the code style, the
     // user might not be aware that the value of the other properties are dependent on the code style.

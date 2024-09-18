@@ -3,7 +3,7 @@ package com.pinterest.ktlint.cli.internal
 internal class GitPrePushHookSubCommand :
     GitHookCliktCommand(
         name = "installGitPrePushHook",
-        help = "Install git hook to automatically check files for style violations before push",
+        helpText = "Install git hook to automatically check files for style violations before push",
     ) {
     override fun run() {
         installGitHook(gitHookName = "pre-push") {
