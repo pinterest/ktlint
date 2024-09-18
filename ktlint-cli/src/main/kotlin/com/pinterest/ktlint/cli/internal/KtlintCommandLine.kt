@@ -508,6 +508,11 @@ internal class KtlintCommandLine :
                             }
                         } ?: NO_AUTOCORRECT
                 }.also { formattedFileContent ->
+                    if (ktlintCliErrors.isNotEmpty() && code.content == formattedFileContent) {
+                        // In very rare cases it is possible that Lint violations are detected but that they have opposite effects and the
+                        // file gets not altered at all. This is to be treated as unfixable error.
+                        containsUnfixedLintErrors.set(true)
+                    }
                     if (forceLintAfterFormat && code.content != formattedFileContent) {
                         // Rerun lint to check that the formatted code can still be successfully parsed.
                         try {
@@ -721,7 +726,7 @@ internal class KtlintCommandLine :
                         q.put(executorService.submit(task))
                     }
                     q.put(pill)
-                } catch (e: InterruptedException) {
+                } catch (_: InterruptedException) {
                     // we've been asked to stop consuming sequence
                 } finally {
                     executorService.shutdown()
