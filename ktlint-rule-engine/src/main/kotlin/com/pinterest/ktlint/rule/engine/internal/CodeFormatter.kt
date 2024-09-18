@@ -49,19 +49,34 @@ internal class CodeFormatter(
         maxFormatRunsPerFile: Int,
     ): Pair<String, Set<Pair<LintError, Boolean>>> {
         with(RuleExecutionContext.createRuleExecutionContext(ktLintRuleEngine, code)) {
+            val lineSeparator = code.determineLineSeparator(editorConfig[END_OF_LINE_PROPERTY])
+            var codeContent = formattedCode(lineSeparator)
             val errors = mutableSetOf<Pair<LintError, Boolean>>()
             var formatRunCount = 0
-            var mutated: Boolean
+            var mutated: Boolean = false
             do {
-                mutated =
-                    format(autocorrectHandler, code).let { ruleErrors ->
-                        errors.addAll(ruleErrors)
-                        // Check if at least one error can be autocorrected, and fixing this error has been approved by the autocorrect
-                        // handler
-                        ruleErrors.any { it.first.canBeAutoCorrected && it.second }
+                val newErrors = format(autocorrectHandler, code)
+                errors.addAll(newErrors)
+                if (newErrors.none { it.first.canBeAutoCorrected && it.second }) {
+                    // No errors found which can and may be autocorrected
+                    break
+                }
+
+                // Check if the code has actually been mutated. Note: do not use the ruleErrors to determine this. In rare cases it is
+                // possible that multiple rule errors negate each other and the code is eventually unchanged.
+                val updatedCodeContent = formattedCode(lineSeparator)
+                if (updatedCodeContent == codeContent) {
+                    // Lint violations were found, but the file has not been changed.
+                    LOGGER.warn {
+                        "Format was not able to resolve all violations which (theoretically) can be autocorrected in file " +
+                            code.filePathOrStdin()
                     }
+                    break
+                }
+                codeContent = updatedCodeContent
+                mutated = true
                 formatRunCount++
-            } while (mutated && formatRunCount < maxFormatRunsPerFile)
+            } while (formatRunCount < maxFormatRunsPerFile)
             if (mutated && formatRunCount == maxFormatRunsPerFile && autocorrectHandler !is NoneAutocorrectHandler) {
                 // It is unknown if the last format run introduces new lint violations which can be autocorrected. So run lint once more
                 // so that the user can be informed about this correctly.
@@ -72,8 +87,7 @@ internal class CodeFormatter(
                     }
                 }
             }
-            return if (mutated || formatRunCount > 1) {
-                val lineSeparator = code.determineLineSeparator(editorConfig[END_OF_LINE_PROPERTY])
+            return if (mutated) {
                 Pair(formattedCode(lineSeparator), errors)
             } else {
                 // None of the format runs has found
