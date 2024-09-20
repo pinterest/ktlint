@@ -108,7 +108,6 @@ public class ModifierOrderRule : StandardRule("modifier-order") {
                 OPERATOR_KEYWORD,
                 DATA_KEYWORD,
                 // NOINLINE_KEYWORD, CROSSINLINE_KEYWORD, OUT_KEYWORD, IN_KEYWORD, REIFIED_KEYWORD
-                // HEADER_KEYWORD, IMPL_KEYWORD
             )
         private val tokenSet = TokenSet.create(*ORDERED_MODIFIERS)
     }
