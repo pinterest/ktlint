@@ -18,7 +18,7 @@ kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.
 kotlin-plugin-dev = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlinDev" }
 clikt = "com.github.ajalt.clikt:clikt:4.4.0"
 dokka = "org.jetbrains.dokka:dokka-gradle-plugin:1.9.20"
-ec4j = "org.ec4j.core:ec4j-core:0.3.0"
+ec4j = "org.ec4j.core:ec4j-core:1.0.0"
 logging = "io.github.oshai:kotlin-logging-jvm:7.0.0"
 slf4j = "org.slf4j:slf4j-simple:2.0.16"
 poko = "dev.drewhamilton.poko:poko-gradle-plugin:0.17.1"
