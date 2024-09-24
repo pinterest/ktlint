@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.cli.internal
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.Context
 import java.io.File
 import java.io.IOException
 import java.math.BigInteger
@@ -11,8 +12,10 @@ private const val DEFAULT_GIT_HOOKS_DIR = "hooks"
 
 internal abstract class GitHookCliktCommand(
     name: String,
-    help: String,
-) : CliktCommand(name = name, help = help) {
+    val helpText: String,
+) : CliktCommand(name = name) {
+    override fun help(context: Context) = helpText
+
     fun installGitHook(
         gitHookName: String,
         hookContentProvider: () -> ByteArray,

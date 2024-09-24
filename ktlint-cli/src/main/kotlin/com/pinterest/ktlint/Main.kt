@@ -2,6 +2,7 @@
 
 package com.pinterest.ktlint
 
+import com.github.ajalt.clikt.core.main
 import com.github.ajalt.clikt.core.subcommands
 import com.pinterest.ktlint.cli.internal.GenerateEditorConfigSubCommand
 import com.pinterest.ktlint.cli.internal.GitPreCommitHookSubCommand
