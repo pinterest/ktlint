@@ -1374,6 +1374,82 @@ class FunctionSignatureRuleTest {
             .isFormattedAs(formattedCode)
     }
 
+    @Nested
+    inner class `Issue 2800 - Given a function signature with a context receiver` {
+        @Test
+        fun `Issue 2800 - Given context receiver on a separate line then ignore the context receiver before rewriting the signature`() {
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER           $EOL_CHAR
+                context(Foo)
+                fun barrrrrrrrrrrrrr(string: String) {
+                   println(string)
+                }
+                """.trimIndent()
+            functionSignatureWrappingRuleAssertThat(code)
+                .setMaxLineLength()
+                .hasNoLintViolations()
+        }
+
+        @Test
+        fun `Issue 2800 - Given context receiver on a separate line, followed by a comment on separate line then ignore the context receiver and comment before rewriting the signature`() {
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER           $EOL_CHAR
+                context(Foo)
+                // some comment
+                fun barrrrrrrrrrrrrr(string: String) {
+                   println(string)
+                }
+                """.trimIndent()
+            functionSignatureWrappingRuleAssertThat(code)
+                .setMaxLineLength()
+                .hasNoLintViolations()
+        }
+
+        @Test
+        fun `Issue 2800 - Given context receiver on a separate line, followed by an EOL comment then ignore the context receiver and comment before rewriting the signature`() {
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER           $EOL_CHAR
+                context(Foo) // some comment
+                fun barrrrrrrrrrrrrr(string: String) {
+                   println(string)
+                }
+                """.trimIndent()
+            functionSignatureWrappingRuleAssertThat(code)
+                .setMaxLineLength()
+                .hasNoLintViolations()
+        }
+
+        @Test
+        fun `Issue 2800 - Given context receiver on same line then take the context receiver into account when rewriting the signature`() {
+            // Normally the
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER          $EOL_CHAR
+                context(Foo) fun bar(string: String) {
+                   println(string)
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                // $MAX_LINE_LENGTH_MARKER          $EOL_CHAR
+                context(Foo) fun bar(
+                    string: String
+                ) {
+                   println(string)
+                }
+                """.trimIndent()
+            functionSignatureWrappingRuleAssertThat(code)
+                .setMaxLineLength()
+                .hasLintViolations(
+                    LintViolation(2, 22, "Newline expected after opening parenthesis"),
+                    LintViolation(2, 36, "Newline expected before closing parenthesis"),
+                ).isFormattedAs(formattedCode)
+        }
+    }
+
     private companion object {
         const val UNEXPECTED_SPACES = "  "
         const val NO_SPACE = ""
