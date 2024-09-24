@@ -187,11 +187,9 @@ public final class com/pinterest/ktlint/rule/engine/core/api/ElementType {
 	public final fun getGT ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
 	public final fun getGTEQ ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
 	public final fun getHASH ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
-	public final fun getHEADER_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
 	public final fun getIDENTIFIER ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
 	public final fun getIF ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
 	public final fun getIF_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
-	public final fun getIMPL_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
 	public final fun getIMPORT_ALIAS ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
 	public final fun getIMPORT_DIRECTIVE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
 	public final fun getIMPORT_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
