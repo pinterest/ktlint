@@ -1132,4 +1132,54 @@ class ChainMethodContinuationRuleTest {
             .withEditorConfigOverride(FORCE_MULTILINE_WHEN_CHAIN_OPERATOR_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
             .hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 2797 - Given a chained method call then only wrap when it contains multiple call expressions`() {
+        val code =
+            """
+            val foo1 = foo.bar.baz.FooBarBaz()
+            val foo2 = foo.bar.baz.FooBarBaz().foo()
+            val foo3 = foo.bar.baz.FooBarBaz().foo.filter { it == "foo" }
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo1 = foo.bar.baz.FooBarBaz()
+            val foo2 = foo.bar.baz
+                .FooBarBaz()
+                .foo()
+            val foo3 = foo.bar.baz
+                .FooBarBaz()
+                .foo
+                .filter { it == "foo" }
+            """.trimIndent()
+        chainMethodContinuationRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 23, "Expected newline before '.'"),
+                LintViolation(2, 35, "Expected newline before '.'"),
+                LintViolation(3, 23, "Expected newline before '.'"),
+                LintViolation(3, 35, "Expected newline before '.'"),
+                LintViolation(3, 39, "Expected newline before '.'"),
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 2797 - Given a chained method call with a single call expressions exceeding max line length then wrap`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER       $EOL_CHAR
+            val foo1 = foo.bar.baz.FooBarBaz()
+            val foo2 = foo.bar.baz.FooBarBazz()
+            """.trimIndent()
+        val formattedCode =
+            """
+            // $MAX_LINE_LENGTH_MARKER       $EOL_CHAR
+            val foo1 = foo.bar.baz.FooBarBaz()
+            val foo2 = foo.bar.baz
+                .FooBarBazz()
+            """.trimIndent()
+        chainMethodContinuationRuleAssertThat(code)
+            .setMaxLineLength()
+            .hasLintViolation(3, 23, "Expected newline before '.'")
+            .isFormattedAs(formattedCode)
+    }
 }

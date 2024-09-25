@@ -235,7 +235,7 @@ In a multiline method chain, the chain operators (`.` or `?.`) have to be aligne
 
 Multiple chained methods on a single line are allowed as long as the maximum line length, and the maximum number of chain operators are not exceeded. Under certain conditions, it is allowed that the expression before the first and/or the expression after the last chain operator is a multiline expression.
 
-The `.` in `java.class` is ignored when wrapping on chain operators.
+The `.` in `java.class` is ignored when wrapping on chain operators. The package identifiers in a method chain containing only one call expression (e.g. a constructor or method call) are being ignored as long as the entire chain fits on a single line.
 
 !!! warning
     A binary expression for which the left and/or right operand consist of a method chain are currently being ignored by this rule. Please reach out, if you can help to determine what the best strategy is to deal with such kind of expressions.
@@ -269,6 +269,9 @@ The `.` in `java.class` is ignored when wrapping on chain operators.
         """
         Some text
         """.trimIndent().foo().bar()
+    // Assume that the last allowed character is
+    // at the X character on the right           X
+    val foo5 = foo.bar.baz.foo.bar.baz.FooBarBaz()
     ```
 
 === "[:material-heart-off-outline:](#) Disallowed"
@@ -305,6 +308,9 @@ The `.` in `java.class` is ignored when wrapping on chain operators.
         Some text
         """.trimIndent().foo()
             .bar()
+    // Assume that the last allowed character is
+    // at the X character on the right          X
+    val foo5 = foo.bar.baz.foo.bar.baz.FooBarBaz()
     ```
 
 | Configuration setting                                                                                                                                                                                                                                                                                                                                                                                  | ktlint_official | intellij_idea | android_studio |

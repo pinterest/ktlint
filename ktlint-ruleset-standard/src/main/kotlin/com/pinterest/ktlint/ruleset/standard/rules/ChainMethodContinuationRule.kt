@@ -197,6 +197,12 @@ public class ChainMethodContinuationRule :
                 false
             }
 
+            chainOperators.count { it.nextSibling()?.elementType == CALL_EXPRESSION } <= 1 -> {
+                // Allow:
+                //     foo.bar.bar.foo.bar.baz.Foo()
+                false
+            }
+
             !hasNewlineBeforeFirstChainOperator && !hasNewlineAfterLastChainOperator -> {
                 // Allow:
                 //     listOf(1, 2, 3).filter { it > 2 }.filter { it > 3 }
