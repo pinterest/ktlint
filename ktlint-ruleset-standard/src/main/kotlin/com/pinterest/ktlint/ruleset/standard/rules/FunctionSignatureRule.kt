@@ -7,6 +7,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK_COMMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONTEXT_RECEIVER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EQ
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
@@ -42,6 +43,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
@@ -76,6 +78,9 @@ public class FunctionSignatureRule :
                 //        bar /* some comment */: Bar
                 //     )
                 VisitorModifier.RunAfterRule(VALUE_PARAMETER_COMMENT_RULE_ID, REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED),
+                // Disallow context receiver on same line a fun keyword
+                //     context(Foo) fun bar(string: String) {}
+                VisitorModifier.RunAfterRule(CONTEXT_RECEIVER_WRAPPING_RULE_ID, REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED),
                 // Run after wrapping and spacing rules
                 VisitorModifier.RunAsLateAsPossible,
             ),
@@ -169,6 +174,16 @@ public class FunctionSignatureRule :
                 }
                 return modifierList.nextCodeSibling()
             }
+        // Ignore the context receiver in case it is followed by a newline or EOL-comment. Note that when the ContextReceiverWrapping rule
+        // is disabled, it is possible that context receiver and fun keyword are kept on same line
+        funNode
+            ?.findChildByType(CONTEXT_RECEIVER_LIST)
+            ?.nextSibling()
+            ?.takeIf { it.isWhiteSpaceWithNewline() || it.elementType == EOL_COMMENT }
+            ?.let { nextSibling ->
+                return nextSibling.nextCodeSibling()
+            }
+
         return funNode.nextCodeLeaf()
     }
 
