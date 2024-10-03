@@ -263,71 +263,47 @@ class NoUnusedImportsRuleTest {
     }
 
     @Test
-    fun `Given some unnecessary imports`() {
+    fun `Issue 2821 - Given some imports from the same package then do not remove the imports for which the fully qualified path is identical to the package`() {
         val code =
             """
-            import C0 as C0X
-            import C1
-            import C1 as C1X
-            import `C2`
-            import `C2` as C2X
-            import C3.method
+            package foo
 
-            fun main() {
-                println(C0X, C1, C1X, C2, C2X, method)
-            }
+            import foo.Bar
+            import foo.bar.Bar
+
+            fun main() {}
             """.trimIndent()
         val formattedCode =
             """
-            import C0 as C0X
-            import C1 as C1X
-            import `C2` as C2X
-            import C3.method
+            package foo
 
-            fun main() {
-                println(C0X, C1, C1X, C2, C2X, method)
-            }
+            import foo.Bar
+
+            fun main() {}
             """.trimIndent()
         noUnusedImportsRuleAssertThat(code)
-            .hasLintViolations(
-                LintViolation(2, 1, "Unnecessary import"),
-                LintViolation(4, 1, "Unnecessary import"),
-            ).isFormattedAs(formattedCode)
+            .hasLintViolation(4, 1, "Unused import")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
-    fun `Given some unused imports from the same package`() {
+    fun `Issue 2821 - Given no package and an import without fully qualified path then do not remove the imports without fully qualified path as it is identical to the package`() {
         val code =
             """
-            package p
+            import Bar
+            import foo.Bar
 
-            import p.C1
-            import p.C1 as C1X
-            import p.`C2`
-            import p.`C2` as C2X
-            import p.C3.method
-
-            fun main() {
-                println(C1, C1X, C2, C2X, method)
-            }
+            fun main() {}
             """.trimIndent()
         val formattedCode =
             """
-            package p
+            import Bar
 
-            import p.C1 as C1X
-            import p.`C2` as C2X
-            import p.C3.method
-
-            fun main() {
-                println(C1, C1X, C2, C2X, method)
-            }
+            fun main() {}
             """.trimIndent()
         noUnusedImportsRuleAssertThat(code)
-            .hasLintViolations(
-                LintViolation(3, 1, "Unnecessary import"),
-                LintViolation(5, 1, "Unnecessary import"),
-            ).isFormattedAs(formattedCode)
+            .hasLintViolation(2, 1, "Unused import")
+            .isFormattedAs(formattedCode)
     }
 
     @Test

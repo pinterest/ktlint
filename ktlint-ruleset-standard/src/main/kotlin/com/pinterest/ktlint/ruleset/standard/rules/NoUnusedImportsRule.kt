@@ -154,10 +154,9 @@ public class NoUnusedImportsRule :
                     (packageName.isEmpty() || importPath.startsWith("$packageName.")) &&
                     importPath.substring(packageName.length + 1).indexOf('.') == -1
                 ) {
-                    emit(node.startOffset, "Unnecessary import", true)
-                        .ifAutocorrectAllowed {
-                            importDirective.delete()
-                        }
+                    // Allow imports without alias for which the fully qualified path is equal to the package name. See
+                    // https://github.com/pinterest/ktlint/issues/2821 for an example in which marking an import from the same package
+                    // led to compile failure.
                 } else if (name != null &&
                     (!ref.map { it.text }.contains(name) || !isAValidImport(importPath)) &&
                     !OPERATOR_SET.contains(name) &&
