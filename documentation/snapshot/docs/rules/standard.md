@@ -758,7 +758,7 @@ Enforces the parameters of a function literal and the arrow to be written on the
 
 If the function literal contains multiple parameters and at least one parameter other than the first parameter starts on a new line than all parameters and the arrow are wrapped to separate lines.
 
-=== "[:material-heart:](#) Ktlint"
+=== "[:material-heart:](#) Ktlint (ktlint_official)"
 
     ```kotlin
     val foobar1 = { foo + bar }
@@ -777,6 +777,27 @@ If the function literal contains multiple parameters and at least one parameter 
     val foobar5 = { foo: Foo, bar: Bar -> foo + bar }
     val foobar6 =
         {
+            foo: Foo,
+            bar: Bar,
+            ->
+            foo + bar
+        }
+    
+    // Assume that the last allowed character is
+    // at the X character on the right           X
+    val foobar7 =
+        barrrrrrrrrrrrrr { 
+            fooooooooooooooo: Foo
+            ->
+            foo.repeat(2)
+        }
+    ```
+
+=== "[:material-heart:](#) Ktlint (non ktlint_official)"
+
+    ```kotlin
+    val foobar6 =
+        {
                 foo: Foo,
                 bar: Bar,
             ->
@@ -787,7 +808,7 @@ If the function literal contains multiple parameters and at least one parameter 
     // at the X character on the right           X
     val foobar7 =
         barrrrrrrrrrrrrr { 
-              fooooooooooooooo: Foo
+                fooooooooooooooo: Foo
             ->
             foo.repeat(2)
         }
