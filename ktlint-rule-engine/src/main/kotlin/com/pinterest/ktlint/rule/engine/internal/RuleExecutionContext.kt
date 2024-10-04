@@ -196,9 +196,9 @@ internal class RuleExecutionContext private constructor(
     @Deprecated(message = "Remove in Ktlint 2.0")
     private fun ((offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision).onlyEmit() =
         {
-                offset: Int,
-                errorMessage: String,
-                canBeAutoCorrected: Boolean,
+            offset: Int,
+            errorMessage: String,
+            canBeAutoCorrected: Boolean,
             ->
             this(offset, errorMessage, canBeAutoCorrected)
             Unit

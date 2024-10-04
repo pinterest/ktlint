@@ -197,9 +197,9 @@ class ParameterListWrappingRuleTest {
                 """
                 val fieldExample =
                     LongNameClass {
-                            paramA,
-                            paramB,
-                            paramC ->
+                        paramA,
+                        paramB,
+                        paramC ->
                         ClassB(paramA, paramB, paramC)
                     }
                 """.trimIndent()

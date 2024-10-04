@@ -449,14 +449,14 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             """
             val fooBar1: (Int, Int) -> Int = { foo, bar, -> foo * bar }
             val fooBar2: (Int, Int) -> Int = {
-                    foo,
-                    bar, // The comma before the comment should be removed without removing the comment itself
+                foo,
+                bar, // The comma before the comment should be removed without removing the comment itself
                 ->
                 foo * bar
             }
             val fooBar3: (Int, Int) -> Int = {
-                    foo,
-                    bar, /* The comma before the comment should be removed without removing the comment itself */
+                foo,
+                bar, /* The comma before the comment should be removed without removing the comment itself */
                 ->
                 foo * bar
             }
@@ -465,14 +465,14 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             """
             val fooBar1: (Int, Int) -> Int = { foo, bar -> foo * bar }
             val fooBar2: (Int, Int) -> Int = {
-                    foo,
-                    bar // The comma before the comment should be removed without removing the comment itself
+                foo,
+                bar // The comma before the comment should be removed without removing the comment itself
                 ->
                 foo * bar
             }
             val fooBar3: (Int, Int) -> Int = {
-                    foo,
-                    bar /* The comma before the comment should be removed without removing the comment itself */
+                foo,
+                bar /* The comma before the comment should be removed without removing the comment itself */
                 ->
                 foo * bar
             }
@@ -481,8 +481,8 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to false)
             .hasLintViolations(
                 LintViolation(1, 44, "Unnecessary trailing comma before \"->\""),
-                LintViolation(4, 12, "Unnecessary trailing comma before \"->\""),
-                LintViolation(10, 12, "Unnecessary trailing comma before \"->\""),
+                LintViolation(4, 8, "Unnecessary trailing comma before \"->\""),
+                LintViolation(10, 8, "Unnecessary trailing comma before \"->\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -492,14 +492,14 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             """
             val fooBar1: (Int, Int) -> Int = { foo, bar -> foo * bar }
             val fooBar2: (Int, Int) -> Int = {
-                    foo,
-                    bar // The comma should be inserted before the comment
+                foo,
+                bar // The comma should be inserted before the comment
                 ->
                 foo * bar
             }
             val fooBar3: (Int, Int) -> Int = {
-                    foo,
-                    bar /* The comma should be inserted before the comment */
+                foo,
+                bar /* The comma should be inserted before the comment */
                 ->
                 foo * bar
             }
@@ -508,14 +508,14 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             """
             val fooBar1: (Int, Int) -> Int = { foo, bar -> foo * bar }
             val fooBar2: (Int, Int) -> Int = {
-                    foo,
-                    bar, // The comma should be inserted before the comment
+                foo,
+                bar, // The comma should be inserted before the comment
                 ->
                 foo * bar
             }
             val fooBar3: (Int, Int) -> Int = {
-                    foo,
-                    bar, /* The comma should be inserted before the comment */
+                foo,
+                bar, /* The comma should be inserted before the comment */
                 ->
                 foo * bar
             }
@@ -523,8 +523,8 @@ class TrailingCommaOnDeclarationSiteRuleTest {
         trailingCommaOnDeclarationSiteRuleAssertThat(code)
             .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
             .hasLintViolations(
-                LintViolation(4, 12, "Missing trailing comma before \"->\""),
-                LintViolation(10, 12, "Missing trailing comma before \"->\""),
+                LintViolation(4, 8, "Missing trailing comma before \"->\""),
+                LintViolation(10, 8, "Missing trailing comma before \"->\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -1047,23 +1047,23 @@ class TrailingCommaOnDeclarationSiteRuleTest {
         val code =
             """
             val foo = {
-                    string: String,
-                    int: Int ->
+                string: String,
+                int: Int ->
                 // do something
             }
             """.trimIndent()
         val formattedCode =
             """
             val foo = {
-                    string: String,
-                    int: Int,
+                string: String,
+                int: Int,
                 ->
                 // do something
             }
             """.trimIndent()
         trailingCommaOnDeclarationSiteRuleAssertThat(code)
             .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
-            .hasLintViolation(3, 17, "Missing trailing comma and newline before \"->\"")
+            .hasLintViolation(3, 13, "Missing trailing comma and newline before \"->\"")
             .isFormattedAs(formattedCode)
     }
 }
