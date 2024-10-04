@@ -35,6 +35,7 @@ import com.pinterest.ktlint.rule.engine.core.util.cast
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.PropertyType.PropertyValueParser
+import org.jetbrains.kotlin.KtNodeTypes.WHEN_ENTRY_GUARD
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
@@ -257,7 +258,13 @@ public class TrailingCommaOnDeclarationSiteRule :
         val trailingCommaNode = prevLeaf?.findPreviousTrailingCommaNodeOrNull()
         val trailingCommaState =
             when {
+                hasWhenGuard() -> {
+                    // The compiler won't allow any comma in the when-entry in case it contains a guard clause
+                    TrailingCommaState.NOT_EXISTS
+                }
+
                 isMultiline(psi) -> if (trailingCommaNode != null) TrailingCommaState.EXISTS else TrailingCommaState.MISSING
+
                 else -> if (trailingCommaNode != null) TrailingCommaState.REDUNDANT else TrailingCommaState.NOT_EXISTS
             }
         when (trailingCommaState) {
@@ -424,6 +431,8 @@ public class TrailingCommaOnDeclarationSiteRule :
             }
         return codeLeaf?.takeIf { it.elementType == COMMA }
     }
+
+    private fun ASTNode.hasWhenGuard() = elementType == WHEN_ENTRY && children().any { it.elementType == WHEN_ENTRY_GUARD }
 
     private fun containsLineBreakInLeavesRange(
         from: PsiElement,

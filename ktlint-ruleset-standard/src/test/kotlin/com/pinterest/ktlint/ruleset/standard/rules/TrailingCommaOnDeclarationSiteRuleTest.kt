@@ -1066,4 +1066,28 @@ class TrailingCommaOnDeclarationSiteRuleTest {
             .hasLintViolation(3, 17, "Missing trailing comma and newline before \"->\"")
             .isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Issue 2817 - Given when condition with guard clause`() {
+        val code =
+            """
+            val x1 =
+                when (true) {
+                    true if foo("a") -> true
+                    else -> false
+                }
+            val x2 =
+                when (true) {
+                    true if foo(
+                        "a",
+                    )
+                    -> true
+
+                    else -> false
+                }
+            """.trimIndent()
+        trailingCommaOnDeclarationSiteRuleAssertThat(code)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
+            .hasNoLintViolations()
+    }
 }
