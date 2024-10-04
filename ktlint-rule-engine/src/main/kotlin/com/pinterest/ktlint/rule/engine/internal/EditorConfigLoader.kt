@@ -61,6 +61,7 @@ internal class EditorConfigLoader(
             createResourcePropertiesService(editorConfigLoaderEc4j.editorConfigLoader, editorConfigDefaults)
                 .queryProperties(editorConfigPath.resource())
                 .properties
+                .toMutableMap()
         return editorConfigProperties
             .also { properties ->
                 if (properties[TAB_WIDTH_PROPERTY_NAME]?.sourceValue == properties[INDENT_SIZE_PROPERTY.name]?.sourceValue &&
