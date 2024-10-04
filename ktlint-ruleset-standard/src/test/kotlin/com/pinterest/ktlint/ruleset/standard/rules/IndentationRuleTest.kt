@@ -2603,35 +2603,75 @@ internal class IndentationRuleTest {
         indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
-    @Test
-    fun `Given an incorrectly indented lambda block`() {
-        val code =
-            """
-            fun main() {
-                foo.func {
-                    param1, param2 ->
+    @Nested
+    inner class `Given an incorrectly indented lambda block` {
+        @Test
+        fun `Issue 2816 - Given ktlint_official code style`() {
+            val code =
+                """
+                fun main() {
+                    foo.func {
+                        param1, param2 ->
+                            doSomething()
+                            doSomething2()
+                        }
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun main() {
+                    foo.func {
+                        param1, param2 ->
                         doSomething()
                         doSomething2()
                     }
-            }
-            """.trimIndent()
-        val formattedCode =
-            """
-            fun main() {
-                foo.func {
-                        param1, param2 ->
-                    doSomething()
-                    doSomething2()
                 }
-            }
-            """.trimIndent()
-        indentationRuleAssertThat(code)
-            .hasLintViolations(
-                LintViolation(3, 1, "Unexpected indentation (8) (should be 12)"),
-                LintViolation(4, 1, "Unexpected indentation (12) (should be 8)"),
-                LintViolation(5, 1, "Unexpected indentation (12) (should be 8)"),
-                LintViolation(6, 1, "Unexpected indentation (8) (should be 4)"),
-            ).isFormattedAs(formattedCode)
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .hasLintViolations(
+                    LintViolation(4, 1, "Unexpected indentation (12) (should be 8)"),
+                    LintViolation(5, 1, "Unexpected indentation (12) (should be 8)"),
+                    LintViolation(6, 1, "Unexpected indentation (8) (should be 4)"),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @ParameterizedTest(name = "Code style: {0}")
+        @EnumSource(
+            value = CodeStyleValue::class,
+            mode = EnumSource.Mode.EXCLUDE,
+            names = ["ktlint_official"],
+        )
+        fun `Given code style other than 'ktlint_official'`(codeStyleValue: CodeStyleValue) {
+            val code =
+                """
+                fun main() {
+                    foo.func {
+                        param1, param2 ->
+                            doSomething()
+                            doSomething2()
+                        }
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun main() {
+                    foo.func {
+                            param1, param2 ->
+                        doSomething()
+                        doSomething2()
+                    }
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyleValue)
+                .hasLintViolations(
+                    LintViolation(3, 1, "Unexpected indentation (8) (should be 12)"),
+                    LintViolation(4, 1, "Unexpected indentation (12) (should be 8)"),
+                    LintViolation(5, 1, "Unexpected indentation (12) (should be 8)"),
+                    LintViolation(6, 1, "Unexpected indentation (8) (should be 4)"),
+                ).isFormattedAs(formattedCode)
+        }
     }
 
     @Test
@@ -3964,27 +4004,27 @@ internal class IndentationRuleTest {
         val code =
             """
             val foo1: (String) -> String = { // Some comment which should not be moved to the next line when formatting
-                s: String
+                    s: String
                 ->
                 // does something with string
             }
 
             val foo2: (String) -> String = {
-                // Some comment which has to be indented with the parameter list
-                s: String
+                    // Some comment which has to be indented with the parameter list
+                    s: String
                 ->
                 // does something with string
             }
 
             val foo3 = { // Some comment which should not be moved to the next line when formatting
-                s: String,
+                    s: String,
                 ->
                 // does something with string
             }
 
             val foo4 = {
-                // Some comment which has to be indented with the parameter list
-                s: String,
+                    // Some comment which has to be indented with the parameter list
+                    s: String,
                 ->
                 // does something with string
             }
@@ -3992,60 +4032,45 @@ internal class IndentationRuleTest {
         val formattedCode =
             """
             val foo1: (String) -> String = { // Some comment which should not be moved to the next line when formatting
-                    s: String
+                s: String
                 ->
                 // does something with string
             }
 
             val foo2: (String) -> String = {
-                    // Some comment which has to be indented with the parameter list
-                    s: String
+                // Some comment which has to be indented with the parameter list
+                s: String
                 ->
                 // does something with string
             }
 
             val foo3 = { // Some comment which should not be moved to the next line when formatting
-                    s: String,
+                s: String,
                 ->
                 // does something with string
             }
 
             val foo4 = {
-                    // Some comment which has to be indented with the parameter list
-                    s: String,
+                // Some comment which has to be indented with the parameter list
+                s: String,
                 ->
                 // does something with string
             }
             """.trimIndent()
         indentationRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(2, 1, "Unexpected indentation (4) (should be 8)"),
-                LintViolation(8, 1, "Unexpected indentation (4) (should be 8)"),
-                LintViolation(9, 1, "Unexpected indentation (4) (should be 8)"),
-                LintViolation(15, 1, "Unexpected indentation (4) (should be 8)"),
-                LintViolation(21, 1, "Unexpected indentation (4) (should be 8)"),
-                LintViolation(22, 1, "Unexpected indentation (4) (should be 8)"),
+                LintViolation(2, 1, "Unexpected indentation (8) (should be 4)"),
+                LintViolation(8, 1, "Unexpected indentation (8) (should be 4)"),
+                LintViolation(9, 1, "Unexpected indentation (8) (should be 4)"),
+                LintViolation(15, 1, "Unexpected indentation (8) (should be 4)"),
+                LintViolation(21, 1, "Unexpected indentation (8) (should be 4)"),
+                LintViolation(22, 1, "Unexpected indentation (8) (should be 4)"),
             ).isFormattedAs(formattedCode)
     }
 
     @Test
     fun `Issue 1247 - Given a function literal with single value parameter`() {
         val code =
-            """
-            val foo1: (String) -> String = {
-                s: String
-                ->
-                // does something with string
-            }
-
-            val foo2 = {
-                // Trailing comma on last element is allowed and does not have effect
-                s: String,
-                ->
-                // does something with string
-            }
-            """.trimIndent()
-        val formattedCode =
             """
             val foo1: (String) -> String = {
                     s: String
@@ -4060,34 +4085,32 @@ internal class IndentationRuleTest {
                 // does something with string
             }
             """.trimIndent()
+        val formattedCode =
+            """
+            val foo1: (String) -> String = {
+                s: String
+                ->
+                // does something with string
+            }
+
+            val foo2 = {
+                // Trailing comma on last element is allowed and does not have effect
+                s: String,
+                ->
+                // does something with string
+            }
+            """.trimIndent()
         indentationRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(2, 1, "Unexpected indentation (4) (should be 8)"),
-                LintViolation(8, 1, "Unexpected indentation (4) (should be 8)"),
-                LintViolation(9, 1, "Unexpected indentation (4) (should be 8)"),
+                LintViolation(2, 1, "Unexpected indentation (8) (should be 4)"),
+                LintViolation(8, 1, "Unexpected indentation (8) (should be 4)"),
+                LintViolation(9, 1, "Unexpected indentation (8) (should be 4)"),
             ).isFormattedAs(formattedCode)
     }
 
     @Test
     fun `Issue 1247 - Formats function literal with multiple value parameters`() {
         val code =
-            """
-            val foo1: (String, String) -> String = {
-                s1: String,
-                s2: String
-                ->
-                // does something with strings
-            }
-
-            val foo2 = {
-                s1: String,
-                // Trailing comma on last element is allowed and does not have effect
-                s2: String,
-                ->
-                // does something with strings
-            }
-            """.trimIndent()
-        val formattedCode =
             """
             val foo1: (String, String) -> String = {
                     s1: String,
@@ -4104,13 +4127,30 @@ internal class IndentationRuleTest {
                 // does something with strings
             }
             """.trimIndent()
+        val formattedCode =
+            """
+            val foo1: (String, String) -> String = {
+                s1: String,
+                s2: String
+                ->
+                // does something with strings
+            }
+
+            val foo2 = {
+                s1: String,
+                // Trailing comma on last element is allowed and does not have effect
+                s2: String,
+                ->
+                // does something with strings
+            }
+            """.trimIndent()
         indentationRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(2, 1, "Unexpected indentation (4) (should be 8)"),
-                LintViolation(3, 1, "Unexpected indentation (4) (should be 8)"),
-                LintViolation(9, 1, "Unexpected indentation (4) (should be 8)"),
-                LintViolation(10, 1, "Unexpected indentation (4) (should be 8)"),
-                LintViolation(11, 1, "Unexpected indentation (4) (should be 8)"),
+                LintViolation(2, 1, "Unexpected indentation (8) (should be 4)"),
+                LintViolation(3, 1, "Unexpected indentation (8) (should be 4)"),
+                LintViolation(9, 1, "Unexpected indentation (8) (should be 4)"),
+                LintViolation(10, 1, "Unexpected indentation (8) (should be 4)"),
+                LintViolation(11, 1, "Unexpected indentation (8) (should be 4)"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -5002,9 +5042,9 @@ internal class IndentationRuleTest {
                 """
                 val bar =
                     BarBarBarBar {
-                            paramA,
-                            paramB,
-                            paramC ->
+                        paramA,
+                        paramB,
+                        paramC ->
                         Bar(paramA, paramB, paramC)
                     }
                 """.trimIndent()
@@ -5012,10 +5052,6 @@ internal class IndentationRuleTest {
                 .addAdditionalRuleProvider { ParameterListWrappingRule() }
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
                 .hasLintViolationForAdditionalRule(2, 20, "Parameter should start on a newline")
-//                .hasLintViolations(
-//                    LintViolation(3, 1, "Unexpected indentation (19) (should be 12)"),
-//                    LintViolation(4, 1, "Unexpected indentation (19) (should be 12)"),
-//                )
                 .isFormattedAs(formattedCode)
         }
 

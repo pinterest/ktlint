@@ -517,14 +517,20 @@ public class IndentationRule :
 
     private fun ASTNode.calculateIndentOfFunctionLiteralParameters() =
         if (isFirstParameterOfFunctionLiteralPrecededByNewLine()) {
-            // val fieldExample =
-            //      LongNameClass {
-            //              paramA,
-            //              paramB,
-            //              paramC ->
-            //          ClassB(paramA, paramB, paramC)
-            //      }
-            indentConfig.indent.repeat(2)
+            if (codeStyle == ktlint_official) {
+                // Indent with single indent as defined in Kotlin Coding conventions
+                indentConfig.indent
+            } else {
+                // Comply with default IDEA formatting although it is not compliant with Kotlin Coding conventions
+                // val fieldExample =
+                //      LongNameClass {
+                //              paramA,
+                //              paramB,
+                //              paramC ->
+                //          ClassB(paramA, paramB, paramC)
+                //      }
+                indentConfig.indent.repeat(2)
+            }
         } else {
             // Allow default IntelliJ IDEA formatting:
             // val fieldExample =
