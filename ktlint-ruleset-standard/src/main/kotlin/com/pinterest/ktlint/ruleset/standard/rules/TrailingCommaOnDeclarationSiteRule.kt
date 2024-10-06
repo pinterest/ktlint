@@ -263,12 +263,16 @@ public class TrailingCommaOnDeclarationSiteRule :
                     TrailingCommaState.NOT_EXISTS
                 }
 
-                isMultiline(psi) -> if (trailingCommaNode != null) TrailingCommaState.EXISTS else TrailingCommaState.MISSING
+                isMultiline(psi) -> {
+                    if (trailingCommaNode != null) TrailingCommaState.EXISTS else TrailingCommaState.MISSING
+                }
 
-                else -> if (trailingCommaNode != null) TrailingCommaState.REDUNDANT else TrailingCommaState.NOT_EXISTS
+                else -> {
+                    if (trailingCommaNode != null) TrailingCommaState.REDUNDANT else TrailingCommaState.NOT_EXISTS
+                }
             }
         when (trailingCommaState) {
-            TrailingCommaState.EXISTS ->
+            TrailingCommaState.EXISTS -> {
                 if (isTrailingCommaAllowed) {
                     inspectNode
                         .treeParent
@@ -295,8 +299,9 @@ public class TrailingCommaOnDeclarationSiteRule :
                         this.removeChild(trailingCommaNode)
                     }
                 }
+            }
 
-            TrailingCommaState.MISSING ->
+            TrailingCommaState.MISSING -> {
                 if (isTrailingCommaAllowed) {
                     val leafBeforeArrowOrNull = leafBeforeArrowOrNull()
                     val addNewLine =
@@ -354,6 +359,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                         }
                     }
                 }
+            }
 
             TrailingCommaState.REDUNDANT -> {
                 emit(
@@ -365,7 +371,9 @@ public class TrailingCommaOnDeclarationSiteRule :
                 }
             }
 
-            TrailingCommaState.NOT_EXISTS -> Unit
+            TrailingCommaState.NOT_EXISTS -> {
+                Unit
+            }
         }
     }
 
@@ -409,17 +417,21 @@ public class TrailingCommaOnDeclarationSiteRule :
 
     private fun ASTNode.leafBeforeArrowOrNull() =
         when (psi) {
-            is KtWhenEntry ->
+            is KtWhenEntry -> {
                 (psi as KtWhenEntry)
                     .arrow
                     ?.prevLeaf()
+            }
 
-            is KtFunctionLiteral ->
+            is KtFunctionLiteral -> {
                 (psi as KtFunctionLiteral)
                     .arrow
                     ?.prevLeaf()
+            }
 
-            else -> null
+            else -> {
+                null
+            }
         }
 
     private fun ASTNode.findPreviousTrailingCommaNodeOrNull(): ASTNode? {

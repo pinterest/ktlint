@@ -94,17 +94,21 @@ private class RuleExecutionFilter(
 
     private fun isRuleConditionallyEnabled(rule: Rule) =
         when {
-            rule is Rule.Experimental && rule is Rule.OfficialCodeStyle ->
+            rule is Rule.Experimental && rule is Rule.OfficialCodeStyle -> {
                 isExperimentalEnabled(rule) && isOfficialCodeStyleEnabled(rule)
+            }
 
-            rule is Rule.Experimental ->
+            rule is Rule.Experimental -> {
                 isExperimentalEnabled(rule)
+            }
 
-            rule is Rule.OfficialCodeStyle ->
+            rule is Rule.OfficialCodeStyle -> {
                 isOfficialCodeStyleEnabled(rule)
+            }
 
-            else ->
+            else -> {
                 isRuleSetEnabled(rule)
+            }
         }
 
     private fun isExperimentalEnabled(rule: Rule) =

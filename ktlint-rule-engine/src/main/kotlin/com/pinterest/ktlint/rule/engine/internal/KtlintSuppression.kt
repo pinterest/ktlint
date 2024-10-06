@@ -81,19 +81,23 @@ internal fun ASTNode.insertKtlintRuleSuppression(
     //   - otherwise to the @SuppressWarnings annotation if found
     //   - otherwise create a new @Suppress annotation
     when {
-        suppressionAnnotations.containsKey(SuppressAnnotationType.SUPPRESS) ->
+        suppressionAnnotations.containsKey(SuppressAnnotationType.SUPPRESS) -> {
             fullyQualifiedSuppressionIds.mergeInto(
                 suppressionAnnotations.getValue(SuppressAnnotationType.SUPPRESS),
                 SuppressAnnotationType.SUPPRESS,
             )
+        }
 
-        suppressionAnnotations.containsKey(SuppressAnnotationType.SUPPRESS_WARNINGS) ->
+        suppressionAnnotations.containsKey(SuppressAnnotationType.SUPPRESS_WARNINGS) -> {
             fullyQualifiedSuppressionIds.mergeInto(
                 suppressionAnnotations.getValue(SuppressAnnotationType.SUPPRESS_WARNINGS),
                 SuppressAnnotationType.SUPPRESS_WARNINGS,
             )
+        }
 
-        else -> targetASTNode.createSuppressAnnotation(SuppressAnnotationType.SUPPRESS, fullyQualifiedSuppressionIds)
+        else -> {
+            targetASTNode.createSuppressAnnotation(SuppressAnnotationType.SUPPRESS, fullyQualifiedSuppressionIds)
+        }
     }
 }
 
@@ -400,9 +404,13 @@ internal fun String.isKtlintSuppressionId() = removePrefix(DOUBLE_QUOTE).startsW
 
 internal fun String.toFullyQualifiedKtlintSuppressionId(): String =
     when (this) {
-        KTLINT_SUPPRESSION_ID_ALL_RULES -> this
+        KTLINT_SUPPRESSION_ID_ALL_RULES -> {
+            this
+        }
 
-        KTLINT_PREFIX -> this.surroundWith(DOUBLE_QUOTE)
+        KTLINT_PREFIX -> {
+            this.surroundWith(DOUBLE_QUOTE)
+        }
 
         else -> {
             removeSurrounding(DOUBLE_QUOTE)

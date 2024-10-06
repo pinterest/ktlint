@@ -78,7 +78,9 @@ public class NoSemicolonsRule :
 
     private fun ASTNode?.doesNotRequirePreSemi() =
         when {
-            this == null -> true
+            this == null -> {
+                true
+            }
 
             this is PsiWhiteSpace -> {
                 nextLeaf {
@@ -94,7 +96,9 @@ public class NoSemicolonsRule :
                 }
             }
 
-            else -> false
+            else -> {
+                false
+            }
         }
 
     private fun isNoSemicolonRequiredAfter(node: ASTNode): Boolean {

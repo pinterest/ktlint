@@ -526,13 +526,16 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
                         }
                     }
                     when {
-                        code.isStdIn -> print(formattedFileContent)
+                        code.isStdIn -> {
+                            print(formattedFileContent)
+                        }
 
-                        code.content != formattedFileContent ->
+                        code.content != formattedFileContent -> {
                             code
                                 .filePath
                                 ?.toFile()
                                 ?.writeText(formattedFileContent, charset("UTF-8"))
+                        }
                     }
                 }
         } catch (e: Exception) {
@@ -637,7 +640,7 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
     private fun Exception.toKtlintCliError(code: Code): KtlintCliError =
         this.let { e ->
             when (e) {
-                is KtLintParseException ->
+                is KtLintParseException -> {
                     KtlintCliError(
                         line = e.line,
                         col = e.col,
@@ -645,6 +648,7 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
                         detail = "Not a valid Kotlin file (${e.message?.lowercase(Locale.getDefault())})",
                         status = KOTLIN_PARSE_EXCEPTION,
                     )
+                }
 
                 is KtLintRuleException -> {
                     logger.debug(e) { "Internal Error (${e.ruleId}) in ${code.fileNameOrStdin()} at position '${e.line}:${e.col}" }
@@ -661,7 +665,9 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
                     )
                 }
 
-                else -> throw e
+                else -> {
+                    throw e
+                }
             }
         }
 

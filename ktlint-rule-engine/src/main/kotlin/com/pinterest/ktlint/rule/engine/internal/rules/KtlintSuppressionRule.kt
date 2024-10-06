@@ -352,19 +352,22 @@ private class KtLintDirective(
 private fun ASTNode.ktlintDirectiveOrNull(ruleIdValidator: (String) -> Boolean): KtLintDirective? {
     val ktlintDirectiveString =
         when (elementType) {
-            EOL_COMMENT ->
+            EOL_COMMENT -> {
                 text
                     .removePrefix("//")
                     .trim()
+            }
 
-            BLOCK_COMMENT ->
+            BLOCK_COMMENT -> {
                 text
                     .removePrefix("/*")
                     .removeSuffix("*/")
                     .trim()
+            }
 
-            else ->
+            else -> {
                 return null
+            }
         }
     val ktlintDirectiveType =
         ktlintDirectiveString.toKtlintDirectiveTypeOrNull()

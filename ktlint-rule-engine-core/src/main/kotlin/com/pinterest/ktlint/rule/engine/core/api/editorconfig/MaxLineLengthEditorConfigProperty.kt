@@ -34,9 +34,11 @@ public val MAX_LINE_LENGTH_PROPERTY: EditorConfigProperty<Int> =
                  * Internally, Ktlint uses integer 'Int.MAX_VALUE' to indicate that the max line length has to be ignored as this is easier
                  * in comparisons to check whether the maximum length of a line is exceeded.
                  */
-                property.sourceValue == MAX_LINE_LENGTH_PROPERTY_OFF_EDITOR_CONFIG -> MAX_LINE_LENGTH_PROPERTY_OFF
+                property.sourceValue == MAX_LINE_LENGTH_PROPERTY_OFF_EDITOR_CONFIG -> {
+                    MAX_LINE_LENGTH_PROPERTY_OFF
+                }
 
-                else ->
+                else -> {
                     PropertyType
                         .max_line_length
                         .parse(property.sourceValue)
@@ -55,6 +57,7 @@ public val MAX_LINE_LENGTH_PROPERTY: EditorConfigProperty<Int> =
                                 it.parsed
                             }
                         }
+                }
             }
         },
         propertyWriter = { property ->

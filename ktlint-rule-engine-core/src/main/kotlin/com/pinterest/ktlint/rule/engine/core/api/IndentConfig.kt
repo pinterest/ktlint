@@ -111,7 +111,9 @@ public class IndentConfig(
         val indent = getTextAfterLastNewLine(text)
         require(indent.matches(TABS_AND_SPACES))
         return when (indentStyle) {
-            SPACE -> indent.replaceTabWithSpaces()
+            SPACE -> {
+                indent.replaceTabWithSpaces()
+            }
 
             TAB -> {
                 "\t".repeat(indentLevelFrom(indent))

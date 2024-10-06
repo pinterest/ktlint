@@ -159,7 +159,9 @@ public class FunctionNamingRule :
                         it.annotationEntryName() in excludeWhenAnnotatedWith
                     }
 
-                    else -> false
+                    else -> {
+                        false
+                    }
                 }
             }
             ?: false

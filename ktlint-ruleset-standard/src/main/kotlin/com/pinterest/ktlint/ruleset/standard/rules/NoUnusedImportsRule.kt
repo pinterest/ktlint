@@ -117,7 +117,9 @@ public class NoUnusedImportsRule :
                 }
             }
 
-            BY_KEYWORD -> foundByKeyword = true
+            BY_KEYWORD -> {
+                foundByKeyword = true
+            }
         }
     }
 

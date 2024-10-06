@@ -68,19 +68,16 @@ public class NoWildcardImportsRule :
 
         private val PACKAGES_TO_USE_ON_DEMAND_IMPORT_PROPERTY_PARSER: (String, String?) -> PropertyType.PropertyValue<List<PatternEntry>> =
             { _, value ->
-                when {
-                    else ->
-                        try {
-                            PropertyType.PropertyValue.valid(
-                                value,
-                                value?.let(Companion::parseAllowedWildcardImports) ?: emptyList(),
-                            )
-                        } catch (e: IllegalArgumentException) {
-                            PropertyType.PropertyValue.invalid(
-                                value,
-                                "Unexpected imports layout: $value",
-                            )
-                        }
+                try {
+                    PropertyType.PropertyValue.valid(
+                        value,
+                        value?.let(Companion::parseAllowedWildcardImports) ?: emptyList(),
+                    )
+                } catch (e: IllegalArgumentException) {
+                    PropertyType.PropertyValue.invalid(
+                        value,
+                        "Unexpected imports layout: $value",
+                    )
                 }
             }
 
