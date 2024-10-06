@@ -99,6 +99,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.TypeParameterListSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.UnnecessaryParenthesesBeforeTrailingLambdaRule
 import com.pinterest.ktlint.ruleset.standard.rules.ValueArgumentCommentRule
 import com.pinterest.ktlint.ruleset.standard.rules.ValueParameterCommentRule
+import com.pinterest.ktlint.ruleset.standard.rules.WhenEntryBracing
 import com.pinterest.ktlint.ruleset.standard.rules.WrappingRule
 
 public class StandardRuleSetProvider : RuleSetProviderV3(RuleSetId.STANDARD) {
@@ -200,6 +201,7 @@ public class StandardRuleSetProvider : RuleSetProviderV3(RuleSetId.STANDARD) {
             RuleProvider { ValueArgumentCommentRule() },
             RuleProvider { ValueParameterCommentRule() },
             RuleProvider { UnnecessaryParenthesesBeforeTrailingLambdaRule() },
+            RuleProvider { WhenEntryBracing() },
             RuleProvider { WrappingRule() },
         )
 }
