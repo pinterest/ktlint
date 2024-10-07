@@ -35,9 +35,11 @@ public fun KtLintRuleEngine.insertSuppression(
 
 private fun ASTNode.findLeafElementAt(suppression: KtlintSuppression): ASTNode =
     when (suppression) {
-        is KtlintSuppressionForFile -> this
+        is KtlintSuppressionForFile -> {
+            this
+        }
 
-        is KtlintSuppressionAtOffset ->
+        is KtlintSuppressionAtOffset -> {
             findLeafElementAt(suppression.offsetFromStartOf(text))
                 ?.let {
                     if (it.isWhiteSpace()) {
@@ -48,6 +50,7 @@ private fun ASTNode.findLeafElementAt(suppression: KtlintSuppression): ASTNode =
                     }
                 }
                 ?: throw KtlintSuppressionNoElementFoundException(suppression)
+        }
     }
 
 private fun KtlintSuppressionAtOffset.offsetFromStartOf(code: String): Int {

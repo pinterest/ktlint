@@ -215,11 +215,12 @@ public class IndentationRule :
             node.elementType == CONTEXT_RECEIVER_LIST ||
                 node.elementType == LONG_STRING_TEMPLATE_ENTRY ||
                 node.elementType == STRING_TEMPLATE ||
-                node.elementType == VALUE_ARGUMENT_LIST ->
+                node.elementType == VALUE_ARGUMENT_LIST -> {
                 startIndentContext(
                     fromAstNode = node,
                     lastChildIndent = "",
                 )
+            }
 
             (node.elementType == SUPER_TYPE_LIST && !node.isPrecededByComment()) ||
                 (node.isPartOfComment() && node.nextCodeSibling()?.elementType == SUPER_TYPE_LIST) -> {
@@ -249,13 +250,15 @@ public class IndentationRule :
                 }
             }
 
-            node.elementType == VALUE_ARGUMENT ->
+            node.elementType == VALUE_ARGUMENT -> {
                 visitValueArgument(node)
+            }
 
-            node.elementType == SECONDARY_CONSTRUCTOR ->
+            node.elementType == SECONDARY_CONSTRUCTOR -> {
                 visitSecondaryConstructor(node)
+            }
 
-            node.elementType == PARENTHESIZED ->
+            node.elementType == PARENTHESIZED -> {
                 if (codeStyle == ktlint_official) {
                     // Contrary to the IntelliJ IDEA default formatter, do not indent the closing RPAR
                     startIndentContext(
@@ -265,9 +268,10 @@ public class IndentationRule :
                 } else if (node.treeParent.treeParent.elementType != IF) {
                     startIndentContext(node)
                 }
+            }
 
             node.elementType == TYPE_ARGUMENT_LIST ||
-                node.elementType == TYPE_PARAMETER_LIST ->
+                node.elementType == TYPE_PARAMETER_LIST -> {
                 if (codeStyle == ktlint_official) {
                     // Contrary to the IntelliJ IDEA default formatter, do not indent the closing angle bracket
                     startIndentContext(
@@ -277,55 +281,68 @@ public class IndentationRule :
                 } else {
                     startIndentContext(node)
                 }
+            }
 
             node.elementType == BINARY_WITH_TYPE ||
-                node.elementType == USER_TYPE ->
+                node.elementType == USER_TYPE -> {
                 startIndentContext(node)
+            }
 
             node.elementType == IS_EXPRESSION ||
                 node.elementType == PREFIX_EXPRESSION ||
-                node.elementType == POSTFIX_EXPRESSION ->
+                node.elementType == POSTFIX_EXPRESSION -> {
                 startIndentContext(node)
+            }
 
             node.elementType == DELEGATED_SUPER_TYPE_ENTRY ||
                 node.elementType == ANNOTATED_EXPRESSION ||
-                node.elementType == TYPE_REFERENCE ->
+                node.elementType == TYPE_REFERENCE -> {
                 startIndentContext(
                     fromAstNode = node,
                     childIndent = "",
                 )
+            }
 
-            node.elementType == IF ->
+            node.elementType == IF -> {
                 visitIf(node)
+            }
 
-            node.elementType == LBRACE ->
+            node.elementType == LBRACE -> {
                 visitLbrace(node)
+            }
 
             node.elementType == VALUE_PARAMETER_LIST &&
-                node.treeParent.elementType != FUNCTION_LITERAL ->
+                node.treeParent.elementType != FUNCTION_LITERAL -> {
                 startIndentContext(
                     fromAstNode = node,
                     lastChildIndent = "",
                 )
+            }
 
             node.elementType == LPAR &&
-                node.nextCodeSibling()?.elementType == CONDITION ->
+                node.nextCodeSibling()?.elementType == CONDITION -> {
                 visitLparBeforeCondition(node)
+            }
 
-            node.elementType == VALUE_PARAMETER ->
+            node.elementType == VALUE_PARAMETER -> {
                 visitValueParameter(node)
+            }
 
-            node.elementType == FUN ->
+            node.elementType == FUN -> {
                 visitFun(node)
+            }
 
-            node.elementType == CLASS ->
+            node.elementType == CLASS -> {
                 visitClass(node)
+            }
 
-            node.elementType == OBJECT_DECLARATION ->
+            node.elementType == OBJECT_DECLARATION -> {
                 visitObjectDeclaration(node)
+            }
 
-            node.elementType == BINARY_EXPRESSION ->
+            node.elementType == BINARY_EXPRESSION -> {
                 visitBinaryExpression(node)
+            }
 
             node.elementType in CHAINABLE_EXPRESSION -> {
                 if (codeStyle == ktlint_official &&
@@ -352,45 +369,57 @@ public class IndentationRule :
             }
 
             node.elementType == IDENTIFIER &&
-                node.treeParent.elementType == PROPERTY ->
+                node.treeParent.elementType == PROPERTY -> {
                 visitIdentifierInProperty(node)
+            }
 
             node.elementType == LITERAL_STRING_TEMPLATE_ENTRY &&
-                node.nextCodeSibling()?.elementType == CLOSING_QUOTE ->
+                node.nextCodeSibling()?.elementType == CLOSING_QUOTE -> {
                 visitWhiteSpaceBeforeClosingQuote(node, emit)
+            }
 
-            node.elementType == WHEN ->
+            node.elementType == WHEN -> {
                 visitWhen(node)
+            }
 
-            node.elementType == WHEN_ENTRY ->
+            node.elementType == WHEN_ENTRY -> {
                 visitWhenEntry(node)
+            }
 
             node.elementType == WHERE_KEYWORD &&
-                node.nextCodeSibling()?.elementType == TYPE_CONSTRAINT_LIST ->
+                node.nextCodeSibling()?.elementType == TYPE_CONSTRAINT_LIST -> {
                 visitWhereKeywordBeforeTypeConstraintList(node)
+            }
 
-            node.elementType == KDOC ->
+            node.elementType == KDOC -> {
                 visitKdoc(node)
+            }
 
             node.elementType == PROPERTY_ACCESSOR ||
-                node.elementType == TYPEALIAS ->
+                node.elementType == TYPEALIAS -> {
                 visitPropertyAccessor(node)
+            }
 
             node.elementType == FOR ||
-                node.elementType == WHILE ->
+                node.elementType == WHILE -> {
                 visitConditionalLoop(node)
+            }
 
-            node.elementType == LBRACKET ->
+            node.elementType == LBRACKET -> {
                 visitLBracket(node)
+            }
 
-            node.elementType == NULLABLE_TYPE ->
+            node.elementType == NULLABLE_TYPE -> {
                 visitNullableType(node)
+            }
 
-            node.elementType == DESTRUCTURING_DECLARATION ->
+            node.elementType == DESTRUCTURING_DECLARATION -> {
                 visitDestructuringDeclaration(node)
+            }
 
-            node.elementType == TRY ->
+            node.elementType == TRY -> {
                 visitTryCatchFinally(node)
+            }
 
             else -> {
                 LOGGER.trace { "No processing for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}" }
@@ -1149,14 +1178,18 @@ public class IndentationRule :
         val adjustedChildIndent =
             when {
                 this == lastIndexContext.fromASTNode.firstChildLeafOrSelf() ||
-                    nextLeaf == lastIndexContext.fromASTNode.firstChildLeafOrSelf() ->
+                    nextLeaf == lastIndexContext.fromASTNode.firstChildLeafOrSelf() -> {
                     lastIndexContext.firstChildIndent
+                }
 
                 this == lastIndexContext.toASTNode ||
-                    nextLeaf == lastIndexContext.toASTNode ->
+                    nextLeaf == lastIndexContext.toASTNode -> {
                     lastIndexContext.lastChildIndent
+                }
 
-                else -> lastIndexContext.childIndent
+                else -> {
+                    lastIndexContext.childIndent
+                }
             }
         return lastIndexContext.nodeIndent + adjustedChildIndent
     }
@@ -1233,7 +1266,9 @@ public class IndentationRule :
                     TYPE_CONSTRAINT_CONTINUATION_INDENT
                 }
 
-                else -> ""
+                else -> {
+                    ""
+                }
             }
         val nodeIndent = text.substringAfterLast("\n")
         return if (nodeIndent.endsWith(acceptableTrailingSpaces)) {

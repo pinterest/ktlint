@@ -144,8 +144,9 @@ public class ImportOrderingRule :
 
         children.forEach { current ->
             when {
-                current.isWhiteSpace() && current.text.count { it == '\n' } > 1 ->
+                current.isWhiteSpace() && current.text.count { it == '\n' } > 1 -> {
                     imports += current
+                }
 
                 current.elementType == ElementType.IMPORT_DIRECTIVE -> {
                     if (importTextSet.add(current.text)) {
@@ -219,11 +220,12 @@ public class ImportOrderingRule :
         private val EDITOR_CONFIG_PROPERTY_PARSER: (String, String?) -> PropertyType.PropertyValue<List<PatternEntry>> =
             { _, value ->
                 when {
-                    value.isNullOrBlank() ->
+                    value.isNullOrBlank() -> {
                         PropertyType.PropertyValue.invalid(
                             value,
                             "Import layout must contain at least one entry of a wildcard symbol (*)",
                         )
+                    }
 
                     value == "idea" -> {
                         LOGGER.warn {
@@ -246,7 +248,7 @@ public class ImportOrderingRule :
                         )
                     }
 
-                    else ->
+                    else -> {
                         try {
                             PropertyType.PropertyValue.valid(
                                 value,
@@ -258,6 +260,7 @@ public class ImportOrderingRule :
                                 "Unexpected imports layout: $value",
                             )
                         }
+                    }
                 }
             }
 

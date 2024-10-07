@@ -64,19 +64,22 @@ public class StatementWrappingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         when (node.elementType) {
-            BLOCK ->
+            BLOCK -> {
                 if (node.treeParent.elementType == FUNCTION_LITERAL) {
                     // LBRACE and RBRACE are outside of BLOCK
                     visitBlock(node.treeParent, emit)
                 } else {
                     visitBlock(node, emit)
                 }
+            }
 
-            CLASS_BODY, WHEN ->
+            CLASS_BODY, WHEN -> {
                 visitBlock(node, emit)
+            }
 
-            SEMICOLON ->
+            SEMICOLON -> {
                 visitSemiColon(node, emit)
+            }
         }
     }
 

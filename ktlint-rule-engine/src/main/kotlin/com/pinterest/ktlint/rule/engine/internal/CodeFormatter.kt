@@ -53,7 +53,7 @@ internal class CodeFormatter(
             var codeContent = formattedCode(lineSeparator)
             val errors = mutableSetOf<Pair<LintError, Boolean>>()
             var formatRunCount = 0
-            var mutated: Boolean = false
+            var mutated = false
             do {
                 val newErrors = format(autocorrectHandler, code)
                 errors.addAll(newErrors)
@@ -168,10 +168,13 @@ internal class CodeFormatter(
         when {
             eolEditorConfigProperty == PropertyType.EndOfLineValue.crlf ||
                 eolEditorConfigProperty != PropertyType.EndOfLineValue.lf &&
-                doesNotContain('\r') ->
+                doesNotContain('\r') -> {
                 "\r\n".also { LOGGER.trace { "line separator: ${eolEditorConfigProperty.name} --> CRLF" } }
+            }
 
-            else -> "\n".also { LOGGER.trace { "line separator: ${eolEditorConfigProperty.name} --> LF" } }
+            else -> {
+                "\n".also { LOGGER.trace { "line separator: ${eolEditorConfigProperty.name} --> LF" } }
+            }
         }
 
     private fun Code.doesNotContain(char: Char) = content.lastIndexOf(char) != -1

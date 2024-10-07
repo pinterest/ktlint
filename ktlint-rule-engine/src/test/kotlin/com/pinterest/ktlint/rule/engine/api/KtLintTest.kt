@@ -527,8 +527,9 @@ private class AutoCorrectErrorRule :
                         }
                 }
 
-                STRING_VALUE_NOT_TO_BE_CORRECTED ->
+                STRING_VALUE_NOT_TO_BE_CORRECTED -> {
                     emit(node.startOffset, ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED, false)
+                }
             }
         }
     }

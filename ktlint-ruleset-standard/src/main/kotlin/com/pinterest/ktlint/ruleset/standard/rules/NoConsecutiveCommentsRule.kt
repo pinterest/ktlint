@@ -129,11 +129,13 @@ public class NoConsecutiveCommentsRule :
             EOL_COMMENT,
             BLOCK_COMMENT,
             KDOC_START,
-            ->
+            -> {
                 true
+            }
 
-            else ->
+            else -> {
                 false
+            }
         }
 
     private fun ASTNode?.isEndOfComment() =
@@ -141,11 +143,13 @@ public class NoConsecutiveCommentsRule :
             EOL_COMMENT,
             BLOCK_COMMENT,
             KDOC_END,
-            ->
+            -> {
                 true
+            }
 
-            else ->
+            else -> {
                 false
+            }
         }
 
     private fun ASTNode.commentType() =

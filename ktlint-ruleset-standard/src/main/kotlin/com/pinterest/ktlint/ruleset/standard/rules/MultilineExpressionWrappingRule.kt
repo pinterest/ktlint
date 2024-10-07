@@ -121,7 +121,9 @@ public class MultilineExpressionWrappingRule :
                                         .nextLeaf { !it.isWhiteSpaceWithoutNewline() && !it.isPartOfComment() }
                                         ?.takeIf { !it.isWhiteSpaceWithNewline() }
                                 when {
-                                    leafOnSameLineAfterMultilineExpression == null -> Unit
+                                    leafOnSameLineAfterMultilineExpression == null -> {
+                                        Unit
+                                    }
 
                                     leafOnSameLineAfterMultilineExpression.treeParent.elementType == OPERATION_REFERENCE -> {
                                         // When binary expressions are wrapped, each binary expression for itself is checked whether it is a

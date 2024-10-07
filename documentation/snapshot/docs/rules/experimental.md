@@ -285,3 +285,76 @@ Suppress or disable rule (1)
     ktlint_standard_square-brackets-spacing = disabled
     ```
 
+## When-entry bracing
+
+Enforce consistent usages of braces inside the when-statement. All when-entries in the when-statement should use braces around their bodies in case at least one when-entry has a multiline body, or when the body is surrounded by braces.
+
+Braces are helpful for following reasons:
+
+- Bodies of the when-conditions are all aligned at same column position
+- Closing braces helps in separating the when-conditions
+
+This rule is not incorporated in the Kotlin Coding conventions, nor in the Android Kotlin Styleguide. It is based on similar behavior in enforcing consistent use of braces in if-else statements. As of that the rule is only enabled automatically for code style `ktlint_official`. It can be enabled explicitly for other code styles.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val foo1 =
+        when (bar) {
+            BAR1 -> "bar1"
+            BAR2 -> "bar2"
+            else -> null
+        }
+
+    val foo2 =
+        when (bar) {
+            BAR1 -> {
+                "bar1"
+            }
+            BAR2 -> {
+                "bar2"
+            }
+            else -> {
+                null
+            }
+        }
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val foo3 =
+        when (bar) {
+            BAR1 -> "bar1"
+            BAR2 -> {
+                "bar2"
+            }
+            else -> null
+        }
+
+    val foo4 =
+        when (bar) {
+            BAR1 -> "bar1"
+            BAR2 ->
+                "bar2"
+            else -> null
+        }
+    ```
+
+Rule id: `standard:when-entry-spacing`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:when-entry-spacing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_when-entry-spacing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_when-entry-spacing = disabled
+    ```

@@ -38,13 +38,15 @@ public class EditorConfig(
      */
     public operator fun <T> get(editorConfigProperty: EditorConfigProperty<T>): T {
         when {
-            editorConfigProperty.deprecationError != null ->
+            editorConfigProperty.deprecationError != null -> {
                 throw DeprecatedEditorConfigPropertyException(
                     "Property '${editorConfigProperty.name}' is disallowed: ${editorConfigProperty.deprecationError}",
                 )
+            }
 
-            editorConfigProperty.deprecationWarning != null ->
+            editorConfigProperty.deprecationWarning != null -> {
                 LOGGER.warn { "Property '${editorConfigProperty.name}' is deprecated: ${editorConfigProperty.deprecationWarning}" }
+            }
         }
         val property =
             properties.getOrElse(editorConfigProperty.name) {

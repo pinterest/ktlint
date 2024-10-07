@@ -128,7 +128,9 @@ class CommandLineTestRunner(
                 arrayOf(comSpec, "/C")
             }
 
-            else -> arrayOf("/bin/sh", "-c")
+            else -> {
+                arrayOf("/bin/sh", "-c")
+            }
         }
 
     private fun ktlintCommand(arguments: List<String>): String =
@@ -189,7 +191,9 @@ class CommandLineTestRunner(
                     } ?: PATH
                 }
 
-                else -> PATH
+                else -> {
+                    PATH
+                }
             }
         environment[pathKey] = "$JAVA_HOME_BIN_DIR${File.pathSeparator}${OsEnvironment()[PATH]}"
     }

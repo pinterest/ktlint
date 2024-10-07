@@ -570,7 +570,9 @@ public class FunctionSignatureRule :
                                     )
                             }
 
-                            else -> false
+                            else -> {
+                                false
+                            }
                         }
                     if (mergeWithFunctionSignature) {
                         emit(

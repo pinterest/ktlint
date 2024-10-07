@@ -56,8 +56,9 @@ public class BlankLineBeforeDeclarationRule :
             OBJECT_DECLARATION,
             PROPERTY,
             PROPERTY_ACCESSOR,
-            ->
+            -> {
                 visitDeclaration(node, emit)
+            }
         }
     }
 

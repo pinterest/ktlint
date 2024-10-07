@@ -251,7 +251,9 @@ public class TypeParameterListSpacingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         when {
-            node.text == " " -> Unit
+            node.text == " " -> {
+                Unit
+            }
 
             node.textContains('\n') -> {
                 emit(node.startOffset, "Expected a single space instead of newline", true)

@@ -58,7 +58,9 @@ private class SegmentTree(
         r: Int,
     ): Int =
         when {
-            l > r -> -1
+            l > r -> {
+                -1
+            }
 
             else -> {
                 val i = l + (r - l) / 2
