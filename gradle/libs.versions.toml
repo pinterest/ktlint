@@ -3,7 +3,7 @@
 java-compilation = "21"
 # The java-target version is the lowest supported LTS version of Java. Jar's produced are bytecode compatible with this version.
 java-target = "8"
-kotlin = "2.0.20"
+kotlin = "2.0.21"
 kotlinDev = "2.1.0-Beta1"
 
 [plugins]
