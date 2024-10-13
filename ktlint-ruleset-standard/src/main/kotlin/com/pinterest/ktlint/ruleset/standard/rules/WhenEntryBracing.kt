@@ -166,4 +166,4 @@ public class WhenEntryBracing :
             ?.node
 }
 
-public val WHEN_CONDITION_BRACING_RULE_ID: RuleId = WhenEntryBracing().ruleId
+public val WHEN_ENTRY_BRACING_RULE_ID: RuleId = WhenEntryBracing().ruleId
