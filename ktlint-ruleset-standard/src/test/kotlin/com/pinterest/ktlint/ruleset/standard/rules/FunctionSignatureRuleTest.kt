@@ -8,6 +8,7 @@ import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.Companion.FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.Companion.FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.FunctionBodyExpressionWrapping
+import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.FunctionBodyExpressionWrapping.always
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.FunctionBodyExpressionWrapping.default
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
@@ -743,14 +744,8 @@ class FunctionSignatureRuleTest {
                 .hasNoLintViolations()
         }
 
-        @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
-        @EnumSource(
-            value = FunctionBodyExpressionWrapping::class,
-            names = ["always"],
-        )
-        fun `Given that the function signature and a single line body expression body fit on the same line then do not reformat function signature but move the body expression to a separate line`(
-            bodyExpressionWrapping: FunctionBodyExpressionWrapping,
-        ) {
+        @Test
+        fun `Given that the function signature and a single line body expression body fit on the same line then do not reformat function signature but move the body expression to a separate line`() {
             val code =
                 """
                 // $MAX_LINE_LENGTH_MARKER                  $EOL_CHAR
@@ -765,9 +760,32 @@ class FunctionSignatureRuleTest {
             functionSignatureWrappingRuleAssertThat(code)
                 .setMaxLineLength()
                 .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
-                .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to bodyExpressionWrapping)
+                .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to always)
                 .addAdditionalRuleProvider { IndentationRule() }
                 .hasLintViolation(2, 33, "Newline expected before expression body")
+                .isFormattedAs(formattedCode)
+        }
+
+        @ParameterizedTest(name = "code style: {0}")
+        @EnumSource(value = CodeStyleValue::class)
+        fun `Issue 2827 - Given that no max_line_length set, and the function signature is a single line body expression body that does fit on the same line then wrap the body expression to a separate line`(
+            codeStyleValue: CodeStyleValue,
+        ) {
+            val code =
+                """
+                fun f(a: Any, b: Any): String = "some-result"
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun f(a: Any, b: Any): String =
+                    "some-result"
+                """.trimIndent()
+            functionSignatureWrappingRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyleValue)
+                .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
+                .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to always)
+                .addAdditionalRuleProvider { IndentationRule() }
+                .hasLintViolation(1, 33, "Newline expected before expression body")
                 .isFormattedAs(formattedCode)
         }
 
