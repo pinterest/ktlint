@@ -240,6 +240,7 @@ public class FunctionSignatureRule :
             } else {
                 fixWhiteSpacesInValueParameterList(node, emit, multiline = true, dryRun = false)
             }
+            fixFunctionBodyExpression(node, emit, MAX_LINE_LENGTH_PROPERTY_OFF)
         }
     }
 
