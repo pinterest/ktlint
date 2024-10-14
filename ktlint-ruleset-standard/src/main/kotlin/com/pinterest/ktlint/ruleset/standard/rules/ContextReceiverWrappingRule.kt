@@ -66,11 +66,13 @@ public class ContextReceiverWrappingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         when {
-            node.elementType == CONTEXT_RECEIVER_LIST ->
+            node.elementType == CONTEXT_RECEIVER_LIST -> {
                 visitContextReceiverList(node, emit)
+            }
 
-            node.elementType == TYPE_ARGUMENT_LIST && node.isPartOf(CONTEXT_RECEIVER) ->
+            node.elementType == TYPE_ARGUMENT_LIST && node.isPartOf(CONTEXT_RECEIVER) -> {
                 visitContextReceiverTypeArgumentList(node, emit)
+            }
         }
     }
 

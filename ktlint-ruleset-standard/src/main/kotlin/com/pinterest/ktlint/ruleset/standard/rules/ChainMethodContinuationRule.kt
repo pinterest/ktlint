@@ -207,7 +207,9 @@ public class ChainMethodContinuationRule :
                 chainOperators.size >= forceMultilineWhenChainOperatorCountGreaterOrEqualThanProperty
             }
 
-            else -> false
+            else -> {
+                false
+            }
         }
 
     private fun ChainedExpression.isChainedExpressionOnStringTemplate() =
@@ -425,7 +427,9 @@ public class ChainMethodContinuationRule :
                             .singleOrNull()
                     }
 
-                    else -> null
+                    else -> {
+                        null
+                    }
                 }
 
             private fun ASTNode.createBaseChainedExpression(chainOperator: ASTNode): ChainedExpression {

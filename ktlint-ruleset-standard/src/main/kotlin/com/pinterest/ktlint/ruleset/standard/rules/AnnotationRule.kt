@@ -149,14 +149,17 @@ public class AnnotationRule :
         if (node.shouldWrapAnnotations()) {
             val expectedIndent =
                 when {
-                    node.elementType == ANNOTATED_EXPRESSION ->
+                    node.elementType == ANNOTATED_EXPRESSION -> {
                         indentConfig.siblingIndentOf(node)
+                    }
 
-                    node.hasAnnotationBeforeConstructor() ->
+                    node.hasAnnotationBeforeConstructor() -> {
                         indentConfig.siblingIndentOf(node.treeParent)
+                    }
 
-                    else ->
+                    else -> {
                         indentConfig.parentIndentOf(node)
+                    }
                 }
 
             node

@@ -149,7 +149,7 @@ public class TrailingCommaOnCallSiteRule :
                 else -> if (trailingCommaNode != null) TrailingCommaState.REDUNDANT else TrailingCommaState.NOT_EXISTS
             }
         when (trailingCommaState) {
-            TrailingCommaState.EXISTS ->
+            TrailingCommaState.EXISTS -> {
                 if (!isTrailingCommaAllowed) {
                     emit(
                         trailingCommaNode!!.startOffset,
@@ -159,8 +159,9 @@ public class TrailingCommaOnCallSiteRule :
                         this.removeChild(trailingCommaNode)
                     }
                 }
+            }
 
-            TrailingCommaState.MISSING ->
+            TrailingCommaState.MISSING -> {
                 if (isTrailingCommaAllowed) {
                     val prevNode = inspectNode.prevCodeLeaf()!!
                     emit(
@@ -176,6 +177,7 @@ public class TrailingCommaOnCallSiteRule :
                             }
                     }
                 }
+            }
 
             TrailingCommaState.REDUNDANT -> {
                 emit(
@@ -187,7 +189,9 @@ public class TrailingCommaOnCallSiteRule :
                 }
             }
 
-            TrailingCommaState.NOT_EXISTS -> Unit
+            TrailingCommaState.NOT_EXISTS -> {
+                Unit
+            }
         }
     }
 

@@ -59,15 +59,17 @@ internal class SuppressionLocator(
         val commentSuppressionsHints = mutableListOf<CommentSuppressionHint>()
         rootNode.findSuppressionHints { node ->
             when (val psi = node.psi) {
-                is PsiComment ->
+                is PsiComment -> {
                     node
                         .createSuppressionHintFromComment()
                         ?.let { commentSuppressionsHints.add(it) }
+                }
 
-                is KtAnnotated ->
+                is KtAnnotated -> {
                     psi
                         .createSuppressionHintFromAnnotations()
                         ?.let { suppressionHints.add(it) }
+                }
             }
         }
 
@@ -93,22 +95,25 @@ internal class SuppressionLocator(
             .takeIf { it.isNotEmpty() }
             ?.let { parts ->
                 when (parts[0]) {
-                    formatterTags.formatterTagOff ->
+                    formatterTags.formatterTagOff -> {
                         CommentSuppressionHint(
                             this,
                             HashSet(parts.tail()),
                             BLOCK_START,
                         )
+                    }
 
-                    formatterTags.formatterTagOn ->
+                    formatterTags.formatterTagOn -> {
                         CommentSuppressionHint(
                             this,
                             HashSet(parts.tail()),
                             BLOCK_END,
                         )
+                    }
 
-                    else ->
+                    else -> {
                         null
+                    }
                 }
             }
 
@@ -184,19 +189,23 @@ internal class SuppressionLocator(
             .flatMap { it.findRuleSuppressionIds() }
             .let { suppressedRuleIds ->
                 when {
-                    suppressedRuleIds.isEmpty() -> null
+                    suppressedRuleIds.isEmpty() -> {
+                        null
+                    }
 
-                    suppressedRuleIds.contains(ALL_KTLINT_RULES_SUPPRESSION_ID) ->
+                    suppressedRuleIds.contains(ALL_KTLINT_RULES_SUPPRESSION_ID) -> {
                         SuppressionHint(
                             IntRange(startOffset, endOffset - 1),
                             emptySet(),
                         )
+                    }
 
-                    else ->
+                    else -> {
                         SuppressionHint(
                             IntRange(startOffset, endOffset - 1),
                             suppressedRuleIds.toSet(),
                         )
+                    }
                 }
             }
 

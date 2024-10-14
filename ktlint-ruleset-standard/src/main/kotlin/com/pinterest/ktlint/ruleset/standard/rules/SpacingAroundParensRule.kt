@@ -53,7 +53,9 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
 
     private fun ASTNode.isUnexpectedSpacingBeforeParenthesis(): Boolean =
         when {
-            !prevLeaf().isWhiteSpaceWithoutNewline() -> false
+            !prevLeaf().isWhiteSpaceWithoutNewline() -> {
+                false
+            }
 
             elementType == LPAR -> {
                 treeParent?.elementType in elementListTokenSet &&
@@ -72,7 +74,9 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
                 prevLeaf()?.prevSibling()?.elementType != LPAR
             }
 
-            else -> false
+            else -> {
+                false
+            }
         }
 
     private fun ASTNode.isUnexpectedSpacingBetweenIdentifierAndElementList() =

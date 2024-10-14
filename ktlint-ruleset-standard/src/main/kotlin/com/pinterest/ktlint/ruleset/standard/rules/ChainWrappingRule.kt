@@ -140,9 +140,13 @@ public class ChainWrappingRule :
                                     prevLeaf
                                 }
 
-                                nextLeaf.isWhiteSpaceWithoutNewline() -> nextLeaf
+                                nextLeaf.isWhiteSpaceWithoutNewline() -> {
+                                    nextLeaf
+                                }
 
-                                else -> null
+                                else -> {
+                                    null
+                                }
                             }
 
                         if (node.treeParent.elementType == OPERATION_REFERENCE) {

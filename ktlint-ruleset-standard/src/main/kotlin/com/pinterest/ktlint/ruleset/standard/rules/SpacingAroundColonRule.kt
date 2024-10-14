@@ -187,7 +187,9 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
     private inline val ASTNode.spacingBefore: Boolean
         get() =
             when {
-                psi.parent is KtClassOrObject -> true
+                psi.parent is KtClassOrObject -> {
+                    true
+                }
 
                 psi.parent is KtConstructor<*> -> {
                     // constructor : this/super
@@ -199,10 +201,13 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                     true
                 }
 
-                psi.parent.parent is KtTypeParameterList ->
+                psi.parent.parent is KtTypeParameterList -> {
                     true
+                }
 
-                else -> false
+                else -> {
+                    false
+                }
             }
 
     private inline val ASTNode.noSpacingBefore: Boolean

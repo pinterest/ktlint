@@ -128,20 +128,34 @@ public class ParameterListWrappingRule :
 
     private fun ASTNode.needToWrapParameterList() =
         when {
-            hasNoParameters() -> false
-
-            codeStyle != ktlint_official && isPartOfFunctionLiteralInNonKtlintOfficialCodeStyle() -> false
-
-            codeStyle == ktlint_official && containsAnnotatedParameter() -> true
-
-            codeStyle == ktlint_official && isPartOfFunctionLiteralStartingOnSameLineAsClosingParenthesisOfPrecedingReferenceExpression() ->
+            hasNoParameters() -> {
                 false
+            }
 
-            textContains('\n') -> true
+            codeStyle != ktlint_official && isPartOfFunctionLiteralInNonKtlintOfficialCodeStyle() -> {
+                false
+            }
 
-            isOnLineExceedingMaxLineLength() -> true
+            codeStyle == ktlint_official && containsAnnotatedParameter() -> {
+                true
+            }
 
-            else -> false
+            codeStyle == ktlint_official &&
+                isPartOfFunctionLiteralStartingOnSameLineAsClosingParenthesisOfPrecedingReferenceExpression() -> {
+                false
+            }
+
+            textContains('\n') -> {
+                true
+            }
+
+            isOnLineExceedingMaxLineLength() -> {
+                true
+            }
+
+            else -> {
+                false
+            }
         }
 
     private fun ASTNode.hasNoParameters(): Boolean {
@@ -311,12 +325,8 @@ public class ParameterListWrappingRule :
     private fun errorMessage(node: ASTNode) =
         when (node.elementType) {
             LPAR -> """Unnecessary newline before "(""""
-
-            VALUE_PARAMETER ->
-                "Parameter should start on a newline"
-
+            VALUE_PARAMETER -> "Parameter should start on a newline"
             RPAR -> """Missing newline before ")""""
-
             else -> throw UnsupportedOperationException()
         }
 
