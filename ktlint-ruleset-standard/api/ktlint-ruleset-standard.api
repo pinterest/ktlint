@@ -994,7 +994,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/WhenEntryBracing 
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/WhenEntryBracingKt {
-	public static final fun getWHEN_CONDITION_BRACING_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+	public static final fun getWHEN_ENTRY_BRACING_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/WrappingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
