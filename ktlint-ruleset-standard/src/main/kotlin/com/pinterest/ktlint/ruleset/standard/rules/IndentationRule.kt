@@ -96,6 +96,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERT
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
@@ -120,6 +121,8 @@ import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.ec4j.core.model.PropertyType
+import org.ec4j.core.model.PropertyType.PropertyValueParser
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -160,11 +163,13 @@ public class IndentationRule :
                 CODE_STYLE_PROPERTY,
                 INDENT_SIZE_PROPERTY,
                 INDENT_STYLE_PROPERTY,
+                INDENT_WHEN_ARROW_ON_NEW_LINE,
             ),
     ),
     RuleAutocorrectApproveHandler {
     private var codeStyle = CODE_STYLE_PROPERTY.defaultValue
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
+    private var indentWhenArrowOnNewLine = INDENT_WHEN_ARROW_ON_NEW_LINE.defaultValue
 
     private var line = 1
 
@@ -182,6 +187,7 @@ public class IndentationRule :
         if (indentConfig.disabled) {
             stopTraversalOfAST()
         }
+        indentWhenArrowOnNewLine = editorConfig[INDENT_WHEN_ARROW_ON_NEW_LINE]
     }
 
     override fun beforeVisitChildNodes(
@@ -833,17 +839,28 @@ public class IndentationRule :
                     } else {
                         indentConfig.indent
                     }
-                startIndentContext(
-                    fromAstNode = arrow.nextLeaf()!!,
-                    toAstNode = node.lastChildLeafOrSelf(),
-                    firstChildIndent = outerIndent,
-                    lastChildIndent = outerIndent,
-                )
-                startIndentContext(
-                    fromAstNode = node,
-                    toAstNode = arrow,
-                    childIndent = "",
-                )
+                arrow
+                    .prevSibling { !it.isPartOfComment() }
+                    .let { prevSibling ->
+                        startIndentContext(
+                            fromAstNode = arrow.nextLeaf()!!,
+                            toAstNode = node.lastChildLeafOrSelf(),
+                        )
+                        if (indentWhenArrowOnNewLine && prevSibling != null && prevSibling.isWhiteSpaceWithNewline()) {
+                            // Force arrow to be indented when it is preceded by newline
+                            startIndentContext(
+                                fromAstNode = node,
+                                toAstNode = prevSibling.prevLeaf()!!,
+                                childIndent = "",
+                            )
+                        } else {
+                            startIndentContext(
+                                fromAstNode = node,
+                                toAstNode = arrow,
+                                childIndent = "",
+                            )
+                        }
+                    }
             }
     }
 
@@ -1290,10 +1307,28 @@ public class IndentationRule :
 
     private fun ASTNode.isPrecededByComment() = prevSibling { !it.isWhiteSpace() }?.isPartOfComment() == true
 
-    private companion object {
-        const val KDOC_CONTINUATION_INDENT = " "
-        const val TYPE_CONSTRAINT_CONTINUATION_INDENT = "      " // Length of keyword "where" plus separating space
-        val CHAINABLE_EXPRESSION = setOf(DOT_QUALIFIED_EXPRESSION, SAFE_ACCESS_EXPRESSION)
+    public companion object {
+        private const val KDOC_CONTINUATION_INDENT = " "
+        private const val TYPE_CONSTRAINT_CONTINUATION_INDENT = "      " // Length of keyword "where" plus separating space
+        private val CHAINABLE_EXPRESSION = setOf(DOT_QUALIFIED_EXPRESSION, SAFE_ACCESS_EXPRESSION)
+
+        public val INDENT_WHEN_ARROW_ON_NEW_LINE: EditorConfigProperty<Boolean> =
+            EditorConfigProperty(
+                type =
+                    PropertyType.LowerCasingPropertyType(
+                        "ij_kotlin_indent_before_arrow_on_new_line",
+                        "Indent the arrow in a when-entry if the arrow starts on a new line.",
+                        PropertyValueParser.BOOLEAN_VALUE_PARSER,
+                        setOf("true", "false"),
+                    ),
+                // Up until (and including) Intellij IDEA version `2024.1.6` the arrow on a newline was not indented. In version `2024.2`
+                // the default behavior was changed to true.
+                defaultValue = true,
+                // Disable by default to keep backward compatibility with older ktlint and IDEA versions.
+                intellijIdeaCodeStyleDefaultValue = false,
+                // Disable by default to keep backward compatibility with older ktlint and IDEA versions.
+                androidStudioCodeStyleDefaultValue = false,
+            )
     }
 
     private data class IndentContext(

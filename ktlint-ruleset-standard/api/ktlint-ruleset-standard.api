@@ -374,13 +374,16 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/ImportOrderingRul
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/IndentationRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/RuleAutocorrectApproveHandler {
-	public static final field KDOC_CONTINUATION_INDENT Ljava/lang/String;
-	public static final field TYPE_CONSTRAINT_CONTINUATION_INDENT Ljava/lang/String;
+	public static final field Companion Lcom/pinterest/ktlint/ruleset/standard/rules/IndentationRule$Companion;
 	public fun <init> ()V
 	public fun afterLastNode ()V
 	public fun afterVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
 	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
+}
+
+public final class com/pinterest/ktlint/ruleset/standard/rules/IndentationRule$Companion {
+	public final fun getINDENT_WHEN_ARROW_ON_NEW_LINE ()Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/IndentationRuleKt {
