@@ -22,14 +22,14 @@ public class Code private constructor(
 ) {
     public fun fileNameOrStdin(): String =
         if (isStdIn) {
-            STDIN_FILE
+            fileName ?: STDIN_FILE
         } else {
             fileName.orEmpty()
         }
 
     public fun filePathOrStdin(): String =
         if (isStdIn) {
-            STDIN_FILE
+            filePath?.pathString ?: STDIN_FILE
         } else {
             filePath?.pathString.orEmpty()
         }
@@ -115,6 +115,6 @@ public class Code private constructor(
          * filesystem are ignored as the snippet is not associated with a file path. Use [Code.fromFile] for scanning a file while at the
          * same time respecting the '.editorconfig' files on the path to the file.
          */
-        public fun fromStdin(): Code = fromSnippet(String(System.`in`.readBytes()))
+        public fun fromStdin(stdinPath: Path?): Code = fromSnippetWithPath(String(System.`in`.readBytes()), virtualPath = stdinPath)
     }
 }

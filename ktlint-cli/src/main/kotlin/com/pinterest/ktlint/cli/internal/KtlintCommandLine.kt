@@ -182,6 +182,12 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
             help = "Read file from stdin",
         ).flag()
 
+    private val stdinPath: String? by
+        option(
+            "--stdin-path",
+            help = "Provide a virtual file location for stdin",
+        )
+
     private val patternsFromStdin: String? by
         option(
             "--patterns-from-stdin",
@@ -263,7 +269,7 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
         val editorConfigOverride =
             EditorConfigOverride
                 .EMPTY_EDITOR_CONFIG_OVERRIDE
-                .applyIf(stdin) {
+                .applyIf(stdin && stdinPath == null) {
                     logger.debug {
                         "Add editor config override to disable 'filename' rule which can not be used in combination with reading from " +
                             "<stdin>"
@@ -303,6 +309,7 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
             lintStdin(
                 ktLintRuleEngine,
                 aggregatedReporter,
+                stdinPath,
             )
         } else {
             lintFiles(
@@ -426,12 +433,17 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
     private fun lintStdin(
         ktLintRuleEngine: KtLintRuleEngine,
         reporter: ReporterV2,
+        stdinpath: String?,
     ) {
+        val expandedStdinPath =
+            stdinpath
+                ?.expandTildeToFullPath()
+                ?.let { path -> Paths.get(path) }
         report(
             KtLintRuleEngine.STDIN_FILE,
             process(
                 ktLintRuleEngine = ktLintRuleEngine,
-                code = Code.fromStdin(),
+                code = Code.fromStdin(expandedStdinPath),
                 baselineLintErrors = emptyList(),
             ),
             reporter,

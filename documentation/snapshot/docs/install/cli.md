@@ -167,6 +167,12 @@ When combined with the `--format` option, the formatted code is written to `stdo
 ktlint --stdin -F
 ```
 
+If input from `stdin` represents the contents of a file, the file path can be supplied with `stdin-path`. This path is made available for rules to use, the `--format` option will not modify this file. 
+
+```shell title="file path from stdin-path"
+ktlint --stdin --stdin-path /path/to/file/Foo.kt
+```
+
 !!! tip "Suppress logging and error output"
     Logging output printed to `stdout` can be suppressed by setting `--log-level=none` (see [logging](#logging)).
     Output printed to `stderr` can be suppressed in different ways. To ignore all error output, add `2> /dev/null` to the end of the command line. Otherwise, specify a [reporter](#violation-reporting) to write the error output to a file.

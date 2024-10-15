@@ -399,6 +399,21 @@ class SimpleCLITest {
     }
 
     @Test
+    fun `Issue 1123 - Enable filename rule when --stdin and --stdin-path is used`(
+        @TempDir
+        tempDir: Path,
+    ) {
+        CommandLineTestRunner(tempDir)
+            .run(
+                testProjectName = "too-many-empty-lines",
+                arguments = listOf("--stdin", "--stdin-path", "/foo/Foo.kt"),
+                stdin = ByteArrayInputStream("fun foo() = 42".toByteArray()),
+            ) {
+                assertThat(normalOutput).doesNotContainLineMatching(Regex(".*ktlint_standard_filename: disabled.*"))
+            }
+    }
+
+    @Test
     fun `Issue 1832 - Given stdin input containing Kotlin Script resulting in a KtLintParseException when linted as Kotlin code then process the input as Kotlin Script`(
         @TempDir
         tempDir: Path,
