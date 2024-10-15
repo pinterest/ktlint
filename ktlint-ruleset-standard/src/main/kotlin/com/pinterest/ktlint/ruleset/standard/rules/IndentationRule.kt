@@ -833,27 +833,50 @@ public class IndentationRule :
         node
             .findChildByType(ARROW)
             ?.let { arrow ->
-                val outerIndent =
-                    if (arrow.nextLeaf()?.elementType == BLOCK) {
-                        ""
-                    } else {
-                        indentConfig.indent
-                    }
                 arrow
                     .prevSibling { !it.isPartOfComment() }
                     .let { prevSibling ->
-                        startIndentContext(
-                            fromAstNode = arrow.nextLeaf()!!,
-                            toAstNode = node.lastChildLeafOrSelf(),
-                        )
                         if (indentWhenArrowOnNewLine && prevSibling != null && prevSibling.isWhiteSpaceWithNewline()) {
-                            // Force arrow to be indented when it is preceded by newline
-                            startIndentContext(
-                                fromAstNode = node,
-                                toAstNode = prevSibling.prevLeaf()!!,
-                                childIndent = "",
-                            )
+                            if (arrow.nextCodeSibling()?.elementType == BLOCK && codeStyle != ktlint_official) {
+                                // Uglify the indentation to below to keep compatible with default formatting Intellij IDEA
+                                //     val foo =
+                                //        when (bar()) {
+                                //            is Bar1
+                                //                -> {
+                                //                "bar1"
+                                //            }
+                                //        }
+                                startIndentContext(
+                                    fromAstNode = prevSibling,
+                                    toAstNode = node.lastChildLeafOrSelf(),
+                                    firstChildIndent = indentConfig.indent,
+                                    childIndent = "",
+                                )
+                            } else {
+                                // Reformat to below. This is not compatible with default IDEA formatting. But the closing brace is now at
+                                // least aligned consistently.
+                                //     val foo =
+                                //        when (bar()) {
+                                //            is Bar1
+                                //                -> {
+                                //                    "bar1"
+                                //                }
+                                //        }
+                                startIndentContext(
+                                    fromAstNode = arrow.nextLeaf()!!,
+                                    toAstNode = node.lastChildLeafOrSelf(),
+                                )
+                                startIndentContext(
+                                    fromAstNode = node,
+                                    toAstNode = prevSibling.prevLeaf()!!,
+                                    childIndent = "",
+                                )
+                            }
                         } else {
+                            startIndentContext(
+                                fromAstNode = arrow.nextLeaf()!!,
+                                toAstNode = node.lastChildLeafOrSelf(),
+                            )
                             startIndentContext(
                                 fromAstNode = node,
                                 toAstNode = arrow,
@@ -1322,12 +1345,9 @@ public class IndentationRule :
                         setOf("true", "false"),
                     ),
                 // Up until (and including) Intellij IDEA version `2024.1.6` the arrow on a newline was not indented. In version `2024.2`
-                // the default behavior was changed to true.
-                defaultValue = true,
-                // Disable by default to keep backward compatibility with older ktlint and IDEA versions.
-                intellijIdeaCodeStyleDefaultValue = false,
-                // Disable by default to keep backward compatibility with older ktlint and IDEA versions.
-                androidStudioCodeStyleDefaultValue = false,
+                // the default behavior was changed to true. Disable by default to keep backward compatibility with older ktlint and IDEA
+                // versions.
+                defaultValue = false,
             )
     }
 
