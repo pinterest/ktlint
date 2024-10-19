@@ -5721,6 +5721,214 @@ internal class IndentationRuleTest {
         indentationRuleAssertThat(code).hasNoLintViolations()
     }
 
+    @Nested
+    inner class `Issue 2808 - Indent arrow in when-entry when starting on newline, and the arrow is followed by a statement` {
+        val code =
+            // Default IDEA formatting in version '2024.1.6'
+            """
+            val foo =
+                when (bar()) {
+                    is Bar1
+                    -> "bar1"
+
+                    is Bar2
+                    -> "bar2"
+                        .also { println(it) }
+
+                    else
+                    ->
+                        "bar3"
+                            .also { println(it) }
+                }
+            """.trimIndent()
+
+        @ParameterizedTest(name = "CodeStyle: {0}")
+        @EnumSource(CodeStyleValue::class)
+        fun `Issue 2808 - Given property 'ij_kotlin_indent_before_arrow_on_new_line' is disabled`(codeStyleValue: CodeStyleValue) {
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyleValue)
+                .withEditorConfigOverride(IndentationRule.INDENT_WHEN_ARROW_ON_NEW_LINE to false)
+                .hasNoLintViolations()
+        }
+
+        @ParameterizedTest(name = "CodeStyle: {0}")
+        @EnumSource(CodeStyleValue::class)
+        fun `Issue 2808 - Given property 'ij_kotlin_indent_before_arrow_on_new_line' is enabled`(codeStyleValue: CodeStyleValue) {
+            val formattedCode =
+                """
+                val foo =
+                    when (bar()) {
+                        is Bar1
+                            -> "bar1"
+
+                        is Bar2
+                            -> "bar2"
+                                .also { println(it) }
+
+                        else
+                            ->
+                            "bar3"
+                                .also { println(it) }
+                    }
+                """.trimIndent()
+
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyleValue)
+                .withEditorConfigOverride(IndentationRule.INDENT_WHEN_ARROW_ON_NEW_LINE to true)
+                .hasLintViolations(
+                    LintViolation(4, 1, "Unexpected indentation (8) (should be 12)"),
+                    LintViolation(7, 1, "Unexpected indentation (8) (should be 12)"),
+                    LintViolation(8, 1, "Unexpected indentation (12) (should be 16)"),
+                    LintViolation(11, 1, "Unexpected indentation (8) (should be 12)"),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @ParameterizedTest(name = "CodeStyle: {0}")
+        @EnumSource(CodeStyleValue::class)
+        fun `Issue 2808 - Given non-ktlint_official code style and property 'ij_kotlin_indent_before_arrow_on_new_line' not set`(
+            codeStyleValue: CodeStyleValue,
+        ) {
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyleValue)
+                .hasNoLintViolations()
+        }
+    }
+
+    @Nested
+    inner class `Issue 2808 - Indent arrow in when-entry when starting on newline, and the arrow is followed by a block body` {
+        val code =
+            // Default IDEA formatting in version '2024.1.6'
+            """
+            val foo =
+                when (bar()) {
+                    is Bar1
+                    -> {
+                        "bar1"
+                    }
+
+                    is Bar2
+                    -> {
+                        "bar2"
+                            .also { println(it) }
+                    }
+
+                    else
+                    -> {
+                        "bar3"
+                            .also { println(it) }
+                    }
+                }
+            """.trimIndent()
+
+        @ParameterizedTest(name = "CodeStyle: {0}")
+        @EnumSource(CodeStyleValue::class)
+        fun `Issue 2808 - Given property 'ij_kotlin_indent_before_arrow_on_new_line' is disabled`(codeStyleValue: CodeStyleValue) {
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyleValue)
+                .withEditorConfigOverride(IndentationRule.INDENT_WHEN_ARROW_ON_NEW_LINE to false)
+                .hasNoLintViolations()
+        }
+
+        @ParameterizedTest(name = "CodeStyle: {0}")
+        @EnumSource(
+            value = CodeStyleValue::class,
+            mode = EnumSource.Mode.EXCLUDE,
+            names = ["ktlint_official"],
+        )
+        fun `Issue 2808 - Given non-ktlint_official code style, and property 'ij_kotlin_indent_before_arrow_on_new_line' is enabled`(
+            codeStyleValue: CodeStyleValue,
+        ) {
+            val formattedCode =
+                // Formatting below is used by IDEA version '2024.2' or higher
+                """
+                val foo =
+                    when (bar()) {
+                        is Bar1
+                            -> {
+                            "bar1"
+                        }
+
+                        is Bar2
+                            -> {
+                            "bar2"
+                                .also { println(it) }
+                        }
+
+                        else
+                            -> {
+                            "bar3"
+                                .also { println(it) }
+                        }
+                    }
+                """.trimIndent()
+
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyleValue)
+                .withEditorConfigOverride(IndentationRule.INDENT_WHEN_ARROW_ON_NEW_LINE to true)
+                .hasLintViolations(
+                    LintViolation(4, 1, "Unexpected indentation (8) (should be 12)"),
+                    LintViolation(9, 1, "Unexpected indentation (8) (should be 12)"),
+                    LintViolation(15, 1, "Unexpected indentation (8) (should be 12)"),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Issue 2808 - Given ktlint_official code style, and property 'ij_kotlin_indent_before_arrow_on_new_line' is enabled`() {
+            val formattedCode =
+                // Formatting below is used by IDEA version '2024.2' or higher
+                """
+                val foo =
+                    when (bar()) {
+                        is Bar1
+                            -> {
+                                "bar1"
+                            }
+
+                        is Bar2
+                            -> {
+                                "bar2"
+                                    .also { println(it) }
+                            }
+
+                        else
+                            -> {
+                                "bar3"
+                                    .also { println(it) }
+                            }
+                    }
+                """.trimIndent()
+
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .withEditorConfigOverride(IndentationRule.INDENT_WHEN_ARROW_ON_NEW_LINE to true)
+                .hasLintViolations(
+                    LintViolation(4, 1, "Unexpected indentation (8) (should be 12)"),
+                    LintViolation(5, 1, "Unexpected indentation (12) (should be 16)"),
+                    LintViolation(6, 1, "Unexpected indentation (8) (should be 12)"),
+                    LintViolation(9, 1, "Unexpected indentation (8) (should be 12)"),
+                    LintViolation(10, 1, "Unexpected indentation (12) (should be 16)"),
+                    LintViolation(11, 1, "Unexpected indentation (16) (should be 20)"),
+                    LintViolation(12, 1, "Unexpected indentation (8) (should be 12)"),
+                    LintViolation(15, 1, "Unexpected indentation (8) (should be 12)"),
+                    LintViolation(16, 1, "Unexpected indentation (12) (should be 16)"),
+                    LintViolation(17, 1, "Unexpected indentation (16) (should be 20)"),
+                    LintViolation(18, 1, "Unexpected indentation (8) (should be 12)"),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @ParameterizedTest(name = "CodeStyle: {0}")
+        @EnumSource(
+            value = CodeStyleValue::class,
+            mode = EnumSource.Mode.EXCLUDE,
+            names = ["ktlint_official"],
+        )
+        fun `Issue 2808 - Given property 'ij_kotlin_indent_before_arrow_on_new_line' not set`(codeStyleValue: CodeStyleValue) {
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyleValue)
+                .hasNoLintViolations()
+        }
+    }
+
     private companion object {
         val INDENT_STYLE_TAB =
             INDENT_STYLE_PROPERTY to PropertyType.IndentStyleValue.tab
