@@ -269,7 +269,7 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
         val editorConfigOverride =
             EditorConfigOverride
                 .EMPTY_EDITOR_CONFIG_OVERRIDE
-                .applyIf(stdin && stdinPath == null) {
+                .applyIf(stdin && stdinPath.isNullOrBlank()) {
                     logger.debug {
                         "Add editor config override to disable 'filename' rule which can not be used in combination with reading from " +
                             "<stdin>"
