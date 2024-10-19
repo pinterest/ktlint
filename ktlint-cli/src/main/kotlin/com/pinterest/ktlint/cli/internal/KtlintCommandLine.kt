@@ -309,7 +309,6 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
             lintStdin(
                 ktLintRuleEngine,
                 aggregatedReporter,
-                stdinPath,
             )
         } else {
             lintFiles(
@@ -433,17 +432,18 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
     private fun lintStdin(
         ktLintRuleEngine: KtLintRuleEngine,
         reporter: ReporterV2,
-        stdinpath: String?,
     ) {
-        val expandedStdinPath =
-            stdinpath
+        val code =
+            stdinPath
                 ?.expandTildeToFullPath()
                 ?.let { path -> Paths.get(path) }
+                ?.let { Code.fromStdin(it) }
+                ?: Code.fromStdin()
         report(
             KtLintRuleEngine.STDIN_FILE,
             process(
                 ktLintRuleEngine = ktLintRuleEngine,
-                code = Code.fromStdin(expandedStdinPath),
+                code = code,
                 baselineLintErrors = emptyList(),
             ),
             reporter,
