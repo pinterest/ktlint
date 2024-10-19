@@ -1580,14 +1580,17 @@ If you are behind a proxy see - <a href="https://curl.haxx.se/docs/manpage.html#
 </code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">Suppress logging and error output</p>
+</div>
 <p>Logging output printed to <code>stdout</code> can be suppressed by setting <code>--log-level=none</code> (see <a href="#logging">logging</a>).
 Output printed to <code>stderr</code> can be suppressed in different ways. To ignore all error output, add <code>2&gt; /dev/null</code> to the end of the command line. Otherwise, specify a <a href="#violation-reporting">reporter</a> to write the error output to a file.</p>
-</div>
+<p>If input from <code>stdin</code> represents the contents of a file, the file path can be supplied with <code>stdin-path</code>. This path is made available for rules to use, the <code>--format</code> option will not modify this file. </p>
+<div class="highlight"><span class="filename">file path from stdin-path</span><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>ktlint<span class="w"> </span>--stdin<span class="w"> </span>--stdin-path<span class="w"> </span>/path/to/file/Foo.kt
+</code></pre></div>
 <h3 id="git-hooks">Git hooks<a class="headerlink" href="#git-hooks" title="Permanent link">&para;</a></h3>
 <p>Predefined git hooks can be installed, to automatically validate lint errors before commit or push.</p>
-<div class="highlight"><span class="filename">Install git pre-commit hook</span><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>ktlint<span class="w"> </span>installGitPreCommitHook
+<div class="highlight"><span class="filename">Install git pre-commit hook</span><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>ktlint<span class="w"> </span>installGitPreCommitHook
 </code></pre></div>
-<div class="highlight"><span class="filename">Install git pre-push hook</span><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>ktlint<span class="w"> </span>installGitPrePushHook
+<div class="highlight"><span class="filename">Install git pre-push hook</span><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>ktlint<span class="w"> </span>installGitPrePushHook
 </code></pre></div>
 <h3 id="miscellaneous-flags-and-commands">Miscellaneous flags and commands<a class="headerlink" href="#miscellaneous-flags-and-commands" title="Permanent link">&para;</a></h3>
 <p><code>--color</code> and <code>--color-name=&lt;colorName&gt;</code>: Make output colorful and optionally set the color name to use.</p>
