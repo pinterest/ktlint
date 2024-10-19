@@ -5,25 +5,17 @@ import org.ec4j.core.model.PropertyType.PropertyValueParser
 import java.util.Locale
 
 /**
- * A [PropertyValueParser] implementation that allows only members of a given [Enum] type. This class is almost
- * identical to the original [EnumValueParser] provided by ec4j. Difference is that values are trimmed before trying to
- * match the enum values.
+ * A [PropertyValueParser] implementation that allows only members of a given [Enum] type. This class is almost identical to the original
+ * [EnumValueParser] provided by ec4j. Difference is that values are trimmed before trying to match the enum values.
  *
- * As the ec4j project has not provided any new release since version 1.0 (2019-08-01) a custom implementation has been
- * added.
+ * As the ec4j project has not provided any new release since version 1.0 (2019-08-01) a custom implementation has been added.
  *
  * @param <T> the type of the value <T>
  *
  */
-internal class SafeEnumValueParser<T : Enum<T>>(
-    enumType: Class<T>,
+public class SafeEnumValueParser<T : Enum<T>>(
+    private val enumType: Class<T>,
 ) : PropertyValueParser<T> {
-    private val enumType: Class<T>
-
-    init {
-        this.enumType = enumType
-    }
-
     override fun parse(
         name: String?,
         value: String?,

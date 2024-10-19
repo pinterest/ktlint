@@ -618,6 +618,11 @@ public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/RuleEx
 	public static final fun ktLintRuleSetExecutionPropertyName (Lcom/pinterest/ktlint/rule/engine/core/api/RuleSetId;)Ljava/lang/String;
 }
 
+public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/SafeEnumValueParser : org/ec4j/core/model/PropertyType$PropertyValueParser {
+	public fun <init> (Ljava/lang/Class;)V
+	public fun parse (Ljava/lang/String;Ljava/lang/String;)Lorg/ec4j/core/model/PropertyType$PropertyValue;
+}
+
 public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/ec4j/EditorConfigPropertyKt {
 	public static final fun toPropertyBuilderWithValue (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;Ljava/lang/String;)Lorg/ec4j/core/model/Property$Builder;
 	public static final fun toPropertyBuilderWithValue (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;Lorg/ec4j/core/model/PropertyType$PropertyValue;)Lorg/ec4j/core/model/Property$Builder;

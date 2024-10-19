@@ -611,6 +611,10 @@ Enum entry names should be uppercase underscore-separated or upper camel-case se
     }
     ```
 
+| Configuration setting                                                                                                                                                                                                                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `ktlint_enum_entry_name_casing`</br><i>Choose any of `upper_cases` (an enum entry may only contain uppercases, and underscores, and digits, and dicritics on letters and strokes), `camel_cases` (an enum entry may only contain CamelCase values, including digits, and dicritics on letters and strokes), or `upper_or_camel_case` (allows mixing of uppercase and CamelCase entries as per Kotlin Coding Conventions).</i> |     `upper_or_camel_cases`      |       `upper_or_camel_cases`        |       `upper_or_camel_cases`        |
+
 Rule id: `standard:enum-entry-name-case`
 
 Suppress or disable rule (1)

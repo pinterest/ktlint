@@ -195,8 +195,24 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/DiscouragedCommen
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/EnumEntryNameCaseRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
+	public static final field Companion Lcom/pinterest/ktlint/ruleset/standard/rules/EnumEntryNameCaseRule$Companion;
 	public fun <init> ()V
+	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
 	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
+}
+
+public final class com/pinterest/ktlint/ruleset/standard/rules/EnumEntryNameCaseRule$Companion {
+	public final fun getENUM_ENTRY_NAME_CASING_PROPERTY ()Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
+	public final fun getENUM_ENTRY_NAME_CASING_PROPERTY_TYPE ()Lorg/ec4j/core/model/PropertyType$LowerCasingPropertyType;
+}
+
+public final class com/pinterest/ktlint/ruleset/standard/rules/EnumEntryNameCaseRule$Companion$EnumEntryNameCasing : java/lang/Enum {
+	public static final field camel_cases Lcom/pinterest/ktlint/ruleset/standard/rules/EnumEntryNameCaseRule$Companion$EnumEntryNameCasing;
+	public static final field upper_cases Lcom/pinterest/ktlint/ruleset/standard/rules/EnumEntryNameCaseRule$Companion$EnumEntryNameCasing;
+	public static final field upper_or_camel_cases Lcom/pinterest/ktlint/ruleset/standard/rules/EnumEntryNameCaseRule$Companion$EnumEntryNameCasing;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/pinterest/ktlint/ruleset/standard/rules/EnumEntryNameCaseRule$Companion$EnumEntryNameCasing;
+	public static fun values ()[Lcom/pinterest/ktlint/ruleset/standard/rules/EnumEntryNameCaseRule$Companion$EnumEntryNameCasing;
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/EnumEntryNameCaseRuleKt {
