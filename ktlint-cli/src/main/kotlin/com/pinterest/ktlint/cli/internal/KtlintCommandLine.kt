@@ -185,7 +185,7 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
     private val stdinPath: String? by
         option(
             "--stdin-path",
-            help = "Provide a virtual file location for stdin",
+            help = "Virtual file location for stdin. When combined with option '--format' the actual file will not be overwritten",
         )
 
     private val patternsFromStdin: String? by
