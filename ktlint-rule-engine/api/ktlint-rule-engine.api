@@ -18,6 +18,7 @@ public final class com/pinterest/ktlint/rule/engine/api/Code$Companion {
 	public final fun fromSnippetWithPath (Ljava/lang/String;Ljava/nio/file/Path;)Lcom/pinterest/ktlint/rule/engine/api/Code;
 	public static synthetic fun fromSnippetWithPath$default (Lcom/pinterest/ktlint/rule/engine/api/Code$Companion;Ljava/lang/String;Ljava/nio/file/Path;ILjava/lang/Object;)Lcom/pinterest/ktlint/rule/engine/api/Code;
 	public final fun fromStdin ()Lcom/pinterest/ktlint/rule/engine/api/Code;
+	public final fun fromStdin (Ljava/nio/file/Path;)Lcom/pinterest/ktlint/rule/engine/api/Code;
 }
 
 public final class com/pinterest/ktlint/rule/engine/api/EditorConfigDefaults {

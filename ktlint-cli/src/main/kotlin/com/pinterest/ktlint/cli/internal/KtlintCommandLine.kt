@@ -182,6 +182,12 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
             help = "Read file from stdin",
         ).flag()
 
+    private val stdinPath: String? by
+        option(
+            "--stdin-path",
+            help = "Virtual file location for stdin. When combined with option '--format' the actual file will not be overwritten",
+        )
+
     private val patternsFromStdin: String? by
         option(
             "--patterns-from-stdin",
@@ -263,7 +269,7 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
         val editorConfigOverride =
             EditorConfigOverride
                 .EMPTY_EDITOR_CONFIG_OVERRIDE
-                .applyIf(stdin) {
+                .applyIf(stdin && stdinPath.isNullOrBlank()) {
                     logger.debug {
                         "Add editor config override to disable 'filename' rule which can not be used in combination with reading from " +
                             "<stdin>"
@@ -427,11 +433,17 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
         ktLintRuleEngine: KtLintRuleEngine,
         reporter: ReporterV2,
     ) {
+        val code =
+            stdinPath
+                ?.expandTildeToFullPath()
+                ?.let { path -> Paths.get(path) }
+                ?.let { Code.fromStdin(it) }
+                ?: Code.fromStdin()
         report(
             KtLintRuleEngine.STDIN_FILE,
             process(
                 ktLintRuleEngine = ktLintRuleEngine,
-                code = Code.fromStdin(),
+                code = code,
                 baselineLintErrors = emptyList(),
             ),
             reporter,
