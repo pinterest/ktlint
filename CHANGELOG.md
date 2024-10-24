@@ -2,6 +2,101 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.4.0] - 2024-10-24
+
+### 🆕 Features
+
+
+* Suppress `backing-property-naming` on `@Suppress("PropertyName")` - [#2741](https://github.com/pinterest/ktlint/pull/2741), by @paul-dingemans
+
+* Check that code can still be parsed after a format - [#2742](https://github.com/pinterest/ktlint/pull/2742), by @paul-dingemans
+
+* Support suppressing backing-property-naming via ObjectPropertyName - [#2751](https://github.com/pinterest/ktlint/pull/2751), by @Goooler
+
+* Ignore properties starting with `_` in `backing-property-naming` rule - [#2753](https://github.com/pinterest/ktlint/pull/2753), by @paul-dingemans
+
+* Suppress `backing-property-naming` rule with `@Suppress("LocalVariableName")` - [#2785](https://github.com/pinterest/ktlint/pull/2785), by @paul-dingemans
+
+* Do not repeat formatting if file is unchanged - [#2805](https://github.com/pinterest/ktlint/pull/2805), by @paul-dingemans
+
+* Add new rule `when-entry-bracing` - [#2829](https://github.com/pinterest/ktlint/pull/2829), by @paul-dingemans
+
+* Add `.editorconfig` property `ij_kotlin_indent_before_arrow_on_new_line` - [#2838](https://github.com/pinterest/ktlint/pull/2838), by @paul-dingemans
+
+* Add CLI option `--stdin-path` to provide a virtual file location for stdin - [#2836](https://github.com/pinterest/ktlint/pull/2836), by @adecker89
+
+* Add property `.editorconfig` property `ktlint_enum_entry_name_casing` - [#2839](https://github.com/pinterest/ktlint/pull/2839), by @paul-dingemans
+
+### 🔧 Fixes
+
+
+* Prevent line separators to be changed from CRLF to LF - [#2752](https://github.com/pinterest/ktlint/pull/2752), by @paul-dingemans
+
+* fix: don't remove arrow from lambdas that are when/if leaf nodes - [#2758](https://github.com/pinterest/ktlint/pull/2758), by @tKe
+
+* Fix false positive in `no-semi` rule for enum class without enum entries - [#2774](https://github.com/pinterest/ktlint/pull/2774), by @paul-dingemans
+
+* Prevent conflict between `multiline-expression-wrapping` and `function-signature` - [#2775](https://github.com/pinterest/ktlint/pull/2775), by @paul-dingemans
+
+* Ignore `max_line_length` property unless `max-line-length` rule is enabled  - [#2783](https://github.com/pinterest/ktlint/pull/2783), by @paul-dingemans
+
+* Fix false positive in `class-signature` when EOL comment is between a class annotation and other class modifier - [#2786](https://github.com/pinterest/ktlint/pull/2786), by @paul-dingemans
+
+* Fix globs ending with `**` - [#2787](https://github.com/pinterest/ktlint/pull/2787), by @paul-dingemans
+
+* Return exit code 1 in case violations have been found but file is unchanged - [#2803](https://github.com/pinterest/ktlint/pull/2803), by @paul-dingemans
+
+* Ignore missing whitespace after trailing comma in single line parameter value list - [#2806](https://github.com/pinterest/ktlint/pull/2806), by @paul-dingemans
+
+* Remove HEADER_KEYWORD & IMPL_KEYWORD - [#2810](https://github.com/pinterest/ktlint/pull/2810), by @3flex
+
+* Function signature rule ignores context receiver when on separate line - [#2814](https://github.com/pinterest/ktlint/pull/2814), by @paul-dingemans
+
+* Do not remove imports for which the fully qualified path is identical to the package name - [#2822](https://github.com/pinterest/ktlint/pull/2822), by @paul-dingemans
+
+* Fix indentation of a multiline parameter list inside a function literal for code style `ktlint_official` - [#2823](https://github.com/pinterest/ktlint/pull/2823), by @paul-dingemans
+
+* Do not insert a trailing comma in a multiline when-entry containing a guard - [#2825](https://github.com/pinterest/ktlint/pull/2825), by @paul-dingemans
+
+* Fix wrapping of expression body when `max_line_length` not set - [#2833](https://github.com/pinterest/ktlint/pull/2833), by @paul-dingemans
+
+### 📦 Dependencies
+
+
+* Update dependency io.github.oshai:kotlin-logging-jvm to v7 - [#2701](https://github.com/pinterest/ktlint/pull/2701), by @renovate[bot]
+
+* Update dependency org.assertj:assertj-core to v3.26.3 - [#2738](https://github.com/pinterest/ktlint/pull/2738), by @renovate[bot]
+
+* Update mikepenz/release-changelog-builder-action action to v5 - [#2756](https://github.com/pinterest/ktlint/pull/2756), by @renovate[bot]
+
+* chore(deps): update plugin kotlinx-binary-compatibiltiy-validator to v0.16.3 - [#2759](https://github.com/pinterest/ktlint/pull/2759), by @renovate[bot]
+
+* fix(deps): update dependency org.slf4j:slf4j-simple to v2.0.16 - [#2764](https://github.com/pinterest/ktlint/pull/2764), by @renovate[bot]
+
+* Migrate to com.gradleup.shadow - [#2763](https://github.com/pinterest/ktlint/pull/2763), by @Goooler
+
+* chore(deps): update gradle/actions action to v4 - [#2760](https://github.com/pinterest/ktlint/pull/2760), by @renovate[bot]
+
+* chore(deps): update plugin com.gradle.develocity to v3.18.1 - [#2792](https://github.com/pinterest/ktlint/pull/2792), by @renovate[bot]
+
+* chore(deps): update dependency gradle to v8.10.2 - [#2812](https://github.com/pinterest/ktlint/pull/2812), by @renovate[bot]
+
+* chore(deps): update plugin shadow to v8.3.3 - [#2820](https://github.com/pinterest/ktlint/pull/2820), by @renovate[bot]
+
+* fix(deps): update dependency com.github.ajalt.clikt:clikt to v5.0.1 - [#2828](https://github.com/pinterest/ktlint/pull/2828), by @renovate[bot]
+
+* chore(deps): update kotlin monorepo to v2.0.21 - [#2831](https://github.com/pinterest/ktlint/pull/2831), by @renovate[bot]
+
+* fix(deps): update dependency org.ec4j.core:ec4j-core to v1.1.0 - [#2832](https://github.com/pinterest/ktlint/pull/2832), by @renovate[bot]
+
+* fix(deps): update dependency org.jetbrains.kotlin:kotlin-gradle-plugin to v2.1.0-beta2 - [#2834](https://github.com/pinterest/ktlint/pull/2834), by @renovate[bot]
+
+* fix(deps): update dependency dev.drewhamilton.poko:poko-gradle-plugin to v0.17.2 - [#2837](https://github.com/pinterest/ktlint/pull/2837), by @renovate[bot]
+
+* fix(deps): update dependency org.junit.jupiter:junit-jupiter to v5.11.3 - [#2840](https://github.com/pinterest/ktlint/pull/2840), by @renovate[bot]
+
+* chore(deps): update actions/checkout digest to 11bd719 - [#2841](https://github.com/pinterest/ktlint/pull/2841), by @renovate[bot]
+
 ## [1.3.1] - 2024-07-02
 
 ### 🔧 Fixes
@@ -2495,6 +2590,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[1.4.0]: https://github.com/pinterest/ktlint/compare/1.4.0...1.3.1
 [1.3.1]: https://github.com/pinterest/ktlint/compare/1.3.1...1.3.0
 [1.3.0]: https://github.com/pinterest/ktlint/compare/1.3.0...1.2.1
 [1.2.1]: https://github.com/pinterest/ktlint/compare/1.2.1...1.2.0
