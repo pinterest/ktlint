@@ -103,6 +103,10 @@ Wraps binary expression at the operator reference whenever the binary expression
     }
     ```
 
+| Configuration setting                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i> |       140       |     `off`     |     `100`      |
+
 Rule id: `standard:binary-expression-wrapping`
 
 Suppress or disable rule (1)
@@ -306,6 +310,7 @@ The `.` in `java.class` is ignored when wrapping on chain operators.
 | Configuration setting                                                                                                                                                                                                                                                                                                                                                                                  | ktlint_official | intellij_idea | android_studio |
 |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
 | `ktlint_chain_method_rule_force_multiline_when_chain_operator_count_greater_or_equal_than`<br/><i>Force wrapping of chained methods in case an expression contains at least the specified number of chain operators. If a chained method contains nested expressions, the chain operators of the inner expression are not taken into account. Use value `unset` (default) to disable this setting.</i> |        4        |       4       |       4        |
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i>                                                                                                                                                                          |       140       |     `off`     |     `100`      |
 
 
 Rule id: `standard:chain-method-continuation`
@@ -559,6 +564,7 @@ The other code styles allow an infinite amount of parameters on the same line (a
 | Configuration setting                                                                                                                                                                                                                                                                                                                       | ktlint_official | intellij_idea | android_studio |
 |:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
 | `ktlint_class_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than`<br/><i>Force wrapping of the parameters of the class signature in case it contains at least the specified number of parameters, even in case the entire class signature would fit on a single line. Use value `unset` to disable this setting.</i> |        1        |    `unset`    |    `unset`     |
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i>                                                                                                               |       140       |     `off`     |     `100`      |
 
 Rule id: `standard:class-signature`
 
@@ -604,6 +610,10 @@ Enum entry names should be uppercase underscore-separated or upper camel-case se
         Foo_Bar,
     }
     ```
+
+| Configuration setting                                                                                                                                                                                                                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `ktlint_enum_entry_name_casing`</br><i>Choose any of `upper_cases` (an enum entry may only contain uppercases, and underscores, and digits, and dicritics on letters and strokes), `camel_cases` (an enum entry may only contain CamelCase values, including digits, and dicritics on letters and strokes), or `upper_or_camel_case` (allows mixing of uppercase and CamelCase entries as per Kotlin Coding Conventions).</i> |     `upper_or_camel_cases`      |       `upper_or_camel_cases`        |       `upper_or_camel_cases`        |
 
 Rule id: `standard:enum-entry-name-case`
 
@@ -752,7 +762,7 @@ Enforces the parameters of a function literal and the arrow to be written on the
 
 If the function literal contains multiple parameters and at least one parameter other than the first parameter starts on a new line than all parameters and the arrow are wrapped to separate lines.
 
-=== "[:material-heart:](#) Ktlint"
+=== "[:material-heart:](#) Ktlint (ktlint_official)"
 
     ```kotlin
     val foobar1 = { foo + bar }
@@ -771,6 +781,27 @@ If the function literal contains multiple parameters and at least one parameter 
     val foobar5 = { foo: Foo, bar: Bar -> foo + bar }
     val foobar6 =
         {
+            foo: Foo,
+            bar: Bar,
+            ->
+            foo + bar
+        }
+    
+    // Assume that the last allowed character is
+    // at the X character on the right           X
+    val foobar7 =
+        barrrrrrrrrrrrrr { 
+            fooooooooooooooo: Foo
+            ->
+            foo.repeat(2)
+        }
+    ```
+
+=== "[:material-heart:](#) Ktlint (non ktlint_official)"
+
+    ```kotlin
+    val foobar6 =
+        {
                 foo: Foo,
                 bar: Bar,
             ->
@@ -781,7 +812,7 @@ If the function literal contains multiple parameters and at least one parameter 
     // at the X character on the right           X
     val foobar7 =
         barrrrrrrrrrrrrr { 
-              fooooooooooooooo: Foo
+                fooooooooooooooo: Foo
             ->
             foo.repeat(2)
         }
@@ -807,6 +838,10 @@ If the function literal contains multiple parameters and at least one parameter 
             foo.repeat(2)
         }
     ```
+
+| Configuration setting                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i> |       140       |     `off`     |     `100`      |
 
 Rule id: `standard:function-literal`
 
@@ -977,6 +1012,10 @@ Rewrites the function signature to a single line when possible (e.g. when not ex
         "some-result"
             .uppercase()
     ```
+
+| Configuration setting                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i> |       140       |     `off`     |     `100`      |
 
 Rule id: `standard:function-signature`
 
@@ -1155,10 +1194,11 @@ Indentation formatting - respects `.editorconfig` `indent_size` with no continua
 !!! note
     This rule handles indentation for many different language constructs which can not be summarized with a few examples. See the [unit tests](https://github.com/pinterest/ktlint/blob/master/ktlint-ruleset-standard/src/test/kotlin/com/pinterest/ktlint/ruleset/standard/rules/IndentationRuleTest.kt) for more details.
 
-| Configuration setting                                                                                                                     | ktlint_official | intellij_idea | android_studio |
-|:------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
-| `indent_size`</br><i>The size of an indentation level when `indent_style` is set to `space`. Use value `unset` to ignore indentation.</i> |        4        |       4       |       4        |
-| `indent_style`</br><i>Style of indentation. Set this value to `space` or `tab`.</i>                                                       |     `space`     |    `space`    |    `space`     |
+| Configuration setting                                                                                                                                                                                                                                                                                                                                     | ktlint_official | intellij_idea | android_studio |
+|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `indent_size`</br><i>The size of an indentation level when `indent_style` is set to `space`. Use value `unset` to ignore indentation.</i>                                                                                                                                                                                                                 |        4        |       4       |       4        |
+| `indent_style`</br><i>Style of indentation. Set this value to `space` or `tab`.</i>                                                                                                                                                                                                                                                                       |     `space`     |    `space`    |    `space`     |
+| `ij_kotlin_indent_before_arrow_on_new_line`</br><i>Indent the arrow in a when-entry if the arrow starts on a new line. Set this value to `true` or `false`. Starting from IDEA version `2024.2` or above this value needs to be set to `true` to maintain compatibility with IDEA formatting.</i> |     `false`     |    `false`    |    `false`     |
 
 Rule id: `standard:indent`
 
@@ -1854,7 +1894,9 @@ Rule id: `standard:ktlint-suppression`
 
 ## Max line length
 
-Ensures that lines do not exceed the maximum length of a line. This rule does not apply in a number of situations. The `.editorconfig` property `ktlint_ignore_back_ticked_identifier` can be set to ignore identifiers which are enclosed in backticks, which for example is very useful when you want to allow longer names for unit tests.
+Ensures that lines do not exceed the maximum length of a line as specified in `.editorconfig` property `max_line_length`.
+
+This rule does not apply in a number of situations. The `.editorconfig` property `ktlint_ignore_back_ticked_identifier` can be set to ignore identifiers which are enclosed in backticks, which for example is very useful when you want to allow longer names for unit tests.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -1889,10 +1931,10 @@ Ensures that lines do not exceed the maximum length of a line. This rule does no
     ```
 
 
-| Configuration setting                                                                                               | ktlint_official | intellij_idea | android_studio |
-|:--------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
-| `ktlint_ignore_back_ticked_identifier`<br/><i>Defines whether the backticked identifier (``) should be ignored.</i> |     `false`     |    `false`    |    `false`     |
-| `max_line_length`<br/><i>Maximum length of a (regular) line.</i>                                                    |       140       |     `off`     |     `100`      |
+| Configuration setting                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `ktlint_ignore_back_ticked_identifier`<br/><i>Defines whether the backticked identifier (``) should be ignored.</i>                                                                                                           |     `false`     |    `false`    |    `false`     |
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i> |       140       |     `off`     |     `100`      |
 
 Rule id: `standard:max-line-length`
 
@@ -2968,6 +3010,10 @@ Consistent spacing around the function return type.
         String = "some-result"
     ```
 
+| Configuration setting                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i> |       140       |     `off`     |     `100`      |
+
 Rule id: `standard:function-return-type-spacing`
 
 Suppress or disable rule (1)
@@ -3345,6 +3391,10 @@ Consistent spacing inside the parameter list.
     fun foo(
     ) = "some-result"
     ```
+
+| Configuration setting                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i> |       140       |     `off`     |     `100`      |
 
 Rule id: `standard:parameter-list-spacing`
 
@@ -4124,9 +4174,10 @@ All arguments should be on the same line, or every argument should be on a separ
         )
     ```
 
-| Configuration setting                                                             | ktlint_official | intellij_idea | android_studio |
-|:----------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
-| `ktlint_argument_list_wrapping_ignore_when_parameter_count_greater_or_equal_than` |     `unset`     |       8       |       8        |
+| Configuration setting                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `ktlint_argument_list_wrapping_ignore_when_parameter_count_greater_or_equal_than`                                                                                                                                             |     `unset`     |       8       |       8        |
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i> |       140       |     `off`     |     `100`      |
 
 Rule id: `standard:argument-list-wrapping`
 
@@ -4334,6 +4385,10 @@ Wraps the content receiver list to a separate line regardless of maximum line le
     fun fooBar()
     ```
 
+| Configuration setting                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i> |       140       |     `off`     |     `100`      |
+
 Rule id: `standard:context-receiver-wrapping`
 
 Suppress or disable rule (1)
@@ -4454,6 +4509,8 @@ Suppress or disable rule (1)
 
 Multiline expression on the right hand side of an expression are forced to start on a separate line. Expressions in return statement are excluded as that would result in a compilation error.
 
+Setting `ktlint_function_signature_body_expression_wrapping` of the `function-signature` rule takes precedence when set to `default`. This setting keeps the first line of a multiline expression body on the same line as the end of function signature as long as the max line length is not exceeded. In that case, this rule does not wrap the multiline expression. 
+
 === "[:material-heart:](#) Ktlint"
 
     ```kotlin
@@ -4560,6 +4617,10 @@ When class/function signature doesn't fit on a single line, each parameter must 
     )
     ```
 
+| Configuration setting                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i> |       140       |     `off`     |     `100`      |
+
 Rule id: `standard:parameter-list-wrapping`
 
 Suppress or disable rule (1)
@@ -4626,6 +4687,10 @@ When a function or class parameter doesn't fit on a single line, wrap the type o
     )
     ```
 
+| Configuration setting                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i> |       140       |     `off`     |     `100`      |
+
 Rule id: `standard:parameter-wrapping`
 
 Suppress or disable rule (1)
@@ -4663,6 +4728,10 @@ When a property doesn't fit on a single line, wrap the type or value to a separa
     // at the X character on the right           X
     val aVariableWithALooooooooooooongName: String
     ```
+
+| Configuration setting                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i> |       140       |     `off`     |     `100`      |
 
 Rule id: `standard:property-wrapping`
 
@@ -4761,6 +4830,10 @@ Inserts missing newlines (for example between parentheses of a multi-line functi
         b,
         c)
     ```
+
+| Configuration setting                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i> |       140       |     `off`     |     `100`      |
 
 Rule id: `standard:wrapping`
 

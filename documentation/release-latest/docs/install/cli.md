@@ -12,7 +12,7 @@ All releases of `ktlint` can be downloaded from the [releases](https://github.co
 A particular version of `ktlint` can be downloaded with next command which also changes the file to an executable in directory `/usr/local/bin`:
 
 ```sh title="Download"
-curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.3.1/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
+curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.4.0/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
 ```
 
 !!! tip "Curl not installed or behind proxy"
@@ -168,9 +168,14 @@ ktlint --stdin -F
 ```
 
 !!! tip "Suppress logging and error output"
-    Logging output printed to `stdout` can be suppressed by setting `--log-level=none` (see [logging](#logging)).
-    Output printed to `stderr` can be suppressed in different ways. To ignore all error output, add `2> /dev/null` to the end of the command line. Otherwise, specify a [reporter](#violation-reporting) to write the error output to a file.
+Logging output printed to `stdout` can be suppressed by setting `--log-level=none` (see [logging](#logging)).
+Output printed to `stderr` can be suppressed in different ways. To ignore all error output, add `2> /dev/null` to the end of the command line. Otherwise, specify a [reporter](#violation-reporting) to write the error output to a file.
 
+If input from `stdin` represents the contents of a file, the file path can be supplied with `stdin-path`. This path is made available for rules to use, the `--format` option will not modify this file. 
+
+```shell title="file path from stdin-path"
+ktlint --stdin --stdin-path /path/to/file/Foo.kt
+```
 
 ### Git hooks
 
@@ -204,6 +209,6 @@ Options `--stdin` and `--patterns-from-stdin` are mutually exclusive, only one o
 
 Microsoft Windows is not able to run the `ktlint` command directly. Ktlint can be run in following ways on Microsoft Windows:
 
-1. Use the `ktlint.bat` batch file provided as part of the [release](https://github.com/pinterest/ktlint/releases/tag/1.3.1). Add the batch file to your `%PATH%` environment variable for easy access
+1. Use the `ktlint.bat` batch file provided as part of the [release](https://github.com/pinterest/ktlint/releases/tag/1.4.0). Add the batch file to your `%PATH%` environment variable for easy access
 2. Run `ktlint` using Git Bash
 3. Run as `java -jar ktlint`
