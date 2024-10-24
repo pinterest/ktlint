@@ -341,20 +341,20 @@ This rule is not incorporated in the Kotlin Coding conventions, nor in the Andro
         }
     ```
 
-Rule id: `standard:when-entry-spacing`
+Rule id: `standard:when-entry-bracing`
 
 Suppress or disable rule (1)
 { .annotate }
 
 1. Suppress rule in code with annotation below:
     ```kotlin
-    @Suppress("ktlint:standard:when-entry-spacing")
+    @Suppress("ktlint:standard:when-entry-bracing")
     ```
    Enable rule via `.editorconfig`
     ```editorconfig
-    ktlint_standard_when-entry-spacing = enabled
+    ktlint_standard_when-entry-bracing = enabled
     ```
    Disable rule via `.editorconfig`
     ```editorconfig
-    ktlint_standard_when-entry-spacing = disabled
+    ktlint_standard_when-entry-bracing = disabled
     ```
