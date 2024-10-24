@@ -48,8 +48,6 @@ Install with [MacPorts](https://www.macports.org/)
 port install ktlint
 ```
 
-On Arch Linux install package [ktlint <sup>AUR</sup>](https://aur.archlinux.org/packages/ktlint/).
-
 ## Command line usage
 
 ### Rule set(s)
