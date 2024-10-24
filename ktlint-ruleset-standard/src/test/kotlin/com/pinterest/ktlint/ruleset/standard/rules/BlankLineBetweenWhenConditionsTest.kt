@@ -84,8 +84,8 @@ class BlankLineBetweenWhenConditionsTest {
                 @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
                 blankLineAfterWhenConditionRuleAssertThat(code)
                     .hasLintViolations(
-                        LintViolation(4, 1, "Add a blank line between all when-condition in case at least one multiline when-condition is found in the statement"),
-                        LintViolation(6, 1, "Add a blank line between all when-condition in case at least one multiline when-condition is found in the statement"),
+                        LintViolation(4, 1, "Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement"),
+                        LintViolation(6, 1, "Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement"),
                     ).isFormattedAs(formattedCode)
             }
 
@@ -116,8 +116,8 @@ class BlankLineBetweenWhenConditionsTest {
                 @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
                 blankLineAfterWhenConditionRuleAssertThat(code)
                     .hasLintViolations(
-                        LintViolation(4, 1, "Add a blank line between all when-condition in case at least one multiline when-condition is found in the statement"),
-                        LintViolation(5, 1, "Add a blank line between all when-condition in case at least one multiline when-condition is found in the statement"),
+                        LintViolation(4, 1, "Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement"),
+                        LintViolation(5, 1, "Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement"),
                     ).isFormattedAs(formattedCode)
             }
 
@@ -152,8 +152,8 @@ class BlankLineBetweenWhenConditionsTest {
                 @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
                 blankLineAfterWhenConditionRuleAssertThat(code)
                     .hasLintViolations(
-                        LintViolation(5, 1, "Add a blank line between all when-condition in case at least one multiline when-condition is found in the statement"),
-                        LintViolation(7, 1, "Add a blank line between all when-condition in case at least one multiline when-condition is found in the statement"),
+                        LintViolation(5, 1, "Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement"),
+                        LintViolation(7, 1, "Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement"),
                     ).isFormattedAs(formattedCode)
             }
 
@@ -182,7 +182,7 @@ class BlankLineBetweenWhenConditionsTest {
                     """.trimIndent()
                 @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
                 blankLineAfterWhenConditionRuleAssertThat(code)
-                    .hasLintViolation(4, 1, "Add a blank line between all when-condition in case at least one multiline when-condition is found in the statement")
+                    .hasLintViolation(4, 1, "Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement")
                     .isFormattedAs(formattedCode)
             }
 
@@ -209,7 +209,7 @@ class BlankLineBetweenWhenConditionsTest {
                     """.trimIndent()
                 @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
                 blankLineAfterWhenConditionRuleAssertThat(code)
-                    .hasLintViolation(4, 1, "Add a blank line between all when-condition in case at least one multiline when-condition is found in the statement")
+                    .hasLintViolation(4, 1, "Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement")
                     .isFormattedAs(formattedCode)
             }
         }

@@ -84,8 +84,7 @@ public class BlankLineBetweenWhenConditions :
                     ?.let { whitespaceBeforeWhenEntry ->
                         emitAndApprove(
                             whitespaceBeforeWhenEntry.startOffset + 1,
-                            "Add a blank line between all when-condition in case at least one multiline when-condition is found in the " +
-                                "statement",
+                            "Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement",
                             true,
                         ).ifAutocorrectAllowed {
                             whitespaceBeforeWhenEntry.upsertWhitespaceBeforeMe("\n${whenEntry.indent()}")
