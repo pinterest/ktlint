@@ -258,7 +258,7 @@ public class TrailingCommaOnDeclarationSiteRule :
         val trailingCommaNode = prevLeaf?.findPreviousTrailingCommaNodeOrNull()
         val trailingCommaState =
             when {
-                hasWhenGuard() -> {
+                hasWhenEntryGuard() -> {
                     // The compiler won't allow any comma in the when-entry in case it contains a guard clause
                     TrailingCommaState.NOT_EXISTS
                 }
@@ -444,7 +444,16 @@ public class TrailingCommaOnDeclarationSiteRule :
         return codeLeaf?.takeIf { it.elementType == COMMA }
     }
 
-    private fun ASTNode.hasWhenGuard() = elementType == WHEN_ENTRY && children().any { it.elementType == WHEN_ENTRY_GUARD }
+    private fun ASTNode.hasWhenEntryGuard() = elementType == WHEN_ENTRY && hasWhenEntryGuardKotlin21()
+
+    private fun ASTNode.hasWhenEntryGuardKotlin21(): Boolean =
+        // TODO: Remove try-catch wrapping once kotlin version is upgraded to 2.1 or above
+        try {
+            children().any { it.elementType == WHEN_ENTRY_GUARD }
+        } catch (e: NoSuchFieldError) {
+            // Prior to Kotlin 2.1 the WHEN_ENTRY_GUARD can not be retrieved successfully.
+            false
+        }
 
     private fun containsLineBreakInLeavesRange(
         from: PsiElement,

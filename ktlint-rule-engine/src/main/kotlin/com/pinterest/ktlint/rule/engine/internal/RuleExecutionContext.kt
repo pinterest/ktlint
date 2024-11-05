@@ -103,7 +103,7 @@ internal class RuleExecutionContext private constructor(
                 } else {
                     executeRuleWithoutAutocorrectApproveHandlerOnNodeRecursively(node, rule, autocorrectHandler, emitAndApprove)
                 }
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 if (autocorrectHandler is NoneAutocorrectHandler) {
                     val (line, col) = positionInTextLocator(node.startOffset)
                     throw RuleExecutionException(
