@@ -2,6 +2,17 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.4.1] - 2024-11-05
+
+### 🔧 Fixes
+ 
+* Catch java.lang.NoSuchFieldError when looking for WHEN_ENTRY_GUARD in kotlin version 2.0.1 - [#2857](https://github.com/pinterest/ktlint/pull/2857), by @paul-dingemans
+
+### 📦 Dependencies
+ 
+* chore(deps): update plugin shadow to v8.3.5 - [#2851](https://github.com/pinterest/ktlint/pull/2851), by @renovate[bot]
+* fix(deps): update dependency org.jetbrains.kotlin:kotlin-gradle-plugin to v2.1.0-rc - [#2853](https://github.com/pinterest/ktlint/pull/2853), by @renovate[bot]
+
 ## [1.4.0] - 2024-10-24
 
 ### 🆕 Features
@@ -2590,6 +2601,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[1.4.1]: https://github.com/pinterest/ktlint/compare/1.4.1...1.4.0
 [1.4.0]: https://github.com/pinterest/ktlint/compare/1.4.0...1.3.1
 [1.3.1]: https://github.com/pinterest/ktlint/compare/1.3.1...1.3.0
 [1.3.0]: https://github.com/pinterest/ktlint/compare/1.3.0...1.2.1
