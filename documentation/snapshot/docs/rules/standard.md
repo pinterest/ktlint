@@ -1127,7 +1127,7 @@ Suppress or disable rule (1)
 
 ## Import ordering
 
-Ensures that imports are ordered consistently (see [Import Layouts](../configuration-ktlint/#import-layouts) for configuration).
+Ensures that imports are ordered consistently.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -1145,6 +1145,31 @@ Ensures that imports are ordered consistently (see [Import Layouts](../configura
     import org.foo.bar.FooBar
     import com.foo.Foo
     ```
+
+| Configuration setting                                                                                                |          ktlint_official           |            intellij_idea            | android_studio |
+|:---------------------------------------------------------------------------------------------------------------------|:----------------------------------:|:-----------------------------------:|:--------------:|
+| `ij_kotlin_imports_layout`</br><i>Defines imports order layout for Kotlin files</i>For more details see below table. | *,java.**,javax.**,kotlin.**,^ <1> | *,java.**,javax.**,kotlin.**,^ <1>  |     * <2>      |
+
+### ij_kotlin_packages_to_use_import_on_demand
+
+This property holds 0 or more import paths. The import path can be a full path, e.g. "java.util.List.*" as well as wildcard path, e.g. "kotlin.**".
+
+Imports can be grouped by composing the layout with symbols below:
+
+*  `*` - wildcard. There must be at least one entry of a single wildcard to match all other imports. Matches anything after a specified symbol/import as well.
+* `|` - blank line. Supports only single blank lines between imports. No blank line is allowed in the beginning or end of the layout.
+* `^` - alias import, e.g. "^android.*" will match all android alias imports, "^" will match all other alias imports.
+
+Imports in the same group are sorted alphabetical with capital letters before lower case letters (e.g. Z before a).
+
+Examples:
+```kotlin
+ij_kotlin_imports_layout=* # alphabetical with capital letters before lower case letters (e.g. Z before a), no blank lines
+ij_kotlin_imports_layout=*,java.**,javax.**,kotlin.**,^ # default IntelliJ IDEA style, same as alphabetical, but with "java", "javax", "kotlin" and alias imports in the end of the imports list
+ij_kotlin_imports_layout=android.**,|,^org.junit.**,kotlin.io.Closeable.*,|,*,^ # custom imports layout
+```
+
+Wildcard imports can be allowed for specific import paths (Comma-separated list, use "**" as wildcard for package and all subpackages). This setting overrides the no-wildcard-imports rule. This setting is best be used for allowing wildcard imports from libraries like Ktor where extension functions are used in a way that creates a lot of imports.
 
 Rule id: `standard:import-ordering`
 
@@ -2548,27 +2573,12 @@ No wildcard imports except whitelisted imports.
     import foobar.*
     ```
 
-| Configuration setting                                                                                               | ktlint_official |               intellij_idea                |                 android_studio                  |
+| Configuration setting                                                                    | ktlint_official |              intellij_idea               |              android_studio              |
 |:--------------------------------------------------------------------------------------------------------------------|:---------------:|:------------------------------------------:|:-----------------------------------------------:|
 | `ij_kotlin_packages_to_use_import_on_demand`<br/><i>Defines allowed wildcard imports as a comma separated list.</i> |        -        | `java.util.*,`<br/>`kotlinx.android.synthetic.**` | `java.util.*,`<br/>`kotlinx.android.synthetic.**` |
 
 !!! warning
     In case property `ij_kotlin_packages_to_use_import_on_demand` is not explicitly set, Intellij IDEA allows wildcards imports like `java.util.*` which lead to conflicts with the `no-wildcard-imports` rule. See [Intellij IDEA configuration](configuration-intellij-idea.md) to prevent such conflicts.
-
-Configuration setting `ij_kotlin_packages_to_use_import_on_demand` is a comma separated string of import paths. This can be a full path, e.g. "java.util.List.*", or a wildcard path, e.g. "kotlin.**". Use "**" as wildcard for package and all subpackages.
-
-The layout can be composed by the following symbols:
-
-*  `*` - wildcard. There must be at least one entry of a single wildcard to match all other imports. Matches anything after a specified symbol/import as well.
-* `|` - blank line. Supports only single blank lines between imports. No blank line is allowed in the beginning or end of the layout.
-* `^` - alias import, e.g. "^android.*" will match all android alias imports, "^" will match all other alias imports.
-
-Examples:
-```kotlin
-ij_kotlin_imports_layout=* # alphabetical with capital letters before lower case letters (e.g. Z before a), no blank lines
-ij_kotlin_imports_layout=*,java.**,javax.**,kotlin.**,^ # default IntelliJ IDEA style, same as alphabetical, but with "java", "javax", "kotlin" and alias imports in the end of the imports list
-ij_kotlin_imports_layout=android.**,|,^org.junit.**,kotlin.io.Closeable.*,|,*,^ # custom imports layout
-```
 
 Rule id: `standard:no-wildcard-imports`
 
