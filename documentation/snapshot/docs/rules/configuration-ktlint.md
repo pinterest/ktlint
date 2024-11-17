@@ -47,6 +47,7 @@ The configuration settings below are used to configure the behavior of a specifi
 |:------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------|
 | ij_kotlin_allow_trailing_comma                                                            | [trailing-comma-on-declaration-site](../standard/#trailing-comma-on-declaration-site) |
 | ij_kotlin_allow_trailing_comma_on_call_site                                               | [trailing-comma-on-call-site](../standard/#trailing-comma-on-call-site)               |
+| ij_kotlin_imports_layout                                                                  | [import-ordering](../standard/#import-ordering)                                       |
 | ij_kotlin_packages_to_use_import_on_demand                                                | [no-wildcard-imports](../standard/#no-wildcard-imports)                               |
 | indent_size                                                                               | [indent](../standard/#indentation)                                                    |                                                                                       |
 | indent_style                                                                              | [indent](../standard/#indentation)                                                    |                                                                                       |
