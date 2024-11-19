@@ -563,6 +563,10 @@ public class FunctionSignatureRule :
                         }
                     val mergeWithFunctionSignature =
                         when {
+                            functionBodyExpressionWrapping == always -> {
+                                false
+                            }
+
                             firstLineOfBodyExpression.length < maxLengthRemainingForFirstLineOfBodyExpression -> {
                                 (functionBodyExpressionWrapping == default && !functionBodyExpressionNodes.isMultilineStringTemplate()) ||
                                     (functionBodyExpressionWrapping == multiline && functionBodyExpressionLines.size == 1) ||
@@ -588,7 +592,8 @@ public class FunctionSignatureRule :
                     !whiteSpaceBeforeFunctionBodyExpression.textContains('\n')
                 ) {
                     if (node.isMultilineFunctionSignatureWithoutExplicitReturnType(lastNodeOfFunctionSignatureWithBodyExpression) &&
-                        firstLineOfBodyExpression.length + 1 <= maxLengthRemainingForFirstLineOfBodyExpression
+                        firstLineOfBodyExpression.length + 1 <= maxLengthRemainingForFirstLineOfBodyExpression &&
+                        functionBodyExpressionWrapping != always
                     ) {
                         if (whiteSpaceBeforeFunctionBodyExpression == null ||
                             whiteSpaceBeforeFunctionBodyExpression.text != " "
