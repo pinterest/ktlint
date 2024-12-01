@@ -2,9 +2,11 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionNamingRule.Companion.IGNORE_WHEN_ANNOTATED_WITH_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 import org.junit.jupiter.params.provider.ValueSource
 
 class FunctionNamingRuleTest {
@@ -273,23 +275,22 @@ class FunctionNamingRuleTest {
     }
 
     @ParameterizedTest(name = "Keyword: {0}")
-    @Suppress("ktlint:standard:argument-list-wrapping")
-    @ValueSource(
-        strings = [
-            "abstract", "actual", "annotation", "as", "break", "by", "catch", "class", "companion", "const", "constructor", "context",
-            "continue", "contract", "crossinline", "data", "delegate", "do", "dynamic", "else", "enum", "expect", "external", "false",
-            "field", "file", "final", "finally", "for", "fun", "get", "header", "if", "impl", "import", "in", "infix", "init", "inline",
-            "inner", "interface", "internal", "is", "lateinit", "noinline", "null", "object", "open", "operator", "out", "override",
-            "package", "param", "private", "property", "protected", "public", "receiver", "reified", "return", "sealed", "set", "setparam",
-            "super", "suspend", "tailrec", "this", "throw", "true", "try", "typealias", "typeof", "val", "value", "var", "vararg", "when",
-            "where", "while",
-        ],
-    )
+    @MethodSource("ktTokens")
     fun `Issue 2352 - Given a keyword then allow it to be wrapped between backticks`(keyword: String) {
         val code =
             """
             fun `$keyword`() = "foo"
             """.trimIndent()
         functionNamingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    companion object {
+        @Suppress("UnstableApiUsage")
+        @JvmStatic
+        private fun ktTokens() =
+            KtTokens.KEYWORDS.types
+                .plus(KtTokens.SOFT_KEYWORDS.types)
+                .filterNot { it == KtTokens.AS_SAFE || it == KtTokens.NOT_IN || it == KtTokens.NOT_IS }
+                .map { it.debugName }
     }
 }
