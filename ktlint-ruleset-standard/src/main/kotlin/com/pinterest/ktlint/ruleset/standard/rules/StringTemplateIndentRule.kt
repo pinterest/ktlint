@@ -161,7 +161,7 @@ public class StringTemplateIndentRule :
             ?.takeIf { it.elementType == ElementType.EQ }
             ?.closingParenthesisOfFunctionOrNull()
             ?.prevLeaf()
-            ?.let { it.isWhiteSpaceWithNewline() }
+            ?.isWhiteSpaceWithNewline()
             ?: false
 
     private fun ASTNode.closingParenthesisOfFunctionOrNull() =
@@ -292,7 +292,13 @@ public class StringTemplateIndentRule :
         indent: String,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val firstNodeAfterOpeningQuotes = node.firstChildNode.nextLeaf() ?: return
+        val firstNodeAfterOpeningQuotes =
+            node
+                // The string template can start with an INTERPOLATION_PREFIX (multi dollar string interpolation, see
+                // https://kotlinlang.org/docs/strings.html#multi-dollar-string-interpolation), which is to be skipped.
+                .findChildByType(OPEN_QUOTE)
+                ?.nextLeaf()
+                ?: return
         if (firstNodeAfterOpeningQuotes.text.isNotBlank()) {
             emit(
                 firstNodeAfterOpeningQuotes.startOffset + firstNodeAfterOpeningQuotes.text.length,
