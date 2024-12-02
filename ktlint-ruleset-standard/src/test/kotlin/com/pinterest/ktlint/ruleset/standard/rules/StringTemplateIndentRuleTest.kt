@@ -500,4 +500,16 @@ class StringTemplateIndentRuleTest {
             """.trimIndent()
         stringTemplateIndentRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 2885 - Given a multiline string template prefix with a multi-dollar interpolation prefix`() {
+        val code =
+            """
+            val foo =
+                $$$MULTILINE_STRING_QUOTE
+                Some text
+                $MULTILINE_STRING_QUOTE.trimIndent()
+            """.trimIndent()
+        stringTemplateIndentRuleAssertThat(code).hasNoLintViolations()
+    }
 }
