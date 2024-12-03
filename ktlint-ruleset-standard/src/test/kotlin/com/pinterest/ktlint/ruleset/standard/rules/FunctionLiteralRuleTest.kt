@@ -597,4 +597,30 @@ class FunctionLiteralRuleTest {
                 LintViolation(4, 7, "Arrow is redundant when parameter list is empty"),
             ).isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Issue 2850 - Given function literal with a comment before the parameter list which contains a redundant parameter then do remove the redundant parameter but keep the comment`() {
+        val code =
+            """
+            val foo1 =
+                {
+                    // some comment
+                    foo: String -> "foo = " + foo
+                }
+            val foo2 =
+                { // some comment
+                    foo: String -> "foo = " + foo
+                }
+            val foo3 =
+                {
+                    /* some comment */
+                    foo: String -> "foo = " + foo
+                }
+            val foo4 =
+                { /* some comment */
+                    foo: String -> "foo = " + foo
+                }
+            """.trimIndent()
+        functionLiteralRuleAssertThat(code).hasNoLintViolations()
+    }
 }

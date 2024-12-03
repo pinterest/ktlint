@@ -49,6 +49,7 @@ import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.psi.psiUtil.siblings
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -343,8 +344,8 @@ public class FunctionLiteralRule :
     ) {
         require(parameterList.elementType == VALUE_PARAMETER_LIST)
         parameterList
-            .prevSibling { it.isWhiteSpace() }
-            ?.takeIf { it.isWhiteSpaceWithNewline() }
+            .takeUnless { it.isPrecededByComment() }
+            ?.prevSibling { it.isWhiteSpaceWithNewline() }
             ?.let { whitespaceBeforeParameterList ->
                 emit(parameterList.startOffset, "No newline expected before parameter", true)
                     .ifAutocorrectAllowed {
@@ -361,6 +362,8 @@ public class FunctionLiteralRule :
                     }
             }
     }
+
+    private fun ASTNode.isPrecededByComment() = siblings(forward = false).any { it.isPartOfComment() }
 
     private fun visitArrow(
         arrow: ASTNode,
