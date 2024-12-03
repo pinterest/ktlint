@@ -716,9 +716,24 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/ParameterWrapping
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/PropertyNamingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
-	public static final field SERIAL_VERSION_UID_PROPERTY_NAME Ljava/lang/String;
+	public static final field Companion Lcom/pinterest/ktlint/ruleset/standard/rules/PropertyNamingRule$Companion;
 	public fun <init> ()V
+	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
 	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
+}
+
+public final class com/pinterest/ktlint/ruleset/standard/rules/PropertyNamingRule$Companion {
+	public final fun getCONSTANT_NAMING_PROPERTY ()Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
+	public final fun getCONSTANT_NAMING_PROPERTY_TYPE ()Lorg/ec4j/core/model/PropertyType$LowerCasingPropertyType;
+}
+
+public final class com/pinterest/ktlint/ruleset/standard/rules/PropertyNamingRule$Companion$ConstantNamingStyle : java/lang/Enum {
+	public static final field pascal_case Lcom/pinterest/ktlint/ruleset/standard/rules/PropertyNamingRule$Companion$ConstantNamingStyle;
+	public static final field screaming_snake_case Lcom/pinterest/ktlint/ruleset/standard/rules/PropertyNamingRule$Companion$ConstantNamingStyle;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public final fun getRegEx ()Lkotlin/text/Regex;
+	public static fun valueOf (Ljava/lang/String;)Lcom/pinterest/ktlint/ruleset/standard/rules/PropertyNamingRule$Companion$ConstantNamingStyle;
+	public static fun values ()[Lcom/pinterest/ktlint/ruleset/standard/rules/PropertyNamingRule$Companion$ConstantNamingStyle;
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/PropertyNamingRuleKt {

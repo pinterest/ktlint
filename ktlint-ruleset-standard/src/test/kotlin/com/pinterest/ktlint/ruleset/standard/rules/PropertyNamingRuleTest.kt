@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
+import com.pinterest.ktlint.ruleset.standard.rules.PropertyNamingRule.Companion.ConstantNamingStyle.pascal_case
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.KtlintDocumentationTest
 import com.pinterest.ktlint.test.LintViolation
@@ -47,16 +48,47 @@ class PropertyNamingRuleTest {
     }
 
     @Test
-    fun `Given a const property name not in screaming case notation then do emit`() {
+    fun `Given the default constant naming style, and a const property name not in screaming case notation then do emit`() {
         val code =
             """
             const val foo = "foo"
+            const val FOO = "foo"
             const val FOO_BAR_2 = "foo-bar-2"
             const val ŸÈŠ_THÎS_IS_ALLOWED_123 = "Yes this is allowed"
+            const val Foo = "foo"
+            const val FooBar2 = "foo-bar-2"
+            const val ŸèšThîsIsAllowed123 = "Yes this is allowed"
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
         propertyNamingRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(1, 11, "Property name should use the screaming snake case notation when the value can not be changed")
+            .hasLintViolationsWithoutAutoCorrect(
+                LintViolation(1, 11, "Property name should use the screaming snake case notation when the value can not be changed"),
+                LintViolation(5, 11, "Property name should use the screaming snake case notation when the value can not be changed"),
+                LintViolation(6, 11, "Property name should use the screaming snake case notation when the value can not be changed"),
+                LintViolation(7, 11, "Property name should use the screaming snake case notation when the value can not be changed"),
+            )
+    }
+
+    @Test
+    fun `Given the pascal_case constant naming style, and a const property name not in pascal_case notation then do emit`() {
+        val code =
+            """
+            const val foo = "foo"
+            const val FOO = "foo"
+            const val FOO_BAR_2 = "foo-bar-2"
+            const val ŸÈŠ_THÎS_IS_ALLOWED_123 = "Yes this is allowed"
+            const val Foo = "foo"
+            const val FooBar2 = "foo-bar-2"
+            const val ŸèšThîsIsAllowed123 = "Yes this is allowed"
+            """.trimIndent()
+        propertyNamingRuleAssertThat(code)
+            .withEditorConfigOverride(PropertyNamingRule.CONSTANT_NAMING_PROPERTY to pascal_case)
+            .hasLintViolationsWithoutAutoCorrect(
+                LintViolation(1, 11, "Property name should use the screaming snake case notation when the value can not be changed"),
+                // FOO cannot be reported as not meeting the pascal case requirement as it could be an abbreviation of 3 separate words
+                // starting with 'F', 'O' and 'O' respectively
+                LintViolation(3, 11, "Property name should use the screaming snake case notation when the value can not be changed"),
+                LintViolation(4, 11, "Property name should use the screaming snake case notation when the value can not be changed"),
+            )
     }
 
     @Test

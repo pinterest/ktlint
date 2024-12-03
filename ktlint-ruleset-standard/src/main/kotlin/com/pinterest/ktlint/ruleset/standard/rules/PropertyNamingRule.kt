@@ -16,9 +16,13 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.SafeEnumValueParser
 import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.internal.regExIgnoringDiacriticsAndStrokesOnLetters
+import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.lexer.KtTokens
 
@@ -28,7 +32,17 @@ import org.jetbrains.kotlin.lexer.KtTokens
  */
 @SinceKtlint("0.48", EXPERIMENTAL)
 @SinceKtlint("1.0", STABLE)
-public class PropertyNamingRule : StandardRule("property-naming") {
+public class PropertyNamingRule :
+    StandardRule(
+        id = "property-naming",
+        usesEditorConfigProperties = setOf(CONSTANT_NAMING_PROPERTY),
+    ) {
+    private var constantNamingProperty = CONSTANT_NAMING_PROPERTY.defaultValue
+
+    override fun beforeFirstNode(editorConfig: EditorConfig) {
+        constantNamingProperty = editorConfig[CONSTANT_NAMING_PROPERTY]
+    }
+
     override fun beforeVisitChildNodes(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
@@ -74,7 +88,7 @@ public class PropertyNamingRule : StandardRule("property-naming") {
                 //     private const val serialVersionUID: Long = 123
                 // }
                 it == SERIAL_VERSION_UID_PROPERTY_NAME
-            }?.takeUnless { it.matches(SCREAMING_SNAKE_CASE_REGEXP) }
+            }?.takeUnless { it.matches(constantNamingProperty.regEx) }
             ?.let {
                 emit(
                     identifier.startOffset,
@@ -121,11 +135,10 @@ public class PropertyNamingRule : StandardRule("property-naming") {
             .removeSurrounding("`")
             .let { KEYWORDS.contains(it) }
 
-    private companion object {
-        val LOWER_CAMEL_CASE_REGEXP = "[a-z][a-zA-Z0-9]*".regExIgnoringDiacriticsAndStrokesOnLetters()
-        val SCREAMING_SNAKE_CASE_REGEXP = "[A-Z][_A-Z0-9]*".regExIgnoringDiacriticsAndStrokesOnLetters()
-        const val SERIAL_VERSION_UID_PROPERTY_NAME = "serialVersionUID"
-        val KEYWORDS =
+    public companion object {
+        private val LOWER_CAMEL_CASE_REGEXP = "[a-z][a-zA-Z0-9]*".regExIgnoringDiacriticsAndStrokesOnLetters()
+        private const val SERIAL_VERSION_UID_PROPERTY_NAME = "serialVersionUID"
+        private val KEYWORDS =
             setOf(KtTokens.KEYWORDS, KtTokens.SOFT_KEYWORDS)
                 .flatMap { tokenSet -> tokenSet.types.mapNotNull { it.debugName } }
                 .filterNot { keyword ->
@@ -133,6 +146,42 @@ public class PropertyNamingRule : StandardRule("property-naming") {
                     // characters
                     keyword.any { it.isUpperCase() }
                 }.toSet()
+
+        @Suppress("EnumEntryName")
+        public enum class ConstantNamingStyle(
+            public val regEx: Regex,
+        ) {
+            /**
+             * The name of a constant must start with an uppercase character followed by zero or more uppercase characters, numbers, or
+             * underscore characters to separate words in the name. The latin characters may also be combined with strokes and diacritics.
+             */
+            screaming_snake_case("[A-Z][_A-Z0-9]*".regExIgnoringDiacriticsAndStrokesOnLetters()),
+
+            /**
+             * The name of a constant must start with an uppercase character followed by zero or more uppercase characters or numbers. Each
+             * word in the name should start with an uppercase character. The latin characters may also be combined with strokes and
+             * diacritics.
+             */
+            pascal_case("[A-Z][a-zA-Z0-9]*".regExIgnoringDiacriticsAndStrokesOnLetters()),
+        }
+
+        public val CONSTANT_NAMING_PROPERTY_TYPE:
+            PropertyType.LowerCasingPropertyType<ConstantNamingStyle> =
+            PropertyType.LowerCasingPropertyType(
+                "ktlint_property_naming_constant_naming",
+                "The naming style ('screaming_snake_case', or 'pascal_case') to be applied on constant properties. All code styles use " +
+                    "'screaming_snake_case' code as default.",
+                SafeEnumValueParser(ConstantNamingStyle::class.java),
+                ConstantNamingStyle.entries
+                    .map { it.name }
+                    .toSet(),
+            )
+
+        public val CONSTANT_NAMING_PROPERTY: EditorConfigProperty<ConstantNamingStyle> =
+            EditorConfigProperty(
+                type = CONSTANT_NAMING_PROPERTY_TYPE,
+                defaultValue = ConstantNamingStyle.screaming_snake_case,
+            )
     }
 }
 
