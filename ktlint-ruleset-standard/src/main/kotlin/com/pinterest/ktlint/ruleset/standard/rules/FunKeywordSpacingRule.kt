@@ -12,6 +12,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 
 /**
  * Lints and formats the spacing after the fun keyword
@@ -26,14 +27,30 @@ public class FunKeywordSpacingRule : StandardRule("fun-keyword-spacing") {
         node
             .takeIf { it.elementType == FUN_KEYWORD }
             ?.nextLeaf(includeEmpty = true)
-            ?.takeIf { it.elementType == ElementType.WHITE_SPACE && it.text != " " }
-            ?.let { whiteSpaceAfterFunKeyword ->
-                emit(
-                    whiteSpaceAfterFunKeyword.startOffset,
-                    "Single space expected after the fun keyword",
-                    true,
-                ).ifAutocorrectAllowed {
-                    (whiteSpaceAfterFunKeyword as LeafPsiElement).rawReplaceWithText(" ")
+            ?.let { leafAfterFunKeyword ->
+                when {
+                    leafAfterFunKeyword.elementType == ElementType.WHITE_SPACE && leafAfterFunKeyword.text != " " -> {
+                        emit(
+                            leafAfterFunKeyword.startOffset,
+                            "Single space expected after the fun keyword",
+                            true,
+                        ).ifAutocorrectAllowed {
+                            (leafAfterFunKeyword as LeafPsiElement).rawReplaceWithText(" ")
+                        }
+                    }
+
+                    leafAfterFunKeyword.elementType == ElementType.IDENTIFIER -> {
+                        // Identifier can only be adjacent to fun keyword in case the identifier is wrapped between backticks:
+                        //     fun`foo`() {}
+                        emit(leafAfterFunKeyword.startOffset, "Space expected between the fun keyword and backtick", true)
+                            .ifAutocorrectAllowed {
+                                leafAfterFunKeyword.treeParent.addChild(PsiWhiteSpaceImpl(" "), leafAfterFunKeyword)
+                            }
+                    }
+
+                    else -> {
+                        Unit
+                    }
                 }
             }
     }

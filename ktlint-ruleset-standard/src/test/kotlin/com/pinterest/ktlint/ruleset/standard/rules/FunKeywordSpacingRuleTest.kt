@@ -36,4 +36,19 @@ class FunKeywordSpacingRuleTest {
             .hasLintViolation(1, 4, "Single space expected after the fun keyword")
             .isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Issue 2879 - Given a function with name between backticks then the fun keyword and name should be separated by a space`() {
+        val code =
+            """
+            fun`foo or bar`() = "foo"
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun `foo or bar`() = "foo"
+            """.trimIndent()
+        funKeywordSpacingRuleAssertThat(code)
+            .hasLintViolation(1, 4, "Space expected between the fun keyword and backtick")
+            .isFormattedAs(formattedCode)
+    }
 }
