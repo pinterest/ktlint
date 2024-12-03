@@ -4493,6 +4493,28 @@ The other code styles allow an infinite amount of parameters on the same line (a
 </div>
 </div>
 <p>This rule is suppressed whenever the IntelliJ IDEA inspection suppression <code>PropertyName</code>, <code>ConstPropertyName</code>, <code>ObjectPropertyName</code> or <code>PrivatePropertyName</code> is used.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Configuration setting</th>
+<th style="text-align: center;">ktlint_official</th>
+<th style="text-align: center;">intellij_idea</th>
+<th style="text-align: center;">android_studio</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>ktlint_property_naming_constant_naming</code><br/><i>The naming style ('screaming_snake_case', or 'pascal_case') to be applied on constant properties.</i></td>
+<td style="text-align: center;"><code>screaming_snake_case</code></td>
+<td style="text-align: center;"><code>screaming_snake_case</code></td>
+<td style="text-align: center;"><code>screaming_snake_case</code></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When using Compose, you might want to configure the <code>ktlint_property_naming_constant_naming-naming</code> rule with <code>.editorconfig</code> property <code>ktlint_property_naming_constant_naming = pascal_case</code>.</p>
+</div>
 <p>Rule id: <code>standard:property-naming</code></p>
 <p class="annotate">Suppress or disable rule (1)</p>
 <ol>
