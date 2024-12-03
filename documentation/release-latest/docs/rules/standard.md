@@ -4343,9 +4343,9 @@ Suppress or disable rule (1)
     ktlint_standard_condition-wrapping = disabled
     ```
 
-### Content receiver wrapping
+### Context receiver wrapping
 
-Wraps the content receiver list to a separate line regardless of maximum line length. If the maximum line length is configured and is exceeded, wrap the context receivers and if needed its projection types to separate lines.
+Wraps the context receiver list to a separate line regardless of maximum line length. If the maximum line length is configured and is exceeded, wrap the context receivers and if needed its projection types to separate lines.
 
 === "[:material-heart:](#) Ktlint"
 
