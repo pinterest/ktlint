@@ -3,10 +3,15 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONTEXT_RECEIVER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONTEXT_RECEIVER_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_TYPE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.GT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PROJECTION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.Companion.DEFAULT_INDENT_CONFIG
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
@@ -80,10 +85,11 @@ public class ContextReceiverWrappingRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        // Context receiver must be followed by new line or comment
+        // Context receiver must be followed by new line or comment unless it is a type reference of a parameter
         node
-            .lastChildLeafOrSelf()
-            .nextLeaf { !it.isWhiteSpaceWithoutNewline() && !it.isPartOfComment() }
+            .takeUnless { it.isTypeReferenceParameterInFunction() }
+            ?.lastChildLeafOrSelf()
+            ?.nextLeaf { !it.isWhiteSpaceWithoutNewline() && !it.isPartOfComment() }
             ?.takeIf { !it.isWhiteSpaceWithNewline() }
             ?.let { nodeAfterContextReceiver ->
                 emit(nodeAfterContextReceiver.startOffset, "Expected a newline after the context receiver", true)
@@ -125,6 +131,20 @@ public class ContextReceiverWrappingRule :
                 }
         }
     }
+
+    private fun ASTNode.isTypeReferenceParameterInFunction() =
+        takeIf { it.elementType == CONTEXT_RECEIVER_LIST }
+            ?.treeParent
+            ?.takeIf { it.elementType == FUNCTION_TYPE }
+            ?.treeParent
+            ?.takeIf { it.elementType == TYPE_REFERENCE }
+            ?.treeParent
+            ?.takeIf { it.elementType == VALUE_PARAMETER }
+            ?.treeParent
+            ?.takeIf { it.elementType == VALUE_PARAMETER_LIST }
+            ?.treeParent
+            ?.let { it.elementType == FUN }
+            ?: false
 
     private fun visitContextReceiverTypeArgumentList(
         node: ASTNode,

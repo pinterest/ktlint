@@ -199,4 +199,16 @@ class ContextReceiverWrappingRuleTest {
                 LintViolation(2, 36, "Newline expected before closing parenthesis as max line length is violated"),
             ).isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Issue 2854 - Given a function parameter with a context receiver then do not wrap after the context receiver`() {
+        val code =
+            """
+            fun bar1(foo: context(Foo) () -> Unit = { foobar() }) {}
+            fun bar2(
+                foo: context(Foo) () -> Unit = { foobar() }
+            ) {}
+            """.trimIndent()
+        contextReceiverWrappingRuleAssertThat(code).hasNoLintViolations()
+    }
 }
