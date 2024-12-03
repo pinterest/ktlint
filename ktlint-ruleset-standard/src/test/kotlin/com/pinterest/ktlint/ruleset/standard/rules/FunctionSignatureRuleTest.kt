@@ -773,11 +773,14 @@ class FunctionSignatureRuleTest {
         ) {
             val code =
                 """
-                fun f(a: Any, b: Any): String = "some-result"
+                fun f1(a: Any, b: Any): String = "some-result"
+                fun f2(a: Any, b: Any) = "some-result"
                 """.trimIndent()
             val formattedCode =
                 """
-                fun f(a: Any, b: Any): String =
+                fun f1(a: Any, b: Any): String =
+                    "some-result"
+                fun f2(a: Any, b: Any) =
                     "some-result"
                 """.trimIndent()
             functionSignatureWrappingRuleAssertThat(code)
@@ -785,8 +788,10 @@ class FunctionSignatureRuleTest {
                 .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
                 .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to always)
                 .addAdditionalRuleProvider { IndentationRule() }
-                .hasLintViolation(1, 33, "Newline expected before expression body")
-                .isFormattedAs(formattedCode)
+                .hasLintViolations(
+                    LintViolation(1, 34, "Newline expected before expression body"),
+                    LintViolation(2, 26, "Newline expected before expression body"),
+                ).isFormattedAs(formattedCode)
         }
 
         @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
@@ -1008,6 +1013,7 @@ class FunctionSignatureRuleTest {
     @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
     @EnumSource(
         value = FunctionBodyExpressionWrapping::class,
+        names = ["default", "multiline"],
     )
     fun `Given a multiline function signature without explicit return type and start of body expression on next line then keep first line of body expression body on the same line as the last line of the function signature`(
         bodyExpressionWrapping: FunctionBodyExpressionWrapping,
@@ -1042,6 +1048,7 @@ class FunctionSignatureRuleTest {
     @ParameterizedTest(name = "bodyExpressionWrapping: {0}")
     @EnumSource(
         value = FunctionBodyExpressionWrapping::class,
+        names = ["default", "multiline"],
     )
     fun `Given a multiline function signature without explicit return type and start of body expression on same line as last line of function signature then do not reformat`(
         bodyExpressionWrapping: FunctionBodyExpressionWrapping,
@@ -1060,6 +1067,35 @@ class FunctionSignatureRuleTest {
             .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to bodyExpressionWrapping)
             .addAdditionalRuleProvider { IndentationRule() }
             .hasNoLintViolationsExceptInAdditionalRules()
+    }
+
+    @Test
+    fun `Issue 2872 - Given that expression bodies have to be wrapped always, a multiline function signature without explicit return type and start of body expression on same line as last line of function signature then do reformat`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER       $EOL_CHAR
+            fun functionSignatureTooLongForSingleLine(
+                a: Any,
+                b: Any
+            ) = "some-result"
+                .uppercase()
+            """.trimIndent()
+        val formattedCode =
+            """
+            // $MAX_LINE_LENGTH_MARKER       $EOL_CHAR
+            fun functionSignatureTooLongForSingleLine(
+                a: Any,
+                b: Any
+            ) =
+                "some-result"
+                    .uppercase()
+            """.trimIndent()
+        functionSignatureWrappingRuleAssertThat(code)
+            .setMaxLineLength()
+            .withEditorConfigOverride(FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY to always)
+            .addAdditionalRuleProvider { IndentationRule() }
+            .hasLintViolation(5, 5, "Newline expected before expression body")
+            .isFormattedAs(formattedCode)
     }
 
     @Nested
