@@ -2,6 +2,50 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.5.0] - 2024-12-04
+
+The release of Kotlin 2.1 is the primary reason for publishing this release earlier than planned. Because of the removal of some language elements in Kotlin 2.1, the embedded Kotlin compiler in KtLint blocked Kotlinter users from upgrading to Kotlin 2.1.
+
+### 🆕 Features
+
+* Add missing space between `fun` keyword and identifier when latter is wrapped between backticks - [#2890](https://github.com/pinterest/ktlint/pull/2890), by @paul-dingemans
+
+* Add configuration setting for constant names in `property-naming` rule - [#2893](https://github.com/pinterest/ktlint/pull/2893), by @paul-dingemans
+
+* Allow backing property to be defined in the companion object (`backing-property-naming`) - [#2895](https://github.com/pinterest/ktlint/pull/2895), by @paul-dingemans
+
+### 🔧 Fixes
+
+* Ignore multi dollar string interpolation prefix in `string-template-indent` rule - [#2888](https://github.com/pinterest/ktlint/pull/2888), by @paul-dingemans
+
+* Wrap the expression body in case `.editorconfig` property `ktlint_function_signature_body_expression_wrapping` is set to `always` - [#2873](https://github.com/pinterest/ktlint/pull/2873), by @paul-dingemans
+
+* Fix false positive when empty parameter list is in between trailing lambda's of a nested call expression - [#2891](https://github.com/pinterest/ktlint/pull/2891), by @paul-dingemans
+
+* Do not wrap a context receiver in a function parameter type reference - [#2892](https://github.com/pinterest/ktlint/pull/2892), by @paul-dingemans
+
+* Allow comment before parameter list in function literal (`function-literal`) - [#2894](https://github.com/pinterest/ktlint/pull/2894), by @paul-dingemans
+
+### 📦 Dependencies
+
+* chore(deps): update plugin com.gradle.develocity to v3.18.2 - [#2865](https://github.com/pinterest/ktlint/pull/2865), by @renovate[bot]
+
+* chore(deps): update dependency gradle to v8.11.1 - [#2875](https://github.com/pinterest/ktlint/pull/2875), by @renovate[bot]
+
+* fix(deps): update dependency io.github.hakky54:logcaptor to v2.10.0 - [#2874](https://github.com/pinterest/ktlint/pull/2874), by @renovate[bot]
+
+* fix(deps): update dependency org.jetbrains.kotlin:kotlin-gradle-plugin to v2.1.0-rc2 - [#2871](https://github.com/pinterest/ktlint/pull/2871), by @renovate[bot]
+
+* fix(deps): update dependency io.github.oshai:kotlin-logging-jvm to v7.0.3 - [#2883](https://github.com/pinterest/ktlint/pull/2883), by @renovate[bot]
+
+* fix(deps): update kotlin monorepo to v2.1.0 - [#2880](https://github.com/pinterest/ktlint/pull/2880), by @renovate[bot]
+
+* fix(deps): update dependency com.github.ajalt.clikt:clikt to v5.0.2 - [#2886](https://github.com/pinterest/ktlint/pull/2886), by @renovate[bot]
+
+* chore(deps): update plugin org.gradle.toolchains.foojay-resolver-convention to v0.9.0 - [#2887](https://github.com/pinterest/ktlint/pull/2887), by @renovate[bot]
+
+* fix(deps): update dependency dev.drewhamilton.poko:poko-gradle-plugin to v0.18.0 - [#2889](https://github.com/pinterest/ktlint/pull/2889), by @renovate[bot]
+
 ## [1.4.1] - 2024-11-05
 
 ### 🔧 Fixes
@@ -2601,6 +2645,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[1.5.0]: https://github.com/pinterest/ktlint/compare/1.5.0...1.4.1
 [1.4.1]: https://github.com/pinterest/ktlint/compare/1.4.1...1.4.0
 [1.4.0]: https://github.com/pinterest/ktlint/compare/1.4.0...1.3.1
 [1.3.1]: https://github.com/pinterest/ktlint/compare/1.3.1...1.3.0
