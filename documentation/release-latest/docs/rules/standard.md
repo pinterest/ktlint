@@ -1253,10 +1253,18 @@ Allows property names to start with `_` in case the property is a backing proper
 
     ```kotlin
     class Bar {
-        // Backing property
+        // Backing property as normal class member
         private val _elementList = mutableListOf<Element>()
         val elementList: List<Element>
             get() = _elementList
+
+        // Backing property defined in companion object
+        val elementList2: List<Element>
+            get() = _elementList2
+
+        companion object {
+            private val _elementList2 = mutableListOf<Element>()
+        }
     }
     ```
 === "[:material-heart-off-outline:](#) Disallowed"
@@ -1504,6 +1512,13 @@ Enforce naming of property.
     ```
 
 This rule is suppressed whenever the IntelliJ IDEA inspection suppression `PropertyName`, `ConstPropertyName`, `ObjectPropertyName` or `PrivatePropertyName` is used.
+
+| Configuration setting                                                                                                                          |    ktlint_official     |     intellij_idea      |     android_studio     |
+|:-----------------------------------------------------------------------------------------------------------------------------------------------|:----------------------:|:----------------------:|:----------------------:|
+| `ktlint_property_naming_constant_naming`<br/><i>The naming style ('screaming_snake_case', or 'pascal_case') to be applied on constant properties.</i> | `screaming_snake_case` | `screaming_snake_case` | `screaming_snake_case` |
+
+!!! note
+    When using Compose, you might want to configure the `ktlint_property_naming_constant_naming-naming` rule with `.editorconfig` property `ktlint_property_naming_constant_naming = pascal_case`.
 
 Rule id: `standard:property-naming`
 
@@ -4345,7 +4360,7 @@ Suppress or disable rule (1)
 
 ### Context receiver wrapping
 
-Wraps the context receiver list to a separate line regardless of maximum line length. If the maximum line length is configured and is exceeded, wrap the context receivers and if needed its projection types to separate lines.
+Wraps the context receiver list of a function to a separate line regardless of maximum line length. If the maximum line length is configured and is exceeded, wrap the context receivers and if needed its projection types to separate lines.
 
 === "[:material-heart:](#) Ktlint"
 
