@@ -1253,10 +1253,18 @@ Allows property names to start with `_` in case the property is a backing proper
 
     ```kotlin
     class Bar {
-        // Backing property
+        // Backing property as normal class member
         private val _elementList = mutableListOf<Element>()
         val elementList: List<Element>
             get() = _elementList
+
+        // Backing property defined in companion object
+        val elementList2: List<Element>
+            get() = _elementList2
+
+        companion object {
+            private val _elementList2 = mutableListOf<Element>()
+        }
     }
     ```
 === "[:material-heart-off-outline:](#) Disallowed"

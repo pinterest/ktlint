@@ -1,9 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMPANION_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.INTERNAL_KEYWORD
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_DECLARATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OVERRIDE_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PRIVATE_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
@@ -18,6 +22,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERT
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.android_studio
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.hasModifier
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.internal.regExIgnoringDiacriticsAndStrokesOnLetters
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -73,7 +78,7 @@ public class BackingPropertyNamingRule :
                 emit(identifier.startOffset, "Backing property should start with underscore followed by lower camel case", false)
             }
 
-        if (!identifier.treeParent.hasModifier(PRIVATE_KEYWORD)) {
+        if (!identifier.hasPrivateModifierInPropertyDeclaration() && !identifier.isDeclaredInPrivateCompanionObject()) {
             emit(identifier.startOffset, "Backing property not allowed when 'private' modifier is missing", false)
         }
 
@@ -90,28 +95,69 @@ public class BackingPropertyNamingRule :
         }
     }
 
+    private fun ASTNode.hasPrivateModifierInPropertyDeclaration() = treeParent.hasModifier(PRIVATE_KEYWORD)
+
+    private fun ASTNode.isDeclaredInPrivateCompanionObject() =
+        true ==
+            treeParent
+                .treeParent
+                .findCompanionObject()
+                ?.treeParent
+                ?.treeParent
+                ?.hasModifier(PRIVATE_KEYWORD)
+
     private fun ASTNode.findCorrelatedPropertyOrFunction() = findCorrelatedProperty() ?: findCorrelatedFunction()
 
-    private fun ASTNode.findCorrelatedProperty() =
+    private fun ASTNode.findCorrelatedProperty(): ASTNode? {
+        val propertyName = text.removePrefix("_")
+        return parent(CLASS_BODY)
+            ?.let { classBody ->
+                // Check if related property exists in the same class body. If not, and the class body is the body of a companion object,
+                // than also search in the class body where the companion object is defined.
+                classBody.findPropertyWithName(propertyName)
+                    ?: classBody
+                        .findCompanionObject()
+                        ?.parent(CLASS_BODY)
+                        ?.findPropertyWithName(propertyName)
+            }
+    }
+
+    private fun ASTNode.findPropertyWithName(name: String) =
+        this
+            .children()
+            .filter { it.elementType == PROPERTY }
+            .mapNotNull { it.findChildByType(IDENTIFIER) }
+            .firstOrNull { it.text == name }
+            ?.treeParent
+
+    private fun ASTNode.findCompanionObject() =
         treeParent
-            ?.treeParent
+            ?.takeIf { it.elementType == OBJECT_DECLARATION }
+            ?.findChildByType(MODIFIER_LIST)
             ?.children()
-            ?.filter { it.elementType == PROPERTY }
-            ?.mapNotNull { it.findChildByType(IDENTIFIER) }
-            ?.firstOrNull { it.text == text.removePrefix("_") }
-            ?.treeParent
+            ?.firstOrNull { it.elementType == COMPANION_KEYWORD }
 
     private fun ASTNode.findCorrelatedFunction(): ASTNode? {
         val correlatedFunctionName = "get${capitalizeFirstChar()}"
-        return treeParent
-            ?.treeParent
-            ?.children()
-            ?.filter { it.elementType == FUN }
-            ?.filter { it.hasNonEmptyParameterList() }
-            ?.mapNotNull { it.findChildByType(IDENTIFIER) }
-            ?.firstOrNull { it.text == correlatedFunctionName }
-            ?.treeParent
+        return parent(CLASS_BODY)
+            ?.let { classBody ->
+                // Check if related property exists in the same class body. If not, and the class body is the body of a companion object,
+                // than also search in the class body where the companion object is defined.
+                classBody.findFunctionWithName(correlatedFunctionName)
+                    ?: classBody
+                        .findCompanionObject()
+                        ?.parent(CLASS_BODY)
+                        ?.findFunctionWithName(correlatedFunctionName)
+            }
     }
+
+    private fun ASTNode.findFunctionWithName(name: String) =
+        children()
+            .filter { it.elementType == FUN }
+            .filter { it.hasNonEmptyParameterList() }
+            .mapNotNull { it.findChildByType(IDENTIFIER) }
+            .firstOrNull { it.text == name }
+            ?.treeParent
 
     private fun ASTNode.hasNonEmptyParameterList() =
         findChildByType(VALUE_PARAMETER_LIST)
