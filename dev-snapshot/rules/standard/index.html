@@ -4253,11 +4253,19 @@ The other code styles allow an infinite amount of parameters on the same line (a
 <div class="tabbed-content">
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><a id="__codelineno-83-1" name="__codelineno-83-1" href="#__codelineno-83-1"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Bar</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-83-2" name="__codelineno-83-2" href="#__codelineno-83-2"></a><span class="w">    </span><span class="c1">// Backing property</span>
+<a id="__codelineno-83-2" name="__codelineno-83-2" href="#__codelineno-83-2"></a><span class="w">    </span><span class="c1">// Backing property as normal class member</span>
 <a id="__codelineno-83-3" name="__codelineno-83-3" href="#__codelineno-83-3"></a><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">_elementList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mutableListOf</span><span class="o">&lt;</span><span class="n">Element</span><span class="o">&gt;</span><span class="p">()</span>
 <a id="__codelineno-83-4" name="__codelineno-83-4" href="#__codelineno-83-4"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">elementList</span><span class="p">:</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Element</span><span class="o">&gt;</span>
 <a id="__codelineno-83-5" name="__codelineno-83-5" href="#__codelineno-83-5"></a><span class="w">        </span><span class="k">get</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_elementList</span>
-<a id="__codelineno-83-6" name="__codelineno-83-6" href="#__codelineno-83-6"></a><span class="p">}</span>
+<a id="__codelineno-83-6" name="__codelineno-83-6" href="#__codelineno-83-6"></a>
+<a id="__codelineno-83-7" name="__codelineno-83-7" href="#__codelineno-83-7"></a><span class="w">    </span><span class="c1">// Backing property defined in companion object</span>
+<a id="__codelineno-83-8" name="__codelineno-83-8" href="#__codelineno-83-8"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">elementList2</span><span class="p">:</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Element</span><span class="o">&gt;</span>
+<a id="__codelineno-83-9" name="__codelineno-83-9" href="#__codelineno-83-9"></a><span class="w">        </span><span class="k">get</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_elementList2</span>
+<a id="__codelineno-83-10" name="__codelineno-83-10" href="#__codelineno-83-10"></a>
+<a id="__codelineno-83-11" name="__codelineno-83-11" href="#__codelineno-83-11"></a><span class="w">    </span><span class="kd">companion</span><span class="w"> </span><span class="kd">object</span><span class="w"> </span><span class="err">{</span>
+<a id="__codelineno-83-12" name="__codelineno-83-12" href="#__codelineno-83-12"></a><span class="w">        </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">_elementList2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mutableListOf</span><span class="o">&lt;</span><span class="n">Element</span><span class="o">&gt;</span><span class="p">()</span>
+<a id="__codelineno-83-13" name="__codelineno-83-13" href="#__codelineno-83-13"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-83-14" name="__codelineno-83-14" href="#__codelineno-83-14"></a><span class="p">}</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
