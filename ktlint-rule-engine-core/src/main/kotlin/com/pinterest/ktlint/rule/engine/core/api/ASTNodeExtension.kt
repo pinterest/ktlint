@@ -8,7 +8,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VARARG_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VAR_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.CompositeElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
@@ -223,7 +222,11 @@ public fun ASTNode.isLeaf(): Boolean = firstChildNode == null
  */
 public fun ASTNode.isCodeLeaf(): Boolean = isLeaf() && !isWhiteSpace() && !isPartOfComment()
 
-public fun ASTNode.isPartOfComment(): Boolean = parent(strict = false) { it.psi is PsiComment } != null
+public fun ASTNode.isPartOfComment(): Boolean =
+    parent(strict = false) {
+        val eType = it.elementType
+        eType == ElementType.BLOCK_COMMENT || eType == ElementType.EOL_COMMENT || eType == ElementType.KDOC
+    } != null
 
 public fun ASTNode.children(): Sequence<ASTNode> = generateSequence(firstChildNode) { node -> node.treeNext }
 
