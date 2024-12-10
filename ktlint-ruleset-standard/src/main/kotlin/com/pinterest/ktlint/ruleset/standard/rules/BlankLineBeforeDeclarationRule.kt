@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
+import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
@@ -30,10 +31,8 @@ import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
-import com.pinterest.ktlint.rule.engine.core.util.safeAs
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.psi.KtFunctionLiteral
 import org.jetbrains.kotlin.psi.stubs.elements.KtTokenSets
 
 /**
@@ -181,10 +180,8 @@ public class BlankLineBeforeDeclarationRule :
             treeParent
                 .takeIf { it.elementType == BLOCK && it.treeParent.elementType == FUNCTION_LITERAL }
                 ?.treeParent
-                ?.psi
-                ?.safeAs<KtFunctionLiteral>()
-                ?.bodyExpression
-                ?.node
+                ?.takeIf { it.elementType == ElementType.FUNCTION_LITERAL }
+                ?.findChildByType(ElementType.BLOCK)
                 ?.children()
                 ?.firstOrNull { !it.isWhiteSpace() && !it.isPartOfComment() }
 
