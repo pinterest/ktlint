@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
+import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
@@ -13,7 +14,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.internal.regExIgnoringDiacrit
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.CompositeElement
-import org.jetbrains.kotlin.psi.KtEnumEntry
+import org.jetbrains.kotlin.psi.KtPsiUtil
 
 /**
  * https://kotlinlang.org/docs/coding-conventions.html#property-names
@@ -57,8 +58,9 @@ public class EnumEntryNameCaseRule :
         if (node !is CompositeElement) {
             return
         }
-        val enumEntry = node.psi as? KtEnumEntry ?: return
-        val name = enumEntry.name ?: return
+        if (node.elementType != ElementType.ENUM_ENTRY) return
+        val nameNode = node.findChildByType(ElementType.IDENTIFIER) ?: return
+        val name = KtPsiUtil.unquoteIdentifier(nameNode.text)
 
         if (!name.matches(enumEntryCasingRegex)) {
             emit(node.startOffset, enumEntryCasingViolation, false)
