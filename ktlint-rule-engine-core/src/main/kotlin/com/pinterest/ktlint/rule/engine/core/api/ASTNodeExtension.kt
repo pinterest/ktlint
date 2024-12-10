@@ -230,6 +230,14 @@ public fun ASTNode.isPartOfComment(): Boolean =
 
 public fun ASTNode.children(): Sequence<ASTNode> = generateSequence(firstChildNode) { node -> node.treeNext }
 
+public fun ASTNode.recursiveChildren(): Sequence<ASTNode> =
+    sequence {
+        children().forEach {
+            yield(it)
+            yieldAll(it.recursiveChildren())
+        }
+    }
+
 /**
  * Updates or inserts a new whitespace element with [text] before the given node. If the node itself is a whitespace
  * then its contents is replaced with [text]. If the node is a (nested) composite element, the whitespace element is
