@@ -230,8 +230,11 @@ public fun ASTNode.isPartOfComment(): Boolean =
 
 public fun ASTNode.children(): Sequence<ASTNode> = generateSequence(firstChildNode) { node -> node.treeNext }
 
-public fun ASTNode.recursiveChildren(): Sequence<ASTNode> =
+public fun ASTNode.recursiveChildren(includeSelf: Boolean = false): Sequence<ASTNode> =
     sequence {
+        if (includeSelf) {
+            yield(this@recursiveChildren)
+        }
         children().forEach {
             yield(it)
             yieldAll(it.recursiveChildren())

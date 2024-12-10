@@ -56,7 +56,8 @@ public final class com/pinterest/ktlint/rule/engine/core/api/ASTNodeExtensionKt 
 	public static synthetic fun prevLeaf$default (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZILjava/lang/Object;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
 	public static final fun prevSibling (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
 	public static synthetic fun prevSibling$default (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
-	public static final fun recursiveChildren (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lkotlin/sequences/Sequence;
+	public static final fun recursiveChildren (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Z)Lkotlin/sequences/Sequence;
+	public static synthetic fun recursiveChildren$default (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZILjava/lang/Object;)Lkotlin/sequences/Sequence;
 	public static final fun remove (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)V
 	public static final fun replaceWith (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)V
 	public static final fun upsertWhitespaceAfterMe (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Ljava/lang/String;)V
