@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
+import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATED_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
@@ -43,11 +44,9 @@ import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
-import com.pinterest.ktlint.rule.engine.core.util.safeAs
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationUseSiteTarget
-import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.psiUtil.siblings
 import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 
@@ -346,11 +345,10 @@ public class AnnotationRule :
 
     private fun ASTNode.isNotReceiverTargetAnnotation() = getAnnotationUseSiteTarget() != AnnotationUseSiteTarget.RECEIVER
 
-    private fun ASTNode.getAnnotationUseSiteTarget() =
-        psi
-            .safeAs<KtAnnotationEntry>()
-            ?.useSiteTarget
-            ?.getAnnotationUseSiteTarget()
+    private fun ASTNode.getAnnotationUseSiteTarget(): AnnotationUseSiteTarget? =
+        takeIf { it.elementType == ElementType.ANNOTATION_ENTRY }
+            ?.findChildByType(ElementType.ANNOTATION_TARGET)
+            ?.let { USE_SITE_TARGETS[it.text] }
 
     private fun ASTNode.isAnnotationEntryWithValueArgumentList() = getAnnotationEntryValueArgumentList() != null
 
@@ -469,6 +467,7 @@ public class AnnotationRule :
                 FILE_ANNOTATION_LIST,
                 MODIFIER_LIST,
             )
+        val USE_SITE_TARGETS = AnnotationUseSiteTarget.entries.associate { it.renderName to it }
     }
 }
 

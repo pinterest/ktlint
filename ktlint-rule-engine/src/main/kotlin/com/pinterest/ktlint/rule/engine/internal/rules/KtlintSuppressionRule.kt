@@ -124,9 +124,7 @@ public class KtlintSuppressionRule(
                         .ifAutocorrectAllowed {
                             node
                                 .createLiteralStringTemplateEntry(prefixedSuppression)
-                                ?.let {
-                                    literalStringTemplateEntry.replaceWith(it)
-                                }
+                                ?.let { literalStringTemplateEntry.replaceWith(it) }
                         }
                 }
             }
