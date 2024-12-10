@@ -1,10 +1,10 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
+import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BINARY_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLLECTION_LITERAL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.ELSE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EQ
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LPAR
@@ -38,12 +38,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
-import org.jetbrains.kotlin.psi.KtContainerNode
-import org.jetbrains.kotlin.psi.KtDoWhileExpression
-import org.jetbrains.kotlin.psi.KtIfExpression
-import org.jetbrains.kotlin.psi.KtWhileExpression
 import org.jetbrains.kotlin.psi.psiUtil.children
-import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
 
 /**
  * https://kotlinlang.org/docs/reference/coding-conventions.html#method-call-formatting
@@ -288,23 +283,18 @@ public class ArgumentListWrappingRule :
     }
 
     private fun ASTNode.isOnSameLineAsControlFlowKeyword(): Boolean {
-        val containerNode = psi.getStrictParentOfType<KtContainerNode>() ?: return false
-        if (containerNode.node.elementType == ELSE) return false
-        val controlFlowKeyword =
-            when (val parent = containerNode.parent) {
-                is KtIfExpression -> parent.ifKeyword.node
-                is KtWhileExpression -> parent.firstChild.node
-                is KtDoWhileExpression -> parent.whileKeyword?.node
-                else -> null
-            } ?: return false
-
         var prevLeaf = prevLeaf() ?: return false
-        while (prevLeaf != controlFlowKeyword) {
+        while (!prevLeaf.isControlFlowKeyword) {
             if (prevLeaf.isWhiteSpaceWithNewline()) return false
             prevLeaf = prevLeaf.prevLeaf() ?: return false
         }
         return true
     }
+
+    private val ASTNode.isControlFlowKeyword: Boolean get() =
+        elementType == ElementType.IF_KEYWORD ||
+            elementType == ElementType.WHILE_KEYWORD ||
+            elementType == ElementType.DO_KEYWORD
 
     public companion object {
         private const val UNSET_IGNORE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY = Int.MAX_VALUE
