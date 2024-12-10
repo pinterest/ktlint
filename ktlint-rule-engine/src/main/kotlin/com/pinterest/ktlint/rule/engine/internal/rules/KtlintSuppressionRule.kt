@@ -17,6 +17,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.recursiveChildren
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.replaceWith
 import com.pinterest.ktlint.rule.engine.internal.KTLINT_SUPPRESSION_ID_ALL_RULES
@@ -42,9 +43,9 @@ import org.jetbrains.kotlin.psi.KtScriptInitializer
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.KtValueArgument
 import org.jetbrains.kotlin.psi.KtValueArgumentList
-import org.jetbrains.kotlin.psi.psiUtil.findDescendantOfType
 import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.psi.psiUtil.siblings
+import org.jetbrains.kotlin.psi.psiUtil.startOffset
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 
 /**
@@ -105,10 +106,10 @@ public class KtlintSuppressionRule(
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .psi
-            .findDescendantOfType<KtLiteralStringTemplateEntry>()
-            ?.node
-            ?.let { literalStringTemplateEntry ->
+            .recursiveChildren(includeSelf = true)
+            .firstOrNull {
+                it.elementType == ElementType.LITERAL_STRING_TEMPLATE_ENTRY
+            }?.let { literalStringTemplateEntry ->
                 val prefixedSuppression =
                     literalStringTemplateEntry
                         .text
@@ -123,7 +124,9 @@ public class KtlintSuppressionRule(
                         .ifAutocorrectAllowed {
                             node
                                 .createLiteralStringTemplateEntry(prefixedSuppression)
-                                ?.let { literalStringTemplateEntry.replaceWith(it) }
+                                ?.let {
+                                    literalStringTemplateEntry.replaceWith(it)
+                                }
                         }
                 }
             }
