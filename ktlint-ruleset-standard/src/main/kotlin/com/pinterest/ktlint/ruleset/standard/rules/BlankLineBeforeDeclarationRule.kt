@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
+import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
@@ -30,11 +31,9 @@ import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
-import com.pinterest.ktlint.rule.engine.core.util.safeAs
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.psi.KtDeclaration
-import org.jetbrains.kotlin.psi.KtFunctionLiteral
+import org.jetbrains.kotlin.psi.stubs.elements.KtTokenSets
 
 /**
  * Insert a blank line before declarations. No blank line is inserted before between a class or method signature and the first declaration
@@ -150,7 +149,7 @@ public class BlankLineBeforeDeclarationRule :
         }
 
         node
-            .takeIf { it.psi is KtDeclaration }
+            .takeIf { KtTokenSets.DECLARATION_TYPES.contains(it.elementType) }
             ?.takeIf {
                 val prevLeaf = it.prevLeaf()
                 prevLeaf != null && (!prevLeaf.isWhiteSpace() || !prevLeaf.text.startsWith("\n\n"))
@@ -181,10 +180,8 @@ public class BlankLineBeforeDeclarationRule :
             treeParent
                 .takeIf { it.elementType == BLOCK && it.treeParent.elementType == FUNCTION_LITERAL }
                 ?.treeParent
-                ?.psi
-                ?.safeAs<KtFunctionLiteral>()
-                ?.bodyExpression
-                ?.node
+                ?.takeIf { it.elementType == ElementType.FUNCTION_LITERAL }
+                ?.findChildByType(ElementType.BLOCK)
                 ?.children()
                 ?.firstOrNull { !it.isWhiteSpace() && !it.isPartOfComment() }
 
