@@ -38,7 +38,6 @@ import org.ec4j.core.model.PropertyType.PropertyValueParser
 import org.jetbrains.kotlin.KtNodeTypes.WHEN_ENTRY_GUARD
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
-import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
@@ -306,7 +305,12 @@ public class TrailingCommaOnDeclarationSiteRule :
                     val leafBeforeArrowOrNull = leafBeforeArrowOrNull()
                     val addNewLine =
                         leafBeforeArrowOrNull
-                            ?.let { !(leafBeforeArrowOrNull is PsiWhiteSpace && leafBeforeArrowOrNull.textContains('\n')) }
+                            ?.let {
+                                !(
+                                    leafBeforeArrowOrNull.elementType == ElementType.WHITE_SPACE &&
+                                        leafBeforeArrowOrNull.textContains('\n')
+                                )
+                            }
                             ?: false
                     val prevNode = inspectNode.prevCodeLeaf()!!
                     if (addNewLine) {
@@ -327,8 +331,8 @@ public class TrailingCommaOnDeclarationSiteRule :
                                 prevNode
                                     .treeParent
                                     .indent()
-                            if (leafBeforeArrowOrNull is PsiWhiteSpace) {
-                                (leafBeforeArrowOrNull as LeafPsiElement).rawReplaceWithText(indent)
+                            if (leafBeforeArrowOrNull.elementType == ElementType.WHITE_SPACE) {
+                                (leafBeforeArrowOrNull.psi as LeafPsiElement).rawReplaceWithText(indent)
                             } else {
                                 inspectNode
                                     .prevCodeLeaf()
@@ -341,7 +345,7 @@ public class TrailingCommaOnDeclarationSiteRule :
 
                         if (inspectNode.treeParent.elementType == ElementType.ENUM_ENTRY) {
                             val parentIndent =
-                                (prevNode.psi.parent.prevLeaf() as? PsiWhiteSpace)?.text
+                                (prevNode.treeParent.prevLeaf()?.takeIf { it.elementType == ElementType.WHITE_SPACE })?.text
                                     ?: prevNode.indent()
                             (inspectNode as LeafPsiElement).apply {
                                 this.treeParent.addChild(LeafPsiElement(COMMA, ","), this)
@@ -416,17 +420,11 @@ public class TrailingCommaOnDeclarationSiteRule :
         }
 
     private fun ASTNode.leafBeforeArrowOrNull() =
-        when (psi) {
-            is KtWhenEntry -> {
-                (psi as KtWhenEntry)
-                    .arrow
-                    ?.prevLeaf()
-            }
-
-            is KtFunctionLiteral -> {
-                (psi as KtFunctionLiteral)
-                    .arrow
-                    ?.prevLeaf()
+        when (elementType) {
+            ElementType.WHEN_ENTRY,
+            ElementType.FUNCTION_LITERAL,
+            -> {
+                findChildByType(ElementType.ARROW)?.prevLeaf()
             }
 
             else -> {
