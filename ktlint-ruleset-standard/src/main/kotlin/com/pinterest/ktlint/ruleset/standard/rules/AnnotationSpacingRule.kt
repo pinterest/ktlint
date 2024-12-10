@@ -79,7 +79,7 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
                 },
                 {
                     // Disallow multiple white spaces as well as comments
-                    if (it.psi is PsiWhiteSpace) {
+                    if (it.isWhiteSpace()) {
                         val s = it.text
                         // Ensure at least one occurrence of two line breaks
                         s.indexOf("\n") != s.lastIndexOf("\n")
@@ -90,8 +90,7 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
             )
         if (next != null) {
             if (node.elementType != ElementType.FILE_ANNOTATION_LIST && next.isPartOfComment()) {
-                val psi = node.psi
-                emit(psi.endOffset, ERROR_MESSAGE, true)
+                emit(node.textRange.endOffset, ERROR_MESSAGE, true)
                     .ifAutocorrectAllowed {
                         // Special-case autocorrection when the annotation is separated from the annotated construct
                         // by a comment: we need to swap the order of the comment and the annotation

@@ -2,6 +2,7 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
+import com.pinterest.ktlint.rule.engine.core.api.COMMENT_TOKENS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATED_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
@@ -124,7 +125,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.PropertyType.PropertyValueParser
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.psiUtil.leaves
@@ -1191,7 +1191,7 @@ public class IndentationRule :
         }
 
         nextLeaf
-            ?.parent(strict = false) { it.psi is PsiComment }
+            ?.parent(strict = false) { COMMENT_TOKENS.contains(it.elementType) }
             ?.let { comment ->
                 if (text.endsWith("\n")) {
                     processedButNoIndentationChangedNeeded()
