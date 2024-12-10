@@ -8,12 +8,12 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VARARG_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VAR_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.CompositeElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
+import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 import org.jetbrains.kotlin.util.prefixIfNot
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
@@ -183,11 +183,17 @@ public fun ASTNode.parent(
     return null
 }
 
+public fun ASTNode.isPartOf(tokenSet: TokenSet): Boolean = parent(predicate = { tokenSet.contains(it.elementType) }, strict = false) != null
+
 /**
  * @param elementType [ElementType].*
  */
 public fun ASTNode.isPartOf(elementType: IElementType): Boolean = parent(elementType, strict = false) != null
 
+@Deprecated(
+    "psi is a performance issue, see https://github.com/pinterest/ktlint/pull/2901",
+    replaceWith = ReplaceWith("ASTNode.isPartOf(elementType: IElementType) or ASTNode.isPartOf(tokenSet: TokenSet)"),
+)
 public fun ASTNode.isPartOf(klass: KClass<out PsiElement>): Boolean {
     var n: ASTNode? = this
     while (n != null) {
@@ -223,9 +229,22 @@ public fun ASTNode.isLeaf(): Boolean = firstChildNode == null
  */
 public fun ASTNode.isCodeLeaf(): Boolean = isLeaf() && !isWhiteSpace() && !isPartOfComment()
 
-public fun ASTNode.isPartOfComment(): Boolean = parent(strict = false) { it.psi is PsiComment } != null
+public fun ASTNode.isPartOfComment(): Boolean = isPartOf(COMMENT_TOKENS)
+
+public val COMMENT_TOKENS: TokenSet = TokenSet.create(ElementType.BLOCK_COMMENT, ElementType.EOL_COMMENT, ElementType.KDOC)
 
 public fun ASTNode.children(): Sequence<ASTNode> = generateSequence(firstChildNode) { node -> node.treeNext }
+
+public fun ASTNode.recursiveChildren(includeSelf: Boolean = false): Sequence<ASTNode> =
+    sequence {
+        if (includeSelf) {
+            yield(this@recursiveChildren)
+        }
+        children().forEach {
+            yield(it)
+            yieldAll(it.recursiveChildren())
+        }
+    }
 
 /**
  * Updates or inserts a new whitespace element with [text] before the given node. If the node itself is a whitespace

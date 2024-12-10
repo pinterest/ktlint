@@ -17,6 +17,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isRoot
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.recursiveChildren
 import com.pinterest.ktlint.rule.engine.core.api.replaceWith
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
@@ -30,7 +31,6 @@ import org.jetbrains.kotlin.psi.KtBinaryExpression
 import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtClassInitializer
-import org.jetbrains.kotlin.psi.KtCollectionLiteralExpression
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtDeclarationModifierList
 import org.jetbrains.kotlin.psi.KtExpression
@@ -47,7 +47,6 @@ import org.jetbrains.kotlin.psi.KtScript
 import org.jetbrains.kotlin.psi.KtScriptInitializer
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.psiUtil.children
-import org.jetbrains.kotlin.psi.psiUtil.findDescendantOfType
 import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.util.prefixIfNot
 
@@ -202,12 +201,15 @@ private fun ASTNode.existingSuppressions() =
     existingSuppressionsFromNamedArgumentOrNull()
         ?: getValueArguments()
 
-private fun ASTNode.existingSuppressionsFromNamedArgumentOrNull() =
-    psi
-        .findDescendantOfType<KtCollectionLiteralExpression>()
-        ?.children
-        ?.map { it.text }
-        ?.toSet()
+private fun ASTNode.existingSuppressionsFromNamedArgumentOrNull(): Set<String>? =
+    recursiveChildren()
+        .firstOrNull { it.elementType == ElementType.COLLECTION_LITERAL_EXPRESSION }
+        ?.run {
+            children()
+                .filter { it.elementType == ElementType.STRING_TEMPLATE }
+                .map { it.text }
+                .toSet()
+        }
 
 private fun ASTNode.findSuppressionAnnotations(): Map<SuppressAnnotationType, ASTNode> =
     if (this.isRoot()) {
