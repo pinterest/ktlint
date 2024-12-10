@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import com.pinterest.ktlint.rule.engine.core.api.COMMENT_TOKENS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.rule.engine.core.api.IgnoreKtlintSuppressions
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.TokenSets
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
@@ -59,7 +59,7 @@ internal class SuppressionLocator(
         rootNode.recursiveChildren(includeSelf = true).forEach { node ->
             val eType = node.elementType
             when {
-                COMMENT_TOKENS.contains(eType) -> {
+                TokenSets.COMMENTS.contains(eType) -> {
                     node
                         .createSuppressionHintFromComment()
                         ?.let { commentSuppressionsHints.add(it) }

@@ -230,9 +230,7 @@ public fun ASTNode.isLeaf(): Boolean = firstChildNode == null
  */
 public fun ASTNode.isCodeLeaf(): Boolean = isLeaf() && !isWhiteSpace() && !isPartOfComment()
 
-public fun ASTNode.isPartOfComment(): Boolean = isPartOf(COMMENT_TOKENS)
-
-public val COMMENT_TOKENS: TokenSet = TokenSet.create(ElementType.BLOCK_COMMENT, ElementType.EOL_COMMENT, ElementType.KDOC)
+public fun ASTNode.isPartOfComment(): Boolean = isPartOf(TokenSets.COMMENTS)
 
 public fun ASTNode.children(): Sequence<ASTNode> = generateSequence(firstChildNode) { node -> node.treeNext }
 
@@ -579,5 +577,5 @@ public fun ASTNode.remove() {
 public fun ASTNode.getPrevSiblingIgnoringWhitespaceAndComments(): ASTNode? =
     siblings(forward = false)
         .filter {
-            !it.isWhiteSpace() && !COMMENT_TOKENS.contains(it.elementType)
+            !it.isWhiteSpace() && !TokenSets.COMMENTS.contains(it.elementType)
         }.firstOrNull()
