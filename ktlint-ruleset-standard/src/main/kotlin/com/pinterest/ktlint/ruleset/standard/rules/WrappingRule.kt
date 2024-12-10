@@ -3,6 +3,7 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.NO_AUTOCORRECT
+import com.pinterest.ktlint.rule.engine.core.api.COMMENT_TOKENS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ARROW
@@ -78,7 +79,6 @@ import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
@@ -386,7 +386,7 @@ public class WrappingRule :
                     // value(
                     // ), // a comment
                     // c, d
-                    nextSibling.treeNext?.treeNext?.psi !is PsiComment
+                    nextSibling.treeNext?.treeNext?.let { !COMMENT_TOKENS.contains(it.elementType) } != false
                 ) {
                     requireNewlineAfterLeaf(nextSibling, emit)
                 }

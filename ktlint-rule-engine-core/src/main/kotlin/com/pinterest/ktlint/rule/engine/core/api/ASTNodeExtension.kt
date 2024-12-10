@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.psiUtil.leaves
+import org.jetbrains.kotlin.psi.psiUtil.siblings
 import org.jetbrains.kotlin.util.prefixIfNot
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 import kotlin.reflect.KClass
@@ -574,3 +575,9 @@ public fun ASTNode.replaceWith(node: ASTNode) {
 public fun ASTNode.remove() {
     treeParent.removeChild(this)
 }
+
+public fun ASTNode.getPrevSiblingIgnoringWhitespaceAndComments(): ASTNode? =
+    siblings(forward = false)
+        .filter {
+            !it.isWhiteSpace() && !COMMENT_TOKENS.contains(it.elementType)
+        }.firstOrNull()

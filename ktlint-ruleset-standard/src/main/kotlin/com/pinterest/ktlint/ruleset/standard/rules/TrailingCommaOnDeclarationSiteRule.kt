@@ -22,6 +22,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
+import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isCodeLeaf
@@ -41,10 +42,8 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
-import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtCollectionLiteralExpression
 import org.jetbrains.kotlin.psi.KtDestructuringDeclaration
-import org.jetbrains.kotlin.psi.KtEnumEntry
 import org.jetbrains.kotlin.psi.KtFunctionLiteral
 import org.jetbrains.kotlin.psi.KtParameterList
 import org.jetbrains.kotlin.psi.KtValueArgumentList
@@ -191,11 +190,10 @@ public class TrailingCommaOnDeclarationSiteRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val psi = node.psi
-        require(psi is KtClass)
+        require(node.elementType == ElementType.CLASS)
 
         node
-            .takeIf { psi.isEnum() }
+            .takeIf { node.hasModifier(ElementType.ENUM_KEYWORD) }
             ?.findChildByType(ElementType.CLASS_BODY)
             ?.takeUnless { it.noEnumEntries() }
             ?.let { classBody ->
@@ -223,12 +221,12 @@ public class TrailingCommaOnDeclarationSiteRule :
             }
     }
 
-    private fun ASTNode.noEnumEntries() = children().none { it.psi is KtEnumEntry }
+    private fun ASTNode.noEnumEntries() = children().none { it.elementType == ElementType.ENUM_ENTRY }
 
     private fun ASTNode.lastTwoEnumEntriesAreOnSameLine(): Boolean {
         val lastTwoEnumEntries =
             children()
-                .filter { it.psi is KtEnumEntry }
+                .filter { it.elementType == ElementType.ENUM_ENTRY }
                 .toList()
                 .takeLast(2)
 
@@ -243,7 +241,7 @@ public class TrailingCommaOnDeclarationSiteRule :
      */
     private fun ASTNode.findNodeAfterLastEnumEntry() =
         children()
-            .lastOrNull { it.psi is KtEnumEntry }
+            .lastOrNull { it.elementType == ElementType.ENUM_ENTRY }
             ?.children()
             ?.singleOrNull { it.elementType == SEMICOLON }
             ?: lastChildNode
