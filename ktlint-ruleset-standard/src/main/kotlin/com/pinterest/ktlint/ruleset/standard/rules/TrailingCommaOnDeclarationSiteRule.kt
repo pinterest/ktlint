@@ -26,6 +26,8 @@ import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isCodeLeaf
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.noNewLineInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
@@ -301,15 +303,7 @@ public class TrailingCommaOnDeclarationSiteRule :
             TrailingCommaState.MISSING -> {
                 if (isTrailingCommaAllowed) {
                     val leafBeforeArrowOrNull = leafBeforeArrowOrNull()
-                    val addNewLine =
-                        leafBeforeArrowOrNull
-                            ?.let {
-                                !(
-                                    leafBeforeArrowOrNull.elementType == ElementType.WHITE_SPACE &&
-                                        leafBeforeArrowOrNull.textContains('\n')
-                                )
-                            }
-                            ?: false
+                    val addNewLine = !(leafBeforeArrowOrNull?.isWhiteSpaceWithNewline() ?: true)
                     val prevNode = inspectNode.prevCodeLeaf()!!
                     if (addNewLine) {
                         emit(
@@ -329,7 +323,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                                 prevNode
                                     .treeParent
                                     .indent()
-                            if (leafBeforeArrowOrNull.elementType == ElementType.WHITE_SPACE) {
+                            if (leafBeforeArrowOrNull.isWhiteSpace()) {
                                 (leafBeforeArrowOrNull.psi as LeafPsiElement).rawReplaceWithText(indent)
                             } else {
                                 inspectNode
@@ -343,7 +337,7 @@ public class TrailingCommaOnDeclarationSiteRule :
 
                         if (inspectNode.treeParent.elementType == ElementType.ENUM_ENTRY) {
                             val parentIndent =
-                                (prevNode.treeParent.prevLeaf()?.takeIf { it.elementType == ElementType.WHITE_SPACE })?.text
+                                (prevNode.treeParent.prevLeaf()?.takeIf { it.isWhiteSpace() })?.text
                                     ?: prevNode.indent()
                             (inspectNode as LeafPsiElement).apply {
                                 this.treeParent.addChild(LeafPsiElement(COMMA, ","), this)
@@ -418,17 +412,9 @@ public class TrailingCommaOnDeclarationSiteRule :
         }
 
     private fun ASTNode.leafBeforeArrowOrNull() =
-        when (elementType) {
-            ElementType.WHEN_ENTRY,
-            ElementType.FUNCTION_LITERAL,
-            -> {
-                findChildByType(ElementType.ARROW)?.prevLeaf()
-            }
-
-            else -> {
-                null
-            }
-        }
+        takeIf { it.elementType == WHEN_ENTRY || it.elementType == FUNCTION_LITERAL }
+            ?.findChildByType(ARROW)
+            ?.prevLeaf()
 
     private fun ASTNode.findPreviousTrailingCommaNodeOrNull(): ASTNode? {
         val codeLeaf =

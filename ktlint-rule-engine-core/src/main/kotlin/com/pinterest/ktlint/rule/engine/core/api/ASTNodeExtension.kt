@@ -15,7 +15,6 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.psiUtil.leaves
-import org.jetbrains.kotlin.psi.psiUtil.siblings
 import org.jetbrains.kotlin.util.prefixIfNot
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 import kotlin.reflect.KClass
@@ -184,7 +183,7 @@ public fun ASTNode.parent(
     return null
 }
 
-public fun ASTNode.isPartOf(tokenSet: TokenSet): Boolean = parent(predicate = { tokenSet.contains(it.elementType) }, strict = false) != null
+public fun ASTNode.isPartOf(tokenSet: TokenSet): Boolean = parent(strict = false) { tokenSet.contains(it.elementType) } != null
 
 /**
  * @param elementType [ElementType].*
@@ -192,8 +191,9 @@ public fun ASTNode.isPartOf(tokenSet: TokenSet): Boolean = parent(predicate = { 
 public fun ASTNode.isPartOf(elementType: IElementType): Boolean = parent(elementType, strict = false) != null
 
 @Deprecated(
-    "psi is a performance issue, see https://github.com/pinterest/ktlint/pull/2901",
-    replaceWith = ReplaceWith("ASTNode.isPartOf(elementType: IElementType) or ASTNode.isPartOf(tokenSet: TokenSet)"),
+    "Marked for removal in Ktlint 2.x. Replace with ASTNode.isPartOf(elementType: IElementType) or ASTNode.isPartOf(tokenSet: TokenSet). " +
+        "This method might cause performance issues, see https://github.com/pinterest/ktlint/pull/2901",
+    replaceWith = ReplaceWith("this.isPartOf(elementTypeOrTokenSet)"),
 )
 public fun ASTNode.isPartOf(klass: KClass<out PsiElement>): Boolean {
     var n: ASTNode? = this
@@ -239,10 +239,7 @@ public fun ASTNode.recursiveChildren(includeSelf: Boolean = false): Sequence<AST
         if (includeSelf) {
             yield(this@recursiveChildren)
         }
-        children().forEach {
-            yield(it)
-            yieldAll(it.recursiveChildren())
-        }
+        children().forEach { yieldAll(it.recursiveChildren(includeSelf = true)) }
     }
 
 /**
@@ -574,8 +571,9 @@ public fun ASTNode.remove() {
     treeParent.removeChild(this)
 }
 
-public fun ASTNode.getPrevSiblingIgnoringWhitespaceAndComments(): ASTNode? =
-    siblings(forward = false)
-        .filter {
-            !it.isWhiteSpace() && !TokenSets.COMMENTS.contains(it.elementType)
-        }.firstOrNull()
+public fun ASTNode.findChildByTypeRecursively(
+    elementType: IElementType,
+    includeSelf: Boolean,
+): ASTNode? = recursiveChildren(includeSelf).firstOrNull { it.elementType == elementType }
+
+public fun ASTNode.endOffset(): Int = textRange.endOffset

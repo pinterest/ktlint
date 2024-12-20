@@ -1,10 +1,10 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATED_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_TARGET
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONSTRUCTOR_KEYWORD
@@ -346,8 +346,8 @@ public class AnnotationRule :
     private fun ASTNode.isNotReceiverTargetAnnotation() = getAnnotationUseSiteTarget() != AnnotationUseSiteTarget.RECEIVER
 
     private fun ASTNode.getAnnotationUseSiteTarget(): AnnotationUseSiteTarget? =
-        takeIf { it.elementType == ElementType.ANNOTATION_ENTRY }
-            ?.findChildByType(ElementType.ANNOTATION_TARGET)
+        takeIf { it.elementType == ANNOTATION_ENTRY }
+            ?.findChildByType(ANNOTATION_TARGET)
             ?.let { USE_SITE_TARGETS[it.text] }
 
     private fun ASTNode.isAnnotationEntryWithValueArgumentList() = getAnnotationEntryValueArgumentList() != null
@@ -467,7 +467,7 @@ public class AnnotationRule :
                 FILE_ANNOTATION_LIST,
                 MODIFIER_LIST,
             )
-        val USE_SITE_TARGETS = AnnotationUseSiteTarget.entries.associate { it.renderName to it }
+        val USE_SITE_TARGETS = AnnotationUseSiteTarget.entries.associateBy { it.renderName }
     }
 }
 

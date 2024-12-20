@@ -6,6 +6,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.endOffset
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
@@ -90,7 +91,7 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
             )
         if (next != null) {
             if (node.elementType != ElementType.FILE_ANNOTATION_LIST && next.isPartOfComment()) {
-                emit(node.textRange.endOffset, ERROR_MESSAGE, true)
+                emit(node.endOffset(), ERROR_MESSAGE, true)
                     .ifAutocorrectAllowed {
                         // Special-case autocorrection when the annotation is separated from the annotated construct
                         // by a comment: we need to swap the order of the comment and the annotation
@@ -120,8 +121,7 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
         if (whiteSpaces.isNotEmpty() && node.elementType != ElementType.FILE_ANNOTATION_LIST) {
             // Check to make sure there are multi breaks between annotations
             if (whiteSpaces.any { psi -> psi.textToCharArray().count { it == '\n' } > 1 }) {
-                val psi = node.psi
-                emit(psi.endOffset, ERROR_MESSAGE, true)
+                emit(node.endOffset(), ERROR_MESSAGE, true)
                     .ifAutocorrectAllowed {
                         removeIntraLineBreaks(node, annotations.last())
                         removeExtraLineBreaks(node)
