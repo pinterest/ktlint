@@ -8,17 +8,16 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
-import com.pinterest.ktlint.rule.engine.core.api.getPrevSiblingIgnoringWhitespaceAndComments
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.psi.psiUtil.getPrevSiblingIgnoringWhitespaceAndComments
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 import org.jetbrains.kotlin.psi.stubs.elements.KtTokenSets
 
@@ -32,7 +31,7 @@ public class SpacingBetweenDeclarationsWithAnnotationsRule : StandardRule("spaci
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (KtTokenSets.DECLARATION_TYPES.contains(node.elementType) && node.isAnnotated()) {
+        if (node.elementType in KtTokenSets.DECLARATION_TYPES && node.isAnnotated()) {
             visitDeclaration(node, emit)
         }
     }
@@ -42,8 +41,8 @@ public class SpacingBetweenDeclarationsWithAnnotationsRule : StandardRule("spaci
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            ?.getPrevSiblingIgnoringWhitespaceAndComments()
-            ?.takeIf { KtTokenSets.DECLARATION_TYPES.contains(it.elementType) }
+            .prevCodeSibling()
+            ?.takeIf { it.elementType in KtTokenSets.DECLARATION_TYPES }
             ?.takeIf { prevDeclaration -> hasNoBlankLineBetweenDeclarations(node, prevDeclaration) }
             ?.let {
                 val prevLeaf = node.prevCodeLeaf()?.nextLeaf { it.isWhiteSpace() }!!

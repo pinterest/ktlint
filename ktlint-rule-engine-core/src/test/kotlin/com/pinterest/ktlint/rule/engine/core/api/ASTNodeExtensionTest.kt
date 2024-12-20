@@ -1089,6 +1089,37 @@ class ASTNodeExtensionTest {
         }
     }
 
+    @Nested
+    inner class FindChildByTypeRecursively {
+        @Test
+        fun `Given a node with a target type return non-null`() {
+            val code =
+                """
+                class MyClass {
+                    fun foo() = 42    
+                }
+                """.trimIndent()
+            val result =
+                transformCodeToAST(code)
+                    .findChildByTypeRecursively(FUN, includeSelf = false)
+            assertThat(result).isNotNull()
+        }
+
+        @Test
+        fun `Given a node without a target type return null`() {
+            val code =
+                """
+                class MyClass {
+                       
+                }
+                """.trimIndent()
+            val result =
+                transformCodeToAST(code)
+                    .findChildByTypeRecursively(FUN, includeSelf = false)
+            assertThat(result).isNull()
+        }
+    }
+
     private inline fun String.transformAst(block: FileASTNode.() -> Unit): FileASTNode =
         transformCodeToAST(this)
             .apply(block)

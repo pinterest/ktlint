@@ -11,13 +11,13 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
+import com.pinterest.ktlint.rule.engine.core.api.findChildByTypeRecursively
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isRoot
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
-import com.pinterest.ktlint.rule.engine.core.api.recursiveChildren
 import com.pinterest.ktlint.rule.engine.core.api.replaceWith
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
@@ -202,8 +202,7 @@ private fun ASTNode.existingSuppressions() =
         ?: getValueArguments()
 
 private fun ASTNode.existingSuppressionsFromNamedArgumentOrNull(): Set<String>? =
-    recursiveChildren()
-        .firstOrNull { it.elementType == ElementType.COLLECTION_LITERAL_EXPRESSION }
+    findChildByTypeRecursively(ElementType.COLLECTION_LITERAL_EXPRESSION, includeSelf = false)
         ?.run {
             children()
                 .filter { it.elementType == ElementType.STRING_TEMPLATE }

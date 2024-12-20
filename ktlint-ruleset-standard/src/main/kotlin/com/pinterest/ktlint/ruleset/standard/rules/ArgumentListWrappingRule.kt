@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BINARY_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLLECTION_LITERAL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
@@ -20,6 +19,7 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRu
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.TokenSets
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
@@ -284,17 +284,12 @@ public class ArgumentListWrappingRule :
 
     private fun ASTNode.isOnSameLineAsControlFlowKeyword(): Boolean {
         var prevLeaf = prevLeaf() ?: return false
-        while (!prevLeaf.isControlFlowKeyword) {
+        while (prevLeaf.elementType !in TokenSets.CONTROL_FLOW_KEYWORDS) {
             if (prevLeaf.isWhiteSpaceWithNewline()) return false
             prevLeaf = prevLeaf.prevLeaf() ?: return false
         }
         return true
     }
-
-    private val ASTNode.isControlFlowKeyword: Boolean get() =
-        elementType == ElementType.IF_KEYWORD ||
-            elementType == ElementType.WHILE_KEYWORD ||
-            elementType == ElementType.DO_KEYWORD
 
     public companion object {
         private const val UNSET_IGNORE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY = Int.MAX_VALUE

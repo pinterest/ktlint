@@ -57,24 +57,22 @@ internal class SuppressionLocator(
         val suppressionHints = ArrayList<SuppressionHint>()
         val commentSuppressionsHints = mutableListOf<CommentSuppressionHint>()
         rootNode.recursiveChildren(includeSelf = true).forEach { node ->
-            val eType = node.elementType
-            when {
-                TokenSets.COMMENTS.contains(eType) -> {
+            when (node.elementType) {
+                in TokenSets.COMMENTS -> {
                     node
                         .createSuppressionHintFromComment()
-                        ?.let { commentSuppressionsHints.add(it) }
+                        ?.let(commentSuppressionsHints::add)
                 }
 
-                eType == ElementType.ANNOTATION_ENTRY -> {
-                    createSuppressionHintFromAnnotations(
-                        annotation = node,
-                    )?.let { suppressionHints.add(it) }
+                ElementType.ANNOTATION_ENTRY -> {
+                    node
+                        .takeIf { it.isSuppressAnnotation() }
+                        ?.createSuppressionHintFromAnnotations()
+                        ?.let(suppressionHints::add)
                 }
             }
         }
-        return suppressionHints.plus(
-            commentSuppressionsHints.toSuppressionHints(),
-        )
+        return suppressionHints + commentSuppressionsHints.toSuppressionHints()
     }
 
     private fun ASTNode.createSuppressionHintFromComment(): CommentSuppressionHint? =
@@ -170,62 +168,57 @@ internal class SuppressionLocator(
 
     private fun <T> List<T>.tail() = this.subList(1, this.size)
 
-    private fun createSuppressionHintFromAnnotations(annotation: ASTNode): SuppressionHint? {
-        if (annotation
-                .findChildByType(ElementType.CONSTRUCTOR_CALLEE)
-                ?.findChildByType(ElementType.TYPE_REFERENCE)
-                ?.text !in SUPPRESS_ANNOTATIONS
-        ) {
-            return null
-        }
+    private fun ASTNode.isSuppressAnnotation(): Boolean =
+        findChildByType(ElementType.CONSTRUCTOR_CALLEE)
+            ?.findChildByType(ElementType.TYPE_REFERENCE)
+            ?.text in SUPPRESS_ANNOTATIONS
 
+    private fun ASTNode.createSuppressionHintFromAnnotations(): SuppressionHint? {
         val suppressedRuleIds =
-            annotation
-                .recursiveChildren()
+            recursiveChildren()
                 .filter { it.elementType == ElementType.VALUE_ARGUMENT }
                 .flatMapTo(mutableListOf()) {
-                    it.text.findRuleSuppressionIds()
+                    it.text.removeSurrounding("\"").findRuleSuppressionIds()
                 }
 
         if (suppressedRuleIds.isEmpty()) return null
 
         val owner =
-            annotation.parent {
-                ANNOTATED_ELEMENT_TYPES.contains(it.elementType)
-            } ?: return null
+            parent { it.elementType in ANNOTATED_ELEMENT_TYPES }
+                ?: return null
 
-        val tr = owner.textRange
+        val textRange = owner.textRange
 
         return SuppressionHint(
-            IntRange(tr.startOffset, tr.endOffset - 1),
-            if (suppressedRuleIds.contains(ALL_KTLINT_RULES_SUPPRESSION_ID)) emptySet() else suppressedRuleIds.toSet(),
+            IntRange(textRange.startOffset, textRange.endOffset - 1),
+            if (suppressedRuleIds.contains(ALL_KTLINT_RULES_SUPPRESSION_ID)) {
+                emptySet()
+            } else {
+                suppressedRuleIds.toSet()
+            },
         )
     }
 
     private fun String.findRuleSuppressionIds(): List<String> =
-        removeSurrounding("\"")
-            .let { argumentExpressionText ->
-                when {
-                    argumentExpressionText == "ktlint" -> {
-                        // Disable all rules
-                        listOf(ALL_KTLINT_RULES_SUPPRESSION_ID)
-                    }
+        when {
+            this == "ktlint" -> {
+                // Disable all rules
+                listOf(ALL_KTLINT_RULES_SUPPRESSION_ID)
+            }
 
-                    argumentExpressionText.startsWith("ktlint:") -> {
-                        // Disable specific rule. For backwards compatibility prefix rules without rule set id with the "standard" rule set
-                        // id. Note that the KtlintSuppressionRule will emit a lint violation on the id. So this fix is only applicable for
-                        // code bases in which the rule and suppression id's have not yet been fixed.
-                        argumentExpressionText
-                            .removePrefix("ktlint:")
-                            .let { listOf(RuleId.prefixWithStandardRuleSetIdWhenMissing(it)) }
-                    }
+            startsWith("ktlint:") -> {
+                // Disable specific rule. For backwards compatibility prefix rules without rule set id with the "standard" rule set
+                // id. Note that the KtlintSuppressionRule will emit a lint violation on the id. So this fix is only applicable for
+                // code bases in which the rule and suppression id's have not yet been fixed.
+                removePrefix("ktlint:")
+                    .let { listOf(RuleId.prefixWithStandardRuleSetIdWhenMissing(it)) }
+            }
 
-                    else -> {
-                        // Disable specific rule if the annotation value is mapped to a specific rule
-                        SUPPRESS_ANNOTATION_RULE_MAP[argumentExpressionText]
-                    }
-                }
-            }.orEmpty()
+            else -> {
+                // Disable specific rule if the annotation value is mapped to a specific rule
+                SUPPRESS_ANNOTATION_RULE_MAP[this].orEmpty()
+            }
+        }
 
     /**
      * @param range zero-based range of lines where lint errors should be suppressed

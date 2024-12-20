@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
@@ -149,7 +148,7 @@ public class BlankLineBeforeDeclarationRule :
         }
 
         node
-            .takeIf { KtTokenSets.DECLARATION_TYPES.contains(it.elementType) }
+            .takeIf { it.elementType in KtTokenSets.DECLARATION_TYPES }
             ?.takeIf {
                 val prevLeaf = it.prevLeaf()
                 prevLeaf != null && (!prevLeaf.isWhiteSpace() || !prevLeaf.text.startsWith("\n\n"))
@@ -180,8 +179,8 @@ public class BlankLineBeforeDeclarationRule :
             treeParent
                 .takeIf { it.elementType == BLOCK && it.treeParent.elementType == FUNCTION_LITERAL }
                 ?.treeParent
-                ?.takeIf { it.elementType == ElementType.FUNCTION_LITERAL }
-                ?.findChildByType(ElementType.BLOCK)
+                ?.takeIf { it.elementType == FUNCTION_LITERAL }
+                ?.findChildByType(BLOCK)
                 ?.children()
                 ?.firstOrNull { !it.isWhiteSpace() && !it.isPartOfComment() }
 

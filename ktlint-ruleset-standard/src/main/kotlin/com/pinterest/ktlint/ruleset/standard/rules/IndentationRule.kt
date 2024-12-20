@@ -1191,7 +1191,7 @@ public class IndentationRule :
         }
 
         nextLeaf
-            ?.parent(strict = false) { TokenSets.COMMENTS.contains(it.elementType) }
+            ?.parent(strict = false) { it.elementType in TokenSets.COMMENTS }
             ?.let { comment ->
                 if (text.endsWith("\n")) {
                     processedButNoIndentationChangedNeeded()

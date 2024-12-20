@@ -27,7 +27,6 @@ import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.openapi.util.TextRange
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.CompositeElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.kdoc.lexer.KDocTokens.MARKDOWN_LINK
@@ -84,18 +83,11 @@ public class NoUnusedImportsRule :
             }
 
             MARKDOWN_LINK -> {
-                // Both of these are copied from from org.jetbrains.kotlin.kdoc.psi.impl.KDocLink, to avoid having to getPsi()
-                fun ASTNode.getLinkTextRange(): TextRange {
-                    val text = text
-                    if (text.startsWith('[') && text.endsWith(']')) {
-                        return TextRange(1, text.length - 1)
-                    }
-                    return TextRange(0, text.length)
-                }
-
-                fun ASTNode.getLinkText(): String = getLinkTextRange().substring(text)
-
-                val linkText = node.getLinkText().removeBackticksAndTrim()
+                val linkText =
+                    node
+                        .text
+                        .removeSurrounding("[", "]")
+                        .removeBackticksAndTrim()
                 ref.add(Reference(linkText.split('.').first(), false))
                 ref.add(Reference(linkText.split('.').last(), false))
             }
@@ -115,7 +107,7 @@ public class NoUnusedImportsRule :
                             ref.add(
                                 Reference(
                                     it.removeBackticksAndTrim(),
-                                    node.parentDotQualifiedExpression() != null,
+                                    node.isParentDotQualifiedExpressionOrNull(),
                                 ),
                             )
                         }
@@ -286,22 +278,22 @@ public class NoUnusedImportsRule :
 
     private fun String.isComponentN() = COMPONENT_N_REGEX.matches(this)
 
-    private fun ASTNode.parentDotQualifiedExpression(): KtDotQualifiedExpression? {
-        val callOrThis =
-            treeParent
-                .takeIf { it.elementType == ElementType.CALL_EXPRESSION }
-                ?.takeIf { it.findChildByType(TokenSets.EXPRESSIONS) == this }
-                ?: this
-        return (
-            callOrThis.treeParent
-                ?.takeIf {
-                    it.elementType == ElementType.DOT_QUALIFIED_EXPRESSION
-                }?.psi as? KtDotQualifiedExpression
-        )?.takeIf {
-            it.selectorExpression?.node ==
-                callOrThis
-        }
+    private fun ASTNode.isParentDotQualifiedExpressionOrNull(): Boolean {
+        val callExpressionOrThis = parentCallExpressionOrNull() ?: this
+        return callExpressionOrThis.isDotQualifiedExpression()
     }
+
+    private fun ASTNode.parentCallExpressionOrNull() =
+        treeParent
+            .takeIf { it.elementType == ElementType.CALL_EXPRESSION }
+            ?.takeIf { it.findChildByType(TokenSets.EXPRESSIONS) == this }
+
+    private fun ASTNode.isDotQualifiedExpression() =
+        treeParent
+            ?.takeIf { it.elementType == DOT_QUALIFIED_EXPRESSION }
+            ?.let { it.psi as? KtDotQualifiedExpression }
+            ?.takeIf { it.selectorExpression?.node == this }
+            .let { it != null }
 
     private fun String.removeBackticksAndTrim() = replace("`", "").trim()
 
