@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
+import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ABSTRACT_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ACTUAL_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
@@ -34,8 +35,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
-import org.jetbrains.kotlin.psi.KtAnnotationEntry
-import org.jetbrains.kotlin.psi.KtDeclarationModifierList
 
 @SinceKtlint("0.7", STABLE)
 public class ModifierOrderRule : StandardRule("modifier-order") {
@@ -43,7 +42,7 @@ public class ModifierOrderRule : StandardRule("modifier-order") {
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.psi is KtDeclarationModifierList) {
+        if (node.elementType == ElementType.MODIFIER_LIST) {
             val modifierArr = node.getChildren(tokenSet)
             val sorted = modifierArr.copyOf().apply { sortWith(compareBy { ORDERED_MODIFIERS.indexOf(it.elementType) }) }
             if (!modifierArr.contentEquals(sorted)) {
@@ -69,7 +68,7 @@ public class ModifierOrderRule : StandardRule("modifier-order") {
     }
 
     private fun squashAnnotations(sorted: Array<ASTNode>): List<String> {
-        val nonAnnotationModifiers = sorted.filter { it.psi !is KtAnnotationEntry }
+        val nonAnnotationModifiers = sorted.filter { it.elementType != ElementType.ANNOTATION_ENTRY }
         return if (nonAnnotationModifiers.size != sorted.size) {
             listOf("@Annotation...") + nonAnnotationModifiers.map { it.text }
         } else {

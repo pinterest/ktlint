@@ -4,7 +4,6 @@ import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BINARY_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLLECTION_LITERAL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.ELSE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EQ
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LPAR
@@ -20,6 +19,7 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRu
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.TokenSets
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
@@ -38,12 +38,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
-import org.jetbrains.kotlin.psi.KtContainerNode
-import org.jetbrains.kotlin.psi.KtDoWhileExpression
-import org.jetbrains.kotlin.psi.KtIfExpression
-import org.jetbrains.kotlin.psi.KtWhileExpression
 import org.jetbrains.kotlin.psi.psiUtil.children
-import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
 
 /**
  * https://kotlinlang.org/docs/reference/coding-conventions.html#method-call-formatting
@@ -288,18 +283,8 @@ public class ArgumentListWrappingRule :
     }
 
     private fun ASTNode.isOnSameLineAsControlFlowKeyword(): Boolean {
-        val containerNode = psi.getStrictParentOfType<KtContainerNode>() ?: return false
-        if (containerNode.node.elementType == ELSE) return false
-        val controlFlowKeyword =
-            when (val parent = containerNode.parent) {
-                is KtIfExpression -> parent.ifKeyword.node
-                is KtWhileExpression -> parent.firstChild.node
-                is KtDoWhileExpression -> parent.whileKeyword?.node
-                else -> null
-            } ?: return false
-
         var prevLeaf = prevLeaf() ?: return false
-        while (prevLeaf != controlFlowKeyword) {
+        while (prevLeaf.elementType !in TokenSets.CONTROL_FLOW_KEYWORDS) {
             if (prevLeaf.isWhiteSpaceWithNewline()) return false
             prevLeaf = prevLeaf.prevLeaf() ?: return false
         }
