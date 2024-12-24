@@ -34,6 +34,8 @@ public class Code private constructor(
             filePath?.pathString.orEmpty()
         }
 
+    public fun filePathOrFileNameOrStdin(): String = filePath?.pathString ?: fileNameOrStdin()
+
     public companion object {
         /**
          * Create [Code] from a [file] containing valid Kotlin code or script. The '.editorconfig' files on the path to [file] are taken
@@ -72,15 +74,18 @@ public class Code private constructor(
          * The [content] represent a valid piece of Kotlin code or Kotlin script. The '.editorconfig' files on the filesystem are ignored as
          * the snippet is not associated with a file path. Use [Code.fromFile] for scanning a file while at the same time respecting the
          * '.editorconfig' files on the path to the file.
+         *
+         * Use optional parameter [debugFilename] to better identify what is being formatted in various log messages. This does not affect the behavior of the formatter other than logging.
          */
         public fun fromSnippet(
             content: String,
             script: Boolean = false,
+            debugFilename: String? = null
         ): Code =
             Code(
                 content = content,
                 filePath = null,
-                fileName = null,
+                fileName = debugFilename,
                 script = script,
                 isStdIn = true,
             )
