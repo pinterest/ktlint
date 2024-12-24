@@ -69,7 +69,7 @@ internal class CodeFormatter(
                     // Lint violations were found, but the file has not been changed.
                     LOGGER.warn {
                         "Format was not able to resolve all violations which (theoretically) can be autocorrected in file " +
-                            code.filePathOrStdin()
+                            code.filePathOrFileNameOrStdin()
                     }
                     break
                 }
@@ -83,7 +83,7 @@ internal class CodeFormatter(
                 lintAfterFormat().also {
                     LOGGER.warn {
                         "Format was not able to resolve all violations which (theoretically) can be autocorrected in file " +
-                            "${code.filePathOrStdin()} in $maxFormatRunsPerFile consecutive runs of format."
+                            "${code.filePathOrFileNameOrStdin()} in $maxFormatRunsPerFile consecutive runs of format."
                     }
                 }
             }
