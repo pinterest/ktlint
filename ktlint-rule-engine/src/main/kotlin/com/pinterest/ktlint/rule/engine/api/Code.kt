@@ -80,7 +80,7 @@ public class Code private constructor(
         public fun fromSnippet(
             content: String,
             script: Boolean = false,
-            debugFilename: String? = null
+            debugFilename: String? = null,
         ): Code =
             Code(
                 content = content,
