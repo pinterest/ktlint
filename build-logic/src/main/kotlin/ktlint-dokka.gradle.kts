@@ -1,5 +1,6 @@
 plugins {
     `java-library`
+//    id("org.jetbrains.dokka")
     // Generates Javadoc documentation
     id("org.jetbrains.dokka-javadoc")
 }
