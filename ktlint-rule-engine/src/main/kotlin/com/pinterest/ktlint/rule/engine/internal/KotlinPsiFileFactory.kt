@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.com.intellij.pom.PomTransaction
 import org.jetbrains.kotlin.com.intellij.pom.impl.PomTransactionBase
 import org.jetbrains.kotlin.com.intellij.pom.tree.TreeAspect
 import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
+import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import sun.reflect.ReflectionFactory
 import java.nio.file.Files
@@ -40,7 +41,7 @@ internal fun initPsiFileFactory(ktLintRuleEngine: KtLintRuleEngine): PsiFileFact
     DiagnosticLogger.setFactory(LoggerFactory::class.java)
 
     val compilerConfiguration = CompilerConfiguration()
-    compilerConfiguration.put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
+    compilerConfiguration.put(CommonConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
     // Special workaround on JDK 1.8 when KtLint is used from shipped CLI
     // to prevent Kotlin compiler initialization error
     if (ktLintRuleEngine.isInvokedFromCli && System.getProperty("java.specification.version") == "1.8") {
