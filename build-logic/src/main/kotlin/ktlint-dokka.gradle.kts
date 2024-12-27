@@ -10,7 +10,7 @@ java {
 
 tasks.dokkaJavadoc {
     notCompatibleWithConfigurationCache("https://github.com/Kotlin/dokka/issues/1217")
-    outputDirectory = buildDir.resolve("javadoc")
+    outputDirectory = layout.buildDirectory.dir("javadoc")
 }
 
 tasks.named<Jar>("javadocJar") {
