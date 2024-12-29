@@ -13,7 +13,10 @@ import com.pinterest.ktlint.rule.engine.core.api.recursiveChildren
 import com.pinterest.ktlint.rule.engine.internal.SuppressionLocator.CommentSuppressionHint.Type.BLOCK_END
 import com.pinterest.ktlint.rule.engine.internal.SuppressionLocator.CommentSuppressionHint.Type.BLOCK_START
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
+import org.jetbrains.kotlin.com.intellij.psi.PsiElement
+import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
+import org.jetbrains.kotlin.psi.KtAnnotated
+import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementType
 
 internal class SuppressionLocator(
     editorConfig: EditorConfig,
@@ -183,9 +186,7 @@ internal class SuppressionLocator(
 
         if (suppressedRuleIds.isEmpty()) return null
 
-        val owner =
-            parent { it.elementType in ANNOTATED_ELEMENT_TYPES }
-                ?: return null
+        val owner = parent { it.canBeAnnotated() } ?: return null
 
         val textRange = owner.textRange
 
@@ -264,21 +265,27 @@ internal class SuppressionLocator(
             )
         val SUPPRESS_ANNOTATIONS = setOf("Suppress", "SuppressWarnings")
         const val ALL_KTLINT_RULES_SUPPRESSION_ID = "ktlint:suppress-all-rules"
-        val ANNOTATED_ELEMENT_TYPES =
-            TokenSet.create(
-                ElementType.CLASS,
-                ElementType.OBJECT_DECLARATION,
-                ElementType.ENUM_ENTRY,
-                ElementType.FUN,
-                ElementType.PROPERTY,
-                ElementType.PROPERTY_ACCESSOR,
-                ElementType.TYPE_PARAMETER,
-                ElementType.TYPEALIAS,
-                ElementType.PRIMARY_CONSTRUCTOR,
-                ElementType.SECONDARY_CONSTRUCTOR,
-                ElementType.ANNOTATED_EXPRESSION,
-                ElementType.EXPRESSION_CODE_FRAGMENT,
-                ElementType.FILE,
-            )
+
+        private fun ASTNode.canBeAnnotated(): Boolean =
+            when (val elementType = elementType) {
+                ElementType.FILE -> {
+                    true
+                }
+
+                ElementType.ANNOTATED_EXPRESSION -> {
+                    true
+                }
+
+                else -> {
+                    DUMMY_PSI_ELEMENTS.getOrPut(elementType) {
+                        when (elementType) {
+                            is KtStubElementType<*, *> -> elementType.createPsiFromAst(this)
+                            else -> throw NotImplementedError("getting dummy psi for $elementType (${elementType::class}) not implemented")
+                        }
+                    } is KtAnnotated
+                }
+            }
+
+        private val DUMMY_PSI_ELEMENTS = hashMapOf<IElementType, PsiElement>()
     }
 }
