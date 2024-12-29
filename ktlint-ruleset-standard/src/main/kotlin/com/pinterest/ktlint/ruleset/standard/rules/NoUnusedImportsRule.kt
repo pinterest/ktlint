@@ -14,7 +14,6 @@ import com.pinterest.ktlint.rule.engine.core.api.IgnoreKtlintSuppressions
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.TokenSets
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isRoot
@@ -286,7 +285,6 @@ public class NoUnusedImportsRule :
     private fun ASTNode.parentCallExpressionOrNull() =
         treeParent
             .takeIf { it.elementType == ElementType.CALL_EXPRESSION }
-            ?.takeIf { it.findChildByType(TokenSets.EXPRESSIONS) == this }
 
     private fun ASTNode.isDotQualifiedExpression() =
         treeParent

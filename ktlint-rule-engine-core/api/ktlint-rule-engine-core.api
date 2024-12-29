@@ -533,7 +533,6 @@ public final class com/pinterest/ktlint/rule/engine/core/api/TokenSets {
 	public static final field INSTANCE Lcom/pinterest/ktlint/rule/engine/core/api/TokenSets;
 	public final fun getCOMMENTS ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/TokenSet;
 	public final fun getCONTROL_FLOW_KEYWORDS ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/TokenSet;
-	public final fun getEXPRESSIONS ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/TokenSet;
 }
 
 public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/CodeStyleEditorConfigPropertyKt {
