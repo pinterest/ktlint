@@ -17,6 +17,8 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 import org.jetbrains.kotlin.util.prefixIfNot
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 import kotlin.reflect.KClass
 
 public fun ASTNode.nextLeaf(
@@ -214,7 +216,13 @@ public fun ASTNode.findCompositeParentElementOfType(iElementType: IElementType):
 
 public fun ASTNode.isPartOfString(): Boolean = parent(STRING_TEMPLATE, strict = false) != null
 
-public fun ASTNode?.isWhiteSpace(): Boolean = this != null && elementType == WHITE_SPACE
+@OptIn(ExperimentalContracts::class)
+public fun ASTNode?.isWhiteSpace(): Boolean {
+    contract {
+        returns(true) implies (this@isWhiteSpace != null)
+    }
+    return this != null && elementType == WHITE_SPACE
+}
 
 public fun ASTNode?.isWhiteSpaceWithNewline(): Boolean = this != null && elementType == WHITE_SPACE && textContains('\n')
 
