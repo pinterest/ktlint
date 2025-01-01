@@ -5,6 +5,7 @@ import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
@@ -25,6 +26,7 @@ import org.assertj.core.api.Assertions.assertThatNoException
 import org.assertj.core.api.Assertions.entry
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
+import org.jetbrains.kotlin.psi.KtAnnotated
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -1096,7 +1098,7 @@ class ASTNodeExtensionTest {
             val code =
                 """
                 class MyClass {
-                    fun foo() = 42    
+                    fun foo() = 42
                 }
                 """.trimIndent()
             val result =
@@ -1110,7 +1112,7 @@ class ASTNodeExtensionTest {
             val code =
                 """
                 class MyClass {
-                       
+
                 }
                 """.trimIndent()
             val result =
@@ -1118,6 +1120,24 @@ class ASTNodeExtensionTest {
                     .findChildByTypeRecursively(FUN, includeSelf = false)
             assertThat(result).isNull()
         }
+    }
+
+    @Test
+    fun `Given a simple class declaration without body then the declaration itself is derived from KtAnnotated while its child elements are not derived from KtAnnotated`() {
+        val code =
+            """
+            class Foo
+            """.trimIndent()
+
+        val actual = transformCodeToAST(code).findChildByType(CLASS)!!
+
+        assertThat(actual.isKtAnnotated()).isTrue()
+        assertThat(actual.findChildByType(CLASS_KEYWORD)!!.isKtAnnotated()).isFalse()
+        assertThat(actual.findChildByType(IDENTIFIER)!!.isKtAnnotated()).isFalse()
+
+        assertThat(actual.isPsiType<KtAnnotated>()).isTrue()
+        assertThat(actual.findChildByType(CLASS_KEYWORD)!!.isPsiType<KtAnnotated>()).isFalse()
+        assertThat(actual.findChildByType(IDENTIFIER)!!.isPsiType<KtAnnotated>()).isFalse()
     }
 
     private inline fun String.transformAst(block: FileASTNode.() -> Unit): FileASTNode =
