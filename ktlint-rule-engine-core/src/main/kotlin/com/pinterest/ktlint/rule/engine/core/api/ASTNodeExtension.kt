@@ -7,6 +7,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VAL_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VARARG_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VAR_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
+import org.jetbrains.kotlin.KtNodeType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.CompositeElement
@@ -14,7 +15,13 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
+import org.jetbrains.kotlin.lexer.KtKeywordToken
+import org.jetbrains.kotlin.lexer.KtToken
+import org.jetbrains.kotlin.psi.KtAnnotated
+import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.psiUtil.leaves
+import org.jetbrains.kotlin.psi.stubs.elements.KtFileElementType
+import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementType
 import org.jetbrains.kotlin.util.prefixIfNot
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 import kotlin.contracts.ExperimentalContracts
@@ -592,3 +599,55 @@ public fun ASTNode.findChildByTypeRecursively(
  * Returns the end offset of the text of this [ASTNode]
  */
 public fun ASTNode.endOffset(): Int = textRange.endOffset
+
+private val elementTypeCache = hashMapOf<IElementType, PsiElement>()
+
+/**
+ * Checks if the [AstNode] extends the [KtAnnotated] interface. Using this function to check the interface is more performant than checking
+ * whether `psi is KtAnnotated` as the psi does not need to be derived from [ASTNode].
+ */
+public fun ASTNode.isKtAnnotated(): Boolean = psiType { it is KtAnnotated }
+
+private inline fun ASTNode.psiType(predicate: (psiElement: PsiElement) -> Boolean): Boolean =
+    elementTypeCache
+        .getOrPut(elementType) {
+            // Create a dummy Psi element based on the current node, so that we can store the Psi Type for this ElementType.
+            // Creating this cache entry once per elementType is cheaper than accessing the psi for every node.
+            when (elementType) {
+                is KtFileElementType -> this.psi
+                is KtKeywordToken -> this.psi
+                is KtNodeType -> (elementType as KtNodeType).createPsi(this)
+                is KtStubElementType<*, *> -> (elementType as KtStubElementType<*, *>).createPsiFromAst(this)
+                is KtToken -> this.psi
+                else -> throw NotImplementedError("Cannot create dummy psi for $elementType (${elementType::class})")
+            }
+        }.let { predicate(it) }
+
+/**
+ * Checks if the [AstNode] extends the [T] interface which implements [KtElement]. Call this function like:
+ * ```
+ * astNode.isPsiType<KtAnnotated>()
+ * ```
+ * Using this function to check the [PsiElement] type of the [ASTNode] is more performant than checking whether `astNode.psi is KtAnnotated`
+ * as the psi does not need to be derived from [ASTNode].
+ */
+public inline fun <reified T : KtElement> ASTNode.isPsiType(): Boolean = this.dummyPsiElement() is T
+
+/**
+ * FOR INTERNAL USE ONLY. The returned element is a stub version of a [PsiElement] of the same type as the given [ASTNode]. The returned
+ * result may only be used to validate the type of the [PsiElement].
+ */
+public fun ASTNode.dummyPsiElement(): PsiElement =
+    elementTypeCache
+        .getOrPut(elementType) {
+            // Create a dummy Psi element based on the current node, so that we can store the Psi Type for this ElementType.
+            // Creating this cache entry once per elementType is cheaper than accessing the psi for every node.
+            when (elementType) {
+                is KtFileElementType -> this.psi
+                is KtKeywordToken -> this.psi
+                is KtNodeType -> (elementType as KtNodeType).createPsi(this)
+                is KtStubElementType<*, *> -> (elementType as KtStubElementType<*, *>).createPsiFromAst(this)
+                is KtToken -> this.psi
+                else -> throw NotImplementedError("Cannot create dummy psi for $elementType (${elementType::class})")
+            }
+        }
