@@ -8,24 +8,19 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VARARG_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VAR_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import org.jetbrains.kotlin.KtNodeType
+import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
+import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
-import org.jetbrains.kotlin.com.intellij.lang.Language
 import org.jetbrains.kotlin.com.intellij.mock.MockProject
-import org.jetbrains.kotlin.com.intellij.openapi.Disposable
-import org.jetbrains.kotlin.com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.kotlin.com.intellij.psi.AbstractFileViewProvider
-import org.jetbrains.kotlin.com.intellij.psi.FileViewProvider
+import org.jetbrains.kotlin.com.intellij.openapi.util.Disposer
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
-import org.jetbrains.kotlin.com.intellij.psi.PsiFile
-import org.jetbrains.kotlin.com.intellij.psi.PsiReference
-import org.jetbrains.kotlin.com.intellij.psi.impl.PsiManagerImpl
+import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.CompositeElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
-import org.jetbrains.kotlin.com.intellij.testFramework.LightVirtualFile
+import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.lexer.KtKeywordToken
 import org.jetbrains.kotlin.lexer.KtToken
@@ -600,8 +595,8 @@ public fun ASTNode.remove() {
 }
 
 /**
- * Searches the receiver [ASTNode] recursively, returning the first child with type [elementType]. If none are found, returns [null].
- * If [includeSelf] is [true], includes the receiver in the search. The receiver would then be the first element searched, so it is
+ * Searches the receiver [ASTNode] recursively, returning the first child with type [elementType]. If none are found, returns `null`.
+ * If [includeSelf] is `true`, includes the receiver in the search. The receiver would then be the first element searched, so it is
  * guaranteed to be returned if it has type [elementType].
  */
 public fun ASTNode.findChildByTypeRecursively(
@@ -644,7 +639,7 @@ public fun ASTNode.dummyPsiElement(): PsiElement =
             // Create a dummy Psi element based on the current node, so that we can store the Psi Type for this ElementType.
             // Creating this cache entry once per elementType is cheaper than accessing the psi for every node.
             when (elementType) {
-                is KtFileElementType -> KtFile(dummyFileViewProvider, false)
+                is KtFileElementType -> createDummyKtFile()
                 is KtKeywordToken -> this as PsiElement
                 is KtNodeType -> (elementType as KtNodeType).createPsi(this)
                 is KtStubElementType<*, *> -> (elementType as KtStubElementType<*, *>).createPsiFromAst(this)
@@ -653,66 +648,24 @@ public fun ASTNode.dummyPsiElement(): PsiElement =
             }
         }
 
-private val dummyFileViewProvider by lazy {
-    object : AbstractFileViewProvider(
-        PsiManagerImpl(
-            MockProject(
-                null,
-                object : Disposable {
-                    override fun dispose() {
-                        TODO("Not yet implemented")
-                    }
-                },
-            ),
-        ),
-        LightVirtualFile(),
-        false,
-    ) {
-        override fun getPsiInner(p0: Language?): PsiFile? {
-            TODO("Not yet implemented")
-        }
+private fun createDummyKtFile(): KtFile {
+    val disposable = Disposer.newDisposable()
+    try {
+        val project =
+            KotlinCoreEnvironment
+                .createForProduction(
+                    disposable,
+                    CompilerConfiguration(),
+                    EnvironmentConfigFiles.JVM_CONFIG_FILES,
+                ).project as MockProject
 
-        override fun getCachedPsi(p0: Language): PsiFile? {
-            TODO("Not yet implemented")
-        }
-
-        override fun getCachedPsiFiles(): List<PsiFile?> {
-            TODO("Not yet implemented")
-        }
-
-        override fun getKnownTreeRoots(): List<FileASTNode?> {
-            TODO("Not yet implemented")
-        }
-
-        override fun getBaseLanguage(): Language {
-            TODO("Not yet implemented")
-        }
-
-        private val languages = setOf(KotlinLanguage.INSTANCE)
-
-        override fun getLanguages(): Set<Language> = languages
-
-        override fun getAllFiles(): List<PsiFile?> {
-            TODO("Not yet implemented")
-        }
-
-        override fun findElementAt(p0: Int): PsiElement? {
-            TODO("Not yet implemented")
-        }
-
-        override fun findReferenceAt(p0: Int): PsiReference? {
-            TODO("Not yet implemented")
-        }
-
-        override fun findElementAt(
-            p0: Int,
-            p1: Class<out Language?>,
-        ): PsiElement? {
-            TODO("Not yet implemented")
-        }
-
-        override fun createCopy(p0: VirtualFile): FileViewProvider {
-            TODO("Not yet implemented")
-        }
+        return PsiFileFactory
+            .getInstance(project)
+            .createFileFromText("dummy-file.kt", KotlinLanguage.INSTANCE, "") as KtFile
+    } finally {
+        // Dispose explicitly to (possibly) prevent memory leak
+        // https://discuss.kotlinlang.org/t/memory-leak-in-kotlincoreenvironment-and-kotlintojvmbytecodecompiler/21950
+        // https://youtrack.jetbrains.com/issue/KT-47044
+        disposable.dispose()
     }
 }
