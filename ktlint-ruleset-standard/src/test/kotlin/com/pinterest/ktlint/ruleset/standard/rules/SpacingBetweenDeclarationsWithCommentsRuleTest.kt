@@ -135,4 +135,16 @@ class SpacingBetweenDeclarationsWithCommentsRuleTest {
             """.trimIndent()
         spacingBetweenDeclarationsWithCommentsRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Given consecutive declarations, and the second declaration contains an inner comment on a separate line then do nothing`() {
+        val code =
+            """
+            val bar = "bar"
+            val foo =
+                // Some comment
+                "foo"
+            """.trimIndent()
+        spacingBetweenDeclarationsWithCommentsRuleAssertThat(code).hasNoLintViolations()
+    }
 }
