@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.47">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.49">
     
     
       
@@ -1553,10 +1553,10 @@ If you are behind a proxy see - <a href="https://curl.haxx.se/docs/manpage.html#
 <h3 id="rule-configuration-editorconfig">Rule configuration (<code>.editorconfig</code>)<a class="headerlink" href="#rule-configuration-editorconfig" title="Permanent link">&para;</a></h3>
 <p>Some rules can be tweaked via the <a href="../../rules/configuration-ktlint/"><code>editorconfig file</code></a>.</p>
 <p>A scaffold of the <code>.editorconfig</code> file can be generated with command below. Note: that the generated file only contains configuration settings which are actively used by the <a href="#rule-sets">rules which are loaded</a>:</p>
-<div class="highlight"><span class="filename">Generate .editorconfig</span><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Specify the code style(ktlint_official, intellij_idea or android_studio) to be used when generating the .editorconfig</span>
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>ktlint<span class="w"> </span>generateEditorConfig<span class="w"> </span>ktlint_official
+<div class="highlight"><span class="filename">Generate .editorconfig</span><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Specify the code style (ktlint_official, intellij_idea or android_studio) to be used when generating the .editorconfig</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>ktlint<span class="w"> </span>generateEditorConfig<span class="w"> </span>--code-style<span class="w"> </span>ktlint_official
 <a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="c1"># or</span>
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>ktlint<span class="w"> </span>--ruleset<span class="o">=</span>/path/to/custom-ruleset.jar<span class="w"> </span>generateEditorConfig<span class="w"> </span>android_studio
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>ktlint<span class="w"> </span>--ruleset<span class="o">=</span>/path/to/custom-ruleset.jar<span class="w"> </span>generateEditorConfig<span class="w"> </span>--code-style<span class="w"> </span>android_studio
 </code></pre></div>
 <p>Normally the <code>.editorconfig</code> file is located in the root of your project directory. In case the file is located in a sub folder of the project, the settings of that file only applies to that subdirectory and its folders (recursively). Ktlint automatically detects and reads all <code>.editorconfig</code> files in your project.</p>
 <p>Use command below, to specify a default <code>editorconfig</code>. In case a property is not defined in any <code>.editorconfig</code> file on the path to the file, the value from the default file is used. The path may point to any valid file or directory. The path can be relative or absolute. Depending on your OS, the "~" at the beginning of a path is replaced by the user home directory.</p>
@@ -1652,7 +1652,7 @@ Options <code>--stdin</code> and <code>--patterns-from-stdin</code> are mutually
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "search.suggest", "search.share", "content.code.copy"], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.83f73b43.min.js"></script>
+      <script src="../../assets/javascripts/bundle.88dd0f4e.min.js"></script>
       
     
   </body>
