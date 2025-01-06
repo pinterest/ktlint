@@ -10,6 +10,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.isDeclaration
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -19,7 +20,6 @@ import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.psi.psiUtil.leaves
-import org.jetbrains.kotlin.psi.stubs.elements.KtTokenSets
 
 /**
  * @see https://youtrack.jetbrains.com/issue/KT-35106
@@ -31,7 +31,7 @@ public class SpacingBetweenDeclarationsWithAnnotationsRule : StandardRule("spaci
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.elementType in KtTokenSets.DECLARATION_TYPES && node.isAnnotated()) {
+        if (node.isDeclaration() && node.isAnnotated()) {
             visitDeclaration(node, emit)
         }
     }
@@ -42,7 +42,7 @@ public class SpacingBetweenDeclarationsWithAnnotationsRule : StandardRule("spaci
     ) {
         node
             .prevCodeSibling()
-            ?.takeIf { it.elementType in KtTokenSets.DECLARATION_TYPES }
+            ?.takeIf { it.isDeclaration() }
             ?.takeIf { prevDeclaration -> hasNoBlankLineBetweenDeclarations(node, prevDeclaration) }
             ?.let {
                 val prevLeaf = node.prevCodeLeaf()?.nextLeaf { it.isWhiteSpace() }!!

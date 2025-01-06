@@ -24,6 +24,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.isDeclaration
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
@@ -32,7 +33,6 @@ import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.psi.stubs.elements.KtTokenSets
 
 /**
  * Insert a blank line before declarations. No blank line is inserted before between a class or method signature and the first declaration
@@ -148,7 +148,7 @@ public class BlankLineBeforeDeclarationRule :
         }
 
         node
-            .takeIf { it.elementType in KtTokenSets.DECLARATION_TYPES }
+            .takeIf { it.isDeclaration() }
             ?.takeIf {
                 val prevLeaf = it.prevLeaf()
                 prevLeaf != null && (!prevLeaf.isWhiteSpace() || !prevLeaf.text.startsWith("\n\n"))

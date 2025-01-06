@@ -2,6 +2,7 @@ package com.pinterest.ktlint.rule.engine.core.api
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REGULAR_STRING_PART
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.SCRIPT_INITIALIZER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VAL_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VARARG_KEYWORD
@@ -25,11 +26,13 @@ import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.lexer.KtKeywordToken
 import org.jetbrains.kotlin.lexer.KtToken
 import org.jetbrains.kotlin.psi.KtAnnotated
+import org.jetbrains.kotlin.psi.KtDeclarationImpl
 import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 import org.jetbrains.kotlin.psi.stubs.elements.KtFileElementType
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementType
+import org.jetbrains.kotlin.psi.stubs.elements.KtTokenSets
 import org.jetbrains.kotlin.util.prefixIfNot
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 import kotlin.contracts.ExperimentalContracts
@@ -669,3 +672,9 @@ private fun createDummyKtFile(): KtFile {
         disposable.dispose()
     }
 }
+
+/**
+ * Returns true if the receiver is not null and it represents a declaration
+ * [KtScriptInitializer] is considered a type of declaration in terms of it being a subtype of [KtDeclarationImpl] even though SCRIPT_INITIALIZER is not included in DECLARATION_TYPES. We consider SCRIPT_INITIALIZER a declaration here to match previous behavior of ktlint in older versions.
+ */
+public fun ASTNode?.isDeclaration() = this != null && (elementType in KtTokenSets.DECLARATION_TYPES || elementType == SCRIPT_INITIALIZER)

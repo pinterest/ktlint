@@ -1,13 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.SCRIPT_INITIALIZER
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.TokenSets
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
+import com.pinterest.ktlint.rule.engine.core.api.isDeclaration
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
@@ -16,8 +16,6 @@ import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
-import org.jetbrains.kotlin.psi.KtDeclarationImpl
-import org.jetbrains.kotlin.psi.stubs.elements.KtTokenSets
 
 /**
  * @see https://youtrack.jetbrains.com/issue/KT-35088
@@ -57,12 +55,6 @@ public class SpacingBetweenDeclarationsWithCommentsRule : StandardRule("spacing-
                 }
             }
     }
-
-    /**
-     * [KtScriptInitializer] is considered a type of declaration in terms of it being a subtype of [KtDeclarationImpl] even though SCRIPT_INITIALIZER is not included in DECLARATION_TYPES. We consider SCRIPT_INITIALIZER a declaration here to match previous behavior of ktlint in older versions.
-     */
-    private fun ASTNode?.isDeclaration() =
-        this != null && (elementType in KtTokenSets.DECLARATION_TYPES || elementType == SCRIPT_INITIALIZER)
 }
 
 public val SPACING_BETWEEN_DECLARATIONS_WITH_COMMENTS_RULE_ID: RuleId = SpacingBetweenDeclarationsWithCommentsRule().ruleId
