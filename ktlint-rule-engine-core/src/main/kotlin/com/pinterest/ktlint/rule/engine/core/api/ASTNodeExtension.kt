@@ -26,7 +26,6 @@ import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.lexer.KtKeywordToken
 import org.jetbrains.kotlin.lexer.KtToken
 import org.jetbrains.kotlin.psi.KtAnnotated
-import org.jetbrains.kotlin.psi.KtDeclarationImpl
 import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.psiUtil.leaves
@@ -675,6 +674,8 @@ private fun createDummyKtFile(): KtFile {
 
 /**
  * Returns true if the receiver is not null and it represents a declaration
- * [KtScriptInitializer] is considered a type of declaration in terms of it being a subtype of [KtDeclarationImpl] even though SCRIPT_INITIALIZER is not included in DECLARATION_TYPES. We consider SCRIPT_INITIALIZER a declaration here to match previous behavior of ktlint in older versions.
+ * [KtScriptInitializer] and [KtPropertyAccessor] are considered a types of declarations since they inherit of [org.jetbrains.kotlin.psi.KtDeclaration] even though their respective [IElementType]s are not included in DECLARATION_TYPES. We consider these declarations here to match previous behavior of ktlint in older versions, which was based on the psi type hierarchy
  */
-public fun ASTNode?.isDeclaration() = this != null && (elementType in KtTokenSets.DECLARATION_TYPES || elementType == SCRIPT_INITIALIZER)
+public fun ASTNode?.isDeclaration() =
+    this != null &&
+        (elementType in KtTokenSets.DECLARATION_TYPES || elementType == SCRIPT_INITIALIZER || elementType == ElementType.PROPERTY_ACCESSOR)
