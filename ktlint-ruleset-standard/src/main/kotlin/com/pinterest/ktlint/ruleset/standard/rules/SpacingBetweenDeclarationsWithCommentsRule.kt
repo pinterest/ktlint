@@ -42,7 +42,7 @@ public class SpacingBetweenDeclarationsWithCommentsRule : StandardRule("spacing-
     ) {
         node
             .treeParent
-            .prevSibling()
+            .prevSibling { it.prevSibling().isDeclaration() }
             .takeIf { it.isWhiteSpace() && it.text.count { it == '\n' } < 2 }
             ?.let { whiteSpace ->
                 emit(
