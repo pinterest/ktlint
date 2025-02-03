@@ -90,9 +90,10 @@ public class PropertyNamingRule :
                 it == SERIAL_VERSION_UID_PROPERTY_NAME
             }?.takeUnless { it.matches(constantNamingProperty.regEx) }
             ?.let {
+                val expectedNaming = constantNamingProperty.name.replace("_", " ")
                 emit(
                     identifier.startOffset,
-                    "Property name should use the screaming snake case notation when the value can not be changed",
+                    "Property name should use the $expectedNaming notation when the value can not be changed",
                     false,
                 )
             }

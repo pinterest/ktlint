@@ -83,11 +83,11 @@ class PropertyNamingRuleTest {
         propertyNamingRuleAssertThat(code)
             .withEditorConfigOverride(PropertyNamingRule.CONSTANT_NAMING_PROPERTY to pascal_case)
             .hasLintViolationsWithoutAutoCorrect(
-                LintViolation(1, 11, "Property name should use the screaming snake case notation when the value can not be changed"),
+                LintViolation(1, 11, "Property name should use the pascal case notation when the value can not be changed"),
                 // FOO cannot be reported as not meeting the pascal case requirement as it could be an abbreviation of 3 separate words
                 // starting with 'F', 'O' and 'O' respectively
-                LintViolation(3, 11, "Property name should use the screaming snake case notation when the value can not be changed"),
-                LintViolation(4, 11, "Property name should use the screaming snake case notation when the value can not be changed"),
+                LintViolation(3, 11, "Property name should use the pascal case notation when the value can not be changed"),
+                LintViolation(4, 11, "Property name should use the pascal case notation when the value can not be changed"),
             )
     }
 
