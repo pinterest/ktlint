@@ -306,4 +306,30 @@ class SpacingBetweenDeclarationsWithAnnotationsRuleTest {
             .hasLintViolation(3, 1, "Declarations and declarations with annotations should have an empty space between.")
             .isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Issue 2901 - Given a variable with property accessors not separated by a blank line, and the second accessor is annotated then add a blank in between`() {
+        val code =
+            """
+            public var foo: Boolean
+                get() = false
+                @Foo
+                set(value) {
+                    foo = value
+                }
+            """.trimIndent()
+        val formattedCode =
+            """
+            public var foo: Boolean
+                get() = false
+
+                @Foo
+                set(value) {
+                    foo = value
+                }
+            """.trimIndent()
+        spacingBetweenDeclarationsWithAnnotationsRuleAssertThat(code)
+            .hasLintViolation(3, 1, "Declarations and declarations with annotations should have an empty space between.")
+            .isFormattedAs(formattedCode)
+    }
 }

@@ -1,8 +1,9 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY_ACCESSOR
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
@@ -31,10 +32,12 @@ public class SpacingBetweenDeclarationsWithAnnotationsRule : StandardRule("spaci
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.isDeclaration() && node.isAnnotated()) {
+        if ((node.isDeclarationOrPropertyAccessor()) && node.isAnnotated()) {
             visitDeclaration(node, emit)
         }
     }
+
+    private fun ASTNode.isDeclarationOrPropertyAccessor() = isDeclaration() || elementType == PROPERTY_ACCESSOR
 
     private fun visitDeclaration(
         node: ASTNode,
@@ -42,7 +45,7 @@ public class SpacingBetweenDeclarationsWithAnnotationsRule : StandardRule("spaci
     ) {
         node
             .prevCodeSibling()
-            ?.takeIf { it.isDeclaration() }
+            ?.takeIf { it.isDeclarationOrPropertyAccessor() }
             ?.takeIf { prevDeclaration -> hasNoBlankLineBetweenDeclarations(node, prevDeclaration) }
             ?.let {
                 val prevLeaf = node.prevCodeLeaf()?.nextLeaf { it.isWhiteSpace() }!!
@@ -59,7 +62,7 @@ public class SpacingBetweenDeclarationsWithAnnotationsRule : StandardRule("spaci
     private fun ASTNode.isAnnotated(): Boolean =
         findChildByType(MODIFIER_LIST)
             ?.children()
-            ?.any { it.elementType == ElementType.ANNOTATION_ENTRY }
+            ?.any { it.elementType == ANNOTATION_ENTRY }
             ?: false
 
     private fun hasNoBlankLineBetweenDeclarations(

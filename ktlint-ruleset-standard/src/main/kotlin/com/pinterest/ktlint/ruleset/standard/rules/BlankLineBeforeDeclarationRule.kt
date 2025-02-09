@@ -149,16 +149,16 @@ public class BlankLineBeforeDeclarationRule :
 
         node
             .takeIf { it.isDeclaration() }
-            ?.takeIf {
-                val prevLeaf = it.prevLeaf()
-                prevLeaf != null && (!prevLeaf.isWhiteSpace() || !prevLeaf.text.startsWith("\n\n"))
-            }?.let { insertBeforeNode ->
+            ?.takeUnless { it.prevLeaf().isBlankLine() }
+            ?.let { insertBeforeNode ->
                 emit(insertBeforeNode.startOffset, "Expected a blank line for this declaration", true)
                     .ifAutocorrectAllowed {
                         insertBeforeNode.upsertWhitespaceBeforeMe("\n".plus(node.indent()))
                     }
             }
     }
+
+    private fun ASTNode?.isBlankLine() = this == null || text.startsWith("\n\n")
 
     private fun ASTNode.isFirstCodeSiblingInClassBody() =
         this ==

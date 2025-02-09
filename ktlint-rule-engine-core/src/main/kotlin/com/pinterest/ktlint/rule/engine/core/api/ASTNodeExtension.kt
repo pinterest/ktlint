@@ -2,7 +2,6 @@ package com.pinterest.ktlint.rule.engine.core.api
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REGULAR_STRING_PART
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.SCRIPT_INITIALIZER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VAL_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VARARG_KEYWORD
@@ -673,9 +672,6 @@ private fun createDummyKtFile(): KtFile {
 }
 
 /**
- * Returns true if the receiver is not null and it represents a declaration
- * [KtScriptInitializer] and [KtPropertyAccessor] are considered a types of declarations since they inherit of [org.jetbrains.kotlin.psi.KtDeclaration] even though their respective [IElementType]s are not included in DECLARATION_TYPES. We consider these declarations here to match previous behavior of ktlint in older versions, which was based on the psi type hierarchy
+ * Returns true if the receiver is not null, and it represents a declaration
  */
-public fun ASTNode?.isDeclaration() =
-    this != null &&
-        (elementType in KtTokenSets.DECLARATION_TYPES || elementType == SCRIPT_INITIALIZER || elementType == ElementType.PROPERTY_ACCESSOR)
+public fun ASTNode?.isDeclaration(): Boolean = this != null && elementType in KtTokenSets.DECLARATION_TYPES
