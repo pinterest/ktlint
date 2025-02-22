@@ -7,16 +7,34 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VAL_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VARARG_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VAR_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
+import org.jetbrains.kotlin.KtNodeType
+import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
+import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiComment
+import org.jetbrains.kotlin.com.intellij.mock.MockProject
+import org.jetbrains.kotlin.com.intellij.openapi.util.Disposer
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
+import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.CompositeElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
+import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
+import org.jetbrains.kotlin.config.CompilerConfiguration
+import org.jetbrains.kotlin.idea.KotlinLanguage
+import org.jetbrains.kotlin.lexer.KtKeywordToken
+import org.jetbrains.kotlin.lexer.KtToken
+import org.jetbrains.kotlin.psi.KtAnnotated
+import org.jetbrains.kotlin.psi.KtElement
+import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.psiUtil.leaves
+import org.jetbrains.kotlin.psi.stubs.elements.KtFileElementType
+import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementType
+import org.jetbrains.kotlin.psi.stubs.elements.KtTokenSets
 import org.jetbrains.kotlin.util.prefixIfNot
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 import kotlin.reflect.KClass
 
 public fun ASTNode.nextLeaf(
@@ -183,11 +201,18 @@ public fun ASTNode.parent(
     return null
 }
 
+public fun ASTNode.isPartOf(tokenSet: TokenSet): Boolean = parent(strict = false) { tokenSet.contains(it.elementType) } != null
+
 /**
  * @param elementType [ElementType].*
  */
 public fun ASTNode.isPartOf(elementType: IElementType): Boolean = parent(elementType, strict = false) != null
 
+@Deprecated(
+    "Marked for removal in Ktlint 2.x. Replace with ASTNode.isPartOf(elementType: IElementType) or ASTNode.isPartOf(tokenSet: TokenSet). " +
+        "This method might cause performance issues, see https://github.com/pinterest/ktlint/pull/2901",
+    replaceWith = ReplaceWith("this.isPartOf(elementTypeOrTokenSet)"),
+)
 public fun ASTNode.isPartOf(klass: KClass<out PsiElement>): Boolean {
     var n: ASTNode? = this
     while (n != null) {
@@ -207,7 +232,13 @@ public fun ASTNode.findCompositeParentElementOfType(iElementType: IElementType):
 
 public fun ASTNode.isPartOfString(): Boolean = parent(STRING_TEMPLATE, strict = false) != null
 
-public fun ASTNode?.isWhiteSpace(): Boolean = this != null && elementType == WHITE_SPACE
+@OptIn(ExperimentalContracts::class)
+public fun ASTNode?.isWhiteSpace(): Boolean {
+    contract {
+        returns(true) implies (this@isWhiteSpace != null)
+    }
+    return this != null && elementType == WHITE_SPACE
+}
 
 public fun ASTNode?.isWhiteSpaceWithNewline(): Boolean = this != null && elementType == WHITE_SPACE && textContains('\n')
 
@@ -223,9 +254,17 @@ public fun ASTNode.isLeaf(): Boolean = firstChildNode == null
  */
 public fun ASTNode.isCodeLeaf(): Boolean = isLeaf() && !isWhiteSpace() && !isPartOfComment()
 
-public fun ASTNode.isPartOfComment(): Boolean = parent(strict = false) { it.psi is PsiComment } != null
+public fun ASTNode.isPartOfComment(): Boolean = isPartOf(TokenSets.COMMENTS)
 
 public fun ASTNode.children(): Sequence<ASTNode> = generateSequence(firstChildNode) { node -> node.treeNext }
+
+public fun ASTNode.recursiveChildren(includeSelf: Boolean = false): Sequence<ASTNode> =
+    sequence {
+        if (includeSelf) {
+            yield(this@recursiveChildren)
+        }
+        children().forEach { yieldAll(it.recursiveChildren(includeSelf = true)) }
+    }
 
 /**
  * Updates or inserts a new whitespace element with [text] before the given node. If the node itself is a whitespace
@@ -555,3 +594,84 @@ public fun ASTNode.replaceWith(node: ASTNode) {
 public fun ASTNode.remove() {
     treeParent.removeChild(this)
 }
+
+/**
+ * Searches the receiver [ASTNode] recursively, returning the first child with type [elementType]. If none are found, returns `null`.
+ * If [includeSelf] is `true`, includes the receiver in the search. The receiver would then be the first element searched, so it is
+ * guaranteed to be returned if it has type [elementType].
+ */
+public fun ASTNode.findChildByTypeRecursively(
+    elementType: IElementType,
+    includeSelf: Boolean,
+): ASTNode? = recursiveChildren(includeSelf).firstOrNull { it.elementType == elementType }
+
+/**
+ * Returns the end offset of the text of this [ASTNode]
+ */
+public fun ASTNode.endOffset(): Int = textRange.endOffset
+
+private val elementTypeCache = hashMapOf<IElementType, PsiElement>()
+
+/**
+ * Checks if the [AstNode] extends the [KtAnnotated] interface. Using this function to check the interface is more performant than checking
+ * whether `psi is KtAnnotated` as the psi does not need to be derived from [ASTNode].
+ */
+public fun ASTNode.isKtAnnotated(): Boolean = psiType { it is KtAnnotated }
+
+private inline fun ASTNode.psiType(predicate: (psiElement: PsiElement) -> Boolean): Boolean = predicate(dummyPsiElement())
+
+/**
+ * Checks if the [AstNode] extends the [T] interface which implements [KtElement]. Call this function like:
+ * ```
+ * astNode.isPsiType<KtAnnotated>()
+ * ```
+ * Using this function to check the [PsiElement] type of the [ASTNode] is more performant than checking whether `astNode.psi is KtAnnotated`
+ * as the psi does not need to be derived from [ASTNode].
+ */
+public inline fun <reified T : KtElement> ASTNode.isPsiType(): Boolean = this.dummyPsiElement() is T
+
+/**
+ * FOR INTERNAL USE ONLY. The returned element is a stub version of a [PsiElement] of the same type as the given [ASTNode]. The returned
+ * result may only be used to validate the type of the [PsiElement].
+ */
+public fun ASTNode.dummyPsiElement(): PsiElement =
+    elementTypeCache
+        .getOrPut(elementType) {
+            // Create a dummy Psi element based on the current node, so that we can store the Psi Type for this ElementType.
+            // Creating this cache entry once per elementType is cheaper than accessing the psi for every node.
+            when (elementType) {
+                is KtFileElementType -> createDummyKtFile()
+                is KtKeywordToken -> this as PsiElement
+                is KtNodeType -> (elementType as KtNodeType).createPsi(this)
+                is KtStubElementType<*, *> -> (elementType as KtStubElementType<*, *>).createPsiFromAst(this)
+                is KtToken -> this as PsiElement
+                else -> throw NotImplementedError("Cannot create dummy psi for $elementType (${elementType::class})")
+            }
+        }
+
+private fun createDummyKtFile(): KtFile {
+    val disposable = Disposer.newDisposable()
+    try {
+        val project =
+            KotlinCoreEnvironment
+                .createForProduction(
+                    disposable,
+                    CompilerConfiguration(),
+                    EnvironmentConfigFiles.JVM_CONFIG_FILES,
+                ).project as MockProject
+
+        return PsiFileFactory
+            .getInstance(project)
+            .createFileFromText("dummy-file.kt", KotlinLanguage.INSTANCE, "") as KtFile
+    } finally {
+        // Dispose explicitly to (possibly) prevent memory leak
+        // https://discuss.kotlinlang.org/t/memory-leak-in-kotlincoreenvironment-and-kotlintojvmbytecodecompiler/21950
+        // https://youtrack.jetbrains.com/issue/KT-47044
+        disposable.dispose()
+    }
+}
+
+/**
+ * Returns true if the receiver is not null, and it represents a declaration
+ */
+public fun ASTNode?.isDeclaration(): Boolean = this != null && elementType in KtTokenSets.DECLARATION_TYPES

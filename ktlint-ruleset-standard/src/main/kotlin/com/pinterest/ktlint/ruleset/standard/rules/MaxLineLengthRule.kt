@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
+import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
@@ -16,6 +17,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RULE_EXECUTION_PRO
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.ktLintRuleExecutionPropertyName
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
@@ -26,11 +28,7 @@ import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
-import org.jetbrains.kotlin.kdoc.psi.api.KDoc
-import org.jetbrains.kotlin.psi.KtImportDirective
-import org.jetbrains.kotlin.psi.KtPackageDirective
 
 @SinceKtlint("0.9", STABLE)
 public class MaxLineLengthRule :
@@ -82,9 +80,9 @@ public class MaxLineLengthRule :
             .takeIf { it is LeafPsiElement }
             ?.takeIf { it.nextLeaf() == null || it.nextLeaf().isWhiteSpaceWithNewline() }
             ?.takeIf { it.lineLength() > maxLineLength }
-            ?.takeUnless { it.isPartOf(KtPackageDirective::class) }
-            ?.takeUnless { it.isPartOf(KtImportDirective::class) }
-            ?.takeUnless { it.isPartOf(KDoc::class) }
+            ?.takeUnless { it.isPartOf(ElementType.PACKAGE_DIRECTIVE) }
+            ?.takeUnless { it.isPartOf(ElementType.IMPORT_DIRECTIVE) }
+            ?.takeUnless { it.isPartOf(ElementType.KDOC) }
             ?.takeUnless { it.isPartOfRawMultiLineString() }
             ?.takeUnless { it.isLineOnlyContainingSingleTemplateString() }
             ?.takeUnless { it.elementType == COMMA && it.prevLeaf()?.isLineOnlyContainingSingleTemplateString() ?: false }
@@ -130,7 +128,7 @@ public class MaxLineLengthRule :
             ?: false
 
     private fun ASTNode.isLineOnlyContainingComment() =
-        isPartOf(PsiComment::class) &&
+        isPartOfComment() &&
             (prevLeaf() == null || prevLeaf().isWhiteSpaceWithNewline())
 
     public companion object {

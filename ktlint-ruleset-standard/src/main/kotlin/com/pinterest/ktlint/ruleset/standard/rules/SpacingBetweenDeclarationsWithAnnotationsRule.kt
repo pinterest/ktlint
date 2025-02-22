@@ -1,7 +1,9 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY_ACCESSOR
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
@@ -9,17 +11,15 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.isDeclaration
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiElement
-import org.jetbrains.kotlin.psi.KtAnnotationEntry
-import org.jetbrains.kotlin.psi.KtDeclaration
-import org.jetbrains.kotlin.psi.psiUtil.getPrevSiblingIgnoringWhitespaceAndComments
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 
 /**
@@ -32,19 +32,20 @@ public class SpacingBetweenDeclarationsWithAnnotationsRule : StandardRule("spaci
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.psi is KtDeclaration && node.isAnnotated()) {
+        if ((node.isDeclarationOrPropertyAccessor()) && node.isAnnotated()) {
             visitDeclaration(node, emit)
         }
     }
+
+    private fun ASTNode.isDeclarationOrPropertyAccessor() = isDeclaration() || elementType == PROPERTY_ACCESSOR
 
     private fun visitDeclaration(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .psi
-            ?.getPrevSiblingIgnoringWhitespaceAndComments(withItself = false)
-            ?.takeIf { it is KtDeclaration }
+            .prevCodeSibling()
+            ?.takeIf { it.isDeclarationOrPropertyAccessor() }
             ?.takeIf { prevDeclaration -> hasNoBlankLineBetweenDeclarations(node, prevDeclaration) }
             ?.let {
                 val prevLeaf = node.prevCodeLeaf()?.nextLeaf { it.isWhiteSpace() }!!
@@ -61,16 +62,16 @@ public class SpacingBetweenDeclarationsWithAnnotationsRule : StandardRule("spaci
     private fun ASTNode.isAnnotated(): Boolean =
         findChildByType(MODIFIER_LIST)
             ?.children()
-            ?.any { it.psi is KtAnnotationEntry }
+            ?.any { it.elementType == ANNOTATION_ENTRY }
             ?: false
 
     private fun hasNoBlankLineBetweenDeclarations(
         node: ASTNode,
-        prevDeclaration: PsiElement,
+        prevDeclaration: ASTNode,
     ) = node
         .leaves(false)
         .takeWhile { it.isWhiteSpace() || it.isPartOfComment() }
-        .takeWhile { it.psi != prevDeclaration }
+        .takeWhile { it != prevDeclaration }
         .none { it.isBlankLine() }
 
     private fun ASTNode.isBlankLine() = isWhiteSpace() && text.count { it == '\n' } > 1

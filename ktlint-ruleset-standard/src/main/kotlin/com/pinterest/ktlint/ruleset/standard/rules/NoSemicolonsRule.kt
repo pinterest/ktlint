@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
+import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_ENTRY
@@ -26,13 +27,10 @@ import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
-import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 import org.jetbrains.kotlin.lexer.KtTokens
-import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtDoWhileExpression
 import org.jetbrains.kotlin.psi.KtIfExpression
 import org.jetbrains.kotlin.psi.KtLoopExpression
-import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
 
 @SinceKtlint("0.1", STABLE)
 public class NoSemicolonsRule :
@@ -84,11 +82,10 @@ public class NoSemicolonsRule :
 
             this is PsiWhiteSpace -> {
                 nextLeaf {
-                    val psi = it.psi
                     it !is PsiWhiteSpace &&
                         it !is PsiComment &&
-                        psi.getStrictParentOfType<KDoc>() == null &&
-                        psi.getStrictParentOfType<KtAnnotationEntry>() == null
+                        it.parent(ElementType.KDOC) == null &&
+                        it.parent(ElementType.ANNOTATION_ENTRY) == null
                 }.let { nextLeaf ->
                     nextLeaf == null ||
                         // \s+ and then eof

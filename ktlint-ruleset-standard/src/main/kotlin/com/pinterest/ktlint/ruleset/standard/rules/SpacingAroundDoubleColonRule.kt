@@ -39,7 +39,7 @@ public class SpacingAroundDoubleColonRule : StandardRule("double-colon-spacing")
                         // String::length, ::isOdd
                         if (node.treePrev == null) { // compose(length, ::isOdd), val predicate = ::isOdd
                             removeSingleWhiteSpace = true
-                            !prevLeaf.textContains('\n') && prevLeaf.psi.textLength > 1
+                            !prevLeaf.textContains('\n') && prevLeaf.textLength > 1
                         } else { // String::length, List<String>::isEmpty
                             !prevLeaf.textContains('\n')
                         }

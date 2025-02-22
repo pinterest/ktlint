@@ -90,6 +90,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.TokenSets
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.column
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
@@ -124,7 +125,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.PropertyType.PropertyValueParser
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.psiUtil.leaves
@@ -1191,7 +1191,7 @@ public class IndentationRule :
         }
 
         nextLeaf
-            ?.parent(strict = false) { it.psi is PsiComment }
+            ?.parent(strict = false) { it.elementType in TokenSets.COMMENTS }
             ?.let { comment ->
                 if (text.endsWith("\n")) {
                     processedButNoIndentationChangedNeeded()

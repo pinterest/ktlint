@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
+import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EQ
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
@@ -21,15 +22,7 @@ import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
-import org.jetbrains.kotlin.psi.KtAnnotation
-import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtBlockExpression
-import org.jetbrains.kotlin.psi.KtClassOrObject
-import org.jetbrains.kotlin.psi.KtConstructor
-import org.jetbrains.kotlin.psi.KtNamedFunction
-import org.jetbrains.kotlin.psi.KtProperty
-import org.jetbrains.kotlin.psi.KtTypeConstraint
-import org.jetbrains.kotlin.psi.KtTypeParameterList
 import org.jetbrains.kotlin.psi.psiUtil.siblings
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 
@@ -50,7 +43,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val psiParent = node.psi.parent
+        val parentType = node.treeParent.elementType
         val prevLeaf = node.prevLeaf()
         if (prevLeaf != null && prevLeaf.isWhiteSpaceWithNewline()) {
             emit(prevLeaf.startOffset, "Unexpected newline before \":\"", true)
@@ -62,7 +55,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                             .toList()
                             .reversed()
                     when {
-                        psiParent is KtProperty || psiParent is KtNamedFunction -> {
+                        parentType == ElementType.PROPERTY || parentType == ElementType.FUN -> {
                             val equalsSignElement =
                                 node
                                     .siblings(forward = true)
@@ -186,27 +179,29 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
 
     private inline val ASTNode.spacingBefore: Boolean
         get() =
-            when {
-                psi.parent is KtClassOrObject -> {
+            when (treeParent.elementType) {
+
+                ElementType.CLASS,
+                ElementType.OBJECT_DECLARATION,
+                -> {
                     true
                 }
 
-                psi.parent is KtConstructor<*> -> {
+                ElementType.SECONDARY_CONSTRUCTOR -> {
                     // constructor : this/super
                     true
                 }
 
-                psi.parent is KtTypeConstraint -> {
+                ElementType.TYPE_CONSTRAINT -> {
                     // where T : S
                     true
                 }
 
-                psi.parent.parent is KtTypeParameterList -> {
-                    true
-                }
-
                 else -> {
-                    false
+                    when (treeParent.treeParent.elementType) {
+                        ElementType.TYPE_PARAMETER_LIST -> true
+                        else -> false
+                    }
                 }
             }
 
@@ -215,8 +210,8 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
 
     private inline val ASTNode.spacingAfter: Boolean
         get() =
-            when (psi.parent) {
-                is KtAnnotation, is KtAnnotationEntry -> true
+            when (treeParent.elementType) {
+                ElementType.ANNOTATION, ElementType.ANNOTATION_ENTRY -> true
                 else -> false
             }
 
