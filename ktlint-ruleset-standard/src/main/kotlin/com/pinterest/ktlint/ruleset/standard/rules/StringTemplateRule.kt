@@ -6,6 +6,10 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.LITERAL_STRING_TEMP
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LONG_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LONG_TEMPLATE_ENTRY_END
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LONG_TEMPLATE_ENTRY_START
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.SHORT_STRING_TEMPLATE_ENTRY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
+import com.pinterest.ktlint.rule.engine.core.api.KtlintKotlinCompiler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
@@ -13,19 +17,11 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
-import org.jetbrains.kotlin.idea.KotlinLanguage
-import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtBlockStringTemplateEntry
 import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtNameReferenceExpression
-import org.jetbrains.kotlin.psi.KtProperty
-import org.jetbrains.kotlin.psi.KtScript
-import org.jetbrains.kotlin.psi.KtSimpleNameStringTemplateEntry
-import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.KtSuperExpression
 import org.jetbrains.kotlin.psi.KtThisExpression
-import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 
 @SinceKtlint("0.9", STABLE)
 public class StringTemplateRule : StandardRule("string-template") {
@@ -104,19 +100,14 @@ public class StringTemplateRule : StandardRule("string-template") {
     private fun String.isPartOfIdentifier() = this == "_" || this.all { it.isLetterOrDigit() }
 
     private fun ASTNode.toShortStringTemplateNode() =
-        PsiFileFactory
-            .getInstance(psi.project)
-            .createFileFromText(
-                KotlinLanguage.INSTANCE,
+        KtlintKotlinCompiler
+            .createASTNodeFromText(
                 """
                 val foo = "${'$'}$text"
                 """.trimIndent(),
-            ).getChildOfType<KtScript>()
-            ?.getChildOfType<KtBlockExpression>()
-            ?.getChildOfType<KtProperty>()
-            ?.getChildOfType<KtStringTemplateExpression>()
-            ?.getChildOfType<KtSimpleNameStringTemplateEntry>()
-            ?.node
+            )?.findChildByType(PROPERTY)
+            ?.findChildByType(STRING_TEMPLATE)
+            ?.findChildByType(SHORT_STRING_TEMPLATE_ENTRY)
             ?: throw IllegalStateException("Cannot create short string template for string '$text")
 }
 

@@ -1,9 +1,13 @@
-package com.pinterest.ktlint.rule.engine.internal
+package com.pinterest.ktlint.rule.engine.core.api
 
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.SCRIPT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.SCRIPT_INITIALIZER
 import com.pinterest.ktlint.rule.engine.core.util.cast
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
+import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.mock.MockProject
 import org.jetbrains.kotlin.com.intellij.openapi.diagnostic.DefaultLogger
 import org.jetbrains.kotlin.com.intellij.openapi.util.Disposer
@@ -24,16 +28,28 @@ import org.jetbrains.kotlin.com.intellij.openapi.diagnostic.Logger as Diagnostic
 /**
  * Embedded Kotlin Compiler configured for use by Ktlint.
  */
-internal object KtlintKotlinCompiler {
+public object KtlintKotlinCompiler {
     private val psiFileFactory = initPsiFileFactory()
 
     /**
      * Create a PSI file with name [psiFileName] and content [text].
      */
-    fun createPsiFileFromText(
+    public fun createPsiFileFromText(
         psiFileName: String,
         text: String,
     ): PsiFile = psiFileFactory.createFileFromText(psiFileName, KotlinLanguage.INSTANCE, text)
+
+    /**
+     * Create the AST for a given piece of code.
+     */
+    public fun createASTNodeFromText(text: String): ASTNode? =
+        // For a code snippet which is not necessarily compilable if it was compiled as a standalone file, it is better to compile it as
+        // kotlin script.
+        createPsiFileFromText("File.kts", text)
+            .node
+            .findChildByType(SCRIPT)
+            ?.findChildByType(BLOCK)
+            ?.let { it.findChildByType(SCRIPT_INITIALIZER) ?: it }
 }
 
 /**
