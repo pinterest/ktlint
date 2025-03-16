@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
-import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
+import com.pinterest.ktlint.rule.engine.core.util.cast
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
@@ -14,43 +13,32 @@ import org.jetbrains.kotlin.com.intellij.pom.PomModelAspect
 import org.jetbrains.kotlin.com.intellij.pom.PomTransaction
 import org.jetbrains.kotlin.com.intellij.pom.impl.PomTransactionBase
 import org.jetbrains.kotlin.com.intellij.pom.tree.TreeAspect
+import org.jetbrains.kotlin.com.intellij.psi.PsiFile
 import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
 import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.config.CompilerConfiguration
+import org.jetbrains.kotlin.idea.KotlinLanguage
 import sun.reflect.ReflectionFactory
-import java.nio.file.Files
-import java.nio.file.Path
 import org.jetbrains.kotlin.com.intellij.openapi.diagnostic.Logger as DiagnosticLogger
 
-internal class KotlinPsiFileFactoryProvider {
-    private lateinit var psiFileFactory: PsiFileFactory
+internal object KotlinCompiler {
+    private val psiFileFactory = initPsiFileFactory()
 
-    @Synchronized
-    fun getKotlinPsiFileFactory(ktLintRuleEngine: KtLintRuleEngine): PsiFileFactory =
-        if (::psiFileFactory.isInitialized) {
-            psiFileFactory
-        } else {
-            initPsiFileFactory(ktLintRuleEngine).also { psiFileFactory = it }
-        }
+    fun createFileFromText(
+        psiFileName: String,
+        normalizedText: String,
+    ): PsiFile = psiFileFactory.createFileFromText(psiFileName, KotlinLanguage.INSTANCE, normalizedText)
 }
 
 /**
  * Initialize Kotlin Lexer.
  */
-internal fun initPsiFileFactory(ktLintRuleEngine: KtLintRuleEngine): PsiFileFactory {
+private fun initPsiFileFactory(): PsiFileFactory {
     DiagnosticLogger.setFactory(LoggerFactory::class.java)
 
-    val compilerConfiguration = CompilerConfiguration()
-    compilerConfiguration.put(CommonConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
-    // Special workaround on JDK 1.8 when KtLint is used from shipped CLI
-    // to prevent Kotlin compiler initialization error
-    if (ktLintRuleEngine.isInvokedFromCli && System.getProperty("java.specification.version") == "1.8") {
-        val extensionPath = extractCompilerExtension()
-        compilerConfiguration.put(
-            CLIConfigurationKeys.INTELLIJ_PLUGIN_ROOT,
-            extensionPath.toAbsolutePath().toString(),
-        )
-    }
+    val compilerConfiguration =
+        CompilerConfiguration()
+            .apply { put(CommonConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE) }
 
     val disposable = Disposer.newDisposable()
     try {
@@ -60,8 +48,9 @@ internal fun initPsiFileFactory(ktLintRuleEngine: KtLintRuleEngine): PsiFileFact
                     disposable,
                     compilerConfiguration,
                     EnvironmentConfigFiles.JVM_CONFIG_FILES,
-                ).project as MockProject
-        project.registerFormatPomModel()
+                ).project
+                .cast<MockProject>()
+                .apply { registerFormatPomModel() }
 
         return PsiFileFactory.getInstance(project)
     } finally {
@@ -69,26 +58,6 @@ internal fun initPsiFileFactory(ktLintRuleEngine: KtLintRuleEngine): PsiFileFact
         // https://discuss.kotlinlang.org/t/memory-leak-in-kotlincoreenvironment-and-kotlintojvmbytecodecompiler/21950
         // https://youtrack.jetbrains.com/issue/KT-47044
         disposable.dispose()
-    }
-}
-
-/**
- * Note: this only works in CLI shadowed jar! 'extensions/compiler.xml' is absent in non-shadowed jar.
- */
-private fun extractCompilerExtension(): Path {
-    KtLintRuleEngine::class.java.getResourceAsStream("/META-INF/extensions/compiler.xml").use { input ->
-        val tempDir = Files.createTempDirectory("ktlint")
-        tempDir.toFile().deleteOnExit()
-
-        val extensionsDir =
-            tempDir.resolve("META-INF/extensions").also {
-                Files.createDirectories(it)
-            }
-        extensionsDir.resolve("compiler.xml").toFile().outputStream().buffered().use {
-            input!!.copyTo(it)
-        }
-
-        return tempDir
     }
 }
 

@@ -24,11 +24,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiErrorElement
-import org.jetbrains.kotlin.idea.KotlinLanguage
-import org.jetbrains.kotlin.psi.KtFile
 import kotlin.io.path.pathString
-
-private val KOTLIN_PSI_FILE_FACTORY_PROVIDER = KotlinPsiFileFactoryProvider()
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -209,7 +205,6 @@ internal class RuleExecutionContext private constructor(
             ktLintRuleEngine: KtLintRuleEngine,
             code: Code,
         ): RuleExecutionContext {
-            val psiFileFactory = KOTLIN_PSI_FILE_FACTORY_PROVIDER.getKotlinPsiFileFactory(ktLintRuleEngine)
             val normalizedText = normalizeText(code.content)
             val positionInTextLocator = buildPositionInTextLocator(normalizedText)
 
@@ -222,20 +217,18 @@ internal class RuleExecutionContext private constructor(
                     } else {
                         "File.kt"
                     }
-            val psiFile =
-                psiFileFactory.createFileFromText(
-                    psiFileName,
-                    KotlinLanguage.INSTANCE,
-                    normalizedText,
-                ) as KtFile
-            psiFile
-                .findErrorElement()
-                ?.let { errorElement ->
-                    val (line, col) = positionInTextLocator(errorElement.textOffset)
-                    throw KtLintParseException(line, col, errorElement.errorDescription)
-                }
-
-            val rootNode = psiFile.node
+            val rootNode =
+                KotlinCompiler
+                    .createFileFromText(psiFileName, normalizedText)
+                    .also {
+                        // Throw exception when PSI contains an error element
+                        it
+                            .findErrorElement()
+                            ?.let { errorElement ->
+                                val (line, col) = positionInTextLocator(errorElement.textOffset)
+                                throw KtLintParseException(line, col, errorElement.errorDescription)
+                            }
+                    }.node
 
             val editorConfig =
                 ktLintRuleEngine
