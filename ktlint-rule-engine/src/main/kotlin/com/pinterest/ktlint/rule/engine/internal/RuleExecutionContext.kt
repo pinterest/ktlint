@@ -218,8 +218,8 @@ internal class RuleExecutionContext private constructor(
                         "File.kt"
                     }
             val rootNode =
-                KotlinCompiler
-                    .createFileFromText(psiFileName, normalizedText)
+                KtlintKotlinCompiler
+                    .createPsiFileFromText(psiFileName, normalizedText)
                     .also {
                         // Throw exception when PSI contains an error element
                         it

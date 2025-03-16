@@ -21,13 +21,19 @@ import org.jetbrains.kotlin.idea.KotlinLanguage
 import sun.reflect.ReflectionFactory
 import org.jetbrains.kotlin.com.intellij.openapi.diagnostic.Logger as DiagnosticLogger
 
-internal object KotlinCompiler {
+/**
+ * Embedded Kotlin Compiler configured for use by Ktlint.
+ */
+internal object KtlintKotlinCompiler {
     private val psiFileFactory = initPsiFileFactory()
 
-    fun createFileFromText(
+    /**
+     * Create a PSI file with name [psiFileName] and content [text].
+     */
+    fun createPsiFileFromText(
         psiFileName: String,
-        normalizedText: String,
-    ): PsiFile = psiFileFactory.createFileFromText(psiFileName, KotlinLanguage.INSTANCE, normalizedText)
+        text: String,
+    ): PsiFile = psiFileFactory.createFileFromText(psiFileName, KotlinLanguage.INSTANCE, text)
 }
 
 /**
