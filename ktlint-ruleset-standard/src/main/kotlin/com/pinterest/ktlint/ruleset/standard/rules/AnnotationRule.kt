@@ -7,14 +7,18 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_TARGET
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLON
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONSTRUCTOR_CALLEE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONSTRUCTOR_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE_ANNOTATION_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.GT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.REFERENCE_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PROJECTION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.USER_TYPE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
@@ -27,7 +31,9 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CommaSeparatedListValueParser
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
@@ -45,6 +51,7 @@ import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
+import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationUseSiteTarget
 import org.jetbrains.kotlin.psi.psiUtil.siblings
@@ -88,6 +95,7 @@ public class AnnotationRule :
             setOf(
                 INDENT_SIZE_PROPERTY,
                 INDENT_STYLE_PROPERTY,
+                ANNOTATIONS_WITH_PARAMETERS_NOT_TO_BE_WRAPPED_PROPERTY,
             ),
         visitorModifiers =
             setOf(
@@ -99,6 +107,13 @@ public class AnnotationRule :
     ) {
     private var codeStyle = CODE_STYLE_PROPERTY.defaultValue
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
+    private var annotationsWithParametersNoToBeWrapped =
+        ANNOTATIONS_WITH_PARAMETERS_NOT_TO_BE_WRAPPED_PROPERTY.defaultValue
+
+    private val handleAllAnnotationsWithParametersSameAsAnnotationsWithoutParameters =
+        lazy {
+            annotationsWithParametersNoToBeWrapped.contains("*")
+        }
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         codeStyle = editorConfig[CODE_STYLE_PROPERTY]
@@ -107,6 +122,8 @@ public class AnnotationRule :
                 indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
                 tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
             )
+        annotationsWithParametersNoToBeWrapped =
+            editorConfig[ANNOTATIONS_WITH_PARAMETERS_NOT_TO_BE_WRAPPED_PROPERTY]
     }
 
     override fun beforeVisitChildNodes(
@@ -165,7 +182,7 @@ public class AnnotationRule :
                 .children()
                 .filter { it.elementType == ANNOTATION_ENTRY }
                 .filter {
-                    it.isAnnotationEntryWithValueArgumentList() ||
+                    it.isAnnotationEntryWithValueArgumentListThatShouldBeWrapped() ||
                         !it.isPrecededByOtherAnnotationEntryWithoutParametersOnTheSameLine()
                 }.forEachIndexed { index, annotationEntry ->
                     annotationEntry
@@ -198,9 +215,9 @@ public class AnnotationRule :
 
             node
                 .children()
-                .last { it.elementType == ANNOTATION_ENTRY }
-                .lastChildLeafOrSelf()
-                .nextCodeLeaf()
+                .lastOrNull { it.elementType == ANNOTATION_ENTRY }
+                ?.lastChildLeafOrSelf()
+                ?.nextCodeLeaf()
                 ?.prevLeaf()
                 ?.let { prevLeaf ->
                     // Let the indentation rule determine the exact indentation and only report and fix when the line needs to be wrapped
@@ -238,7 +255,7 @@ public class AnnotationRule :
         require(elementType in ANNOTATION_CONTAINER)
         return children()
             .any {
-                it.isAnnotationEntryWithValueArgumentList() &&
+                it.isAnnotationEntryWithValueArgumentListThatShouldBeWrapped() &&
                     it.treeParent.treeParent.elementType != VALUE_PARAMETER &&
                     it.treeParent.treeParent.elementType != VALUE_ARGUMENT &&
                     it.isNotReceiverTargetAnnotation()
@@ -350,11 +367,36 @@ public class AnnotationRule :
             ?.findChildByType(ANNOTATION_TARGET)
             ?.let { USE_SITE_TARGETS[it.text] }
 
-    private fun ASTNode.isAnnotationEntryWithValueArgumentList() = getAnnotationEntryValueArgumentList() != null
+    private fun ASTNode.isAnnotationEntryWithValueArgumentListThatShouldBeWrapped() =
+        when {
+            handleAllAnnotationsWithParametersSameAsAnnotationsWithoutParameters.value -> {
+                // Do never distinct between annotation with and without parameters
+                false
+            }
 
-    private fun ASTNode.getAnnotationEntryValueArgumentList() =
-        takeIf { it.elementType == ANNOTATION_ENTRY }
-            ?.findChildByType(VALUE_ARGUMENT_LIST)
+            annotationsWithParametersNoToBeWrapped.isEmpty() -> {
+                // All annotations with parameters should be wrapped as the whitelist is empty
+                true
+            }
+
+            elementType == ANNOTATION_ENTRY && findChildByType(VALUE_ARGUMENT_LIST) != null -> {
+                // Only wrap annotation with parameters when it is not on the whitelist
+                getAnnotationIdentifier() !in annotationsWithParametersNoToBeWrapped
+            }
+
+            else -> {
+                // Annotation without parameter
+                false
+            }
+        }
+
+    private fun ASTNode.getAnnotationIdentifier() =
+        findChildByType(CONSTRUCTOR_CALLEE)
+            ?.findChildByType(TYPE_REFERENCE)
+            ?.findChildByType(USER_TYPE)
+            ?.findChildByType(REFERENCE_EXPRESSION)
+            ?.findChildByType(IDENTIFIER)
+            ?.text
 
     private fun ASTNode.isLastAnnotationEntry() =
         this ==
@@ -364,8 +406,8 @@ public class AnnotationRule :
 
     private fun ASTNode.isPrecededByOtherAnnotationEntryWithoutParametersOnTheSameLine() =
         siblings(forward = false)
-            .takeWhile { !it.isWhiteSpaceWithNewline() && !it.isAnnotationEntryWithValueArgumentList() }
-            .any { it.elementType == ANNOTATION_ENTRY && !it.isAnnotationEntryWithValueArgumentList() }
+            .takeWhile { !it.isWhiteSpaceWithNewline() && !it.isAnnotationEntryWithValueArgumentListThatShouldBeWrapped() }
+            .any { it.elementType == ANNOTATION_ENTRY && !it.isAnnotationEntryWithValueArgumentListThatShouldBeWrapped() }
 
     private fun ASTNode.isPrecededByOtherAnnotationEntryOnTheSameLine() =
         siblings(forward = false)
@@ -460,14 +502,24 @@ public class AnnotationRule :
         return "\n".plus(indentWithoutNewline)
     }
 
-    private companion object {
-        val ANNOTATION_CONTAINER =
+    public companion object {
+        private val ANNOTATION_CONTAINER =
             listOf(
                 ANNOTATED_EXPRESSION,
                 FILE_ANNOTATION_LIST,
                 MODIFIER_LIST,
             )
-        val USE_SITE_TARGETS = AnnotationUseSiteTarget.entries.associateBy { it.renderName }
+        private val USE_SITE_TARGETS = AnnotationUseSiteTarget.entries.associateBy { it.renderName }
+        public val ANNOTATIONS_WITH_PARAMETERS_NOT_TO_BE_WRAPPED_PROPERTY: EditorConfigProperty<Set<String>> =
+            EditorConfigProperty(
+                type =
+                    PropertyType.LowerCasingPropertyType(
+                        "ktlint_annotation_handle_annotations_with_parameters_same_as_annotations_without_parameters",
+                        "Handle listed annotations identical to annotations without parameters. Value is a comma separated list of names without the '@' prefix. Use '*' for all annotations with parameters.",
+                        CommaSeparatedListValueParser(),
+                    ),
+                defaultValue = setOf("unset"),
+            )
     }
 }
 

@@ -3,6 +3,7 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
+import com.pinterest.ktlint.ruleset.standard.rules.AnnotationRule.Companion.ANNOTATIONS_WITH_PARAMETERS_NOT_TO_BE_WRAPPED_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Nested
@@ -244,6 +245,7 @@ class AnnotationRuleTest {
             class FooBar {
                 @Foo("foo")
                 @Bar val bar: Any
+                @Baz("baz") @Bar val baz: Any
             }
             """.trimIndent()
         val formattedCode =
@@ -252,12 +254,17 @@ class AnnotationRuleTest {
                 @Foo("foo")
                 @Bar
                 val bar: Any
+                @Baz("baz") @Bar
+                val baz: Any
             }
             """.trimIndent()
         @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
         annotationRuleAssertThat(code)
-            .hasLintViolation(3, 9, "Expected newline after last annotation")
-            .isFormattedAs(formattedCode)
+            .withEditorConfigOverride(ANNOTATIONS_WITH_PARAMETERS_NOT_TO_BE_WRAPPED_PROPERTY to "Baz")
+            .hasLintViolations(
+                LintViolation(3, 9, "Expected newline after last annotation"),
+                LintViolation(4, 21, "Expected newline after last annotation"),
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
@@ -560,22 +567,29 @@ class AnnotationRuleTest {
     fun `Given an annotated expression on same line as annotated construct and the annotation contains a parameter`() {
         val code =
             """
-            fun foo() = @Bar1 @Bar2 @Bar3("bar3") @Bar4 bar()
+            fun foo() = @Foo1 @Foo2 @Foo3("bar3") @Foo4 baz()
+            fun bar() = @Bar1 @Bar2 @Bar3("bar3") @Bar4 baz()
             """.trimIndent()
         val formattedCode =
             """
             fun foo() =
-                @Bar1 @Bar2
-                @Bar3("bar3")
-                @Bar4
-                bar()
+                @Foo1 @Foo2
+                @Foo3("bar3")
+                @Foo4
+                baz()
+            fun bar() =
+                @Bar1 @Bar2 @Bar3("bar3") @Bar4
+                baz()
             """.trimIndent()
         annotationRuleAssertThat(code)
+            .withEditorConfigOverride(ANNOTATIONS_WITH_PARAMETERS_NOT_TO_BE_WRAPPED_PROPERTY to "Bar3")
             .hasLintViolations(
                 LintViolation(1, 12, "Expected newline before annotation"),
                 LintViolation(1, 24, "Expected newline before annotation"),
                 LintViolation(1, 38, "Expected newline before annotation"),
                 LintViolation(1, 44, "Expected newline after last annotation"),
+                LintViolation(2, 12, "Expected newline before annotation"),
+                LintViolation(2, 44, "Expected newline after last annotation"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -655,20 +669,27 @@ class AnnotationRuleTest {
     fun `Given an annotation and other modifiers before the annotated construct`() {
         val code =
             """
-            @Bar("bar") public class Foo
-            @Bar("bar") public fun foo() {}
+            @Bar("bar") public class Baz1
+            @Foo("foo") public class Baz2
+
+            @Bar("bar") public fun baz1() {}
+            @Foo("foo") public fun baz2() {}
             """.trimIndent()
         val formattedCode =
             """
             @Bar("bar")
-            public class Foo
+            public class Baz1
+            @Foo("foo") public class Baz2
+
             @Bar("bar")
-            public fun foo() {}
+            public fun baz1() {}
+            @Foo("foo") public fun baz2() {}
             """.trimIndent()
         annotationRuleAssertThat(code)
+            .withEditorConfigOverride(ANNOTATIONS_WITH_PARAMETERS_NOT_TO_BE_WRAPPED_PROPERTY to "Foo")
             .hasLintViolations(
                 LintViolation(1, 12, "Expected newline after last annotation"),
-                LintViolation(2, 12, "Expected newline after last annotation"),
+                LintViolation(4, 12, "Expected newline after last annotation"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -725,14 +746,15 @@ class AnnotationRuleTest {
         }
 
         @Test
-        fun `Given a custom type with multiple annotations on it type parameter(s)`() { // xxx
+        fun `Given a custom type with multiple annotations on it type parameter(s)`() {
             val code =
                 """
-                val fooBar: FooBar<String, @Foo String, @Foo @Bar String, @Bar("bar") @Foo String> = FooBar()
+                val fooBar1: FooBar<String, @Foo String, @Foo @Bar String, @Bar("bar") @Foo String> = FooBar()
+                val fooBar2: FooBar<String, @Foo String, @Foo @Bar String, @Baz("baz") @Foo String> = FooBar()
                 """.trimIndent()
             val formattedCode =
                 """
-                val fooBar: FooBar<
+                val fooBar1: FooBar<
                     String,
                     @Foo String,
                     @Foo @Bar
@@ -741,22 +763,40 @@ class AnnotationRuleTest {
                     @Foo
                     String
                 > = FooBar()
+                val fooBar2: FooBar<
+                    String,
+                    @Foo String,
+                    @Foo @Bar
+                    String,
+                    @Baz("baz") @Foo
+                    String
+                > = FooBar()
                 """.trimIndent()
             @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
             annotationRuleAssertThat(code)
                 .addAdditionalRuleProvider { IndentationRule() }
                 .addAdditionalRuleProvider { WrappingRule() }
+                .withEditorConfigOverride(ANNOTATIONS_WITH_PARAMETERS_NOT_TO_BE_WRAPPED_PROPERTY to "Baz")
                 .hasLintViolations(
-                    LintViolation(1, 19, "Expected newline"),
-                    LintViolation(1, 27, "Expected newline"),
-                    LintViolation(1, 40, "Expected newline"),
-                    LintViolation(1, 40, "Expected newline before annotation"),
-                    LintViolation(1, 50, "Expected newline after last annotation"),
-                    LintViolation(1, 58, "Expected newline"),
-                    LintViolation(1, 58, "Expected newline before annotation"),
-                    LintViolation(1, 70, "Expected newline before annotation"),
-                    LintViolation(1, 75, "Expected newline after last annotation"),
-                    LintViolation(1, 82, "Expected newline"),
+                    LintViolation(1, 20, "Expected newline"),
+                    LintViolation(1, 28, "Expected newline"),
+                    LintViolation(1, 41, "Expected newline"),
+                    LintViolation(1, 41, "Expected newline before annotation"),
+                    LintViolation(1, 51, "Expected newline after last annotation"),
+                    LintViolation(1, 59, "Expected newline"),
+                    LintViolation(1, 59, "Expected newline before annotation"),
+                    LintViolation(1, 71, "Expected newline before annotation"),
+                    LintViolation(1, 76, "Expected newline after last annotation"),
+                    LintViolation(1, 83, "Expected newline"),
+                    LintViolation(2, 20, "Expected newline"),
+                    LintViolation(2, 28, "Expected newline"),
+                    LintViolation(2, 41, "Expected newline"),
+                    LintViolation(2, 41, "Expected newline before annotation"),
+                    LintViolation(2, 51, "Expected newline after last annotation"),
+                    LintViolation(2, 59, "Expected newline"),
+                    LintViolation(2, 59, "Expected newline before annotation"),
+                    LintViolation(2, 76, "Expected newline after last annotation"),
+                    LintViolation(2, 83, "Expected newline"),
                 ).isFormattedAs(formattedCode)
         }
     }
@@ -782,7 +822,10 @@ class AnnotationRuleTest {
                 A,
                 @Bar1 B,
                 @Bar1 @Bar2 C,
-                @Bar3("bar3") @Bar1 D
+                @Bar3("bar3") D,
+                @Bar4("bar4") E,
+                @Bar3("bar3") @Bar1 F,
+                @Bar4("bar4") @Bar1 G
             }
             """.trimIndent()
         val formattedCode =
@@ -793,15 +836,23 @@ class AnnotationRuleTest {
                 @Bar1 @Bar2
                 C,
                 @Bar3("bar3")
+                D,
+                @Bar4("bar4") E,
+                @Bar3("bar3")
                 @Bar1
-                D
+                F,
+                @Bar4("bar4") @Bar1
+                G
             }
             """.trimIndent()
         annotationRuleAssertThat(code)
+            .withEditorConfigOverride(ANNOTATIONS_WITH_PARAMETERS_NOT_TO_BE_WRAPPED_PROPERTY to "Bar4")
             .hasLintViolations(
                 LintViolation(4, 16, "Expected newline after last annotation"),
-                LintViolation(5, 18, "Expected newline before annotation"),
-                LintViolation(5, 24, "Expected newline after last annotation"),
+                LintViolation(5, 18, "Expected newline after last annotation"),
+                LintViolation(7, 18, "Expected newline before annotation"),
+                LintViolation(7, 24, "Expected newline after last annotation"),
+                LintViolation(8, 24, "Expected newline after last annotation"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -847,6 +898,9 @@ class AnnotationRuleTest {
                     data class Foo @Bar1 @Bar2("bar") @Bar3 @Bar4 constructor(private val foobar: Int) {
                         fun foo(): String = "foo"
                     }
+                    data class Baz @Baz1 @Baz2("bar") @Baz3 @Baz4 constructor(private val foobar: Int) {
+                        fun foo(): String = "foo"
+                    }
                     """.trimIndent()
                 val formattedCode =
                     """
@@ -858,15 +912,23 @@ class AnnotationRuleTest {
                         constructor(private val foobar: Int) {
                             fun foo(): String = "foo"
                         }
+                    data class Baz
+                        @Baz1 @Baz2("bar") @Baz3 @Baz4
+                        constructor(private val foobar: Int) {
+                            fun foo(): String = "foo"
+                        }
                     """.trimIndent()
                 annotationRuleAssertThat(code)
                     .addAdditionalRuleProvider { IndentationRule() }
                     .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                    .withEditorConfigOverride(ANNOTATIONS_WITH_PARAMETERS_NOT_TO_BE_WRAPPED_PROPERTY to "Baz2")
                     .hasLintViolations(
                         LintViolation(1, 15, "Expected newline before annotation"),
                         LintViolation(1, 21, "Expected newline before annotation"),
                         LintViolation(1, 34, "Expected newline before annotation"),
                         LintViolation(1, 46, "Expected newline after last annotation"),
+                        LintViolation(4, 15, "Expected newline before annotation"),
+                        LintViolation(4, 46, "Expected newline after last annotation"),
                     ).isFormattedAs(formattedCode)
             }
 
@@ -936,29 +998,32 @@ class AnnotationRuleTest {
     fun `Given a function literal containing an annotated expression`() {
         val code =
             """
-            val foo = {
+            val foo1 = {
                 @Bar("bar")
                 foobar { "foobar" }
             }
-            val foo = { @Bar("bar") foobar { "foobar" } }
+            val foo2 = { @Bar("bar") foobar { "foobar" } }
+            val foo3 = { @Baz("baz") foobar { "foobar" } }
             """.trimIndent()
         val formattedCode =
             """
-            val foo = {
+            val foo1 = {
                 @Bar("bar")
                 foobar { "foobar" }
             }
-            val foo = {
+            val foo2 = {
                 @Bar("bar")
                 foobar { "foobar" }
             }
+            val foo3 = { @Baz("baz") foobar { "foobar" } }
             """.trimIndent()
         annotationRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
+            .withEditorConfigOverride(ANNOTATIONS_WITH_PARAMETERS_NOT_TO_BE_WRAPPED_PROPERTY to "Baz")
             .hasLintViolations(
-                LintViolation(5, 12, "Expected newline before annotation"),
-                LintViolation(5, 24, "Expected newline after last annotation"),
-                LintViolation(5, 44, "Expected newline"),
+                LintViolation(5, 13, "Expected newline before annotation"),
+                LintViolation(5, 25, "Expected newline after last annotation"),
+                LintViolation(5, 45, "Expected newline"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -998,5 +1063,45 @@ class AnnotationRuleTest {
             >? = null
             """.trimIndent()
         annotationRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 2852 - Handle whitelisted annotations the same as annotations without parameters`() {
+        val code =
+            """
+            val list: List<
+                @Annotation1(name = "foo") Foo,
+                @Annotation2(name = "bar") Bar,
+                @Annotation3(name = "baz") Baz,
+            >
+            """.trimIndent()
+        val formattedCode =
+            """
+            val list: List<
+                @Annotation1(name = "foo") Foo,
+                @Annotation2(name = "bar") Bar,
+                @Annotation3(name = "baz")
+                Baz,
+            >
+            """.trimIndent()
+        annotationRuleAssertThat(code)
+            .withEditorConfigOverride(ANNOTATIONS_WITH_PARAMETERS_NOT_TO_BE_WRAPPED_PROPERTY to "Annotation1, Annotation2")
+            .hasLintViolation(4, 31, "Expected newline after last annotation")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 2852 - Handle all annotations the same as annotations without parameters`() {
+        val code =
+            """
+            val list: List<
+                @Annotation1(name = "foo") Foo,
+                @Annotation2(name = "bar") Bar,
+                @Annotation3(name = "baz") Baz,
+            >
+            """.trimIndent()
+        annotationRuleAssertThat(code)
+            .withEditorConfigOverride(ANNOTATIONS_WITH_PARAMETERS_NOT_TO_BE_WRAPPED_PROPERTY to "*")
+            .hasNoLintViolations()
     }
 }
