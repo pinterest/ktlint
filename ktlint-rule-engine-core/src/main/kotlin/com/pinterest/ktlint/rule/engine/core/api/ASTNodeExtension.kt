@@ -8,20 +8,13 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VARARG_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VAR_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import org.jetbrains.kotlin.KtNodeType
-import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
-import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.mock.MockProject
-import org.jetbrains.kotlin.com.intellij.openapi.util.Disposer
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
-import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.CompositeElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
-import org.jetbrains.kotlin.config.CompilerConfiguration
-import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.lexer.KtKeywordToken
 import org.jetbrains.kotlin.lexer.KtToken
 import org.jetbrains.kotlin.psi.KtAnnotated
@@ -649,27 +642,7 @@ public fun ASTNode.dummyPsiElement(): PsiElement =
             }
         }
 
-private fun createDummyKtFile(): KtFile {
-    val disposable = Disposer.newDisposable()
-    try {
-        val project =
-            KotlinCoreEnvironment
-                .createForProduction(
-                    disposable,
-                    CompilerConfiguration(),
-                    EnvironmentConfigFiles.JVM_CONFIG_FILES,
-                ).project as MockProject
-
-        return PsiFileFactory
-            .getInstance(project)
-            .createFileFromText("dummy-file.kt", KotlinLanguage.INSTANCE, "") as KtFile
-    } finally {
-        // Dispose explicitly to (possibly) prevent memory leak
-        // https://discuss.kotlinlang.org/t/memory-leak-in-kotlincoreenvironment-and-kotlintojvmbytecodecompiler/21950
-        // https://youtrack.jetbrains.com/issue/KT-47044
-        disposable.dispose()
-    }
-}
+private fun createDummyKtFile(): KtFile = KtlintKotlinCompiler.createPsiFileFromText("File.kt", "") as KtFile
 
 /**
  * Returns true if the receiver is not null, and it represents a declaration

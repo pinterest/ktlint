@@ -400,6 +400,12 @@ public final class com/pinterest/ktlint/rule/engine/core/api/IndentConfig$Indent
 	public static fun values ()[Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle;
 }
 
+public final class com/pinterest/ktlint/rule/engine/core/api/KtlintKotlinCompiler {
+	public static final field INSTANCE Lcom/pinterest/ktlint/rule/engine/core/api/KtlintKotlinCompiler;
+	public final fun createASTNodeFromText (Ljava/lang/String;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public final fun createPsiFileFromText (Ljava/lang/String;Ljava/lang/String;)Lorg/jetbrains/kotlin/com/intellij/psi/PsiFile;
+}
+
 public class com/pinterest/ktlint/rule/engine/core/api/Rule {
 	public fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lcom/pinterest/ktlint/rule/engine/core/api/Rule$About;Ljava/util/Set;Ljava/util/Set;)V
 	public synthetic fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lcom/pinterest/ktlint/rule/engine/core/api/Rule$About;Ljava/util/Set;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V

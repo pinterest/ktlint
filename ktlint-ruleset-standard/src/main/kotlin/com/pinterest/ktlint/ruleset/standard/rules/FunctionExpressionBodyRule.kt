@@ -12,6 +12,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.RETURN_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.THROW
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
+import com.pinterest.ktlint.rule.engine.core.api.KtlintKotlinCompiler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
@@ -30,16 +31,9 @@ import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
-import org.jetbrains.kotlin.idea.KotlinLanguage
-import org.jetbrains.kotlin.psi.KtBlockExpression
-import org.jetbrains.kotlin.psi.KtFunction
-import org.jetbrains.kotlin.psi.KtScript
-import org.jetbrains.kotlin.psi.KtTypeReference
-import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 
 /**
  * [Kotlin Coding Conventions](https://kotlinlang.org/docs/coding-conventions.html#functions):
@@ -165,15 +159,12 @@ public class FunctionExpressionBodyRule :
         leavesInClosedRange(this.firstChildLeafOrSelf(), this.lastChildLeafOrSelf())
             .count { it.elementType == RETURN_KEYWORD }
 
-    private fun ASTNode.createUnitTypeReference() =
-        PsiFileFactory
-            .getInstance(psi.project)
-            .createFileFromText(KotlinLanguage.INSTANCE, "fun foo(): Unit {}")
-            .getChildOfType<KtScript>()
-            ?.getChildOfType<KtBlockExpression>()
-            ?.getChildOfType<KtFunction>()
-            ?.getChildOfType<KtTypeReference>()
-            ?.node!!
+    private fun createUnitTypeReference() =
+        KtlintKotlinCompiler
+            .createASTNodeFromText("fun foo(): Unit {}")
+            ?.findChildByType(FUN)
+            ?.findChildByType(TYPE_REFERENCE)
+            ?: throw IllegalStateException("Can not create function with unit type reference")
 }
 
 public val FUNCTION_EXPRESSION_BODY_RULE_ID: RuleId = FunctionExpressionBodyRule().ruleId
