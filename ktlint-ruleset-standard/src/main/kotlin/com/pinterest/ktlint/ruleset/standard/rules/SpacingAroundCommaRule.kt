@@ -8,6 +8,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfString
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -18,7 +19,6 @@ import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
@@ -36,7 +36,11 @@ public class SpacingAroundCommaRule : StandardRule("comma-spacing") {
             if (prevLeaf is PsiWhiteSpace) {
                 emit(prevLeaf.startOffset, "Unexpected spacing before \"${node.text}\"", true)
                     .ifAutocorrectAllowed {
-                        val isPrecededByComment = prevLeaf.prevLeaf { it !is PsiWhiteSpace } is PsiComment
+                        val isPrecededByComment =
+                            prevLeaf
+                                .prevLeaf { it !is PsiWhiteSpace }
+                                ?.isPartOfComment()
+                                ?: false
                         if (isPrecededByComment && prevLeaf.isWhiteSpaceWithNewline()) {
                             // If comma is on new line and preceded by a comment, it should be moved before this comment
                             // https://github.com/pinterest/ktlint/issues/367

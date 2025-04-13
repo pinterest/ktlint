@@ -126,7 +126,6 @@ import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.PropertyType.PropertyValueParser
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
-import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 import org.jetbrains.kotlin.psi.psiUtil.parents
 import java.util.Deque
@@ -1440,7 +1439,6 @@ private class StringTemplateIndenter(
     ) {
         require(node.elementType == STRING_TEMPLATE)
         node
-            .let { it.psi as KtStringTemplateExpression }
             .takeIf { it.isFollowedByTrimIndent() || it.isFollowedByTrimMargin() }
             ?.takeIf { it.isMultiLine() }
             ?.let { _ ->
@@ -1523,30 +1521,23 @@ private class StringTemplateIndenter(
 
     private fun ASTNode.isRawStringLiteralReturnInFunctionBodyBlock() = RETURN_KEYWORD == prevCodeLeaf()?.elementType
 
-    private fun KtStringTemplateExpression.isFollowedByTrimIndent() = isFollowedBy("trimIndent()")
+    private fun ASTNode.isFollowedByTrimIndent() = isFollowedBy("trimIndent()")
 
-    private fun KtStringTemplateExpression.isFollowedByTrimMargin() = isFollowedBy("trimMargin()")
+    private fun ASTNode.isFollowedByTrimMargin() = isFollowedBy("trimMargin()")
 
-    private fun KtStringTemplateExpression.isFollowedBy(callExpressionName: String) =
+    private fun ASTNode.isFollowedBy(callExpressionName: String) =
         this
-            .node
+            .also { require(it.elementType == STRING_TEMPLATE) }
             .nextSibling { it.elementType != DOT }
             .let { it?.elementType == CALL_EXPRESSION && it.text == callExpressionName }
 
-    private fun KtStringTemplateExpression.isMultiLine(): Boolean {
-        for (child in node.children()) {
-            if (child.elementType == LITERAL_STRING_TEMPLATE_ENTRY) {
-                val v = child.text
-                if (v == "\n") {
-                    return true
-                }
-            }
-        }
-        return false
-    }
+    private fun ASTNode.isMultiLine(): Boolean =
+        children()
+            .filter { it.elementType == LITERAL_STRING_TEMPLATE_ENTRY }
+            .any { it.text == "\n" }
 
     private fun ASTNode.containsMixedIndentationCharacters(): Boolean {
-        assert((this.psi as KtStringTemplateExpression).isMultiLine())
+        assert(this.isMultiLine())
         val nonBlankLines =
             this
                 .text

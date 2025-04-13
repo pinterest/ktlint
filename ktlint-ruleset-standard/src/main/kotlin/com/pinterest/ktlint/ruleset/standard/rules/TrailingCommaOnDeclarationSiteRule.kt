@@ -55,7 +55,6 @@ import org.jetbrains.kotlin.psi.KtWhenExpression
 import org.jetbrains.kotlin.psi.psiUtil.anyDescendantOfType
 import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
-import org.jetbrains.kotlin.psi.psiUtil.prevLeaf
 
 /**
  * Linting trailing comma for declaration site.
@@ -193,7 +192,7 @@ public class TrailingCommaOnDeclarationSiteRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        require(node.elementType == ElementType.CLASS)
+        require(node.elementType == CLASS)
 
         node
             .takeIf { node.hasModifier(ElementType.ENUM_KEYWORD) }

@@ -39,7 +39,6 @@ import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
-import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 
 @SinceKtlint("0.49", EXPERIMENTAL)
 @SinceKtlint("1.0", STABLE)
@@ -96,8 +95,7 @@ public class StringTemplateIndentRule :
         node
             .takeIf { it.elementType == STRING_TEMPLATE }
             ?.let { stringTemplate ->
-                val psi = stringTemplate.psi as KtStringTemplateExpression
-                if (psi.isMultiLine() && psi.isFollowedByTrimIndent()) {
+                if (stringTemplate.containsLiteralStringTemplateEntryWithNewline() && stringTemplate.isFollowedByTrimIndent()) {
                     stringTemplate
                         .takeUnless { it.isPrecededByWhitespaceWithNewline() }
                         ?.takeUnless { it.isPrecededByReturnKeyword() }
@@ -142,7 +140,7 @@ public class StringTemplateIndentRule :
 
     private fun ASTNode.getFirstLeafAfterTrimIndent() =
         takeIf { it.elementType == STRING_TEMPLATE }
-            ?.takeIf { (it.psi as KtStringTemplateExpression).isFollowedByTrimIndent() }
+            ?.takeIf { it.isFollowedByTrimIndent() }
             ?.treeParent
             ?.lastChildLeafOrSelf()
             ?.nextLeaf()
@@ -192,7 +190,7 @@ public class StringTemplateIndentRule :
             ?: ""
 
     private fun ASTNode.containsMixedIndentationCharacters(): Boolean {
-        require((this.psi as KtStringTemplateExpression).isMultiLine())
+        require(containsLiteralStringTemplateEntryWithNewline())
         val nonBlankLines = this.getNonBlankLines()
         val prefixLength =
             nonBlankLines
@@ -370,15 +368,17 @@ public class StringTemplateIndentRule :
         }
     }
 
-    private fun KtStringTemplateExpression.isMultiLine(): Boolean =
-        node
-            .children()
+    private fun ASTNode.containsLiteralStringTemplateEntryWithNewline(): Boolean {
+        require(elementType == STRING_TEMPLATE)
+        return children()
             .any { it.elementType == LITERAL_STRING_TEMPLATE_ENTRY && it.text == "\n" }
+    }
 
-    private fun KtStringTemplateExpression.isFollowedByTrimIndent() =
-        node
-            .nextSibling { it.elementType != DOT }
+    private fun ASTNode.isFollowedByTrimIndent(): Boolean {
+        require(elementType == STRING_TEMPLATE)
+        return nextSibling { it.elementType != DOT }
             .let { it?.elementType == CALL_EXPRESSION && it.text == "trimIndent()" }
+    }
 
     private fun String.indentLength() =
         indexOfFirst { !it.isWhitespace() }

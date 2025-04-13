@@ -7,14 +7,13 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.TokenSets
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
-import com.pinterest.ktlint.rule.engine.core.api.isPsiType
+import com.pinterest.ktlint.rule.engine.core.api.isKtAnnotated
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.recursiveChildren
 import com.pinterest.ktlint.rule.engine.internal.SuppressionLocator.CommentSuppressionHint.Type.BLOCK_END
 import com.pinterest.ktlint.rule.engine.internal.SuppressionLocator.CommentSuppressionHint.Type.BLOCK_START
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.psi.KtAnnotated
 
 internal class SuppressionLocator(
     editorConfig: EditorConfig,
@@ -184,8 +183,7 @@ internal class SuppressionLocator(
 
         if (suppressedRuleIds.isEmpty()) return null
 
-//        val owner = parent { it.isKtAnnotated() } ?: return null
-        val owner = parent { it.isPsiType<KtAnnotated>() } ?: return null
+        val owner = parent { it.isKtAnnotated() } ?: return null
 
         val textRange = owner.textRange
 
