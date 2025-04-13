@@ -1,8 +1,12 @@
 package com.pinterest.ktlint.rule.engine.internal
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATED_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER_LIST
@@ -11,6 +15,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
+import com.pinterest.ktlint.rule.engine.core.api.KtlintKotlinCompiler
+import com.pinterest.ktlint.rule.engine.core.api.findChildByTypeRecursively
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
@@ -20,35 +26,26 @@ import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.replaceWith
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
-import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
-import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtAnnotatedExpression
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtBinaryExpression
 import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtClassInitializer
-import org.jetbrains.kotlin.psi.KtCollectionLiteralExpression
 import org.jetbrains.kotlin.psi.KtDeclaration
-import org.jetbrains.kotlin.psi.KtDeclarationModifierList
 import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtFileAnnotationList
 import org.jetbrains.kotlin.psi.KtFunction
 import org.jetbrains.kotlin.psi.KtFunctionLiteral
 import org.jetbrains.kotlin.psi.KtLambdaExpression
-import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtPrimaryConstructor
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtPropertyAccessor
-import org.jetbrains.kotlin.psi.KtScript
-import org.jetbrains.kotlin.psi.KtScriptInitializer
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.psiUtil.children
-import org.jetbrains.kotlin.psi.psiUtil.findDescendantOfType
-import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.util.prefixIfNot
 
 private const val KTLINT_PREFIX = "ktlint"
@@ -202,12 +199,14 @@ private fun ASTNode.existingSuppressions() =
     existingSuppressionsFromNamedArgumentOrNull()
         ?: getValueArguments()
 
-private fun ASTNode.existingSuppressionsFromNamedArgumentOrNull() =
-    psi
-        .findDescendantOfType<KtCollectionLiteralExpression>()
-        ?.children
-        ?.map { it.text }
-        ?.toSet()
+private fun ASTNode.existingSuppressionsFromNamedArgumentOrNull(): Set<String>? =
+    findChildByTypeRecursively(ElementType.COLLECTION_LITERAL_EXPRESSION, includeSelf = false)
+        ?.run {
+            children()
+                .filter { it.elementType == ElementType.STRING_TEMPLATE }
+                .map { it.text }
+                .toSet()
+        }
 
 private fun ASTNode.findSuppressionAnnotations(): Map<SuppressAnnotationType, ASTNode> =
     if (this.isRoot()) {
@@ -272,19 +271,15 @@ private fun ASTNode.createSuppressAnnotation(
                 val fileAnnotation = targetNode.createFileAnnotation(suppressType, suppressions)
                 this.replaceWith(fileAnnotation.firstChildNode)
             } else {
-                val modifierListWithAnnotation = targetNode.createModifierListWithAnnotationEntry(suppressType, suppressions)
-                this.replaceWith(
-                    modifierListWithAnnotation
-                        .getChildOfType<KtAnnotationEntry>()!!
-                        .node,
-                )
+                val modifierListWithAnnotation = createModifierListWithAnnotationEntry(suppressType, suppressions)
+                this.replaceWith(modifierListWithAnnotation.findChildByType(ANNOTATION_ENTRY)!!)
             }
         }
 
         is KtClass, is KtFunction, is KtProperty, is KtPropertyAccessor -> {
             this.addChild(PsiWhiteSpaceImpl(indent()), this.firstChildNode)
-            val modifierListWithAnnotation = targetNode.createModifierListWithAnnotationEntry(suppressType, suppressions)
-            this.addChild(modifierListWithAnnotation.node, this.firstChildNode)
+            val modifierListWithAnnotation = createModifierListWithAnnotationEntry(suppressType, suppressions)
+            this.addChild(modifierListWithAnnotation, this.firstChildNode)
         }
 
         else -> {
@@ -293,15 +288,10 @@ private fun ASTNode.createSuppressAnnotation(
                 this.elementType != VALUE_PARAMETER
             ) {
                 val annotatedExpression = targetNode.createAnnotatedExpression(suppressType, suppressions)
-                treeParent.replaceChild(targetNode, annotatedExpression.node)
+                treeParent.replaceChild(targetNode, annotatedExpression)
             } else {
-                val modifierListWithAnnotation = targetNode.createModifierListWithAnnotationEntry(suppressType, suppressions)
-                treeParent.addChild(
-                    modifierListWithAnnotation
-                        .getChildOfType<KtAnnotationEntry>()!!
-                        .node,
-                    this,
-                )
+                val modifierListWithAnnotation = createModifierListWithAnnotationEntry(suppressType, suppressions)
+                treeParent.addChild(modifierListWithAnnotation.findChildByType(ANNOTATION_ENTRY)!!, this)
                 treeParent.addChild(PsiWhiteSpaceImpl(indent()), this)
             }
         }
@@ -317,12 +307,12 @@ private fun ASTNode.createFileAnnotation(
         .joinToString()
         .let { sortedSuppressions -> "@file:${suppressType.annotationName}($sortedSuppressions)" }
         .let { annotation ->
-            PsiFileFactory
-                .getInstance(psi.project)
-                .createFileFromText(KotlinLanguage.INSTANCE, annotation)
-                ?.firstChild
+            KtlintKotlinCompiler
+                .createPsiFileFromText("file.kt", annotation)
+                .firstChild
+                ?.node
                 ?: throw IllegalStateException("Can not create annotation '$annotation'")
-        }.node
+        }
 
 private fun ASTNode.createFileAnnotationList(annotation: ASTNode) {
     require(isRoot()) { "File annotation list can only be created for root node" }
@@ -339,52 +329,43 @@ private fun ASTNode.createFileAnnotationList(annotation: ASTNode) {
         }
 }
 
-private fun ASTNode.createModifierListWithAnnotationEntry(
+private fun createModifierListWithAnnotationEntry(
     suppressType: SuppressAnnotationType,
     suppressions: Set<String>,
-): PsiElement =
+): ASTNode =
     suppressions
         .sorted()
         .joinToString()
         .let { sortedSuppressions -> "@${suppressType.annotationName}($sortedSuppressions)" }
         .let { annotation ->
-            PsiFileFactory
-                .getInstance(psi.project)
-                .createFileFromText(
-                    KotlinLanguage.INSTANCE,
+            KtlintKotlinCompiler
+                .createASTNodeFromText(
                     // Create the annotation for a dummy declaration as the entire code block should be valid Kotlin code
                     """
                     $annotation
                     fun foo() {}
                     """.trimIndent(),
-                ).getChildOfType<KtScript>()
-                ?.getChildOfType<KtBlockExpression>()
-                ?.getChildOfType<KtNamedFunction>()
-                ?.getChildOfType<KtDeclarationModifierList>()
+                )?.findChildByType(FUN)
+                ?.findChildByType(MODIFIER_LIST)
                 ?: throw IllegalStateException("Can not create annotation '$annotation'")
         }
 
 private fun ASTNode.createAnnotatedExpression(
     suppressType: SuppressAnnotationType,
     suppressions: Set<String>,
-): PsiElement =
+): ASTNode =
     suppressions
         .sorted()
         .joinToString()
         .let { sortedSuppressions -> "@${suppressType.annotationName}($sortedSuppressions)" }
         .let { annotation ->
-            PsiFileFactory
-                .getInstance(psi.project)
-                .createFileFromText(
-                    KotlinLanguage.INSTANCE,
+            KtlintKotlinCompiler
+                .createASTNodeFromText(
                     """
                     |${this.indent(false)}$annotation
                     |${this.indent(false)}${this.text}
                     """.trimMargin(),
-                ).getChildOfType<KtScript>()
-                ?.getChildOfType<KtBlockExpression>()
-                ?.getChildOfType<KtScriptInitializer>()
-                ?.getChildOfType<KtAnnotatedExpression>()
+                )?.findChildByType(ANNOTATED_EXPRESSION)
                 ?: throw IllegalStateException("Can not create annotation '$annotation'")
         }
 

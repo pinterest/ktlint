@@ -23,6 +23,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
@@ -34,8 +35,6 @@ import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiElement
-import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 
 @SinceKtlint("0.50", EXPERIMENTAL)
@@ -163,7 +162,7 @@ public class StatementWrappingRule :
 
     private inline val ASTNode.isEnumClassOnSingleLine: Boolean
         get() =
-            if (psi.isEnumClass) {
+            if (isEnumClass) {
                 val lastChildLeaf = lastChildLeafOrSelf()
                 // Ignore the leading comment
                 noNewLineInClosedRange(firstCodeLeafOrNull!!, lastChildLeaf)
@@ -182,8 +181,8 @@ public class StatementWrappingRule :
                 }?.firstOrNull()
                 ?.firstChildLeafOrSelf()
 
-    private inline val PsiElement.isEnumClass: Boolean
-        get() = (this as? KtClass)?.isEnum() ?: false
+    private inline val ASTNode.isEnumClass: Boolean
+        get() = elementType == ElementType.CLASS && hasModifier(ElementType.ENUM_KEYWORD)
 
     private inline val ASTNode.indentAsChild: String
         get() = indent().plus(indentConfig.indent)

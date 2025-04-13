@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
+import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BY_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE
@@ -23,15 +24,11 @@ import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
-import com.pinterest.ktlint.rule.engine.core.util.safeAs
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.CompositeElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.kdoc.lexer.KDocTokens.MARKDOWN_LINK
-import org.jetbrains.kotlin.kdoc.psi.impl.KDocLink
-import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPackageDirective
@@ -85,14 +82,13 @@ public class NoUnusedImportsRule :
             }
 
             MARKDOWN_LINK -> {
-                node
-                    .psi
-                    .safeAs<KDocLink>()
-                    ?.let { kdocLink ->
-                        val linkText = kdocLink.getLinkText().removeBackticksAndTrim()
-                        ref.add(Reference(linkText.split('.').first(), false))
-                        ref.add(Reference(linkText.split('.').last(), false))
-                    }
+                val linkText =
+                    node
+                        .text
+                        .removeSurrounding("[", "]")
+                        .removeBackticksAndTrim()
+                ref.add(Reference(linkText.split('.').first(), false))
+                ref.add(Reference(linkText.split('.').last(), false))
             }
 
             REFERENCE_EXPRESSION, OPERATION_REFERENCE -> {
@@ -110,7 +106,7 @@ public class NoUnusedImportsRule :
                             ref.add(
                                 Reference(
                                     it.removeBackticksAndTrim(),
-                                    node.psi.parentDotQualifiedExpression() != null,
+                                    node.isParentDotQualifiedExpressionOrNull(),
                                 ),
                             )
                         }
@@ -281,10 +277,21 @@ public class NoUnusedImportsRule :
 
     private fun String.isComponentN() = COMPONENT_N_REGEX.matches(this)
 
-    private fun PsiElement.parentDotQualifiedExpression(): KtDotQualifiedExpression? {
-        val callOrThis = (parent as? KtCallExpression)?.takeIf { it.calleeExpression == this } ?: this
-        return (callOrThis.parent as? KtDotQualifiedExpression)?.takeIf { it.selectorExpression == callOrThis }
+    private fun ASTNode.isParentDotQualifiedExpressionOrNull(): Boolean {
+        val callExpressionOrThis = parentCallExpressionOrNull() ?: this
+        return callExpressionOrThis.isDotQualifiedExpression()
     }
+
+    private fun ASTNode.parentCallExpressionOrNull() =
+        treeParent
+            .takeIf { it.elementType == ElementType.CALL_EXPRESSION }
+
+    private fun ASTNode.isDotQualifiedExpression() =
+        treeParent
+            ?.takeIf { it.elementType == DOT_QUALIFIED_EXPRESSION }
+            ?.let { it.psi as? KtDotQualifiedExpression }
+            ?.takeIf { it.selectorExpression?.node == this }
+            .let { it != null }
 
     private fun String.removeBackticksAndTrim() = replace("`", "").trim()
 

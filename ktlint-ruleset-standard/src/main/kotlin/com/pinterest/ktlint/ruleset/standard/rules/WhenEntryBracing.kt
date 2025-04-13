@@ -4,8 +4,10 @@ import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ARROW
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
+import com.pinterest.ktlint.rule.engine.core.api.KtlintKotlinCompiler
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
@@ -22,15 +24,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
-import org.jetbrains.kotlin.idea.KotlinLanguage
-import org.jetbrains.kotlin.psi.KtBlockExpression
-import org.jetbrains.kotlin.psi.KtScript
-import org.jetbrains.kotlin.psi.KtScriptInitializer
-import org.jetbrains.kotlin.psi.KtWhenEntry
-import org.jetbrains.kotlin.psi.KtWhenExpression
-import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.psi.psiUtil.siblings
 
 /**
@@ -147,23 +141,17 @@ public class WhenEntryBracing :
         prevSibling.treeParent.addChild(blockExpression!!, null)
     }
 
-    private fun ASTNode.createBlockExpression(whenEntry: String) =
-        PsiFileFactory
-            .getInstance(psi.project)
-            .createFileFromText(
-                KotlinLanguage.INSTANCE,
+    private fun createBlockExpression(whenEntry: String) =
+        KtlintKotlinCompiler
+            .createASTNodeFromText(
                 """
                 |when {
                 |$whenEntry
                 |}
                 """.trimMargin(),
-            ).getChildOfType<KtScript>()
-            ?.getChildOfType<KtBlockExpression>()
-            ?.getChildOfType<KtScriptInitializer>()
-            ?.getChildOfType<KtWhenExpression>()
-            ?.getChildOfType<KtWhenEntry>()
-            ?.getChildOfType<KtBlockExpression>()
-            ?.node
+            )?.findChildByType(WHEN)
+            ?.findChildByType(WHEN_ENTRY)
+            ?.findChildByType(BLOCK)
 }
 
 public val WHEN_ENTRY_BRACING_RULE_ID: RuleId = WhenEntryBracing().ruleId

@@ -5,11 +5,16 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK_COMMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.LITERAL_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.IgnoreKtlintSuppressions
+import com.pinterest.ktlint.rule.engine.core.api.KtlintKotlinCompiler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.findChildByTypeRecursively
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
@@ -31,19 +36,7 @@ import com.pinterest.ktlint.rule.engine.internal.rules.KtLintDirective.Suppressi
 import com.pinterest.ktlint.rule.engine.internal.rules.KtLintDirective.SuppressionIdChange.ValidSuppressionId.Companion.KTLINT_SUPPRESSION_ALL
 import com.pinterest.ktlint.rule.engine.internal.toFullyQualifiedKtlintSuppressionId
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
-import org.jetbrains.kotlin.idea.KotlinLanguage
-import org.jetbrains.kotlin.psi.KtBlockExpression
-import org.jetbrains.kotlin.psi.KtCallExpression
-import org.jetbrains.kotlin.psi.KtLiteralStringTemplateEntry
-import org.jetbrains.kotlin.psi.KtScript
-import org.jetbrains.kotlin.psi.KtScriptInitializer
-import org.jetbrains.kotlin.psi.KtStringTemplateExpression
-import org.jetbrains.kotlin.psi.KtValueArgument
-import org.jetbrains.kotlin.psi.KtValueArgumentList
-import org.jetbrains.kotlin.psi.psiUtil.findDescendantOfType
-import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.psi.psiUtil.siblings
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 
@@ -105,9 +98,7 @@ public class KtlintSuppressionRule(
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .psi
-            .findDescendantOfType<KtLiteralStringTemplateEntry>()
-            ?.node
+            .findChildByTypeRecursively(ElementType.LITERAL_STRING_TEMPLATE_ENTRY, includeSelf = true)
             ?.let { literalStringTemplateEntry ->
                 val prefixedSuppression =
                     literalStringTemplateEntry
@@ -121,8 +112,7 @@ public class KtlintSuppressionRule(
                 } else if (prefixedSuppression != literalStringTemplateEntry.text) {
                     emit(offset, "Identifier to suppress ktlint rule must be fully qualified with the rule set id", true)
                         .ifAutocorrectAllowed {
-                            node
-                                .createLiteralStringTemplateEntry(prefixedSuppression)
+                            createLiteralStringTemplateEntry(prefixedSuppression)
                                 ?.let { literalStringTemplateEntry.replaceWith(it) }
                         }
                 }
@@ -135,19 +125,14 @@ public class KtlintSuppressionRule(
             ?.remove()
     }
 
-    private fun ASTNode.createLiteralStringTemplateEntry(prefixedSuppression: String) =
-        PsiFileFactory
-            .getInstance(psi.project)
-            .createFileFromText(KotlinLanguage.INSTANCE, "listOf(\"$prefixedSuppression\")")
-            .getChildOfType<KtScript>()
-            ?.getChildOfType<KtBlockExpression>()
-            ?.getChildOfType<KtScriptInitializer>()
-            ?.getChildOfType<KtCallExpression>()
-            ?.getChildOfType<KtValueArgumentList>()
-            ?.getChildOfType<KtValueArgument>()
-            ?.getChildOfType<KtStringTemplateExpression>()
-            ?.getChildOfType<KtLiteralStringTemplateEntry>()
-            ?.node
+    private fun createLiteralStringTemplateEntry(prefixedSuppression: String) =
+        KtlintKotlinCompiler
+            .createASTNodeFromText("listOf(\"$prefixedSuppression\")")
+            ?.findChildByType(CALL_EXPRESSION)
+            ?.findChildByType(VALUE_ARGUMENT_LIST)
+            ?.findChildByType(VALUE_ARGUMENT)
+            ?.findChildByType(STRING_TEMPLATE)
+            ?.findChildByType(LITERAL_STRING_TEMPLATE_ENTRY)
 
     private fun KtLintDirective.visitKtlintDirective(
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,

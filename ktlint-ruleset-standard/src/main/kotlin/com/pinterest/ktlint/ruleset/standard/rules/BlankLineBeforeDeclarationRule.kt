@@ -24,17 +24,15 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.isDeclaration
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
-import com.pinterest.ktlint.rule.engine.core.util.safeAs
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.psi.KtDeclaration
-import org.jetbrains.kotlin.psi.KtFunctionLiteral
 
 /**
  * Insert a blank line before declarations. No blank line is inserted before between a class or method signature and the first declaration
@@ -150,17 +148,17 @@ public class BlankLineBeforeDeclarationRule :
         }
 
         node
-            .takeIf { it.psi is KtDeclaration }
-            ?.takeIf {
-                val prevLeaf = it.prevLeaf()
-                prevLeaf != null && (!prevLeaf.isWhiteSpace() || !prevLeaf.text.startsWith("\n\n"))
-            }?.let { insertBeforeNode ->
+            .takeIf { it.isDeclaration() }
+            ?.takeUnless { it.prevLeaf().isBlankLine() }
+            ?.let { insertBeforeNode ->
                 emit(insertBeforeNode.startOffset, "Expected a blank line for this declaration", true)
                     .ifAutocorrectAllowed {
                         insertBeforeNode.upsertWhitespaceBeforeMe("\n".plus(node.indent()))
                     }
             }
     }
+
+    private fun ASTNode?.isBlankLine() = this == null || text.startsWith("\n\n")
 
     private fun ASTNode.isFirstCodeSiblingInClassBody() =
         this ==
@@ -181,10 +179,8 @@ public class BlankLineBeforeDeclarationRule :
             treeParent
                 .takeIf { it.elementType == BLOCK && it.treeParent.elementType == FUNCTION_LITERAL }
                 ?.treeParent
-                ?.psi
-                ?.safeAs<KtFunctionLiteral>()
-                ?.bodyExpression
-                ?.node
+                ?.takeIf { it.elementType == FUNCTION_LITERAL }
+                ?.findChildByType(BLOCK)
                 ?.children()
                 ?.firstOrNull { !it.isWhiteSpace() && !it.isPartOfComment() }
 
