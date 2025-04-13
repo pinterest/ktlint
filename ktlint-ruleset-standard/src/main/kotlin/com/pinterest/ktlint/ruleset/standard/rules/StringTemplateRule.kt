@@ -1,27 +1,30 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLOSING_QUOTE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LITERAL_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LONG_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LONG_TEMPLATE_ENTRY_END
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LONG_TEMPLATE_ENTRY_START
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.REFERENCE_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SHORT_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.THIS_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.KtlintKotlinCompiler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.psi.KtBlockStringTemplateEntry
-import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
-import org.jetbrains.kotlin.psi.KtNameReferenceExpression
-import org.jetbrains.kotlin.psi.KtSuperExpression
-import org.jetbrains.kotlin.psi.KtThisExpression
 
 @SinceKtlint("0.9", STABLE)
 public class StringTemplateRule : StandardRule("string-template") {
@@ -29,7 +32,6 @@ public class StringTemplateRule : StandardRule("string-template") {
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val elementType = node.elementType
         // code below is commented out because (setting aside potentially dangerous replaceChild part)
         // `val v: String = "$elementType"` would be rewritten to `val v: String = elementType.toString()` and it's not
         // immediately clear which is better
@@ -39,44 +41,68 @@ public class StringTemplateRule : StandardRule("string-template") {
         //        val entryStart = node.psi.firstChild
         //        node.treeParent.treeParent.replaceChild(node.treeParent, entryStart.nextSibling.node)
         //    }
-        if (elementType == LONG_STRING_TEMPLATE_ENTRY) {
-            val entryExpression = (node.psi as? KtBlockStringTemplateEntry)?.expression
-            if (entryExpression is KtDotQualifiedExpression) {
-                val receiver = entryExpression.receiverExpression
-                if (entryExpression.selectorExpression?.text == "toString()" && receiver !is KtSuperExpression) {
-                    emit(
-                        entryExpression.operationTokenNode.startOffset,
-                        "Redundant \"toString()\" call in string template",
-                        true,
-                    ).ifAutocorrectAllowed {
-                        entryExpression
-                            .node
-                            .let { entryExpressionNode ->
-                                entryExpressionNode.treeParent.addChild(receiver.node, entryExpressionNode)
-                                entryExpressionNode.remove()
-                            }
-                        node
-                            .takeIf { it.isStringTemplate() }
-                            ?.removeCurlyBracesIfRedundant()
-                    }
-                }
-            }
-            if (node.isStringTemplate() &&
-                (entryExpression is KtNameReferenceExpression || entryExpression is KtThisExpression) &&
-                node.treeNext.let { nextSibling ->
-                    nextSibling.elementType == CLOSING_QUOTE ||
-                        (
-                            nextSibling.elementType == LITERAL_STRING_TEMPLATE_ENTRY &&
-                                !nextSibling.text.substring(0, 1).isPartOfIdentifier()
-                        )
-                }
-            ) {
-                emit(node.treePrev.startOffset + 2, "Redundant curly braces", true)
-                    .ifAutocorrectAllowed {
-                        node.removeCurlyBracesIfRedundant()
-                    }
-            }
+        if (node.elementType == LONG_STRING_TEMPLATE_ENTRY) {
+            node.removeRedundantToString(emit)
+            node.checkForRedundantCurlyBraces(emit)
         }
+    }
+
+    private fun ASTNode.removeRedundantToString(
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+    ) {
+        findChildByType(DOT_QUALIFIED_EXPRESSION)
+            ?.let { dotQualifiedExpression ->
+                dotQualifiedExpression
+                    .splitCodeChildren()
+                    .let { (receiver, dot, selector) ->
+                        if (receiver.elementType != SUPER_EXPRESSION &&
+                            selector.elementType == CALL_EXPRESSION &&
+                            selector.text == "toString()"
+                        ) {
+                            emit(
+                                dot.startOffset,
+                                "Redundant \".toString()\" call in string template",
+                                true,
+                            ).ifAutocorrectAllowed {
+                                dotQualifiedExpression.treeParent.addChild(receiver, dotQualifiedExpression)
+                                dotQualifiedExpression.remove()
+                                takeIf { it.isStringTemplate() }
+                                    ?.removeCurlyBracesIfRedundant()
+                            }
+                        }
+                    }
+            }
+    }
+
+    private fun ASTNode.splitCodeChildren(): Triple<ASTNode, ASTNode, ASTNode> {
+        require(elementType == DOT_QUALIFIED_EXPRESSION)
+        return children()
+            .filter { !it.isWhiteSpace() && !it.isPartOfComment() }
+            .toList()
+            .also { require(it.size == 3) }
+            .let { Triple(it[0], it[1], it[2]) }
+    }
+
+    private fun ASTNode.checkForRedundantCurlyBraces(
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+    ) {
+        takeIf { it.isStringTemplate() }
+            ?.children()
+            ?.firstOrNull { it.elementType != LONG_TEMPLATE_ENTRY_START }
+            ?.takeIf { it.elementType == REFERENCE_EXPRESSION || it.elementType == THIS_EXPRESSION }
+            ?.let {
+                treeNext
+                    .takeIf { nextSibling ->
+                        nextSibling.elementType == CLOSING_QUOTE ||
+                            (
+                                nextSibling.elementType == LITERAL_STRING_TEMPLATE_ENTRY &&
+                                    !nextSibling.text.substring(0, 1).isPartOfIdentifier()
+                            )
+                    }?.let {
+                        emit(treePrev.startOffset + 2, "Redundant curly braces", true)
+                            .ifAutocorrectAllowed { removeCurlyBracesIfRedundant() }
+                    }
+            }
     }
 
     private fun ASTNode.removeCurlyBracesIfRedundant() {

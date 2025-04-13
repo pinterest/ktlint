@@ -19,12 +19,9 @@ import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
-import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.psiUtil.children
-import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 
 /**
@@ -50,7 +47,7 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
         val annotations =
             node
                 .children()
-                .mapNotNull { it.psi as? KtAnnotationEntry }
+                .filter { it.elementType == ElementType.ANNOTATION_ENTRY }
                 .toList()
         if (annotations.isEmpty()) {
             return
@@ -65,8 +62,9 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
         //      val s: Any
         //
         val whiteSpaces =
-            (annotations.asSequence().map { it.nextSibling } + node.treeNext)
-                .filterIsInstance<PsiWhiteSpace>()
+            (annotations.asSequence().map { it.nextSibling() } + node.treeNext)
+                .filterNotNull()
+                .filter { it.isWhiteSpace() }
                 .take(annotations.size)
                 .toList()
 
@@ -118,17 +116,16 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
                     }
             }
         }
-        if (whiteSpaces.isNotEmpty() && node.elementType != ElementType.FILE_ANNOTATION_LIST) {
-            // Check to make sure there are multi breaks between annotations
-            if (whiteSpaces.any { psi -> psi.textToCharArray().count { it == '\n' } > 1 }) {
-                emit(node.endOffset(), ERROR_MESSAGE, true)
-                    .ifAutocorrectAllowed {
-                        removeIntraLineBreaks(node, annotations.last())
-                        removeExtraLineBreaks(node)
-                    }
-            }
+        if (node.elementType != ElementType.FILE_ANNOTATION_LIST && whiteSpaces.any { it.containsMultipleNewlines() }) {
+            emit(node.endOffset(), ERROR_MESSAGE, true)
+                .ifAutocorrectAllowed {
+                    removeIntraLineBreaks(node, annotations.last())
+                    removeExtraLineBreaks(node)
+                }
         }
     }
+
+    private fun ASTNode.containsMultipleNewlines() = text.count { it == '\n' } > 1
 
     private inline fun ASTNode.nextSiblingWithAtLeastOneOf(
         p: (ASTNode) -> Boolean,
@@ -174,20 +171,19 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
     }
 
     private fun removeIntraLineBreaks(
-        node: ASTNode,
-        last: KtAnnotationEntry,
+        fromNode: ASTNode,
+        lastAnnotationEntryNode: ASTNode,
     ) {
-        val txt = node.text
         // Pull the next before raw replace, or it will blow up
-        val lNext = node.nextLeaf()
-        if (node is PsiWhiteSpaceImpl) {
-            if (txt.toCharArray().count { it == '\n' } > 1) {
-                rawReplaceExtraLineBreaks(node)
+        val nextLeaf = fromNode.nextLeaf()
+        if (fromNode is PsiWhiteSpaceImpl) {
+            if (fromNode.text.toCharArray().count { it == '\n' } > 1) {
+                rawReplaceExtraLineBreaks(fromNode)
             }
         }
 
-        if (lNext != null && !last.text.endsWith(lNext.text)) {
-            removeIntraLineBreaks(lNext, last)
+        if (nextLeaf != null && !lastAnnotationEntryNode.text.endsWith(nextLeaf.text)) {
+            removeIntraLineBreaks(nextLeaf, lastAnnotationEntryNode)
         }
     }
 

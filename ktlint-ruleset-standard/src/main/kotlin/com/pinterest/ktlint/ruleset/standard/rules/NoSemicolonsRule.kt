@@ -8,6 +8,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SEMICOLON
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.THEN
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHILE
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
@@ -28,9 +30,6 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiComment
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.lexer.KtTokens
-import org.jetbrains.kotlin.psi.KtDoWhileExpression
-import org.jetbrains.kotlin.psi.KtIfExpression
-import org.jetbrains.kotlin.psi.KtLoopExpression
 
 @SinceKtlint("0.1", STABLE)
 public class NoSemicolonsRule :
@@ -58,7 +57,7 @@ public class NoSemicolonsRule :
                     val prevLeaf = node.prevLeaf(true)
                     node.remove()
                     if (prevLeaf.isWhiteSpace() && (nextLeaf == null || nextLeaf.isWhiteSpace())) {
-                        prevLeaf?.remove()
+                        prevLeaf.remove()
                     }
                 }
         } else if (nextLeaf !is PsiWhiteSpace) {
@@ -107,12 +106,12 @@ public class NoSemicolonsRule :
             return false
         }
 
-        val parent = prevCodeLeaf.treeParent?.psi
-        if (parent is KtLoopExpression && parent !is KtDoWhileExpression && parent.body == null) {
+        val parentNode = prevCodeLeaf.treeParent
+        if (parentNode.isLoopWithoutBody()) {
             // https://github.com/pinterest/ktlint/issues/955
             return false
         }
-        if (parent is KtIfExpression && parent.then == null) {
+        if (parentNode.isIfExpressionWithoutThen()) {
             return false
         }
         // In case of an enum entry the semicolon (e.g. the node) is a direct child node of enum entry
@@ -125,6 +124,12 @@ public class NoSemicolonsRule :
 
         return true
     }
+
+    private fun ASTNode.isLoopWithoutBody() =
+        (elementType == WHILE || elementType == ElementType.FOR) &&
+            findChildByType(ElementType.BODY)?.firstChildNode == null
+
+    private fun ASTNode.isIfExpressionWithoutThen() = elementType == ElementType.IF && findChildByType(THEN)?.firstChildNode == null
 
     private fun ASTNode?.isLastCodeLeafBeforeClosingOfClassBody() = getLastCodeLeafBeforeClosingOfClassBody() == this
 

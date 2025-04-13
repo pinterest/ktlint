@@ -19,7 +19,9 @@ import org.jetbrains.kotlin.lexer.KtKeywordToken
 import org.jetbrains.kotlin.lexer.KtToken
 import org.jetbrains.kotlin.psi.KtAnnotated
 import org.jetbrains.kotlin.psi.KtElement
+import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.psi.KtLoopExpression
 import org.jetbrains.kotlin.psi.psiUtil.leaves
 import org.jetbrains.kotlin.psi.stubs.elements.KtFileElementType
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementType
@@ -610,6 +612,10 @@ private val elementTypeCache = hashMapOf<IElementType, PsiElement>()
  * whether `psi is KtAnnotated` as the psi does not need to be derived from [ASTNode].
  */
 public fun ASTNode.isKtAnnotated(): Boolean = psiType { it is KtAnnotated }
+
+public fun ASTNode.isKtExpression(): Boolean = psiType { it is KtExpression }
+
+public fun ASTNode.isKtLoopExpression(): Boolean = psiType { it is KtLoopExpression }
 
 private inline fun ASTNode.psiType(predicate: (psiElement: PsiElement) -> Boolean): Boolean = predicate(dummyPsiElement())
 

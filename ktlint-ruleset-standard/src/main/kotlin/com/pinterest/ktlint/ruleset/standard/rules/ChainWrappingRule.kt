@@ -73,11 +73,6 @@ public class ChainWrappingRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        /*
-           org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement (DOT) | "."
-           org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl (WHITE_SPACE) | "\n        "
-           org.jetbrains.kotlin.psi.KtCallExpression (CALL_EXPRESSION)
-         */
         val elementType = node.elementType
         if (nextLineTokens.contains(elementType)) {
             if (node.isPartOfComment()) {

@@ -35,9 +35,9 @@ class StringTemplateRuleTest {
             """.trimIndent().replaceStringTemplatePlaceholder()
         stringTemplateRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(1, 28, "Redundant \"toString()\" call in string template"),
-                LintViolation(2, 27, "Redundant \"toString()\" call in string template"),
-                LintViolation(5, 78, "Redundant \"toString()\" call in string template"),
+                LintViolation(1, 28, "Redundant \".toString()\" call in string template"),
+                LintViolation(2, 27, "Redundant \".toString()\" call in string template"),
+                LintViolation(5, 78, "Redundant \".toString()\" call in string template"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -55,8 +55,20 @@ class StringTemplateRuleTest {
             val foo = "${'$'}.foo"
             """.trimIndent().replaceStringTemplatePlaceholder()
         stringTemplateRuleAssertThat(code)
-            .hasLintViolation(1, 17, "Redundant \"toString()\" call in string template")
+            .hasLintViolation(1, 17, "Redundant \".toString()\" call in string template")
             .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given 'super' as receiver, followed by a toString call then do not remove the toString call`() {
+        // Interpret "$." in code samples below as "$". It is used whenever the code which has to be inspected should
+        // actually contain a string template. Using "$" instead of "$." would result in a String in which the string
+        // templates would have been evaluated before the code would actually be processed by the rule.
+        val code =
+            """
+            val foo = "$.{super.toString()}"
+            """.trimIndent().replaceStringTemplatePlaceholder()
+        stringTemplateRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -331,7 +343,7 @@ class StringTemplateRuleTest {
             """.trimIndent()
         stringTemplateRuleAssertThat(code)
             .addAdditionalRuleProvider { NoUnusedImportsRule() }
-            .hasLintViolation(3, 21, "Redundant \"toString()\" call in string template")
+            .hasLintViolation(3, 21, "Redundant \".toString()\" call in string template")
             .isFormattedAs(formattedCode)
     }
 

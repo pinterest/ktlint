@@ -27,6 +27,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.PERC
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PERCEQ
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PLUS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PLUSEQ
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.PREFIX_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
@@ -42,8 +43,6 @@ import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
-import org.jetbrains.kotlin.psi.KtOperationExpression
-import org.jetbrains.kotlin.psi.KtPrefixExpression
 
 @SinceKtlint("0.1", STABLE)
 public class SpacingAroundOperatorsRule : StandardRule("op-spacing") {
@@ -110,7 +109,11 @@ public class SpacingAroundOperatorsRule : StandardRule("op-spacing") {
         }
     }
 
-    private fun ASTNode.isUnaryOperator() = parent { it.psi is KtOperationExpression }?.psi is KtPrefixExpression
+    private fun ASTNode.isUnaryOperator() =
+        PREFIX_EXPRESSION ==
+            parent { it.elementType == OPERATION_REFERENCE }
+                ?.treeParent
+                ?.elementType
 
     private fun ASTNode.isSpreadOperator() =
         // fn(*array)

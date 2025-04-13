@@ -2,6 +2,7 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EQ
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
@@ -22,9 +23,7 @@ import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
-import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.psiUtil.siblings
-import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 
 @SinceKtlint("0.1", STABLE)
 public class SpacingAroundColonRule : StandardRule("colon-spacing") {
@@ -76,7 +75,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                             val blockElement =
                                 node
                                     .siblings(forward = true)
-                                    .firstIsInstanceOrNull<KtBlockExpression>()
+                                    .firstOrNull { it.elementType == BLOCK }
                             if (blockElement != null) {
                                 val before =
                                     blockElement
