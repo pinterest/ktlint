@@ -25,6 +25,9 @@ import org.jetbrains.kotlin.idea.KotlinLanguage
 import sun.reflect.ReflectionFactory
 import org.jetbrains.kotlin.com.intellij.openapi.diagnostic.Logger as DiagnosticLogger
 
+private const val IDEA_HOME_PATH_PROPERTY = "idea.home.path"
+private const val IDEA_CONFIG_PATH_PROPERTY = "idea.config.path"
+
 /**
  * Embedded Kotlin Compiler configured for use by Ktlint.
  */
@@ -63,6 +66,11 @@ private fun initPsiFileFactory(): PsiFileFactory {
             .apply { put(CommonConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE) }
 
     val disposable = Disposer.newDisposable()
+    // When running ktlint via the ktlint-intellij-plugin in IntelliJ IDEA, an exception is thrown whenever certain properties are not set
+    // (https://github.com/nbadal/ktlint-intellij-plugin/issues/614). When initializing the embedded kotlin compiler while running it within
+    // a process in IntelliJ IDEA those settings need to have a non-null value.
+    val ideaHomePath = System.getProperties().setProperty(IDEA_HOME_PATH_PROPERTY, "/ktlint/$IDEA_HOME_PATH_PROPERTY") as String?
+    val ideaConfigPath = System.getProperties().setProperty(IDEA_CONFIG_PATH_PROPERTY, "/ktlint/$IDEA_CONFIG_PATH_PROPERTY") as String?
     try {
         val project =
             KotlinCoreEnvironment
@@ -80,6 +88,17 @@ private fun initPsiFileFactory(): PsiFileFactory {
         // https://discuss.kotlinlang.org/t/memory-leak-in-kotlincoreenvironment-and-kotlintojvmbytecodecompiler/21950
         // https://youtrack.jetbrains.com/issue/KT-47044
         disposable.dispose()
+        // Restore the system settings
+        if (ideaHomePath == null) {
+            System.clearProperty(IDEA_HOME_PATH_PROPERTY)
+        } else {
+            System.setProperty(IDEA_HOME_PATH_PROPERTY, ideaHomePath)
+        }
+        if (ideaConfigPath == null) {
+            System.clearProperty(IDEA_CONFIG_PATH_PROPERTY)
+        } else {
+            System.setProperty(IDEA_CONFIG_PATH_PROPERTY, ideaConfigPath)
+        }
     }
 }
 
