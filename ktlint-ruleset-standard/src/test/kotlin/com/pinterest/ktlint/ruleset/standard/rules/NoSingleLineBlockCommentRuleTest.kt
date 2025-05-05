@@ -2,15 +2,12 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class NoSingleLineBlockCommentRuleTest {
-    private val noSingleLineBlockCommentRuleAssertThat =
-        assertThatRuleBuilder { NoSingleLineBlockCommentRule() }
-            .addAdditionalRuleProvider { CommentWrappingRule() }
-            .assertThat()
+    private val noSingleLineBlockCommentRuleAssertThat = assertThatRule { NoSingleLineBlockCommentRule() }
 
     @Test
     fun `Given a single line block comment then replace it with an EOL comment`() {
@@ -41,24 +38,6 @@ class NoSingleLineBlockCommentRuleTest {
              */
             """.trimIndent()
         noSingleLineBlockCommentRuleAssertThat(code).hasNoLintViolations()
-    }
-
-    @Test
-    fun `Given a single line block comment that is to be wrapped before replacing it with an EOL comment`() {
-        val code =
-            """
-            /* Some comment */ val foo = "foo"
-            """.trimIndent()
-        val formattedCode =
-            """
-            // Some comment
-            val foo = "foo"
-            """.trimIndent()
-        noSingleLineBlockCommentRuleAssertThat(code)
-            .hasLintViolationForAdditionalRule(1, 20, "A block comment may not be followed by any other element on that same line")
-            // Can not check for the lint violation below as it will only be thrown while formatting with comment wrapping
-            //   A single line block comment must be replaced with an EOL comment
-            .isFormattedAs(formattedCode)
     }
 
     @Nested
@@ -139,15 +118,6 @@ class NoSingleLineBlockCommentRuleTest {
         noSingleLineBlockCommentRuleAssertThat(code)
             .hasLintViolation(1, 17, "Replace the block comment with an EOL comment")
             .isFormattedAs(formattedCode)
-    }
-
-    @Test
-    fun `Given a single line block comment in between code elements on the same line does not raise a lint error`() {
-        val code =
-            """
-            val foo /* some comment */ = "foo"
-            """.trimIndent()
-        noSingleLineBlockCommentRuleAssertThat(code).hasNoLintViolationsExceptInAdditionalRules()
     }
 
     @Test

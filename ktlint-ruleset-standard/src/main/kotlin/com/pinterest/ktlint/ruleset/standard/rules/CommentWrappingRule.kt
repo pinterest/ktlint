@@ -95,14 +95,6 @@ public class CommentWrappingRule :
                             "A block comment after any other element on the same line must be separated by a new line",
                             false,
                         )
-                    } else {
-                        emit(
-                            node.startOffset,
-                            "A single line block comment after a code element on the same line must be replaced with an EOL comment",
-                            true,
-                        ).ifAutocorrectAllowed {
-                            node.upsertWhitespaceBeforeMe(" ")
-                        }
                     }
                 }
 
