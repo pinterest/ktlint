@@ -268,4 +268,94 @@ class SpacingAroundParensRuleTest {
             .hasLintViolation(1, 28, "Unexpected spacing before \"(\"")
             .isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Issue 2943x - Given unexpected newline before RPAR in condition`() {
+        val code =
+            """
+            fun foo() {
+                if (true
+                ) {
+                    // do something
+                } else {
+                    // do something else
+                }
+                while (true
+                ) {
+                    // do something
+                }
+                do while (true
+                ) {
+                    // do something
+                }
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo() {
+                if (true) {
+                    // do something
+                } else {
+                    // do something else
+                }
+                while (true) {
+                    // do something
+                }
+                do while (true) {
+                    // do something
+                }
+            }
+            """.trimIndent()
+        spacingAroundParensRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 13, "Unexpected spacing before \")\""),
+                LintViolation(8, 16, "Unexpected spacing before \")\""),
+                LintViolation(12, 19, "Unexpected spacing before \")\""),
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 2943 - Given unexpected newline after LPAR in condition`() {
+        val code =
+            """
+            fun foo() {
+                if (
+                true) {
+                    // do something
+                } else {
+                    // do something else
+                }
+                while (
+                    true) {
+                    // do something
+                }
+                do while (
+                    true) {
+                    // do something
+                }
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo() {
+                if (true) {
+                    // do something
+                } else {
+                    // do something else
+                }
+                while (true) {
+                    // do something
+                }
+                do while (true) {
+                    // do something
+                }
+            }
+            """.trimIndent()
+        spacingAroundParensRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 9, "Unexpected spacing after \"(\""),
+                LintViolation(8, 12, "Unexpected spacing after \"(\""),
+                LintViolation(12, 15, "Unexpected spacing after \"(\""),
+            ).isFormattedAs(formattedCode)
+    }
 }
