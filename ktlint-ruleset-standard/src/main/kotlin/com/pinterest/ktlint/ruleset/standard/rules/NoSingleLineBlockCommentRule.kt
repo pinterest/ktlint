@@ -12,11 +12,14 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -56,6 +59,18 @@ public class NoSingleLineBlockCommentRule :
             ) {
                 emit(node.startOffset, "Replace the block comment with an EOL comment", true)
                     .ifAutocorrectAllowed {
+                        val beforeBlockComment =
+                            node
+                                .leaves(false)
+                                .takeWhile { it.isWhiteSpace() && !it.textContains('\n') }
+                                .firstOrNull()
+                                ?: node.firstChildLeafOrSelf()
+                        beforeBlockComment
+                            .prevLeaf()
+                            .takeIf { !it.isWhitespaceWithNewlineOrNull() }
+                            ?.let {
+                                node.upsertWhitespaceBeforeMe(" ")
+                            }
                         node.replaceWithEndOfLineComment()
                     }
             }
