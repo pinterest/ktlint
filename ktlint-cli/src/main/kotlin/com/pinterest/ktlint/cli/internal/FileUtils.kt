@@ -40,13 +40,18 @@ internal fun FileSystem.fileSequence(
     patterns: List<String>,
     rootDir: Path = Paths.get(".").toAbsolutePath().normalize(),
 ): Sequence<Path> {
+    if (patterns.isEmpty()) {
+        LOGGER.trace { "No patterns provided. Will not expand any globs." }
+        return emptySequence()
+    }
+
     val result = mutableListOf<Path>()
 
     val (existingFiles, patternsExclusiveExistingFiles) =
         patterns.partition {
             try {
                 Files.isRegularFile(rootDir.resolve(it))
-            } catch (e: InvalidPathException) {
+            } catch (_: InvalidPathException) {
                 // Windows throws an exception when you pass a glob to Path#resolve.
                 false
             }
@@ -89,7 +94,7 @@ internal fun FileSystem.fileSequence(
                     .resolve(pattern)
                     .normalize()
             commonRootDir = commonRootDir.findCommonParentDir(patternDir)
-        } catch (e: InvalidPathException) {
+        } catch (_: InvalidPathException) {
             // Windows throws an exception when you pass a glob to Path#resolve.
         }
     }
@@ -222,7 +227,7 @@ private fun FileSystem.toGlob(
                         LOGGER.trace { "Expanding resolved path '$resolvedPath` to patterns: [$it]" }
                     }
             }
-        } catch (e: InvalidPathException) {
+        } catch (_: InvalidPathException) {
             if (onWindowsOS) {
                 //  Windows throws an exception when passing a wildcard (*) to Path#resolve.
                 pathWithoutNegationPrefix
