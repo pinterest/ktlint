@@ -22,12 +22,14 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
+import org.jetbrains.kotlin.psi.psiUtil.siblings
 
 /**
  * Ensures there are no extra spaces around parentheses.
@@ -53,6 +55,10 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
 
     private fun ASTNode.isUnexpectedSpacingBeforeParenthesis(): Boolean =
         when {
+            prevLeaf().isWhiteSpaceWithNewline() && hasNoNewlineAfterLpar() -> {
+                true
+            }
+
             !prevLeaf().isWhiteSpaceWithoutNewline() -> {
                 false
             }
@@ -131,11 +137,22 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
             ?: false
 
     private fun ASTNode.isUnexpectedSpacingAfterParenthesis(): Boolean =
-        takeIf { elementType == LPAR }
-            ?.nextLeaf()
-            ?.takeUnless { it.isNextLeafAComment() }
-            ?.let { it.isUnexpectedSpaceAfterLpar() || it.isUnexpectedNewlineAfterLpar() }
-            ?: false
+        when {
+            elementType == LPAR && nextSibling().isWhiteSpaceWithNewline() && hasNoOtherNewlineBeforeRpar() -> {
+                true
+            }
+
+            elementType == LPAR -> {
+                nextLeaf()
+                    ?.takeUnless { it.isNextLeafAComment() }
+                    ?.let { it.isUnexpectedSpaceAfterLpar() || it.isUnexpectedNewlineAfterLpar() }
+                    ?: false
+            }
+
+            else -> {
+                false
+            }
+        }
 
     private fun ASTNode.isUnexpectedSpaceAfterLpar() =
         // Disallow:
@@ -150,7 +167,24 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
         //         )
         isWhiteSpaceWithNewline() && nextLeaf()?.elementType == RPAR
 
+    private fun ASTNode.hasNoOtherNewlineBeforeRpar() =
+        nextSibling()
+            .takeIf { it.isWhiteSpaceWithNewline() }
+            ?.siblings()
+            ?.takeWhile { it.elementType != RPAR }
+            ?.none { it.isWhiteSpaceWithNewline() }
+            ?: false
+
     private fun ASTNode.isNextLeafAComment(): Boolean = nextLeaf()?.elementType in commentTypes
+
+    private fun ASTNode.hasNoNewlineAfterLpar() =
+        prevSibling()
+            .takeIf { it.isWhiteSpaceWithNewline() }
+            ?.takeUnless { it.prevSibling()?.elementType == LPAR }
+            ?.siblings(false)
+            ?.takeWhile { it.elementType != LPAR }
+            ?.none { it.isWhiteSpaceWithNewline() }
+            ?: false
 
     private fun ASTNode.fixUnexpectedSpacingAround(
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
