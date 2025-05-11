@@ -183,7 +183,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
             ?.takeUnless { it.prevSibling()?.elementType == LPAR }
             ?.siblings(false)
             ?.takeWhile { it.elementType != LPAR }
-            ?.none { it.isWhiteSpaceWithNewline() }
+            ?.none { it.textContains('\n') }
             ?: false
 
     private fun ASTNode.fixUnexpectedSpacingAround(
