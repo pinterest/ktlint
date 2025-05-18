@@ -428,14 +428,7 @@ public class TrailingCommaOnDeclarationSiteRule :
 
     private fun ASTNode.hasWhenEntryGuard() = elementType == WHEN_ENTRY && hasWhenEntryGuardKotlin21()
 
-    private fun ASTNode.hasWhenEntryGuardKotlin21(): Boolean =
-        // TODO: Remove try-catch wrapping once kotlin version is upgraded to 2.1 or above
-        try {
-            children().any { it.elementType == WHEN_ENTRY_GUARD }
-        } catch (e: NoSuchFieldError) {
-            // Prior to Kotlin 2.1 the WHEN_ENTRY_GUARD can not be retrieved successfully.
-            false
-        }
+    private fun ASTNode.hasWhenEntryGuardKotlin21(): Boolean = children().any { it.elementType == WHEN_ENTRY_GUARD }
 
     private fun containsLineBreakInLeavesRange(
         from: PsiElement,
