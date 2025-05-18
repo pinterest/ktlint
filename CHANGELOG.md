@@ -2,6 +2,32 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.6.0] - 2025-05-19
+
+### 🆕 Features
+
+
+* Add configuration option to handle (certain) annotation with parameters identical to annotations without parameters - [#2950](https://github.com/pinterest/ktlint/pull/2950), by @paul-dingemans
+
+* Set system properties to prevent failure when running in ktlint-intellij-plugin with custom installation - [#2970](https://github.com/pinterest/ktlint/pull/2970), by @paul-dingemans
+
+* chore(deps): update dependency gradle to v8.14 - [#2971](https://github.com/pinterest/ktlint/pull/2971), by @renovate[bot]
+
+* chore(deps): update plugin com.gradle.develocity to v4.0.1 - [#2972](https://github.com/pinterest/ktlint/pull/2972), by @renovate[bot]
+
+* fix(deps): update dependency org.jetbrains.kotlin:kotlin-gradle-plugin to v2.2.0-beta2 - [#2977](https://github.com/pinterest/ktlint/pull/2977), by @renovate[bot]
+
+* fix(deps): update dependency org.ec4j.core:ec4j-core to v1.1.1 - [#2987](https://github.com/pinterest/ktlint/pull/2987), by @renovate[bot]
+
+* fix(deps): update dependency dev.drewhamilton.poko:poko-gradle-plugin to v0.18.7 - [#2986](https://github.com/pinterest/ktlint/pull/2986), by @renovate[bot]
+
+* fix(deps): update kotlin monorepo to 2.1.21 - [#2985](https://github.com/pinterest/ktlint/pull/2985), by @renovate[bot]
+
+### 💬 Other
+
+
+* ignore `.kotlin` directory - [#2916](https://github.com/pinterest/ktlint/pull/2916), by @mgroth0
+
 ## [1.5.0] - 2024-12-04
 
 The release of Kotlin 2.1 is the primary reason for publishing this release earlier than planned. Because of the removal of some language elements in Kotlin 2.1, the embedded Kotlin compiler in KtLint blocked Kotlinter users from upgrading to Kotlin 2.1.
@@ -2645,6 +2671,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[1.6.0]: https://github.com/pinterest/ktlint/compare/1.6.0...1.5.0
 [1.5.0]: https://github.com/pinterest/ktlint/compare/1.5.0...1.4.1
 [1.4.1]: https://github.com/pinterest/ktlint/compare/1.4.1...1.4.0
 [1.4.0]: https://github.com/pinterest/ktlint/compare/1.4.0...1.3.1
