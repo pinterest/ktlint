@@ -13,6 +13,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE_ANNOTATION_LIS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.GT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REFERENCE_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
@@ -231,6 +232,7 @@ public class AnnotationRule :
 
             node
                 .takeIf { it.elementType == ANNOTATED_EXPRESSION }
+                ?.takeUnless { it.nextCodeSibling()?.elementType == OPERATION_REFERENCE }
                 ?.lastChildLeafOrSelf()
                 ?.nextCodeLeaf()
                 ?.prevLeaf()

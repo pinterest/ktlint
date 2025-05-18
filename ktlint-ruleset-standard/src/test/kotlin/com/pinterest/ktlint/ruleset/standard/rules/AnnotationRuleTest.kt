@@ -1104,4 +1104,15 @@ class AnnotationRuleTest {
             .withEditorConfigOverride(ANNOTATIONS_WITH_PARAMETERS_NOT_TO_BE_WRAPPED_PROPERTY to "*")
             .hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 2955 - Given an annotated expression followed by an operation reference`() {
+        val code =
+            """
+            fun foo() =
+                @Suppress("DEPRECATION")
+                false != true
+            """.trimIndent()
+        annotationRuleAssertThat(code).hasNoLintViolations()
+    }
 }
