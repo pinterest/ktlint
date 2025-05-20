@@ -50,6 +50,10 @@ Multiple annotations should be on a separate line than the annotated declaration
     }
     ```
 
+| Configuration setting                                                                                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `ktlint_annotation_handle_annotations_with_parameters_same_as_annotations_without_parameters`<br/><i>Handle listed annotations identical to annotations without parameters. Value is a comma separated list of names without the `@` prefix. Use `*` for all annotations with parameters.</i> |     `unset`     |    `unset`    |    `unset`     |
+
 Rule id: `standard:annotation`
 
 Suppress or disable rule (1)
