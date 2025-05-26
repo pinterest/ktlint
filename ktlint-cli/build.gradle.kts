@@ -55,13 +55,9 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
 
     // Find the "ktlint-cli-<version>-all.jar" file
     val ktlintCliAllJarFile =
-        tasks
-            .shadowJar
-            .orNull
-            ?.outputs
-            ?.files
-            ?.singleFile
-            ?: throw GradleException("Can not locate the jar file for building the self-executable ktlint-cli")
+        tasks.shadowJar
+            .get()
+            .outputs.files.singleFile
     logger.lifecycle("ktlint-cli: Base jar to build self-executable file: ${ktlintCliAllJarFile.absolutePath}")
     inputs.files(ktlintCliAllJarFile)
 
