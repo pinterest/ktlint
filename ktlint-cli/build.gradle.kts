@@ -72,6 +72,9 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
         outputs.files(windowsBatchFileOutputPath)
     }
 
+    logger.lifecycle("Creating the signature file: $selfExecutableKtlintSignatureOutputPath")
+    signing.sign(selfExecutableKtlintSignatureOutputPath)
+
     doLast {
         selfExecutableKtlintOutputPath.apply {
             logger.lifecycle("Creating the self-executable file: $selfExecutableKtlintOutputPath")
@@ -99,11 +102,6 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
             appendBytes(ktlintCliAllJarFile.readBytes())
 
             setExecutable(true, false)
-
-            if (isReleaseBuild) {
-                logger.lifecycle("Creating the signature file: $selfExecutableKtlintSignatureOutputPath")
-                signing.sign(this)
-            }
         }
         if (isReleaseBuild) {
             logger.lifecycle("Creating the batch file for Windows OS: $windowsBatchFileOutputPath")
