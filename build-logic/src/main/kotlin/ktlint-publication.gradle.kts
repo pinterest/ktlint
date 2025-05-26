@@ -18,7 +18,7 @@ project.version =
 
 publishing {
     publications {
-        create<MavenPublication>("maven") {
+        register<MavenPublication>("maven") {
             artifactId = localGradleProperty("POM_ARTIFACT_ID").get()
         }
 
