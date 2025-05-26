@@ -61,14 +61,13 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
     logger.lifecycle("ktlint-cli: Base jar to build self-executable file: ${ktlintCliAllJarFile.absolutePath}")
     inputs.files(ktlintCliAllJarFile)
 
-    val windowsBatchFileInputPath = "$projectDir/src/main/scripts/ktlint.bat"
+    val windowsBatchFileInputPath = layout.projectDirectory.file("src/main/scripts/ktlint.bat").asFile
     inputs.files(windowsBatchFileInputPath)
-
     // Output is the self-executable file
-    val outputDirectoryPath = "$buildDir/run"
-    val selfExecutableKtlintOutputPath = "$outputDirectoryPath/ktlint"
-    val selfExecutableKtlintSignatureOutputPath = "$outputDirectoryPath/ktlint.asc"
-    val windowsBatchFileOutputPath = "$outputDirectoryPath/ktlint.bat"
+    val outputDirectoryPath = layout.buildDirectory.dir("run").get().asFile
+    val selfExecutableKtlintOutputPath = outputDirectoryPath.resolve("ktlint")
+    val selfExecutableKtlintSignatureOutputPath = outputDirectoryPath.resolve("ktlint.asc")
+    val windowsBatchFileOutputPath = outputDirectoryPath.resolve("ktlint.bat")
     outputs.files(selfExecutableKtlintOutputPath)
     if (isReleaseBuild) {
         // And for releases also the signature file and a batch file for Windows OS
@@ -77,7 +76,7 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
     }
 
     doLast {
-        File(selfExecutableKtlintOutputPath).apply {
+        selfExecutableKtlintOutputPath.apply {
             logger.lifecycle("Creating the self-executable file: $selfExecutableKtlintOutputPath")
 
             // writeText effective replaces the entire content if the file already exists. If appendText is used, the file keeps on growing
@@ -111,9 +110,7 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
         }
         if (isReleaseBuild) {
             logger.lifecycle("Creating the batch file for Windows OS: $windowsBatchFileOutputPath")
-            File(windowsBatchFileOutputPath).apply {
-                writeText(File(windowsBatchFileInputPath).readText())
-            }
+            windowsBatchFileOutputPath.writeText(windowsBatchFileInputPath.readText())
         }
         logger.lifecycle("Finished creating output files ktlint-cli")
     }
