@@ -56,7 +56,7 @@ publishing {
             name = "mavenCentral"
             url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
 
-            logger.lifecycle("Set publication repository for version $version to $url")
+            logger.info("Set publication repository for version $version to $url")
 
             credentials {
                 username = providers.gradleProperty("SONATYPE_NEXUS_USERNAME").orNull
