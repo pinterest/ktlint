@@ -19,9 +19,14 @@ project.version =
 publishing {
     publications {
         create<MavenPublication>("maven") {
+            artifactId = localGradleProperty("POM_ARTIFACT_ID").get()
+        }
+
+        configureEach {
+            if (this !is MavenPublication) return@configureEach
+
             groupId = localGradleProperty("POM_GROUP_ID").get()
             version = version.toString()
-            artifactId = localGradleProperty("POM_ARTIFACT_ID").get()
 
             pom {
                 name = localGradleProperty("POM_NAME")
