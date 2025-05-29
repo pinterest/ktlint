@@ -51,8 +51,6 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
 
     dependsOn(tasks.shadowJar)
 
-    val isReleaseBuild = !version.toString().endsWith("SNAPSHOT")
-
     // Find the "ktlint-cli-<version>-all.jar" file
     val ktlintCliAllJarFile =
         tasks.shadowJar
@@ -63,17 +61,18 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
 
     val windowsBatchFileInputPath = layout.projectDirectory.file("src/main/scripts/ktlint.bat").asFile
     inputs.files(windowsBatchFileInputPath)
-    // Output is the self-executable file
-    val outputDirectoryPath = layout.buildDirectory.dir("run").get().asFile
+    // Output is the self-executable file, the signature file and a batch file for Windows OS
+    val outputDirectoryPath =
+        layout.buildDirectory
+            .dir("run")
+            .get()
+            .asFile
     val selfExecutableKtlintOutputPath = outputDirectoryPath.resolve("ktlint")
     val selfExecutableKtlintSignatureOutputPath = outputDirectoryPath.resolve("ktlint.asc")
     val windowsBatchFileOutputPath = outputDirectoryPath.resolve("ktlint.bat")
     outputs.files(selfExecutableKtlintOutputPath)
-    if (isReleaseBuild) {
-        // And for releases also the signature file and a batch file for Windows OS
-        outputs.files(selfExecutableKtlintSignatureOutputPath)
-        outputs.files(windowsBatchFileOutputPath)
-    }
+    outputs.files(selfExecutableKtlintSignatureOutputPath)
+    outputs.files(windowsBatchFileOutputPath)
 
     if (signing.isRequired) {
         logger.lifecycle("Creating the signature file: $selfExecutableKtlintSignatureOutputPath")
@@ -108,10 +107,8 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
 
             setExecutable(true, false)
         }
-        if (isReleaseBuild) {
-            logger.lifecycle("Creating the batch file for Windows OS: $windowsBatchFileOutputPath")
-            windowsBatchFileOutputPath.writeText(windowsBatchFileInputPath.readText())
-        }
+        logger.lifecycle("Creating the batch file for Windows OS: $windowsBatchFileOutputPath")
+        windowsBatchFileOutputPath.writeText(windowsBatchFileInputPath.readText())
         logger.lifecycle("Finished creating output files ktlint-cli")
     }
 }
