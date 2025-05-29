@@ -1,6 +1,6 @@
 [versions]
 # The java-compilation version is the latest supported (not necessarily LTS) version of Java. It should be identical to Java-version used in `actions/setup-java`
-java-compilation = "21"
+java-compilation = "24"
 # The java-target version is the lowest supported LTS version of Java. Jar's produced are bytecode compatible with this version.
 java-target = "8"
 kotlin = "2.2.0"
