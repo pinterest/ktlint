@@ -2,70 +2,56 @@
 
 By adding the plugin definition below to the `<plugins>` section in the `pom.xml`:
 
-* The `ktlint` task is bound to the *Maven verify* lifecycle and will be executed each time the `mvn verify` is executed. It can also be executed with command `mvn antrun:run@ktlint`.
-* The `ktlint-format` task is not bound to any other maven lifecycle. It can be executed with command `mvn antrun:run@ktlint-format`.
+* The `ktlint` task is bound to the *Maven compile* lifecycle and will be executed each time the `mvn compile` is executed. It can also be executed with command `mvn exec:exec@ktlint-format`.
 
 See [cli usage](../cli) for arguments that can be supplied to `ktlint`.
 
 ```xml title="Adding plugin to pom.xml"
 ...
 <plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-antrun-plugin</artifactId>
-    <version>3.1.0</version>
-    <executions>
-        <execution>
-            <id>ktlint</id>
-            <phase>verify</phase>
-            <configuration>
-            <target name="ktlint">
-                <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
-                    classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
-                  <!-- Note: the JVM arg below is only required when running ktlint with Java 16+ in format mode.
-                  <jvmarg value="--add-opens=java.base/java.lang=ALL-UNNAMED"/>
-                  -->
-                  <!-- see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information -->
-                  <arg value="src/**/*.kt"/>
-                </java>
-            </target>
-            </configuration>
-            <goals>
-                <goal>run</goal>
-            </goals>
-        </execution>
-        <execution>
-            <id>ktlint-format</id>
-            <configuration>
-            <target name="ktlint">
-                <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
-                    classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
-                    <!-- Note: the JVM args below is only required when running ktlint with Java 16+ in format mode -->
-                    <jvmarg value="--add-opens=java.base/java.lang=ALL-UNNAMED"/>
-                    <!-- see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information -->
-                    <arg value="-F"/>
-                    <arg value="src/**/*.kt"/>
-                </java>
-            </target>
-            </configuration>
-            <goals>
-                <goal>run</goal>
-            </goals>
-        </execution>
-    </executions>
-    <dependencies>
-        <dependency>
-            <groupId>com.pinterest.ktlint</groupId>
-            <artifactId>ktlint-cli</artifactId>
-            <version>1.6.0</version>
-        </dependency>
-        <!-- additional 3rd party ruleset(s) can be specified here -->
-    </dependencies>
+  <groupId>org.codehaus.mojo</groupId>
+  <artifactId>exec-maven-plugin</artifactId>
+  <version>3.5.0</version>
+  <executions>
+    <execution>
+      <!--
+      Format and autocorrect lint errors when possible during compile. This helps in committing autocorrect changes in the
+      same commit as where the original code changes were made.
+      -->
+      <id>ktlint-format</id>
+      <phase>compile</phase>
+      <goals>
+        <goal>exec</goal>
+      </goals>
+    </execution>
+  </executions>
+  <configuration>
+    <includePluginDependencies>true</includePluginDependencies>
+    <executable>java</executable>
+    <arguments>
+      <argument>-classpath</argument>
+      <!-- automatically creates the classpath using all project dependencies, also adding the project build directory -->
+      <classpath/>
+      <argument>com.pinterest.ktlint.Main</argument>
+      <!-- Actual wanted arguments to run ktlint with formatting -->
+      <argument>--format</argument>
+      <argument>--relative</argument>
+    </arguments>
+  </configuration>
+  <dependencies>
+    <dependency>
+      <groupId>com.pinterest.ktlint</groupId>
+      <artifactId>ktlint-cli</artifactId>
+      <version>1.6.0</version>
+      <!-- Use fat jar of ktlint-cli -->
+      <classifier>all</classifier>
+      <type>jar</type>
+    </dependency>
+    <!-- additional 3rd party ruleset(s) can be specified here -->
+  </dependencies>
 </plugin>
 ...
 ```
-
-!!! Tip
-    If you want ktlint to run before code compilation takes place - change `<phase>verify</phase>` to `<phase>validate</phase>` (see [Maven Build Lifecycle](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html) for more).
 
 !!! Info "ktlint-maven-plugin"
     You might be interested to use the dedicated [gantsign/ktlint-maven-plugin](https://github.com/gantsign/ktlint-maven-plugin).
