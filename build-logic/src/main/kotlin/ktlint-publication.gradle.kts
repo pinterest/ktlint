@@ -59,10 +59,10 @@ publishing {
             logger.lifecycle("Set publication repository for version $version to $url")
 
             credentials {
-                username = providers.gradleProperty("SONATYPE_NEXUS_USERNAME").orNull
-                    ?: System.getenv("SONATYPE_NEXUS_USERNAME")
-                password = providers.gradleProperty("SONATYPE_NEXUS_PASSWORD").orNull
-                    ?: System.getenv("SONATYPE_NEXUS_PASSWORD")
+                username = providers.gradleProperty("CENTRAL_PORTAL_USERNAME").orNull
+                    ?: System.getenv("CENTRAL_PORTAL_USERNAME")
+                password = providers.gradleProperty("CENTRAL_PORTAL_TOKEN").orNull
+                    ?: System.getenv("CENTRAL_PORTAL_TOKEN")
             }
         }
 
@@ -71,10 +71,10 @@ publishing {
             url = URI.create("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
 
             credentials {
-                username = providers.gradleProperty("SONATYPE_NEXUS_USERNAME").orNull
-                    ?: System.getenv("SONATYPE_NEXUS_USERNAME")
-                password = providers.gradleProperty("SONATYPE_NEXUS_PASSWORD").orNull
-                    ?: System.getenv("SONATYPE_NEXUS_PASSWORD")
+                username = providers.gradleProperty("CENTRAL_PORTAL_USERNAME").orNull
+                    ?: System.getenv("CENTRAL_PORTAL_USERNAME")
+                password = providers.gradleProperty("CENTRAL_PORTAL_TOKEN").orNull
+                    ?: System.getenv("CENTRAL_PORTAL_TOKEN")
             }
         }
     }
