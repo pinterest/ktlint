@@ -1721,8 +1721,11 @@ Suppress or disable rule (1)
 ## No consecutive comments
 
 Consecutive comments are disallowed in following cases:
+
 - Any mix of a consecutive kdoc, a block comment or an EOL comment unless separated by a blank line in between
+
 - Consecutive KDocs (even when separated by a blank line)
+
 - Consecutive block comments (even when separated by a blank line)
 
 Consecutive EOL comments are always allowed as they are often used instead of a block comment.
