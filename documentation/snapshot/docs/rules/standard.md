@@ -198,7 +198,7 @@ Suppress or disable rule (1)
 
 ## Block comment initial star alignment
 
-Lines in a block comment which (exclusive the indentation) start with a `*` should have this `*` aligned with the `*` in the opening of the block comment.
+Lines in a block comment which (excluding the indentation) start with a `*` should have this `*` aligned with the `*` in the opening of the block comment.
 
 === "[:material-heart:](#) Ktlint"
 
