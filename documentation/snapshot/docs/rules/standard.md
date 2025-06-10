@@ -1812,7 +1812,7 @@ Suppress or disable rule (1)
 
 ## No empty first line at start in class body
 
-Detect blank lines at the start of a class body.
+Detect blank lines at the nostart of a class body.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -2003,7 +2003,7 @@ Suppress or disable rule (1)
 
 ## Modifier order
 
-Consistent order of modifiers
+Requires consistent order of modifiers.
 
 === "[:material-heart:](#) Ktlint"
 
