@@ -1,6 +1,6 @@
 ## Annotation formatting
 
-Multiple annotations should be on a separate line than the annotated declaration; annotations with parameters should each be on separate lines; annotations should be followed by a space
+Multiple annotations should be on a separate line than the annotated declaration. Annotations with parameters should be on separate lines. Annotations should be followed by a space.
 
 === "[:material-heart:](#) Ktlint"
 
