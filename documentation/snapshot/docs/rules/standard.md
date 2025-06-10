@@ -1152,7 +1152,7 @@ Ensures that imports are ordered consistently.
 
 | Configuration setting                                                                                                |          ktlint_official           |            intellij_idea            | android_studio |
 |:---------------------------------------------------------------------------------------------------------------------|:----------------------------------:|:-----------------------------------:|:--------------:|
-| `ij_kotlin_imports_layout`</br><i>Defines imports order layout for Kotlin files</i> For more details see below table. | *,java.**,javax.**,kotlin.**,^ <1> | *,java.**,javax.**,kotlin.**,^ <1>  |     * <2>      |
+| `ij_kotlin_imports_layout`</br><i>Defines imports order layout for Kotlin files</i>. For more details see below table. | *,java.**,javax.**,kotlin.**,^ <1> | *,java.**,javax.**,kotlin.**,^ <1>  |     * <2>      |
 
 ### ij_kotlin_packages_to_use_import_on_demand
 
