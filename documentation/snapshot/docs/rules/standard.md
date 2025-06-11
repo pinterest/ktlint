@@ -3733,7 +3733,7 @@ Suppress or disable rule (1)
 
 ## String template
 
-Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`)
+Enforces consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`)
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3766,7 +3766,7 @@ Suppress or disable rule (1)
 
 ## String template indent
 
-Enforce consistent string template indentation for multiline string templates which are post-fixed with `.trimIndent()`. The opening and closing `"""` are placed on separate lines and the indentation of the content of the template is aligned with the `"""`.
+Enforces consistent string template indentation for multiline string templates which are post-fixed with `.trimIndent()`. The opening and closing `"""` are placed on separate lines and the indentation of the content of the template is aligned with the `"""`.
 
 === "[:material-heart:](#) Ktlint"
 
