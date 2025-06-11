@@ -3245,7 +3245,7 @@ Suppress or disable rule (1)
 
 ### Keyword spacing
 
-Consistent spacing around keywords.
+Requires consistent spacing around keywords.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3286,7 +3286,7 @@ Suppress or disable rule (1)
 
 ### Modifier list spacing
 
-Consistent spacing between modifiers in and after the last modifier in a modifier list.
+Requires consistent spacing between modifiers in and after the last modifier in a modifier list.
 
 === "[:material-heart:](#) Ktlint"
 
