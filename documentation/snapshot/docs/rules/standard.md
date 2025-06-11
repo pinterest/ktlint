@@ -3330,7 +3330,7 @@ Suppress or disable rule (1)
 
 ### Nullable type spacing
 
-No spaces in a nullable type.
+Disallows spaces in a nullable type.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3365,7 +3365,7 @@ Suppress or disable rule (1)
 
 ### Operator spacing
 
-Consistent spacing around operators.
+Requires consistent spacing around operators.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3404,7 +3404,7 @@ Suppress or disable rule (1)
 
 ### Parameter list spacing
 
-Consistent spacing inside the parameter list.
+Requries consistent spacing inside the parameter list.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3445,7 +3445,7 @@ Suppress or disable rule (1)
 
 ### Parenthesis spacing
 
-Consistent spacing around parenthesis.
+Requires consistent spacing around parenthesis.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3486,7 +3486,7 @@ Suppress or disable rule (1)
 
 ### Range spacing
 
-Consistent spacing around range operators.
+Requires consistent spacing around range operators.
 
 === "[:material-heart:](#) Ktlint"
 
