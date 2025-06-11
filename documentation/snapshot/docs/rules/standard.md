@@ -4013,7 +4013,7 @@ Disallows comments to be placed at certain locations inside a type parameter.
     ```
 
 !!! note
-    In some projects it is an accepted practice to use EOL comments to document the parameter *before* the comma as is shown below:
+    In some projects, it is an accepted practice to use EOL comments to document the parameter *before* the comma as is shown below:
     ```kotlin
     class Foo<
         out Bar1, // some comment
