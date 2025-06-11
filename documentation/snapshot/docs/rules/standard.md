@@ -4020,7 +4020,7 @@ Disallows comments to be placed at certain locations inside a type parameter.
         out Bar2, // some other comment
     >
     ```
-   Although this code sample might look ok, it is semantically and programmatically unclear on which parameter `some comment` refers. From the developer perspective it might be clear that it belongs to type `Bar1`. From the parsers perspective, it does belong to type `Bar2`.
+   Although this code sample might look ok, it is semantically and programmatically unclear on which parameter `some comment` refers. From the developer perspective, it might be clear that it belongs to type `Bar1`. From the parsers perspective, it does belong to type `Bar2`.
 
 Rule id: `standard:type-parameter-comment`
 
