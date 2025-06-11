@@ -3609,7 +3609,7 @@ Suppress or disable rule (1)
 
 ### Type argument list spacing
 
-Spacing before and after the angle brackets of a type argument list.
+Disallows spacing before and after the angle brackets of a type argument list.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3650,7 +3650,7 @@ Suppress or disable rule (1)
 
 ### Type parameter list spacing
 
-Spacing after a type parameter list in function and class declarations.
+Disallows spacing after a type parameter list in function and class declarations.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3691,7 +3691,7 @@ Suppress or disable rule (1)
 
 ### Unary operator spacing
 
-No spaces around unary operators.
+Disallows spaces around unary operators.
 
 === "[:material-heart:](#) Ktlint"
 
