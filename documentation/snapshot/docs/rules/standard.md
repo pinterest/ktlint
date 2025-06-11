@@ -3245,7 +3245,7 @@ Suppress or disable rule (1)
 
 ### Keyword spacing
 
-Consistent spacing around keywords.
+Requires consistent spacing around keywords.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3286,7 +3286,7 @@ Suppress or disable rule (1)
 
 ### Modifier list spacing
 
-Consistent spacing between modifiers in and after the last modifier in a modifier list.
+Requires consistent spacing between modifiers in and after the last modifier in a modifier list.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3330,7 +3330,7 @@ Suppress or disable rule (1)
 
 ### Nullable type spacing
 
-No spaces in a nullable type.
+Disallows spaces in a nullable type.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3365,7 +3365,7 @@ Suppress or disable rule (1)
 
 ### Operator spacing
 
-Consistent spacing around operators.
+Requires consistent spacing around operators.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3404,7 +3404,7 @@ Suppress or disable rule (1)
 
 ### Parameter list spacing
 
-Consistent spacing inside the parameter list.
+Requires consistent spacing inside the parameter list.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3445,7 +3445,7 @@ Suppress or disable rule (1)
 
 ### Parenthesis spacing
 
-Consistent spacing around parenthesis.
+Requires consistent spacing around parenthesis.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3486,7 +3486,7 @@ Suppress or disable rule (1)
 
 ### Range spacing
 
-Consistent spacing around range operators.
+Requires consistent spacing around range operators.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3523,7 +3523,7 @@ Suppress or disable rule (1)
 
 ### Spacing between function name and opening parenthesis
 
-Consistent spacing between function name and opening parenthesis.
+Requires consistent spacing between function name and opening parenthesis.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3556,7 +3556,7 @@ Suppress or disable rule (1)
 
 ### Try catch finally spacing
 
-Enforce consistent spacing in `try { .. } catch { .. } finally { .. }`.
+Enforces consistent spacing in `try { .. } catch { .. } finally { .. }`.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3609,7 +3609,7 @@ Suppress or disable rule (1)
 
 ### Type argument list spacing
 
-Spacing before and after the angle brackets of a type argument list.
+Disallows spacing before and after the angle brackets of a type argument list.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3650,7 +3650,7 @@ Suppress or disable rule (1)
 
 ### Type parameter list spacing
 
-Spacing after a type parameter list in function and class declarations.
+Disallows spacing after a type parameter list in function and class declarations.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3691,7 +3691,7 @@ Suppress or disable rule (1)
 
 ### Unary operator spacing
 
-No spaces around unary operators.
+Disallows spaces around unary operators.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3733,7 +3733,7 @@ Suppress or disable rule (1)
 
 ## String template
 
-Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`)
+Enforces consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`)
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3766,7 +3766,7 @@ Suppress or disable rule (1)
 
 ## String template indent
 
-Enforce consistent string template indentation for multiline string templates which are post-fixed with `.trimIndent()`. The opening and closing `"""` are placed on separate lines and the indentation of the content of the template is aligned with the `"""`.
+Enforces consistent string template indentation for multiline string templates which are post-fixed with `.trimIndent()`. The opening and closing `"""` are placed on separate lines and the indentation of the content of the template is aligned with the `"""`.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3824,7 +3824,7 @@ Suppress or disable rule (1)
 
 ## Trailing comma on call site
 
-Consistent removal (default) or adding of trailing commas on call site.
+Enforces consistent removal (default) or adding of trailing commas on call site.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3880,7 +3880,7 @@ Suppress or disable rule (1)
 
 ## Trailing comma on declaration site
 
-Consistent removal (default) or adding of trailing commas on declaration site.
+Enforces consistent removal (default) or adding of trailing commas on declaration site.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -4013,14 +4013,14 @@ Disallows comments to be placed at certain locations inside a type parameter.
     ```
 
 !!! note
-    In some projects it is an accepted practice to use EOL comments to document the parameter *before* the comma as is shown below:
+    In some projects, it is an accepted practice to use EOL comments to document the parameter *before* the comma as is shown below:
     ```kotlin
     class Foo<
         out Bar1, // some comment
         out Bar2, // some other comment
     >
     ```
-   Although this code sample might look ok, it is semantically and programmatically unclear on which parameter `some comment` refers. From the developer perspective it might be clear that it belongs to type `Bar1`. From the parsers perspective, it does belong to type `Bar2`.
+   Although this code sample might look ok, it is semantically and programmatically unclear on which parameter `some comment` refers. From the developer perspective, it might be clear that it belongs to type `Bar1`. From the parsers perspective, it does belong to type `Bar2`.
 
 Rule id: `standard:type-parameter-comment`
 
@@ -4181,7 +4181,7 @@ Suppress or disable rule (1)
 
 ### Argument list wrapping
 
-All arguments should be on the same line, or every argument should be on a separate line.
+All arguments should either be on the same line, or on a separate line.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -4275,7 +4275,7 @@ Suppress or disable rule (1)
 
 ### Comment wrapping
 
-A block comment should start and end on a line that does not contain any other element.
+A block comment must start and end on a line that does not contain any other element.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -4438,7 +4438,7 @@ Suppress or disable rule (1)
 
 ### Enum wrapping
 
-An enum should be a single line, or each enum entry has to be placed on a separate line. In case the enumeration contains enum entries and declarations those are to be separated by a blank line.
+Each individual enum entry should be on a separate line. Multiple enums cannot be on the same line. In case the enumeration contains enum entries and declarations, those are to be separated by a blank line.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -4536,7 +4536,7 @@ Suppress or disable rule (1)
 
 ### Multiline expression wrapping
 
-Multiline expression on the right hand side of an expression are forced to start on a separate line. Expressions in return statement are excluded as that would result in a compilation error.
+Multiline expressions on the right hand side of an expression are forced to start on a separate line. Expressions in return statement are excluded as that would result in a compilation error.
 
 Setting `ktlint_function_signature_body_expression_wrapping` of the `function-signature` rule takes precedence when set to `default`. This setting keeps the first line of a multiline expression body on the same line as the end of function signature as long as the max line length is not exceeded. In that case, this rule does not wrap the multiline expression. 
 
@@ -4670,7 +4670,7 @@ Suppress or disable rule (1)
 
 ### Parameter wrapping
 
-When a function or class parameter doesn't fit on a single line, wrap the type or value to a separate line
+When a function or class parameter doesn't fit on a single line, wrap the type or value to a separate line.
 
 === "[:material-heart:](#) Ktlint (ktlint_official)"
 
@@ -4740,7 +4740,7 @@ Suppress or disable rule (1)
 
 ### Property wrapping
 
-When a property doesn't fit on a single line, wrap the type or value to a separate line
+When a property doesn't fit on a single line, wrap the type or value to a separate line.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -4838,7 +4838,7 @@ Suppress or disable rule (1)
 
 ### Wrapping
 
-Inserts missing newlines (for example between parentheses of a multi-line function call).
+Inserts missing newlines (for example, between parentheses of a multi-line function call).
 
 === "[:material-heart:](#) Ktlint"
 
