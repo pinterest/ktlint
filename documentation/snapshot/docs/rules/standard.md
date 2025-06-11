@@ -4838,7 +4838,7 @@ Suppress or disable rule (1)
 
 ### Wrapping
 
-Inserts missing newlines (for example between parentheses of a multi-line function call).
+Inserts missing newlines (for example, between parentheses of a multi-line function call).
 
 === "[:material-heart:](#) Ktlint"
 
