@@ -4181,7 +4181,7 @@ Suppress or disable rule (1)
 
 ### Argument list wrapping
 
-All arguments should be on the same line, or every argument should be on a separate line.
+All arguments should either be on the same line, or on a separate line.
 
 === "[:material-heart:](#) Ktlint"
 
