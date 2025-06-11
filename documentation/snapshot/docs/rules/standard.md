@@ -3404,7 +3404,7 @@ Suppress or disable rule (1)
 
 ### Parameter list spacing
 
-Requries consistent spacing inside the parameter list.
+Requires consistent spacing inside the parameter list.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3523,7 +3523,7 @@ Suppress or disable rule (1)
 
 ### Spacing between function name and opening parenthesis
 
-Consistent spacing between function name and opening parenthesis.
+Requires consistent spacing between function name and opening parenthesis.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3556,7 +3556,7 @@ Suppress or disable rule (1)
 
 ### Try catch finally spacing
 
-Enforce consistent spacing in `try { .. } catch { .. } finally { .. }`.
+Enforces consistent spacing in `try { .. } catch { .. } finally { .. }`.
 
 === "[:material-heart:](#) Ktlint"
 
