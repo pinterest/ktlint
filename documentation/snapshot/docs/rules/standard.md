@@ -1,6 +1,6 @@
 ## Annotation formatting
 
-Multiple annotations should be on a separate line than the annotated declaration; annotations with parameters should each be on separate lines; annotations should be followed by a space
+Multiple annotations should be on a separate line than the annotated declaration. Annotations with parameters should be on separate lines. Annotations should be followed by a space.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -198,7 +198,7 @@ Suppress or disable rule (1)
 
 ## Block comment initial star alignment
 
-Lines in a block comment which (exclusive the indentation) start with a `*` should have this `*` aligned with the `*` in the opening of the block comment.
+Lines in a block comment which (excluding the indentation) start with a `*` should have this `*` aligned with the `*` in the opening of the block comment.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -1079,7 +1079,7 @@ Suppress or disable rule (1)
 
 ## If else bracing
 
-If at least one branch of an if-else statement or an if-else-if statement is wrapped between curly braces then all branches should be wrapped between braces.
+If at least one branch of an if-else statement or an if-else-if statement is wrapped between curly braces, then all branches should be wrapped between braces.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -1152,7 +1152,7 @@ Ensures that imports are ordered consistently.
 
 | Configuration setting                                                                                                |          ktlint_official           |            intellij_idea            | android_studio |
 |:---------------------------------------------------------------------------------------------------------------------|:----------------------------------:|:-----------------------------------:|:--------------:|
-| `ij_kotlin_imports_layout`</br><i>Defines imports order layout for Kotlin files</i>For more details see below table. | *,java.**,javax.**,kotlin.**,^ <1> | *,java.**,javax.**,kotlin.**,^ <1>  |     * <2>      |
+| `ij_kotlin_imports_layout`</br><i>Defines imports order layout for Kotlin files</i>. For more details see below table. | *,java.**,javax.**,kotlin.**,^ <1> | *,java.**,javax.**,kotlin.**,^ <1>  |     * <2>      |
 
 ### ij_kotlin_packages_to_use_import_on_demand
 
@@ -1721,8 +1721,11 @@ Suppress or disable rule (1)
 ## No consecutive comments
 
 Consecutive comments are disallowed in following cases:
+
 - Any mix of a consecutive kdoc, a block comment or an EOL comment unless separated by a blank line in between
+
 - Consecutive KDocs (even when separated by a blank line)
+
 - Consecutive block comments (even when separated by a blank line)
 
 Consecutive EOL comments are always allowed as they are often used instead of a block comment.
@@ -1809,7 +1812,7 @@ Suppress or disable rule (1)
 
 ## No empty first line at start in class body
 
-Detect blank lines at start of a class body.
+Detect blank lines at the start of a class body.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -2000,7 +2003,7 @@ Suppress or disable rule (1)
 
 ## Modifier order
 
-Consistent order of modifiers
+Requires consistent order of modifiers.
 
 === "[:material-heart:](#) Ktlint"
 
