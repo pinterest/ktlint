@@ -4438,7 +4438,7 @@ Suppress or disable rule (1)
 
 ### Enum wrapping
 
-An enum should be a single line, or each enum entry has to be placed on a separate line. In case the enumeration contains enum entries and declarations those are to be separated by a blank line.
+Each individual enum entry should be on a separate line. Multiple enums cannot be on the same line. In case the enumeration contains enum entries and declarations, those are to be separated by a blank line.
 
 === "[:material-heart:](#) Ktlint"
 
