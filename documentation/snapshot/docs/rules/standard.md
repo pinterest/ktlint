@@ -3824,7 +3824,7 @@ Suppress or disable rule (1)
 
 ## Trailing comma on call site
 
-Consistent removal (default) or adding of trailing commas on call site.
+Enforces consistent removal (default) or adding of trailing commas on call site.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3880,7 +3880,7 @@ Suppress or disable rule (1)
 
 ## Trailing comma on declaration site
 
-Consistent removal (default) or adding of trailing commas on declaration site.
+Enforces consistent removal (default) or adding of trailing commas on declaration site.
 
 === "[:material-heart:](#) Ktlint"
 
