@@ -4670,7 +4670,7 @@ Suppress or disable rule (1)
 
 ### Parameter wrapping
 
-When a function or class parameter doesn't fit on a single line, wrap the type or value to a separate line
+When a function or class parameter doesn't fit on a single line, wrap the type or value to a separate line.
 
 === "[:material-heart:](#) Ktlint (ktlint_official)"
 
