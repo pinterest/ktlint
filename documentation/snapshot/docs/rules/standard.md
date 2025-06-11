@@ -4536,7 +4536,7 @@ Suppress or disable rule (1)
 
 ### Multiline expression wrapping
 
-Multiline expression on the right hand side of an expression are forced to start on a separate line. Expressions in return statement are excluded as that would result in a compilation error.
+Multiline expressions on the right hand side of an expression are forced to start on a separate line. Expressions in return statement are excluded as that would result in a compilation error.
 
 Setting `ktlint_function_signature_body_expression_wrapping` of the `function-signature` rule takes precedence when set to `default`. This setting keeps the first line of a multiline expression body on the same line as the end of function signature as long as the max line length is not exceeded. In that case, this rule does not wrap the multiline expression. 
 
