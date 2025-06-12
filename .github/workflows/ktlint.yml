@@ -1,0 +1,38 @@
+on:
+  pull_request:
+    branches:
+      - master-org-dummy
+  push:
+    branches:
+      - develop
+      - master
+      - main
+      - release-*
+jobs:
+  kotlin-lint:
+    name: kotlin-lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ktlint Github-Check
+        if: ${{ github.event_name == 'push' }}
+        uses: ScaCap/action-ktlint@v1.9.0
+        with:
+          github_token: ${{ secrets.github_token }}
+          reporter: github-check
+          filter_mode: nofilter
+          fail_on_error: true
+          ktlint_version: 1.6.0
+
+      - name: ktlint PR-review
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: ScaCap/action-ktlint@v1.9.0
+        with:
+          github_token: ${{ secrets.github_token }}
+          reporter: github-pr-review
+          filter_mode: file
+          fail_on_error: true
+          ktlint_version: 1.6.0
