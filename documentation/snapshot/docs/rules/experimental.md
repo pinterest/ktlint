@@ -237,7 +237,7 @@ Suppress or disable rule (1)
 
 ## Square brackets spacing
 
-Check for spacing around square brackets.
+Checks for spacing around square brackets.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -287,7 +287,7 @@ Suppress or disable rule (1)
 
 ## When-entry bracing
 
-Enforce consistent usages of braces inside the when-statement. All when-entries in the when-statement should use braces around their bodies in case at least one when-entry has a multiline body, or when the body is surrounded by braces.
+Enforces consistent usages of braces inside the when-statement. All when-entries in the when-statement should use braces around their bodies in case at least one when-entry has a multiline body, or when the body is surrounded by braces.
 
 Braces are helpful for following reasons:
 
