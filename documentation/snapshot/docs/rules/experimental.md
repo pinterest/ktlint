@@ -10,7 +10,7 @@ Also see [enable/disable specific rules](../configuration-ktlint/#disabled-rules
 
 ## Blank line between when-conditions
 
-Consistently add or remove blank line between when-conditions in a when-statement. A blank line is only added between when-conditions if the when-statement contains at lease one multiline when-condition. If a when-statement only contains single line when-conditions, then the blank lines between the when-conditions are removed.
+Consistently add or remove a blank line between when-conditions in a when-statement. A blank line is only added between when-conditions if the when-statement contains at lease one multiline when-condition. If a when-statement only contains single line when-conditions, then the blank lines between the when-conditions are removed.
 
 !!! note
     Ktlint uses `.editorconfig` property `ij_kotlin_line_break_after_multiline_when_entry` but applies it also on single line entries to increase consistency.
@@ -130,7 +130,7 @@ Suppress or disable rule (1)
 KDoc's should only be used on elements for which KDoc is to be transformed to documentation. Normal block comments should be used in other cases.
 
 !!! note:
-Access modifiers are ignored. Strictly speaking, one could argue that private declarations should not have a KDoc as no documentation will be generated for it. However, for internal use of developers the KDoc still serves documentation purposes.
+Access modifiers are ignored. Strictly speaking, one could argue that private declarations should not have a KDoc as no documentation will be generated for it. However, for internal use of developers, the KDoc still serves documentation purposes.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -200,7 +200,7 @@ Suppress or disable rule (1)
 
 ## Mixed condition operators
 
-Conditions should not use a both `&&` and `||` operators between operators at the same level. By using parenthesis the expression is to be clarified.
+Conditions cannot use both `&&` and `||` operators between operators at the same level. By using parenthesis the expression is to be clarified.
 
 === "[:material-heart:](#) Ktlint"
 
