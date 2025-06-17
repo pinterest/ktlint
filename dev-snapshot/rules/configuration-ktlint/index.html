@@ -1311,7 +1311,7 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 <p>Ktlint uses a limited set of <code>.editorconfig</code> properties for additional configuration. A sensible default value is provided for each property when not explicitly defined. Properties can be overridden, provided they are specified under <code>[*.{kt,kts}]</code>. Ktlint uses some properties defined by <a href="https://editorconfig.org/">.editorconfig</a>, IntelliJ IDEA and custom properties.</p>
 <div class="admonition danger">
 <p class="admonition-title">Danger</p>
-<p>Unfortunately <a href="https://www.jetbrains.com/idea/">IntelliJ IDEA</a> has an <a href="https://youtrack.jetbrains.com/issue/IDEA-242506">autoformat issue regarding <code>.editorconfig</code></a>. Due to this error an additional space is added between glob statements, resulting in <code>[*{kt, kts}]</code> instead of <code>[*{kt,kts}]</code>. The <code>.editorconfig</code> library used by <code>ktlint</code> <a href="https://github.com/editorconfig/editorconfig/issues/148">ignores sections after encountering a space in the list</a>. As a result, the rule is not applied on all files as documented in the <a href="https://github.com/pinterest/ktlint/issues/762">original ktlint issue</a>.</p>
+<p>Unfortunately, <a href="https://www.jetbrains.com/idea/">IntelliJ IDEA</a> has an <a href="https://youtrack.jetbrains.com/issue/IDEA-242506">autoformat issue regarding <code>.editorconfig</code></a>. Due to this error, an additional space is added between glob statements, resulting in <code>[*{kt, kts}]</code> instead of <code>[*{kt,kts}]</code>. The <code>.editorconfig</code> library used by <code>ktlint</code> <a href="https://github.com/editorconfig/editorconfig/issues/148">ignores sections after encountering a space in the list</a>. As a result, the rule is not applied on all files as documented in the <a href="https://github.com/pinterest/ktlint/issues/762">original ktlint issue</a>.</p>
 </div>
 <h2 id="code-style">Code style<a class="headerlink" href="#code-style" title="Permanent link">&para;</a></h2>
 <p>By default, the <code>ktlint_official</code> code style is applied. Alternatively, the code style can be set to <code>intellij_idea</code> or <code>android_studio</code>.</p>
@@ -1325,7 +1325,7 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>ktlint_experimental = enabled # Enable all `experimental` rules from all rule sets provided by KtLint or other rule providers
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>ktlint_custom-rule-set = enabled # Enable all rules in the `custom-rule-set` rule set (not provided by KtLint)
 </code></pre></div></p>
-<p>Rules that are marked as experimental will not be run, unless explicitly enabled:
+<p>Rules that are marked as experimental will not run unless explicitly enabled:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>ktlint_experimental = enabled # Enable rules marked as experimental for all rule sets that are enabled
 </code></pre></div></p>
 <p>An individual rule can be enabled or disabled with a rule property. The name of the rule property consists of the <code>ktlint_</code> prefix followed by the rule set id followed by a <code>_</code> and the rule id. Examples:
@@ -1338,7 +1338,7 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 <p>The <em>rule</em> properties are applied after applying the <em>rule set</em> properties and take precedence. So if a rule set is disabled but a specific rule of that rule set is enabled, then the rule will be executed.</p>
 </div>
 <h2 id="rule-specific-configuration-settings">Rule specific configuration settings<a class="headerlink" href="#rule-specific-configuration-settings" title="Permanent link">&para;</a></h2>
-<p>The configuration settings below are used to configure the behavior of a specific rule. As of that, those settings only take effect when the corresponding rule is enabled. See description of rule for more information about the setting.</p>
+<p>The configuration settings below are used to configure the behavior of a specific rule. As of that, those settings only take effect when the corresponding rule is enabled. See the description of the specific rule for more information about the setting.</p>
 <table>
 <thead>
 <tr>
@@ -1417,7 +1417,7 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 <a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">[api/*.{kt,kts}]</span>
 <a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="na">ktlint_standard_indent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">disabled</span>
 </code></pre></div></p>
-<p>Note that in example above the <code>import-ordering</code> rule is disabled for <em>all</em> packages including the <code>api</code> sub package. Next to this the <code>indent</code> rule is disabled for the <code>api</code> package and its sub packages.</p>
+<p>Note: In the example above the <code>import-ordering</code> rule is disabled for <em>all</em> packages, including the <code>api</code> sub package. Next to this, the <code>indent</code> rule is disabled for the <code>api</code> package and its sub packages.</p>
 
 
 
