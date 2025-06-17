@@ -3031,7 +3031,7 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
   <h1>Standard rules</h1>
 
 <h2 id="annotation-formatting">Annotation formatting<a class="headerlink" href="#annotation-formatting" title="Permanent link">&para;</a></h2>
-<p>Multiple annotations should be on a separate line than the annotated declaration; annotations with parameters should each be on separate lines; annotations should be followed by a space</p>
+<p>Multiple annotations should be on a separate line than the annotated declaration. Annotations with parameters should be on separate lines. Annotations should be followed by a space.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint</label><label for="__tabbed_1_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -3238,7 +3238,7 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 <p>This rule is only run when <code>ktlint_code_style</code> is set to <code>ktlint_official</code> or when the rule is enabled explicitly.</p>
 </div>
 <h2 id="block-comment-initial-star-alignment">Block comment initial star alignment<a class="headerlink" href="#block-comment-initial-star-alignment" title="Permanent link">&para;</a></h2>
-<p>Lines in a block comment which (exclusive the indentation) start with a <code>*</code> should have this <code>*</code> aligned with the <code>*</code> in the opening of the block comment.</p>
+<p>Lines in a block comment which (excluding the indentation) start with a <code>*</code> should have this <code>*</code> aligned with the <code>*</code> in the opening of the block comment.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="4:2"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint</label><label for="__tabbed_4_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -4155,7 +4155,7 @@ The other code styles allow an infinite amount of parameters on the same line (a
 </code></pre></div></li>
 </ol>
 <h2 id="if-else-bracing">If else bracing<a class="headerlink" href="#if-else-bracing" title="Permanent link">&para;</a></h2>
-<p>If at least one branch of an if-else statement or an if-else-if statement is wrapped between curly braces then all branches should be wrapped between braces.</p>
+<p>If at least one branch of an if-else statement or an if-else-if statement is wrapped between curly braces, then all branches should be wrapped between braces.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="13:2"><input checked="checked" id="__tabbed_13_1" name="__tabbed_13" type="radio" /><input id="__tabbed_13_2" name="__tabbed_13" type="radio" /><div class="tabbed-labels"><label for="__tabbed_13_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint</label><label for="__tabbed_13_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -4231,7 +4231,7 @@ The other code styles allow an infinite amount of parameters on the same line (a
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><code>ij_kotlin_imports_layout</code></br><i>Defines imports order layout for Kotlin files</i>For more details see below table.</td>
+<td style="text-align: left;"><code>ij_kotlin_imports_layout</code></br><i>Defines imports order layout for Kotlin files</i>. For more details see below table.</td>
 <td style="text-align: center;"><em>,java.</em><em>,javax.</em><em>,kotlin.</em>*,^ &lt;1&gt;</td>
 <td style="text-align: center;"><em>,java.</em><em>,javax.</em><em>,kotlin.</em>*,^ &lt;1&gt;</td>
 <td style="text-align: center;">* &lt;2&gt;</td>
@@ -4794,10 +4794,18 @@ The other code styles allow an infinite amount of parameters on the same line (a
 <p>This rule is only run when <code>ktlint_code_style</code> is set to <code>ktlint_official</code> or when the rule is enabled explicitly.</p>
 </div>
 <h2 id="no-consecutive-comments">No consecutive comments<a class="headerlink" href="#no-consecutive-comments" title="Permanent link">&para;</a></h2>
-<p>Consecutive comments are disallowed in following cases:
-- Any mix of a consecutive kdoc, a block comment or an EOL comment unless separated by a blank line in between
-- Consecutive KDocs (even when separated by a blank line)
-- Consecutive block comments (even when separated by a blank line)</p>
+<p>Consecutive comments are disallowed in following cases:</p>
+<ul>
+<li>
+<p>Any mix of a consecutive kdoc, a block comment or an EOL comment unless separated by a blank line in between</p>
+</li>
+<li>
+<p>Consecutive KDocs (even when separated by a blank line)</p>
+</li>
+<li>
+<p>Consecutive block comments (even when separated by a blank line)</p>
+</li>
+</ul>
 <p>Consecutive EOL comments are always allowed as they are often used instead of a block comment.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="27:2"><input checked="checked" id="__tabbed_27_1" name="__tabbed_27" type="radio" /><input id="__tabbed_27_2" name="__tabbed_27" type="radio" /><div class="tabbed-labels"><label for="__tabbed_27_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint</label><label for="__tabbed_27_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed</label></div>
 <div class="tabbed-content">
@@ -4869,7 +4877,7 @@ The other code styles allow an infinite amount of parameters on the same line (a
 </code></pre></div></li>
 </ol>
 <h2 id="no-empty-first-line-at-start-in-class-body">No empty first line at start in class body<a class="headerlink" href="#no-empty-first-line-at-start-in-class-body" title="Permanent link">&para;</a></h2>
-<p>Detect blank lines at start of a class body.</p>
+<p>Detect blank lines at the start of a class body.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="28:2"><input checked="checked" id="__tabbed_28_1" name="__tabbed_28" type="radio" /><input id="__tabbed_28_2" name="__tabbed_28" type="radio" /><div class="tabbed-labels"><label for="__tabbed_28_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint</label><label for="__tabbed_28_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -5056,7 +5064,7 @@ The other code styles allow an infinite amount of parameters on the same line (a
 </code></pre></div></li>
 </ol>
 <h2 id="modifier-order">Modifier order<a class="headerlink" href="#modifier-order" title="Permanent link">&para;</a></h2>
-<p>Consistent order of modifiers</p>
+<p>Requires consistent order of modifiers.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="32:2"><input checked="checked" id="__tabbed_32_1" name="__tabbed_32" type="radio" /><input id="__tabbed_32_2" name="__tabbed_32" type="radio" /><div class="tabbed-labels"><label for="__tabbed_32_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint</label><label for="__tabbed_32_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
