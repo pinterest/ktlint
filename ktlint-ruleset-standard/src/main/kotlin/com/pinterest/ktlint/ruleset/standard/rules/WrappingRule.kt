@@ -50,7 +50,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.TokenSets
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
@@ -324,7 +324,7 @@ public class WrappingRule :
                 }
             }
             // put entries on separate lines
-            for (c in node.children()) {
+            for (c in node.children20) {
                 if (c.elementType == COMMA &&
                     !c.treeNext.isWhiteSpaceWithNewline20 &&
                     !c.isFollowedByCommentOnSameLine()
@@ -347,7 +347,7 @@ public class WrappingRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        for (c in node.children()) {
+        for (c in node.children20) {
             val hasLineBreak =
                 when (c.elementType) {
                     VALUE_ARGUMENT -> c.hasLineBreak(LAMBDA_EXPRESSION, FUN)
@@ -405,7 +405,7 @@ public class WrappingRule :
         if (node.textContains('\n')) {
             // Each type projection must be preceded with a whitespace containing a newline
             node
-                .children()
+                .children20
                 .filter { it.elementType == TYPE_PROJECTION || it.elementType == TYPE_PARAMETER }
                 .forEach { typeProjection ->
                     typeProjection
@@ -575,7 +575,7 @@ public class WrappingRule :
     }
 
     private fun KtStringTemplateExpression.isMultiLine(): Boolean {
-        for (child in node.children()) {
+        for (child in node.children20) {
             if (child.elementType == LITERAL_STRING_TEMPLATE_ENTRY) {
                 val v = child.text
                 if (v == "\n") {
@@ -592,7 +592,7 @@ public class WrappingRule :
             textContains('\n')
         } else {
             elementType !in ignoreElementTypes &&
-                children().any { c -> c.textContains('\n') && c.elementType !in ignoreElementTypes }
+                children20.any { c -> c.textContains('\n') && c.elementType !in ignoreElementTypes }
         }
     }
 

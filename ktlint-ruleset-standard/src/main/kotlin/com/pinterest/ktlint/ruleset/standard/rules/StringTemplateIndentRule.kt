@@ -22,7 +22,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
@@ -243,7 +243,7 @@ public class StringTemplateIndentRule :
         checkAndFixNewLineAfterOpeningQuotes(node, newIndent, emit)
 
         node
-            .children()
+            .children20
             .filterNot { it.elementType == OPEN_QUOTE }
             .filterNot {
                 // Blank lines inside the string template should not be indented
@@ -370,7 +370,7 @@ public class StringTemplateIndentRule :
 
     private fun ASTNode.containsLiteralStringTemplateEntryWithNewline(): Boolean {
         require(elementType == STRING_TEMPLATE)
-        return children()
+        return children20
             .any { it.elementType == LITERAL_STRING_TEMPLATE_ENTRY && it.text == "\n" }
     }
 

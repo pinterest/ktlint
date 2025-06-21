@@ -19,7 +19,7 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRu
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
@@ -131,7 +131,7 @@ public class FunctionLiteralRule :
     ) {
         val valueParameters =
             parameterList
-                .children()
+                .children20
                 .filter { it.elementType == VALUE_PARAMETER }
         if (valueParameters.count() > 1 || parameterList.wrapFirstParameterToNewline()) {
             if (parameterList.textContains('\n') || parameterList.doesNotFitOnSameLineAsStartOfFunctionLiteral()) {
@@ -209,7 +209,7 @@ public class FunctionLiteralRule :
             //        bar()
             //    }
             val stopAtLeaf =
-                children()
+                children20
                     .first { it.elementType == VALUE_PARAMETER }
                     .lastChildLeafOrSelf()
                     .nextLeaf { !it.isWhiteSpaceWithoutNewline20 && !it.isPartOfComment20 }
@@ -237,7 +237,7 @@ public class FunctionLiteralRule :
     ) {
         require(parameterList.elementType == VALUE_PARAMETER_LIST)
         parameterList
-            .children()
+            .children20
             .filter { it.elementType == VALUE_PARAMETER }
             .forEach { wrapValueParameter(it, emit) }
         parameterList

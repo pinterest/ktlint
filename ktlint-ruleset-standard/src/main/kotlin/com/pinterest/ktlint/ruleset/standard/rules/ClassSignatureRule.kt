@@ -27,7 +27,7 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAsLateA
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
@@ -135,7 +135,7 @@ public class ClassSignatureRule :
 
     private fun ASTNode.superTypes() =
         findChildByType(SUPER_TYPE_LIST)
-            ?.children()
+            ?.children20
             ?.filterNot { it.isWhiteSpace20 || it.isPartOfComment20 || it.elementType == COMMA }
 
     private fun ASTNode.hasMultilineSuperTypeList() = findChildByType(SUPER_TYPE_LIST)?.textContains('\n') == true
@@ -143,7 +143,7 @@ public class ClassSignatureRule :
     private fun ASTNode.getFirstChildInSignature(): ASTNode? {
         findChildByType(MODIFIER_LIST)
             ?.let { modifierList ->
-                val iterator = modifierList.children().iterator()
+                val iterator = modifierList.children20.iterator()
                 var currentNode: ASTNode
                 while (iterator.hasNext()) {
                     currentNode = iterator.next()
@@ -180,7 +180,7 @@ public class ClassSignatureRule :
 
     private fun ASTNode.containsEolComment() =
         getPrimaryConstructorParameterListOrNull()
-            ?.children()
+            ?.children20
             ?.any { it.elementType == EOL_COMMENT }
             ?: false
 
@@ -213,21 +213,21 @@ public class ClassSignatureRule :
 
     private fun ASTNode.containsMultilineParameter(): Boolean =
         getPrimaryConstructorParameterListOrNull()
-            ?.children()
+            ?.children20
             .orEmpty()
             .filter { it.elementType == VALUE_PARAMETER }
             .any { it.textContains('\n') }
 
     private fun ASTNode.containsAnnotatedParameter(): Boolean =
         getPrimaryConstructorParameterListOrNull()
-            ?.children()
+            ?.children20
             .orEmpty()
             .filter { it.elementType == VALUE_PARAMETER }
             .any { it.isAnnotated() }
 
     private fun ASTNode.isAnnotated() =
         findChildByType(MODIFIER_LIST)
-            ?.children()
+            ?.children20
             .orEmpty()
             .any { it.elementType == ANNOTATION_ENTRY }
 
@@ -242,7 +242,7 @@ public class ClassSignatureRule :
         val primaryConstructorParameterList = node.getPrimaryConstructorParameterListOrNull()
         val hasNoValueParameters =
             primaryConstructorParameterList
-                ?.children()
+                ?.children20
                 .orEmpty()
                 .none { it.elementType == VALUE_PARAMETER }
 
@@ -300,7 +300,7 @@ public class ClassSignatureRule :
         return whiteSpaceCorrection
     }
 
-    private fun ASTNode.containsComment() = children().any { it.isPartOfComment20 }
+    private fun ASTNode.containsComment() = children20.any { it.isPartOfComment20 }
 
     private fun fixWhiteSpacesBeforeFirstParameterInValueParameterList(
         node: ASTNode,
@@ -313,7 +313,7 @@ public class ClassSignatureRule :
         val valueParameterList = node.getPrimaryConstructorParameterListOrNull()
         val firstParameterInList =
             valueParameterList
-                ?.children()
+                ?.children20
                 ?.first { it.elementType == VALUE_PARAMETER }
                 ?: return 0
 
@@ -366,12 +366,12 @@ public class ClassSignatureRule :
         val valueParameterList = node.getPrimaryConstructorParameterListOrNull()
         val firstParameterInList =
             valueParameterList
-                ?.children()
+                ?.children20
                 ?.first { it.elementType == VALUE_PARAMETER }
                 ?: return 0
 
         valueParameterList
-            .children()
+            .children20
             .filter { it.elementType == VALUE_PARAMETER }
             .filter { it != firstParameterInList }
             .forEach { valueParameter ->
@@ -654,7 +654,7 @@ public class ClassSignatureRule :
         if (isLeaf20) {
             listOf(this)
         } else {
-            children()
+            children20
                 .flatMap { it.collectLeavesRecursively() }
                 .toList()
         }
@@ -692,7 +692,7 @@ public class ClassSignatureRule :
 
     private fun ASTNode.countParameters() =
         getPrimaryConstructorParameterListOrNull()
-            ?.children()
+            ?.children20
             .orEmpty()
             .count { it.elementType == VALUE_PARAMETER }
 

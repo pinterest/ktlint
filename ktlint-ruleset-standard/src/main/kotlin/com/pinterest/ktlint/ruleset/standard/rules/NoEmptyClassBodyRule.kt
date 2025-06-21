@@ -9,7 +9,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -32,7 +32,7 @@ public class NoEmptyClassBodyRule : StandardRule("no-empty-class-body") {
             node
                 .treeParent
                 .firstChildNode
-                .children()
+                .children20
                 .none { it.text == "companion" }
         ) {
             emit(node.startOffset, "Unnecessary block (\"{}\")", true)

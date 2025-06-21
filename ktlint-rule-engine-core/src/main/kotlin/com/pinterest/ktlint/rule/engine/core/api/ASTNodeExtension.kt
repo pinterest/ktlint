@@ -328,14 +328,24 @@ public fun ASTNode.isPartOfComment(): Boolean = isPartOfComment20
 public val ASTNode.isPartOfComment20
     get(): Boolean = isPartOf(TokenSets.COMMENTS)
 
-public fun ASTNode.children(): Sequence<ASTNode> = generateSequence(firstChildNode) { node -> node.treeNext }
+@Deprecated(
+    "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
+        "the temporary property accessor. In 2.0 it can be replaced the final property accessor which will be the same as the " +
+        "current function name.",
+    replaceWith = ReplaceWith("children20"),
+)
+public fun ASTNode.children(): Sequence<ASTNode> = children20
+
+// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+public val ASTNode.children20
+    get(): Sequence<ASTNode> = generateSequence(firstChildNode) { node -> node.treeNext }
 
 public fun ASTNode.recursiveChildren(includeSelf: Boolean = false): Sequence<ASTNode> =
     sequence {
         if (includeSelf) {
             yield(this@recursiveChildren)
         }
-        children().forEach { yieldAll(it.recursiveChildren(includeSelf = true)) }
+        this@recursiveChildren.children20.forEach { yieldAll(it.recursiveChildren(includeSelf = true)) }
     }
 
 /**
@@ -475,7 +485,7 @@ public fun ASTNode.indent(includeNewline: Boolean = true): String =
 public fun ASTNode.logStructure(): ASTNode =
     also {
         println("Processing ${text.replaceTabAndNewline()} : Type $elementType with parent ${treeParent?.elementType} ")
-        children()
+        children20
             .toList()
             .map {
                 println("  ${it.text.replaceTabAndNewline()} : Type ${it.elementType}")
@@ -654,7 +664,7 @@ public fun ASTNode.betweenCodeSiblings(
 
 public fun ASTNode.hasModifier(iElementType: IElementType): Boolean =
     findChildByType(ElementType.MODIFIER_LIST)
-        ?.children()
+        ?.children20
         .orEmpty()
         .any { it.elementType == iElementType }
 

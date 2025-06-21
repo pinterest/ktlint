@@ -91,7 +91,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.TokenSets
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.column
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
@@ -1053,11 +1053,11 @@ public class IndentationRule :
         return findChildByType(MODIFIER_LIST)
             ?.let { modifierList ->
                 modifierList
-                    .children()
+                    .children20
                     .firstOrNull { !it.isWhiteSpace20 && !it.isPartOfComment20 && it.elementType != ANNOTATION_ENTRY }
                     ?: modifierList.nextCodeSibling()
             }
-            ?: children().firstOrNull { !it.isWhiteSpace20 && !it.isPartOfComment20 }
+            ?: children20.firstOrNull { !it.isWhiteSpace20 && !it.isPartOfComment20 }
             ?: this
     }
 
@@ -1484,7 +1484,7 @@ private class StringTemplateIndenter(
                         expectedIndent
                     }
                 node
-                    .children()
+                    .children20
                     .filter { it.isIndentBeforeClosingQuote() }
                     .forEach {
                         if (it.prevLeaf()?.text == "\n") {
@@ -1532,7 +1532,7 @@ private class StringTemplateIndenter(
             .let { it?.elementType == CALL_EXPRESSION && it.text == callExpressionName }
 
     private fun ASTNode.isMultiLine(): Boolean =
-        children()
+        children20
             .filter { it.elementType == LITERAL_STRING_TEMPLATE_ENTRY }
             .any { it.text == "\n" }
 

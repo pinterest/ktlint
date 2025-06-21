@@ -6,7 +6,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isRoot20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
@@ -36,7 +36,7 @@ public class NoEmptyFileRule : StandardRule(id = "no-empty-file") {
 
     private fun ASTNode.isEmptyFile(): Boolean =
         null ==
-            children()
+            children20
                 .firstOrNull {
                     !it.isWhiteSpace20 &&
                         !it.isPartOfComment20 &&

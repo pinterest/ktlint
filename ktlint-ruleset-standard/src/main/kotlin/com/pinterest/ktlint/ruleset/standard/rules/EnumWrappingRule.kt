@@ -13,7 +13,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
@@ -111,26 +111,26 @@ public class EnumWrappingRule :
     private fun ASTNode.isMultiline() = text.contains('\n')
 
     private fun ASTNode.hasAnnotatedEnumEntry() =
-        children()
+        children20
             .filter { it.elementType == ENUM_ENTRY }
             .any { it.isAnnotated() }
 
     private fun ASTNode.isAnnotated(): Boolean =
         findChildByType(MODIFIER_LIST)
-            ?.children()
+            ?.children20
             .orEmpty()
             .any { it.elementType == ANNOTATION_ENTRY }
 
-    private fun ASTNode.hasCommentedEnumEntry() = children().any { it.containsCommentInEnumEntry() }
+    private fun ASTNode.hasCommentedEnumEntry() = children20.any { it.containsCommentInEnumEntry() }
 
-    private fun ASTNode.containsCommentInEnumEntry() = children().any { it.isPartOfComment20 }
+    private fun ASTNode.containsCommentInEnumEntry() = children20.any { it.isPartOfComment20 }
 
     private fun wrapEnumEntries(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .children()
+            .children20
             .filter { it.elementType == ENUM_ENTRY }
             .forEach { enumEntry ->
                 wrapEnumEntry(enumEntry, emit)
@@ -175,7 +175,7 @@ public class EnumWrappingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .children()
+            .children20
             .lastOrNull { it.elementType == ENUM_ENTRY }
             ?.nextSibling { !it.isPartOfComment20 }
             ?.takeUnless { it.nextCodeSibling()?.elementType == RBRACE }

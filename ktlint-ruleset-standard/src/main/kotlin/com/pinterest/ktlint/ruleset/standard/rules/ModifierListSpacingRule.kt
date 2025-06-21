@@ -9,7 +9,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -31,7 +31,7 @@ public class ModifierListSpacingRule : StandardRule("modifier-list-spacing") {
     ) {
         if (node.elementType == MODIFIER_LIST) {
             node
-                .children()
+                .children20
                 .forEach { visitModifierChild(it, emit) }
             // The whitespace of the last entry of the modifier list is actually placed outside the modifier list
             visitModifierChild(node, emit)

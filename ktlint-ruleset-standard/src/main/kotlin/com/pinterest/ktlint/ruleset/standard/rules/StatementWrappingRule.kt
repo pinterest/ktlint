@@ -18,7 +18,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
@@ -155,7 +155,7 @@ public class StatementWrappingRule :
             takeIf { elementType == FUNCTION_LITERAL }
                 ?.takeUnless { it.textContains('\n') }
                 ?.findChildByType(BLOCK)
-                ?.children()
+                ?.children20
                 ?.count { it.elementType != VALUE_PARAMETER_LIST && it.elementType != ARROW }
                 ?.let { count -> count <= 1 }
                 ?: false
@@ -174,7 +174,7 @@ public class StatementWrappingRule :
         get() =
             // Skip the comment on top of the node by getting modifier list
             findChildByType(MODIFIER_LIST)
-                ?.children()
+                ?.children20
                 ?.dropWhile {
                     // Ignore annotations placed on separate lines above the node
                     it.elementType == ANNOTATION_ENTRY || it.isWhiteSpace20

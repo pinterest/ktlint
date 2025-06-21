@@ -26,7 +26,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
@@ -161,7 +161,7 @@ public class FunctionSignatureRule :
         funNode
             ?.findChildByType(MODIFIER_LIST)
             ?.let { modifierList ->
-                val iterator = modifierList.children().iterator()
+                val iterator = modifierList.children20.iterator()
                 var currentNode: ASTNode
                 while (iterator.hasNext()) {
                     currentNode = iterator.next()
@@ -263,21 +263,21 @@ public class FunctionSignatureRule :
 
     private fun ASTNode.containsMultilineParameter(): Boolean =
         findChildByType(VALUE_PARAMETER_LIST)
-            ?.children()
+            ?.children20
             .orEmpty()
             .filter { it.elementType == VALUE_PARAMETER }
             .any { it.textContains('\n') }
 
     private fun ASTNode.containsAnnotatedParameter(): Boolean =
         findChildByType(VALUE_PARAMETER_LIST)
-            ?.children()
+            ?.children20
             .orEmpty()
             .filter { it.elementType == VALUE_PARAMETER }
             .any { it.isAnnotated() }
 
     private fun ASTNode.isAnnotated() =
         findChildByType(MODIFIER_LIST)
-            ?.children()
+            ?.children20
             .orEmpty()
             .any { it.elementType == ANNOTATION_ENTRY }
 
@@ -317,7 +317,7 @@ public class FunctionSignatureRule :
         val valueParameterList = requireNotNull(node.findChildByType(VALUE_PARAMETER_LIST))
         val firstParameterInList =
             valueParameterList
-                .children()
+                .children20
                 .firstOrNull { it.elementType == VALUE_PARAMETER }
 
         whiteSpaceCorrection +=
@@ -343,7 +343,7 @@ public class FunctionSignatureRule :
         val valueParameterList = requireNotNull(node.findChildByType(VALUE_PARAMETER_LIST))
 
         valueParameterList
-            .children()
+            .children20
             .filter { it.elementType != LPAR && it.elementType != RPAR }
             .also { elementsInValueParameterList ->
                 // Functions with comments in the value parameter list are excluded from processing before. So an "empty" value
@@ -376,7 +376,7 @@ public class FunctionSignatureRule :
         val valueParameterList = requireNotNull(node.findChildByType(VALUE_PARAMETER_LIST))
         val firstParameterInList =
             valueParameterList
-                .children()
+                .children20
                 .first { it.elementType == VALUE_PARAMETER }
 
         val firstParameter = firstParameterInList.firstChildNode
@@ -430,11 +430,11 @@ public class FunctionSignatureRule :
         val valueParameterList = requireNotNull(node.findChildByType(VALUE_PARAMETER_LIST))
         val firstParameterInList =
             valueParameterList
-                .children()
+                .children20
                 .first { it.elementType == VALUE_PARAMETER }
 
         valueParameterList
-            .children()
+            .children20
             .filter { it.elementType == VALUE_PARAMETER }
             .filter { it != firstParameterInList }
             .forEach { valueParameter ->
@@ -703,7 +703,7 @@ public class FunctionSignatureRule :
         if (isLeaf20) {
             listOf(this)
         } else {
-            children()
+            children20
                 .flatMap { it.collectLeavesRecursively() }
                 .toList()
         }
@@ -743,7 +743,7 @@ public class FunctionSignatureRule :
     private fun ASTNode.countParameters(): Int {
         val valueParameterList = requireNotNull(findChildByType(VALUE_PARAMETER_LIST))
         return valueParameterList
-            .children()
+            .children20
             .count { it.elementType == VALUE_PARAMETER }
     }
 

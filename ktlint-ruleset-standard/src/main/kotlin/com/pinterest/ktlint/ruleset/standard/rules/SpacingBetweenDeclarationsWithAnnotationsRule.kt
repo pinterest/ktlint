@@ -8,7 +8,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isDeclaration
@@ -61,7 +61,7 @@ public class SpacingBetweenDeclarationsWithAnnotationsRule : StandardRule("spaci
 
     private fun ASTNode.isAnnotated(): Boolean =
         findChildByType(MODIFIER_LIST)
-            ?.children()
+            ?.children20
             ?.any { it.elementType == ANNOTATION_ENTRY }
             ?: false
 

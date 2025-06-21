@@ -9,7 +9,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
@@ -73,7 +73,7 @@ public class BlankLineBetweenWhenConditions :
         emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .children()
+            .children20
             .filter { it.elementType == WHEN_ENTRY }
             // Blank lines should only be added *between* when-conditions, so first when-condition is to be skipped
             .drop(1)
@@ -96,7 +96,7 @@ public class BlankLineBetweenWhenConditions :
     private fun ASTNode.containsBlankLine(): Boolean = elementType == WHITE_SPACE && text.count { it == '\n' } > 1
 
     private fun ASTNode.hasAnyMultilineWhenCondition() =
-        children()
+        children20
             .any { it.elementType == WHEN_ENTRY && (it.textContains('\n') || it.isPrecededByComment()) }
 
     private fun ASTNode.isPrecededByComment() = prevSibling { !it.isWhiteSpace20 }?.isPartOfComment20 ?: false
@@ -111,7 +111,7 @@ public class BlankLineBetweenWhenConditions :
         emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .children()
+            .children20
             .filter { it.elementType == WHEN_ENTRY }
             // Blank lines should only be removed *between* when-conditions, so first when-condition is to be skipped
             .drop(1)

@@ -13,7 +13,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
@@ -75,7 +75,7 @@ public class WhenEntryBracing :
         }
     }
 
-    private fun ASTNode.hasAnyWhenEntryWithBlockAfterArrow() = children().any { it.elementType == WHEN_ENTRY && it.hasBlockAfterArrow() }
+    private fun ASTNode.hasAnyWhenEntryWithBlockAfterArrow() = children20.any { it.elementType == WHEN_ENTRY && it.hasBlockAfterArrow() }
 
     private fun ASTNode.hasBlockAfterArrow(): Boolean {
         require(elementType == WHEN_ENTRY)
@@ -85,7 +85,7 @@ public class WhenEntryBracing :
             .any { it.elementType == BLOCK }
     }
 
-    private fun ASTNode.hasAnyWhenEntryWithMultilineBody() = children().any { it.elementType == WHEN_ENTRY && it.hasMultilineBody() }
+    private fun ASTNode.hasAnyWhenEntryWithMultilineBody() = children20.any { it.elementType == WHEN_ENTRY && it.hasMultilineBody() }
 
     private fun ASTNode.hasMultilineBody(): Boolean {
         require(elementType == WHEN_ENTRY)
@@ -100,7 +100,7 @@ public class WhenEntryBracing :
         emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .children()
+            .children20
             .filter { it.elementType == WHEN_ENTRY }
             .filter { !it.hasBlockAfterArrow() }
             .forEach { whenEntry ->

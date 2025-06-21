@@ -11,7 +11,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPEALIAS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.isRoot20
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.internal.regExIgnoringDiacriticsAndStrokesOnLetters
@@ -99,7 +99,7 @@ public class FilenameRule : StandardRule("filename") {
     }
 
     private fun ASTNode.topLevelDeclarations(elementType: IElementType? = null): List<TopLevelDeclaration> =
-        children()
+        children20
             .filter { elementType == null || it.elementType == elementType }
             .filter { it.doesNotHavePrivateModifier() }
             .mapNotNull { it.toTopLevelDeclaration() }
@@ -108,12 +108,12 @@ public class FilenameRule : StandardRule("filename") {
 
     private fun ASTNode.doesNotHavePrivateModifier(): Boolean =
         findChildByType(MODIFIER_LIST)
-            ?.children()
+            ?.children20
             ?.none { it.text == "private" }
             ?: true
 
     private fun ASTNode.hasTopLevelDeclarationNotExtending(className: String) =
-        children()
+        children20
             .filter { it.doesNotHavePrivateModifier() }
             .any { it.isNotClassRelatedTopLevelDeclaration() || it.isFunctionNotExtending(className) }
 

@@ -15,7 +15,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.SafeEnumValueParser
@@ -120,7 +120,7 @@ public class PropertyNamingRule :
 
     private fun ASTNode.isTopLevelValue() = treeParent.elementType == FILE && containsValKeyword()
 
-    private fun ASTNode.containsValKeyword() = children().any { it.elementType == VAL_KEYWORD }
+    private fun ASTNode.containsValKeyword() = children20.any { it.elementType == VAL_KEYWORD }
 
     private fun ASTNode.isObjectValue() =
         treeParent.elementType == CLASS_BODY &&

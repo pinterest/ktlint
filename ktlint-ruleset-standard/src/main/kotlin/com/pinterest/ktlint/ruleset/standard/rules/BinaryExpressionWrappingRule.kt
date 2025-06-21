@@ -20,7 +20,7 @@ import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
@@ -137,7 +137,7 @@ public class BinaryExpressionWrappingRule :
 
         // When left hand side is a call expression which causes the max line length to be exceeded then first wrap that expression
         node
-            .children()
+            .children20
             .firstOrNull { !it.isCodeLeaf() }
             ?.takeIf { it.elementType == CALL_EXPRESSION }
             ?.takeIf { it.causesMaxLineLengthToBeExceeded() }

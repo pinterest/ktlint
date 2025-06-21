@@ -19,7 +19,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CommaSeparatedListValueParser
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
@@ -139,7 +139,7 @@ public class FunctionNamingRule :
      */
     private fun ASTNode.isOverrideFunction() =
         findChildByType(MODIFIER_LIST)
-            ?.children()
+            ?.children20
             .orEmpty()
             .any { it.elementType == OVERRIDE_KEYWORD }
 
@@ -148,7 +148,7 @@ public class FunctionNamingRule :
 
     private fun ASTNode?.containsAnnotationEntryWithIdentifierIn(excludeWhenAnnotatedWith: Set<String>): Boolean =
         this
-            ?.children()
+            ?.children20
             ?.any {
                 when (it.elementType) {
                     ANNOTATION -> {

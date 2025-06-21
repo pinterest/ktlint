@@ -20,6 +20,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.test.SPACE
 import org.assertj.core.api.Assertions.assertThat
@@ -1161,13 +1162,13 @@ class ASTNodeExtensionTest {
         fileASTNode
             .findChildByType(CLASS)
             ?.findChildByType(CLASS_BODY)
-            ?.children()
+            ?.children20
             .orEmpty()
 
     private fun toEnumClassSequence(fileASTNode: FileASTNode) =
         fileASTNode
             .findChildByType(CLASS)
-            ?.children()
+            ?.children20
             .orEmpty()
 
     /**

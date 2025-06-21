@@ -18,7 +18,7 @@ import com.pinterest.ktlint.rule.engine.core.api.KtlintKotlinCompiler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
@@ -76,7 +76,7 @@ public class StringTemplateRule : StandardRule("string-template") {
 
     private fun ASTNode.splitCodeChildren(): Triple<ASTNode, ASTNode, ASTNode> {
         require(elementType == DOT_QUALIFIED_EXPRESSION)
-        return children()
+        return children20
             .filter { !it.isWhiteSpace20 && !it.isPartOfComment20 }
             .toList()
             .also { require(it.size == 3) }
@@ -87,7 +87,7 @@ public class StringTemplateRule : StandardRule("string-template") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         takeIf { it.isStringTemplate() }
-            ?.children()
+            ?.children20
             ?.firstOrNull { it.elementType != LONG_TEMPLATE_ENTRY_START }
             ?.takeIf { it.elementType == REFERENCE_EXPRESSION || it.elementType == THIS_EXPRESSION }
             ?.let {

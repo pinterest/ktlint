@@ -31,7 +31,7 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRu
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
@@ -165,10 +165,10 @@ public class ChainMethodContinuationRule :
 
     private fun ASTNode.isNestedReferenceExpression(): Boolean =
         elementType == DOT_QUALIFIED_EXPRESSION &&
-            children().first().let { it.elementType == REFERENCE_EXPRESSION || it.hasRightHandSideReferenceExpression() } &&
+            children20.first().let { it.elementType == REFERENCE_EXPRESSION || it.hasRightHandSideReferenceExpression() } &&
             hasRightHandSideReferenceExpression()
 
-    private fun ASTNode.hasRightHandSideReferenceExpression() = children().last().elementType == REFERENCE_EXPRESSION
+    private fun ASTNode.hasRightHandSideReferenceExpression() = children20.last().elementType == REFERENCE_EXPRESSION
 
     private fun ChainedExpression.wrapBeforeChainOperator() =
         when {
@@ -259,7 +259,7 @@ public class ChainMethodContinuationRule :
             ?.findChildByType(LBRACE)
     }
 
-    private fun ASTNode.isPrecededByComment() = treeParent.children().any { it.isPartOfComment20 }
+    private fun ASTNode.isPrecededByComment() = treeParent.children20.any { it.isPartOfComment20 }
 
     private fun insertWhiteSpaceBeforeChainOperator(
         chainOperator: ASTNode,
@@ -314,7 +314,7 @@ public class ChainMethodContinuationRule :
     private fun ASTNode.isPartOfMultilineStringTemplate() =
         treeParent
             .takeIf { it.elementType == STRING_TEMPLATE }
-            ?.children()
+            ?.children20
             ?.any { it.text == "\n" }
             ?: false
 
@@ -408,7 +408,7 @@ public class ChainMethodContinuationRule :
             private fun ASTNode.toChainedExpression(): ChainedExpression? =
                 when (elementType) {
                     DOT_QUALIFIED_EXPRESSION, SAFE_ACCESS_EXPRESSION -> {
-                        children()
+                        children20
                             .find { it.elementType in chainOperatorTokenSet }
                             ?.let { chainOperator ->
                                 createBaseChainedExpression(chainOperator).let { chainedExpression ->
@@ -422,7 +422,7 @@ public class ChainMethodContinuationRule :
                     }
 
                     CALL_EXPRESSION, ARRAY_ACCESS_EXPRESSION, PREFIX_EXPRESSION, POSTFIX_EXPRESSION -> {
-                        children()
+                        children20
                             .mapNotNull { it.toChainedExpression() }
                             .singleOrNull()
                     }

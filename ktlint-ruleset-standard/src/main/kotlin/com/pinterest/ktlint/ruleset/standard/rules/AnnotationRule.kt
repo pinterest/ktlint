@@ -29,7 +29,7 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRu
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CommaSeparatedListValueParser
@@ -180,7 +180,7 @@ public class AnnotationRule :
                 }
 
             node
-                .children()
+                .children20
                 .filter { it.elementType == ANNOTATION_ENTRY }
                 .filter {
                     it.isAnnotationEntryWithValueArgumentListThatShouldBeWrapped() ||
@@ -215,7 +215,7 @@ public class AnnotationRule :
                 }
 
             node
-                .children()
+                .children20
                 .lastOrNull { it.elementType == ANNOTATION_ENTRY }
                 ?.lastChildLeafOrSelf()
                 ?.nextCodeLeaf()
@@ -255,7 +255,7 @@ public class AnnotationRule :
 
     private fun ASTNode.hasAnnotationWithParameter(): Boolean {
         require(elementType in ANNOTATION_CONTAINER)
-        return children()
+        return children20
             .any {
                 it.isAnnotationEntryWithValueArgumentListThatShouldBeWrapped() &&
                     it.treeParent.treeParent.elementType != VALUE_PARAMETER &&
@@ -266,7 +266,7 @@ public class AnnotationRule :
 
     private fun ASTNode.hasMultipleAnnotationsOnSameLine(): Boolean {
         require(elementType in ANNOTATION_CONTAINER)
-        return children()
+        return children20
             .any {
                 it.treeParent.elementType != ANNOTATION &&
                     it.treeParent.treeParent.elementType != VALUE_PARAMETER &&
@@ -286,14 +286,14 @@ public class AnnotationRule :
             hasAnnotationEntry() &&
             nextCodeSibling()?.elementType == CONSTRUCTOR_KEYWORD
 
-    private fun ASTNode.hasAnnotationEntry() = children().any { it.elementType == ANNOTATION_ENTRY }
+    private fun ASTNode.hasAnnotationEntry() = children20.any { it.elementType == ANNOTATION_ENTRY }
 
     private fun visitTypeArgumentList(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .children()
+            .children20
             .filter { it.elementType == TYPE_PROJECTION }
             .mapNotNull { it.findChildByType(TYPE_REFERENCE) }
             .filter { it.elementType == TYPE_REFERENCE }
@@ -308,7 +308,7 @@ public class AnnotationRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .children()
+            .children20
             .filter { it.elementType == TYPE_PROJECTION }
             .forEach { typeProjection ->
                 val prevLeaf = typeProjection.prevLeaf().takeIf { it.isWhiteSpace20 }
@@ -403,7 +403,7 @@ public class AnnotationRule :
     private fun ASTNode.isLastAnnotationEntry() =
         this ==
             treeParent
-                .children()
+                .children20
                 .lastOrNull { it.elementType == ANNOTATION_ENTRY }
 
     private fun ASTNode.isPrecededByOtherAnnotationEntryWithoutParametersOnTheSameLine() =

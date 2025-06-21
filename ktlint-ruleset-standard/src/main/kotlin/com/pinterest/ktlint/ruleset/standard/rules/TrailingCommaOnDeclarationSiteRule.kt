@@ -19,7 +19,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.hasModifier
@@ -105,7 +105,7 @@ public class TrailingCommaOnDeclarationSiteRule :
     ) {
         val inspectNode =
             node
-                .children()
+                .children20
                 .last { it.elementType == ElementType.RPAR }
         node.reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
@@ -122,7 +122,7 @@ public class TrailingCommaOnDeclarationSiteRule :
     ) {
         val inspectNode =
             node
-                .children()
+                .children20
                 .lastOrNull { it.elementType == ARROW }
                 ?: // lambda w/o an arrow -> no arguments -> no commas
                 return
@@ -139,7 +139,7 @@ public class TrailingCommaOnDeclarationSiteRule :
     ) {
         if (node.treeParent.elementType != FUNCTION_LITERAL) {
             node
-                .children()
+                .children20
                 .lastOrNull { it.elementType == ElementType.RPAR }
                 ?.let { inspectNode ->
                     node.reportAndCorrectTrailingCommaNodeBefore(
@@ -157,7 +157,7 @@ public class TrailingCommaOnDeclarationSiteRule :
     ) {
         val inspectNode =
             node
-                .children()
+                .children20
                 .first { it.elementType == ElementType.GT }
         node.reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
@@ -179,7 +179,7 @@ public class TrailingCommaOnDeclarationSiteRule :
 
         val inspectNode =
             node
-                .children()
+                .children20
                 .first { it.elementType == ARROW }
         node.reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
@@ -223,11 +223,11 @@ public class TrailingCommaOnDeclarationSiteRule :
             }
     }
 
-    private fun ASTNode.noEnumEntries() = children().none { it.elementType == ElementType.ENUM_ENTRY }
+    private fun ASTNode.noEnumEntries() = children20.none { it.elementType == ElementType.ENUM_ENTRY }
 
     private fun ASTNode.lastTwoEnumEntriesAreOnSameLine(): Boolean {
         val lastTwoEnumEntries =
-            children()
+            children20
                 .filter { it.elementType == ElementType.ENUM_ENTRY }
                 .toList()
                 .takeLast(2)
@@ -242,9 +242,9 @@ public class TrailingCommaOnDeclarationSiteRule :
      * last element of the class.
      */
     private fun ASTNode.findNodeAfterLastEnumEntry() =
-        children()
+        children20
             .lastOrNull { it.elementType == ElementType.ENUM_ENTRY }
-            ?.children()
+            ?.children20
             ?.singleOrNull { it.elementType == SEMICOLON }
             ?: lastChildNode
 
@@ -428,7 +428,7 @@ public class TrailingCommaOnDeclarationSiteRule :
 
     private fun ASTNode.hasWhenEntryGuard() = elementType == WHEN_ENTRY && hasWhenEntryGuardKotlin21()
 
-    private fun ASTNode.hasWhenEntryGuardKotlin21(): Boolean = children().any { it.elementType == WHEN_ENTRY_GUARD }
+    private fun ASTNode.hasWhenEntryGuardKotlin21(): Boolean = children20.any { it.elementType == WHEN_ENTRY_GUARD }
 
     private fun containsLineBreakInLeavesRange(
         from: PsiElement,

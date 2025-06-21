@@ -14,7 +14,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
@@ -67,12 +67,12 @@ public class ParameterListSpacingRule :
         require(node.elementType == VALUE_PARAMETER_LIST)
         val countValueParameters =
             node
-                .children()
+                .children20
                 .count { it.elementType == VALUE_PARAMETER }
         var valueParameterCount = 0
         val iterator =
             node
-                .children()
+                .children20
                 // Store elements in list before changing them as otherwise only one element is being changed
                 .toList()
                 .iterator()
@@ -123,7 +123,7 @@ public class ParameterListSpacingRule :
         }
     }
 
-    private fun ASTNode.containsNoComments() = children().none { it.isPartOfComment20 }
+    private fun ASTNode.containsNoComments() = children20.none { it.isPartOfComment20 }
 
     private fun visitValueParameter(
         node: ASTNode,
@@ -149,7 +149,7 @@ public class ParameterListSpacingRule :
     ) {
         require(node.elementType == MODIFIER_LIST)
         node
-            .children()
+            .children20
             .filter { it.elementType == WHITE_SPACE }
             // Store elements in list before changing them as otherwise only the first whitespace is being changed
             .toList()

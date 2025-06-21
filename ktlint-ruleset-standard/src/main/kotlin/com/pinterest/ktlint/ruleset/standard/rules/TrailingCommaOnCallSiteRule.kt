@@ -13,7 +13,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
@@ -77,7 +77,7 @@ public class TrailingCommaOnCallSiteRule :
     ) {
         val inspectNode =
             node
-                .children()
+                .children20
                 .last { it.elementType == ElementType.RBRACKET }
         node.reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
@@ -94,7 +94,7 @@ public class TrailingCommaOnCallSiteRule :
     ) {
         val inspectNode =
             node
-                .children()
+                .children20
                 .last { it.elementType == ElementType.RBRACKET }
         node.reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
@@ -109,7 +109,7 @@ public class TrailingCommaOnCallSiteRule :
     ) {
         if (node.treeParent.elementType != ElementType.FUNCTION_LITERAL) {
             node
-                .children()
+                .children20
                 .lastOrNull { it.elementType == ElementType.RPAR }
                 ?.let { inspectNode ->
                     node.reportAndCorrectTrailingCommaNodeBefore(
@@ -127,7 +127,7 @@ public class TrailingCommaOnCallSiteRule :
     ) {
         val inspectNode =
             node
-                .children()
+                .children20
                 .first { it.elementType == ElementType.GT }
         node.reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
@@ -210,7 +210,7 @@ public class TrailingCommaOnCallSiteRule :
             .findChildByType(VALUE_ARGUMENT)
             ?.nextSibling { it.isWhiteSpaceWithNewline20 }
 
-    private fun ASTNode.hasAtLeastOneArgument() = children().any { it.elementType == VALUE_ARGUMENT }
+    private fun ASTNode.hasAtLeastOneArgument() = children20.any { it.elementType == VALUE_ARGUMENT }
 
     private fun ASTNode.findPreviousTrailingCommaNodeOrNull(): ASTNode? {
         val codeLeaf =

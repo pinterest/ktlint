@@ -6,7 +6,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
@@ -28,7 +28,7 @@ public class SpacingAroundUnaryOperatorRule : StandardRule("unary-op-spacing") {
         if (node.elementType == ElementType.PREFIX_EXPRESSION ||
             node.elementType == ElementType.POSTFIX_EXPRESSION
         ) {
-            val children = node.children().toList()
+            val children = node.children20.toList()
 
             // ignore: var a = + /* comment */ 1
             if (children.any { it.isPartOfComment20 }) {

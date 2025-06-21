@@ -21,7 +21,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isDeclaration
@@ -181,7 +181,7 @@ public class BlankLineBeforeDeclarationRule :
                 ?.treeParent
                 ?.takeIf { it.elementType == FUNCTION_LITERAL }
                 ?.findChildByType(BLOCK)
-                ?.children()
+                ?.children20
                 ?.firstOrNull { !it.isWhiteSpace20 && !it.isPartOfComment20 }
 
     private fun ASTNode.isConsecutiveProperty() =

@@ -9,7 +9,7 @@ import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
@@ -100,13 +100,13 @@ public class ConditionWrappingRule :
         }
 
         return anyParentBinaryExpression { parent ->
-            parent.children().any { it.isWhiteSpaceWithNewline20 }
+            parent.children20.any { it.isWhiteSpaceWithNewline20 }
         }
     }
 
-    private fun ASTNode.leftHandSide() = children().firstOrNull { !it.isWhiteSpace20 && !it.isPartOfComment20 }
+    private fun ASTNode.leftHandSide() = children20.firstOrNull { !it.isWhiteSpace20 && !it.isPartOfComment20 }
 
-    private fun ASTNode.rightHandSide() = children().lastOrNull { !it.isWhiteSpace20 && !it.isPartOfComment20 }
+    private fun ASTNode.rightHandSide() = children20.lastOrNull { !it.isWhiteSpace20 && !it.isPartOfComment20 }
 
     private fun ASTNode?.isMultilineOperand() =
         if (this == null) {
