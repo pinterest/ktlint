@@ -18,7 +18,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -84,9 +84,9 @@ public class MultilineLoopRule :
         val nextLeaves =
             node
                 .leaves(forward = true)
-                .takeWhile { it.isWhiteSpaceWithoutNewline() || it.isPartOfComment() }
+                .takeWhile { it.isWhiteSpaceWithoutNewline20 || it.isPartOfComment() }
                 .toList()
-                .dropLastWhile { it.isWhiteSpaceWithoutNewline() }
+                .dropLastWhile { it.isWhiteSpaceWithoutNewline20 }
 
         prevLeaves
             .firstOrNull()

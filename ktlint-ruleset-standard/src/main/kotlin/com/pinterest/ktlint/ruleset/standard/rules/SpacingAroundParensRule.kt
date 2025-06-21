@@ -20,7 +20,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -59,7 +59,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
                 true
             }
 
-            !prevLeaf().isWhiteSpaceWithoutNewline() -> {
+            !prevLeaf().isWhiteSpaceWithoutNewline20 -> {
                 false
             }
 
@@ -159,7 +159,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
         //     val foo = fn( )
         //     val foo = fn( "bar")
         //     val foo = ( (1 + 2) / 3)
-        isWhiteSpaceWithoutNewline()
+        isWhiteSpaceWithoutNewline20
 
     private fun ASTNode.isUnexpectedNewlineAfterLpar() =
         // Disallow:

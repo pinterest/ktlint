@@ -30,7 +30,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
@@ -212,7 +212,7 @@ public class FunctionLiteralRule :
                 children()
                     .first { it.elementType == VALUE_PARAMETER }
                     .lastChildLeafOrSelf()
-                    .nextLeaf { !it.isWhiteSpaceWithoutNewline() && !it.isPartOfComment() }
+                    .nextLeaf { !it.isWhiteSpaceWithoutNewline20 && !it.isPartOfComment() }
             leavesOnLine(excludeEolComment = true)
                 .takeWhile { it.prevLeaf() != stopAtLeaf }
                 .lineLengthWithoutNewlinePrefix()

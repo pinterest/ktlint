@@ -108,7 +108,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isRoot
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
@@ -197,7 +197,7 @@ public class IndentationRule :
             // File should not start with a whitespace
             node
                 .nextLeaf()
-                ?.takeIf { it.isWhiteSpaceWithoutNewline() }
+                ?.takeIf { it.isWhiteSpaceWithoutNewline20 }
                 ?.let { whitespaceWithoutNewline ->
                     emit(node.startOffset, "Unexpected indentation", true)
                         .ifAutocorrectAllowed { whitespaceWithoutNewline.remove() }

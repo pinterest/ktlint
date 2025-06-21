@@ -41,7 +41,7 @@ import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -118,7 +118,7 @@ public class MultilineExpressionWrappingRule :
                                 val leafOnSameLineAfterMultilineExpression =
                                     node
                                         .lastChildLeafOrSelf()
-                                        .nextLeaf { !it.isWhiteSpaceWithoutNewline() && !it.isPartOfComment() }
+                                        .nextLeaf { !it.isWhiteSpaceWithoutNewline20 && !it.isPartOfComment() }
                                         ?.takeIf { !it.isWhiteSpaceWithNewline20 }
                                 when {
                                     leafOnSameLineAfterMultilineExpression == null -> {

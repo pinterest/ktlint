@@ -42,7 +42,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
@@ -312,7 +312,7 @@ public class AnnotationRule :
             .filter { it.elementType == TYPE_PROJECTION }
             .forEach { typeProjection ->
                 val prevLeaf = typeProjection.prevLeaf().takeIf { it.isWhiteSpace20 }
-                if (prevLeaf == null || prevLeaf.isWhiteSpaceWithoutNewline()) {
+                if (prevLeaf == null || prevLeaf.isWhiteSpaceWithoutNewline20) {
                     emit(typeProjection.startOffset - 1, "Expected newline", true)
                         .ifAutocorrectAllowed {
                             typeProjection.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
@@ -324,7 +324,7 @@ public class AnnotationRule :
             .findChildByType(GT)
             ?.let { gt ->
                 val prevLeaf = gt.prevLeaf().takeIf { it.isWhiteSpace20 }
-                if (prevLeaf == null || prevLeaf.isWhiteSpaceWithoutNewline()) {
+                if (prevLeaf == null || prevLeaf.isWhiteSpaceWithoutNewline20) {
                     emit(gt.startOffset, "Expected newline", true)
                         .ifAutocorrectAllowed {
                             gt.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))

@@ -43,7 +43,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
 import com.pinterest.ktlint.rule.engine.core.api.lineLengthWithoutNewlinePrefix
@@ -282,7 +282,7 @@ public class ChainMethodContinuationRule :
                         Unit
                     }
 
-                    whiteSpaceOrComment == null || whiteSpaceOrComment.isWhiteSpaceWithoutNewline() -> {
+                    whiteSpaceOrComment == null || whiteSpaceOrComment.isWhiteSpaceWithoutNewline20 -> {
                         // In a multiline chained method each method in the chain starts on a newline
                         // Disallow:
                         //     fooBar

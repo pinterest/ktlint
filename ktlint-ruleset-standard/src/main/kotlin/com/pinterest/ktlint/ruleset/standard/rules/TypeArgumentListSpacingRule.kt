@@ -14,7 +14,7 @@ import com.pinterest.ktlint.rule.engine.core.api.findCompositeParentElementOfTyp
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfCompositeElementOfType
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -112,7 +112,7 @@ public class TypeArgumentListSpacingRule :
             ?.let { nextSibling ->
                 if (multiline) {
                     if (nextSibling.text != expectedIndent) {
-                        if (nextSibling.isWhiteSpaceWithoutNewline()) {
+                        if (nextSibling.isWhiteSpaceWithoutNewline20) {
                             emit(nextSibling.startOffset, "Expected newline", true)
                                 .ifAutocorrectAllowed {
                                     nextSibling.upsertWhitespaceAfterMe(expectedIndent)
@@ -136,7 +136,7 @@ public class TypeArgumentListSpacingRule :
             ?.let { prevSibling ->
                 if (multiline) {
                     if (prevSibling.text != expectedIndent) {
-                        if (prevSibling.isWhiteSpaceWithoutNewline()) {
+                        if (prevSibling.isWhiteSpaceWithoutNewline20) {
                             emit(prevSibling.startOffset, "Expected newline", true)
                                 .ifAutocorrectAllowed {
                                     prevSibling.upsertWhitespaceBeforeMe(expectedIndent)

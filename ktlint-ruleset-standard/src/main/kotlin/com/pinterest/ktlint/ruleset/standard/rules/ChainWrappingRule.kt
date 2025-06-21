@@ -28,7 +28,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
@@ -135,7 +135,7 @@ public class ChainWrappingRule :
                                     prevLeaf
                                 }
 
-                                nextLeaf.isWhiteSpaceWithoutNewline() -> {
+                                nextLeaf.isWhiteSpaceWithoutNewline20 -> {
                                     nextLeaf
                                 }
 
@@ -183,7 +183,7 @@ public class ChainWrappingRule :
 
     private fun ASTNode.isElvisOperatorAndComment(): Boolean =
         elementType == ELVIS &&
-            leaves().takeWhile { it.isWhiteSpaceWithoutNewline() || it.isPartOfComment() }.any()
+            leaves().takeWhile { it.isWhiteSpaceWithoutNewline20 || it.isPartOfComment() }.any()
 }
 
 public val CHAIN_WRAPPING_RULE_ID: RuleId = ChainWrappingRule().ruleId

@@ -11,7 +11,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.remove
@@ -44,7 +44,7 @@ public class SpacingAroundAngleBracketsRule : StandardRule("spacing-around-angle
             // Check for rogue spacing after an opening bracket
             val afterLeftAngle = openingBracket.nextLeaf()
             if (afterLeftAngle?.elementType == WHITE_SPACE) {
-                if (afterLeftAngle.isWhiteSpaceWithoutNewline()) {
+                if (afterLeftAngle.isWhiteSpaceWithoutNewline20) {
                     emit(afterLeftAngle.startOffset, "Unexpected spacing after \"<\"", true)
                         .ifAutocorrectAllowed {
                             // when spacing does not include any new lines, e.g. Map< String, Int>
@@ -74,7 +74,7 @@ public class SpacingAroundAngleBracketsRule : StandardRule("spacing-around-angle
             val beforeRightAngle = closingBracket.prevLeaf()
             // Check for rogue spacing before a closing bracket
             if (beforeRightAngle?.elementType == WHITE_SPACE) {
-                if (beforeRightAngle.isWhiteSpaceWithoutNewline()) {
+                if (beforeRightAngle.isWhiteSpaceWithoutNewline20) {
                     emit(beforeRightAngle.startOffset, "Unexpected spacing before \">\"", true)
                         .ifAutocorrectAllowed {
                             // when spacing does not include any new lines, e.g. Map<String, Int >

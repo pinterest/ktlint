@@ -33,7 +33,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfString20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -94,7 +94,7 @@ public class SpacingAroundCurlyRule :
                                 )
                         )
                     spacingAfter = nextLeaf is PsiWhiteSpace || nextLeaf?.elementType == RBRACE
-                    if (prevLeaf.isWhiteSpaceWithoutNewline() &&
+                    if (prevLeaf.isWhiteSpaceWithoutNewline20 &&
                         prevLeaf!!.isPrecededBy { it.elementType == LPAR || it.elementType == AT }
                     ) {
                         emit(node.startOffset, "Unexpected space before \"${node.text}\"", true)
@@ -139,7 +139,7 @@ public class SpacingAroundCurlyRule :
                     spacingBefore = prevLeaf is PsiWhiteSpace || prevLeaf?.elementType == LBRACE
                     spacingAfter = nextLeaf == null || nextLeaf is PsiWhiteSpace || shouldNotToBeSeparatedBySpace(nextLeaf)
                     nextLeaf
-                        .takeIf { it.isWhiteSpaceWithoutNewline() }
+                        .takeIf { it.isWhiteSpaceWithoutNewline20 }
                         ?.takeIf { shouldNotToBeSeparatedBySpace(it.nextLeaf()) }
                         ?.let { leaf ->
                             emit(node.startOffset, "Unexpected space after \"${node.text}\"", true)

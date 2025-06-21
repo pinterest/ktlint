@@ -64,7 +64,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
@@ -196,7 +196,7 @@ public class WrappingRule :
     private fun ASTNode.followedByEolComment() =
         null !=
             leaves()
-                .takeWhile { it.isWhiteSpaceWithoutNewline() || it.elementType == EOL_COMMENT }
+                .takeWhile { it.isWhiteSpaceWithoutNewline20 || it.elementType == EOL_COMMENT }
                 .firstOrNull { it.elementType == EOL_COMMENT }
 
     private fun ASTNode.followedByFunctionLiteralParameterList() =
@@ -265,7 +265,7 @@ public class WrappingRule :
                 ?.prevLeaf {
                     // Skip comments, whitespace, and empty nodes
                     !it.isPartOfComment() &&
-                        !it.isWhiteSpaceWithoutNewline() &&
+                        !it.isWhiteSpaceWithoutNewline20 &&
                         it.textLength > 0
                 }.isWhiteSpaceWithNewline20 &&
             // IDEA quirk:
@@ -340,7 +340,7 @@ public class WrappingRule :
     }
 
     private fun ASTNode.isFollowedByCommentOnSameLine() =
-        nextLeaf { !it.isWhiteSpaceWithoutNewline() }
+        nextLeaf { !it.isWhiteSpaceWithoutNewline20 }
             ?.isPartOfComment() == true
 
     private fun rearrangeValueList(
@@ -411,7 +411,7 @@ public class WrappingRule :
                     typeProjection
                         .prevSibling { !it.isPartOfComment() }
                         .let { prevSibling ->
-                            if (prevSibling?.elementType == LT || prevSibling.isWhiteSpaceWithoutNewline()) {
+                            if (prevSibling?.elementType == LT || prevSibling.isWhiteSpaceWithoutNewline20) {
                                 emit(typeProjection.startOffset, "A newline was expected before '${typeProjection.text}'", true)
                                     .ifAutocorrectAllowed {
                                         typeProjection.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
@@ -425,7 +425,7 @@ public class WrappingRule :
                 .findChildByType(GT)
                 ?.let { closingAngle ->
                     val prevSibling = closingAngle.prevSibling { !it.isPartOfComment() }
-                    if (prevSibling?.elementType != WHITE_SPACE || prevSibling.isWhiteSpaceWithoutNewline()) {
+                    if (prevSibling?.elementType != WHITE_SPACE || prevSibling.isWhiteSpaceWithoutNewline20) {
                         emit(closingAngle.startOffset, "A newline was expected before '${closingAngle.text}'", true)
                             .ifAutocorrectAllowed {
                                 closingAngle.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))

@@ -12,7 +12,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -127,7 +127,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.prevSibling().isWhiteSpaceWithoutNewline() && node.noSpacingBefore) {
+        if (node.prevSibling().isWhiteSpaceWithoutNewline20 && node.noSpacingBefore) {
             emit(node.startOffset, "Unexpected spacing before \":\"", true)
                 .ifAutocorrectAllowed {
                     node
@@ -135,7 +135,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                         ?.remove()
                 }
         }
-        if (node.nextSibling().isWhiteSpaceWithoutNewline() && node.spacingAfter) {
+        if (node.nextSibling().isWhiteSpaceWithoutNewline20 && node.spacingAfter) {
             emit(node.startOffset, "Unexpected spacing after \":\"", true)
                 .ifAutocorrectAllowed {
                     node

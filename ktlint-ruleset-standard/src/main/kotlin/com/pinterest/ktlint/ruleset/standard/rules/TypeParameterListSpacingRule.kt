@@ -22,7 +22,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
@@ -230,7 +230,7 @@ public class TypeParameterListSpacingRule :
                     .ifAutocorrectAllowed { node.remove() }
             }
 
-            node.isWhiteSpaceWithoutNewline() && expectedWhitespace.startsWith("\n") -> {
+            node.isWhiteSpaceWithoutNewline20 && expectedWhitespace.startsWith("\n") -> {
                 emit(node.startOffset, "Expected a newline", true)
                     .ifAutocorrectAllowed {
                         (node as LeafPsiElement).rawReplaceWithText(expectedWhitespace)

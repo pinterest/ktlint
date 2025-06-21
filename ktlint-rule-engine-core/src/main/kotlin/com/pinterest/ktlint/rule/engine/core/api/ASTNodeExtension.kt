@@ -274,7 +274,17 @@ public fun ASTNode?.isWhiteSpaceWithNewline(): Boolean = isWhiteSpaceWithNewline
 public val ASTNode?.isWhiteSpaceWithNewline20
     get(): Boolean = this != null && elementType == WHITE_SPACE && textContains('\n')
 
-public fun ASTNode?.isWhiteSpaceWithoutNewline(): Boolean = this != null && elementType == WHITE_SPACE && !textContains('\n')
+@Deprecated(
+    "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
+        "the temporary property accessor. In 2.0 it can be replaced the final property accessor which will be the same as the " +
+        "current function name.",
+    replaceWith = ReplaceWith("isWhiteSpaceWithoutNewline20"),
+)
+public fun ASTNode?.isWhiteSpaceWithoutNewline(): Boolean = isWhiteSpaceWithoutNewline20
+
+// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+public val ASTNode?.isWhiteSpaceWithoutNewline20
+    get(): Boolean = this != null && elementType == WHITE_SPACE && !textContains('\n')
 
 public fun ASTNode.isRoot(): Boolean = elementType == ElementType.FILE
 
@@ -551,7 +561,7 @@ public fun ASTNode.leavesOnLine(excludeEolComment: Boolean): Sequence<ASTNode> {
  */
 private fun Sequence<ASTNode>.dropTrailingEolComment(): Sequence<ASTNode> =
     takeWhile {
-        !(it.isWhiteSpaceWithoutNewline() && it.nextLeaf()?.elementType == EOL_COMMENT) &&
+        !(it.isWhiteSpaceWithoutNewline20 && it.nextLeaf()?.elementType == EOL_COMMENT) &&
             // But if EOL-comment not preceded by whitespace than take all nodes before the EOL comment
             it.elementType != EOL_COMMENT
     }
