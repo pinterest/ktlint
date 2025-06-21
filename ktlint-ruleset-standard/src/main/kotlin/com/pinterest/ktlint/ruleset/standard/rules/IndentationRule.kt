@@ -106,7 +106,7 @@ import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isRoot
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
@@ -649,7 +649,7 @@ public class IndentationRule :
                 startIndentContext(
                     fromAstNode = fromAstNode,
                     toAstNode = nextToAstNode,
-                ).fromASTNode.prevLeaf { !it.isWhiteSpace() }!!
+                ).fromASTNode.prevLeaf { !it.isWhiteSpace20 }!!
         } else {
             startIndentContext(
                 fromAstNode = node,
@@ -1054,17 +1054,17 @@ public class IndentationRule :
             ?.let { modifierList ->
                 modifierList
                     .children()
-                    .firstOrNull { !it.isWhiteSpace() && !it.isPartOfComment() && it.elementType != ANNOTATION_ENTRY }
+                    .firstOrNull { !it.isWhiteSpace20 && !it.isPartOfComment() && it.elementType != ANNOTATION_ENTRY }
                     ?: modifierList.nextCodeSibling()
             }
-            ?: children().firstOrNull { !it.isWhiteSpace() && !it.isPartOfComment() }
+            ?: children().firstOrNull { !it.isWhiteSpace20 && !it.isPartOfComment() }
             ?: this
     }
 
     private fun ASTNode.getPrecedingLeadingCommentsAndWhitespaces(): ASTNode {
         var fromAstNode: ASTNode? = this
         while (fromAstNode?.prevLeaf() != null &&
-            (fromAstNode.prevLeaf().isWhiteSpace() || fromAstNode.prevLeaf()?.isPartOfComment() == true)
+            (fromAstNode.prevLeaf().isWhiteSpace20 || fromAstNode.prevLeaf()?.isPartOfComment() == true)
         ) {
             fromAstNode = fromAstNode.prevLeaf()
         }
@@ -1327,7 +1327,7 @@ public class IndentationRule :
             activated = true,
         )
 
-    private fun ASTNode.isPrecededByComment() = prevSibling { !it.isWhiteSpace() }?.isPartOfComment() == true
+    private fun ASTNode.isPrecededByComment() = prevSibling { !it.isWhiteSpace20 }?.isPartOfComment() == true
 
     public companion object {
         private const val KDOC_CONTINUATION_INDENT = " "

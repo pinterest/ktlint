@@ -9,7 +9,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
@@ -37,7 +37,7 @@ public class SpacingAroundUnaryOperatorRule : StandardRule("unary-op-spacing") {
 
             val whiteSpace =
                 children
-                    .firstOrNull { it.isWhiteSpace() }
+                    .firstOrNull { it.isWhiteSpace20 }
                     ?: return
             emit(whiteSpace.startOffset, "Unexpected spacing in ${node.text.replace("\n", "\\n")}", true)
                 .ifAutocorrectAllowed {

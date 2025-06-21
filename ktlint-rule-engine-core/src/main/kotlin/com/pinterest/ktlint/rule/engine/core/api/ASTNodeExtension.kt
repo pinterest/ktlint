@@ -244,13 +244,23 @@ public fun ASTNode.isPartOfString(): Boolean = isPartOfString20
 public val ASTNode.isPartOfString20
     get(): Boolean = parent(STRING_TEMPLATE, strict = false) != null
 
+@Deprecated(
+    "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
+        "the temporary property accessor. In 2.0 it can be replaced the final property accessor which will be the same as the " +
+        "current function name.",
+    replaceWith = ReplaceWith("isWhiteSpace20"),
+)
 @OptIn(ExperimentalContracts::class)
 public fun ASTNode?.isWhiteSpace(): Boolean {
     contract {
         returns(true) implies (this@isWhiteSpace != null)
     }
-    return this != null && elementType == WHITE_SPACE
+    return isWhiteSpace20
 }
+
+// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+public val ASTNode?.isWhiteSpace20
+    get() = this != null && elementType == WHITE_SPACE
 
 public fun ASTNode?.isWhiteSpaceWithNewline(): Boolean = this != null && elementType == WHITE_SPACE && textContains('\n')
 
@@ -264,7 +274,7 @@ public fun ASTNode.isLeaf(): Boolean = firstChildNode == null
  * Check if the given [ASTNode] is a code leaf. E.g. it must be a leaf and may not be a whitespace or be part of a
  * comment.
  */
-public fun ASTNode.isCodeLeaf(): Boolean = isLeaf() && !isWhiteSpace() && !isPartOfComment()
+public fun ASTNode.isCodeLeaf(): Boolean = isLeaf() && !isWhiteSpace20 && !isPartOfComment()
 
 public fun ASTNode.isPartOfComment(): Boolean = isPartOf(TokenSets.COMMENTS)
 

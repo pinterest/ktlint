@@ -18,7 +18,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -87,7 +87,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
 
     private fun ASTNode.isUnexpectedSpacingBetweenIdentifierAndElementList() =
         prevLeaf()
-            ?.takeIf { it.isWhiteSpace() }
+            ?.takeIf { it.isWhiteSpace20 }
             ?.takeIf {
                 // Disallow:
                 //     fun foo () {}
@@ -104,7 +104,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
 
     private fun ASTNode.isUnexpectedSpacingInCallToSuper() =
         prevLeaf()
-            ?.takeIf { it.isWhiteSpace() }
+            ?.takeIf { it.isWhiteSpace20 }
             ?.let {
                 // Disallow:
                 //     class Foo : Bar {
@@ -116,7 +116,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
 
     private fun ASTNode.isUnexpectedSpacingInExplicitConstructor() =
         prevLeaf()
-            ?.takeIf { it.isWhiteSpace() }
+            ?.takeIf { it.isWhiteSpace20 }
             ?.let {
                 // Disallow:
                 //     class Foo constructor ()
@@ -126,7 +126,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
 
     private fun ASTNode.isUnexpectedSpacingInSuperTypeCallEntry() =
         prevLeaf()
-            ?.takeIf { it.isWhiteSpace() }
+            ?.takeIf { it.isWhiteSpace20 }
             ?.let {
                 // Disallow:
                 //     class Foo : Bar ("test")

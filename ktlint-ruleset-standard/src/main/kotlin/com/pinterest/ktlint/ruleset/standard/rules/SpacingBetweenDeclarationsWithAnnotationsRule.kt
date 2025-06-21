@@ -13,7 +13,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isDeclaration
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
@@ -48,7 +48,7 @@ public class SpacingBetweenDeclarationsWithAnnotationsRule : StandardRule("spaci
             ?.takeIf { it.isDeclarationOrPropertyAccessor() }
             ?.takeIf { prevDeclaration -> hasNoBlankLineBetweenDeclarations(node, prevDeclaration) }
             ?.let {
-                val prevLeaf = node.prevCodeLeaf()?.nextLeaf { it.isWhiteSpace() }!!
+                val prevLeaf = node.prevCodeLeaf()?.nextLeaf { it.isWhiteSpace20 }!!
                 emit(
                     prevLeaf.startOffset + 1,
                     "Declarations and declarations with annotations should have an empty space between.",
@@ -70,11 +70,11 @@ public class SpacingBetweenDeclarationsWithAnnotationsRule : StandardRule("spaci
         prevDeclaration: ASTNode,
     ) = node
         .leaves(false)
-        .takeWhile { it.isWhiteSpace() || it.isPartOfComment() }
+        .takeWhile { it.isWhiteSpace20 || it.isPartOfComment() }
         .takeWhile { it != prevDeclaration }
         .none { it.isBlankLine() }
 
-    private fun ASTNode.isBlankLine() = isWhiteSpace() && text.count { it == '\n' } > 1
+    private fun ASTNode.isBlankLine() = isWhiteSpace20 && text.count { it == '\n' } > 1
 }
 
 public val SPACING_BETWEEN_DECLARATIONS_WITH_ANNOTATIONS_RULE_ID: RuleId = SpacingBetweenDeclarationsWithAnnotationsRule().ruleId

@@ -18,7 +18,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
@@ -107,7 +107,7 @@ public class WhenEntryBracing :
                 whenEntry
                     .findChildByType(ARROW)
                     ?.let { arrow ->
-                        val nonWhiteSpaceSibling = arrow.nextSibling { !it.isWhiteSpace() } ?: arrow
+                        val nonWhiteSpaceSibling = arrow.nextSibling { !it.isWhiteSpace20 } ?: arrow
                         emitAndApprove(
                             nonWhiteSpaceSibling.startOffset,
                             "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces " +
@@ -131,7 +131,7 @@ public class WhenEntryBracing :
                 // the body was already a multiline statement, then the second and following lines should already be properly indented.
                 indentConfig.childIndentOf(this) +
                 siblings()
-                    .dropWhile { it.isWhiteSpace() }
+                    .dropWhile { it.isWhiteSpace20 }
                     .joinToString(separator = "") { it.text } +
                 "\n$whenEntryIndent}"
         val blockExpression = createBlockExpression(whenEntry)

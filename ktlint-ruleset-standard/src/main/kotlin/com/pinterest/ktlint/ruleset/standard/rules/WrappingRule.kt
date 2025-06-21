@@ -62,7 +62,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
@@ -682,7 +682,7 @@ public class WrappingRule :
                         node
                     } else {
                         // Other blocks have LBRACE and RBRACE as siblings of the block
-                        node.prevSibling { !it.isPartOfComment() && !it.isWhiteSpace() }
+                        node.prevSibling { !it.isPartOfComment() && !it.isWhiteSpace20 }
                     }
                 }
         }
@@ -698,7 +698,7 @@ public class WrappingRule :
                         node
                     } else {
                         // Other blocks have LBRACE and RBRACE as siblings of the block
-                        node.nextSibling { !it.isPartOfComment() && !it.isWhiteSpace() }
+                        node.nextSibling { !it.isPartOfComment() && !it.isWhiteSpace20 }
                     }
                 }
         }

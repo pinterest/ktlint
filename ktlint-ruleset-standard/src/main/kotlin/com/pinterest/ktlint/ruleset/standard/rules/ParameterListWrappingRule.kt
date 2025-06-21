@@ -26,7 +26,7 @@ import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -213,7 +213,7 @@ public class ParameterListWrappingRule :
 
     private fun isPrecededByComment(node: ASTNode) =
         node
-            .prevLeaf { !it.isWhiteSpace() }
+            .prevLeaf { !it.isWhiteSpace20 }
             ?.prevLeaf()
             ?.isPartOfComment()
             ?: false

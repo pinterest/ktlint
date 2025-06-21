@@ -10,7 +10,7 @@ import com.pinterest.ktlint.rule.engine.core.api.endOffset
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -64,21 +64,21 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
         val whiteSpaces =
             (annotations.asSequence().map { it.nextSibling() } + node.treeNext)
                 .filterNotNull()
-                .filter { it.isWhiteSpace() }
+                .filter { it.isWhiteSpace20 }
                 .take(annotations.size)
                 .toList()
 
         val next =
             node.nextSiblingWithAtLeastOneOf(
                 {
-                    !it.isWhiteSpace() &&
+                    !it.isWhiteSpace20 &&
                         it.textLength > 0 &&
                         !it.isPartOf(ElementType.FILE_ANNOTATION_LIST) &&
                         !it.isCommentOnSameLineAsPrevLeaf()
                 },
                 {
                     // Disallow multiple white spaces as well as comments
-                    if (it.isWhiteSpace()) {
+                    if (it.isWhiteSpace20) {
                         val s = it.text
                         // Ensure at least one occurrence of two line breaks
                         s.indexOf("\n") != s.lastIndexOf("\n")
@@ -96,11 +96,11 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
                         // Remove the annotation and the following whitespace
                         val eolComment = node.nextSibling { it.isCommentOnSameLineAsPrevLeaf() }
                         if (eolComment != null) {
-                            eolComment.prevSibling { it.isWhiteSpace() }?.remove()
-                            eolComment.nextSibling { it.isWhiteSpace() }?.remove()
+                            eolComment.prevSibling { it.isWhiteSpace20 }?.remove()
+                            eolComment.nextSibling { it.isWhiteSpace20 }?.remove()
                             eolComment.treeParent?.removeChild(eolComment)
                         } else {
-                            node.nextSibling { it.isWhiteSpace() }?.remove()
+                            node.nextSibling { it.isWhiteSpace20 }?.remove()
                         }
                         node.treeParent.removeChild(node)
 
@@ -188,7 +188,7 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
     }
 
     private fun ASTNode.isCommentOnSameLineAsPrevLeaf() =
-        isPartOfComment() && leaves(forward = false).takeWhile { it.isWhiteSpace() }.none { "\n" in it.text }
+        isPartOfComment() && leaves(forward = false).takeWhile { it.isWhiteSpace20 }.none { "\n" in it.text }
 }
 
 public val ANNOTATION_SPACING_RULE_ID: RuleId = AnnotationSpacingRule().ruleId

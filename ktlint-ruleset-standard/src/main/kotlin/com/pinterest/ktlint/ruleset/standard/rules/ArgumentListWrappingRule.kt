@@ -28,7 +28,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PR
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.lineLength
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -273,7 +273,7 @@ public class ArgumentListWrappingRule :
 
     private fun ASTNode.prevWhiteSpaceWithNewLine(): ASTNode? {
         var prev = prevLeaf()
-        while (prev != null && (prev.isWhiteSpace() || prev.isPartOfComment())) {
+        while (prev != null && (prev.isWhiteSpace20 || prev.isPartOfComment())) {
             if (prev.isWhiteSpaceWithNewline()) {
                 return prev
             }

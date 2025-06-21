@@ -7,7 +7,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
@@ -42,21 +42,21 @@ public class NoLineBreakBeforeAssignmentRule : StandardRule("no-line-break-befor
                         // Insert assignment surrounded by whitespaces at new position
                         assignmentNode
                             .siblings(false)
-                            .takeWhile { it.isWhiteSpace() || it.isPartOfComment() }
+                            .takeWhile { it.isWhiteSpace20 || it.isPartOfComment() }
                             .last()
                             .let { before ->
-                                if (!before.prevSibling().isWhiteSpace()) {
+                                if (!before.prevSibling().isWhiteSpace20) {
                                     parent.addChild(PsiWhiteSpaceImpl(" "), before)
                                 }
                                 parent.addChild(LeafPsiElement(EQ, "="), before)
-                                if (!before.isWhiteSpace()) {
+                                if (!before.isWhiteSpace20) {
                                     parent.addChild(PsiWhiteSpaceImpl(" "), before)
                                 }
                             }
                         // Cleanup old assignment and whitespace after it. The indent before the old assignment is kept unchanged
                         assignmentNode
                             .nextSibling()
-                            .takeIf { it.isWhiteSpace() }
+                            .takeIf { it.isWhiteSpace20 }
                             ?.let { whiteSpaceAfterEquals ->
                                 parent.removeChild(whiteSpaceAfterEquals)
                             }

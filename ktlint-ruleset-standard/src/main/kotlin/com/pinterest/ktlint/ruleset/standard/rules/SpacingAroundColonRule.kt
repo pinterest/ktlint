@@ -10,7 +10,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -50,7 +50,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                     val prevNonCodeElements =
                         node
                             .siblings(forward = false)
-                            .takeWhile { it.isWhiteSpace() || it.isPartOfComment() }
+                            .takeWhile { it.isWhiteSpace20 || it.isPartOfComment() }
                             .toList()
                             .reversed()
                     when {
@@ -66,7 +66,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                                         prevNonCodeElements.forEach {
                                             node.treeParent.addChild(it, treeNext)
                                         }
-                                        if (treeNext.isWhiteSpace()) {
+                                        if (treeNext.isWhiteSpace20) {
                                             treeNext.remove()
                                         }
                                         Unit
@@ -83,7 +83,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                                         .nextSibling()
                                 prevNonCodeElements
                                     .let {
-                                        if (it.first().isWhiteSpace()) {
+                                        if (it.first().isWhiteSpace20) {
                                             it.first().remove()
                                             it.drop(1)
                                         }
@@ -104,7 +104,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                             prevNonCodeElements.forEach {
                                 node.treeParent.addChild(it, nextLeaf)
                             }
-                            if (nextLeaf != null && nextLeaf.isWhiteSpace()) {
+                            if (nextLeaf != null && nextLeaf.isWhiteSpace20) {
                                 nextLeaf.remove()
                             }
                         }
@@ -149,8 +149,8 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val missingSpacingBefore = !node.prevSibling().isWhiteSpace() && node.spacingBefore
-        val missingSpacingAfter = !node.nextSibling().isWhiteSpace() && node.noSpacingAfter
+        val missingSpacingBefore = !node.prevSibling().isWhiteSpace20 && node.spacingBefore
+        val missingSpacingAfter = !node.nextSibling().isWhiteSpace20 && node.noSpacingAfter
         when {
             missingSpacingBefore && missingSpacingAfter -> {
                 emit(node.startOffset, "Missing spacing around \":\"", true)

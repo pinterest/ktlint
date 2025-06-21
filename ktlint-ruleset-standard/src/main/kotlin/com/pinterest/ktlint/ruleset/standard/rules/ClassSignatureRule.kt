@@ -41,7 +41,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isLeaf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
@@ -136,7 +136,7 @@ public class ClassSignatureRule :
     private fun ASTNode.superTypes() =
         findChildByType(SUPER_TYPE_LIST)
             ?.children()
-            ?.filterNot { it.isWhiteSpace() || it.isPartOfComment() || it.elementType == COMMA }
+            ?.filterNot { it.isWhiteSpace20 || it.isPartOfComment() || it.elementType == COMMA }
 
     private fun ASTNode.hasMultilineSuperTypeList() = findChildByType(SUPER_TYPE_LIST)?.textContains('\n') == true
 

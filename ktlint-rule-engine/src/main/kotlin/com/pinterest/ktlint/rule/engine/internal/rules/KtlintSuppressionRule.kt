@@ -16,7 +16,7 @@ import com.pinterest.ktlint.rule.engine.core.api.KtlintKotlinCompiler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.findChildByTypeRecursively
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
@@ -121,7 +121,7 @@ public class KtlintSuppressionRule(
 
     private fun ASTNode.removePrecedingWhitespace() {
         prevLeaf()
-            .takeIf { it.isWhiteSpace() }
+            .takeIf { it.isWhiteSpace20 }
             ?.remove()
     }
 
@@ -273,7 +273,7 @@ private class KtLintDirective(
                     matchingKtlintEnabledDirective !=
                         node
                             .treeParent
-                            .nextSibling { !it.isWhiteSpace() }
+                            .nextSibling { !it.isWhiteSpace20 }
                 }
                 ?: false
         }

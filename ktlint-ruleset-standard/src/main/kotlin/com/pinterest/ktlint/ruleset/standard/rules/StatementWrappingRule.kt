@@ -26,7 +26,7 @@ import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.noNewLineInClosedRange
@@ -177,7 +177,7 @@ public class StatementWrappingRule :
                 ?.children()
                 ?.dropWhile {
                     // Ignore annotations placed on separate lines above the node
-                    it.elementType == ANNOTATION_ENTRY || it.isWhiteSpace()
+                    it.elementType == ANNOTATION_ENTRY || it.isWhiteSpace20
                 }?.firstOrNull()
                 ?.firstChildLeafOrSelf()
 

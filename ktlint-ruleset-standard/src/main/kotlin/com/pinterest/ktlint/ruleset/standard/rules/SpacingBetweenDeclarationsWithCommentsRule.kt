@@ -8,7 +8,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.TokenSets
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isDeclaration
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
@@ -58,7 +58,7 @@ public class SpacingBetweenDeclarationsWithCommentsRule : StandardRule("spacing-
             }
     }
 
-    private fun ASTNode.isBlankLine() = isWhiteSpace() && text.startsWith("\n\n")
+    private fun ASTNode.isBlankLine() = isWhiteSpace20 && text.startsWith("\n\n")
 }
 
 public val SPACING_BETWEEN_DECLARATIONS_WITH_COMMENTS_RULE_ID: RuleId = SpacingBetweenDeclarationsWithCommentsRule().ruleId

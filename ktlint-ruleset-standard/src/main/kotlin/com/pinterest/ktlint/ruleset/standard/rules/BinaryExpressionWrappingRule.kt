@@ -28,7 +28,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PR
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
@@ -216,7 +216,7 @@ public class BinaryExpressionWrappingRule :
             }?.let { operationReference ->
                 if (operationReference.firstChildNode.elementType == ELVIS) {
                     operationReference
-                        .prevLeaf { it.isWhiteSpace() }
+                        .prevLeaf { it.isWhiteSpace20 }
                         .takeUnless { it.isWhiteSpaceWithNewline() }
                         ?.let {
                             // Wrapping after the elvis operator leads to violating the 'chain-wrapping' rule, so it must wrapped itself

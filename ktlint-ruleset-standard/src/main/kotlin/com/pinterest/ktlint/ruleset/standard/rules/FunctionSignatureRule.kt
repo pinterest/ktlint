@@ -39,7 +39,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.isLeaf
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
@@ -544,7 +544,7 @@ public class FunctionSignatureRule :
                 ?: return
         val bodyNodes = node.getFunctionBody(lastNodeOfFunctionSignatureWithBodyExpression)
         val whiteSpaceBeforeFunctionBodyExpression = bodyNodes.getStartingWhitespaceOrNull()
-        val functionBodyExpressionNodes = bodyNodes.dropWhile { it.isWhiteSpace() }
+        val functionBodyExpressionNodes = bodyNodes.dropWhile { it.isWhiteSpace20 }
 
         val functionBodyExpressionLines =
             functionBodyExpressionNodes
@@ -661,7 +661,7 @@ public class FunctionSignatureRule :
             ?.let { block ->
                 block
                     .prevLeaf()
-                    .takeIf { it.isWhiteSpace() }
+                    .takeIf { it.isWhiteSpace20 }
                     .let { whiteSpaceBeforeBlock ->
                         if (whiteSpaceBeforeBlock == null || whiteSpaceBeforeBlock.text != " ") {
                             if (!dryRun) {
@@ -693,7 +693,7 @@ public class FunctionSignatureRule :
     private fun List<ASTNode>.getStartingWhitespaceOrNull() =
         this
             .firstOrNull()
-            ?.takeIf { first -> first.isWhiteSpace() }
+            ?.takeIf { first -> first.isWhiteSpace20 }
 
     private fun isMaxLineLengthSet() = maxLineLength != MAX_LINE_LENGTH_PROPERTY_OFF
 

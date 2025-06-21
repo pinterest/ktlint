@@ -40,7 +40,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
@@ -311,7 +311,7 @@ public class AnnotationRule :
             .children()
             .filter { it.elementType == TYPE_PROJECTION }
             .forEach { typeProjection ->
-                val prevLeaf = typeProjection.prevLeaf().takeIf { it.isWhiteSpace() }
+                val prevLeaf = typeProjection.prevLeaf().takeIf { it.isWhiteSpace20 }
                 if (prevLeaf == null || prevLeaf.isWhiteSpaceWithoutNewline()) {
                     emit(typeProjection.startOffset - 1, "Expected newline", true)
                         .ifAutocorrectAllowed {
@@ -323,7 +323,7 @@ public class AnnotationRule :
         node
             .findChildByType(GT)
             ?.let { gt ->
-                val prevLeaf = gt.prevLeaf().takeIf { it.isWhiteSpace() }
+                val prevLeaf = gt.prevLeaf().takeIf { it.isWhiteSpace20 }
                 if (prevLeaf == null || prevLeaf.isWhiteSpaceWithoutNewline()) {
                     emit(gt.startOffset, "Expected newline", true)
                         .ifAutocorrectAllowed {
@@ -456,7 +456,7 @@ public class AnnotationRule :
             .lastChildLeafOrSelf()
             .nextCodeLeaf()
             ?.let { codeLeaf ->
-                val whitespaceBefore = codeLeaf.prevLeaf { it.isWhiteSpace() }
+                val whitespaceBefore = codeLeaf.prevLeaf { it.isWhiteSpace20 }
 
                 if (whitespaceBefore == null || whitespaceBefore.text != "\n\n") {
                     emit(

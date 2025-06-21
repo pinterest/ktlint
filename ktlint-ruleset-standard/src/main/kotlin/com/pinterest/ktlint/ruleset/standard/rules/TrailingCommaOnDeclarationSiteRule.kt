@@ -26,7 +26,7 @@ import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.noNewLineInClosedRange
@@ -323,7 +323,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                                 prevNode
                                     .treeParent
                                     .indent()
-                            if (leafBeforeArrowOrNull.isWhiteSpace()) {
+                            if (leafBeforeArrowOrNull.isWhiteSpace20) {
                                 (leafBeforeArrowOrNull as LeafElement).rawReplaceWithText(indent)
                             } else {
                                 inspectNode
@@ -337,7 +337,7 @@ public class TrailingCommaOnDeclarationSiteRule :
 
                         if (inspectNode.treeParent.elementType == ElementType.ENUM_ENTRY) {
                             val parentIndent =
-                                (prevNode.treeParent.prevLeaf()?.takeIf { it.isWhiteSpace() })?.text
+                                (prevNode.treeParent.prevLeaf()?.takeIf { it.isWhiteSpace20 })?.text
                                     ?: prevNode.indent()
                             (inspectNode as LeafPsiElement).apply {
                                 this.treeParent.addChild(LeafPsiElement(COMMA, ","), this)

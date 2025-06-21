@@ -41,7 +41,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PR
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
@@ -267,7 +267,7 @@ public class ChainMethodContinuationRule :
     ) {
         chainOperator
             .prevLeaf()
-            .takeIf { it.isWhiteSpace() || it?.isPartOfComment() == true }
+            .takeIf { it.isWhiteSpace20 || it?.isPartOfComment() == true }
             .let { whiteSpaceOrComment ->
                 when {
                     whiteSpaceOrComment?.isPartOfComment() == true -> {
@@ -298,7 +298,7 @@ public class ChainMethodContinuationRule :
     }
 
     private fun ASTNode.shouldBeOnSameLineAsClosingElementOfPreviousExpressionInMethodChain() =
-        prevLeaf { !it.isWhiteSpace() }
+        prevLeaf { !it.isWhiteSpace20 }
             ?.takeIf { it.elementType in groupClosingElementType }
             ?.let { closingElement ->
                 closingElement.isPrecededByNewline() ||
@@ -324,7 +324,7 @@ public class ChainMethodContinuationRule :
     ) {
         chainOperator
             .prevLeaf()
-            .takeIf { it.isWhiteSpace() }
+            .takeIf { it.isWhiteSpace20 }
             .let { whiteSpaceOrComment ->
                 // Disallow:
                 //     bar {
@@ -353,7 +353,7 @@ public class ChainMethodContinuationRule :
             .chainOperators
             .forEach { chainOperator ->
                 chainOperator
-                    .nextSibling { !it.isWhiteSpace() }
+                    .nextSibling { !it.isWhiteSpace20 }
                     ?.takeIf { it.isPartOfComment() }
                     ?.let { emit(it.startOffset, "No comment expected at this location in method chain", false) }
             }

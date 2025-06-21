@@ -9,7 +9,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.ImportOrderingRule.Companion.ASCII_PATTERN
 import com.pinterest.ktlint.ruleset.standard.rules.ImportOrderingRule.Companion.IDEA_PATTERN
@@ -144,7 +144,7 @@ public class ImportOrderingRule :
 
         children.forEach { current ->
             when {
-                current.isWhiteSpace() && current.text.count { it == '\n' } > 1 -> {
+                current.isWhiteSpace20 && current.text.count { it == '\n' } > 1 -> {
                     imports += current
                 }
 

@@ -31,7 +31,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isLeaf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfString20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
@@ -84,7 +84,7 @@ public class SpacingAroundCurlyRule :
             when (node.elementType) {
                 LBRACE -> {
                     spacingBefore =
-                        prevLeaf.isWhiteSpace() ||
+                        prevLeaf.isWhiteSpace20 ||
                         prevLeaf?.elementType == AT ||
                         (
                             (prevLeaf?.elementType == LPAR || prevLeaf?.elementType == LBRACKET) &&
@@ -117,7 +117,7 @@ public class SpacingAroundCurlyRule :
                                             // All consecutive whitespaces and comments preceding the curly have to be moved after the curly brace
                                             prevLeaf
                                                 .leavesIncludingSelf(forward = false)
-                                                .takeWhile { it.isWhiteSpace() || it.isPartOfComment() }
+                                                .takeWhile { it.isWhiteSpace20 || it.isPartOfComment() }
                                                 .toList()
                                                 .reversed()
                                                 .takeIf { it.isNotEmpty() }

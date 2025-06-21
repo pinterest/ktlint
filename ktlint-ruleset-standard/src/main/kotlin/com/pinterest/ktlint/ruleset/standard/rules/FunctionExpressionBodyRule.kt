@@ -24,7 +24,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
@@ -105,7 +105,7 @@ public class FunctionExpressionBodyRule :
             ?.takeUnless { it.countReturnKeywords() > 1 }
             ?.findChildByType(RETURN)
             ?.findChildByType(RETURN_KEYWORD)
-            ?.nextSibling { !it.isWhiteSpace() }
+            ?.nextSibling { !it.isWhiteSpace20 }
             ?.let { codeSibling ->
                 emit(block.startOffset, "Function body should be replaced with body expression", true)
                     .ifAutocorrectAllowed {
@@ -129,7 +129,7 @@ public class FunctionExpressionBodyRule :
                             // Remove whitespace before block
                             block
                                 .prevSibling()
-                                .takeIf { it.isWhiteSpace() }
+                                .takeIf { it.isWhiteSpace20 }
                                 ?.let { removeChild(it) }
                             if (findChildByType(TYPE_REFERENCE) == null) {
                                 // Insert Unit as return type as otherwise a compilation error results
@@ -151,7 +151,7 @@ public class FunctionExpressionBodyRule :
     private fun ASTNode.containingOnly(iElementType: IElementType) =
         iElementType ==
             children()
-                .filterNot { it.elementType == LBRACE || it.elementType == RBRACE || it.isWhiteSpace() }
+                .filterNot { it.elementType == LBRACE || it.elementType == RBRACE || it.isWhiteSpace20 }
                 .singleOrNull()
                 ?.elementType
 

@@ -16,7 +16,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -56,7 +56,9 @@ public class NoSemicolonsRule :
                 .ifAutocorrectAllowed {
                     val prevLeaf = node.prevLeaf(true)
                     node.remove()
-                    if (prevLeaf.isWhiteSpace() && (nextLeaf == null || nextLeaf.isWhiteSpace())) {
+                    if ((prevLeaf != null && prevLeaf.isWhiteSpace20) &&
+                        (nextLeaf == null || nextLeaf.isWhiteSpace20)
+                    ) {
                         prevLeaf.remove()
                     }
                 }

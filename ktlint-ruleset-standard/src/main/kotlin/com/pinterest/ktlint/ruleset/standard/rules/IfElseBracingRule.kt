@@ -21,7 +21,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -148,7 +148,7 @@ public class IfElseBracingRule :
 
         prevLeaves
             .firstOrNull()
-            .takeIf { it.isWhiteSpace() }
+            .takeIf { it.isWhiteSpace20 }
             ?.let {
                 (it as LeafPsiElement).rawReplaceWithText(" ")
             }
@@ -164,7 +164,7 @@ public class IfElseBracingRule :
                 addChild(PsiWhiteSpaceImpl(indentConfig.childIndentOf(node)))
             }
             prevLeaves
-                .dropWhile { it.isWhiteSpace() }
+                .dropWhile { it.isWhiteSpace20 }
                 .takeIf { it.isNotEmpty() }
                 ?.forEach(::addChild)
             if (previousChild != null) {

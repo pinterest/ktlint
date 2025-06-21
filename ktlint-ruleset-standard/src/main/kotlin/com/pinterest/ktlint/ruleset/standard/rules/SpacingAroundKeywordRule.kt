@@ -23,7 +23,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.remove
@@ -68,7 +68,7 @@ public class SpacingAroundKeywordRule : StandardRule("keyword-spacing") {
                 .takeIf { keywordsWithoutSpaces.contains(it.elementType) }
                 .takeIf { node.isPropertyAccessorWithValueParameterList() }
                 ?.nextLeaf()
-                ?.takeIf { it.isWhiteSpace() }
+                ?.takeIf { it.isWhiteSpace20 }
                 ?.also { nextLeaf ->
                     emit(node.startOffset, "Unexpected spacing after \"${node.text}\"", true)
                         .ifAutocorrectAllowed { nextLeaf.remove() }

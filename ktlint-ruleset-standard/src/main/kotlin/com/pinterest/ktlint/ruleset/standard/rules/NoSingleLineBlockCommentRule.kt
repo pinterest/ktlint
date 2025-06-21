@@ -14,7 +14,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -50,7 +50,7 @@ public class NoSingleLineBlockCommentRule :
             val afterBlockComment =
                 node
                     .leaves()
-                    .takeWhile { it.isWhiteSpace() && !it.textContains('\n') }
+                    .takeWhile { it.isWhiteSpace20 && !it.textContains('\n') }
                     .firstOrNull()
                     ?: node.lastChildLeafOrSelf()
 
@@ -62,7 +62,7 @@ public class NoSingleLineBlockCommentRule :
                         val beforeBlockComment =
                             node
                                 .leaves(false)
-                                .takeWhile { it.isWhiteSpace() && !it.textContains('\n') }
+                                .takeWhile { it.isWhiteSpace20 && !it.textContains('\n') }
                                 .firstOrNull()
                                 ?: node.firstChildLeafOrSelf()
                         beforeBlockComment

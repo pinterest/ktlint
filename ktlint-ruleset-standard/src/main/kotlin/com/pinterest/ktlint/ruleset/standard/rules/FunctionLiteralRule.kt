@@ -28,7 +28,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PR
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
@@ -191,7 +191,7 @@ public class FunctionLiteralRule :
             .leavesIncludingSelf()
             .takeWhile { it != stopAtLeaf }
             .joinToString(separator = "") {
-                if (it.isWhiteSpace()) {
+                if (it.isWhiteSpace20) {
                     // Eliminate newlines and redundant spaces
                     " "
                 } else {
@@ -257,7 +257,7 @@ public class FunctionLiteralRule :
         require(valueParameter.elementType == VALUE_PARAMETER)
         valueParameter
             .prevLeaf()
-            .takeIf { it.isWhiteSpace() }
+            .takeIf { it.isWhiteSpace20 }
             .let { whitespaceBeforeValueParameter ->
                 if (whitespaceBeforeValueParameter == null ||
                     !whitespaceBeforeValueParameter.textContains('\n')
@@ -285,7 +285,7 @@ public class FunctionLiteralRule :
         require(arrow.elementType == ARROW)
         arrow
             .prevLeaf()
-            .takeIf { it.isWhiteSpace() }
+            .takeIf { it.isWhiteSpace20 }
             .let { whitespaceBeforeArrow ->
                 if (whitespaceBeforeArrow == null ||
                     !whitespaceBeforeArrow.textContains('\n')
@@ -305,7 +305,7 @@ public class FunctionLiteralRule :
         require(arrow.elementType == ARROW)
         arrow
             .nextLeaf()
-            .takeIf { it.isWhiteSpace() }
+            .takeIf { it.isWhiteSpace20 }
             .let { whitespaceAfterArrow ->
                 if (whitespaceAfterArrow == null ||
                     !whitespaceAfterArrow.textContains('\n')
@@ -325,7 +325,7 @@ public class FunctionLiteralRule :
         require(rbrace.elementType == RBRACE)
         rbrace
             .prevLeaf()
-            .takeIf { it.isWhiteSpace() }
+            .takeIf { it.isWhiteSpace20 }
             .let { whitespaceBeforeRbrace ->
                 if (whitespaceBeforeRbrace == null ||
                     !whitespaceBeforeRbrace.textContains('\n')
@@ -353,7 +353,7 @@ public class FunctionLiteralRule :
                     }
             }
         parameterList
-            .nextSibling { it.isWhiteSpace() }
+            .nextSibling { it.isWhiteSpace20 }
             ?.takeIf { it.isWhiteSpaceWithNewline() }
             ?.let { whitespaceAfterParameterList ->
                 emit(parameterList.startOffset + parameterList.textLength, "No newline expected after parameter", true)
@@ -380,7 +380,7 @@ public class FunctionLiteralRule :
                     .ifAutocorrectAllowed {
                         arrow
                             .nextSibling()
-                            .takeIf { it.isWhiteSpace() }
+                            .takeIf { it.isWhiteSpace20 }
                             ?.remove()
                         arrow.remove()
                     }
@@ -445,7 +445,7 @@ public class FunctionLiteralRule :
         require(lbrace.elementType == LBRACE)
         lbrace
             .nextLeaf()
-            .takeIf { it.isWhiteSpace() }
+            .takeIf { it.isWhiteSpace20 }
             .let { whitespaceAfterLbrace ->
                 if (whitespaceAfterLbrace == null ||
                     !whitespaceAfterLbrace.textContains('\n')
