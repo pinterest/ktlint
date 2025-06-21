@@ -40,7 +40,7 @@ import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isLeaf20
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
@@ -136,7 +136,7 @@ public class ClassSignatureRule :
     private fun ASTNode.superTypes() =
         findChildByType(SUPER_TYPE_LIST)
             ?.children()
-            ?.filterNot { it.isWhiteSpace20 || it.isPartOfComment() || it.elementType == COMMA }
+            ?.filterNot { it.isWhiteSpace20 || it.isPartOfComment20 || it.elementType == COMMA }
 
     private fun ASTNode.hasMultilineSuperTypeList() = findChildByType(SUPER_TYPE_LIST)?.textContains('\n') == true
 
@@ -300,7 +300,7 @@ public class ClassSignatureRule :
         return whiteSpaceCorrection
     }
 
-    private fun ASTNode.containsComment() = children().any { it.isPartOfComment() }
+    private fun ASTNode.containsComment() = children().any { it.isPartOfComment20 }
 
     private fun fixWhiteSpacesBeforeFirstParameterInValueParameterList(
         node: ASTNode,
@@ -625,7 +625,7 @@ public class ClassSignatureRule :
         findChildByType(PRIMARY_CONSTRUCTOR)
             ?.findChildByType(VALUE_PARAMETER_LIST)
             ?.findChildByType(RPAR)
-            ?.prevLeaf { !it.isPartOfComment() }
+            ?.prevLeaf { !it.isPartOfComment20 }
             .isWhiteSpaceWithNewline20
 
     private fun fixClassBody(

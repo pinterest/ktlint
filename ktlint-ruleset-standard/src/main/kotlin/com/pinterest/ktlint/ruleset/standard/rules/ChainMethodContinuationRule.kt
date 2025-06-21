@@ -40,7 +40,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
@@ -259,7 +259,7 @@ public class ChainMethodContinuationRule :
             ?.findChildByType(LBRACE)
     }
 
-    private fun ASTNode.isPrecededByComment() = treeParent.children().any { it.isPartOfComment() }
+    private fun ASTNode.isPrecededByComment() = treeParent.children().any { it.isPartOfComment20 }
 
     private fun insertWhiteSpaceBeforeChainOperator(
         chainOperator: ASTNode,
@@ -267,10 +267,10 @@ public class ChainMethodContinuationRule :
     ) {
         chainOperator
             .prevLeaf()
-            .takeIf { it.isWhiteSpace20 || it?.isPartOfComment() == true }
+            .takeIf { it.isWhiteSpace20 || it?.isPartOfComment20 == true }
             .let { whiteSpaceOrComment ->
                 when {
-                    whiteSpaceOrComment?.isPartOfComment() == true -> {
+                    whiteSpaceOrComment?.isPartOfComment20 == true -> {
                         // In a chained method containing comments before each method in the chain starts on a newline
                         // Disallow:
                         //     fooBar
@@ -354,7 +354,7 @@ public class ChainMethodContinuationRule :
             .forEach { chainOperator ->
                 chainOperator
                     .nextSibling { !it.isWhiteSpace20 }
-                    ?.takeIf { it.isPartOfComment() }
+                    ?.takeIf { it.isPartOfComment20 }
                     ?.let { emit(it.startOffset, "No comment expected at this location in method chain", false) }
             }
     }

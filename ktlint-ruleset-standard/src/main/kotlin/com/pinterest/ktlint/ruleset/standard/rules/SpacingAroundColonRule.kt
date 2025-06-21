@@ -9,7 +9,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
@@ -50,7 +50,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                     val prevNonCodeElements =
                         node
                             .siblings(forward = false)
-                            .takeWhile { it.isWhiteSpace20 || it.isPartOfComment() }
+                            .takeWhile { it.isWhiteSpace20 || it.isPartOfComment20 }
                             .toList()
                             .reversed()
                     when {
@@ -99,7 +99,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                             }
                         }
 
-                        prevLeaf.prevLeaf()?.isPartOfComment() == true -> {
+                        prevLeaf.prevLeaf()?.isPartOfComment20 == true -> {
                             val nextLeaf = node.nextLeaf()
                             prevNonCodeElements.forEach {
                                 node.treeParent.addChild(it, nextLeaf)

@@ -7,7 +7,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isRoot20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -39,7 +39,7 @@ public class NoEmptyFileRule : StandardRule(id = "no-empty-file") {
             children()
                 .firstOrNull {
                     !it.isWhiteSpace20 &&
-                        !it.isPartOfComment() &&
+                        !it.isPartOfComment20 &&
                         it.elementType != ElementType.PACKAGE_DIRECTIVE &&
                         it.elementType != ElementType.IMPORT_LIST &&
                         !(it.elementType == ElementType.SCRIPT && it.text.isBlank())

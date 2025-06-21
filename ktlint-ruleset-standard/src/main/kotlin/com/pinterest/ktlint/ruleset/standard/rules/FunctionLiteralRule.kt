@@ -27,7 +27,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
@@ -212,7 +212,7 @@ public class FunctionLiteralRule :
                 children()
                     .first { it.elementType == VALUE_PARAMETER }
                     .lastChildLeafOrSelf()
-                    .nextLeaf { !it.isWhiteSpaceWithoutNewline20 && !it.isPartOfComment() }
+                    .nextLeaf { !it.isWhiteSpaceWithoutNewline20 && !it.isPartOfComment20 }
             leavesOnLine(excludeEolComment = true)
                 .takeWhile { it.prevLeaf() != stopAtLeaf }
                 .lineLengthWithoutNewlinePrefix()
@@ -363,7 +363,7 @@ public class FunctionLiteralRule :
             }
     }
 
-    private fun ASTNode.isPrecededByComment() = siblings(forward = false).any { it.isPartOfComment() }
+    private fun ASTNode.isPrecededByComment() = siblings(forward = false).any { it.isPartOfComment20 }
 
     private fun visitArrow(
         arrow: ASTNode,

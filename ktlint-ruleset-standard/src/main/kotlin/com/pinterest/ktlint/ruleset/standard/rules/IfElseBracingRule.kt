@@ -20,7 +20,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
@@ -142,7 +142,7 @@ public class IfElseBracingRule :
         val nextLeaves =
             node
                 .leaves(forward = true)
-                .takeWhile { it.isWhiteSpaceWithoutNewline20 || it.isPartOfComment() }
+                .takeWhile { it.isWhiteSpaceWithoutNewline20 || it.isPartOfComment20 }
                 .toList()
                 .dropLastWhile { it.isWhiteSpaceWithoutNewline20 }
 
@@ -180,7 +180,7 @@ public class IfElseBracingRule :
         // Make sure else starts on same line as newly inserted right brace
         if (node.elementType == THEN) {
             node
-                .nextSibling { !it.isPartOfComment() }
+                .nextSibling { !it.isPartOfComment20 }
                 ?.upsertWhitespaceBeforeMe(" ")
         }
     }

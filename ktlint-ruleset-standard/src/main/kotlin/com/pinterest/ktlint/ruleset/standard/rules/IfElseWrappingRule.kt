@@ -23,7 +23,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
@@ -69,7 +69,7 @@ public class IfElseWrappingRule :
     ) {
         when {
             node.elementType == IF -> visitIf(node, emit)
-            node.isPartOfComment() && node.treeParent.elementType == IF -> visitComment(node, emit)
+            node.isPartOfComment20 && node.treeParent.elementType == IF -> visitComment(node, emit)
         }
     }
 
@@ -176,10 +176,10 @@ public class IfElseWrappingRule :
             ?.first {
                 it.elementType != LBRACE &&
                     !it.isWhitespaceBeforeComment() &&
-                    !it.isPartOfComment()
+                    !it.isPartOfComment20
             }
 
-    private fun ASTNode.isWhitespaceBeforeComment() = isWhiteSpaceWithoutNewline20 && nextLeaf()?.isPartOfComment() == true
+    private fun ASTNode.isWhitespaceBeforeComment() = isWhiteSpaceWithoutNewline20 && nextLeaf()?.isPartOfComment20 == true
 
     private fun ASTNode.outerIf(): ASTNode {
         require(this.elementType == IF)
@@ -199,7 +199,7 @@ public class IfElseWrappingRule :
         comment: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        require(comment.isPartOfComment())
+        require(comment.isPartOfComment20)
         if (comment.betweenCodeSiblings(ElementType.RPAR, THEN) ||
             comment.betweenCodeSiblings(THEN, ELSE_KEYWORD) ||
             comment.betweenCodeSiblings(ELSE_KEYWORD, ELSE)

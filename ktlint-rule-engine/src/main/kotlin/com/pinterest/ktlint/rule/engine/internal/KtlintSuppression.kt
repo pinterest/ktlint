@@ -19,7 +19,7 @@ import com.pinterest.ktlint.rule.engine.core.api.KtlintKotlinCompiler
 import com.pinterest.ktlint.rule.engine.core.api.findChildByTypeRecursively
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.indent
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isRoot20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
@@ -167,7 +167,7 @@ private val listElementTypeTokenSet = TokenSet.create(TYPE_PROJECTION, TYPE_PARA
 private fun PsiElement.isIgnorableListElement() =
     node
         .takeIf { it.treeParent.elementType in listTypeTokenSet }
-        ?.let { it.elementType == COMMA || it.isWhiteSpace20 || it.isPartOfComment() }
+        ?.let { it.elementType == COMMA || it.isWhiteSpace20 || it.isPartOfComment20 }
         ?: false
 
 /**

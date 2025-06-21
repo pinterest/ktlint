@@ -129,7 +129,7 @@ public fun ASTNode.lastChildLeafOrSelf(): ASTNode {
 
 public fun ASTNode.prevCodeLeaf(includeEmpty: Boolean = false): ASTNode? {
     var n = prevLeaf(includeEmpty)
-    while (n != null && (n.elementType == WHITE_SPACE || n.isPartOfComment())) {
+    while (n != null && (n.elementType == WHITE_SPACE || n.isPartOfComment20)) {
         n = n.prevLeaf(includeEmpty)
     }
     return n
@@ -140,13 +140,13 @@ public fun ASTNode.nextCodeLeaf(
     skipSubtree: Boolean = false,
 ): ASTNode? {
     var n = nextLeaf(includeEmpty, skipSubtree)
-    while (n != null && (n.elementType == WHITE_SPACE || n.isPartOfComment())) {
+    while (n != null && (n.elementType == WHITE_SPACE || n.isPartOfComment20)) {
         n = n.nextLeaf(includeEmpty, skipSubtree)
     }
     return n
 }
 
-public fun ASTNode.prevCodeSibling(): ASTNode? = prevSibling { it.elementType != WHITE_SPACE && !it.isPartOfComment() }
+public fun ASTNode.prevCodeSibling(): ASTNode? = prevSibling { it.elementType != WHITE_SPACE && !it.isPartOfComment20 }
 
 public inline fun ASTNode.prevSibling(predicate: (ASTNode) -> Boolean = { true }): ASTNode? {
     var n = this.treePrev
@@ -159,7 +159,7 @@ public inline fun ASTNode.prevSibling(predicate: (ASTNode) -> Boolean = { true }
     return null
 }
 
-public fun ASTNode.nextCodeSibling(): ASTNode? = nextSibling { it.elementType != WHITE_SPACE && !it.isPartOfComment() }
+public fun ASTNode.nextCodeSibling(): ASTNode? = nextSibling { it.elementType != WHITE_SPACE && !it.isPartOfComment20 }
 
 public inline fun ASTNode.nextSibling(predicate: (ASTNode) -> Boolean = { true }): ASTNode? {
     var n = this.treeNext
@@ -314,9 +314,19 @@ public val ASTNode.isLeaf20
  * Check if the given [ASTNode] is a code leaf. E.g. it must be a leaf and may not be a whitespace or be part of a
  * comment.
  */
-public fun ASTNode.isCodeLeaf(): Boolean = isLeaf20 && !isWhiteSpace20 && !isPartOfComment()
+public fun ASTNode.isCodeLeaf(): Boolean = isLeaf20 && !isWhiteSpace20 && !isPartOfComment20
 
-public fun ASTNode.isPartOfComment(): Boolean = isPartOf(TokenSets.COMMENTS)
+@Deprecated(
+    "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
+        "the temporary property accessor. In 2.0 it can be replaced the final property accessor which will be the same as the " +
+        "current function name.",
+    replaceWith = ReplaceWith("isPartOfComment20"),
+)
+public fun ASTNode.isPartOfComment(): Boolean = isPartOfComment20
+
+// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+public val ASTNode.isPartOfComment20
+    get(): Boolean = isPartOf(TokenSets.COMMENTS)
 
 public fun ASTNode.children(): Sequence<ASTNode> = generateSequence(firstChildNode) { node -> node.treeNext }
 
@@ -587,7 +597,7 @@ private fun Sequence<ASTNode>.dropTrailingEolComment(): Sequence<ASTNode> =
     }
 
 internal fun ASTNode.getFirstLeafOnLineOrSelf() =
-    prevLeaf { (it.textContains('\n') && !it.isPartOfComment()) || it.prevLeaf() == null }
+    prevLeaf { (it.textContains('\n') && !it.isPartOfComment20) || it.prevLeaf() == null }
         ?: this
 
 internal fun ASTNode.getLastLeafOnLineOrNull() = nextLeaf { it.textContains('\n') }?.prevLeaf()

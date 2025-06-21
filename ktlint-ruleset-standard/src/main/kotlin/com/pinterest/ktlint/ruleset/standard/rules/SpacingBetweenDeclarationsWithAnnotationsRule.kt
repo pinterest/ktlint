@@ -12,7 +12,7 @@ import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isDeclaration
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
@@ -70,7 +70,7 @@ public class SpacingBetweenDeclarationsWithAnnotationsRule : StandardRule("spaci
         prevDeclaration: ASTNode,
     ) = node
         .leaves(false)
-        .takeWhile { it.isWhiteSpace20 || it.isPartOfComment() }
+        .takeWhile { it.isWhiteSpace20 || it.isPartOfComment20 }
         .takeWhile { it != prevDeclaration }
         .none { it.isBlankLine() }
 

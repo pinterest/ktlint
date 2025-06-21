@@ -20,7 +20,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
@@ -93,7 +93,7 @@ public class EnumWrappingRule :
                 .firstChildLeafOrSelf()
                 .leavesIncludingSelf()
                 .takeWhile { it != firstEnumEntry }
-                .firstOrNull { it.isPartOfComment() }
+                .firstOrNull { it.isPartOfComment20 }
                 ?.let { commentBeforeFirstEnumEntry ->
                     val expectedIndent = indentConfig.childIndentOf(node)
                     if (commentBeforeFirstEnumEntry.prevLeaf()?.text != expectedIndent) {
@@ -123,7 +123,7 @@ public class EnumWrappingRule :
 
     private fun ASTNode.hasCommentedEnumEntry() = children().any { it.containsCommentInEnumEntry() }
 
-    private fun ASTNode.containsCommentInEnumEntry() = children().any { it.isPartOfComment() }
+    private fun ASTNode.containsCommentInEnumEntry() = children().any { it.isPartOfComment20 }
 
     private fun wrapEnumEntries(
         node: ASTNode,
@@ -142,7 +142,7 @@ public class EnumWrappingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .prevLeaf { !it.isPartOfComment() && !it.isWhiteSpaceWithoutNewline20 }
+            .prevLeaf { !it.isPartOfComment20 && !it.isWhiteSpaceWithoutNewline20 }
             ?.takeUnless { it.isWhiteSpaceWithNewline20 }
             ?.let { prevLeaf ->
                 emit(node.startOffset, "Enum entry should start on a separate line", true)
@@ -177,7 +177,7 @@ public class EnumWrappingRule :
         node
             .children()
             .lastOrNull { it.elementType == ENUM_ENTRY }
-            ?.nextSibling { !it.isPartOfComment() }
+            ?.nextSibling { !it.isPartOfComment20 }
             ?.takeUnless { it.nextCodeSibling()?.elementType == RBRACE }
             ?.let { nextSibling ->
                 val expectedIndent = "\n".plus(indentConfig.siblingIndentOf(node))

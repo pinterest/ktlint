@@ -29,7 +29,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isLeaf20
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfString20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
@@ -117,7 +117,7 @@ public class SpacingAroundCurlyRule :
                                             // All consecutive whitespaces and comments preceding the curly have to be moved after the curly brace
                                             prevLeaf
                                                 .leavesIncludingSelf(forward = false)
-                                                .takeWhile { it.isWhiteSpace20 || it.isPartOfComment() }
+                                                .takeWhile { it.isWhiteSpace20 || it.isPartOfComment20 }
                                                 .toList()
                                                 .reversed()
                                                 .takeIf { it.isNotEmpty() }
@@ -184,7 +184,7 @@ public class SpacingAroundCurlyRule :
 
     private fun ASTNode.isPrecededByEolComment() =
         prevLeaf()
-            ?.isPartOfComment()
+            ?.isPartOfComment20
             ?: false
 
     private fun shouldNotToBeSeparatedBySpace(leaf: ASTNode?): Boolean {

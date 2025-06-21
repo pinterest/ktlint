@@ -8,7 +8,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfString20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -39,7 +39,7 @@ public class SpacingAroundCommaRule : StandardRule("comma-spacing") {
                         val isPrecededByComment =
                             prevLeaf
                                 .prevLeaf { it !is PsiWhiteSpace }
-                                ?.isPartOfComment()
+                                ?.isPartOfComment20
                                 ?: false
                         if (isPrecededByComment && prevLeaf.isWhiteSpaceWithNewline20) {
                             // If comma is on new line and preceded by a comment, it should be moved before this comment

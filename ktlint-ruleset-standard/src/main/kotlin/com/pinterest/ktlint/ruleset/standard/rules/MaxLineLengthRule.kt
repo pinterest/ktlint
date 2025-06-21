@@ -17,7 +17,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RULE_EXECUTION_PRO
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.ktLintRuleExecutionPropertyName
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
@@ -128,7 +128,7 @@ public class MaxLineLengthRule :
             ?: false
 
     private fun ASTNode.isLineOnlyContainingComment() =
-        isPartOfComment() &&
+        isPartOfComment20 &&
             (prevLeaf() == null || prevLeaf().isWhiteSpaceWithNewline20)
 
     public companion object {

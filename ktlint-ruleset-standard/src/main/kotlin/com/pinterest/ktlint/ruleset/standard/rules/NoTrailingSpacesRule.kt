@@ -8,7 +8,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -35,7 +35,7 @@ public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
                         node.removeTrailingSpacesBeforeNewline()
                     }
             }
-        } else if (node.elementType == WHITE_SPACE || node.isPartOfComment()) {
+        } else if (node.elementType == WHITE_SPACE || node.isPartOfComment20) {
             val lines = node.text.split("\n")
             var autocorrect = false
             var violationOffset = node.startOffset

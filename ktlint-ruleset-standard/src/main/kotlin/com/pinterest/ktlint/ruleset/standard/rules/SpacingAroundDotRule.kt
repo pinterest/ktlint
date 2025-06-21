@@ -5,7 +5,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfString20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -21,7 +21,7 @@ public class SpacingAroundDotRule : StandardRule("dot-spacing") {
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node is LeafPsiElement && node.textMatches(".") && !node.isPartOfString20 && !node.isPartOfComment()) {
+        if (node is LeafPsiElement && node.textMatches(".") && !node.isPartOfString20 && !node.isPartOfComment20) {
             val prevLeaf = node.prevLeaf()
             if (prevLeaf is PsiWhiteSpace && !prevLeaf.textContains('\n')) {
                 emit(prevLeaf.startOffset, "Unexpected spacing before \"${node.text}\"", true)

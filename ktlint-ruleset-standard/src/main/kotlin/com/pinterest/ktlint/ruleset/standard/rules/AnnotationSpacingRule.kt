@@ -9,7 +9,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.endOffset
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
@@ -83,12 +83,12 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
                         // Ensure at least one occurrence of two line breaks
                         s.indexOf("\n") != s.lastIndexOf("\n")
                     } else {
-                        it.isPartOfComment() && !it.isCommentOnSameLineAsPrevLeaf()
+                        it.isPartOfComment20 && !it.isCommentOnSameLineAsPrevLeaf()
                     }
                 },
             )
         if (next != null) {
-            if (node.elementType != ElementType.FILE_ANNOTATION_LIST && next.isPartOfComment()) {
+            if (node.elementType != ElementType.FILE_ANNOTATION_LIST && next.isPartOfComment20) {
                 emit(node.endOffset(), ERROR_MESSAGE, true)
                     .ifAutocorrectAllowed {
                         // Special-case autocorrection when the annotation is separated from the annotated construct
@@ -188,7 +188,7 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
     }
 
     private fun ASTNode.isCommentOnSameLineAsPrevLeaf() =
-        isPartOfComment() && leaves(forward = false).takeWhile { it.isWhiteSpace20 }.none { "\n" in it.text }
+        isPartOfComment20 && leaves(forward = false).takeWhile { it.isWhiteSpace20 }.none { "\n" in it.text }
 }
 
 public val ANNOTATION_SPACING_RULE_ID: RuleId = AnnotationSpacingRule().ruleId

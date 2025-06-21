@@ -39,7 +39,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
@@ -109,7 +109,7 @@ public class MultilineExpressionWrappingRule :
     ) {
         if (node.containsWhitespaceWithNewline() && node.needToWrapMultilineExpression()) {
             node
-                .prevLeaf { !it.isPartOfComment() }
+                .prevLeaf { !it.isPartOfComment20 }
                 .let { prevLeaf ->
                     if (prevLeaf != null && !prevLeaf.textContains('\n')) {
                         emit(node.startOffset, "A multiline expression should start on a new line", true)
@@ -118,7 +118,7 @@ public class MultilineExpressionWrappingRule :
                                 val leafOnSameLineAfterMultilineExpression =
                                     node
                                         .lastChildLeafOrSelf()
-                                        .nextLeaf { !it.isWhiteSpaceWithoutNewline20 && !it.isPartOfComment() }
+                                        .nextLeaf { !it.isWhiteSpaceWithoutNewline20 && !it.isPartOfComment20 }
                                         ?.takeIf { !it.isWhiteSpaceWithNewline20 }
                                 when {
                                     leafOnSameLineAfterMultilineExpression == null -> {

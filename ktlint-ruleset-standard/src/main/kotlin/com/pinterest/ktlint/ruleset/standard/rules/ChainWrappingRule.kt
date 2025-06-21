@@ -26,7 +26,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
@@ -75,7 +75,7 @@ public class ChainWrappingRule :
     ) {
         val elementType = node.elementType
         if (nextLineTokens.contains(elementType)) {
-            if (node.isPartOfComment()) {
+            if (node.isPartOfComment20) {
                 return
             }
             val nextLeaf = node.nextCodeLeaf()?.prevLeaf()
@@ -98,7 +98,7 @@ public class ChainWrappingRule :
                     }
             }
         } else if (sameLineTokens.contains(elementType) || prefixTokens.contains(elementType)) {
-            if (node.isPartOfComment()) {
+            if (node.isPartOfComment20) {
                 return
             }
             val prevLeaf = node.prevLeaf()
@@ -183,7 +183,7 @@ public class ChainWrappingRule :
 
     private fun ASTNode.isElvisOperatorAndComment(): Boolean =
         elementType == ELVIS &&
-            leaves().takeWhile { it.isWhiteSpaceWithoutNewline20 || it.isPartOfComment() }.any()
+            leaves().takeWhile { it.isWhiteSpaceWithoutNewline20 || it.isPartOfComment20 }.any()
 }
 
 public val CHAIN_WRAPPING_RULE_ID: RuleId = ChainWrappingRule().ruleId

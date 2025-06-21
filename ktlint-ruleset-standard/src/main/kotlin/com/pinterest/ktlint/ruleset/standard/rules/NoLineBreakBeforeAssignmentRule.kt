@@ -6,7 +6,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
@@ -42,7 +42,7 @@ public class NoLineBreakBeforeAssignmentRule : StandardRule("no-line-break-befor
                         // Insert assignment surrounded by whitespaces at new position
                         assignmentNode
                             .siblings(false)
-                            .takeWhile { it.isWhiteSpace20 || it.isPartOfComment() }
+                            .takeWhile { it.isWhiteSpace20 || it.isPartOfComment20 }
                             .last()
                             .let { before ->
                                 if (!before.prevSibling().isWhiteSpace20) {

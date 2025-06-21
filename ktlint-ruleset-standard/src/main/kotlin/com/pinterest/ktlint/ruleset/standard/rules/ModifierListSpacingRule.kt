@@ -11,7 +11,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -46,14 +46,14 @@ public class ModifierListSpacingRule : StandardRule("modifier-list-spacing") {
             return
         }
         node
-            .nextSibling { it.elementType == WHITE_SPACE && it.nextLeaf()?.isPartOfComment() != true }
+            .nextSibling { it.elementType == WHITE_SPACE && it.nextLeaf()?.isPartOfComment20 != true }
             ?.takeIf { it.elementType == WHITE_SPACE }
             ?.takeUnless {
                 // Regardless of element type, a single white space is always ok and does not need to be checked.
                 it.text == " "
             }?.takeUnless {
                 // A single newline after a comment is always ok and does not need further checking.
-                it.text.trim(' ', '\t').contains('\n') && it.prevLeaf()?.isPartOfComment() == true
+                it.text.trim(' ', '\t').contains('\n') && it.prevLeaf()?.isPartOfComment20 == true
             }?.let { whitespace ->
                 if (node.isAnnotationElement() ||
                     (node.elementType == MODIFIER_LIST && node.lastChildNode.isAnnotationElement())

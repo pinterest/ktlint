@@ -18,7 +18,7 @@ import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lineLength
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
@@ -123,7 +123,7 @@ public class ParameterListSpacingRule :
         }
     }
 
-    private fun ASTNode.containsNoComments() = children().none { it.isPartOfComment() }
+    private fun ASTNode.containsNoComments() = children().none { it.isPartOfComment20 }
 
     private fun visitValueParameter(
         node: ASTNode,

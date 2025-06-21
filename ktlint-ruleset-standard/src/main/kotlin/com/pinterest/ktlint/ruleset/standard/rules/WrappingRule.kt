@@ -61,7 +61,7 @@ import com.pinterest.ktlint.rule.engine.core.api.hasNewLineInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
@@ -264,7 +264,7 @@ public class WrappingRule :
                 .nextCodeLeaf()
                 ?.prevLeaf {
                     // Skip comments, whitespace, and empty nodes
-                    !it.isPartOfComment() &&
+                    !it.isPartOfComment20 &&
                         !it.isWhiteSpaceWithoutNewline20 &&
                         it.textLength > 0
                 }.isWhiteSpaceWithNewline20 &&
@@ -341,7 +341,7 @@ public class WrappingRule :
 
     private fun ASTNode.isFollowedByCommentOnSameLine() =
         nextLeaf { !it.isWhiteSpaceWithoutNewline20 }
-            ?.isPartOfComment() == true
+            ?.isPartOfComment20 == true
 
     private fun rearrangeValueList(
         node: ASTNode,
@@ -409,7 +409,7 @@ public class WrappingRule :
                 .filter { it.elementType == TYPE_PROJECTION || it.elementType == TYPE_PARAMETER }
                 .forEach { typeProjection ->
                     typeProjection
-                        .prevSibling { !it.isPartOfComment() }
+                        .prevSibling { !it.isPartOfComment20 }
                         .let { prevSibling ->
                             if (prevSibling?.elementType == LT || prevSibling.isWhiteSpaceWithoutNewline20) {
                                 emit(typeProjection.startOffset, "A newline was expected before '${typeProjection.text}'", true)
@@ -424,7 +424,7 @@ public class WrappingRule :
             node
                 .findChildByType(GT)
                 ?.let { closingAngle ->
-                    val prevSibling = closingAngle.prevSibling { !it.isPartOfComment() }
+                    val prevSibling = closingAngle.prevSibling { !it.isPartOfComment20 }
                     if (prevSibling?.elementType != WHITE_SPACE || prevSibling.isWhiteSpaceWithoutNewline20) {
                         emit(closingAngle.startOffset, "A newline was expected before '${closingAngle.text}'", true)
                             .ifAutocorrectAllowed {
@@ -682,7 +682,7 @@ public class WrappingRule :
                         node
                     } else {
                         // Other blocks have LBRACE and RBRACE as siblings of the block
-                        node.prevSibling { !it.isPartOfComment() && !it.isWhiteSpace20 }
+                        node.prevSibling { !it.isPartOfComment20 && !it.isWhiteSpace20 }
                     }
                 }
         }
@@ -698,7 +698,7 @@ public class WrappingRule :
                         node
                     } else {
                         // Other blocks have LBRACE and RBRACE as siblings of the block
-                        node.nextSibling { !it.isPartOfComment() && !it.isWhiteSpace20 }
+                        node.nextSibling { !it.isPartOfComment20 && !it.isWhiteSpace20 }
                     }
                 }
         }
