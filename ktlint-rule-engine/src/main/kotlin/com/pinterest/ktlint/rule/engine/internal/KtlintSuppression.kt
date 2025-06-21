@@ -20,7 +20,7 @@ import com.pinterest.ktlint.rule.engine.core.api.findChildByTypeRecursively
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isRoot
+import com.pinterest.ktlint.rule.engine.core.api.isRoot20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.replaceWith
@@ -209,7 +209,7 @@ private fun ASTNode.existingSuppressionsFromNamedArgumentOrNull(): Set<String>? 
         }
 
 private fun ASTNode.findSuppressionAnnotations(): Map<SuppressAnnotationType, ASTNode> =
-    if (this.isRoot()) {
+    if (isRoot20) {
         findChildByType(ElementType.FILE_ANNOTATION_LIST)
             ?.toMapOfSuppressionAnnotations()
             .orEmpty()
@@ -315,7 +315,7 @@ private fun ASTNode.createFileAnnotation(
         }
 
 private fun ASTNode.createFileAnnotationList(annotation: ASTNode) {
-    require(isRoot()) { "File annotation list can only be created for root node" }
+    require(isRoot20) { "File annotation list can only be created for root node" }
     // Should always be inserted into the first (root) code child regardless in which root node the ktlint directive
     // was actually found
     findChildByType(ElementType.PACKAGE_DIRECTIVE)

@@ -286,7 +286,17 @@ public fun ASTNode?.isWhiteSpaceWithoutNewline(): Boolean = isWhiteSpaceWithoutN
 public val ASTNode?.isWhiteSpaceWithoutNewline20
     get(): Boolean = this != null && elementType == WHITE_SPACE && !textContains('\n')
 
-public fun ASTNode.isRoot(): Boolean = elementType == ElementType.FILE
+@Deprecated(
+    "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
+        "the temporary property accessor. In 2.0 it can be replaced the final property accessor which will be the same as the " +
+        "current function name.",
+    replaceWith = ReplaceWith("isRoot20"),
+)
+public fun ASTNode.isRoot(): Boolean = isRoot20
+
+// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+public val ASTNode.isRoot20
+    get(): Boolean = elementType == ElementType.FILE
 
 public fun ASTNode.isLeaf(): Boolean = firstChildNode == null
 

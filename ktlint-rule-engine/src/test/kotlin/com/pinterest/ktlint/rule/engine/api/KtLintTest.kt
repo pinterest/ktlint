@@ -27,7 +27,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.END_OF_LINE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isRoot
+import com.pinterest.ktlint.rule.engine.core.api.isRoot20
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -52,7 +52,7 @@ class KtLintTest {
                         setOf(
                             RuleProvider {
                                 DummyRule { node ->
-                                    if (node.isRoot()) {
+                                    if (node.isRoot20) {
                                         numberOfRootNodesVisited++
                                     }
                                 }
@@ -118,7 +118,7 @@ class KtLintTest {
                         setOf(
                             RuleProvider {
                                 DummyRule { node ->
-                                    if (node.isRoot()) {
+                                    if (node.isRoot20) {
                                         numberOfRootNodesVisited++
                                     }
                                 }
@@ -636,7 +636,7 @@ private data class RuleExecutionCall(
 
 private val ASTNode.visitNodeType: RuleExecutionCall.VisitNodeType
     get() =
-        if (isRoot()) {
+        if (isRoot20) {
             ROOT
         } else {
             CHILD
