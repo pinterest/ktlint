@@ -33,7 +33,8 @@ public class UnnecessaryParenthesesBeforeTrailingLambdaRule : StandardRule("unne
         if (node.isEmptyArgumentList() &&
             node.isPartOf(CALL_EXPRESSION) &&
             node.isNotPrecededByCallExpressionEndingWithLambdaArgument() &&
-            node.nextCodeSibling()?.elementType == LAMBDA_ARGUMENT
+            node.nextCodeSibling()?.elementType == LAMBDA_ARGUMENT &&
+            node.prevCodeSibling()?.elementType != CALL_EXPRESSION
         ) {
             emit(
                 node.startOffset,
