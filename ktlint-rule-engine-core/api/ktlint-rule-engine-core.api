@@ -19,6 +19,7 @@ public final class com/pinterest/ktlint/rule/engine/core/api/ASTNodeExtensionKt 
 	public static final fun isKtExpression (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
 	public static final fun isKtLoopExpression (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
 	public static final fun isLeaf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
+	public static final fun isLeaf20 (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
 	public static final fun isPartOf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/reflect/KClass;)Z
 	public static final fun isPartOf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;)Z
 	public static final fun isPartOf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/TokenSet;)Z

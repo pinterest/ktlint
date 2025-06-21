@@ -298,13 +298,23 @@ public fun ASTNode.isRoot(): Boolean = isRoot20
 public val ASTNode.isRoot20
     get(): Boolean = elementType == ElementType.FILE
 
-public fun ASTNode.isLeaf(): Boolean = firstChildNode == null
+@Deprecated(
+    "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
+        "the temporary property accessor. In 2.0 it can be replaced the final property accessor which will be the same as the " +
+        "current function name.",
+    replaceWith = ReplaceWith("isLeaf20"),
+)
+public fun ASTNode.isLeaf(): Boolean = isLeaf20
+
+// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+public val ASTNode.isLeaf20
+    get(): Boolean = firstChildNode == null
 
 /**
  * Check if the given [ASTNode] is a code leaf. E.g. it must be a leaf and may not be a whitespace or be part of a
  * comment.
  */
-public fun ASTNode.isCodeLeaf(): Boolean = isLeaf() && !isWhiteSpace20 && !isPartOfComment()
+public fun ASTNode.isCodeLeaf(): Boolean = isLeaf20 && !isWhiteSpace20 && !isPartOfComment()
 
 public fun ASTNode.isPartOfComment(): Boolean = isPartOf(TokenSets.COMMENTS)
 
@@ -535,7 +545,7 @@ public fun ASTNode.isValOrVarKeyword(): Boolean = elementType == VAL_KEYWORD || 
  */
 public fun ASTNode.leavesIncludingSelf(forward: Boolean = true): Sequence<ASTNode> {
     val sequence =
-        if (isLeaf()) {
+        if (isLeaf20) {
             sequenceOf(this)
         } else {
             emptySequence()

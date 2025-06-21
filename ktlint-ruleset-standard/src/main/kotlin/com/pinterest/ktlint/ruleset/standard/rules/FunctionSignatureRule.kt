@@ -38,7 +38,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PR
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.isLeaf
+import com.pinterest.ktlint.rule.engine.core.api.isLeaf20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
@@ -700,7 +700,7 @@ public class FunctionSignatureRule :
     private fun List<ASTNode>.collectLeavesRecursively(): List<ASTNode> = flatMap { it.collectLeavesRecursively() }
 
     private fun ASTNode.collectLeavesRecursively(): List<ASTNode> =
-        if (isLeaf()) {
+        if (isLeaf20) {
             listOf(this)
         } else {
             children()
