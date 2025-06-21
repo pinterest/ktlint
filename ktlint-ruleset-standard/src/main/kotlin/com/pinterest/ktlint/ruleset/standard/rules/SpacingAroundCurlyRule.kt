@@ -30,7 +30,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isLeaf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfString
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfString20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
@@ -76,7 +76,7 @@ public class SpacingAroundCurlyRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.isLeaf() && !node.isPartOfString()) {
+        if (node.isLeaf() && !node.isPartOfString20) {
             val prevLeaf = node.prevLeaf()
             val nextLeaf = node.nextLeaf()
             val spacingBefore: Boolean

@@ -9,7 +9,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfString
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfString20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
@@ -31,7 +31,7 @@ public class SpacingAroundCommaRule : StandardRule("comma-spacing") {
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node is LeafPsiElement && node.textMatches(",") && !node.isPartOfString()) {
+        if (node is LeafPsiElement && node.textMatches(",") && !node.isPartOfString20) {
             val prevLeaf = node.prevLeaf()
             if (prevLeaf is PsiWhiteSpace) {
                 emit(prevLeaf.startOffset, "Unexpected spacing before \"${node.text}\"", true)

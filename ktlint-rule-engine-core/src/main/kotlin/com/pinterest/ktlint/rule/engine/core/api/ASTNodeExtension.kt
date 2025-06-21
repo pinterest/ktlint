@@ -32,6 +32,13 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.reflect.KClass
 
+/**
+ * In Ktlint 2.0 all ASTNode extensions functions will be replaced with property access where applicable. For now (ktlint 1.x) those
+ * property accessors are prefixed with `_` to avoid name clashes with the functions. You are encouraged to replace the deprecated
+ * functions with the accessors prefixed with `_` with use of the IntelliJ IDEA functionality. In Ktlint 2.0 the functions will be removed,
+ * and the prefix `_` will be removed from the accessors.
+ */
+
 public fun ASTNode.nextLeaf(
     includeEmpty: Boolean = false,
     skipSubtree: Boolean = false,
@@ -225,7 +232,17 @@ public fun ASTNode.isPartOfCompositeElementOfType(iElementType: IElementType): B
 public fun ASTNode.findCompositeParentElementOfType(iElementType: IElementType): ASTNode? =
     parent { it.elementType == iElementType || it !is CompositeElement }
 
-public fun ASTNode.isPartOfString(): Boolean = parent(STRING_TEMPLATE, strict = false) != null
+@Deprecated(
+    "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
+        "the temporary property accessor. In 2.0 it can be replaced the final property accessor which will be the same as the " +
+        "current function name.",
+    replaceWith = ReplaceWith("isPartOfString20"),
+)
+public fun ASTNode.isPartOfString(): Boolean = isPartOfString20
+
+// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+public val ASTNode.isPartOfString20
+    get(): Boolean = parent(STRING_TEMPLATE, strict = false) != null
 
 @OptIn(ExperimentalContracts::class)
 public fun ASTNode?.isWhiteSpace(): Boolean {
