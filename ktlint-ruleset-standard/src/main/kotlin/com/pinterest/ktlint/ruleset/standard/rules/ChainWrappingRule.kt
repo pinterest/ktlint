@@ -27,7 +27,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -79,7 +79,7 @@ public class ChainWrappingRule :
                 return
             }
             val nextLeaf = node.nextCodeLeaf()?.prevLeaf()
-            if (nextLeaf.isWhiteSpaceWithNewline() && !node.isElvisOperatorAndComment()) {
+            if (nextLeaf.isWhiteSpaceWithNewline20 && !node.isElvisOperatorAndComment()) {
                 emit(node.startOffset, "Line must not end with \"${node.text}\"", true)
                     .ifAutocorrectAllowed {
                         // rewriting
@@ -117,7 +117,7 @@ public class ChainWrappingRule :
                 return
             }
 
-            if (prevLeaf != null && prevLeaf.isWhiteSpaceWithNewline()) {
+            if (prevLeaf != null && prevLeaf.isWhiteSpaceWithNewline20) {
                 emit(node.startOffset, "Line must not begin with \"${node.text}\"", true)
                     .ifAutocorrectAllowed {
                         // rewriting
@@ -129,7 +129,7 @@ public class ChainWrappingRule :
                         val nextLeaf = node.nextLeaf()
                         val whiteSpaceToBeDeleted =
                             when {
-                                nextLeaf.isWhiteSpaceWithNewline() -> {
+                                nextLeaf.isWhiteSpaceWithNewline20 -> {
                                     // Node is preceded and followed by whitespace. Prefer to remove the whitespace before the node as this will
                                     // change the indent of the next line
                                     prevLeaf

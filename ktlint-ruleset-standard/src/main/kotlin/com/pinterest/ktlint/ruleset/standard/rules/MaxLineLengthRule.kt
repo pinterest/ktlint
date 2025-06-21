@@ -19,7 +19,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.ktLintRuleExecutio
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
 import com.pinterest.ktlint.rule.engine.core.api.lineLengthWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -78,7 +78,7 @@ public class MaxLineLengthRule :
         }
         node
             .takeIf { it is LeafPsiElement }
-            ?.takeIf { it.nextLeaf() == null || it.nextLeaf().isWhiteSpaceWithNewline() }
+            ?.takeIf { it.nextLeaf() == null || it.nextLeaf().isWhiteSpaceWithNewline20 }
             ?.takeIf { it.lineLength() > maxLineLength }
             ?.takeUnless { it.isPartOf(ElementType.PACKAGE_DIRECTIVE) }
             ?.takeUnless { it.isPartOf(ElementType.IMPORT_DIRECTIVE) }
@@ -122,14 +122,14 @@ public class MaxLineLengthRule :
                 stringTemplate
                     .prevLeaf()
                     .let { leafBeforeStringTemplate ->
-                        leafBeforeStringTemplate == null || leafBeforeStringTemplate.isWhiteSpaceWithNewline()
+                        leafBeforeStringTemplate == null || leafBeforeStringTemplate.isWhiteSpaceWithNewline20
                     }
             }
             ?: false
 
     private fun ASTNode.isLineOnlyContainingComment() =
         isPartOfComment() &&
-            (prevLeaf() == null || prevLeaf().isWhiteSpaceWithNewline())
+            (prevLeaf() == null || prevLeaf().isWhiteSpaceWithNewline20)
 
     public companion object {
         public val IGNORE_BACKTICKED_IDENTIFIER_PROPERTY: EditorConfigProperty<Boolean> =

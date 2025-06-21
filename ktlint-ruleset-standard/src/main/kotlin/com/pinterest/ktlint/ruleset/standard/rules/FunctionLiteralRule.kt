@@ -29,7 +29,7 @@ import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
@@ -345,7 +345,7 @@ public class FunctionLiteralRule :
         require(parameterList.elementType == VALUE_PARAMETER_LIST)
         parameterList
             .takeUnless { it.isPrecededByComment() }
-            ?.prevSibling { it.isWhiteSpaceWithNewline() }
+            ?.prevSibling { it.isWhiteSpaceWithNewline20 }
             ?.let { whitespaceBeforeParameterList ->
                 emit(parameterList.startOffset, "No newline expected before parameter", true)
                     .ifAutocorrectAllowed {
@@ -354,7 +354,7 @@ public class FunctionLiteralRule :
             }
         parameterList
             .nextSibling { it.isWhiteSpace20 }
-            ?.takeIf { it.isWhiteSpaceWithNewline() }
+            ?.takeIf { it.isWhiteSpaceWithNewline20 }
             ?.let { whitespaceAfterParameterList ->
                 emit(parameterList.startOffset + parameterList.textLength, "No newline expected after parameter", true)
                     .ifAutocorrectAllowed {

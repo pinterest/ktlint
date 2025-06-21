@@ -17,7 +17,7 @@ import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
@@ -74,7 +74,7 @@ public class ConditionWrappingRule :
     ) {
         node
             .findChildByType(OPERATION_REFERENCE)
-            ?.takeUnless { it.nextSibling().isWhiteSpaceWithNewline() }
+            ?.takeUnless { it.nextSibling().isWhiteSpaceWithNewline20 }
             ?.let { operationReference ->
                 val startOffset =
                     with(operationReference) { startOffset + textLength }
@@ -100,7 +100,7 @@ public class ConditionWrappingRule :
         }
 
         return anyParentBinaryExpression { parent ->
-            parent.children().any { it.isWhiteSpaceWithNewline() }
+            parent.children().any { it.isWhiteSpaceWithNewline20 }
         }
     }
 
@@ -113,7 +113,7 @@ public class ConditionWrappingRule :
             false
         } else {
             leavesInClosedRange(this.firstChildLeafOrSelf(), this.lastChildLeafOrSelf())
-                .any { it.isWhiteSpaceWithNewline() }
+                .any { it.isWhiteSpaceWithNewline20 }
         }
 
     private fun ASTNode.anyParentBinaryExpression(predicate: (ASTNode) -> Boolean): Boolean {

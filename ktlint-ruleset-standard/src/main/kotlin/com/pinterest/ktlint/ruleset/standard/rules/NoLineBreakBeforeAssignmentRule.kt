@@ -8,7 +8,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -34,7 +34,7 @@ public class NoLineBreakBeforeAssignmentRule : StandardRule("no-line-break-befor
     ) {
         assignmentNode
             .prevSibling()
-            .takeIf { it.isWhiteSpaceWithNewline() }
+            .takeIf { it.isWhiteSpaceWithNewline20 }
             ?.let { unexpectedNewlineBeforeAssignment ->
                 emit(unexpectedNewlineBeforeAssignment.startOffset, "Line break before assignment is not allowed", true)
                     .ifAutocorrectAllowed {

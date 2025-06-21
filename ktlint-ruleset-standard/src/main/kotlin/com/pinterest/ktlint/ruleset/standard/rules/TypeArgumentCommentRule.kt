@@ -9,7 +9,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -43,7 +43,7 @@ public class TypeArgumentCommentRule : StandardRule("type-argument-comment") {
                             false,
                         )
                     } else if (node.treeParent.elementType == TYPE_ARGUMENT_LIST) {
-                        if (node.prevLeaf().isWhiteSpaceWithNewline()) {
+                        if (node.prevLeaf().isWhiteSpaceWithNewline20) {
                             // Allow:
                             //     fun Foo<
                             //         /* some comment */

@@ -29,7 +29,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lineLength
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -259,7 +259,7 @@ public class ArgumentListWrappingRule :
             .children()
             .firstOrNull { it.elementType == TYPE_ARGUMENT_LIST }
             ?.children()
-            ?.any { it.isWhiteSpaceWithNewline() } == true
+            ?.any { it.isWhiteSpaceWithNewline20 } == true
 
     private fun ASTNode.isPartOfDotQualifiedAssignmentExpression(): Boolean =
         treeParent
@@ -274,7 +274,7 @@ public class ArgumentListWrappingRule :
     private fun ASTNode.prevWhiteSpaceWithNewLine(): ASTNode? {
         var prev = prevLeaf()
         while (prev != null && (prev.isWhiteSpace20 || prev.isPartOfComment())) {
-            if (prev.isWhiteSpaceWithNewline()) {
+            if (prev.isWhiteSpaceWithNewline20) {
                 return prev
             }
             prev = prev.prevLeaf()
@@ -285,7 +285,7 @@ public class ArgumentListWrappingRule :
     private fun ASTNode.isOnSameLineAsControlFlowKeyword(): Boolean {
         var prevLeaf = prevLeaf() ?: return false
         while (prevLeaf.elementType !in TokenSets.CONTROL_FLOW_KEYWORDS) {
-            if (prevLeaf.isWhiteSpaceWithNewline()) return false
+            if (prevLeaf.isWhiteSpaceWithNewline20) return false
             prevLeaf = prevLeaf.prevLeaf() ?: return false
         }
         return true

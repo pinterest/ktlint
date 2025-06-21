@@ -27,7 +27,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
@@ -95,7 +95,7 @@ public class ParameterListWrappingRule :
             ?.let { nullableType ->
                 nullableType
                     .findChildByType(LPAR)
-                    ?.takeUnless { it.nextLeaf()?.isWhiteSpaceWithNewline() == true }
+                    ?.takeUnless { it.nextLeaf()?.isWhiteSpaceWithNewline20 == true }
                     ?.let { lpar ->
                         emit(
                             lpar.startOffset + 1,
@@ -107,7 +107,7 @@ public class ParameterListWrappingRule :
                     }
                 nullableType
                     .findChildByType(RPAR)
-                    ?.takeUnless { it.prevLeaf()?.isWhiteSpaceWithNewline() == true }
+                    ?.takeUnless { it.prevLeaf()?.isWhiteSpaceWithNewline20 == true }
                     ?.let { rpar ->
                         emit(
                             rpar.startOffset,
@@ -179,7 +179,7 @@ public class ParameterListWrappingRule :
                     ?.takeIf { it.treeParent.treeParent.elementType == ElementType.CALL_EXPRESSION }
                     ?.leaves()
                     ?.takeWhile { it != startOfFunctionLiteral }
-                    ?.none { it.isWhiteSpaceWithNewline() }
+                    ?.none { it.isWhiteSpaceWithNewline20 }
                     ?: false
             }
     }
@@ -259,7 +259,7 @@ public class ParameterListWrappingRule :
             LPAR -> {
                 val prevLeaf = child.prevLeaf()
                 if (!child.treeParent.isValueParameterListInFunctionType() &&
-                    prevLeaf.isWhiteSpaceWithNewline()
+                    prevLeaf.isWhiteSpaceWithNewline20
                 ) {
                     emit(child.startOffset, errorMessage(child), true)
                         .ifAutocorrectAllowed {
@@ -335,7 +335,7 @@ public class ParameterListWrappingRule :
             .takeIf { elementType == FUN }
             ?.findChildByType(TYPE_PARAMETER_LIST)
             ?.children()
-            ?.any { it.isWhiteSpaceWithNewline() }
+            ?.any { it.isWhiteSpaceWithNewline20 }
             ?: false
 }
 

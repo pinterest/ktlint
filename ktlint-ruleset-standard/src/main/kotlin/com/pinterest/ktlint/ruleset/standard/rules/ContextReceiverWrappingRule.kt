@@ -28,7 +28,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -90,7 +90,7 @@ public class ContextReceiverWrappingRule :
             .takeUnless { it.isTypeReferenceParameterInFunction() }
             ?.lastChildLeafOrSelf()
             ?.nextLeaf { !it.isWhiteSpaceWithoutNewline() && !it.isPartOfComment() }
-            ?.takeIf { !it.isWhiteSpaceWithNewline() }
+            ?.takeIf { !it.isWhiteSpaceWithNewline20 }
             ?.let { nodeAfterContextReceiver ->
                 emit(nodeAfterContextReceiver.startOffset, "Expected a newline after the context receiver", true)
                     .ifAutocorrectAllowed {

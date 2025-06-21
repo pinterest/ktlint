@@ -42,7 +42,7 @@ import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
@@ -308,7 +308,7 @@ public class ChainMethodContinuationRule :
 
     private fun ASTNode.isPrecededByNewline() =
         prevLeaf()
-            ?.isWhiteSpaceWithNewline()
+            ?.isWhiteSpaceWithNewline20
             ?: false
 
     private fun ASTNode.isPartOfMultilineStringTemplate() =
@@ -336,7 +336,7 @@ public class ChainMethodContinuationRule :
                 //     some text
                 //     """
                 //         .trimIndent()
-                if (whiteSpaceOrComment.isWhiteSpaceWithNewline()) {
+                if (whiteSpaceOrComment.isWhiteSpaceWithNewline20) {
                     emit(chainOperator.startOffset, "Unexpected newline before '${chainOperator.text}'", true)
                         .ifAutocorrectAllowed {
                             whiteSpaceOrComment?.treeParent?.removeChild(whiteSpaceOrComment)
@@ -368,7 +368,7 @@ public class ChainMethodContinuationRule :
             .forEach { chainOperator ->
                 chainOperator
                     .nextLeaf()
-                    .takeIf { it.isWhiteSpaceWithNewline() }
+                    .takeIf { it.isWhiteSpaceWithNewline20 }
                     ?.let { whiteSpace ->
                         emit(whiteSpace.startOffset - 1, "Unexpected newline after '${chainOperator.text}'", true)
                             .ifAutocorrectAllowed { whiteSpace.remove() }
@@ -438,7 +438,7 @@ public class ChainMethodContinuationRule :
                 val newlineAfter =
                     chainAfter.containsNewline() ||
                         chainOperator.nextCodeSibling()!!.textContains('\n') ||
-                        chainOperator.nextSibling { it.isWhiteSpaceWithNewline() } != null
+                        chainOperator.nextSibling { it.isWhiteSpaceWithNewline20 } != null
                 val chainOperators =
                     mutableListOf<ASTNode>()
                         .plus(chainBefore?.chainOperators.orEmpty())
@@ -477,7 +477,7 @@ public class ChainMethodContinuationRule :
                     copy(hasNewlineBetweenFirstAndLastChainOperator = chainOperators.first().isPrecededByNewlineSibling())
                 }
 
-            private fun ASTNode.isPrecededByNewlineSibling() = prevSibling { it.isWhiteSpaceWithNewline() } != null
+            private fun ASTNode.isPrecededByNewlineSibling() = prevSibling { it.isWhiteSpaceWithNewline20 } != null
 
             private fun ChainedExpression?.containsNewline() =
                 if (this == null) {

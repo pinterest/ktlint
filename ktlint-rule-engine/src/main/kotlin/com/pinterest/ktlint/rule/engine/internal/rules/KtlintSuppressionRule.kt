@@ -17,7 +17,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.findChildByTypeRecursively
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
@@ -139,7 +139,7 @@ public class KtlintSuppressionRule(
     ) {
         when (ktlintDirectiveType) {
             KTLINT_DISABLE -> {
-                if (node.elementType == EOL_COMMENT && node.prevLeaf().isWhiteSpaceWithNewline()) {
+                if (node.elementType == EOL_COMMENT && node.prevLeaf().isWhiteSpaceWithNewline20) {
                     removeDanglingEolCommentWithKtlintDisableDirective(emit)
                 } else {
                     visitKtlintDisableDirective(emit)
@@ -199,7 +199,7 @@ public class KtlintSuppressionRule(
             if (node.elementType == EOL_COMMENT) {
                 node.removePrecedingWhitespace()
             } else {
-                if (node.nextLeaf().isWhiteSpaceWithNewline()) {
+                if (node.nextLeaf().isWhiteSpaceWithNewline20) {
                     node
                         .nextLeaf()
                         ?.remove()

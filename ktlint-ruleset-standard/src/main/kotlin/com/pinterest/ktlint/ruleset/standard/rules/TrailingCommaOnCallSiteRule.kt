@@ -18,7 +18,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
@@ -208,7 +208,7 @@ public class TrailingCommaOnCallSiteRule :
     private fun ASTNode.findValueArgumentFollowedByWhiteSpaceWithNewline() =
         this
             .findChildByType(VALUE_ARGUMENT)
-            ?.nextSibling { it.isWhiteSpaceWithNewline() }
+            ?.nextSibling { it.isWhiteSpaceWithNewline20 }
 
     private fun ASTNode.hasAtLeastOneArgument() = children().any { it.elementType == VALUE_ARGUMENT }
 

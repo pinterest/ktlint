@@ -21,7 +21,7 @@ import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
@@ -143,7 +143,7 @@ public class EnumWrappingRule :
     ) {
         node
             .prevLeaf { !it.isPartOfComment() && !it.isWhiteSpaceWithoutNewline() }
-            ?.takeUnless { it.isWhiteSpaceWithNewline() }
+            ?.takeUnless { it.isWhiteSpaceWithNewline20 }
             ?.let { prevLeaf ->
                 emit(node.startOffset, "Enum entry should start on a separate line", true)
                     .ifAutocorrectAllowed {

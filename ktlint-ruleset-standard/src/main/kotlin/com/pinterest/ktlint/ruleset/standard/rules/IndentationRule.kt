@@ -107,7 +107,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isRoot
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
@@ -206,7 +206,7 @@ public class IndentationRule :
         }
 
         when {
-            node.isWhiteSpaceWithNewline() -> {
+            node.isWhiteSpaceWithNewline20 -> {
                 line++
                 if (indentContextStack.peekLast()?.activated == false) {
                     val lastIndentContext = indentContextStack.removeLast()
@@ -586,7 +586,7 @@ public class IndentationRule :
                 .takeIf { it.isPartOf(CALL_EXPRESSION) }
                 ?.treeParent
                 ?.leaves(false)
-                ?.takeWhile { !it.isWhiteSpaceWithNewline() }
+                ?.takeWhile { !it.isWhiteSpaceWithNewline20 }
                 ?.sumOf { it.textLength }
                 ?.plus(2) // need to add spaces to compensate for "{ "
                 ?.let { length -> " ".repeat(length) }
@@ -642,7 +642,7 @@ public class IndentationRule :
         // Leading annotations and comments should be indented at same level as constructor itself
         val fromAstNode = node.skipLeadingWhitespaceCommentsAndAnnotations()
         if (fromAstNode != node.firstChildNode &&
-            node.prevSibling { it.isWhiteSpaceWithNewline() } == null &&
+            node.prevSibling { it.isWhiteSpaceWithNewline20 } == null &&
             node == node.treeParent.findChildByType(VALUE_PARAMETER)
         ) {
             nextToAstNode =
@@ -835,7 +835,7 @@ public class IndentationRule :
                 arrow
                     .prevSibling { !it.isPartOfComment() }
                     .let { prevSibling ->
-                        if (indentWhenArrowOnNewLine && prevSibling != null && prevSibling.isWhiteSpaceWithNewline()) {
+                        if (indentWhenArrowOnNewLine && prevSibling != null && prevSibling.isWhiteSpaceWithNewline20) {
                             if (arrow.nextCodeSibling()?.elementType == BLOCK && codeStyle != ktlint_official) {
                                 // Uglify the indentation to below to keep compatible with default formatting Intellij IDEA
                                 //     val foo =
@@ -889,7 +889,7 @@ public class IndentationRule :
     private fun visitWhereKeywordBeforeTypeConstraintList(node: ASTNode) {
         node
             .prevLeaf()
-            .takeUnless { it.isWhiteSpaceWithNewline() }
+            .takeUnless { it.isWhiteSpaceWithNewline20 }
             ?.takeIf { !indentContextStack.peekLast().activated }
             ?.let {
                 val lastIndentContext = indentContextStack.removeLast()

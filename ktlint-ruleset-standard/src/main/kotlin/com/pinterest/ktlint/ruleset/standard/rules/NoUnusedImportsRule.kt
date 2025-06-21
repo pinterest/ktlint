@@ -17,7 +17,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isRoot
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
@@ -169,7 +169,7 @@ public class NoUnusedImportsRule :
                                 node
                                     .lastChildLeafOrSelf()
                                     .nextLeaf()
-                                    ?.takeIf { it.isWhiteSpaceWithNewline() }
+                                    ?.takeIf { it.isWhiteSpaceWithNewline20 }
                                     ?.let { whitespace ->
                                         if (node.prevLeaf() == null) {
                                             // Also it was the first import, and it is not preceded by any other node containing some text. So
@@ -187,7 +187,7 @@ public class NoUnusedImportsRule :
                                     }
                             } else {
                                 nextSibling
-                                    .takeIf { it.isWhiteSpaceWithNewline() }
+                                    .takeIf { it.isWhiteSpaceWithNewline20 }
                                     ?.remove()
                             }
                             importDirective.delete()
@@ -210,19 +210,19 @@ public class NoUnusedImportsRule :
         when {
             treeParent.firstChildNode == this -> {
                 nextSibling()
-                    ?.takeIf { it.isWhiteSpaceWithNewline() }
+                    ?.takeIf { it.isWhiteSpaceWithNewline20 }
                     ?.let { it.treeParent.removeChild(it) }
             }
 
             treeParent.lastChildNode == this -> {
                 prevSibling()
-                    ?.takeIf { it.isWhiteSpaceWithNewline() }
+                    ?.takeIf { it.isWhiteSpaceWithNewline20 }
                     ?.remove()
             }
 
             else -> {
                 nextLeaf(true)
-                    ?.takeIf { it.isWhiteSpaceWithNewline() }
+                    ?.takeIf { it.isWhiteSpaceWithNewline20 }
                     ?.let { it.treeParent.removeChild(it) }
             }
         }

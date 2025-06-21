@@ -12,7 +12,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -48,7 +48,7 @@ public class NoEmptyFirstLineInClassBodyRule :
             node
                 .firstChildNode // LBRACE
                 .nextLeaf()
-                .takeIf { it.isWhiteSpaceWithNewline() }
+                .takeIf { it.isWhiteSpaceWithNewline20 }
                 ?.let { whitespace ->
                     val countNewlines =
                         whitespace

@@ -21,7 +21,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PR
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
@@ -91,7 +91,7 @@ public class ParameterWrappingRule :
             node
                 .findChildByType(ElementType.IDENTIFIER)
                 ?.leavesIncludingSelf(forward = false)
-                ?.firstOrNull { it.prevLeaf().isWhiteSpaceWithNewline() || it == nodeFirstChildLeafOrSelf }
+                ?.firstOrNull { it.prevLeaf().isWhiteSpaceWithNewline20 || it == nodeFirstChildLeafOrSelf }
                 ?: node
 
         node
@@ -141,7 +141,7 @@ public class ParameterWrappingRule :
     private fun ASTNode.sumOfTextLengthUntil(astNode: ASTNode): Int {
         val stopAtLeaf = astNode.lastChildLeafOrSelf()
         return leavesIncludingSelf()
-            .takeWhile { !it.isWhiteSpaceWithNewline() && it.prevLeaf() != stopAtLeaf }
+            .takeWhile { !it.isWhiteSpaceWithNewline20 && it.prevLeaf() != stopAtLeaf }
             .sumOf { it.textLength }
     }
 

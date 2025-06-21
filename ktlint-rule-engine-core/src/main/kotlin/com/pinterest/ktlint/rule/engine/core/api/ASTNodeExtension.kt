@@ -262,7 +262,17 @@ public fun ASTNode?.isWhiteSpace(): Boolean {
 public val ASTNode?.isWhiteSpace20
     get() = this != null && elementType == WHITE_SPACE
 
-public fun ASTNode?.isWhiteSpaceWithNewline(): Boolean = this != null && elementType == WHITE_SPACE && textContains('\n')
+@Deprecated(
+    "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
+        "the temporary property accessor. In 2.0 it can be replaced the final property accessor which will be the same as the " +
+        "current function name.",
+    replaceWith = ReplaceWith("isWhiteSpaceWithNewline20"),
+)
+public fun ASTNode?.isWhiteSpaceWithNewline(): Boolean = isWhiteSpaceWithNewline20
+
+// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+public val ASTNode?.isWhiteSpaceWithNewline20
+    get(): Boolean = this != null && elementType == WHITE_SPACE && textContains('\n')
 
 public fun ASTNode?.isWhiteSpaceWithoutNewline(): Boolean = this != null && elementType == WHITE_SPACE && !textContains('\n')
 
@@ -411,7 +421,7 @@ public val ASTNode.column: Int
  */
 public fun ASTNode.indent(includeNewline: Boolean = true): String =
     leaves(forward = false)
-        .firstOrNull { it.isWhiteSpaceWithNewline() }
+        .firstOrNull { it.isWhiteSpaceWithNewline20 }
         ?.text
         ?.substringAfterLast('\n')
         .orEmpty() // Fallback if node is not preceded by any newline character

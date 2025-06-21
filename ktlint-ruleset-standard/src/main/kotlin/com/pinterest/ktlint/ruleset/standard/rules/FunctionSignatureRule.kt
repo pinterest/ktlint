@@ -40,7 +40,7 @@ import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.isLeaf
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -179,7 +179,7 @@ public class FunctionSignatureRule :
         funNode
             ?.findChildByType(CONTEXT_RECEIVER_LIST)
             ?.nextSibling()
-            ?.takeIf { it.isWhiteSpaceWithNewline() || it.elementType == EOL_COMMENT }
+            ?.takeIf { it.isWhiteSpaceWithNewline20 || it.elementType == EOL_COMMENT }
             ?.let { nextSibling ->
                 return nextSibling.nextCodeSibling()
             }
@@ -553,7 +553,7 @@ public class FunctionSignatureRule :
         functionBodyExpressionLines
             .firstOrNull()
             ?.also { firstLineOfBodyExpression ->
-                if (whiteSpaceBeforeFunctionBodyExpression.isWhiteSpaceWithNewline()) {
+                if (whiteSpaceBeforeFunctionBodyExpression.isWhiteSpaceWithNewline20) {
                     lastNodeOfFunctionSignatureWithBodyExpression
                         .nextCodeSibling()
                         .takeIf { it?.elementType == ANNOTATED_EXPRESSION }

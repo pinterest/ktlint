@@ -11,7 +11,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
@@ -44,7 +44,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
     ) {
         val parentType = node.treeParent.elementType
         val prevLeaf = node.prevLeaf()
-        if (prevLeaf != null && prevLeaf.isWhiteSpaceWithNewline()) {
+        if (prevLeaf != null && prevLeaf.isWhiteSpaceWithNewline20) {
             emit(prevLeaf.startOffset, "Unexpected newline before \":\"", true)
                 .ifAutocorrectAllowed {
                     val prevNonCodeElements =
@@ -87,7 +87,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                                             it.first().remove()
                                             it.drop(1)
                                         }
-                                        if (it.last().isWhiteSpaceWithNewline()) {
+                                        if (it.last().isWhiteSpaceWithNewline20) {
                                             it.last().remove()
                                             it.dropLast(1)
                                         } else {

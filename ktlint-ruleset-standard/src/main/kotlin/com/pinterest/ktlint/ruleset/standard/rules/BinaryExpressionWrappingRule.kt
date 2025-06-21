@@ -29,7 +29,7 @@ import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
 import com.pinterest.ktlint.rule.engine.core.api.lineLength
@@ -123,7 +123,7 @@ public class BinaryExpressionWrappingRule :
                 //         "tooLongToFitOnSingleLine" +
                 //             "bar",
                 //     )
-                node.prevLeaf().isWhiteSpaceWithNewline()
+                node.prevLeaf().isWhiteSpaceWithNewline20
             }?.takeIf { it.causesMaxLineLengthToBeExceeded() }
             ?.let { expression ->
                 emit(
@@ -158,7 +158,7 @@ public class BinaryExpressionWrappingRule :
         treeParent
             .takeIf { it.elementType == CONDITION }
             ?.lastChildLeafOrSelf()
-            ?.nextLeaf { it.isWhiteSpaceWithNewline() }
+            ?.nextLeaf { it.isWhiteSpaceWithNewline20 }
             ?.prevLeaf()
             ?.causesMaxLineLengthToBeExceeded()
             ?: false
@@ -207,7 +207,7 @@ public class BinaryExpressionWrappingRule :
                 // Allow:
                 //   val foo = "string too long to fit on the line" +
                 //       "more text"
-                it.nextSibling().isWhiteSpaceWithNewline()
+                it.nextSibling().isWhiteSpaceWithNewline20
             }?.takeIf { it.treeParent.elementType == BINARY_EXPRESSION }
             ?.takeIf { binaryExpression ->
                 // Ignore binary expression inside raw string literals. Raw string literals are allowed to exceed max-line-length. Wrapping
@@ -217,7 +217,7 @@ public class BinaryExpressionWrappingRule :
                 if (operationReference.firstChildNode.elementType == ELVIS) {
                     operationReference
                         .prevLeaf { it.isWhiteSpace20 }
-                        .takeUnless { it.isWhiteSpaceWithNewline() }
+                        .takeUnless { it.isWhiteSpaceWithNewline20 }
                         ?.let {
                             // Wrapping after the elvis operator leads to violating the 'chain-wrapping' rule, so it must wrapped itself
                             emit(operationReference.startOffset, "Line is exceeding max line length. Break line before '?:'", true)

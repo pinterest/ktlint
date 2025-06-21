@@ -11,7 +11,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
@@ -152,7 +152,7 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
     private fun removeExtraLineBreaks(node: ASTNode) {
         val next =
             node.nextSibling {
-                it.isWhiteSpaceWithNewline()
+                it.isWhiteSpaceWithNewline20
             } as? LeafPsiElement
         if (next != null) {
             rawReplaceExtraLineBreaks(next)

@@ -63,7 +63,7 @@ import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
@@ -179,13 +179,13 @@ public class WrappingRule :
             val lengthUntilBeginOfLine =
                 node
                     .leaves(false)
-                    .takeWhile { !it.isWhiteSpaceWithNewline() }
+                    .takeWhile { !it.isWhiteSpaceWithNewline20 }
                     .sumOf { it.textLength }
             val lengthUntilEndOfLine =
                 node
                     .firstChildLeafOrSelf()
                     .leavesIncludingSelf()
-                    .takeWhile { !it.isWhiteSpaceWithNewline() }
+                    .takeWhile { !it.isWhiteSpaceWithNewline20 }
                     .sumOf { it.textLength }
             if (lengthUntilBeginOfLine + lengthUntilEndOfLine > maxLineLength) {
                 requireNewlineAfterLeaf(lbrace, emit)
@@ -267,7 +267,7 @@ public class WrappingRule :
                     !it.isPartOfComment() &&
                         !it.isWhiteSpaceWithoutNewline() &&
                         it.textLength > 0
-                }.isWhiteSpaceWithNewline() &&
+                }.isWhiteSpaceWithNewline20 &&
             // IDEA quirk:
             // if (true &&
             //     true
@@ -283,7 +283,7 @@ public class WrappingRule :
         ) {
             requireNewlineAfterLeaf(node, emit)
         }
-        if (!closingElement.prevLeaf().isWhiteSpaceWithNewline()) {
+        if (!closingElement.prevLeaf().isWhiteSpaceWithNewline20) {
             requireNewlineBeforeLeaf(closingElement, emit, indentConfig.parentIndentOf(node))
         }
     }
@@ -314,11 +314,11 @@ public class WrappingRule :
             )
         ) {
             // put space after :
-            if (!node.prevLeaf().isWhiteSpaceWithNewline()) {
+            if (!node.prevLeaf().isWhiteSpaceWithNewline20) {
                 val colon = node.prevCodeLeaf()!!
                 if (
-                    !colon.prevLeaf().isWhiteSpaceWithNewline() &&
-                    colon.prevCodeLeaf().let { it?.elementType != RPAR || !it.prevLeaf().isWhiteSpaceWithNewline() }
+                    !colon.prevLeaf().isWhiteSpaceWithNewline20 &&
+                    colon.prevCodeLeaf().let { it?.elementType != RPAR || !it.prevLeaf().isWhiteSpaceWithNewline20 }
                 ) {
                     requireNewlineAfterLeaf(colon, emit)
                 }
@@ -326,7 +326,7 @@ public class WrappingRule :
             // put entries on separate lines
             for (c in node.children()) {
                 if (c.elementType == COMMA &&
-                    !c.treeNext.isWhiteSpaceWithNewline() &&
+                    !c.treeNext.isWhiteSpaceWithNewline20 &&
                     !c.isFollowedByCommentOnSameLine()
                 ) {
                     requireNewlineAfterLeaf(
@@ -371,7 +371,7 @@ public class WrappingRule :
                 val prevSibling = c.prevSibling { it.elementType != WHITE_SPACE }
                 if (
                     prevSibling?.elementType == COMMA &&
-                    !prevSibling.treeNext.isWhiteSpaceWithNewline()
+                    !prevSibling.treeNext.isWhiteSpaceWithNewline20
                 ) {
                     requireNewlineAfterLeaf(prevSibling, emit)
                 }
@@ -382,7 +382,7 @@ public class WrappingRule :
                 if (
                     nextSibling?.elementType == COMMA &&
                     !hasDestructuringDeclarationAsLastValueParameter &&
-                    !nextSibling.treeNext.isWhiteSpaceWithNewline() &&
+                    !nextSibling.treeNext.isWhiteSpaceWithNewline20 &&
                     // value(
                     // ), // a comment
                     // c, d
@@ -479,7 +479,7 @@ public class WrappingRule :
         //     return true if there is no newline after the rToken
         // return false
         val nextCodeSibling = node.nextCodeSibling() // e.g. BINARY_EXPRESSION
-        var lToken = nextCodeSibling?.nextLeaf { it.isWhiteSpaceWithNewline() }?.prevCodeLeaf()
+        var lToken = nextCodeSibling?.nextLeaf { it.isWhiteSpaceWithNewline20 }?.prevCodeLeaf()
         if (lToken != null && lToken.elementType !in LTOKEN_SET) {
             // special cases:
             // x = y.f({ z ->
@@ -526,11 +526,11 @@ public class WrappingRule :
         ) {
             return
         }
-        if (!node.nextCodeLeaf()?.prevLeaf().isWhiteSpaceWithNewline()) {
+        if (!node.nextCodeLeaf()?.prevLeaf().isWhiteSpaceWithNewline20) {
             requireNewlineAfterLeaf(node, emit)
         }
         val r = node.nextSibling { it.elementType == RBRACE } ?: return
-        if (!r.prevLeaf().isWhiteSpaceWithNewline()) {
+        if (!r.prevLeaf().isWhiteSpaceWithNewline20) {
             requireNewlineBeforeLeaf(r, emit, node.indent())
         }
     }
@@ -587,7 +587,7 @@ public class WrappingRule :
     }
 
     private fun ASTNode.hasLineBreak(vararg ignoreElementTypes: IElementType): Boolean {
-        if (isWhiteSpaceWithNewline()) return true
+        if (isWhiteSpaceWithNewline20) return true
         return if (ignoreElementTypes.isEmpty()) {
             textContains('\n')
         } else {
@@ -633,7 +633,7 @@ public class WrappingRule :
 
         var node: ASTNode? = this
         while (node != null && node.elementType != RPAR) {
-            if (node.isWhiteSpaceWithNewline()) {
+            if (node.isWhiteSpaceWithNewline20) {
                 return false
             }
             node = node.nextSibling()
@@ -667,9 +667,9 @@ public class WrappingRule :
         }
     }
 
-    private fun ASTNode.followedByNewline() = nextLeaf().isWhiteSpaceWithNewline()
+    private fun ASTNode.followedByNewline() = nextLeaf().isWhiteSpaceWithNewline20
 
-    private fun ASTNode.isPrecededByNewline() = prevLeaf().isWhiteSpaceWithNewline()
+    private fun ASTNode.isPrecededByNewline() = prevLeaf().isWhiteSpaceWithNewline20
 
     private fun ASTNode.getStartOfBlock() =
         if (treeParent.elementType == FUNCTION_LITERAL) {

@@ -40,7 +40,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
@@ -119,7 +119,7 @@ public class MultilineExpressionWrappingRule :
                                     node
                                         .lastChildLeafOrSelf()
                                         .nextLeaf { !it.isWhiteSpaceWithoutNewline() && !it.isPartOfComment() }
-                                        ?.takeIf { !it.isWhiteSpaceWithNewline() }
+                                        ?.takeIf { !it.isWhiteSpaceWithNewline20 }
                                 when {
                                     leafOnSameLineAfterMultilineExpression == null -> {
                                         Unit
@@ -162,7 +162,7 @@ public class MultilineExpressionWrappingRule :
         return firstChildLeafOrSelf()
             .leavesIncludingSelf()
             .takeWhile { it != lastLeaf }
-            .any { it.isWhiteSpaceWithNewline() || it.isRegularStringPartWithNewline() }
+            .any { it.isWhiteSpaceWithNewline20 || it.isRegularStringPartWithNewline() }
     }
 
     private fun ASTNode.isRegularStringPartWithNewline() =
@@ -185,7 +185,7 @@ public class MultilineExpressionWrappingRule :
                     it
                         .closingParenthesisOfFunctionOrNull()
                         ?.prevLeaf()
-                        .isWhiteSpaceWithNewline()
+                        .isWhiteSpaceWithNewline20
                 }
 
     private fun ASTNode?.isElvisOperator() =

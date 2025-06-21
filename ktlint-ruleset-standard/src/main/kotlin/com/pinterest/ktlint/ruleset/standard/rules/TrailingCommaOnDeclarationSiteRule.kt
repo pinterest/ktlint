@@ -27,7 +27,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.noNewLineInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
@@ -303,7 +303,7 @@ public class TrailingCommaOnDeclarationSiteRule :
             TrailingCommaState.MISSING -> {
                 if (isTrailingCommaAllowed) {
                     val leafBeforeArrowOrNull = leafBeforeArrowOrNull()
-                    val addNewLine = !(leafBeforeArrowOrNull?.isWhiteSpaceWithNewline() ?: true)
+                    val addNewLine = !(leafBeforeArrowOrNull?.isWhiteSpaceWithNewline20 ?: true)
                     val prevNode = inspectNode.prevCodeLeaf()!!
                     if (addNewLine) {
                         emit(

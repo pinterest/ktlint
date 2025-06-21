@@ -19,7 +19,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
@@ -55,7 +55,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
 
     private fun ASTNode.isUnexpectedSpacingBeforeParenthesis(): Boolean =
         when {
-            prevLeaf().isWhiteSpaceWithNewline() && hasNoNewlineAfterLpar() -> {
+            prevLeaf().isWhiteSpaceWithNewline20 && hasNoNewlineAfterLpar() -> {
                 true
             }
 
@@ -138,7 +138,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
 
     private fun ASTNode.isUnexpectedSpacingAfterParenthesis(): Boolean =
         when {
-            elementType == LPAR && nextSibling().isWhiteSpaceWithNewline() && hasNoOtherNewlineBeforeRpar() -> {
+            elementType == LPAR && nextSibling().isWhiteSpaceWithNewline20 && hasNoOtherNewlineBeforeRpar() -> {
                 true
             }
 
@@ -165,21 +165,21 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
         // Disallow:
         //     val foo = fn(
         //         )
-        isWhiteSpaceWithNewline() && nextLeaf()?.elementType == RPAR
+        isWhiteSpaceWithNewline20 && nextLeaf()?.elementType == RPAR
 
     private fun ASTNode.hasNoOtherNewlineBeforeRpar() =
         nextSibling()
-            .takeIf { it.isWhiteSpaceWithNewline() }
+            .takeIf { it.isWhiteSpaceWithNewline20 }
             ?.siblings()
             ?.takeWhile { it.elementType != RPAR }
-            ?.none { it.isWhiteSpaceWithNewline() }
+            ?.none { it.isWhiteSpaceWithNewline20 }
             ?: false
 
     private fun ASTNode.isNextLeafAComment(): Boolean = nextLeaf()?.elementType in commentTypes
 
     private fun ASTNode.hasNoNewlineAfterLpar() =
         prevSibling()
-            .takeIf { it.isWhiteSpaceWithNewline() }
+            .takeIf { it.isWhiteSpaceWithNewline20 }
             ?.takeUnless { it.prevSibling()?.elementType == LPAR }
             ?.siblings(false)
             ?.takeWhile { it.elementType != LPAR }

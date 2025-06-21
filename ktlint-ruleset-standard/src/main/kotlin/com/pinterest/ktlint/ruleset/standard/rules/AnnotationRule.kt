@@ -41,7 +41,7 @@ import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
@@ -359,7 +359,7 @@ public class AnnotationRule :
         val firstAnnotation = treeParent.findChildByType(ANNOTATION_ENTRY)
         return siblings(forward = false)
             .takeWhile { it != firstAnnotation }
-            .any { it.isWhiteSpaceWithNewline() }
+            .any { it.isWhiteSpaceWithNewline20 }
     }
 
     private fun ASTNode.isNotReceiverTargetAnnotation() = getAnnotationUseSiteTarget() != AnnotationUseSiteTarget.RECEIVER
@@ -408,12 +408,12 @@ public class AnnotationRule :
 
     private fun ASTNode.isPrecededByOtherAnnotationEntryWithoutParametersOnTheSameLine() =
         siblings(forward = false)
-            .takeWhile { !it.isWhiteSpaceWithNewline() && !it.isAnnotationEntryWithValueArgumentListThatShouldBeWrapped() }
+            .takeWhile { !it.isWhiteSpaceWithNewline20 && !it.isAnnotationEntryWithValueArgumentListThatShouldBeWrapped() }
             .any { it.elementType == ANNOTATION_ENTRY && !it.isAnnotationEntryWithValueArgumentListThatShouldBeWrapped() }
 
     private fun ASTNode.isPrecededByOtherAnnotationEntryOnTheSameLine() =
         siblings(forward = false)
-            .takeWhile { !it.isWhiteSpaceWithNewline() }
+            .takeWhile { !it.isWhiteSpaceWithNewline20 }
             .any { it.elementType == ANNOTATION_ENTRY }
 
     private fun ASTNode.isPrecededByOtherAnnotationEntry() =
@@ -423,7 +423,7 @@ public class AnnotationRule :
     private fun ASTNode.isOnSameLineAsPreviousAnnotationEntry() =
         siblings(forward = false)
             .takeWhile { it.elementType != ANNOTATION_ENTRY }
-            .none { it.isWhiteSpaceWithNewline() }
+            .none { it.isWhiteSpaceWithNewline20 }
 
     private fun ASTNode.isFollowedByOtherAnnotationEntry() = siblings(forward = true).any { it.elementType == ANNOTATION_ENTRY }
 
@@ -440,13 +440,13 @@ public class AnnotationRule :
             ?.prevCodeLeaf()
             ?.takeIf { it.elementType == RPAR }
             ?.prevLeaf()
-            ?.isWhiteSpaceWithNewline()
+            ?.isWhiteSpaceWithNewline20
             ?: false
 
     private fun ASTNode.isOnSameLineAsNextAnnotationEntry() =
         siblings(forward = true)
             .takeWhile { it.elementType != ANNOTATION_ENTRY }
-            .none { it.isWhiteSpaceWithNewline() }
+            .none { it.isWhiteSpaceWithNewline20 }
 
     private fun visitFileAnnotationList(
         node: ASTNode,

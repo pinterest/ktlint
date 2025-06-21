@@ -32,7 +32,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isLeaf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfString20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -100,7 +100,7 @@ public class SpacingAroundCurlyRule :
                         emit(node.startOffset, "Unexpected space before \"${node.text}\"", true)
                             .ifAutocorrectAllowed { prevLeaf.remove() }
                     }
-                    if (prevLeaf.isWhiteSpaceWithNewline() &&
+                    if (prevLeaf.isWhiteSpaceWithNewline20 &&
                         prevLeaf != null &&
                         (
                             prevLeaf.isPrecededBy { it.elementType == RPAR || KtTokens.KEYWORDS.contains(it.elementType) } ||

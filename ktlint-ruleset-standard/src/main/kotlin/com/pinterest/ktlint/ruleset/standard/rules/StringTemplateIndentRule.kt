@@ -28,7 +28,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -108,7 +108,7 @@ public class StringTemplateIndentRule :
                         }
                     stringTemplate
                         .getFirstLeafAfterTrimIndent()
-                        ?.takeUnless { it.isWhiteSpaceWithNewline() }
+                        ?.takeUnless { it.isWhiteSpaceWithNewline20 }
                         ?.takeUnless { it.elementType == COMMA }
                         ?.takeUnless { it.treeParent.elementType == DOT_QUALIFIED_EXPRESSION }
                         ?.takeUnless {
@@ -145,7 +145,7 @@ public class StringTemplateIndentRule :
             ?.lastChildLeafOrSelf()
             ?.nextLeaf()
 
-    private fun ASTNode.isPrecededByWhitespaceWithNewline() = prevLeaf().isWhiteSpaceWithNewline()
+    private fun ASTNode.isPrecededByWhitespaceWithNewline() = prevLeaf().isWhiteSpaceWithNewline20
 
     private fun ASTNode.isPrecededByReturnKeyword() =
         // Allow below as otherwise it results in compilation failure:
@@ -159,7 +159,7 @@ public class StringTemplateIndentRule :
             ?.takeIf { it.elementType == ElementType.EQ }
             ?.closingParenthesisOfFunctionOrNull()
             ?.prevLeaf()
-            ?.isWhiteSpaceWithNewline()
+            ?.isWhiteSpaceWithNewline20
             ?: false
 
     private fun ASTNode.closingParenthesisOfFunctionOrNull() =

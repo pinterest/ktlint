@@ -24,7 +24,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -152,7 +152,7 @@ public class IfElseWrappingRule :
                 }
 
             applyIf(elementType == THEN || elementType == ELSE || elementType == ELSE_KEYWORD) { prevLeaf()!! }
-                .takeUnless { it.isWhiteSpaceWithNewline() }
+                .takeUnless { it.isWhiteSpaceWithNewline20 }
                 ?.let {
                     // Expected a newline with indent. Leave it up to the IndentationRule to determine exact indent
                     emit(startOffset, "Expected a newline", true)

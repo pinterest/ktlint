@@ -10,7 +10,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfString20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
@@ -41,7 +41,7 @@ public class SpacingAroundCommaRule : StandardRule("comma-spacing") {
                                 .prevLeaf { it !is PsiWhiteSpace }
                                 ?.isPartOfComment()
                                 ?: false
-                        if (isPrecededByComment && prevLeaf.isWhiteSpaceWithNewline()) {
+                        if (isPrecededByComment && prevLeaf.isWhiteSpaceWithNewline20) {
                             // If comma is on new line and preceded by a comment, it should be moved before this comment
                             // https://github.com/pinterest/ktlint/issues/367
                             val previousStatement = node.prevCodeLeaf()!!

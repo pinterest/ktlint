@@ -19,7 +19,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lineLength
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -287,7 +287,7 @@ public class ParameterListSpacingRule :
                 ?.findChildByType(MODIFIER_LIST)
 
     private fun ASTNode.hasTypeReferenceWhichDoesNotFitOnSameLineAsColon() =
-        takeIf { it.isWhiteSpaceWithNewline() }
+        takeIf { it.isWhiteSpaceWithNewline20 }
             ?.nextCodeSibling()
             ?.takeIf { it.elementType == TYPE_REFERENCE }
             ?.let { typeReference ->

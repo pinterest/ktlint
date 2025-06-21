@@ -42,7 +42,7 @@ import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isLeaf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -510,7 +510,7 @@ public class ClassSignatureRule :
                     .let { firstSuperType ->
                         firstSuperType
                             .prevLeaf()
-                            .takeIf { it.isWhiteSpaceWithNewline() }
+                            .takeIf { it.isWhiteSpaceWithNewline20 }
                             ?.takeUnless { it.prevSibling()?.elementType == EOL_COMMENT }
                             ?.let { whiteSpaceBeforeSuperType ->
                                 val expectedWhitespace = " "
@@ -626,7 +626,7 @@ public class ClassSignatureRule :
             ?.findChildByType(VALUE_PARAMETER_LIST)
             ?.findChildByType(RPAR)
             ?.prevLeaf { !it.isPartOfComment() }
-            .isWhiteSpaceWithNewline()
+            .isWhiteSpaceWithNewline20
 
     private fun fixClassBody(
         node: ASTNode,
