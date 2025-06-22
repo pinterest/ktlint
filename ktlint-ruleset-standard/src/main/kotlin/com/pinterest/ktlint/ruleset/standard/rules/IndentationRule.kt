@@ -233,7 +233,7 @@ public class IndentationRule :
                 if (codeStyle == ktlint_official) {
                     val superTypeList =
                         if (node.isPartOfComment20) {
-                            node.nextCodeLeaf()!!
+                            node.nextCodeLeaf!!
                         } else {
                             node
                         }
@@ -502,7 +502,7 @@ public class IndentationRule :
             }
         node
             .findChildByType(RPAR)
-            ?.nextCodeLeaf()
+            ?.nextCodeLeaf
             ?.let { nodeAfterConditionBlock ->
                 nextToAstNode =
                     startIndentContext(
@@ -942,7 +942,7 @@ public class IndentationRule :
         // Inner indent contexts in reversed order
         node
             .findChildByType(BODY)
-            ?.takeIf { it.nextCodeLeaf()?.elementType != LBRACE }
+            ?.takeIf { it.nextCodeLeaf?.elementType != LBRACE }
             ?.let { rpar ->
                 startIndentContext(
                     fromAstNode = rpar,

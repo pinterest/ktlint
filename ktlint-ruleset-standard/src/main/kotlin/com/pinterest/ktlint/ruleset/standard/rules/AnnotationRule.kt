@@ -218,7 +218,7 @@ public class AnnotationRule :
                 .children20
                 .lastOrNull { it.elementType == ANNOTATION_ENTRY }
                 ?.lastChildLeafOrSelf()
-                ?.nextCodeLeaf()
+                ?.nextCodeLeaf
                 ?.prevLeaf()
                 ?.let { prevLeaf ->
                     // Let the indentation rule determine the exact indentation and only report and fix when the line needs to be wrapped
@@ -234,7 +234,7 @@ public class AnnotationRule :
                 .takeIf { it.elementType == ANNOTATED_EXPRESSION }
                 ?.takeUnless { it.nextCodeSibling()?.elementType == OPERATION_REFERENCE }
                 ?.lastChildLeafOrSelf()
-                ?.nextCodeLeaf()
+                ?.nextCodeLeaf
                 ?.prevLeaf()
                 ?.let { leaf ->
                     // Let the indentation rule determine the exact indentation and only report and fix when the line needs to be wrapped
@@ -454,7 +454,7 @@ public class AnnotationRule :
     ) {
         node
             .lastChildLeafOrSelf()
-            .nextCodeLeaf()
+            .nextCodeLeaf
             ?.let { codeLeaf ->
                 val whitespaceBefore = codeLeaf.prevLeaf { it.isWhiteSpace20 }
 

@@ -131,13 +131,13 @@ public class IfElseWrappingRule :
                 // Allow "else if" on single line
                 return
             }
-            if (node.elementType == ELSE_KEYWORD && node.nextCodeLeaf()?.elementType == LBRACE) {
+            if (node.elementType == ELSE_KEYWORD && node.nextCodeLeaf?.elementType == LBRACE) {
                 // Allow "else {" on single line
                 return
             }
         } else {
             // Outer if statement is a single line statement
-            if (node.elementType == ELSE && node.nextCodeLeaf()?.elementType == IF_KEYWORD) {
+            if (node.elementType == ELSE && node.nextCodeLeaf?.elementType == IF_KEYWORD) {
                 // Ignore "else if" as it is reported via another message
                 return
             }
@@ -166,7 +166,7 @@ public class IfElseWrappingRule :
     private fun ASTNode.isElseIf() =
         when (elementType) {
             IF -> prevCodeLeaf()?.elementType == ELSE_KEYWORD
-            ELSE, ELSE_KEYWORD -> nextCodeLeaf()?.elementType == IF_KEYWORD
+            ELSE, ELSE_KEYWORD -> nextCodeLeaf?.elementType == IF_KEYWORD
             else -> false
         }
 

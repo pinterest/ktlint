@@ -138,6 +138,10 @@ public fun ASTNode.prevCodeLeaf(includeEmpty: Boolean = false): ASTNode? {
     return n
 }
 
+@Deprecated(
+    "Marked for removal in KtLint 2.0. Replace calls to 'nextCodeLeaf()', 'nextCodeLeaf(false)', and 'nextCodeLeaf(false, false)' with " +
+        "property accessor 'nextCodeLeaf'. For any other situation, use 'nextCodeLeaf((ASTNode) -> Boolean)'.",
+)
 public fun ASTNode.nextCodeLeaf(
     includeEmpty: Boolean = false,
     skipSubtree: Boolean = false,
@@ -148,6 +152,15 @@ public fun ASTNode.nextCodeLeaf(
     }
     return n
 }
+
+public val ASTNode.nextCodeLeaf
+    get(): ASTNode? {
+        var node = nextLeaf()
+        while (node != null && !node.isCode) {
+            node = node.nextLeaf()
+        }
+        return node
+    }
 
 public fun ASTNode.prevCodeSibling(): ASTNode? = prevSibling { it.isCode }
 

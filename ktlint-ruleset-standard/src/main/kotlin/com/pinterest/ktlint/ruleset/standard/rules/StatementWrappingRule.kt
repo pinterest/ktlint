@@ -112,7 +112,7 @@ public class StatementWrappingRule :
                 //     }
                 node.findChildByType(ARROW)
             }?.let { lbraceOrArrow ->
-                val nextCodeLeaf = lbraceOrArrow.nextCodeLeaf()
+                val nextCodeLeaf = lbraceOrArrow.nextCodeLeaf
                 if (nextCodeLeaf != null && noNewLineInClosedRange(lbraceOrArrow, nextCodeLeaf)) {
                     emit(nextCodeLeaf.startOffset, "Missing newline after '${lbraceOrArrow.text}'", true)
                         .ifAutocorrectAllowed {
@@ -142,7 +142,7 @@ public class StatementWrappingRule :
         get() =
             RBRACE ==
                 findChildByType(LBRACE)
-                    ?.nextCodeLeaf()
+                    ?.nextCodeLeaf
                     ?.elementType
 
     private inline val ASTNode.isFunctionLiteralWithParameterList: Boolean
@@ -198,7 +198,7 @@ public class StatementWrappingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         val previousCodeLeaf = node.prevCodeLeaf()?.lastChildLeafOrSelf() ?: return
-        val nextCodeLeaf = node.nextCodeLeaf()?.firstChildLeafOrSelf() ?: return
+        val nextCodeLeaf = node.nextCodeLeaf?.firstChildLeafOrSelf() ?: return
         if (previousCodeLeaf.treeParent.elementType == ElementType.ENUM_ENTRY && nextCodeLeaf.elementType == RBRACE) {
             // Allow
             // enum class INDEX2 { ONE, TWO, THREE; }

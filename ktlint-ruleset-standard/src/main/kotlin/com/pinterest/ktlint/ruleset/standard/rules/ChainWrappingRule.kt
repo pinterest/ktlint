@@ -78,7 +78,7 @@ public class ChainWrappingRule :
             if (node.isPartOfComment20) {
                 return
             }
-            val nextLeaf = node.nextCodeLeaf()?.prevLeaf()
+            val nextLeaf = node.nextCodeLeaf?.prevLeaf()
             if (nextLeaf.isWhiteSpaceWithNewline20 && !node.isElvisOperatorAndComment()) {
                 emit(node.startOffset, "Line must not end with \"${node.text}\"", true)
                     .ifAutocorrectAllowed {

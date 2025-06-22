@@ -158,7 +158,7 @@ public class ClassSignatureRule :
                 }
                 return modifierList.nextCodeSibling()
             }
-        return nextCodeLeaf()
+        return nextCodeLeaf
     }
 
     private fun visitClass(

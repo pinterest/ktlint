@@ -185,7 +185,7 @@ public class FunctionSignatureRule :
                 return nextSibling.nextCodeSibling()
             }
 
-        return funNode.nextCodeLeaf()
+        return funNode.nextCodeLeaf
     }
 
     private fun visitFunctionSignature(

@@ -136,7 +136,7 @@ public class ParameterWrappingRule :
 
     private fun ASTNode.orTrailingComma() =
         lastChildLeafOrSelf()
-            .nextCodeLeaf()
+            .nextCodeLeaf
             ?.takeIf { it.elementType == COMMA }
             ?: this
 

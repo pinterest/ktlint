@@ -261,7 +261,7 @@ public class WrappingRule :
             return
         }
         if (!node
-                .nextCodeLeaf()
+                .nextCodeLeaf
                 ?.prevLeaf {
                     // Skip comments, whitespace, and empty nodes
                     !it.isPartOfComment20 &&
@@ -526,7 +526,7 @@ public class WrappingRule :
         ) {
             return
         }
-        if (!node.nextCodeLeaf()?.prevLeaf().isWhiteSpaceWithNewline20) {
+        if (!node.nextCodeLeaf?.prevLeaf().isWhiteSpaceWithNewline20) {
             requireNewlineAfterLeaf(node, emit)
         }
         val r = node.nextSibling { it.elementType == RBRACE } ?: return
