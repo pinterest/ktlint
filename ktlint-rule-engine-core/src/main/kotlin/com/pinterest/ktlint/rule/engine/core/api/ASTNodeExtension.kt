@@ -805,6 +805,7 @@ public fun ASTNode.isKtAnnotated(): Boolean = isKtAnnotated20
 public val ASTNode.isKtAnnotated20
     get(): Boolean = psiType { it is KtAnnotated }
 
+@Deprecated("Marked for removal in KtLint 2.0")
 public fun ASTNode.isKtExpression(): Boolean = psiType { it is KtExpression }
 
 public fun ASTNode.isKtLoopExpression(): Boolean = psiType { it is KtLoopExpression }
