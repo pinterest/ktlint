@@ -769,7 +769,19 @@ public fun ASTNode.findChildByTypeRecursively(
 /**
  * Returns the end offset of the text of this [ASTNode]
  */
-public fun ASTNode.endOffset(): Int = textRange.endOffset
+@Deprecated(
+    "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
+        "the temporary property accessor. In 2.0 it can be replaced the final property accessor which will be the same as the " +
+        "current function name.",
+    replaceWith = ReplaceWith("endOffset20"),
+)
+public fun ASTNode.endOffset(): Int = endOffset20
+
+/**
+ * Returns the end offset of the text of this [ASTNode]
+ */
+public val ASTNode.endOffset20 // TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+    get(): Int = textRange.endOffset
 
 private val elementTypeCache = hashMapOf<IElementType, PsiElement>()
 
