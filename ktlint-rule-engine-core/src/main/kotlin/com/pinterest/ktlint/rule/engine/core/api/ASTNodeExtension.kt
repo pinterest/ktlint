@@ -112,10 +112,10 @@ public val ASTNode.firstChildLeafOrSelf20
     replaceWith = ReplaceWith("prevLeaf"),
 )
 public fun ASTNode.prevLeaf(includeEmpty: Boolean = false): ASTNode? {
-    var n = this.prevLeafAny()
+    var n = this.prevLeafAny
     if (!includeEmpty) {
         while (n != null && n.textLength == 0) {
-            n = n.prevLeafAny()
+            n = n.prevLeafAny
         }
     }
     return n
@@ -123,28 +123,23 @@ public fun ASTNode.prevLeaf(includeEmpty: Boolean = false): ASTNode? {
 
 public val ASTNode.prevLeaf
     get(): ASTNode? {
-        var node = this.prevLeafAny()
+        var node = this.prevLeafAny
         while (node != null && node.textLength == 0) {
-            node = node.prevLeafAny()
+            node = node.prevLeafAny
         }
         return node
     }
 
 public fun ASTNode.prevLeaf(predicate: (ASTNode) -> Boolean): ASTNode? {
-    var node = this.prevLeafAny()
+    var node = this.prevLeafAny
     while (node != null && !predicate(node)) {
-        node = node.prevLeafAny()
+        node = node.prevLeafAny
     }
     return node
 }
 
-private fun ASTNode.prevLeafAny(): ASTNode? {
-    val prevSibling = treePrev
-    if (prevSibling != null) {
-        return treePrev.lastChildLeafOrSelf()
-    }
-    return treeParent?.prevLeafAny()
-}
+private val ASTNode.prevLeafAny
+    get(): ASTNode? = treePrev?.lastChildLeafOrSelf() ?: treeParent?.prevLeafAny
 
 public fun ASTNode.lastChildLeafOrSelf(): ASTNode {
     var n = this
