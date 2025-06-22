@@ -18,7 +18,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.leavesInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
@@ -112,7 +112,7 @@ public class ConditionWrappingRule :
         if (this == null) {
             false
         } else {
-            leavesInClosedRange(this.firstChildLeafOrSelf20, this.lastChildLeafOrSelf())
+            leavesInClosedRange(this.firstChildLeafOrSelf20, this.lastChildLeafOrSelf20)
                 .any { it.isWhiteSpaceWithNewline20 }
         }
 

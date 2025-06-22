@@ -18,7 +18,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isRoot20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -167,7 +167,7 @@ public class NoUnusedImportsRule :
                             if (nextSibling == null) {
                                 // Last import
                                 node
-                                    .lastChildLeafOrSelf()
+                                    .lastChildLeafOrSelf20
                                     .nextLeaf
                                     ?.takeIf { it.isWhiteSpaceWithNewline20 }
                                     ?.let { whitespace ->

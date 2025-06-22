@@ -47,7 +47,7 @@ public fun ASTNode.nextLeaf(
     includeEmpty: Boolean = false,
     skipSubtree: Boolean = false,
 ): ASTNode? {
-    var n = if (skipSubtree) this.lastChildLeafOrSelf().nextLeafAny else this.nextLeafAny
+    var n = if (skipSubtree) lastChildLeafOrSelf20.nextLeafAny else this.nextLeafAny
     if (!includeEmpty) {
         while (n != null && n.textLength == 0) {
             n = n.nextLeafAny
@@ -139,18 +139,28 @@ public fun ASTNode.prevLeaf(predicate: (ASTNode) -> Boolean): ASTNode? {
 }
 
 private val ASTNode.prevLeafAny
-    get(): ASTNode? = treePrev?.lastChildLeafOrSelf() ?: treeParent?.prevLeafAny
+    get(): ASTNode? = treePrev?.lastChildLeafOrSelf20 ?: treeParent?.prevLeafAny
 
-public fun ASTNode.lastChildLeafOrSelf(): ASTNode {
-    var n = this
-    if (n.lastChildNode != null) {
-        do {
-            n = n.lastChildNode
-        } while (n.lastChildNode != null)
-        return n
+@Deprecated(
+    "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
+        "the temporary property accessor. In 2.0 it can be replaced the final property accessor which will be the same as the " +
+        "current function name.",
+    replaceWith = ReplaceWith("lastChildLeafOrSelf20"),
+)
+public fun ASTNode.lastChildLeafOrSelf(): ASTNode = lastChildLeafOrSelf20
+
+// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+public val ASTNode.lastChildLeafOrSelf20
+    get(): ASTNode {
+        var node = this
+        if (node.lastChildNode != null) {
+            do {
+                node = node.lastChildNode
+            } while (node.lastChildNode != null)
+            return node
+        }
+        return node
     }
-    return n
-}
 
 public val ASTNode.isCode
     get() = elementType != WHITE_SPACE && !isPartOfComment20
@@ -624,7 +634,7 @@ public fun leavesInOpenRange(
 ): Sequence<ASTNode> =
     from
         .leaves()
-        .takeWhile { it != to && it != to.lastChildLeafOrSelf() }
+        .takeWhile { it != to && it != to.lastChildLeafOrSelf20 }
 
 /**
  * Creates a sequence of leaf nodes in the closed range [from] - [to]. This means that the boundary nodes are included from the range in
@@ -638,7 +648,7 @@ public fun leavesInClosedRange(
 ): Sequence<ASTNode> {
     val stopAtLeaf =
         to
-            .lastChildLeafOrSelf()
+            .lastChildLeafOrSelf20
             .nextLeaf
     return from
         .firstChildLeafOrSelf20

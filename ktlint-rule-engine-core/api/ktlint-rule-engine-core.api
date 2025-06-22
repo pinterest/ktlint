@@ -15,6 +15,7 @@ public final class com/pinterest/ktlint/rule/engine/core/api/ASTNodeExtensionKt 
 	public static final fun getFirstChildLeafOrSelf20 (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
 	public static final fun getIndent20 (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Ljava/lang/String;
 	public static final fun getIndentWithoutNewlinePrefix (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Ljava/lang/String;
+	public static final fun getLastChildLeafOrSelf20 (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
 	public static final fun getLeavesBackwardsIncludingSelf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lkotlin/sequences/Sequence;
 	public static final fun getLeavesForwardsIncludingSelf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lkotlin/sequences/Sequence;
 	public static final fun getLeavesOnLine20 (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lkotlin/sequences/Sequence;

@@ -29,7 +29,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
@@ -142,7 +142,7 @@ public class StringTemplateIndentRule :
         takeIf { it.elementType == STRING_TEMPLATE }
             ?.takeIf { it.isFollowedByTrimIndent() }
             ?.treeParent
-            ?.lastChildLeafOrSelf()
+            ?.lastChildLeafOrSelf20
             ?.nextLeaf
 
     private fun ASTNode.isPrecededByWhitespaceWithNewline() = prevLeaf.isWhiteSpaceWithNewline20

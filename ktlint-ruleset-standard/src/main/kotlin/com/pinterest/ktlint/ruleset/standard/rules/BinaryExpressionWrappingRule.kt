@@ -32,7 +32,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.isLeaf20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
 import com.pinterest.ktlint.rule.engine.core.api.lineLength
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -158,7 +158,7 @@ public class BinaryExpressionWrappingRule :
         //   if (leftHandSideExpression && rightHandSideExpression) {
         treeParent
             .takeIf { it.elementType == CONDITION }
-            ?.lastChildLeafOrSelf()
+            ?.lastChildLeafOrSelf20
             ?.nextLeaf { it.isWhiteSpaceWithNewline20 }
             ?.prevLeaf
             ?.causesMaxLineLengthToBeExceeded()
@@ -245,7 +245,7 @@ public class BinaryExpressionWrappingRule :
     private fun ASTNode.isOnLineExceedingMaxLineLength() = maxLineLength < leavesOnLine20.dropTrailingEolComment().lineLength
 
     private fun ASTNode.causesMaxLineLengthToBeExceeded() =
-        lastChildLeafOrSelf().let { lastChildLeaf ->
+        lastChildLeafOrSelf20.let { lastChildLeaf ->
             leavesOnLine20
                 .dropTrailingEolComment()
                 .takeWhile { it.prevLeaf != lastChildLeaf }

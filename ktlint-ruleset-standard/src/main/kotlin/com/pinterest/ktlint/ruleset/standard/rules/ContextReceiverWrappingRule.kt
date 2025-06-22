@@ -31,7 +31,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
@@ -89,7 +89,7 @@ public class ContextReceiverWrappingRule :
         // Context receiver must be followed by new line or comment unless it is a type reference of a parameter
         node
             .takeUnless { it.isTypeReferenceParameterInFunction() }
-            ?.lastChildLeafOrSelf()
+            ?.lastChildLeafOrSelf20
             ?.nextLeaf { !it.isWhiteSpaceWithoutNewline20 && !it.isPartOfComment20 }
             ?.takeIf { !it.isWhiteSpaceWithNewline20 }
             ?.let { nodeAfterContextReceiver ->

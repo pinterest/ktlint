@@ -17,7 +17,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.parent
@@ -138,7 +138,7 @@ public class NoSemicolonsRule :
     private fun ASTNode?.getLastCodeLeafBeforeClosingOfClassBody() =
         this
             ?.parent(CLASS_BODY)
-            ?.lastChildLeafOrSelf()
+            ?.lastChildLeafOrSelf20
             ?.prevCodeLeaf
 
     private fun ASTNode?.isEnumClassWithoutValues() =

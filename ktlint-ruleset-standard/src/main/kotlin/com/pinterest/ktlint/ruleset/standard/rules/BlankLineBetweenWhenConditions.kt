@@ -17,7 +17,7 @@ import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
@@ -104,7 +104,7 @@ public class BlankLineBetweenWhenConditions :
 
     private fun ASTNode.findWhitespaceAfterPreviousCodeSibling() =
         prevCodeSibling20
-            ?.lastChildLeafOrSelf()
+            ?.lastChildLeafOrSelf20
             ?.nextLeaf { it.isWhiteSpace20 }
 
     private fun removeBlankLinesBetweenWhenConditions(

@@ -27,7 +27,7 @@ import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.noNewLineInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
@@ -163,7 +163,7 @@ public class StatementWrappingRule :
     private inline val ASTNode.isEnumClassOnSingleLine: Boolean
         get() =
             if (isEnumClass) {
-                val lastChildLeaf = lastChildLeafOrSelf()
+                val lastChildLeaf = lastChildLeafOrSelf20
                 // Ignore the leading comment
                 noNewLineInClosedRange(firstCodeLeafOrNull!!, lastChildLeaf)
             } else {
@@ -197,7 +197,7 @@ public class StatementWrappingRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val previousCodeLeaf = node.prevCodeLeaf?.lastChildLeafOrSelf() ?: return
+        val previousCodeLeaf = node.prevCodeLeaf?.lastChildLeafOrSelf20 ?: return
         val nextCodeLeaf = node.nextCodeLeaf?.firstChildLeafOrSelf20 ?: return
         if (previousCodeLeaf.treeParent.elementType == ElementType.ENUM_ENTRY && nextCodeLeaf.elementType == RBRACE) {
             // Allow

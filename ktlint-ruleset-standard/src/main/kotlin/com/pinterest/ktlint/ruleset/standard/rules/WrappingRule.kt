@@ -64,7 +64,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.leavesForwardsIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
@@ -691,7 +691,7 @@ public class WrappingRule :
         if (treeParent.elementType == FUNCTION_LITERAL) {
             treeParent.findChildByType(RBRACE)
         } else {
-            lastChildLeafOrSelf()
+            lastChildLeafOrSelf20
                 .let { node ->
                     if (node.elementType == RBRACE) {
                         // WHEN-entry block have LBRACE and RBRACE as first and last elements

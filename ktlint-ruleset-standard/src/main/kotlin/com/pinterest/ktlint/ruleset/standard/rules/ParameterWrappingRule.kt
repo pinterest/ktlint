@@ -23,7 +23,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.leavesBackwardsIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesForwardsIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
@@ -135,13 +135,13 @@ public class ParameterWrappingRule :
     }
 
     private fun ASTNode.orTrailingComma() =
-        lastChildLeafOrSelf()
+        lastChildLeafOrSelf20
             .nextCodeLeaf
             ?.takeIf { it.elementType == COMMA }
             ?: this
 
     private fun ASTNode.sumOfTextLengthUntil(astNode: ASTNode): Int {
-        val stopAtLeaf = astNode.lastChildLeafOrSelf()
+        val stopAtLeaf = astNode.lastChildLeafOrSelf20
         return leavesForwardsIncludingSelf
             .takeWhile { !it.isWhiteSpaceWithNewline20 && it.prevLeaf != stopAtLeaf }
             .sumOf { it.textLength }

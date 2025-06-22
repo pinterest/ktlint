@@ -32,7 +32,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.leavesForwardsIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
 import com.pinterest.ktlint.rule.engine.core.api.lineLength
@@ -187,7 +187,7 @@ public class FunctionLiteralRule :
 
     private fun ASTNode.lengthOfParameterListWhenOnSingleLine(): Int {
         require(elementType == VALUE_PARAMETER_LIST)
-        val stopAtLeaf = lastChildLeafOrSelf().nextLeaf
+        val stopAtLeaf = lastChildLeafOrSelf20.nextLeaf
         return firstChildLeafOrSelf20
             .leavesForwardsIncludingSelf
             .takeWhile { it != stopAtLeaf }
@@ -212,7 +212,7 @@ public class FunctionLiteralRule :
             val stopAtLeaf =
                 children20
                     .first { it.elementType == VALUE_PARAMETER }
-                    .lastChildLeafOrSelf()
+                    .lastChildLeafOrSelf20
                     .nextLeaf { !it.isWhiteSpaceWithoutNewline20 && !it.isPartOfComment20 }
             leavesOnLine20
                 .dropTrailingEolComment()

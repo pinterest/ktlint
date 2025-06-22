@@ -16,7 +16,7 @@ import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -52,7 +52,7 @@ public class NoSingleLineBlockCommentRule :
                     .leaves()
                     .takeWhile { it.isWhiteSpace20 && !it.textContains('\n') }
                     .firstOrNull()
-                    ?: node.lastChildLeafOrSelf()
+                    ?: node.lastChildLeafOrSelf20
 
             if (!node.textContains('\n') &&
                 afterBlockComment.nextLeaf.isWhitespaceWithNewlineOrNull()

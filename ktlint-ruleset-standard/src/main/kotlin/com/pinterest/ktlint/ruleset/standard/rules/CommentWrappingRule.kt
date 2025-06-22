@@ -16,7 +16,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -54,7 +54,7 @@ public class CommentWrappingRule :
                     .leaves()
                     .takeWhile { it.isWhiteSpace20 && !it.textContains('\n') }
                     .firstOrNull()
-                    ?: node.lastChildLeafOrSelf()
+                    ?: node.lastChildLeafOrSelf20
 
             if (!beforeBlockComment.prevLeaf.isWhitespaceWithNewlineOrNull() &&
                 !afterBlockComment.nextLeaf.isWhitespaceWithNewlineOrNull()

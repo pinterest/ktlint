@@ -25,7 +25,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PR
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.leavesInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
@@ -156,7 +156,7 @@ public class FunctionExpressionBodyRule :
                 ?.elementType
 
     private fun ASTNode.countReturnKeywords() =
-        leavesInClosedRange(firstChildLeafOrSelf20, this.lastChildLeafOrSelf())
+        leavesInClosedRange(firstChildLeafOrSelf20, lastChildLeafOrSelf20)
             .count { it.elementType == RETURN_KEYWORD }
 
     private fun createUnitTypeReference() =

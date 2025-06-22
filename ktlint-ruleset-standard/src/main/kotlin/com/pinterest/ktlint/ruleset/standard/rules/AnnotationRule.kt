@@ -43,7 +43,7 @@ import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
@@ -217,7 +217,7 @@ public class AnnotationRule :
             node
                 .children20
                 .lastOrNull { it.elementType == ANNOTATION_ENTRY }
-                ?.lastChildLeafOrSelf()
+                ?.lastChildLeafOrSelf20
                 ?.nextCodeLeaf
                 ?.prevLeaf
                 ?.let { prevLeaf ->
@@ -233,7 +233,7 @@ public class AnnotationRule :
             node
                 .takeIf { it.elementType == ANNOTATED_EXPRESSION }
                 ?.takeUnless { it.nextCodeSibling()?.elementType == OPERATION_REFERENCE }
-                ?.lastChildLeafOrSelf()
+                ?.lastChildLeafOrSelf20
                 ?.nextCodeLeaf
                 ?.prevLeaf
                 ?.let { leaf ->
@@ -453,7 +453,7 @@ public class AnnotationRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .lastChildLeafOrSelf()
+            .lastChildLeafOrSelf20
             .nextCodeLeaf
             ?.let { codeLeaf ->
                 val whitespaceBefore = codeLeaf.prevLeaf { it.isWhiteSpace20 }
