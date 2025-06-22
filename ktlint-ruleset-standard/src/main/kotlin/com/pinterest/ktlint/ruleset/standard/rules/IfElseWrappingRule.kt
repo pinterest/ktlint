@@ -28,7 +28,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -145,7 +145,7 @@ public class IfElseWrappingRule :
 
         with(node.findFirstNodeInBlockToBeIndented() ?: node) {
             val expectedIndent =
-                if (nextSibling()?.elementType == RBRACE) {
+                if (nextSibling20?.elementType == RBRACE) {
                     node.indent20
                 } else {
                     indentConfig.siblingIndentOf(node)

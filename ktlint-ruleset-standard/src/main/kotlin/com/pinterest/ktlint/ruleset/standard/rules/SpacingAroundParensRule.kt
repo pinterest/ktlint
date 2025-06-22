@@ -22,7 +22,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
@@ -138,7 +138,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
 
     private fun ASTNode.isUnexpectedSpacingAfterParenthesis(): Boolean =
         when {
-            elementType == LPAR && nextSibling().isWhiteSpaceWithNewline20 && hasNoOtherNewlineBeforeRpar() -> {
+            elementType == LPAR && nextSibling20.isWhiteSpaceWithNewline20 && hasNoOtherNewlineBeforeRpar() -> {
                 true
             }
 
@@ -168,7 +168,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
         isWhiteSpaceWithNewline20 && nextLeaf?.elementType == RPAR
 
     private fun ASTNode.hasNoOtherNewlineBeforeRpar() =
-        nextSibling()
+        nextSibling20
             .takeIf { it.isWhiteSpaceWithNewline20 }
             ?.siblings()
             ?.takeWhile { it.elementType != RPAR }

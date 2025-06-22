@@ -46,6 +46,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
@@ -179,7 +180,7 @@ public class FunctionSignatureRule :
         // is disabled, it is possible that context receiver and fun keyword are kept on same line
         funNode
             ?.findChildByType(CONTEXT_RECEIVER_LIST)
-            ?.nextSibling()
+            ?.nextSibling20
             ?.takeIf { it.isWhiteSpaceWithNewline20 || it.elementType == EOL_COMMENT }
             ?.let { nextSibling ->
                 return nextSibling.nextCodeSibling20

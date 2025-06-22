@@ -33,6 +33,7 @@ import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -112,7 +113,7 @@ public class StringTemplateIndentRule :
                         ?.takeUnless { it.elementType == COMMA }
                         ?.takeUnless { it.treeParent.elementType == DOT_QUALIFIED_EXPRESSION }
                         ?.takeUnless {
-                            it.treeParent.elementType == BINARY_EXPRESSION && it.nextSibling()?.elementType == OPERATION_REFERENCE
+                            it.treeParent.elementType == BINARY_EXPRESSION && it.nextSibling20?.elementType == OPERATION_REFERENCE
                         }?.let { nextLeaf ->
                             emit(nextLeaf.startOffset, "Expected newline after multiline string template", true)
                                 .ifAutocorrectAllowed {

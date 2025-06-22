@@ -243,16 +243,27 @@ public fun ASTNode.nextCodeSibling(): ASTNode? = nextCodeSibling20
 public val ASTNode.nextCodeSibling20
     get(): ASTNode? = nextSibling { it.isCode }
 
-public inline fun ASTNode.nextSibling(predicate: (ASTNode) -> Boolean = { true }): ASTNode? {
-    var n = this.treeNext
-    while (n != null) {
-        if (predicate(n)) {
-            return n
+public inline fun ASTNode.nextSibling(predicate: (ASTNode) -> Boolean): ASTNode? {
+    var node = this.treeNext
+    while (node != null) {
+        if (predicate(node)) {
+            return node
         }
-        n = n.treeNext
+        node = node.treeNext
     }
     return null
 }
+
+@Deprecated(
+    "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
+        "the temporary property accessor. In 2.0 it can be replaced the final property accessor which will be the same as the " +
+        "current function name.",
+    replaceWith = ReplaceWith("nextSibling20"),
+)
+public fun ASTNode.nextSibling(): ASTNode? = nextSibling20
+
+public inline val ASTNode.nextSibling20
+    get(): ASTNode? = treeNext
 
 /**
  * @param elementType [ElementType].*
@@ -514,7 +525,7 @@ public fun ASTNode.upsertWhitespaceAfterMe(text: String) {
             }
         }
     } else {
-        when (val nextSibling = nextSibling()) {
+        when (val nextSibling = nextSibling20) {
             null -> {
                 // Never insert a whitespace element as last child node in a composite node. Instead, upsert just after the composite node
                 treeParent?.upsertWhitespaceAfterMe(text)

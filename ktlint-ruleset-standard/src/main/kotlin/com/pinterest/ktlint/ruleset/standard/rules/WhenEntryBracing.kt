@@ -21,6 +21,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -136,7 +137,7 @@ public class WhenEntryBracing :
                 "\n$whenEntryIndent}"
         val blockExpression = createBlockExpression(whenEntry)
         val prevSibling = prevSibling()!!
-        treeParent.removeRange(nextSibling()!!, null)
+        treeParent.removeRange(nextSibling20!!, null)
         prevSibling.treeParent.addChild(PsiWhiteSpaceImpl(" "), null)
         prevSibling.treeParent.addChild(blockExpression!!, null)
     }

@@ -9,7 +9,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -55,7 +55,7 @@ public class NoLineBreakBeforeAssignmentRule : StandardRule("no-line-break-befor
                             }
                         // Cleanup old assignment and whitespace after it. The indent before the old assignment is kept unchanged
                         assignmentNode
-                            .nextSibling()
+                            .nextSibling20
                             .takeIf { it.isWhiteSpace20 }
                             ?.let { whiteSpaceAfterEquals ->
                                 parent.removeChild(whiteSpaceAfterEquals)

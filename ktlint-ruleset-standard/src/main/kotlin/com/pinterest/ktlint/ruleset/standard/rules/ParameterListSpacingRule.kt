@@ -25,7 +25,7 @@ import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
 import com.pinterest.ktlint.rule.engine.core.api.lineLength
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
@@ -176,7 +176,7 @@ public class ParameterListSpacingRule :
     ) {
         require(node.elementType == MODIFIER_LIST)
         node
-            .nextSibling()
+            .nextSibling20
             ?.takeIf { it.elementType == WHITE_SPACE }
             ?.let { visitWhiteSpaceAfterModifier(it, emit) }
     }

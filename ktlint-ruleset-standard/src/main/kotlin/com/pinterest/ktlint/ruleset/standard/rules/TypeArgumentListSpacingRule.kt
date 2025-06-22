@@ -17,6 +17,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
@@ -108,7 +109,7 @@ public class TypeArgumentListSpacingRule :
 
         node
             .findChildByType(ElementType.LT)
-            ?.nextSibling()
+            ?.nextSibling20
             ?.let { nextSibling ->
                 if (multiline) {
                     if (nextSibling.text != expectedIndent) {

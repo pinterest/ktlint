@@ -15,6 +15,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -62,7 +63,7 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
         //      val s: Any
         //
         val whiteSpaces =
-            (annotations.asSequence().map { it.nextSibling() } + node.treeNext)
+            (annotations.asSequence().map { it.nextSibling20 } + node.treeNext)
                 .filterNotNull()
                 .filter { it.isWhiteSpace20 }
                 .take(annotations.size)

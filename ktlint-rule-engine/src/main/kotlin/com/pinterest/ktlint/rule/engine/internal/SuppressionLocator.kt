@@ -9,6 +9,7 @@ import com.pinterest.ktlint.rule.engine.core.api.TokenSets
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.isKtAnnotated20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.recursiveChildren
 import com.pinterest.ktlint.rule.engine.internal.SuppressionLocator.CommentSuppressionHint.Type.BLOCK_END
@@ -139,7 +140,7 @@ internal class SuppressionLocator(
                 if (rbraceOfContainingBlock == null) {
                     // Apply suppression on next sibling only, when the outer element does not end with a RBRACE
                     it.node
-                        .nextSibling()
+                        .nextSibling20
                         .let { nextSibling ->
                             SuppressionHint(
                                 IntRange(

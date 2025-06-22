@@ -20,6 +20,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -171,7 +172,7 @@ public class TrailingCommaOnCallSiteRule :
                     ).ifAutocorrectAllowed {
                         inspectNode
                             .prevCodeSibling20
-                            ?.nextSibling()
+                            ?.nextSibling20
                             ?.let { before ->
                                 before.treeParent.addChild(LeafPsiElement(COMMA, ","), before)
                             }

@@ -37,6 +37,7 @@ import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
 import com.pinterest.ktlint.rule.engine.core.api.lineLength
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.noNewLineInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -208,7 +209,7 @@ public class BinaryExpressionWrappingRule :
                 // Allow:
                 //   val foo = "string too long to fit on the line" +
                 //       "more text"
-                it.nextSibling().isWhiteSpaceWithNewline20
+                it.nextSibling20.isWhiteSpaceWithNewline20
             }?.takeIf { it.treeParent.elementType == BINARY_EXPRESSION }
             ?.takeIf { binaryExpression ->
                 // Ignore binary expression inside raw string literals. Raw string literals are allowed to exceed max-line-length. Wrapping
@@ -228,7 +229,7 @@ public class BinaryExpressionWrappingRule :
                         }
                 } else {
                     operationReference
-                        .nextSibling()
+                        .nextSibling20
                         ?.let { nextSibling ->
                             emit(
                                 nextSibling.startOffset,

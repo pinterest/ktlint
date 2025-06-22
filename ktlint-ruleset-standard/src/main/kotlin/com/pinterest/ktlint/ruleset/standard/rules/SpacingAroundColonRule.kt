@@ -15,7 +15,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
@@ -81,7 +81,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                                 val before =
                                     blockElement
                                         .firstChildNode
-                                        .nextSibling()
+                                        .nextSibling20
                                 prevNonCodeElements
                                     .let {
                                         if (it.first().isWhiteSpace20) {
@@ -136,11 +136,11 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                         ?.remove()
                 }
         }
-        if (node.nextSibling().isWhiteSpaceWithoutNewline20 && node.spacingAfter) {
+        if (node.nextSibling20.isWhiteSpaceWithoutNewline20 && node.spacingAfter) {
             emit(node.startOffset, "Unexpected spacing after \":\"", true)
                 .ifAutocorrectAllowed {
                     node
-                        .nextSibling()
+                        .nextSibling20
                         ?.remove()
                 }
         }
@@ -151,7 +151,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         val missingSpacingBefore = !node.prevSibling().isWhiteSpace20 && node.spacingBefore
-        val missingSpacingAfter = !node.nextSibling().isWhiteSpace20 && node.noSpacingAfter
+        val missingSpacingAfter = !node.nextSibling20.isWhiteSpace20 && node.noSpacingAfter
         when {
             missingSpacingBefore && missingSpacingAfter -> {
                 emit(node.startOffset, "Missing spacing around \":\"", true)

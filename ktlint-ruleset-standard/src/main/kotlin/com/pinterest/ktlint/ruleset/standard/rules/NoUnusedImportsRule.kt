@@ -21,6 +21,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
@@ -163,7 +164,7 @@ public class NoUnusedImportsRule :
                 ) {
                     emit(node.startOffset, "Unused import", true)
                         .ifAutocorrectAllowed {
-                            val nextSibling = node.nextSibling()
+                            val nextSibling = node.nextSibling20
                             if (nextSibling == null) {
                                 // Last import
                                 node
@@ -209,7 +210,7 @@ public class NoUnusedImportsRule :
         require(this.elementType == IMPORT_DIRECTIVE)
         when {
             treeParent.firstChildNode == this -> {
-                nextSibling()
+                nextSibling20
                     ?.takeIf { it.isWhiteSpaceWithNewline20 }
                     ?.let { it.treeParent.removeChild(it) }
             }

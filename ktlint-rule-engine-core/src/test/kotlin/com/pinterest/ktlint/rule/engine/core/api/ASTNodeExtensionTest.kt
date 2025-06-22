@@ -23,6 +23,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.isKtAnnotated20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.test.SPACE
 import org.assertj.core.api.Assertions.assertThat
@@ -458,7 +459,7 @@ class ASTNodeExtensionTest {
                             ?.findChildByType(VALUE_PARAMETER)
                             ?.findChildByType(MODIFIER_LIST)
                             ?.findChildByType(ANNOTATION_ENTRY)
-                            ?.nextSibling()
+                            ?.nextSibling20
                             ?.upsertWhitespaceBeforeMe(" ")
                     }.text
 
@@ -655,7 +656,7 @@ class ASTNodeExtensionTest {
                             ?.upsertWhitespaceAfterMe(" ")
                     }.findChildByType(FUN)
                     ?.findChildByType(VALUE_PARAMETER_LIST)
-                    ?.nextSibling()
+                    ?.nextSibling20
                     ?.let { it.elementType == WHITE_SPACE && it.text == " " }
                     ?: false
 

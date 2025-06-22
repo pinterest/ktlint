@@ -31,7 +31,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -149,7 +149,7 @@ public class ChainWrappingRule :
                             val insertBeforeSibling =
                                 operationReference
                                     .prevCodeSibling20
-                                    ?.nextSibling()
+                                    ?.nextSibling20
                             operationReference.remove()
                             insertBeforeSibling?.treeParent?.addChild(operationReference, insertBeforeSibling)
                             node.treeParent.upsertWhitespaceBeforeMe(" ")

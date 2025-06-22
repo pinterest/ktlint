@@ -20,7 +20,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.leavesInClosedRange
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -74,13 +74,13 @@ public class ConditionWrappingRule :
     ) {
         node
             .findChildByType(OPERATION_REFERENCE)
-            ?.takeUnless { it.nextSibling().isWhiteSpaceWithNewline20 }
+            ?.takeUnless { it.nextSibling20.isWhiteSpaceWithNewline20 }
             ?.let { operationReference ->
                 val startOffset =
                     with(operationReference) { startOffset + textLength }
                         .plus(
                             operationReference
-                                .nextSibling()
+                                .nextSibling20
                                 ?.takeIf { it.isWhiteSpace20 }
                                 ?.textLength
                                 ?: 0,

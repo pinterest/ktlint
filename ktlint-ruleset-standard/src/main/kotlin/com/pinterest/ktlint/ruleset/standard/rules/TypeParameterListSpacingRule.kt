@@ -26,6 +26,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
@@ -89,7 +90,7 @@ public class TypeParameterListSpacingRule :
         // constructor
         //     class Bar<T> (...)
         node
-            .nextSibling()
+            .nextSibling20
             ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling20?.elementType == PRIMARY_CONSTRUCTOR }
             ?.let { whiteSpace ->
                 if (whiteSpace.nextCodeSibling20?.findChildByType(CONSTRUCTOR_KEYWORD) != null) {
@@ -131,7 +132,7 @@ public class TypeParameterListSpacingRule :
         // No white space expected between parameter type list and class body when constructor is missing
         //    class Bar<T> {
         node
-            .nextSibling()
+            .nextSibling20
             ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling20?.elementType == CLASS_BODY }
             ?.let { singleSpaceExpected(it, emit) }
     }
@@ -150,7 +151,7 @@ public class TypeParameterListSpacingRule :
         // No white space expected between parameter type list and equals sign
         //    typealias Bar<T> = ...
         node
-            .nextSibling()
+            .nextSibling20
             ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling20?.elementType == EQ }
             ?.let { singleSpaceExpected(it, emit) }
     }
@@ -188,7 +189,7 @@ public class TypeParameterListSpacingRule :
     ) {
         node
             .findChildByType(LT)
-            ?.nextSibling()
+            ?.nextSibling20
             ?.takeIf { it.elementType == WHITE_SPACE }
             ?.let {
                 val expectedWhitespace =
