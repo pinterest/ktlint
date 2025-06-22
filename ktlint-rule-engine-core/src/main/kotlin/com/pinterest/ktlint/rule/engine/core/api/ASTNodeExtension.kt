@@ -581,6 +581,7 @@ public fun leavesInClosedRange(
         .takeWhile { it != stopAtLeaf }
 }
 
+@Deprecated("Marked for removal in Ktlint 2.0")
 public fun ASTNode.isValOrVarKeyword(): Boolean = elementType == VAL_KEYWORD || elementType == VAR_KEYWORD || elementType == VARARG_KEYWORD
 
 /**
