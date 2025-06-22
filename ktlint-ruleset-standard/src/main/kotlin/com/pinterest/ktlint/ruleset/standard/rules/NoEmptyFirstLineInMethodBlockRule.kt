@@ -24,7 +24,7 @@ public class NoEmptyFirstLineInMethodBlockRule : StandardRule("no-empty-first-li
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.isWhiteSpaceWithNewline20 &&
-            node.prevLeaf()?.elementType == LBRACE &&
+            node.prevLeaf?.elementType == LBRACE &&
             node.isPartOf(FUN) &&
             // Allow:
             //     fun fn() = object : Builder {\n\n fun stuff() = Unit }

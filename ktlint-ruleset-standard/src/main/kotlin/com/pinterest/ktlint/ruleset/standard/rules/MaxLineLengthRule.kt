@@ -85,7 +85,7 @@ public class MaxLineLengthRule :
             ?.takeUnless { it.isPartOf(ElementType.KDOC) }
             ?.takeUnless { it.isPartOfRawMultiLineString() }
             ?.takeUnless { it.isLineOnlyContainingSingleTemplateString() }
-            ?.takeUnless { it.elementType == COMMA && it.prevLeaf()?.isLineOnlyContainingSingleTemplateString() ?: false }
+            ?.takeUnless { it.elementType == COMMA && it.prevLeaf?.isLineOnlyContainingSingleTemplateString() ?: false }
             ?.takeUnless { it.isLineOnlyContainingComment() }
             ?.let {
                 // Calculate the offset at the last possible position at which the newline should be inserted on the line
@@ -120,7 +120,7 @@ public class MaxLineLengthRule :
             ?.takeIf { it.elementType == STRING_TEMPLATE }
             ?.let { stringTemplate ->
                 stringTemplate
-                    .prevLeaf()
+                    .prevLeaf
                     .let { leafBeforeStringTemplate ->
                         leafBeforeStringTemplate == null || leafBeforeStringTemplate.isWhiteSpaceWithNewline20
                     }
@@ -129,7 +129,7 @@ public class MaxLineLengthRule :
 
     private fun ASTNode.isLineOnlyContainingComment() =
         isPartOfComment20 &&
-            (prevLeaf() == null || prevLeaf().isWhiteSpaceWithNewline20)
+            (prevLeaf == null || prevLeaf.isWhiteSpaceWithNewline20)
 
     public companion object {
         public val IGNORE_BACKTICKED_IDENTIFIER_PROPERTY: EditorConfigProperty<Boolean> =

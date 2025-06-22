@@ -187,7 +187,7 @@ public class AnnotationRule :
                         !it.isPrecededByOtherAnnotationEntryWithoutParametersOnTheSameLine()
                 }.forEachIndexed { index, annotationEntry ->
                     annotationEntry
-                        .prevLeaf()
+                        .prevLeaf
                         .takeUnless {
                             // Allow in ktlint_official code style:
                             //     class Foo(
@@ -219,7 +219,7 @@ public class AnnotationRule :
                 .lastOrNull { it.elementType == ANNOTATION_ENTRY }
                 ?.lastChildLeafOrSelf()
                 ?.nextCodeLeaf
-                ?.prevLeaf()
+                ?.prevLeaf
                 ?.let { prevLeaf ->
                     // Let the indentation rule determine the exact indentation and only report and fix when the line needs to be wrapped
                     if (!prevLeaf.textContains('\n')) {
@@ -235,7 +235,7 @@ public class AnnotationRule :
                 ?.takeUnless { it.nextCodeSibling()?.elementType == OPERATION_REFERENCE }
                 ?.lastChildLeafOrSelf()
                 ?.nextCodeLeaf
-                ?.prevLeaf()
+                ?.prevLeaf
                 ?.let { leaf ->
                     // Let the indentation rule determine the exact indentation and only report and fix when the line needs to be wrapped
                     if (!leaf.textContains('\n')) {
@@ -311,7 +311,7 @@ public class AnnotationRule :
             .children20
             .filter { it.elementType == TYPE_PROJECTION }
             .forEach { typeProjection ->
-                val prevLeaf = typeProjection.prevLeaf().takeIf { it.isWhiteSpace20 }
+                val prevLeaf = typeProjection.prevLeaf.takeIf { it.isWhiteSpace20 }
                 if (prevLeaf == null || prevLeaf.isWhiteSpaceWithoutNewline20) {
                     emit(typeProjection.startOffset - 1, "Expected newline", true)
                         .ifAutocorrectAllowed {
@@ -323,7 +323,7 @@ public class AnnotationRule :
         node
             .findChildByType(GT)
             ?.let { gt ->
-                val prevLeaf = gt.prevLeaf().takeIf { it.isWhiteSpace20 }
+                val prevLeaf = gt.prevLeaf.takeIf { it.isWhiteSpace20 }
                 if (prevLeaf == null || prevLeaf.isWhiteSpaceWithoutNewline20) {
                     emit(gt.startOffset, "Expected newline", true)
                         .ifAutocorrectAllowed {
@@ -437,9 +437,9 @@ public class AnnotationRule :
             ?.takeIf { it.treeParent?.elementType == CLASS }
             ?.prevCodeSibling()
             ?.takeIf { it.elementType == COLON }
-            ?.prevCodeLeaf()
+            ?.prevCodeLeaf
             ?.takeIf { it.elementType == RPAR }
-            ?.prevLeaf()
+            ?.prevLeaf
             ?.isWhiteSpaceWithNewline20
             ?: false
 

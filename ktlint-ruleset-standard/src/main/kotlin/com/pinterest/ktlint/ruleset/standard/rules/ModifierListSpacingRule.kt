@@ -53,7 +53,7 @@ public class ModifierListSpacingRule : StandardRule("modifier-list-spacing") {
                 it.text == " "
             }?.takeUnless {
                 // A single newline after a comment is always ok and does not need further checking.
-                it.text.trim(' ', '\t').contains('\n') && it.prevLeaf()?.isPartOfComment20 == true
+                it.text.trim(' ', '\t').contains('\n') && it.prevLeaf?.isPartOfComment20 == true
             }?.let { whitespace ->
                 if (node.isAnnotationElement() ||
                     (node.elementType == MODIFIER_LIST && node.lastChildNode.isAnnotationElement())

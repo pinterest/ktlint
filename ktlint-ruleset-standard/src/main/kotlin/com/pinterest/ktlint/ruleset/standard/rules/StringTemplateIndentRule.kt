@@ -145,26 +145,26 @@ public class StringTemplateIndentRule :
             ?.lastChildLeafOrSelf()
             ?.nextLeaf
 
-    private fun ASTNode.isPrecededByWhitespaceWithNewline() = prevLeaf().isWhiteSpaceWithNewline20
+    private fun ASTNode.isPrecededByWhitespaceWithNewline() = prevLeaf.isWhiteSpaceWithNewline20
 
     private fun ASTNode.isPrecededByReturnKeyword() =
         // Allow below as otherwise it results in compilation failure:
         //   return """
         //       some string
         //       """
-        prevCodeLeaf()?.elementType == RETURN_KEYWORD
+        prevCodeLeaf?.elementType == RETURN_KEYWORD
 
     private fun ASTNode.isFunctionBodyExpressionOnSameLine() =
-        prevCodeLeaf()
+        prevCodeLeaf
             ?.takeIf { it.elementType == ElementType.EQ }
             ?.closingParenthesisOfFunctionOrNull()
-            ?.prevLeaf()
+            ?.prevLeaf
             ?.isWhiteSpaceWithNewline20
             ?: false
 
     private fun ASTNode.closingParenthesisOfFunctionOrNull() =
         takeIf { treeParent.elementType == ElementType.FUN }
-            ?.prevCodeLeaf()
+            ?.prevCodeLeaf
             ?.takeIf { it.elementType == ElementType.RPAR }
 
     private fun ASTNode.getIndent(): String {
@@ -173,7 +173,7 @@ public class StringTemplateIndentRule :
         // string template is found, is assumed to be correct and is used to indent all lines of the string template. The indent will be
         // fixed once the indent rule is run as well.
         val firstWhiteSpaceLeafOnSameLine = this.prevLeaf { it.elementType == WHITE_SPACE && it.textContains('\n') }
-        return if (this.prevLeaf() == firstWhiteSpaceLeafOnSameLine) {
+        return if (prevLeaf == firstWhiteSpaceLeafOnSameLine) {
             // The string template already is on a separate new line. Keep the current indent.
             firstWhiteSpaceLeafOnSameLine.getTextAfterLastNewline()
         } else {
@@ -249,7 +249,7 @@ public class StringTemplateIndentRule :
                 // Blank lines inside the string template should not be indented
                 it.text == "\n"
             }.forEach {
-                if (it.prevLeaf()?.text == "\n") {
+                if (it.prevLeaf?.text == "\n") {
                     val (currentIndent, currentContent) =
                         if (it.isIndentBeforeClosingQuote()) {
                             Pair(it.text, "")
@@ -354,7 +354,7 @@ public class StringTemplateIndentRule :
         indent: String,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val lastNodeBeforeClosingQuotes = node.lastChildNode.prevLeaf() ?: return
+        val lastNodeBeforeClosingQuotes = node.lastChildNode.prevLeaf ?: return
         if (lastNodeBeforeClosingQuotes.text.isNotBlank()) {
             emit(
                 lastNodeBeforeClosingQuotes.startOffset + lastNodeBeforeClosingQuotes.text.length,

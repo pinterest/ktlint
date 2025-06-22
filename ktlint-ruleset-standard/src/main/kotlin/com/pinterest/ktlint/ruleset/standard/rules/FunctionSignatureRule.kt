@@ -382,7 +382,7 @@ public class FunctionSignatureRule :
 
         val firstParameter = firstParameterInList.firstChildNode
         firstParameter
-            ?.prevLeaf()
+            ?.prevLeaf
             ?.takeIf { it.elementType == WHITE_SPACE }
             .let { whiteSpaceBeforeIdentifier ->
                 if (multiline) {
@@ -441,7 +441,7 @@ public class FunctionSignatureRule :
             .forEach { valueParameter ->
                 val firstChildNodeInValueParameter = valueParameter.firstChildNode
                 firstChildNodeInValueParameter
-                    ?.prevLeaf()
+                    ?.prevLeaf
                     ?.takeIf { it.elementType == WHITE_SPACE }
                     .let { whiteSpaceBeforeIdentifier ->
                         if (multiline) {
@@ -661,7 +661,7 @@ public class FunctionSignatureRule :
             ?.takeIf { it.findChildByType(LBRACE) != null }
             ?.let { block ->
                 block
-                    .prevLeaf()
+                    .prevLeaf
                     .takeIf { it.isWhiteSpace20 }
                     .let { whiteSpaceBeforeBlock ->
                         if (whiteSpaceBeforeBlock == null || whiteSpaceBeforeBlock.text != " ") {

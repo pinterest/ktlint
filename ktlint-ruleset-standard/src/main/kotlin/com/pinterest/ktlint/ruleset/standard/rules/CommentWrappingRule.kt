@@ -56,7 +56,7 @@ public class CommentWrappingRule :
                     .firstOrNull()
                     ?: node.lastChildLeafOrSelf()
 
-            if (!beforeBlockComment.prevLeaf().isWhitespaceWithNewlineOrNull() &&
+            if (!beforeBlockComment.prevLeaf.isWhitespaceWithNewlineOrNull() &&
                 !afterBlockComment.nextLeaf.isWhitespaceWithNewlineOrNull()
             ) {
                 if (hasNewLineInClosedRange(beforeBlockComment, afterBlockComment)) {
@@ -70,7 +70,7 @@ public class CommentWrappingRule :
                             "disallowed",
                         false,
                     )
-                } else if (beforeBlockComment.prevLeaf()?.elementType == LBRACE &&
+                } else if (beforeBlockComment.prevLeaf?.elementType == LBRACE &&
                     afterBlockComment.nextLeaf?.elementType == RBRACE
                 ) {
                     // Allow single line blocks containing a block comment
@@ -85,7 +85,7 @@ public class CommentWrappingRule :
             }
 
             beforeBlockComment
-                .prevLeaf()
+                .prevLeaf
                 .takeIf { !it.isWhitespaceWithNewlineOrNull() }
                 ?.let {
                     if (node.textContains('\n')) {

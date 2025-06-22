@@ -106,6 +106,11 @@ public val ASTNode.firstChildLeafOrSelf20
         return node
     }
 
+@Deprecated(
+    "Marked for removal in KtLint 2.0. Replace calls to 'prevLeaf()', and 'prevLeaf(false)' with property accessor 'prevLeaf'. For any " +
+        "situation, use 'prevLeaf((ASTNode) -> Boolean)'.",
+    replaceWith = ReplaceWith("prevLeaf"),
+)
 public fun ASTNode.prevLeaf(includeEmpty: Boolean = false): ASTNode? {
     var n = this.prevLeafAny()
     if (!includeEmpty) {
@@ -115,6 +120,15 @@ public fun ASTNode.prevLeaf(includeEmpty: Boolean = false): ASTNode? {
     }
     return n
 }
+
+public val ASTNode.prevLeaf
+    get(): ASTNode? {
+        var node = this.prevLeafAny()
+        while (node != null && node.textLength == 0) {
+            node = node.prevLeafAny()
+        }
+        return node
+    }
 
 public fun ASTNode.prevLeaf(p: (ASTNode) -> Boolean): ASTNode? {
     var n = this.prevLeafAny()
@@ -146,6 +160,10 @@ public fun ASTNode.lastChildLeafOrSelf(): ASTNode {
 public val ASTNode.isCode
     get() = elementType != WHITE_SPACE && !isPartOfComment20
 
+@Deprecated(
+    "Marked for removal in KtLint 2.0. Replace calls to 'prevCodeLeaf()', and 'prevCodeLeaf(false)' with property accessor " +
+        "'prevCodeLeaf'. For any other situation, use 'prevCodeLeaf((ASTNode) -> Boolean)'.",
+)
 public fun ASTNode.prevCodeLeaf(includeEmpty: Boolean = false): ASTNode? {
     var n = prevLeaf(includeEmpty)
     while (n != null && !n.isCode) {
@@ -153,6 +171,15 @@ public fun ASTNode.prevCodeLeaf(includeEmpty: Boolean = false): ASTNode? {
     }
     return n
 }
+
+public val ASTNode.prevCodeLeaf
+    get(): ASTNode? {
+        var node = prevLeaf
+        while (node != null && !node.isCode) {
+            node = node.prevLeaf
+        }
+        return node
+    }
 
 @Deprecated(
     "Marked for removal in KtLint 2.0. Replace calls to 'nextCodeLeaf()', 'nextCodeLeaf(false)', and 'nextCodeLeaf(false, false)' with " +
@@ -391,7 +418,7 @@ public fun ASTNode.upsertWhitespaceBeforeMe(text: String) {
         if (this.elementType == WHITE_SPACE) {
             return replaceWhitespaceWith(text)
         }
-        val previous = treePrev ?: prevLeaf()
+        val previous = treePrev ?: this.prevLeaf
         when {
             previous?.elementType == WHITE_SPACE -> {
                 previous.replaceWhitespaceWith(text)
@@ -486,7 +513,7 @@ public fun ASTNode.upsertWhitespaceAfterMe(text: String) {
 
 public val ASTNode.column: Int
     get() {
-        var leaf = this.prevLeaf()
+        var leaf = prevLeaf
         var offsetToTheLeft = 0
         while (leaf != null) {
             if ((leaf.elementType == WHITE_SPACE || leaf.elementType == REGULAR_STRING_PART) && leaf.textContains('\n')) {
@@ -494,7 +521,7 @@ public val ASTNode.column: Int
                 break
             }
             offsetToTheLeft += leaf.textLength
-            leaf = leaf.prevLeaf()
+            leaf = leaf.prevLeaf
         }
         return offsetToTheLeft + 1
     }
@@ -674,7 +701,7 @@ public val ASTNode.leavesOnLine20
         val takeAll = lastLeafOnLineOrNull == null
         return firstLeafOnLineOrSelf
             .leavesForwardsIncludingSelf
-            .takeWhile { takeAll || it.prevLeaf() != lastLeafOnLineOrNull }
+            .takeWhile { takeAll || it.prevLeaf != lastLeafOnLineOrNull }
     }
 
 /**
@@ -700,11 +727,11 @@ public fun Sequence<ASTNode>.dropTrailingEolComment(): Sequence<ASTNode> =
 
 internal val ASTNode.firstLeafOnLineOrSelf
     get() =
-        prevLeaf { (it.textContains('\n') && !it.isPartOfComment20) || it.prevLeaf() == null }
+        prevLeaf { (it.textContains('\n') && !it.isPartOfComment20) || it.prevLeaf == null }
             ?: this
 
 internal val ASTNode.lastLeafOnLineOrNull
-    get() = nextLeaf { it.textContains('\n') }?.prevLeaf()
+    get() = nextLeaf { it.textContains('\n') }?.prevLeaf
 
 /**
  * Get the total length of all leaves on the same line as the given node including the whitespace indentation but excluding all leading
@@ -749,7 +776,7 @@ public fun Sequence<ASTNode>.lineLengthWithoutNewlinePrefix(): Int = lineLength
 public val Sequence<ASTNode>.lineLength
     get(): Int {
         val first = firstOrNull() ?: return 0
-        require(first.textContains('\n') || first.prevLeaf() == null) {
+        require(first.textContains('\n') || first.prevLeaf == null) {
             "First node in non-empty sequence must be a whitespace containing a newline"
         }
         return joinToString(separator = "") { it.text }

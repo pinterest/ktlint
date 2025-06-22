@@ -32,10 +32,10 @@ public class SpacingAroundAngleBracketsRule : StandardRule("spacing-around-angle
         val openingBracket = node.firstChildNode
         if (openingBracket != null) {
             // Check for rogue spacing before an opening bracket, e.g. Map <String, Int>
-            val beforeLeftAngle = openingBracket.prevLeaf()
+            val beforeLeftAngle = openingBracket.prevLeaf
             if (beforeLeftAngle?.elementType == WHITE_SPACE) {
                 // Ignore when the whitespace is preceded by certain keywords, e.g. fun <T> func(arg: T) {}
-                if (!ELEMENT_TYPES_ALLOWING_PRECEDING_WHITESPACE.contains(beforeLeftAngle.prevLeaf()?.elementType)) {
+                if (!ELEMENT_TYPES_ALLOWING_PRECEDING_WHITESPACE.contains(beforeLeftAngle.prevLeaf?.elementType)) {
                     emit(beforeLeftAngle.startOffset, "Unexpected spacing before \"<\"", true)
                         .ifAutocorrectAllowed { beforeLeftAngle.remove() }
                 }
@@ -71,7 +71,7 @@ public class SpacingAroundAngleBracketsRule : StandardRule("spacing-around-angle
 
         val closingBracket = node.lastChildNode
         if (closingBracket != null) {
-            val beforeRightAngle = closingBracket.prevLeaf()
+            val beforeRightAngle = closingBracket.prevLeaf
             // Check for rogue spacing before a closing bracket
             if (beforeRightAngle?.elementType == WHITE_SPACE) {
                 if (beforeRightAngle.isWhiteSpaceWithoutNewline20) {

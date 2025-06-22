@@ -100,7 +100,7 @@ public class MultilineExpressionWrappingRule :
     }
 
     private fun ASTNode.isPartOfSpreadOperatorExpression() =
-        prevCodeLeaf()?.elementType == MUL &&
+        prevCodeLeaf?.elementType == MUL &&
             treeParent.elementType == VALUE_ARGUMENT
 
     private fun visitExpression(
@@ -184,7 +184,7 @@ public class MultilineExpressionWrappingRule :
                 ?.takeUnless {
                     it
                         .closingParenthesisOfFunctionOrNull()
-                        ?.prevLeaf()
+                        ?.prevLeaf
                         .isWhiteSpaceWithNewline20
                 }
 
@@ -195,7 +195,7 @@ public class MultilineExpressionWrappingRule :
 
     private fun ASTNode.closingParenthesisOfFunctionOrNull() =
         takeIf { treeParent.elementType == FUN }
-            ?.prevCodeLeaf()
+            ?.prevCodeLeaf
             ?.takeIf { it.elementType == RPAR }
 
     private fun ASTNode.isLambdaExpression() =
@@ -212,7 +212,7 @@ public class MultilineExpressionWrappingRule :
 
     private fun ASTNode.isValueArgument() = treeParent.elementType == VALUE_ARGUMENT
 
-    private fun ASTNode.isAfterArrow() = prevCodeLeaf()?.elementType == ARROW
+    private fun ASTNode.isAfterArrow() = prevCodeLeaf?.elementType == ARROW
 
     private fun ASTNode.isRightHandSideOfBinaryExpression() =
         null !=

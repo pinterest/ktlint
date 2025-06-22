@@ -40,7 +40,7 @@ public class KdocWrappingRule :
         if (node.elementType == KDOC) {
             node
                 .findChildByType(KDOC_START)
-                ?.prevLeaf()
+                ?.prevLeaf
                 ?.takeIf { isNonIndentLeafOnSameLine(it) }
                 ?.let {
                     // It can not be autocorrected as it might depend on the situation and code style what is

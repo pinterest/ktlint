@@ -188,7 +188,7 @@ public class ArgumentListWrappingRule :
     ) {
         when (child.elementType) {
             LPAR -> {
-                val prevLeaf = child.prevLeaf()
+                val prevLeaf = child.prevLeaf
                 if (prevLeaf is PsiWhiteSpace && prevLeaf.textContains('\n')) {
                     emit(child.startOffset, errorMessage(child), true)
                         .ifAutocorrectAllowed {
@@ -205,7 +205,7 @@ public class ArgumentListWrappingRule :
                 // <line indent + indentSize> VALUE_PARAMETER...
                 // <line indent> RPAR
                 val intendedIndent = intendedIndent(child)
-                val prevLeaf = child.prevWhiteSpaceWithNewLine() ?: child.prevLeaf()
+                val prevLeaf = child.prevWhiteSpaceWithNewLine() ?: child.prevLeaf
                 if (prevLeaf is PsiWhiteSpace) {
                     if (prevLeaf.getText().contains("\n")) {
                         // The current child is already wrapped to a new line. Checking and fixing the
@@ -274,21 +274,21 @@ public class ArgumentListWrappingRule :
             ?: false
 
     private fun ASTNode.prevWhiteSpaceWithNewLine(): ASTNode? {
-        var prev = prevLeaf()
+        var prev = prevLeaf
         while (prev != null && (prev.isWhiteSpace20 || prev.isPartOfComment20)) {
             if (prev.isWhiteSpaceWithNewline20) {
                 return prev
             }
-            prev = prev.prevLeaf()
+            prev = prev.prevLeaf
         }
         return null
     }
 
     private fun ASTNode.isOnSameLineAsControlFlowKeyword(): Boolean {
-        var prevLeaf = prevLeaf() ?: return false
+        var prevLeaf = prevLeaf ?: return false
         while (prevLeaf.elementType !in TokenSets.CONTROL_FLOW_KEYWORDS) {
             if (prevLeaf.isWhiteSpaceWithNewline20) return false
-            prevLeaf = prevLeaf.prevLeaf() ?: return false
+            prevLeaf = prevLeaf.prevLeaf ?: return false
         }
         return true
     }

@@ -81,7 +81,7 @@ public class SpacingAroundOperatorsRule : StandardRule("op-spacing") {
         if (node.elementType in OPERATORS ||
             (node.elementType == IDENTIFIER && node.treeParent.elementType == OPERATION_REFERENCE)
         ) {
-            val spacingBefore = node.prevLeaf() is PsiWhiteSpace
+            val spacingBefore = node.prevLeaf is PsiWhiteSpace
             val spacingAfter = node.nextLeaf is PsiWhiteSpace
             when {
                 !spacingBefore && !spacingAfter -> {

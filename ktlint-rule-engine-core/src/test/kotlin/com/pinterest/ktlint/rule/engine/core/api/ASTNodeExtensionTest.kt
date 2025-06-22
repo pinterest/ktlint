@@ -22,6 +22,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.isKtAnnotated20
+import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.test.SPACE
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatNoException
@@ -807,7 +808,7 @@ class ASTNodeExtensionTest {
                     .map { identifier ->
                         identifier
                             .leavesOnLine20
-                            .takeWhile { it.prevLeaf() != identifier }
+                            .takeWhile { it.prevLeaf != identifier }
                             .lineLength
                     }.toList()
 
@@ -837,7 +838,7 @@ class ASTNodeExtensionTest {
                         .map { identifier ->
                             identifier
                                 .leavesOnLine20
-                                .takeWhile { it.prevLeaf() != identifier }
+                                .takeWhile { it.prevLeaf != identifier }
                                 .lineLength
                         }.toList()
                 }

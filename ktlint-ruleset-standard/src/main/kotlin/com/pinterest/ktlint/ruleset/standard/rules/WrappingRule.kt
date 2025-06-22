@@ -283,7 +283,7 @@ public class WrappingRule :
         ) {
             requireNewlineAfterLeaf(node, emit)
         }
-        if (!closingElement.prevLeaf().isWhiteSpaceWithNewline20) {
+        if (!closingElement.prevLeaf.isWhiteSpaceWithNewline20) {
             requireNewlineBeforeLeaf(closingElement, emit, indentConfig.parentIndentOf(node))
         }
     }
@@ -314,11 +314,11 @@ public class WrappingRule :
             )
         ) {
             // put space after :
-            if (!node.prevLeaf().isWhiteSpaceWithNewline20) {
-                val colon = node.prevCodeLeaf()!!
+            if (!node.prevLeaf.isWhiteSpaceWithNewline20) {
+                val colon = node.prevCodeLeaf!!
                 if (
-                    !colon.prevLeaf().isWhiteSpaceWithNewline20 &&
-                    colon.prevCodeLeaf().let { it?.elementType != RPAR || !it.prevLeaf().isWhiteSpaceWithNewline20 }
+                    !colon.prevLeaf.isWhiteSpaceWithNewline20 &&
+                    colon.prevCodeLeaf.let { it?.elementType != RPAR || !it.prevLeaf.isWhiteSpaceWithNewline20 }
                 ) {
                     requireNewlineAfterLeaf(colon, emit)
                 }
@@ -479,7 +479,7 @@ public class WrappingRule :
         //     return true if there is no newline after the rToken
         // return false
         val nextCodeSibling = node.nextCodeSibling() // e.g. BINARY_EXPRESSION
-        var lToken = nextCodeSibling?.nextLeaf { it.isWhiteSpaceWithNewline20 }?.prevCodeLeaf()
+        var lToken = nextCodeSibling?.nextLeaf { it.isWhiteSpaceWithNewline20 }?.prevCodeLeaf
         if (lToken != null && lToken.elementType !in LTOKEN_SET) {
             // special cases:
             // x = y.f({ z ->
@@ -522,15 +522,15 @@ public class WrappingRule :
             //     0x200D // Zero-width Joiner
             //     -> true
             // }
-            (p.elementType == WHEN_ENTRY && node.prevLeaf()?.textContains('\n') == true)
+            (p.elementType == WHEN_ENTRY && node.prevLeaf?.textContains('\n') == true)
         ) {
             return
         }
-        if (!node.nextCodeLeaf?.prevLeaf().isWhiteSpaceWithNewline20) {
+        if (!node.nextCodeLeaf?.prevLeaf.isWhiteSpaceWithNewline20) {
             requireNewlineAfterLeaf(node, emit)
         }
         val r = node.nextSibling { it.elementType == RBRACE } ?: return
-        if (!r.prevLeaf().isWhiteSpaceWithNewline20) {
+        if (!r.prevLeaf.isWhiteSpaceWithNewline20) {
             requireNewlineBeforeLeaf(r, emit, node.indent20)
         }
     }
@@ -669,7 +669,7 @@ public class WrappingRule :
 
     private fun ASTNode.followedByNewline() = nextLeaf.isWhiteSpaceWithNewline20
 
-    private fun ASTNode.isPrecededByNewline() = prevLeaf().isWhiteSpaceWithNewline20
+    private fun ASTNode.isPrecededByNewline() = prevLeaf.isWhiteSpaceWithNewline20
 
     private fun ASTNode.getStartOfBlock() =
         if (treeParent.elementType == FUNCTION_LITERAL) {

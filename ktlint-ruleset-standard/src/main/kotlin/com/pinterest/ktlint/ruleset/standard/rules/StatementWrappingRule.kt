@@ -127,7 +127,7 @@ public class StatementWrappingRule :
                 node
                     .findChildByType(RBRACE)
                     ?.let { rbrace ->
-                        val prevCodeLeaf = rbrace.prevCodeLeaf()
+                        val prevCodeLeaf = rbrace.prevCodeLeaf
                         if (prevCodeLeaf != null && noNewLineInClosedRange(prevCodeLeaf, rbrace)) {
                             emit(rbrace.startOffset, "Missing newline before '}'", true)
                                 .ifAutocorrectAllowed {
@@ -197,7 +197,7 @@ public class StatementWrappingRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val previousCodeLeaf = node.prevCodeLeaf()?.lastChildLeafOrSelf() ?: return
+        val previousCodeLeaf = node.prevCodeLeaf?.lastChildLeafOrSelf() ?: return
         val nextCodeLeaf = node.nextCodeLeaf?.firstChildLeafOrSelf20 ?: return
         if (previousCodeLeaf.treeParent.elementType == ElementType.ENUM_ENTRY && nextCodeLeaf.elementType == RBRACE) {
             // Allow

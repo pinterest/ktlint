@@ -22,7 +22,7 @@ public class NullableTypeSpacingRule : StandardRule("nullable-type-spacing") {
     ) {
         node
             .takeIf { node.elementType == QUEST }
-            ?.prevLeaf()
+            ?.prevLeaf
             ?.takeIf { it.elementType == WHITE_SPACE }
             ?.let { whiteSpaceBeforeQuest ->
                 emit(whiteSpaceBeforeQuest.startOffset, "Unexpected whitespace", true)

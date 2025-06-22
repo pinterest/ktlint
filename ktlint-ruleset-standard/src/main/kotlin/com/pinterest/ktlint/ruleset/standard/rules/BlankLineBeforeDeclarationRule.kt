@@ -148,7 +148,7 @@ public class BlankLineBeforeDeclarationRule :
 
         node
             .takeIf { it.isDeclaration20 }
-            ?.takeUnless { it.prevLeaf().isBlankLine() }
+            ?.takeUnless { it.prevLeaf.isBlankLine() }
             ?.let { insertBeforeNode ->
                 emit(insertBeforeNode.startOffset, "Expected a blank line for this declaration", true)
                     .ifAutocorrectAllowed {

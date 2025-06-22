@@ -269,7 +269,7 @@ public class ChainMethodContinuationRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         chainOperator
-            .prevLeaf()
+            .prevLeaf
             .takeUnless { it?.isCode == true }
             .let { whiteSpaceOrComment ->
                 when {
@@ -310,7 +310,7 @@ public class ChainMethodContinuationRule :
             ?: false
 
     private fun ASTNode.isPrecededByNewline() =
-        prevLeaf()
+        prevLeaf
             ?.isWhiteSpaceWithNewline20
             ?: false
 
@@ -326,7 +326,7 @@ public class ChainMethodContinuationRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         chainOperator
-            .prevLeaf()
+            .prevLeaf
             .takeIf { it.isWhiteSpace20 }
             .let { whiteSpaceOrComment ->
                 // Disallow:

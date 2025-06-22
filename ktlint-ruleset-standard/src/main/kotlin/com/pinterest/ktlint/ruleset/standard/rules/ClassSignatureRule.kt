@@ -320,7 +320,7 @@ public class ClassSignatureRule :
 
         val firstParameter = firstParameterInList.firstChildNode
         firstParameter
-            ?.prevLeaf()
+            ?.prevLeaf
             ?.takeIf { it.elementType == WHITE_SPACE }
             .let { whiteSpaceBeforeIdentifier ->
                 if (multiline) {
@@ -378,7 +378,7 @@ public class ClassSignatureRule :
             .forEach { valueParameter ->
                 val firstChildNodeInValueParameter = valueParameter.firstChildNode
                 firstChildNodeInValueParameter
-                    ?.prevLeaf()
+                    ?.prevLeaf
                     ?.takeIf { it.elementType == WHITE_SPACE }
                     .let { whiteSpaceBeforeIdentifier ->
                         if (multiline) {
@@ -510,7 +510,7 @@ public class ClassSignatureRule :
                     .first()
                     .let { firstSuperType ->
                         firstSuperType
-                            .prevLeaf()
+                            .prevLeaf
                             .takeIf { it.isWhiteSpaceWithNewline20 }
                             ?.takeUnless { it.prevSibling()?.elementType == EOL_COMMENT }
                             ?.let { whiteSpaceBeforeSuperType ->
@@ -529,7 +529,7 @@ public class ClassSignatureRule :
                     .firstChildNode
                     ?.let { superTypeFirstChildNode ->
                         superTypeFirstChildNode
-                            .prevLeaf()
+                            .prevLeaf
                             ?.takeIf { it.elementType == WHITE_SPACE }
                             .let { whiteSpaceBeforeIdentifier ->
                                 if (node.hasMultilineSuperTypeList() ||
@@ -563,12 +563,12 @@ public class ClassSignatureRule :
                 .forEachIndexed { index, superType ->
                     val firstChildNodeInSuperType = superType.firstChildNode
                     firstChildNodeInSuperType
-                        ?.prevLeaf()
+                        ?.prevLeaf
                         ?.takeIf { it.elementType == WHITE_SPACE }
                         .let { whiteSpaceBeforeIdentifier ->
                             if (index == 0 && node.hasMultilinePrimaryConstructor()) {
                                 val expectedWhitespace = " "
-                                if (whiteSpaceBeforeIdentifier?.prevLeaf()?.elementType != EOL_COMMENT &&
+                                if (whiteSpaceBeforeIdentifier?.prevLeaf?.elementType != EOL_COMMENT &&
                                     (whiteSpaceBeforeIdentifier == null || whiteSpaceBeforeIdentifier.text != expectedWhitespace)
                                 ) {
                                     emit(firstChildNodeInSuperType.startOffset, "Expected single space before the first super type", true)
@@ -636,7 +636,7 @@ public class ClassSignatureRule :
         node
             .findChildByType(CLASS_BODY)
             ?.let { classBody ->
-                if (classBody.prevLeaf()?.text != " ") {
+                if (classBody.prevLeaf?.text != " ") {
                     emit(classBody.startOffset, "Expected a single space before class body", true)
                         .ifAutocorrectAllowed {
                             classBody

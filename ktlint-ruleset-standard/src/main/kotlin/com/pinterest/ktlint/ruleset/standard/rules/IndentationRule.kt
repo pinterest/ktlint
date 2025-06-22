@@ -544,7 +544,7 @@ public class IndentationRule :
                 )
                 startIndentContext(
                     fromAstNode = node,
-                    toAstNode = arrow.prevCodeLeaf()!!,
+                    toAstNode = arrow.prevCodeLeaf!!,
                     childIndent = arrow.calculateIndentOfFunctionLiteralParameters(),
                 )
             }
@@ -868,7 +868,7 @@ public class IndentationRule :
                                 )
                                 startIndentContext(
                                     fromAstNode = node,
-                                    toAstNode = prevSibling.prevLeaf()!!,
+                                    toAstNode = prevSibling.prevLeaf!!,
                                     childIndent = "",
                                 )
                             }
@@ -889,7 +889,7 @@ public class IndentationRule :
 
     private fun visitWhereKeywordBeforeTypeConstraintList(node: ASTNode) {
         node
-            .prevLeaf()
+            .prevLeaf
             .takeUnless { it.isWhiteSpaceWithNewline20 }
             ?.takeIf { !indentContextStack.peekLast().activated }
             ?.let {
@@ -1064,10 +1064,10 @@ public class IndentationRule :
 
     private fun ASTNode.getPrecedingLeadingCommentsAndWhitespaces(): ASTNode {
         var fromAstNode: ASTNode? = this
-        while (fromAstNode?.prevLeaf() != null &&
-            (fromAstNode.prevLeaf().isWhiteSpace20 || fromAstNode.prevLeaf()?.isPartOfComment20 == true)
+        while (fromAstNode?.prevLeaf != null &&
+            (fromAstNode.prevLeaf.isWhiteSpace20 || fromAstNode.prevLeaf?.isPartOfComment20 == true)
         ) {
-            fromAstNode = fromAstNode.prevLeaf()
+            fromAstNode = fromAstNode.prevLeaf
         }
         return fromAstNode!!
     }
@@ -1392,7 +1392,7 @@ public class IndentationRule :
         val nodes: String
             get() =
                 fromASTNode
-                    .prevLeaf() // The 'fromAstNode' itself needs to be returned by '.leaves()' call as well
+                    .prevLeaf // The 'fromAstNode' itself needs to be returned by '.leaves()' call as well
                     ?.leaves()
                     .orEmpty()
                     .takeWhile {
@@ -1408,7 +1408,7 @@ public class IndentationRule :
                 nodeIndent
             }
 
-        fun prevCodeLeaf() = fromASTNode.prevCodeLeaf()!!
+        fun prevCodeLeaf() = fromASTNode.prevCodeLeaf!!
     }
 }
 
@@ -1455,7 +1455,7 @@ private class StringTemplateIndenter(
                     return
                 }
 
-                val prevLeaf = node.prevLeaf()
+                val prevLeaf = node.prevLeaf
                 val correctedExpectedIndent =
                     if (codeStyle == ktlint_official && node.isRawStringLiteralReturnInFunctionBodyBlock()) {
                         // Allow:
@@ -1488,7 +1488,7 @@ private class StringTemplateIndenter(
                     .children20
                     .filter { it.isIndentBeforeClosingQuote() }
                     .forEach {
-                        if (it.prevLeaf()?.text == "\n") {
+                        if (it.prevLeaf?.text == "\n") {
                             val (actualIndent, actualContent) = it.text.splitIndentAt(it.text.length)
                             if (actualIndent != correctedExpectedIndent) {
                                 // It is a deliberate choice not to fix the indents inside the string literal except the line which only
@@ -1513,14 +1513,14 @@ private class StringTemplateIndenter(
     }
 
     private fun ASTNode.isRawStringLiteralFunctionBodyExpression() =
-        (prevLeaf()?.elementType != WHITE_SPACE || prevLeaf()?.text == " ") &&
+        (prevLeaf?.elementType != WHITE_SPACE || prevLeaf?.text == " ") &&
             FUN ==
-            prevCodeLeaf()
+            prevCodeLeaf
                 .takeIf { it?.elementType == EQ }
                 ?.treeParent
                 ?.elementType
 
-    private fun ASTNode.isRawStringLiteralReturnInFunctionBodyBlock() = RETURN_KEYWORD == prevCodeLeaf()?.elementType
+    private fun ASTNode.isRawStringLiteralReturnInFunctionBodyBlock() = RETURN_KEYWORD == prevCodeLeaf?.elementType
 
     private fun ASTNode.isFollowedByTrimIndent() = isFollowedBy("trimIndent()")
 

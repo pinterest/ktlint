@@ -151,7 +151,7 @@ public class IfElseWrappingRule :
                     indentConfig.siblingIndentOf(node)
                 }
 
-            applyIf(elementType == THEN || elementType == ELSE || elementType == ELSE_KEYWORD) { prevLeaf()!! }
+            applyIf(elementType == THEN || elementType == ELSE || elementType == ELSE_KEYWORD) { prevLeaf!! }
                 .takeUnless { it.isWhiteSpaceWithNewline20 }
                 ?.let {
                     // Expected a newline with indent. Leave it up to the IndentationRule to determine exact indent
@@ -165,7 +165,7 @@ public class IfElseWrappingRule :
 
     private fun ASTNode.isElseIf() =
         when (elementType) {
-            IF -> prevCodeLeaf()?.elementType == ELSE_KEYWORD
+            IF -> prevCodeLeaf?.elementType == ELSE_KEYWORD
             ELSE, ELSE_KEYWORD -> nextCodeLeaf?.elementType == IF_KEYWORD
             else -> false
         }

@@ -93,7 +93,7 @@ public class ParameterWrappingRule :
             node
                 .findChildByType(ElementType.IDENTIFIER)
                 ?.leavesBackwardsIncludingSelf
-                ?.firstOrNull { it.prevLeaf().isWhiteSpaceWithNewline20 || it == nodeFirstChildLeafOrSelf }
+                ?.firstOrNull { it.prevLeaf.isWhiteSpaceWithNewline20 || it == nodeFirstChildLeafOrSelf }
                 ?: node
 
         node
@@ -143,7 +143,7 @@ public class ParameterWrappingRule :
     private fun ASTNode.sumOfTextLengthUntil(astNode: ASTNode): Int {
         val stopAtLeaf = astNode.lastChildLeafOrSelf()
         return leavesForwardsIncludingSelf
-            .takeWhile { !it.isWhiteSpaceWithNewline20 && it.prevLeaf() != stopAtLeaf }
+            .takeWhile { !it.isWhiteSpaceWithNewline20 && it.prevLeaf != stopAtLeaf }
             .sumOf { it.textLength }
     }
 

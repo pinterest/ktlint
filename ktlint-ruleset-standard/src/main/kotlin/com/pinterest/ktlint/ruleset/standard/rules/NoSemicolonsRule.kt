@@ -63,7 +63,7 @@ public class NoSemicolonsRule :
                     }
                 }
         } else if (nextLeaf !is PsiWhiteSpace) {
-            val prevLeaf = node.prevLeaf()
+            val prevLeaf = node.prevLeaf
             if (prevLeaf is PsiWhiteSpace && prevLeaf.textContains('\n')) {
                 return
             }
@@ -101,7 +101,7 @@ public class NoSemicolonsRule :
 
     private fun isNoSemicolonRequiredAfter(node: ASTNode): Boolean {
         val prevCodeLeaf =
-            node.prevCodeLeaf()
+            node.prevCodeLeaf
                 ?: return true
         if (prevCodeLeaf.elementType == OBJECT_KEYWORD) {
             // https://github.com/pinterest/ktlint/issues/281
@@ -139,7 +139,7 @@ public class NoSemicolonsRule :
         this
             ?.parent(CLASS_BODY)
             ?.lastChildLeafOrSelf()
-            ?.prevCodeLeaf()
+            ?.prevCodeLeaf
 
     private fun ASTNode?.isEnumClassWithoutValues() =
         this

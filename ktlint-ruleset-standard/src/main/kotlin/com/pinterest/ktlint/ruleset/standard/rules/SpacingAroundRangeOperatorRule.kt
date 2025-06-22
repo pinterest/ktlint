@@ -22,7 +22,7 @@ public class SpacingAroundRangeOperatorRule : StandardRule("range-spacing") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == RANGE || node.elementType == RANGE_UNTIL) {
-            val prevLeaf = node.prevLeaf()
+            val prevLeaf = node.prevLeaf
             val nextLeaf = node.nextLeaf
             when {
                 prevLeaf is PsiWhiteSpace && nextLeaf is PsiWhiteSpace -> {

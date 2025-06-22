@@ -48,7 +48,7 @@ public class SpacingBetweenDeclarationsWithAnnotationsRule : StandardRule("spaci
             ?.takeIf { it.isDeclarationOrPropertyAccessor() }
             ?.takeIf { prevDeclaration -> hasNoBlankLineBetweenDeclarations(node, prevDeclaration) }
             ?.let {
-                val prevLeaf = node.prevCodeLeaf()?.nextLeaf { it.isWhiteSpace20 }!!
+                val prevLeaf = node.prevCodeLeaf?.nextLeaf { it.isWhiteSpace20 }!!
                 emit(
                     prevLeaf.startOffset + 1,
                     "Declarations and declarations with annotations should have an empty space between.",

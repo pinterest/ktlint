@@ -96,7 +96,7 @@ public class EnumWrappingRule :
                 .firstOrNull { it.isPartOfComment20 }
                 ?.let { commentBeforeFirstEnumEntry ->
                     val expectedIndent = indentConfig.childIndentOf(node)
-                    if (commentBeforeFirstEnumEntry.prevLeaf()?.text != expectedIndent) {
+                    if (commentBeforeFirstEnumEntry.prevLeaf?.text != expectedIndent) {
                         emit(node.startOffset, "Expected a (single) newline before comment", true)
                             .ifAutocorrectAllowed {
                                 commentBeforeFirstEnumEntry.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
@@ -159,7 +159,7 @@ public class EnumWrappingRule :
         node
             .findChildByType(RBRACE)
             ?.let { rbrace ->
-                val prevLeaf = rbrace.prevLeaf()
+                val prevLeaf = rbrace.prevLeaf
                 val expectedIndent = indentConfig.parentIndentOf(node)
                 if (prevLeaf?.text != expectedIndent) {
                     emit(rbrace.startOffset, "Expected newline before '}'", true)

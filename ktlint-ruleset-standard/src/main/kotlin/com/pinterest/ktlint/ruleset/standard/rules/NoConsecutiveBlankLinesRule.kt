@@ -62,7 +62,7 @@ public class NoConsecutiveBlankLinesRule : StandardRule("no-consecutive-blank-li
     }
 
     private fun ASTNode.isBetweenClassAndPrimaryConstructor() =
-        prevCodeLeaf()
+        prevCodeLeaf
             ?.let { prevNode ->
                 prevNode.elementType == IDENTIFIER &&
                     prevNode.treeParent.elementType == CLASS &&

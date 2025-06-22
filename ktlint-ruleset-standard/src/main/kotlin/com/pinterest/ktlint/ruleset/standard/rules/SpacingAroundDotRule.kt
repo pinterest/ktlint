@@ -22,7 +22,7 @@ public class SpacingAroundDotRule : StandardRule("dot-spacing") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node is LeafPsiElement && node.textMatches(".") && !node.isPartOfString20 && !node.isPartOfComment20) {
-            val prevLeaf = node.prevLeaf()
+            val prevLeaf = node.prevLeaf
             if (prevLeaf is PsiWhiteSpace && !prevLeaf.textContains('\n')) {
                 emit(prevLeaf.startOffset, "Unexpected spacing before \"${node.text}\"", true)
                     .ifAutocorrectAllowed {

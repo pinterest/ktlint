@@ -31,7 +31,7 @@ public class SpacingAroundSquareBracketsRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == LBRACKET || node.elementType == RBRACKET) {
-            val prevLeaf = node.prevLeaf()
+            val prevLeaf = node.prevLeaf
             val nextLeaf = node.nextLeaf
             val spacingBefore =
                 when (node.treeParent.elementType) {

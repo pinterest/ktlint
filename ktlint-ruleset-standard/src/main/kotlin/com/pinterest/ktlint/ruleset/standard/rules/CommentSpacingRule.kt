@@ -19,7 +19,7 @@ public class CommentSpacingRule : StandardRule("comment-spacing") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == EOL_COMMENT) {
-            val prevLeaf = node.prevLeaf()
+            val prevLeaf = node.prevLeaf
             if (prevLeaf !is PsiWhiteSpace && prevLeaf is LeafPsiElement) {
                 emit(node.startOffset, "Missing space before //", true)
                     .ifAutocorrectAllowed {

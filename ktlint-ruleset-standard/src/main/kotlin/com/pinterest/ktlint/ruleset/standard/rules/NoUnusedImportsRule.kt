@@ -171,7 +171,7 @@ public class NoUnusedImportsRule :
                                     .nextLeaf
                                     ?.takeIf { it.isWhiteSpaceWithNewline20 }
                                     ?.let { whitespace ->
-                                        if (node.prevLeaf() == null) {
+                                        if (node.prevLeaf == null) {
                                             // Also it was the first import, and it is not preceded by any other node containing some text. So
                                             // all whitespace until the next is redundant
                                             whitespace.remove()

@@ -74,14 +74,14 @@ public class SpacingAroundKeywordRule : StandardRule("keyword-spacing") {
                         .ifAutocorrectAllowed { nextLeaf.remove() }
                 }
             if (noLFBeforeSet.contains(node.elementType)) {
-                val prevLeaf = node.prevLeaf()
+                val prevLeaf = node.prevLeaf
                 val isElseKeyword = node.elementType == ELSE_KEYWORD
                 if (
                     prevLeaf?.elementType == WHITE_SPACE &&
                     prevLeaf.textContains('\n') &&
                     (!isElseKeyword || node.treeParent.elementType != WHEN_ENTRY)
                 ) {
-                    val rBrace = prevLeaf.prevLeaf()?.takeIf { it.elementType == RBRACE }
+                    val rBrace = prevLeaf.prevLeaf?.takeIf { it.elementType == RBRACE }
                     val parentOfRBrace = rBrace?.treeParent
                     if (parentOfRBrace?.elementType == BLOCK &&
                         (!isElseKeyword || parentOfRBrace.treeParent?.treeParent == node.treeParent)

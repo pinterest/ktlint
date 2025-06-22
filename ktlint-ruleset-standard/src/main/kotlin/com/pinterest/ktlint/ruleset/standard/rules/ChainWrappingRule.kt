@@ -78,7 +78,7 @@ public class ChainWrappingRule :
             if (node.isPartOfComment20) {
                 return
             }
-            val nextLeaf = node.nextCodeLeaf?.prevLeaf()
+            val nextLeaf = node.nextCodeLeaf?.prevLeaf
             if (nextLeaf.isWhiteSpaceWithNewline20 && !node.isElvisOperatorAndComment()) {
                 emit(node.startOffset, "Line must not end with \"${node.text}\"", true)
                     .ifAutocorrectAllowed {
@@ -101,7 +101,7 @@ public class ChainWrappingRule :
             if (node.isPartOfComment20) {
                 return
             }
-            val prevLeaf = node.prevLeaf()
+            val prevLeaf = node.prevLeaf
             if (node.isPartOfSpread()) {
                 // Allow:
                 //    fn(
@@ -154,7 +154,7 @@ public class ChainWrappingRule :
                             insertBeforeSibling?.treeParent?.addChild(operationReference, insertBeforeSibling)
                             node.treeParent.upsertWhitespaceBeforeMe(" ")
                         } else {
-                            val insertionPoint = prevLeaf.prevCodeLeaf() as LeafPsiElement
+                            val insertionPoint = prevLeaf.prevCodeLeaf as LeafPsiElement
                             (node as LeafPsiElement).remove()
                             insertionPoint.rawInsertAfterMe(node)
                             (insertionPoint as ASTNode).upsertWhitespaceAfterMe(" ")
@@ -169,7 +169,7 @@ public class ChainWrappingRule :
 
     private fun ASTNode.isPartOfSpread() =
         elementType == MUL &&
-            prevCodeLeaf()
+            prevCodeLeaf
                 ?.let { leaf ->
                     val type = leaf.elementType
                     type == LPAR ||

@@ -32,7 +32,7 @@ public class SpacingAroundCommaRule : StandardRule("comma-spacing") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node is LeafPsiElement && node.textMatches(",") && !node.isPartOfString20) {
-            val prevLeaf = node.prevLeaf()
+            val prevLeaf = node.prevLeaf
             if (prevLeaf is PsiWhiteSpace) {
                 emit(prevLeaf.startOffset, "Unexpected spacing before \"${node.text}\"", true)
                     .ifAutocorrectAllowed {
@@ -44,7 +44,7 @@ public class SpacingAroundCommaRule : StandardRule("comma-spacing") {
                         if (isPrecededByComment && prevLeaf.isWhiteSpaceWithNewline20) {
                             // If comma is on new line and preceded by a comment, it should be moved before this comment
                             // https://github.com/pinterest/ktlint/issues/367
-                            val previousStatement = node.prevCodeLeaf()!!
+                            val previousStatement = node.prevCodeLeaf!!
                             previousStatement.treeParent.addChild(node.clone(), previousStatement.nextSibling())
                             val nextLeaf = node.nextLeaf
                             if (nextLeaf is PsiWhiteSpace) {

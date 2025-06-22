@@ -181,7 +181,7 @@ public class FunctionLiteralRule :
         return lbrace
             .leavesOnLine20
             .dropTrailingEolComment()
-            .takeWhile { it.prevLeaf() != lbrace }
+            .takeWhile { it.prevLeaf != lbrace }
             .lineLength
     }
 
@@ -216,7 +216,7 @@ public class FunctionLiteralRule :
                     .nextLeaf { !it.isWhiteSpaceWithoutNewline20 && !it.isPartOfComment20 }
             leavesOnLine20
                 .dropTrailingEolComment()
-                .takeWhile { it.prevLeaf() != stopAtLeaf }
+                .takeWhile { it.prevLeaf != stopAtLeaf }
                 .lineLength
                 .let { it > maxLineLength }
         } else {
@@ -258,7 +258,7 @@ public class FunctionLiteralRule :
     ) {
         require(valueParameter.elementType == VALUE_PARAMETER)
         valueParameter
-            .prevLeaf()
+            .prevLeaf
             .takeIf { it.isWhiteSpace20 }
             .let { whitespaceBeforeValueParameter ->
                 if (whitespaceBeforeValueParameter == null ||
@@ -286,7 +286,7 @@ public class FunctionLiteralRule :
     ) {
         require(arrow.elementType == ARROW)
         arrow
-            .prevLeaf()
+            .prevLeaf
             .takeIf { it.isWhiteSpace20 }
             .let { whitespaceBeforeArrow ->
                 if (whitespaceBeforeArrow == null ||
@@ -326,7 +326,7 @@ public class FunctionLiteralRule :
     ) {
         require(rbrace.elementType == RBRACE)
         rbrace
-            .prevLeaf()
+            .prevLeaf
             .takeIf { it.isWhiteSpace20 }
             .let { whitespaceBeforeRbrace ->
                 if (whitespaceBeforeRbrace == null ||

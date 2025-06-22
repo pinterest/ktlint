@@ -49,7 +49,7 @@ public class SpacingBetweenDeclarationsWithCommentsRule : StandardRule("spacing-
                     .ifAutocorrectAllowed {
                         val indent =
                             node
-                                .prevLeaf()
+                                .prevLeaf
                                 ?.text
                                 ?.trim('\n')
                                 ?: ""

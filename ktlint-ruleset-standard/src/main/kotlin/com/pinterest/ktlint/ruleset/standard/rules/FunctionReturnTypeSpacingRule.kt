@@ -52,7 +52,7 @@ public class FunctionReturnTypeSpacingRule :
     ) {
         require(node.elementType == COLON)
         node
-            .prevLeaf()
+            .prevLeaf
             ?.takeIf { it.elementType == WHITE_SPACE }
             ?.let { whitespaceBeforeColonNode ->
                 emit(whitespaceBeforeColonNode.startOffset, "Unexpected whitespace", true)

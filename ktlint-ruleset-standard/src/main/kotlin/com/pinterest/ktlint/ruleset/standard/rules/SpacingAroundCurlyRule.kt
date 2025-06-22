@@ -78,7 +78,7 @@ public class SpacingAroundCurlyRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.isLeaf20 && !node.isPartOfString20) {
-            val prevLeaf = node.prevLeaf()
+            val prevLeaf = node.prevLeaf
             val nextLeaf = node.nextLeaf
             val spacingBefore: Boolean
             val spacingAfter: Boolean
@@ -179,12 +179,12 @@ public class SpacingAroundCurlyRule :
     }
 
     private fun ASTNode.isPrecededBy(predicate: (ASTNode) -> Boolean) =
-        prevLeaf()
+        prevLeaf
             ?.let { predicate(it) }
             ?: false
 
     private fun ASTNode.isPrecededByEolComment() =
-        prevLeaf()
+        prevLeaf
             ?.isPartOfComment20
             ?: false
 

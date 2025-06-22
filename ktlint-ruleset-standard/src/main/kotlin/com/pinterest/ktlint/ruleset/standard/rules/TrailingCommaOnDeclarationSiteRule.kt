@@ -253,7 +253,7 @@ public class TrailingCommaOnDeclarationSiteRule :
         isTrailingCommaAllowed: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val prevLeaf = inspectNode.prevLeaf()
+        val prevLeaf = inspectNode.prevLeaf
         val trailingCommaNode = prevLeaf?.findPreviousTrailingCommaNodeOrNull()
         val trailingCommaState =
             when {
@@ -277,7 +277,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                         .treeParent
                         .takeIf { it.elementType == WHEN_ENTRY }
                         ?.findChildByType(ARROW)
-                        ?.prevLeaf()
+                        ?.prevLeaf
                         ?.let { lastNodeBeforeArrow ->
                             if (lastNodeBeforeArrow.elementType != WHITE_SPACE || !lastNodeBeforeArrow.textContains('\n')) {
                                 emit(
@@ -304,7 +304,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                 if (isTrailingCommaAllowed) {
                     val leafBeforeArrowOrNull = leafBeforeArrowOrNull()
                     val addNewLine = !(leafBeforeArrowOrNull?.isWhiteSpaceWithNewline20 ?: true)
-                    val prevNode = inspectNode.prevCodeLeaf()!!
+                    val prevNode = inspectNode.prevCodeLeaf!!
                     if (addNewLine) {
                         emit(
                             prevNode.startOffset + prevNode.textLength,
@@ -327,7 +327,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                                 (leafBeforeArrowOrNull as LeafElement).rawReplaceWithText(indent)
                             } else {
                                 inspectNode
-                                    .prevCodeLeaf()
+                                    .prevCodeLeaf
                                     ?.nextLeaf
                                     ?.let { before ->
                                         before.treeParent.addChild(PsiWhiteSpaceImpl(indent), before)
@@ -337,7 +337,7 @@ public class TrailingCommaOnDeclarationSiteRule :
 
                         if (inspectNode.treeParent.elementType == ElementType.ENUM_ENTRY) {
                             val parentIndent =
-                                (prevNode.treeParent.prevLeaf()?.takeIf { it.isWhiteSpace20 })?.text
+                                (prevNode.treeParent.prevLeaf?.takeIf { it.isWhiteSpace20 })?.text
                                     ?: prevNode.indent20
                             (inspectNode as LeafPsiElement).apply {
                                 this.treeParent.addChild(LeafPsiElement(COMMA, ","), this)
@@ -347,7 +347,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                             inspectNode.remove()
                         } else {
                             inspectNode
-                                .prevCodeLeaf()
+                                .prevCodeLeaf
                                 ?.nextLeaf
                                 ?.let { before ->
                                     before.treeParent.addChild(LeafPsiElement(COMMA, ","), before)
@@ -414,14 +414,14 @@ public class TrailingCommaOnDeclarationSiteRule :
     private fun ASTNode.leafBeforeArrowOrNull() =
         takeIf { it.elementType == WHEN_ENTRY || it.elementType == FUNCTION_LITERAL }
             ?.findChildByType(ARROW)
-            ?.prevLeaf()
+            ?.prevLeaf
 
     private fun ASTNode.findPreviousTrailingCommaNodeOrNull(): ASTNode? {
         val codeLeaf =
             if (isCode) {
                 this
             } else {
-                prevCodeLeaf()
+                prevCodeLeaf
             }
         return codeLeaf?.takeIf { it.elementType == COMMA }
     }

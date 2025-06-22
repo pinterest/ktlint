@@ -43,7 +43,7 @@ public class TypeParameterCommentRule : StandardRule("type-parameter-comment") {
                             false,
                         )
                     } else if (node.treeParent.elementType == TYPE_PARAMETER_LIST) {
-                        if (node.prevLeaf().isWhiteSpaceWithNewline20) {
+                        if (node.prevLeaf.isWhiteSpaceWithNewline20) {
                             // Allow
                             //     class Foo<
                             //         /* some comment */

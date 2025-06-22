@@ -141,7 +141,7 @@ public class TrailingCommaOnCallSiteRule :
         isTrailingCommaAllowed: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val prevLeaf = inspectNode.prevLeaf()
+        val prevLeaf = inspectNode.prevLeaf
         val trailingCommaNode = prevLeaf?.findPreviousTrailingCommaNodeOrNull()
         val trailingCommaState =
             when {
@@ -163,7 +163,7 @@ public class TrailingCommaOnCallSiteRule :
 
             TrailingCommaState.MISSING -> {
                 if (isTrailingCommaAllowed) {
-                    val prevNode = inspectNode.prevCodeLeaf()!!
+                    val prevNode = inspectNode.prevCodeLeaf!!
                     emit(
                         prevNode.startOffset + prevNode.textLength,
                         "Missing trailing comma before \"${inspectNode.text}\"",
@@ -217,7 +217,7 @@ public class TrailingCommaOnCallSiteRule :
             if (isCode) {
                 this
             } else {
-                prevCodeLeaf()
+                prevCodeLeaf
             }
         return codeLeaf?.takeIf { it.elementType == COMMA }
     }

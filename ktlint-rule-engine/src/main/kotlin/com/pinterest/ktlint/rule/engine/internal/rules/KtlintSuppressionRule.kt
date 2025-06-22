@@ -120,7 +120,7 @@ public class KtlintSuppressionRule(
     }
 
     private fun ASTNode.removePrecedingWhitespace() {
-        prevLeaf()
+        prevLeaf
             .takeIf { it.isWhiteSpace20 }
             ?.remove()
     }
@@ -139,7 +139,7 @@ public class KtlintSuppressionRule(
     ) {
         when (ktlintDirectiveType) {
             KTLINT_DISABLE -> {
-                if (node.elementType == EOL_COMMENT && node.prevLeaf().isWhiteSpaceWithNewline20) {
+                if (node.elementType == EOL_COMMENT && node.prevLeaf.isWhiteSpaceWithNewline20) {
                     removeDanglingEolCommentWithKtlintDisableDirective(emit)
                 } else {
                     visitKtlintDisableDirective(emit)

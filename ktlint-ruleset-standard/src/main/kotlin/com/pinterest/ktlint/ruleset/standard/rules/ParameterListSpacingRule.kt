@@ -187,7 +187,7 @@ public class ParameterListSpacingRule :
     ) {
         node
             .findChildByType(COLON)
-            ?.prevLeaf()
+            ?.prevLeaf
             ?.takeIf { it.elementType == WHITE_SPACE }
             ?.let { whiteSpaceBeforeColon ->
                 removeUnexpectedWhiteSpace(whiteSpaceBeforeColon, emit)

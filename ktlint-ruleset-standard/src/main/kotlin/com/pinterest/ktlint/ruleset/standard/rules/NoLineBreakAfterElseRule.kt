@@ -24,7 +24,7 @@ public class NoLineBreakAfterElseRule : StandardRule("no-line-break-after-else")
         if (node is PsiWhiteSpace &&
             node.textContains('\n')
         ) {
-            if (node.prevLeaf()?.elementType == ELSE_KEYWORD &&
+            if (node.prevLeaf?.elementType == ELSE_KEYWORD &&
                 node.nextLeaf?.elementType.let { it == IF_KEYWORD || it == LBRACE }
             ) {
                 emit(node.startOffset + 1, "Unexpected line break after \"else\"", true)

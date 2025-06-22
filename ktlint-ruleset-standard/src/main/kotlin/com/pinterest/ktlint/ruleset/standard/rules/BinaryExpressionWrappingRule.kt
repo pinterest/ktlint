@@ -124,7 +124,7 @@ public class BinaryExpressionWrappingRule :
                 //         "tooLongToFitOnSingleLine" +
                 //             "bar",
                 //     )
-                node.prevLeaf().isWhiteSpaceWithNewline20
+                node.prevLeaf.isWhiteSpaceWithNewline20
             }?.takeIf { it.causesMaxLineLengthToBeExceeded() }
             ?.let { expression ->
                 emit(
@@ -160,7 +160,7 @@ public class BinaryExpressionWrappingRule :
             .takeIf { it.elementType == CONDITION }
             ?.lastChildLeafOrSelf()
             ?.nextLeaf { it.isWhiteSpaceWithNewline20 }
-            ?.prevLeaf()
+            ?.prevLeaf
             ?.causesMaxLineLengthToBeExceeded()
             ?: false
 
@@ -248,7 +248,7 @@ public class BinaryExpressionWrappingRule :
         lastChildLeafOrSelf().let { lastChildLeaf ->
             leavesOnLine20
                 .dropTrailingEolComment()
-                .takeWhile { it.prevLeaf() != lastChildLeaf }
+                .takeWhile { it.prevLeaf != lastChildLeaf }
                 .lineLength
         } > maxLineLength
 }

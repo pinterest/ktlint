@@ -102,7 +102,7 @@ public class NoConsecutiveCommentsRule :
 
                     previousComment.elementType != node.elementType &&
                         node
-                            .prevLeaf()
+                            .prevLeaf
                             .takeIf { it.isWhiteSpace20 }
                             ?.text
                             .orEmpty()

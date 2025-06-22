@@ -55,11 +55,11 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
 
     private fun ASTNode.isUnexpectedSpacingBeforeParenthesis(): Boolean =
         when {
-            prevLeaf().isWhiteSpaceWithNewline20 && hasNoNewlineAfterLpar() -> {
+            prevLeaf.isWhiteSpaceWithNewline20 && hasNoNewlineAfterLpar() -> {
                 true
             }
 
-            !prevLeaf().isWhiteSpaceWithoutNewline20 -> {
+            !prevLeaf.isWhiteSpaceWithoutNewline20 -> {
                 false
             }
 
@@ -77,7 +77,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
                 // Disallow:
                 //    val foo = fn("foo" )
                 //    val foo = fn( )
-                prevLeaf()?.prevSibling()?.elementType != LPAR
+                prevLeaf?.prevSibling()?.elementType != LPAR
             }
 
             else -> {
@@ -86,7 +86,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
         }
 
     private fun ASTNode.isUnexpectedSpacingBetweenIdentifierAndElementList() =
-        prevLeaf()
+        prevLeaf
             ?.takeIf { it.isWhiteSpace20 }
             ?.takeIf {
                 // Disallow:
@@ -94,7 +94,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
                 // and
                 //     @Deprecated ("bar)
                 //     fun foo() {}
-                it.prevLeaf()?.elementType == IDENTIFIER
+                it.prevLeaf?.elementType == IDENTIFIER
             }?.let {
                 // But do allow:
                 //     val foo: @Composable () -> Unit
@@ -103,29 +103,29 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
             ?: false
 
     private fun ASTNode.isUnexpectedSpacingInCallToSuper() =
-        prevLeaf()
+        prevLeaf
             ?.takeIf { it.isWhiteSpace20 }
             ?.let {
                 // Disallow:
                 //     class Foo : Bar {
                 //         constructor(string: String) : super ()
                 //     }
-                it.prevLeaf()?.elementType == SUPER_KEYWORD
+                it.prevLeaf?.elementType == SUPER_KEYWORD
             }
             ?: false
 
     private fun ASTNode.isUnexpectedSpacingInExplicitConstructor() =
-        prevLeaf()
+        prevLeaf
             ?.takeIf { it.isWhiteSpace20 }
             ?.let {
                 // Disallow:
                 //     class Foo constructor ()
-                it.prevLeaf()?.treeParent?.elementType == PRIMARY_CONSTRUCTOR
+                it.prevLeaf?.treeParent?.elementType == PRIMARY_CONSTRUCTOR
             }
             ?: false
 
     private fun ASTNode.isUnexpectedSpacingInSuperTypeCallEntry() =
-        prevLeaf()
+        prevLeaf
             ?.takeIf { it.isWhiteSpace20 }
             ?.let {
                 // Disallow:
@@ -191,7 +191,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
     ) {
         emit(startOffset, "Unexpected spacing around \"$text\"", true)
             .ifAutocorrectAllowed {
-                prevLeaf()!!.remove()
+                prevLeaf!!.remove()
                 nextLeaf!!.remove()
             }
     }
@@ -199,8 +199,8 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
     private fun ASTNode.fixUnexpectedSpacingBefore(
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        emit(prevLeaf()!!.startOffset, "Unexpected spacing before \"${text}\"", true)
-            .ifAutocorrectAllowed { prevLeaf()?.remove() }
+        emit(prevLeaf!!.startOffset, "Unexpected spacing before \"${text}\"", true)
+            .ifAutocorrectAllowed { prevLeaf?.remove() }
     }
 
     private fun ASTNode.fixUnexpectSpacingAfter(

@@ -66,7 +66,7 @@ public class NoSingleLineBlockCommentRule :
                                 .firstOrNull()
                                 ?: node.firstChildLeafOrSelf20
                         beforeBlockComment
-                            .prevLeaf()
+                            .prevLeaf
                             .takeIf { !it.isWhitespaceWithNewlineOrNull() }
                             ?.let {
                                 node.upsertWhitespaceBeforeMe(" ")

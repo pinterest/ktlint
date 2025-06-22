@@ -108,7 +108,7 @@ public class ParameterListWrappingRule :
                     }
                 nullableType
                     .findChildByType(RPAR)
-                    ?.takeUnless { it.prevLeaf()?.isWhiteSpaceWithNewline20 == true }
+                    ?.takeUnless { it.prevLeaf?.isWhiteSpaceWithNewline20 == true }
                     ?.let { rpar ->
                         emit(
                             rpar.startOffset,
@@ -175,7 +175,7 @@ public class ParameterListWrappingRule :
             .let { startOfFunctionLiteral ->
                 treeParent
                     ?.takeIf { it.elementType == FUNCTION_LITERAL }
-                    ?.prevCodeLeaf()
+                    ?.prevCodeLeaf
                     ?.takeIf { it.treeParent.elementType == ElementType.VALUE_ARGUMENT_LIST }
                     ?.takeIf { it.treeParent.treeParent.elementType == ElementType.CALL_EXPRESSION }
                     ?.leaves()
@@ -215,7 +215,7 @@ public class ParameterListWrappingRule :
     private fun isPrecededByComment(node: ASTNode) =
         node
             .prevLeaf { !it.isWhiteSpace20 }
-            ?.prevLeaf()
+            ?.prevLeaf
             ?.isPartOfComment20
             ?: false
 
@@ -258,7 +258,7 @@ public class ParameterListWrappingRule :
     ) {
         when (child.elementType) {
             LPAR -> {
-                val prevLeaf = child.prevLeaf()
+                val prevLeaf = child.prevLeaf
                 if (!child.treeParent.isValueParameterListInFunctionType() &&
                     prevLeaf.isWhiteSpaceWithNewline20
                 ) {
@@ -277,7 +277,7 @@ public class ParameterListWrappingRule :
                 // <line indent + indentSize> VALUE_PARAMETER...
                 // <line indent> RPAR
                 val intendedIndent = intendedIndent(child)
-                val prevLeaf = child.prevLeaf()
+                val prevLeaf = child.prevLeaf
                 if (prevLeaf is PsiWhiteSpace) {
                     if (prevLeaf.getText().contains("\n")) {
                         // The current child is already wrapped to a new line. Checking and fixing the
@@ -317,7 +317,7 @@ public class ParameterListWrappingRule :
         val lineContent =
             leavesOnLine20
                 .dropTrailingEolComment()
-                .takeWhile { it.prevLeaf() != stopLeaf }
+                .takeWhile { it.prevLeaf != stopLeaf }
                 .joinToString(separator = "") { it.text }
                 .substringAfter('\n')
                 .substringBefore('\n')

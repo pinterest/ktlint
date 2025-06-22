@@ -43,7 +43,7 @@ public class TypeArgumentCommentRule : StandardRule("type-argument-comment") {
                             false,
                         )
                     } else if (node.treeParent.elementType == TYPE_ARGUMENT_LIST) {
-                        if (node.prevLeaf().isWhiteSpaceWithNewline20) {
+                        if (node.prevLeaf.isWhiteSpaceWithNewline20) {
                             // Allow:
                             //     fun Foo<
                             //         /* some comment */
