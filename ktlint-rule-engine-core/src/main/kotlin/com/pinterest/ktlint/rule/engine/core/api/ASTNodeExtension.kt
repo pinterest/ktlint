@@ -639,7 +639,7 @@ public fun ASTNode.leavesOnLine(): Sequence<ASTNode> = leavesOnLine20
 public val ASTNode.leavesOnLine20
     get(): Sequence<ASTNode> {
         val lastLeafOnLineOrNull = getLastLeafOnLineOrNull()
-        return getFirstLeafOnLineOrSelf()
+        return firstLeafOnLineOrSelf
             .leavesForwardsIncludingSelf
             .takeWhile { lastLeafOnLineOrNull == null || it.prevLeaf() != lastLeafOnLineOrNull }
     }
@@ -665,9 +665,10 @@ public fun Sequence<ASTNode>.dropTrailingEolComment(): Sequence<ASTNode> =
             it.elementType != EOL_COMMENT
     }
 
-internal fun ASTNode.getFirstLeafOnLineOrSelf() =
-    prevLeaf { (it.textContains('\n') && !it.isPartOfComment20) || it.prevLeaf() == null }
-        ?: this
+internal val ASTNode.firstLeafOnLineOrSelf
+    get() =
+        prevLeaf { (it.textContains('\n') && !it.isPartOfComment20) || it.prevLeaf() == null }
+            ?: this
 
 internal fun ASTNode.getLastLeafOnLineOrNull() = nextLeaf { it.textContains('\n') }?.prevLeaf()
 

@@ -20,8 +20,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
-import com.pinterest.ktlint.rule.engine.core.api.children20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.test.SPACE
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatNoException
@@ -1023,7 +1021,7 @@ class ASTNodeExtensionTest {
         val actual =
             transformCodeToAST(code)
                 .also { require(it.elementType == FILE) }
-                .getFirstLeafOnLineOrSelf()
+                .firstLeafOnLineOrSelf
                 .text
 
         assertThat(actual).contains(code)
@@ -1040,7 +1038,7 @@ class ASTNodeExtensionTest {
         val actual =
             transformCodeToAST(code)
                 .lastChildLeafOrSelf()
-                .getFirstLeafOnLineOrSelf()
+                .firstLeafOnLineOrSelf
                 .text
 
         // The newline (and indentation spaces) before the word "comment" inside the block comment is entirely ignored. As there are no
@@ -1172,7 +1170,7 @@ class ASTNodeExtensionTest {
             .orEmpty()
 
     /**
-     * A dummy rule for testing. Optionally the rule can be created with a lambda to be executed for each node visited.
+     * A dummy rule for testing. Optionally, the rule can be created with a lambda to be executed for each node visited.
      */
     private open class DummyRule(
         val block: (node: ASTNode) -> Unit = {},
