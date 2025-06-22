@@ -24,7 +24,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.leavesForwardsIncludingSelf
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
@@ -178,7 +178,7 @@ public class EnumWrappingRule :
             .children20
             .lastOrNull { it.elementType == ENUM_ENTRY }
             ?.nextSibling { !it.isPartOfComment20 }
-            ?.takeUnless { it.nextCodeSibling()?.elementType == RBRACE }
+            ?.takeUnless { it.nextCodeSibling20?.elementType == RBRACE }
             ?.let { nextSibling ->
                 val expectedIndent = "\n".plus(indentConfig.siblingIndentOf(node))
                 if (nextSibling.text != expectedIndent) {

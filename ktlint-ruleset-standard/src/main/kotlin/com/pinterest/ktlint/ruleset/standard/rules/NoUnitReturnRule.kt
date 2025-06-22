@@ -9,7 +9,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
@@ -22,7 +22,7 @@ public class NoUnitReturnRule : StandardRule("no-unit-return") {
         if (node.elementType == TYPE_REFERENCE &&
             node.treeParent.elementType == FUN &&
             node.text == "Unit" &&
-            node.nextCodeSibling()?.firstChildNode?.elementType == LBRACE
+            node.nextCodeSibling20?.firstChildNode?.elementType == LBRACE
         ) {
             emit(node.startOffset, "Unnecessary \"Unit\" return type", true)
                 .ifAutocorrectAllowed {

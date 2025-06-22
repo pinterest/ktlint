@@ -23,7 +23,7 @@ import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isRoot20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.replaceWith
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
@@ -149,7 +149,7 @@ private fun ASTNode.findParentDeclarationOrExpression(forceFileAnnotation: Boole
                     // moved to the next list element. When no such element is found, it will be moved to the parent of the list type
                     targetPsiElement
                         .node
-                        .nextCodeSibling()
+                        .nextCodeSibling20
                         ?.firstChildLeafOrSelf20
                         ?.psi
                 }

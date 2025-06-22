@@ -49,7 +49,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
 import com.pinterest.ktlint.rule.engine.core.api.lineLength
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
@@ -160,8 +160,8 @@ public class ChainMethodContinuationRule :
     private fun ASTNode.isJavaClassReferenceExpression() =
         treeParent.elementType == DOT_QUALIFIED_EXPRESSION &&
             prevCodeSibling20?.elementType == CLASS_LITERAL_EXPRESSION &&
-            nextCodeSibling()?.elementType == REFERENCE_EXPRESSION &&
-            nextCodeSibling()?.firstChildLeafOrSelf20?.text == "java"
+            nextCodeSibling20?.elementType == REFERENCE_EXPRESSION &&
+            nextCodeSibling20?.firstChildLeafOrSelf20?.text == "java"
 
     private fun ASTNode.isReferenceExpression(): Boolean = treeParent.isNestedReferenceExpression()
 
@@ -254,7 +254,7 @@ public class ChainMethodContinuationRule :
 
     private fun ASTNode.startOfLambdaArgumentInCallExpressionOrNull(): ASTNode? {
         require(elementType in chainOperatorTokenSet)
-        return nextCodeSibling()
+        return nextCodeSibling20
             ?.takeIf { it.elementType == CALL_EXPRESSION }
             ?.findChildByType(LAMBDA_ARGUMENT)
             ?.findChildByType(LAMBDA_EXPRESSION)
@@ -437,10 +437,10 @@ public class ChainMethodContinuationRule :
 
             private fun ASTNode.createBaseChainedExpression(chainOperator: ASTNode): ChainedExpression {
                 val chainBefore = chainOperator.prevCodeSibling20?.toChainedExpression()
-                val chainAfter = chainOperator.nextCodeSibling()?.toChainedExpression()
+                val chainAfter = chainOperator.nextCodeSibling20?.toChainedExpression()
                 val newlineAfter =
                     chainAfter.containsNewline() ||
-                        chainOperator.nextCodeSibling()!!.textContains('\n') ||
+                        chainOperator.nextCodeSibling20!!.textContains('\n') ||
                         chainOperator.nextSibling { it.isWhiteSpaceWithNewline20 } != null
                 val chainOperators =
                     mutableListOf<ASTNode>()

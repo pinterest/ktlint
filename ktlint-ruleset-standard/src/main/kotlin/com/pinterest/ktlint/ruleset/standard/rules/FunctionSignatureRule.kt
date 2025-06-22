@@ -43,7 +43,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isLeaf20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -173,7 +173,7 @@ public class FunctionSignatureRule :
                         return currentNode
                     }
                 }
-                return modifierList.nextCodeSibling()
+                return modifierList.nextCodeSibling20
             }
         // Ignore the context receiver in case it is followed by a newline or EOL-comment. Note that when the ContextReceiverWrapping rule
         // is disabled, it is possible that context receiver and fun keyword are kept on same line
@@ -182,7 +182,7 @@ public class FunctionSignatureRule :
             ?.nextSibling()
             ?.takeIf { it.isWhiteSpaceWithNewline20 || it.elementType == EOL_COMMENT }
             ?.let { nextSibling ->
-                return nextSibling.nextCodeSibling()
+                return nextSibling.nextCodeSibling20
             }
 
         return funNode.nextCodeLeaf
@@ -556,7 +556,7 @@ public class FunctionSignatureRule :
             ?.also { firstLineOfBodyExpression ->
                 if (whiteSpaceBeforeFunctionBodyExpression.isWhiteSpaceWithNewline20) {
                     lastNodeOfFunctionSignatureWithBodyExpression
-                        .nextCodeSibling()
+                        .nextCodeSibling20
                         .takeIf { it?.elementType == ANNOTATED_EXPRESSION }
                         ?.let {
                             // Never merge an annotated expression body with function signature as this conflicts with the Annotation rule

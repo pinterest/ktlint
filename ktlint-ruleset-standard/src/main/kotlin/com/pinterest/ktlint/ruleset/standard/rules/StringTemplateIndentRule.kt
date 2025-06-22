@@ -30,7 +30,7 @@ import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
@@ -408,7 +408,7 @@ public class StringTemplateIndentRule :
         )
     }
 
-    private fun ASTNode.isIndentBeforeClosingQuote() = text.isBlank() && nextCodeSibling()?.elementType == CLOSING_QUOTE
+    private fun ASTNode.isIndentBeforeClosingQuote() = text.isBlank() && nextCodeSibling20?.elementType == CLOSING_QUOTE
 
     private companion object {
         const val RAW_STRING_LITERAL_QUOTES = "\"\"\""

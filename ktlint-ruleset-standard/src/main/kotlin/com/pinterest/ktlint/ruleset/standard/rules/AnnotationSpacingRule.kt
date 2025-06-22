@@ -12,7 +12,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
@@ -105,7 +105,7 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
                         node.treeParent.removeChild(node)
 
                         // Insert the annotation prior to the annotated construct
-                        val beforeAnchor = next.nextCodeSibling()
+                        val beforeAnchor = next.nextCodeSibling20
                         val treeParent = next.treeParent
                         treeParent.addChild(node, beforeAnchor)
                         if (eolComment != null) {

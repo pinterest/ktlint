@@ -36,7 +36,7 @@ import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.leavesForwardsIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
 import com.pinterest.ktlint.rule.engine.core.api.lineLength
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
@@ -434,7 +434,7 @@ public class FunctionLiteralRule :
                 }
 
             block
-                .nextCodeSibling()
+                .nextCodeSibling20
                 ?.takeIf { it.elementType == RBRACE }
                 ?.let { rbrace -> wrapBeforeRbrace(rbrace, emit) }
         }

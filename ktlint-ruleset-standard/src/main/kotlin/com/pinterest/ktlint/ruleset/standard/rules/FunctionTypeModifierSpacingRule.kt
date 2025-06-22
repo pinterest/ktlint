@@ -8,7 +8,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -25,7 +25,7 @@ public class FunctionTypeModifierSpacingRule : StandardRule("function-type-modif
     ) {
         node
             .takeIf { it.elementType == MODIFIER_LIST }
-            ?.nextCodeSibling()
+            ?.nextCodeSibling20
             ?.takeIf { it.elementType == FUNCTION_TYPE }
             ?.takeUnless { it.isPrecededBySingleSpace() }
             ?.let { functionTypeNode ->

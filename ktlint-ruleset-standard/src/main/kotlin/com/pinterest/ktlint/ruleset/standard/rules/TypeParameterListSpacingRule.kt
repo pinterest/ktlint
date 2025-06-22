@@ -23,7 +23,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -90,9 +90,9 @@ public class TypeParameterListSpacingRule :
         //     class Bar<T> (...)
         node
             .nextSibling()
-            ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling()?.elementType == PRIMARY_CONSTRUCTOR }
+            ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling20?.elementType == PRIMARY_CONSTRUCTOR }
             ?.let { whiteSpace ->
-                if (whiteSpace.nextCodeSibling()?.findChildByType(CONSTRUCTOR_KEYWORD) != null) {
+                if (whiteSpace.nextCodeSibling20?.findChildByType(CONSTRUCTOR_KEYWORD) != null) {
                     if (whiteSpace.isWhiteSpaceWithNewline20) {
                         // Newline is acceptable before (modifier list of) constructor
                         //    class Bar<T>
@@ -132,7 +132,7 @@ public class TypeParameterListSpacingRule :
         //    class Bar<T> {
         node
             .nextSibling()
-            ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling()?.elementType == CLASS_BODY }
+            ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling20?.elementType == CLASS_BODY }
             ?.let { singleSpaceExpected(it, emit) }
     }
 
@@ -151,7 +151,7 @@ public class TypeParameterListSpacingRule :
         //    typealias Bar<T> = ...
         node
             .nextSibling()
-            ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling()?.elementType == EQ }
+            ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling20?.elementType == EQ }
             ?.let { singleSpaceExpected(it, emit) }
     }
 

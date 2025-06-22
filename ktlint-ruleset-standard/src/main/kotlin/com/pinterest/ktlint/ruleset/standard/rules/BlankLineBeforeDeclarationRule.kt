@@ -26,7 +26,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.isDeclaration20
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -164,14 +164,14 @@ public class BlankLineBeforeDeclarationRule :
             treeParent
                 .takeIf { it.elementType == CLASS_BODY }
                 ?.findChildByType(LBRACE)
-                ?.nextCodeSibling()
+                ?.nextCodeSibling20
 
     private fun ASTNode.isFirstCodeSiblingInBlock() =
         this ==
             treeParent
                 .takeIf { it.elementType == BLOCK }
                 ?.findChildByType(LBRACE)
-                ?.nextCodeSibling()
+                ?.nextCodeSibling20
 
     private fun ASTNode.isFirstCodeSiblingInBodyOfFunctionLiteral() =
         this ==

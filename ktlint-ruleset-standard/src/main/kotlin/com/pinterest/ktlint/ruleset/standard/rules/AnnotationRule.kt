@@ -45,7 +45,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -232,7 +232,7 @@ public class AnnotationRule :
 
             node
                 .takeIf { it.elementType == ANNOTATED_EXPRESSION }
-                ?.takeUnless { it.nextCodeSibling()?.elementType == OPERATION_REFERENCE }
+                ?.takeUnless { it.nextCodeSibling20?.elementType == OPERATION_REFERENCE }
                 ?.lastChildLeafOrSelf20
                 ?.nextCodeLeaf
                 ?.prevLeaf
@@ -284,7 +284,7 @@ public class AnnotationRule :
     private fun ASTNode.hasAnnotationBeforeConstructor() =
         codeStyle == CodeStyleValue.ktlint_official &&
             hasAnnotationEntry() &&
-            nextCodeSibling()?.elementType == CONSTRUCTOR_KEYWORD
+            nextCodeSibling20?.elementType == CONSTRUCTOR_KEYWORD
 
     private fun ASTNode.hasAnnotationEntry() = children20.any { it.elementType == ANNOTATION_ENTRY }
 

@@ -112,7 +112,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
@@ -229,7 +229,7 @@ public class IndentationRule :
             }
 
             (node.elementType == SUPER_TYPE_LIST && !node.isPrecededByComment()) ||
-                (node.isPartOfComment20 && node.nextCodeSibling()?.elementType == SUPER_TYPE_LIST) -> {
+                (node.isPartOfComment20 && node.nextCodeSibling20?.elementType == SUPER_TYPE_LIST) -> {
                 if (codeStyle == ktlint_official) {
                     val superTypeList =
                         if (node.isPartOfComment20) {
@@ -326,7 +326,7 @@ public class IndentationRule :
             }
 
             node.elementType == LPAR &&
-                node.nextCodeSibling()?.elementType == CONDITION -> {
+                node.nextCodeSibling20?.elementType == CONDITION -> {
                 visitLparBeforeCondition(node)
             }
 
@@ -380,7 +380,7 @@ public class IndentationRule :
             }
 
             node.elementType == LITERAL_STRING_TEMPLATE_ENTRY &&
-                node.nextCodeSibling()?.elementType == CLOSING_QUOTE -> {
+                node.nextCodeSibling20?.elementType == CLOSING_QUOTE -> {
                 visitWhiteSpaceBeforeClosingQuote(node, emit)
             }
 
@@ -393,7 +393,7 @@ public class IndentationRule :
             }
 
             node.elementType == WHERE_KEYWORD &&
-                node.nextCodeSibling()?.elementType == TYPE_CONSTRAINT_LIST -> {
+                node.nextCodeSibling20?.elementType == TYPE_CONSTRAINT_LIST -> {
                 visitWhereKeywordBeforeTypeConstraintList(node)
             }
 
@@ -604,7 +604,7 @@ public class IndentationRule :
             // Allow to pickup whitespace before condition
             fromAstNode = requireNotNull(node.nextLeaf),
             // Ignore whitespace after condition but before rpar
-            toAstNode = requireNotNull(node.nextCodeSibling()).lastChildLeafOrSelf20,
+            toAstNode = requireNotNull(node.nextCodeSibling20).lastChildLeafOrSelf20,
             nodeIndent = currentIndent() + indentConfig.indent,
             childIndent = "",
         )
@@ -679,7 +679,7 @@ public class IndentationRule :
             ?.let { where ->
                 val typeConstraintList =
                     requireNotNull(
-                        where.nextCodeSibling(),
+                        where.nextCodeSibling20,
                     ) { "Can not find code sibling after WHERE in FUN" }
                 require(typeConstraintList.elementType == TYPE_CONSTRAINT_LIST) {
                     "Code sibling after WHERE in CLASS is not a TYPE_CONSTRAINT_LIST"
@@ -721,7 +721,7 @@ public class IndentationRule :
             ?.let { where ->
                 val typeConstraintList =
                     requireNotNull(
-                        where.nextCodeSibling(),
+                        where.nextCodeSibling20,
                     ) { "Can not find code sibling after WHERE in CLASS" }
                 require(typeConstraintList.elementType == TYPE_CONSTRAINT_LIST) {
                     "Code sibling after WHERE in CLASS is not a TYPE_CONSTRAINT_LIST"
@@ -837,7 +837,7 @@ public class IndentationRule :
                     .prevSibling { !it.isPartOfComment20 }
                     .let { prevSibling ->
                         if (indentWhenArrowOnNewLine && prevSibling != null && prevSibling.isWhiteSpaceWithNewline20) {
-                            if (arrow.nextCodeSibling()?.elementType == BLOCK && codeStyle != ktlint_official) {
+                            if (arrow.nextCodeSibling20?.elementType == BLOCK && codeStyle != ktlint_official) {
                                 // Uglify the indentation to below to keep compatible with default formatting Intellij IDEA
                                 //     val foo =
                                 //        when (bar()) {
@@ -901,7 +901,7 @@ public class IndentationRule :
 
         startIndentContext(
             fromAstNode = node,
-            toAstNode = node.nextCodeSibling()?.lastChildLeafOrSelf20!!,
+            toAstNode = node.nextCodeSibling20?.lastChildLeafOrSelf20!!,
             childIndent = TYPE_CONSTRAINT_CONTINUATION_INDENT,
         )
     }
@@ -1056,7 +1056,7 @@ public class IndentationRule :
                 modifierList
                     .children20
                     .firstOrNull { it.isCode && it.elementType != ANNOTATION_ENTRY }
-                    ?: modifierList.nextCodeSibling()
+                    ?: modifierList.nextCodeSibling20
             }
             ?: children20.firstOrNull { it.isCode }
             ?: this
@@ -1558,7 +1558,7 @@ private class StringTemplateIndenter(
     }
 
     private fun ASTNode.isIndentBeforeClosingQuote() =
-        elementType == CLOSING_QUOTE || (text.isBlank() && nextCodeSibling()?.elementType == CLOSING_QUOTE)
+        elementType == CLOSING_QUOTE || (text.isBlank() && nextCodeSibling20?.elementType == CLOSING_QUOTE)
 
     private fun String.indentLength() = indexOfFirst { !it.isWhitespace() }.let { if (it == -1) length else it }
 

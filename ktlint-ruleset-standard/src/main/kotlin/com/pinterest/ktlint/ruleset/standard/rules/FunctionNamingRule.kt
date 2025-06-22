@@ -23,7 +23,7 @@ import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CommaSeparatedListValueParser
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.internal.regExIgnoringDiacriticsAndStrokesOnLetters
 import org.ec4j.core.model.PropertyType
@@ -129,7 +129,7 @@ public class FunctionNamingRule :
     private fun ASTNode.isAnonymousFunction() =
         VALUE_PARAMETER_LIST ==
             findChildByType(FUN_KEYWORD)
-                ?.nextCodeSibling()
+                ?.nextCodeSibling20
                 ?.elementType
 
     /*

@@ -18,7 +18,7 @@ import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
@@ -145,7 +145,7 @@ public class NoSemicolonsRule :
         this
             ?.takeIf { !it.isLastCodeLeafBeforeClosingOfClassBody() }
             ?.parent(CLASS_BODY)
-            ?.takeIf { this == it.firstChildNode.nextCodeSibling() }
+            ?.takeIf { this == it.firstChildNode.nextCodeSibling20 }
             ?.parent(CLASS)
             ?.hasModifier(ENUM_KEYWORD)
             ?: false

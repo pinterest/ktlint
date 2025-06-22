@@ -23,7 +23,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
 import com.pinterest.ktlint.rule.engine.core.api.lineLength
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
@@ -100,7 +100,7 @@ public class ParameterListSpacingRule :
                             // Avoid conflict with comment spacing rule which requires a whitespace before the
                             // EOL-comment
                         }
-                    } else if (el.nextCodeSibling()?.elementType == COMMA) {
+                    } else if (el.nextCodeSibling20?.elementType == COMMA) {
                         // No whitespace between parameter name and comma allowed
                         removeUnexpectedWhiteSpace(el, emit)
                     } else if (el.elementType == WHITE_SPACE && el.isNotIndent() && el.isNotSingleSpace()) {
@@ -290,7 +290,7 @@ public class ParameterListSpacingRule :
 
     private fun ASTNode.hasTypeReferenceWhichDoesNotFitOnSameLineAsColon() =
         takeIf { it.isWhiteSpaceWithNewline20 }
-            ?.nextCodeSibling()
+            ?.nextCodeSibling20
             ?.takeIf { it.elementType == TYPE_REFERENCE }
             ?.let { typeReference ->
                 val length =

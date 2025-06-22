@@ -67,7 +67,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.leavesForwardsIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
@@ -202,7 +202,7 @@ public class WrappingRule :
     private fun ASTNode.followedByFunctionLiteralParameterList() =
         VALUE_PARAMETER_LIST ==
             takeIf { treeParent.elementType == FUNCTION_LITERAL }
-                ?.nextCodeSibling()
+                ?.nextCodeSibling20
                 ?.elementType
 
     private fun rearrangeBlock(
@@ -478,7 +478,7 @@ public class WrappingRule :
         //     find matching rToken
         //     return true if there is no newline after the rToken
         // return false
-        val nextCodeSibling = node.nextCodeSibling() // e.g. BINARY_EXPRESSION
+        val nextCodeSibling = node.nextCodeSibling20 // e.g. BINARY_EXPRESSION
         var lToken = nextCodeSibling?.nextLeaf { it.isWhiteSpaceWithNewline20 }?.prevCodeLeaf
         if (lToken != null && lToken.elementType !in LTOKEN_SET) {
             // special cases:
@@ -698,7 +698,7 @@ public class WrappingRule :
                         node
                     } else {
                         // Other blocks have LBRACE and RBRACE as siblings of the block
-                        node.nextCodeSibling()
+                        node.nextCodeSibling20
                     }
                 }
         }
