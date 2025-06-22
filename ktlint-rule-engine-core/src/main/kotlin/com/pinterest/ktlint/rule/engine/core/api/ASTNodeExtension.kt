@@ -847,4 +847,14 @@ private fun createDummyKtFile(): KtFile = KtlintKotlinCompiler.createPsiFileFrom
 /**
  * Returns true if the receiver is not null, and it represents a declaration
  */
-public fun ASTNode?.isDeclaration(): Boolean = this != null && elementType in KtTokenSets.DECLARATION_TYPES
+@Deprecated(
+    "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
+        "the temporary property accessor. In 2.0 it can be replaced the final property accessor which will be the same as the " +
+        "current function name.",
+    replaceWith = ReplaceWith("isDeclaration20"),
+)
+public fun ASTNode?.isDeclaration(): Boolean = isDeclaration20
+
+// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+public val ASTNode?.isDeclaration20
+    get(): Boolean = this != null && elementType in KtTokenSets.DECLARATION_TYPES

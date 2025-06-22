@@ -25,7 +25,7 @@ import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.isCode
-import com.pinterest.ktlint.rule.engine.core.api.isDeclaration
+import com.pinterest.ktlint.rule.engine.core.api.isDeclaration20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -147,7 +147,7 @@ public class BlankLineBeforeDeclarationRule :
         }
 
         node
-            .takeIf { it.isDeclaration() }
+            .takeIf { it.isDeclaration20 }
             ?.takeUnless { it.prevLeaf().isBlankLine() }
             ?.let { insertBeforeNode ->
                 emit(insertBeforeNode.startOffset, "Expected a blank line for this declaration", true)

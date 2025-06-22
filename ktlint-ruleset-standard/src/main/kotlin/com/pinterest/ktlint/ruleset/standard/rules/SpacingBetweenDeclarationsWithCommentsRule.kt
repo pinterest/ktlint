@@ -7,7 +7,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.TokenSets
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isDeclaration
+import com.pinterest.ktlint.rule.engine.core.api.isDeclaration20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -30,8 +30,8 @@ public class SpacingBetweenDeclarationsWithCommentsRule : StandardRule("spacing-
             .takeIf { it.elementType in TokenSets.COMMENTS }
             ?.takeUnless { it.isTailComment() }
             ?.treeParent
-            ?.takeIf { it.isDeclaration() }
-            ?.takeIf { it.prevCodeSibling().isDeclaration() }
+            ?.takeIf { it.isDeclaration20 }
+            ?.takeIf { it.prevCodeSibling().isDeclaration20 }
             ?.let { visitCommentedDeclaration(it, emit) }
     }
 

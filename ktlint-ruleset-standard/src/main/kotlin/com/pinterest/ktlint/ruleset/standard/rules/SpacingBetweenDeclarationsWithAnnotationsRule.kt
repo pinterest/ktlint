@@ -12,7 +12,7 @@ import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.isCode
-import com.pinterest.ktlint.rule.engine.core.api.isDeclaration
+import com.pinterest.ktlint.rule.engine.core.api.isDeclaration20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
@@ -37,7 +37,7 @@ public class SpacingBetweenDeclarationsWithAnnotationsRule : StandardRule("spaci
         }
     }
 
-    private fun ASTNode.isDeclarationOrPropertyAccessor() = isDeclaration() || elementType == PROPERTY_ACCESSOR
+    private fun ASTNode.isDeclarationOrPropertyAccessor() = isDeclaration20 || elementType == PROPERTY_ACCESSOR
 
     private fun visitDeclaration(
         node: ASTNode,
