@@ -25,7 +25,7 @@ public class SpacingAroundDoubleColonRule : StandardRule("double-colon-spacing")
     ) {
         if (node.elementType == COLONCOLON) {
             val prevLeaf = node.prevLeaf()
-            val nextLeaf = node.nextLeaf()
+            val nextLeaf = node.nextLeaf
 
             var removeSingleWhiteSpace = false
             val spacingBefore =

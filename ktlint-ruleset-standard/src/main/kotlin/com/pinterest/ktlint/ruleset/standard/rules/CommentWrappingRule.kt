@@ -57,7 +57,7 @@ public class CommentWrappingRule :
                     ?: node.lastChildLeafOrSelf()
 
             if (!beforeBlockComment.prevLeaf().isWhitespaceWithNewlineOrNull() &&
-                !afterBlockComment.nextLeaf().isWhitespaceWithNewlineOrNull()
+                !afterBlockComment.nextLeaf.isWhitespaceWithNewlineOrNull()
             ) {
                 if (hasNewLineInClosedRange(beforeBlockComment, afterBlockComment)) {
                     // Do not try to fix constructs like below:
@@ -71,7 +71,7 @@ public class CommentWrappingRule :
                         false,
                     )
                 } else if (beforeBlockComment.prevLeaf()?.elementType == LBRACE &&
-                    afterBlockComment.nextLeaf()?.elementType == RBRACE
+                    afterBlockComment.nextLeaf?.elementType == RBRACE
                 ) {
                     // Allow single line blocks containing a block comment
                     //   val foo = { /* no-op */ }
@@ -99,7 +99,7 @@ public class CommentWrappingRule :
                 }
 
             afterBlockComment
-                .nextLeaf()
+                .nextLeaf
                 .takeIf { !it.isWhitespaceWithNewlineOrNull() }
                 ?.let { nextLeaf ->
                     emit(

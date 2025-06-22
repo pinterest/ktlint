@@ -45,7 +45,7 @@ public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
                     .mapIndexed { index, line ->
                         val modifiedLine =
                             when {
-                                node.elementType != EOL_COMMENT && index == lines.size - 1 && node.nextLeaf() != null -> {
+                                node.elementType != EOL_COMMENT && index == lines.size - 1 && node.nextLeaf != null -> {
                                     // Do not change the last line as it contains the indentation of the next element except
                                     // when it is an EOL comment which may also not contain trailing spaces
                                     line

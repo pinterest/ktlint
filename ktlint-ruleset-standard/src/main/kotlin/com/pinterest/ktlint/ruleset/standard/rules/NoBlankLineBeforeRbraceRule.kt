@@ -20,7 +20,7 @@ public class NoBlankLineBeforeRbraceRule : StandardRule("no-blank-line-before-rb
     ) {
         if (node is PsiWhiteSpace &&
             node.textContains('\n') &&
-            node.nextLeaf()?.elementType == RBRACE
+            node.nextLeaf?.elementType == RBRACE
         ) {
             val split = node.getText().split("\n")
             if (split.size > 2) {

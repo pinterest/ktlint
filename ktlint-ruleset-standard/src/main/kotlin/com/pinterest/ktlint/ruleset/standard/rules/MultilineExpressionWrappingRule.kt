@@ -143,7 +143,7 @@ public class MultilineExpressionWrappingRule :
                                         //          .filter { it.bar },
                                         //   )
                                         leafOnSameLineAfterMultilineExpression
-                                            .nextLeaf()
+                                            .nextLeaf
                                             ?.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
                                     }
 

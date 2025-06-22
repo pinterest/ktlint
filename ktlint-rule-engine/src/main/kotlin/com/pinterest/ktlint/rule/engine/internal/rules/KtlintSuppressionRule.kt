@@ -199,9 +199,9 @@ public class KtlintSuppressionRule(
             if (node.elementType == EOL_COMMENT) {
                 node.removePrecedingWhitespace()
             } else {
-                if (node.nextLeaf().isWhiteSpaceWithNewline20) {
+                if (node.nextLeaf.isWhiteSpaceWithNewline20) {
                     node
-                        .nextLeaf()
+                        .nextLeaf
                         ?.remove()
                 } else {
                     node.removePrecedingWhitespace()

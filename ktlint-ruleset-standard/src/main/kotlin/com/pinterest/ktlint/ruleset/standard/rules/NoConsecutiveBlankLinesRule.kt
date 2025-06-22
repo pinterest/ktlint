@@ -30,7 +30,7 @@ public class NoConsecutiveBlankLinesRule : StandardRule("no-consecutive-blank-li
                 return
             }
 
-            val eof = node.nextLeaf() == null
+            val eof = node.nextLeaf == null
             val betweenClassAndPrimaryConstructor = node.isBetweenClassAndPrimaryConstructor()
 
             if (newLineCount > 2 || eof || betweenClassAndPrimaryConstructor) {

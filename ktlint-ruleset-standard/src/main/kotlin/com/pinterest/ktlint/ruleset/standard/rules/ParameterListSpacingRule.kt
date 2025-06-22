@@ -112,7 +112,7 @@ public class ParameterListSpacingRule :
                 COMMA -> {
                     // Comma, except when it is the trailing comma, must be followed by whitespace
                     el
-                        .nextLeaf()
+                        .nextLeaf
                         ?.takeUnless { it.elementType == WHITE_SPACE || it.elementType == RPAR }
                         ?.let { addMissingWhiteSpaceAfterMe(el, emit) }
                 }
@@ -200,7 +200,7 @@ public class ParameterListSpacingRule :
     ) {
         val colonNode = node.findChildByType(COLON) ?: return
         colonNode
-            .nextLeaf()
+            .nextLeaf
             ?.takeIf { it.elementType == WHITE_SPACE }
             .let { whiteSpaceAfterColon ->
                 if (whiteSpaceAfterColon == null) {

@@ -29,7 +29,7 @@ public class SpacingAroundDotRule : StandardRule("dot-spacing") {
                         prevLeaf.node.remove()
                     }
             }
-            val nextLeaf = node.nextLeaf()
+            val nextLeaf = node.nextLeaf
             if (nextLeaf is PsiWhiteSpace) {
                 emit(nextLeaf.startOffset, "Unexpected spacing after \"${node.text}\"", true)
                     .ifAutocorrectAllowed {

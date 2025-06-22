@@ -47,7 +47,7 @@ public class NoEmptyFirstLineInClassBodyRule :
         if (node.elementType == CLASS_BODY) {
             node
                 .firstChildNode // LBRACE
-                .nextLeaf()
+                .nextLeaf
                 .takeIf { it.isWhiteSpaceWithNewline20 }
                 ?.let { whitespace ->
                     val countNewlines =

@@ -143,7 +143,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
             }
 
             elementType == LPAR -> {
-                nextLeaf()
+                nextLeaf
                     ?.takeUnless { it.isNextLeafAComment() }
                     ?.let { it.isUnexpectedSpaceAfterLpar() || it.isUnexpectedNewlineAfterLpar() }
                     ?: false
@@ -165,7 +165,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
         // Disallow:
         //     val foo = fn(
         //         )
-        isWhiteSpaceWithNewline20 && nextLeaf()?.elementType == RPAR
+        isWhiteSpaceWithNewline20 && nextLeaf?.elementType == RPAR
 
     private fun ASTNode.hasNoOtherNewlineBeforeRpar() =
         nextSibling()
@@ -175,7 +175,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
             ?.none { it.isWhiteSpaceWithNewline20 }
             ?: false
 
-    private fun ASTNode.isNextLeafAComment(): Boolean = nextLeaf()?.elementType in commentTypes
+    private fun ASTNode.isNextLeafAComment(): Boolean = nextLeaf?.elementType in commentTypes
 
     private fun ASTNode.hasNoNewlineAfterLpar() =
         prevSibling()
@@ -192,7 +192,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
         emit(startOffset, "Unexpected spacing around \"$text\"", true)
             .ifAutocorrectAllowed {
                 prevLeaf()!!.remove()
-                nextLeaf()!!.remove()
+                nextLeaf!!.remove()
             }
     }
 
@@ -207,7 +207,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         emit(startOffset + 1, "Unexpected spacing after \"$text\"", true)
-            .ifAutocorrectAllowed { nextLeaf()!!.remove() }
+            .ifAutocorrectAllowed { nextLeaf!!.remove() }
     }
 
     private companion object {

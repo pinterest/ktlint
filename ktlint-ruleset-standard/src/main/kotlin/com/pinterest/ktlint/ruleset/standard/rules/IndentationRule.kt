@@ -197,7 +197,7 @@ public class IndentationRule :
         if (node.isRoot20) {
             // File should not start with a whitespace
             node
-                .nextLeaf()
+                .nextLeaf
                 ?.takeIf { it.isWhiteSpaceWithoutNewline20 }
                 ?.let { whitespaceWithoutNewline ->
                     emit(node.startOffset, "Unexpected indentation", true)
@@ -466,7 +466,7 @@ public class IndentationRule :
                     ).prevCodeLeaf()
 
                 // Leading annotations and comments should be indented at same level as constructor itself
-                if (fromAstNode != node.nextLeaf()) {
+                if (fromAstNode != node.nextLeaf) {
                     startIndentContext(
                         fromAstNode = node,
                         toAstNode = nextToAstNode,
@@ -491,7 +491,7 @@ public class IndentationRule :
         node
             .findChildByType(THEN)
             ?.lastChildLeafOrSelf()
-            ?.nextLeaf()
+            ?.nextLeaf
             ?.let { nodeAfterThenBlock ->
                 nextToAstNode =
                     startIndentContext(
@@ -602,7 +602,7 @@ public class IndentationRule :
     private fun visitLparBeforeCondition(node: ASTNode) {
         startIndentContext(
             // Allow to pickup whitespace before condition
-            fromAstNode = requireNotNull(node.nextLeaf()),
+            fromAstNode = requireNotNull(node.nextLeaf),
             // Ignore whitespace after condition but before rpar
             toAstNode = requireNotNull(node.nextCodeSibling()).lastChildLeafOrSelf(),
             nodeIndent = currentIndent() + indentConfig.indent,
@@ -863,7 +863,7 @@ public class IndentationRule :
                                 //                }
                                 //        }
                                 startIndentContext(
-                                    fromAstNode = arrow.nextLeaf()!!,
+                                    fromAstNode = arrow.nextLeaf!!,
                                     toAstNode = node.lastChildLeafOrSelf(),
                                 )
                                 startIndentContext(
@@ -874,7 +874,7 @@ public class IndentationRule :
                             }
                         } else {
                             startIndentContext(
-                                fromAstNode = arrow.nextLeaf()!!,
+                                fromAstNode = arrow.nextLeaf!!,
                                 toAstNode = node.lastChildLeafOrSelf(),
                             )
                             startIndentContext(
@@ -909,7 +909,7 @@ public class IndentationRule :
     private fun visitKdoc(node: ASTNode) {
         node
             .findChildByType(KDOC_START)
-            ?.nextLeaf()
+            ?.nextLeaf
             ?.let { fromAstNode ->
                 startIndentContext(
                     fromAstNode = fromAstNode,
@@ -1184,7 +1184,7 @@ public class IndentationRule :
     }
 
     private fun ASTNode.ignoreIndent(): Boolean {
-        val nextLeaf = nextLeaf()
+        val nextLeaf = nextLeaf
         if (text.endsWith("\n") && nextLeaf.isStartOfRawStringLiteral()) {
             processedButNoIndentationChangedNeeded()
             return true // raw strings (""") are allowed at column 0
@@ -1214,7 +1214,7 @@ public class IndentationRule :
 
     private fun ASTNode.expectedIndent(): String {
         val lastIndexContext = indentContextStack.peekLast()
-        val nextLeaf = nextLeaf()
+        val nextLeaf = nextLeaf
         val adjustedChildIndent =
             when {
                 this == lastIndexContext.fromASTNode.firstChildLeafOrSelf() ||
@@ -1292,7 +1292,7 @@ public class IndentationRule :
     private fun ASTNode.acceptableTrailingSpaces(): String {
         require(elementType == WHITE_SPACE)
         val acceptableTrailingSpaces =
-            when (nextLeaf()?.elementType) {
+            when (nextLeaf?.elementType) {
                 KDOC_LEADING_ASTERISK, KDOC_END -> {
                     // The indentation of a KDoc comment contains a space as the last character regardless of the indentation
                     // style (tabs or spaces) except for the starting line of the KDoc comment
@@ -1397,7 +1397,7 @@ public class IndentationRule :
                     .orEmpty()
                     .takeWhile {
                         // The 'toAstNode' itself needs to be included as well
-                        it != toASTNode.nextLeaf()
+                        it != toASTNode.nextLeaf
                     }.joinToString(separator = "") { it.text }
                     .textWithEscapedTabAndNewline()
 

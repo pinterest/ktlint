@@ -82,7 +82,7 @@ public class FunctionStartOfBodySpacingRule : StandardRule("function-start-of-bo
             .findChildByType(ElementType.EQ)
             ?.let { assignmentExpression ->
                 assignmentExpression
-                    .nextLeaf(includeEmpty = true)
+                    .nextLeaf
                     ?.takeIf { it.elementType == ElementType.WHITE_SPACE }
                     .let { whiteSpaceAfterAssignment ->
                         if (!(whiteSpaceAfterAssignment?.text == " " || whiteSpaceAfterAssignment?.textContains('\n') == true)) {

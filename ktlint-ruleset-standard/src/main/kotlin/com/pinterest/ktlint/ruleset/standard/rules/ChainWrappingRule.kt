@@ -126,7 +126,7 @@ public class ChainWrappingRule :
                         // (or)
                         // <insertionPoint><spaceBeforeComment><comment><prevLeaf="\n"><node="&&"><nextLeaf=" "> to
                         // <insertionPoint><space if needed><node="&&"><spaceBeforeComment><comment><prevLeaf="\n"><delete node="&&"><delete nextLeaf=" ">
-                        val nextLeaf = node.nextLeaf()
+                        val nextLeaf = node.nextLeaf
                         val whiteSpaceToBeDeleted =
                             when {
                                 nextLeaf.isWhiteSpaceWithNewline20 -> {

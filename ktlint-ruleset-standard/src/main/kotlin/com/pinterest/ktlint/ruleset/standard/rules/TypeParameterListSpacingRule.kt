@@ -176,7 +176,7 @@ public class TypeParameterListSpacingRule :
         //   fun <T>List<T>foo(...)
         node
             .lastChildNode
-            .nextLeaf(includeEmpty = true)
+            .nextLeaf
             ?.let { nextSibling ->
                 singleSpaceExpected(nextSibling, emit)
             }

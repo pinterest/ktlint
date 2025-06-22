@@ -143,7 +143,7 @@ public class StringTemplateIndentRule :
             ?.takeIf { it.isFollowedByTrimIndent() }
             ?.treeParent
             ?.lastChildLeafOrSelf()
-            ?.nextLeaf()
+            ?.nextLeaf
 
     private fun ASTNode.isPrecededByWhitespaceWithNewline() = prevLeaf().isWhiteSpaceWithNewline20
 
@@ -295,7 +295,7 @@ public class StringTemplateIndentRule :
                 // The string template can start with an INTERPOLATION_PREFIX (multi dollar string interpolation, see
                 // https://kotlinlang.org/docs/strings.html#multi-dollar-string-interpolation), which is to be skipped.
                 .findChildByType(OPEN_QUOTE)
-                ?.nextLeaf()
+                ?.nextLeaf
                 ?: return
         if (firstNodeAfterOpeningQuotes.text.isNotBlank()) {
             emit(

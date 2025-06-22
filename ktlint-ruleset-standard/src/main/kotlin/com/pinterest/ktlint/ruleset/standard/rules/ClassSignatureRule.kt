@@ -447,7 +447,7 @@ public class ClassSignatureRule :
                     }
                 } else {
                     if (whiteSpaceBeforeClosingParenthesis != null &&
-                        whiteSpaceBeforeClosingParenthesis.nextLeaf()?.elementType == RPAR
+                        whiteSpaceBeforeClosingParenthesis.nextLeaf?.elementType == RPAR
                     ) {
                         if (!dryRun) {
                             emit(

@@ -667,7 +667,7 @@ public class WrappingRule :
         }
     }
 
-    private fun ASTNode.followedByNewline() = nextLeaf().isWhiteSpaceWithNewline20
+    private fun ASTNode.followedByNewline() = nextLeaf.isWhiteSpaceWithNewline20
 
     private fun ASTNode.isPrecededByNewline() = prevLeaf().isWhiteSpaceWithNewline20
 

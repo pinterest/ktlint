@@ -46,7 +46,7 @@ public class SpacingAroundCommaRule : StandardRule("comma-spacing") {
                             // https://github.com/pinterest/ktlint/issues/367
                             val previousStatement = node.prevCodeLeaf()!!
                             previousStatement.treeParent.addChild(node.clone(), previousStatement.nextSibling())
-                            val nextLeaf = node.nextLeaf()
+                            val nextLeaf = node.nextLeaf
                             if (nextLeaf is PsiWhiteSpace) {
                                 nextLeaf.remove()
                             }
@@ -56,7 +56,7 @@ public class SpacingAroundCommaRule : StandardRule("comma-spacing") {
                         }
                     }
             }
-            val nextLeaf = node.nextLeaf()
+            val nextLeaf = node.nextLeaf
             if (nextLeaf !is PsiWhiteSpace && nextLeaf?.elementType !in rTokenSet) {
                 emit(node.startOffset + 1, "Missing spacing after \"${node.text}\"", true)
                     .ifAutocorrectAllowed {

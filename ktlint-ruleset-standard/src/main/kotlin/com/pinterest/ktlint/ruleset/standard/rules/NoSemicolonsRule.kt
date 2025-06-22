@@ -50,7 +50,7 @@ public class NoSemicolonsRule :
         if (node.elementType != SEMICOLON) {
             return
         }
-        val nextLeaf = node.nextLeaf()
+        val nextLeaf = node.nextLeaf
         if (nextLeaf.doesNotRequirePreSemi() && isNoSemicolonRequiredAfter(node)) {
             emit(node.startOffset, "Unnecessary semicolon", true)
                 .ifAutocorrectAllowed {

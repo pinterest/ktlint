@@ -89,7 +89,7 @@ public class TypeArgumentListSpacingRule :
                 //    bar<Foo> { ... }
                 it.isPartOfCallExpressionFollowedByLambda()
             }?.lastChildNode
-            ?.nextLeaf(includeEmpty = true)
+            ?.nextLeaf
             ?.takeIf { it.elementType == ElementType.WHITE_SPACE }
             ?.let { noWhitespaceExpected(it, emit) }
     }

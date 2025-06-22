@@ -54,7 +54,7 @@ public class KdocWrappingRule :
 
             node
                 .findChildByType(KDOC_END)
-                ?.nextLeaf()
+                ?.nextLeaf
                 ?.takeIf { isNonIndentLeafOnSameLine(it) }
                 ?.let { nextLeaf ->
                     emit(nextLeaf.startOffset, "A KDoc comment may not be followed by any other element on that same line", true)

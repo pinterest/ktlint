@@ -179,7 +179,7 @@ public class IfElseWrappingRule :
                     !it.isPartOfComment20
             }
 
-    private fun ASTNode.isWhitespaceBeforeComment() = isWhiteSpaceWithoutNewline20 && nextLeaf()?.isPartOfComment20 == true
+    private fun ASTNode.isWhitespaceBeforeComment() = isWhiteSpaceWithoutNewline20 && nextLeaf?.isPartOfComment20 == true
 
     private fun ASTNode.outerIf(): ASTNode {
         require(this.elementType == IF)

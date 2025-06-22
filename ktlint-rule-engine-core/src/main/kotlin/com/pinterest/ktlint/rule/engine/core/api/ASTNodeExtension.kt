@@ -39,6 +39,10 @@ import kotlin.reflect.KClass
  * and the prefix `_` will be removed from the accessors.
  */
 
+@Deprecated(
+    "Marked for removal in KtLint 2.0. Replace calls to 'nextLeaf()', 'nextLeaf(false)', and 'nextLeaf(false, false)' with " +
+        "property accessor 'nextLeaf'. For any situation, use 'nextLeaf((ASTNode) -> Boolean)'.",
+)
 public fun ASTNode.nextLeaf(
     includeEmpty: Boolean = false,
     skipSubtree: Boolean = false,
@@ -52,6 +56,15 @@ public fun ASTNode.nextLeaf(
     return n
 }
 
+public val ASTNode.nextLeaf
+    get(): ASTNode? {
+        var node = this.nextLeafAny()
+        while (node != null && node.textLength == 0) {
+            node = node.nextLeafAny()
+        }
+        return node
+    }
+
 public fun ASTNode.nextLeaf(p: (ASTNode) -> Boolean): ASTNode? {
     var n = this.nextLeafAny()
     while (n != null && !p(n)) {
@@ -61,33 +74,22 @@ public fun ASTNode.nextLeaf(p: (ASTNode) -> Boolean): ASTNode? {
 }
 
 private fun ASTNode.nextLeafAny(): ASTNode? {
-    var n = this
-    if (n.firstChildNode != null) {
-        do {
-            n = n.firstChildNode
-        } while (n.firstChildNode != null)
-        return n
+    if (firstChildNode == null) return nextLeafStrict()
+    var node = this
+    while (node.firstChildNode != null) {
+        node = node.firstChildNode
     }
-    return n.nextLeafStrict()
+    return node
 }
 
-private fun ASTNode.nextLeafStrict(): ASTNode? {
-    val nextSibling: ASTNode? = treeNext
-    if (nextSibling != null) {
-        return nextSibling.firstChildLeafOrSelf()
-    }
-    return treeParent?.nextLeafStrict()
-}
+private fun ASTNode.nextLeafStrict(): ASTNode? = treeNext?.firstChildLeafOrSelf() ?: treeParent?.nextLeafStrict()
 
 public fun ASTNode.firstChildLeafOrSelf(): ASTNode {
-    var n = this
-    if (n.firstChildNode != null) {
-        do {
-            n = n.firstChildNode
-        } while (n.firstChildNode != null)
-        return n
+    var node = this
+    while (node.firstChildNode != null) {
+        node = node.firstChildNode
     }
-    return n
+    return node
 }
 
 public fun ASTNode.prevLeaf(includeEmpty: Boolean = false): ASTNode? {
@@ -146,18 +148,18 @@ public fun ASTNode.nextCodeLeaf(
     includeEmpty: Boolean = false,
     skipSubtree: Boolean = false,
 ): ASTNode? {
-    var n = nextLeaf(includeEmpty, skipSubtree)
+    var n = nextLeaf
     while (n != null && !n.isCode) {
-        n = n.nextLeaf(includeEmpty, skipSubtree)
+        n = n.nextLeaf
     }
     return n
 }
 
 public val ASTNode.nextCodeLeaf
     get(): ASTNode? {
-        var node = nextLeaf()
+        var node = nextLeaf
         while (node != null && !node.isCode) {
-            node = node.nextLeaf()
+            node = node.nextLeaf
         }
         return node
     }
@@ -430,7 +432,7 @@ public fun ASTNode.upsertWhitespaceAfterMe(text: String) {
         if (this.elementType == WHITE_SPACE) {
             return replaceWhitespaceWith(text)
         }
-        val next = treeNext ?: nextLeaf()
+        val next = treeNext ?: nextLeaf
         when {
             next?.elementType == WHITE_SPACE -> {
                 next.replaceWhitespaceWith(text)
@@ -591,7 +593,7 @@ public fun leavesInClosedRange(
     val stopAtLeaf =
         to
             .lastChildLeafOrSelf()
-            .nextLeaf()
+            .nextLeaf
     return from
         .firstChildLeafOrSelf()
         .leavesForwardsIncludingSelf
@@ -677,7 +679,7 @@ public fun ASTNode.leavesOnLine(excludeEolComment: Boolean): Sequence<ASTNode> =
  */
 public fun Sequence<ASTNode>.dropTrailingEolComment(): Sequence<ASTNode> =
     takeWhile {
-        !(it.isWhiteSpaceWithoutNewline20 && it.nextLeaf()?.elementType == EOL_COMMENT) &&
+        !(it.isWhiteSpaceWithoutNewline20 && it.nextLeaf?.elementType == EOL_COMMENT) &&
             // But if EOL-comment not preceded by whitespace than take all nodes before the EOL comment
             it.elementType != EOL_COMMENT
     }

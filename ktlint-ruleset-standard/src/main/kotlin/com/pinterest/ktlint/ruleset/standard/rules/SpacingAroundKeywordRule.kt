@@ -58,7 +58,7 @@ public class SpacingAroundKeywordRule : StandardRule("keyword-spacing") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node is LeafPsiElement) {
-            if (tokenSet.contains(node.elementType) && node.treeParent.elementType != KDOC_NAME && node.nextLeaf() !is PsiWhiteSpace) {
+            if (tokenSet.contains(node.elementType) && node.treeParent.elementType != KDOC_NAME && node.nextLeaf !is PsiWhiteSpace) {
                 emit(node.startOffset + node.text.length, "Missing spacing after \"${node.text}\"", true)
                     .ifAutocorrectAllowed {
                         (node as ASTNode).upsertWhitespaceAfterMe(" ")
@@ -67,7 +67,7 @@ public class SpacingAroundKeywordRule : StandardRule("keyword-spacing") {
             node
                 .takeIf { keywordsWithoutSpaces.contains(it.elementType) }
                 .takeIf { node.isPropertyAccessorWithValueParameterList() }
-                ?.nextLeaf()
+                ?.nextLeaf
                 ?.takeIf { it.isWhiteSpace20 }
                 ?.also { nextLeaf ->
                     emit(node.startOffset, "Unexpected spacing after \"${node.text}\"", true)

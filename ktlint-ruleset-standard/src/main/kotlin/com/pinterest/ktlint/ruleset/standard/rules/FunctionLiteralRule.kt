@@ -187,7 +187,7 @@ public class FunctionLiteralRule :
 
     private fun ASTNode.lengthOfParameterListWhenOnSingleLine(): Int {
         require(elementType == VALUE_PARAMETER_LIST)
-        val stopAtLeaf = lastChildLeafOrSelf().nextLeaf()
+        val stopAtLeaf = lastChildLeafOrSelf().nextLeaf
         return firstChildLeafOrSelf()
             .leavesForwardsIncludingSelf
             .takeWhile { it != stopAtLeaf }
@@ -306,7 +306,7 @@ public class FunctionLiteralRule :
     ) {
         require(arrow.elementType == ARROW)
         arrow
-            .nextLeaf()
+            .nextLeaf
             .takeIf { it.isWhiteSpace20 }
             .let { whitespaceAfterArrow ->
                 if (whitespaceAfterArrow == null ||
@@ -446,7 +446,7 @@ public class FunctionLiteralRule :
     ) {
         require(lbrace.elementType == LBRACE)
         lbrace
-            .nextLeaf()
+            .nextLeaf
             .takeIf { it.isWhiteSpace20 }
             .let { whitespaceAfterLbrace ->
                 if (whitespaceAfterLbrace == null ||

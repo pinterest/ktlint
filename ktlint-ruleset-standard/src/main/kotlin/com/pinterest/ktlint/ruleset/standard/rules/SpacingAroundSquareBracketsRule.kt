@@ -32,7 +32,7 @@ public class SpacingAroundSquareBracketsRule :
     ) {
         if (node.elementType == LBRACKET || node.elementType == RBRACKET) {
             val prevLeaf = node.prevLeaf()
-            val nextLeaf = node.nextLeaf()
+            val nextLeaf = node.nextLeaf
             val spacingBefore =
                 when (node.treeParent.elementType) {
                     KDOC_MARKDOWN_LINK -> {

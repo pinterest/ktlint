@@ -79,7 +79,7 @@ public class SpacingAroundCurlyRule :
     ) {
         if (node.isLeaf20 && !node.isPartOfString20) {
             val prevLeaf = node.prevLeaf()
-            val nextLeaf = node.nextLeaf()
+            val nextLeaf = node.nextLeaf
             val spacingBefore: Boolean
             val spacingAfter: Boolean
             when (node.elementType) {
@@ -141,7 +141,7 @@ public class SpacingAroundCurlyRule :
                     spacingAfter = nextLeaf == null || nextLeaf is PsiWhiteSpace || shouldNotToBeSeparatedBySpace(nextLeaf)
                     nextLeaf
                         .takeIf { it.isWhiteSpaceWithoutNewline20 }
-                        ?.takeIf { shouldNotToBeSeparatedBySpace(it.nextLeaf()) }
+                        ?.takeIf { shouldNotToBeSeparatedBySpace(it.nextLeaf) }
                         ?.let { leaf ->
                             emit(node.startOffset, "Unexpected space after \"${node.text}\"", true)
                                 .ifAutocorrectAllowed { leaf.remove() }

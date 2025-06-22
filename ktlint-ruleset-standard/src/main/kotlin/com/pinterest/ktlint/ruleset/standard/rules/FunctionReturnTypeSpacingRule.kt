@@ -68,7 +68,7 @@ public class FunctionReturnTypeSpacingRule :
     ) {
         require(node.elementType == COLON)
         node
-            .nextLeaf()
+            .nextLeaf
             ?.takeIf { it.elementType == WHITE_SPACE }
             .let { whiteSpaceAfterColon ->
                 if (whiteSpaceAfterColon?.text != " ") {

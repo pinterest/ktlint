@@ -168,7 +168,7 @@ public class NoUnusedImportsRule :
                                 // Last import
                                 node
                                     .lastChildLeafOrSelf()
-                                    .nextLeaf()
+                                    .nextLeaf
                                     ?.takeIf { it.isWhiteSpaceWithNewline20 }
                                     ?.let { whitespace ->
                                         if (node.prevLeaf() == null) {
@@ -221,7 +221,7 @@ public class NoUnusedImportsRule :
             }
 
             else -> {
-                nextLeaf(true)
+                nextLeaf
                     ?.takeIf { it.isWhiteSpaceWithNewline20 }
                     ?.let { it.treeParent.removeChild(it) }
             }

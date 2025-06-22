@@ -46,7 +46,7 @@ public class ModifierListSpacingRule : StandardRule("modifier-list-spacing") {
             return
         }
         node
-            .nextSibling { it.elementType == WHITE_SPACE && it.nextLeaf()?.isPartOfComment20 != true }
+            .nextSibling { it.elementType == WHITE_SPACE && it.nextLeaf?.isPartOfComment20 != true }
             ?.takeIf { it.elementType == WHITE_SPACE }
             ?.takeUnless {
                 // Regardless of element type, a single white space is always ok and does not need to be checked.

@@ -25,7 +25,7 @@ public class NoLineBreakAfterElseRule : StandardRule("no-line-break-after-else")
             node.textContains('\n')
         ) {
             if (node.prevLeaf()?.elementType == ELSE_KEYWORD &&
-                node.nextLeaf()?.elementType.let { it == IF_KEYWORD || it == LBRACE }
+                node.nextLeaf?.elementType.let { it == IF_KEYWORD || it == LBRACE }
             ) {
                 emit(node.startOffset + 1, "Unexpected line break after \"else\"", true)
                     .ifAutocorrectAllowed {

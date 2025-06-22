@@ -101,7 +101,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                         }
 
                         prevLeaf.prevLeaf()?.isPartOfComment20 == true -> {
-                            val nextLeaf = node.nextLeaf()
+                            val nextLeaf = node.nextLeaf
                             prevNonCodeElements.forEach {
                                 node.treeParent.addChild(it, nextLeaf)
                             }

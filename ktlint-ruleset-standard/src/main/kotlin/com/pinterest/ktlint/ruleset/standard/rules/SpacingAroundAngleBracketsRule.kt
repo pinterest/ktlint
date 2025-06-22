@@ -42,7 +42,7 @@ public class SpacingAroundAngleBracketsRule : StandardRule("spacing-around-angle
             }
 
             // Check for rogue spacing after an opening bracket
-            val afterLeftAngle = openingBracket.nextLeaf()
+            val afterLeftAngle = openingBracket.nextLeaf
             if (afterLeftAngle?.elementType == WHITE_SPACE) {
                 if (afterLeftAngle.isWhiteSpaceWithoutNewline20) {
                     emit(afterLeftAngle.startOffset, "Unexpected spacing after \"<\"", true)

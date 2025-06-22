@@ -96,7 +96,7 @@ public class ParameterListWrappingRule :
             ?.let { nullableType ->
                 nullableType
                     .findChildByType(LPAR)
-                    ?.takeUnless { it.nextLeaf()?.isWhiteSpaceWithNewline20 == true }
+                    ?.takeUnless { it.nextLeaf?.isWhiteSpaceWithNewline20 == true }
                     ?.let { lpar ->
                         emit(
                             lpar.startOffset + 1,
@@ -313,7 +313,7 @@ public class ParameterListWrappingRule :
                 ?.elementType
 
     private fun ASTNode.isOnLineExceedingMaxLineLength(): Boolean {
-        val stopLeaf = nextLeaf { it.textContains('\n') }?.nextLeaf()
+        val stopLeaf = nextLeaf { it.textContains('\n') }?.nextLeaf
         val lineContent =
             leavesOnLine20
                 .dropTrailingEolComment()

@@ -78,7 +78,7 @@ public class MaxLineLengthRule :
         }
         node
             .takeIf { it is LeafPsiElement }
-            ?.takeIf { it.nextLeaf() == null || it.nextLeaf().isWhiteSpaceWithNewline20 }
+            ?.takeIf { it.nextLeaf == null || it.nextLeaf.isWhiteSpaceWithNewline20 }
             ?.takeIf { it.lineLength() > maxLineLength }
             ?.takeUnless { it.isPartOf(ElementType.PACKAGE_DIRECTIVE) }
             ?.takeUnless { it.isPartOf(ElementType.IMPORT_DIRECTIVE) }

@@ -516,7 +516,7 @@ public class FunctionSignatureRule :
                     }
                 } else {
                     if (whiteSpaceBeforeClosingParenthesis != null &&
-                        whiteSpaceBeforeClosingParenthesis.nextLeaf()?.elementType == RPAR
+                        whiteSpaceBeforeClosingParenthesis.nextLeaf?.elementType == RPAR
                     ) {
                         if (!dryRun) {
                             emit(
@@ -541,7 +541,7 @@ public class FunctionSignatureRule :
         val lastNodeOfFunctionSignatureWithBodyExpression =
             node
                 .findChildByType(EQ)
-                ?.nextLeaf(includeEmpty = true)
+                ?.nextLeaf
                 ?: return
         val bodyNodes = node.getFunctionBody(lastNodeOfFunctionSignatureWithBodyExpression)
         val whiteSpaceBeforeFunctionBodyExpression = bodyNodes.getStartingWhitespaceOrNull()
@@ -632,7 +632,7 @@ public class FunctionSignatureRule :
             .let {
                 it.elementType == ElementType.OPEN_QUOTE &&
                     it
-                        .nextLeaf()
+                        .nextLeaf
                         ?.text
                         .orEmpty()
                         .startsWith("\n")

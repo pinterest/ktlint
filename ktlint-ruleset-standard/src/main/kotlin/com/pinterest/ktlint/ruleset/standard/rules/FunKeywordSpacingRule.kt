@@ -26,7 +26,7 @@ public class FunKeywordSpacingRule : StandardRule("fun-keyword-spacing") {
     ) {
         node
             .takeIf { it.elementType == FUN_KEYWORD }
-            ?.nextLeaf(includeEmpty = true)
+            ?.nextLeaf
             ?.let { leafAfterFunKeyword ->
                 when {
                     leafAfterFunKeyword.elementType == ElementType.WHITE_SPACE && leafAfterFunKeyword.text != " " -> {

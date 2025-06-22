@@ -82,7 +82,7 @@ public class SpacingAroundOperatorsRule : StandardRule("op-spacing") {
             (node.elementType == IDENTIFIER && node.treeParent.elementType == OPERATION_REFERENCE)
         ) {
             val spacingBefore = node.prevLeaf() is PsiWhiteSpace
-            val spacingAfter = node.nextLeaf() is PsiWhiteSpace
+            val spacingAfter = node.nextLeaf is PsiWhiteSpace
             when {
                 !spacingBefore && !spacingAfter -> {
                     emit(node.startOffset, "Missing spacing around \"${node.text}\"", true)

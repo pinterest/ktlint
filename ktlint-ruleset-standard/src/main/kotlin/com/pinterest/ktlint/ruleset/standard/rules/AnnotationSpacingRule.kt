@@ -175,7 +175,7 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
         lastAnnotationEntryNode: ASTNode,
     ) {
         // Pull the next before raw replace, or it will blow up
-        val nextLeaf = fromNode.nextLeaf()
+        val nextLeaf = fromNode.nextLeaf
         if (fromNode is PsiWhiteSpaceImpl) {
             if (fromNode.text.toCharArray().count { it == '\n' } > 1) {
                 rawReplaceExtraLineBreaks(fromNode)

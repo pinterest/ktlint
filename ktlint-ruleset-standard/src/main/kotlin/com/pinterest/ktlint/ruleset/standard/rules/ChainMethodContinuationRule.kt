@@ -244,7 +244,7 @@ public class ChainMethodContinuationRule :
                     chainOperators
                         .last()
                         .startOfLambdaArgumentInCallExpressionOrNull()
-                        ?: lastChildLeafOrSelf().nextLeaf()
+                        ?: lastChildLeafOrSelf().nextLeaf
                 leavesOnLine20
                     .dropTrailingEolComment()
                     .takeWhile { it != stopAtLeaf }
@@ -370,7 +370,7 @@ public class ChainMethodContinuationRule :
             .chainOperators
             .forEach { chainOperator ->
                 chainOperator
-                    .nextLeaf()
+                    .nextLeaf
                     .takeIf { it.isWhiteSpaceWithNewline20 }
                     ?.let { whiteSpace ->
                         emit(whiteSpace.startOffset - 1, "Unexpected newline after '${chainOperator.text}'", true)

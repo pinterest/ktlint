@@ -55,7 +55,7 @@ public class NoSingleLineBlockCommentRule :
                     ?: node.lastChildLeafOrSelf()
 
             if (!node.textContains('\n') &&
-                afterBlockComment.nextLeaf().isWhitespaceWithNewlineOrNull()
+                afterBlockComment.nextLeaf.isWhitespaceWithNewlineOrNull()
             ) {
                 emit(node.startOffset, "Replace the block comment with an EOL comment", true)
                     .ifAutocorrectAllowed {
