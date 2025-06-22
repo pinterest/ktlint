@@ -808,6 +808,7 @@ public val ASTNode.isKtAnnotated20
 @Deprecated("Marked for removal in KtLint 2.0")
 public fun ASTNode.isKtExpression(): Boolean = psiType { it is KtExpression }
 
+@Deprecated("Marked for removal in KtLint 2.0")
 public fun ASTNode.isKtLoopExpression(): Boolean = psiType { it is KtLoopExpression }
 
 private inline fun ASTNode.psiType(predicate: (psiElement: PsiElement) -> Boolean): Boolean = predicate(dummyPsiElement())
