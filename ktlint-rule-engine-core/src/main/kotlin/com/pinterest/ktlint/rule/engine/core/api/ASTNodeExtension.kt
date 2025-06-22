@@ -130,12 +130,12 @@ public val ASTNode.prevLeaf
         return node
     }
 
-public fun ASTNode.prevLeaf(p: (ASTNode) -> Boolean): ASTNode? {
-    var n = this.prevLeafAny()
-    while (n != null && !p(n)) {
-        n = n.prevLeafAny()
+public fun ASTNode.prevLeaf(predicate: (ASTNode) -> Boolean): ASTNode? {
+    var node = this.prevLeafAny()
+    while (node != null && !predicate(node)) {
+        node = node.prevLeafAny()
     }
-    return n
+    return node
 }
 
 private fun ASTNode.prevLeafAny(): ASTNode? {
