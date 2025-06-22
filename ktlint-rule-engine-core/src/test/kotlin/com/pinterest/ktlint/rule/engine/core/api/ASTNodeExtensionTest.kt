@@ -711,7 +711,7 @@ class ASTNodeExtensionTest {
                 .filter { it.elementType == IDENTIFIER }
                 .map { identifier ->
                     identifier
-                        .leavesOnLine()
+                        .leavesOnLine20
                         .joinToString(separator = "") { it.text }
                 }.toList()
 
@@ -806,7 +806,7 @@ class ASTNodeExtensionTest {
                     .filter { it.elementType == IDENTIFIER }
                     .map { identifier ->
                         identifier
-                            .leavesOnLine()
+                            .leavesOnLine20
                             .takeWhile { it.prevLeaf() != identifier }
                             .lineLengthWithoutNewlinePrefix()
                     }.toList()
@@ -836,7 +836,7 @@ class ASTNodeExtensionTest {
                         .filter { it.elementType == IDENTIFIER }
                         .map { identifier ->
                             identifier
-                                .leavesOnLine()
+                                .leavesOnLine20
                                 .takeWhile { it.prevLeaf() != identifier }
                                 .lineLengthWithoutNewlinePrefix()
                         }.toList()

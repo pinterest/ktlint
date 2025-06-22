@@ -20,6 +20,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children20
+import com.pinterest.ktlint.rule.engine.core.api.dropTrailingEolComment
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
@@ -33,7 +34,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesForwardsIncludingSelf
-import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
+import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
 import com.pinterest.ktlint.rule.engine.core.api.lineLength
 import com.pinterest.ktlint.rule.engine.core.api.lineLengthWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
@@ -179,7 +180,8 @@ public class FunctionLiteralRule :
         require(elementType == VALUE_PARAMETER_LIST && treeParent.elementType == FUNCTION_LITERAL)
         val lbrace = treeParent.findChildByType(LBRACE)!!
         return lbrace
-            .leavesOnLine(excludeEolComment = true)
+            .leavesOnLine20
+            .dropTrailingEolComment()
             .takeWhile { it.prevLeaf() != lbrace }
             .lineLengthWithoutNewlinePrefix()
     }
@@ -213,7 +215,8 @@ public class FunctionLiteralRule :
                     .first { it.elementType == VALUE_PARAMETER }
                     .lastChildLeafOrSelf()
                     .nextLeaf { !it.isWhiteSpaceWithoutNewline20 && !it.isPartOfComment20 }
-            leavesOnLine(excludeEolComment = true)
+            leavesOnLine20
+                .dropTrailingEolComment()
                 .takeWhile { it.prevLeaf() != stopAtLeaf }
                 .lineLengthWithoutNewlinePrefix()
                 .let { it > maxLineLength }

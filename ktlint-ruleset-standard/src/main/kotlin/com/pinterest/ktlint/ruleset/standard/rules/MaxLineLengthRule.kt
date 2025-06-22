@@ -20,7 +20,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
+import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
 import com.pinterest.ktlint.rule.engine.core.api.lineLengthWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.parent
@@ -91,7 +91,7 @@ public class MaxLineLengthRule :
                 // Calculate the offset at the last possible position at which the newline should be inserted on the line
                 val offset =
                     node
-                        .leavesOnLine(excludeEolComment = false)
+                        .leavesOnLine20
                         .first()
                         .startOffset
                         .plus(maxLineLength + 1)
@@ -104,7 +104,7 @@ public class MaxLineLengthRule :
     }
 
     private fun ASTNode.lineLength() =
-        leavesOnLine(false)
+        leavesOnLine20
             .filterNot {
                 ignoreBackTickedIdentifier &&
                     it.elementType == IDENTIFIER &&

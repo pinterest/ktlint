@@ -628,28 +628,37 @@ private fun ASTNode.sequenceOfLeafOrEmpty(): Sequence<ASTNode> {
  * with zero or more newline characters.
  */
 @Deprecated(
-    message =
-        "Marked for removal in Ktlint 2.x. Rules should not modify code in case the EOL comment causes the max_line_length to be exceeded.",
-    replaceWith = ReplaceWith("leavesOnLine(excludeEolComment = false)"),
+    "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
+        "the temporary property accessor. In 2.0 it can be replaced the final property accessor which will be the same as the " +
+        "current function name.",
+    replaceWith = ReplaceWith("leavesOnLine20"),
 )
-public fun ASTNode.leavesOnLine(): Sequence<ASTNode> = leavesOnLine(excludeEolComment = false)
+public fun ASTNode.leavesOnLine(): Sequence<ASTNode> = leavesOnLine20
+
+// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+public val ASTNode.leavesOnLine20
+    get(): Sequence<ASTNode> {
+        val lastLeafOnLineOrNull = getLastLeafOnLineOrNull()
+        return getFirstLeafOnLineOrSelf()
+            .leavesForwardsIncludingSelf
+            .takeWhile { lastLeafOnLineOrNull == null || it.prevLeaf() != lastLeafOnLineOrNull }
+    }
 
 /**
  * Get all leaves on the same line as the given node including the whitespace indentation. Note that the whitespace indentation may start
  * with zero or more newline characters.
  */
-public fun ASTNode.leavesOnLine(excludeEolComment: Boolean): Sequence<ASTNode> {
-    val lastLeafOnLineOrNull = getLastLeafOnLineOrNull()
-    return getFirstLeafOnLineOrSelf()
-        .leavesForwardsIncludingSelf
-        .applyIf(excludeEolComment) { dropTrailingEolComment() }
-        .takeWhile { lastLeafOnLineOrNull == null || it.prevLeaf() != lastLeafOnLineOrNull }
-}
+@Deprecated(
+    "Marked for removal in Ktlint 2.0. Use 'leavesOnLine20.dropTrailingEolComment()' to get all leaves on the line without the " +
+        "trailing EOL comment",
+)
+public fun ASTNode.leavesOnLine(excludeEolComment: Boolean): Sequence<ASTNode> =
+    leavesOnLine20.applyIf(excludeEolComment) { dropTrailingEolComment() }
 
 /**
  * Take all nodes preceding the whitespace before the EOL comment
  */
-private fun Sequence<ASTNode>.dropTrailingEolComment(): Sequence<ASTNode> =
+public fun Sequence<ASTNode>.dropTrailingEolComment(): Sequence<ASTNode> =
     takeWhile {
         !(it.isWhiteSpaceWithoutNewline20 && it.nextLeaf()?.elementType == EOL_COMMENT) &&
             // But if EOL-comment not preceded by whitespace than take all nodes before the EOL comment
