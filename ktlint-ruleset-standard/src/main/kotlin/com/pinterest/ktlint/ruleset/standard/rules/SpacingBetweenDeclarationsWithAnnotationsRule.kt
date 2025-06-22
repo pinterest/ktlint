@@ -10,7 +10,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.isDeclaration
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
@@ -54,7 +54,7 @@ public class SpacingBetweenDeclarationsWithAnnotationsRule : StandardRule("spaci
                     "Declarations and declarations with annotations should have an empty space between.",
                     true,
                 ).ifAutocorrectAllowed {
-                    prevLeaf.upsertWhitespaceBeforeMe("\n".plus(node.indent()))
+                    prevLeaf.upsertWhitespaceBeforeMe("\n".plus(node.indent20))
                 }
             }
     }

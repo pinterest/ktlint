@@ -25,7 +25,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
@@ -185,13 +185,13 @@ public class StatementWrappingRule :
         get() = elementType == ElementType.CLASS && hasModifier(ElementType.ENUM_KEYWORD)
 
     private inline val ASTNode.indentAsChild: String
-        get() = indent().plus(indentConfig.indent)
+        get() = indent20.plus(indentConfig.indent)
 
     private inline val ASTNode.indentAsSibling: String
-        get() = treeParent.indent().plus(indentConfig.indent)
+        get() = treeParent.indent20.plus(indentConfig.indent)
 
     private inline val ASTNode.indentAsParent: String
-        get() = treeParent.indent()
+        get() = treeParent.indent20
 
     private fun visitSemiColon(
         node: ASTNode,
@@ -207,7 +207,7 @@ public class StatementWrappingRule :
         if (noNewLineInClosedRange(previousCodeLeaf, nextCodeLeaf)) {
             emit(node.startOffset + 1, """Missing newline after '${node.text}'""", true)
                 .ifAutocorrectAllowed {
-                    node.upsertWhitespaceAfterMe(previousCodeLeaf.indent())
+                    node.upsertWhitespaceAfterMe(previousCodeLeaf.indent20)
                 }
         }
     }

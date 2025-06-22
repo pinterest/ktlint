@@ -59,7 +59,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PR
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.hasNewLineInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
@@ -332,7 +332,7 @@ public class WrappingRule :
                     requireNewlineAfterLeaf(
                         nodeAfterWhichNewlineIsRequired = c,
                         emit = emit,
-                        indent = node.indent(),
+                        indent = node.indent20,
                     )
                 }
             }
@@ -531,7 +531,7 @@ public class WrappingRule :
         }
         val r = node.nextSibling { it.elementType == RBRACE } ?: return
         if (!r.prevLeaf().isWhiteSpaceWithNewline20) {
-            requireNewlineBeforeLeaf(r, emit, node.indent())
+            requireNewlineBeforeLeaf(r, emit, node.indent20)
         }
     }
 

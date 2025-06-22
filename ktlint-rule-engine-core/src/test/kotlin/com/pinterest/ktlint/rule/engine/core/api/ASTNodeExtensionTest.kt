@@ -679,7 +679,7 @@ class ASTNodeExtensionTest {
                 .firstChildLeafOrSelf()
                 .leaves()
                 .filter { it.elementType == IDENTIFIER }
-                .map { it.text to it.indent() }
+                .map { it.text to it.indent20 }
                 .toMap()
 
         assertThat(actual).contains(

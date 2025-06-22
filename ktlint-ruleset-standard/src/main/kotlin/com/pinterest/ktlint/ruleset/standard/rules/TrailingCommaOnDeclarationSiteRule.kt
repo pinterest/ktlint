@@ -24,7 +24,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.isCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
@@ -285,7 +285,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                                     "Expected a newline between the trailing comma and  \"${inspectNode.text}\"",
                                     true,
                                 ).ifAutocorrectAllowed {
-                                    lastNodeBeforeArrow.upsertWhitespaceAfterMe(inspectNode.treeParent.indent())
+                                    lastNodeBeforeArrow.upsertWhitespaceAfterMe(inspectNode.treeParent.indent20)
                                 }
                             }
                         }
@@ -322,7 +322,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                             val indent =
                                 prevNode
                                     .treeParent
-                                    .indent()
+                                    .indent20
                             if (leafBeforeArrowOrNull.isWhiteSpace20) {
                                 (leafBeforeArrowOrNull as LeafElement).rawReplaceWithText(indent)
                             } else {
@@ -338,7 +338,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                         if (inspectNode.treeParent.elementType == ElementType.ENUM_ENTRY) {
                             val parentIndent =
                                 (prevNode.treeParent.prevLeaf()?.takeIf { it.isWhiteSpace20 })?.text
-                                    ?: prevNode.indent()
+                                    ?: prevNode.indent20
                             (inspectNode as LeafPsiElement).apply {
                                 this.treeParent.addChild(LeafPsiElement(COMMA, ","), this)
                                 this.treeParent.addChild(PsiWhiteSpaceImpl(parentIndent), null)

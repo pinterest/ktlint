@@ -24,7 +24,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
@@ -246,7 +246,7 @@ public class ParameterListWrappingRule :
         }.let { indentLevelFix ->
             val indentLevel =
                 indentConfig
-                    .indentLevelFrom(child.treeParent.indent(false))
+                    .indentLevelFrom(child.treeParent.indentWithoutNewlinePrefix)
                     .plus(indentLevelFix)
             "\n" + indentConfig.indent.repeat(indentLevel)
         }

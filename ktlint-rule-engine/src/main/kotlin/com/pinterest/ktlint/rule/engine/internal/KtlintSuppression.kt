@@ -18,7 +18,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIS
 import com.pinterest.ktlint.rule.engine.core.api.KtlintKotlinCompiler
 import com.pinterest.ktlint.rule.engine.core.api.findChildByTypeRecursively
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
-import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.indent20
+import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isRoot20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
@@ -277,7 +278,7 @@ private fun ASTNode.createSuppressAnnotation(
         }
 
         is KtClass, is KtFunction, is KtProperty, is KtPropertyAccessor -> {
-            this.addChild(PsiWhiteSpaceImpl(indent()), this.firstChildNode)
+            this.addChild(PsiWhiteSpaceImpl(indent20), this.firstChildNode)
             val modifierListWithAnnotation = createModifierListWithAnnotationEntry(suppressType, suppressions)
             this.addChild(modifierListWithAnnotation, this.firstChildNode)
         }
@@ -292,7 +293,7 @@ private fun ASTNode.createSuppressAnnotation(
             } else {
                 val modifierListWithAnnotation = createModifierListWithAnnotationEntry(suppressType, suppressions)
                 treeParent.addChild(modifierListWithAnnotation.findChildByType(ANNOTATION_ENTRY)!!, this)
-                treeParent.addChild(PsiWhiteSpaceImpl(indent()), this)
+                treeParent.addChild(PsiWhiteSpaceImpl(indent20), this)
             }
         }
     }
@@ -325,7 +326,7 @@ private fun ASTNode.createFileAnnotationList(annotation: ASTNode) {
                 .addChild(annotation, packageDirective)
             packageDirective
                 .treeParent
-                .addChild(PsiWhiteSpaceImpl("\n" + indent()), packageDirective)
+                .addChild(PsiWhiteSpaceImpl("\n" + indent20), packageDirective)
         }
 }
 
@@ -362,8 +363,8 @@ private fun ASTNode.createAnnotatedExpression(
             KtlintKotlinCompiler
                 .createASTNodeFromText(
                     """
-                    |${this.indent(false)}$annotation
-                    |${this.indent(false)}${this.text}
+                    |${this.indentWithoutNewlinePrefix}$annotation
+                    |${this.indentWithoutNewlinePrefix}${this.text}
                     """.trimMargin(),
                 )?.findChildByType(ANNOTATED_EXPRESSION)
                 ?: throw IllegalStateException("Can not create annotation '$annotation'")

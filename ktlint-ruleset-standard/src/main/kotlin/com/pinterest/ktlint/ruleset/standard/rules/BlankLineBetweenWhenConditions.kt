@@ -13,7 +13,8 @@ import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.indent20
+import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
@@ -87,7 +88,7 @@ public class BlankLineBetweenWhenConditions :
                             "Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement",
                             true,
                         ).ifAutocorrectAllowed {
-                            whitespaceBeforeWhenEntry.upsertWhitespaceBeforeMe("\n${whenEntry.indent()}")
+                            whitespaceBeforeWhenEntry.upsertWhitespaceBeforeMe("\n${whenEntry.indent20}")
                         }
                     }
             }
@@ -125,7 +126,7 @@ public class BlankLineBetweenWhenConditions :
                             "Unexpected blank lines between when-condition if all when-conditions are single lines",
                             true,
                         ).ifAutocorrectAllowed {
-                            whitespaceBeforeWhenEntry.upsertWhitespaceBeforeMe("\n${whenEntry.indent(includeNewline = false)}")
+                            whitespaceBeforeWhenEntry.upsertWhitespaceBeforeMe("\n${whenEntry.indentWithoutNewlinePrefix}")
                         }
                     }
             }

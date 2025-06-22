@@ -469,13 +469,36 @@ public val ASTNode.column: Int
 /**
  * Get the current indentation of the line containing the [ASTNode]. By default, this indentation starts with a newline (\n) character.
  */
+@Deprecated(
+    "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
+        "one of the temporary property accessor. Calls to `indent()` or `indent(true)` should be replaced with `indent20()`. Calls " +
+        "to `indent(false)` should be replaced with `indentWithoutNewlinePrefix()` In 2.0 the temporary accessors will be replaced " +
+        "the final property accessors.",
+    replaceWith = ReplaceWith("indent20 or indentWithoutNewlinePrefix"),
+)
 public fun ASTNode.indent(includeNewline: Boolean = true): String =
+    if (includeNewline) {
+        indent20
+    } else {
+        indentWithoutNewlinePrefix
+    }
+
+// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+public val ASTNode.indent20
+    get(): String = indentInternal().prefixIfNot("\n")
+
+public val ASTNode.indentWithoutNewlinePrefix
+    get(): String = indentInternal().removePrefix("\n")
+
+/**
+ * Get the current indentation of the line containing the [ASTNode]
+ */
+private fun ASTNode.indentInternal(): String =
     leaves(forward = false)
         .firstOrNull { it.isWhiteSpaceWithNewline20 }
         ?.text
         ?.substringAfterLast('\n')
         .orEmpty() // Fallback if node is not preceded by any newline character
-        .applyIf(includeNewline) { prefixIfNot("\n") }
 
 /**
  *  Print content of a node and the element type of the node, its parent and its direct children. Utility is meant to

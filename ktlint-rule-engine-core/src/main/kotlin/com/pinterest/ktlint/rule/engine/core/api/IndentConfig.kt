@@ -85,7 +85,7 @@ public class IndentConfig(
     /**
      * Get the indentation including the newline character for a node at the next indent level compared to the given node.
      */
-    public fun childIndentOf(node: ASTNode): String = node.indent().plus(indent)
+    public fun childIndentOf(node: ASTNode): String = node.indent20.plus(indent)
 
     /**
      * Get the indentation including the newline character for a node at the same indent level as the given node.
@@ -95,7 +95,7 @@ public class IndentConfig(
     /**
      * Get the indentation including the newline character for a node at the same indent level as the parent of the given node.
      */
-    public fun parentIndentOf(node: ASTNode): String = node.treeParent.indent()
+    public fun parentIndentOf(node: ASTNode): String = node.treeParent.indent20
 
     /**
      * Converts [text] to a normalized indent. If [text] contains a new line, then only text after the last new line

@@ -7,7 +7,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
@@ -35,7 +35,7 @@ public class BlockCommentInitialStarAlignmentRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == BLOCK_COMMENT) {
-            val expectedIndentForLineWithInitialStar = node.indent(false) + " *"
+            val expectedIndentForLineWithInitialStar = node.indentWithoutNewlinePrefix + " *"
             val lines = node.text.split("\n")
             var offset = node.startOffset
             val modifiedLines = mutableListOf<String>()

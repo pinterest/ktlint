@@ -102,7 +102,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isRoot20
@@ -689,7 +689,7 @@ public class IndentationRule :
                         toAstNode = typeConstraintList.lastChildLeafOrSelf(),
                         childIndent =
                             " ".repeat(
-                                maxOf(0, where.column - 1 - node.indent(false).length),
+                                maxOf(0, where.column - 1 - node.indentWithoutNewlinePrefix.length),
                             ),
                     ).prevCodeLeaf()
             }
@@ -1464,7 +1464,7 @@ private class StringTemplateIndenter(
                         //           """.trimIndent
                         //   }
                         node
-                            .indent(false)
+                            .indentWithoutNewlinePrefix
                             .plus(indentConfig.indent)
                     } else if (codeStyle == ktlint_official && node.isRawStringLiteralFunctionBodyExpression()) {
                         // Allow:
@@ -1474,7 +1474,7 @@ private class StringTemplateIndenter(
                         //       $bar
                         //       """.trimIndent
                         node
-                            .indent(false)
+                            .indentWithoutNewlinePrefix
                             .plus(indentConfig.indent)
                     } else if (prevLeaf?.text == "\n") {
                         // In case the opening quotes are placed at the start of the line, then the closing quotes

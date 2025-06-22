@@ -20,7 +20,8 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.indent20
+import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
@@ -83,7 +84,7 @@ public class ParameterWrappingRule :
     ) {
         require(node.elementType == VALUE_PARAMETER)
 
-        val baseIndentLength = node.indent(false).length
+        val baseIndentLength = node.indentWithoutNewlinePrefix.length
 
         // Find the first node after the indenting whitespace on the same line as the identifier
         val nodeFirstChildLeafOrSelf = node.firstChildLeafOrSelf()
@@ -159,7 +160,7 @@ public class ParameterWrappingRule :
                     "inserted newline before ${node.text}"
             }
         }.ifAutocorrectAllowed {
-            node.upsertWhitespaceBeforeMe(node.indent())
+            node.upsertWhitespaceBeforeMe(node.indent20)
         }
     }
 

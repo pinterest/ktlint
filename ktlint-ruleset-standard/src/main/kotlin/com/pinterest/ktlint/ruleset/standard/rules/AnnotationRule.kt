@@ -39,7 +39,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
@@ -241,7 +241,7 @@ public class AnnotationRule :
                     if (!leaf.textContains('\n')) {
                         emit(leaf.startOffset, "Expected newline", true)
                             .ifAutocorrectAllowed {
-                                leaf.upsertWhitespaceBeforeMe(node.indent())
+                                leaf.upsertWhitespaceBeforeMe(node.indent20)
                             }
                     }
                 }

@@ -19,7 +19,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
@@ -172,7 +172,7 @@ public class IfElseBracingRule :
             }
             nextLeaves.forEach(::addChild)
             if (previousChild != null) {
-                addChild(PsiWhiteSpaceImpl(node.indent()))
+                addChild(PsiWhiteSpaceImpl(node.indent20))
             }
             addChild(LeafPsiElement(RBRACE, "}"))
         }

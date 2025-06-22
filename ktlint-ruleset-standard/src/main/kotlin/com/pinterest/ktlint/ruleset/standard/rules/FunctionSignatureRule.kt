@@ -36,7 +36,8 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY_OFF
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.indent20
+import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.isCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.isLeaf20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
@@ -257,7 +258,7 @@ public class FunctionSignatureRule :
                     endASTNodePredicate = { false },
                 )
 
-        return node.indent(false).length +
+        return node.indentWithoutNewlinePrefix.length +
             tailNodesOfFunctionSignature.sumOf { it.text.length }
     }
 
@@ -299,7 +300,7 @@ public class FunctionSignatureRule :
             }
     }
 
-    private fun ASTNode.getFunctionSignatureLength() = indent(false).length + getFunctionSignatureNodesLength()
+    private fun ASTNode.getFunctionSignatureLength() = indentWithoutNewlinePrefix.length + getFunctionSignatureNodesLength()
 
     private fun ASTNode.getFunctionSignatureNodesLength() =
         functionSignatureNodes()
@@ -489,7 +490,7 @@ public class FunctionSignatureRule :
     ): Int {
         var whiteSpaceCorrection = 0
 
-        val newlineAndIndent = node.indent()
+        val newlineAndIndent = node.indent20
         val valueParameterList = requireNotNull(node.findChildByType(VALUE_PARAMETER_LIST))
 
         val closingParenthesis = valueParameterList.findChildByType(RPAR)

@@ -38,7 +38,8 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PR
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY_OFF
 import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.indent20
+import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.isLeaf20
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
@@ -204,7 +205,7 @@ public class ClassSignatureRule :
             .any { it.textContains('\n') }
 
     private fun ASTNode.getClassSignatureLength(excludeSuperTypes: Boolean) =
-        indent(false).length + getClassSignatureNodesLength(excludeSuperTypes)
+        indentWithoutNewlinePrefix.length + getClassSignatureNodesLength(excludeSuperTypes)
 
     private fun ASTNode.getClassSignatureNodesLength(excludeSuperTypes: Boolean) =
         classSignatureNodes(excludeSuperTypes)
@@ -434,7 +435,7 @@ public class ClassSignatureRule :
                         !whiteSpaceBeforeClosingParenthesis.textContains('\n')
                     ) {
                         // Let IndentationRule determine the exact indent
-                        val expectedParameterIndent = node.indent()
+                        val expectedParameterIndent = node.indent20
                         if (!dryRun) {
                             emit(closingParenthesisPrimaryConstructor!!.startOffset, "Newline expected before closing parenthesis", true)
                                 .ifAutocorrectAllowed {

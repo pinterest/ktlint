@@ -25,7 +25,8 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.indent20
+import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
@@ -102,7 +103,7 @@ public class ContextReceiverWrappingRule :
 
         // Check line length assuming that the context receiver is indented correctly. Wrapping rule must however run before indenting.
         if (!node.textContains('\n') &&
-            node.indent(false).length + node.textLength > maxLineLength
+            node.indentWithoutNewlinePrefix.length + node.textLength > maxLineLength
         ) {
             node
                 .children20
@@ -126,7 +127,7 @@ public class ContextReceiverWrappingRule :
                         "Newline expected before closing parenthesis as max line length is violated",
                         true,
                     ).ifAutocorrectAllowed {
-                        rpar.upsertWhitespaceBeforeMe(node.indent())
+                        rpar.upsertWhitespaceBeforeMe(node.indent20)
                     }
                 }
         }
@@ -154,7 +155,7 @@ public class ContextReceiverWrappingRule :
         // Check line length assuming that the context receiver is indented correctly. Wrapping rule must however run
         // before indenting.
         if (!contextReceiver.contains('\n') &&
-            node.indent(false).length + contextReceiver.length > maxLineLength
+            node.indentWithoutNewlinePrefix.length + contextReceiver.length > maxLineLength
         ) {
             node
                 .children20

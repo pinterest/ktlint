@@ -13,7 +13,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.hasNewLineInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
@@ -107,7 +107,7 @@ public class CommentWrappingRule :
                         "A block comment may not be followed by any other element on that same line",
                         true,
                     ).ifAutocorrectAllowed {
-                        nextLeaf.upsertWhitespaceBeforeMe(node.indent())
+                        nextLeaf.upsertWhitespaceBeforeMe(node.indent20)
                     }
                 }
         }
