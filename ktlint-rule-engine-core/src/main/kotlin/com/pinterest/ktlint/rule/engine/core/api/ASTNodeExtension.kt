@@ -505,6 +505,7 @@ private fun ASTNode.indentInternal(): String =
  *  be used during development only. Please do not remove.
  */
 @Suppress("unused")
+@Deprecated("Marked for removal in Ktlint 2.0. Use PsiViewer plugin instead")
 public fun ASTNode.logStructure(): ASTNode =
     also {
         println("Processing ${text.replaceTabAndNewline()} : Type $elementType with parent ${treeParent?.elementType} ")
