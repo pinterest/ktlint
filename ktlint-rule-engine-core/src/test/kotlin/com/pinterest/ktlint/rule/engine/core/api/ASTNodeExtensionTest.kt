@@ -20,6 +20,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.isKtAnnotated20
 import com.pinterest.ktlint.test.SPACE
 import org.assertj.core.api.Assertions.assertThat
@@ -675,7 +676,7 @@ class ASTNodeExtensionTest {
 
         val actual =
             transformCodeToAST(code)
-                .firstChildLeafOrSelf()
+                .firstChildLeafOrSelf20
                 .leaves()
                 .filter { it.elementType == IDENTIFIER }
                 .map { it.text to it.indent20 }
@@ -705,7 +706,7 @@ class ASTNodeExtensionTest {
 
         val actual =
             transformCodeToAST(code)
-                .firstChildLeafOrSelf()
+                .firstChildLeafOrSelf20
                 .leaves()
                 .filter { it.elementType == IDENTIFIER }
                 .map { identifier ->
@@ -740,7 +741,7 @@ class ASTNodeExtensionTest {
 
             val actual =
                 transformCodeToAST(code)
-                    .firstChildLeafOrSelf()
+                    .firstChildLeafOrSelf20
                     .leaves()
                     .filter { it.elementType == IDENTIFIER }
                     .map { identifier -> identifier.leavesOnLine20.lineLength }
@@ -770,7 +771,7 @@ class ASTNodeExtensionTest {
 
             val actual =
                 transformCodeToAST(code)
-                    .firstChildLeafOrSelf()
+                    .firstChildLeafOrSelf20
                     .leaves()
                     .filter { it.elementType == IDENTIFIER }
                     .map { identifier -> identifier.leavesOnLine20.lineLength }
@@ -800,7 +801,7 @@ class ASTNodeExtensionTest {
 
             val actual =
                 transformCodeToAST(code)
-                    .firstChildLeafOrSelf()
+                    .firstChildLeafOrSelf20
                     .leaves()
                     .filter { it.elementType == IDENTIFIER }
                     .map { identifier ->
@@ -830,7 +831,7 @@ class ASTNodeExtensionTest {
             assertThatNoException()
                 .isThrownBy {
                     transformCodeToAST(code)
-                        .firstChildLeafOrSelf()
+                        .firstChildLeafOrSelf20
                         .leaves()
                         .filter { it.elementType == IDENTIFIER }
                         .map { identifier ->
@@ -860,7 +861,7 @@ class ASTNodeExtensionTest {
 
             val actual =
                 transformCodeToAST(code)
-                    .firstChildLeafOrSelf()
+                    .firstChildLeafOrSelf20
                     .leaves()
                     .filter { it.elementType == IDENTIFIER }
                     .map { identifier -> identifier.leavesOnLine20.lineLength }
@@ -889,7 +890,7 @@ class ASTNodeExtensionTest {
 
             val actual =
                 transformCodeToAST(code)
-                    .firstChildLeafOrSelf()
+                    .firstChildLeafOrSelf20
                     .leaves()
                     .filter { it.elementType == IDENTIFIER }
                     .map { identifier -> identifier.leavesOnLine20.lineLength }
@@ -918,7 +919,7 @@ class ASTNodeExtensionTest {
 
             val actual =
                 transformCodeToAST(code)
-                    .firstChildLeafOrSelf()
+                    .firstChildLeafOrSelf20
                     .leaves()
                     .filter { it.elementType == IDENTIFIER }
                     .map { identifier -> identifier.leavesOnLine20.dropTrailingEolComment().lineLength }
@@ -942,7 +943,7 @@ class ASTNodeExtensionTest {
                 """.trimIndent()
             val actual =
                 transformCodeToAST(code)
-                    .firstChildLeafOrSelf()
+                    .firstChildLeafOrSelf20
                     .leavesForwardsIncludingSelf
                     .first { it.elementType == ElementType.EOL_COMMENT }
                     .leavesOnLine20

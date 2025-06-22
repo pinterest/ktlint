@@ -13,7 +13,7 @@ import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
@@ -112,7 +112,7 @@ public class ConditionWrappingRule :
         if (this == null) {
             false
         } else {
-            leavesInClosedRange(this.firstChildLeafOrSelf(), this.lastChildLeafOrSelf())
+            leavesInClosedRange(this.firstChildLeafOrSelf20, this.lastChildLeafOrSelf())
                 .any { it.isWhiteSpaceWithNewline20 }
         }
 

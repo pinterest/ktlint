@@ -56,7 +56,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY_OFF
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.hasNewLineInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent20
@@ -166,7 +166,7 @@ public class WrappingRule :
         }
 
         node
-            .takeUnless { it.firstChildLeafOrSelf().elementType == EOL_COMMENT }
+            .takeUnless { it.firstChildLeafOrSelf20.elementType == EOL_COMMENT }
             ?.getEndOfBlock()
             ?.takeIf { it.elementType == RBRACE }
             ?.let { rbrace ->
@@ -183,7 +183,7 @@ public class WrappingRule :
                     .sumOf { it.textLength }
             val lengthUntilEndOfLine =
                 node
-                    .firstChildLeafOrSelf()
+                    .firstChildLeafOrSelf20
                     .leavesForwardsIncludingSelf
                     .takeWhile { !it.isWhiteSpaceWithNewline20 }
                     .sumOf { it.textLength }
@@ -675,7 +675,7 @@ public class WrappingRule :
         if (treeParent.elementType == FUNCTION_LITERAL) {
             treeParent.findChildByType(LBRACE)
         } else {
-            firstChildLeafOrSelf()
+            firstChildLeafOrSelf20
                 .let { node ->
                     if (node.elementType == LBRACE) {
                         // WHEN-entry block have LBRACE and RBRACE as first and last elements

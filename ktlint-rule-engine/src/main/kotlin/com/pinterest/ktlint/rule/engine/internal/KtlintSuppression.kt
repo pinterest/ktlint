@@ -17,7 +17,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.KtlintKotlinCompiler
 import com.pinterest.ktlint.rule.engine.core.api.findChildByTypeRecursively
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
@@ -150,7 +150,7 @@ private fun ASTNode.findParentDeclarationOrExpression(forceFileAnnotation: Boole
                     targetPsiElement
                         .node
                         .nextCodeSibling()
-                        ?.firstChildLeafOrSelf()
+                        ?.firstChildLeafOrSelf20
                         ?.psi
                 }
 

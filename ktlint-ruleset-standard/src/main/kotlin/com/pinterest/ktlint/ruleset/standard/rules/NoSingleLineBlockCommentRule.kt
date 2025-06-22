@@ -12,7 +12,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
@@ -64,7 +64,7 @@ public class NoSingleLineBlockCommentRule :
                                 .leaves(false)
                                 .takeWhile { it.isWhiteSpace20 && !it.textContains('\n') }
                                 .firstOrNull()
-                                ?: node.firstChildLeafOrSelf()
+                                ?: node.firstChildLeafOrSelf20
                         beforeBlockComment
                             .prevLeaf()
                             .takeIf { !it.isWhitespaceWithNewlineOrNull() }

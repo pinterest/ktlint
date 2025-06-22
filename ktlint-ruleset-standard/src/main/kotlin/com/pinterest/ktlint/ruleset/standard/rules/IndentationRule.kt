@@ -100,7 +100,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.isCode
@@ -1217,8 +1217,8 @@ public class IndentationRule :
         val nextLeaf = nextLeaf
         val adjustedChildIndent =
             when {
-                this == lastIndexContext.fromASTNode.firstChildLeafOrSelf() ||
-                    nextLeaf == lastIndexContext.fromASTNode.firstChildLeafOrSelf() -> {
+                this == lastIndexContext.fromASTNode.firstChildLeafOrSelf20 ||
+                    nextLeaf == lastIndexContext.fromASTNode.firstChildLeafOrSelf20 -> {
                     lastIndexContext.firstChildIndent
                 }
 

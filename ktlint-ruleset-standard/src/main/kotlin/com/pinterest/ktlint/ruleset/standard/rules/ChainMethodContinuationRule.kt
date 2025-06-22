@@ -39,7 +39,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProper
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
@@ -161,7 +161,7 @@ public class ChainMethodContinuationRule :
         treeParent.elementType == DOT_QUALIFIED_EXPRESSION &&
             prevCodeSibling()?.elementType == CLASS_LITERAL_EXPRESSION &&
             nextCodeSibling()?.elementType == REFERENCE_EXPRESSION &&
-            nextCodeSibling()?.firstChildLeafOrSelf()?.text == "java"
+            nextCodeSibling()?.firstChildLeafOrSelf20?.text == "java"
 
     private fun ASTNode.isReferenceExpression(): Boolean = treeParent.isNestedReferenceExpression()
 

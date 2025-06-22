@@ -18,7 +18,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
@@ -88,7 +88,7 @@ public class ParameterWrappingRule :
         val baseIndentLength = node.indentWithoutNewlinePrefix.length
 
         // Find the first node after the indenting whitespace on the same line as the identifier
-        val nodeFirstChildLeafOrSelf = node.firstChildLeafOrSelf()
+        val nodeFirstChildLeafOrSelf = node.firstChildLeafOrSelf20
         val fromNode =
             node
                 .findChildByType(ElementType.IDENTIFIER)

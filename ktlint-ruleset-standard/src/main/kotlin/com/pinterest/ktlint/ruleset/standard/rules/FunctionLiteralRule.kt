@@ -26,7 +26,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
@@ -188,7 +188,7 @@ public class FunctionLiteralRule :
     private fun ASTNode.lengthOfParameterListWhenOnSingleLine(): Int {
         require(elementType == VALUE_PARAMETER_LIST)
         val stopAtLeaf = lastChildLeafOrSelf().nextLeaf
-        return firstChildLeafOrSelf()
+        return firstChildLeafOrSelf20
             .leavesForwardsIncludingSelf
             .takeWhile { it != stopAtLeaf }
             .joinToString(separator = "") {

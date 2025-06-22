@@ -37,7 +37,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
@@ -159,7 +159,7 @@ public class MultilineExpressionWrappingRule :
 
     private fun ASTNode.containsWhitespaceWithNewline(): Boolean {
         val lastLeaf = lastChildLeafOrSelf()
-        return firstChildLeafOrSelf()
+        return firstChildLeafOrSelf20
             .leavesForwardsIncludingSelf
             .takeWhile { it != lastLeaf }
             .any { it.isWhiteSpaceWithNewline20 || it.isRegularStringPartWithNewline() }

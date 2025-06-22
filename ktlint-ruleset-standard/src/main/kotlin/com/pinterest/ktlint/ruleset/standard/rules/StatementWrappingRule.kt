@@ -22,7 +22,7 @@ import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent20
@@ -179,7 +179,7 @@ public class StatementWrappingRule :
                     // Ignore annotations placed on separate lines above the node
                     it.elementType == ANNOTATION_ENTRY || it.isWhiteSpace20
                 }?.firstOrNull()
-                ?.firstChildLeafOrSelf()
+                ?.firstChildLeafOrSelf20
 
     private inline val ASTNode.isEnumClass: Boolean
         get() = elementType == ElementType.CLASS && hasModifier(ElementType.ENUM_KEYWORD)
@@ -198,7 +198,7 @@ public class StatementWrappingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         val previousCodeLeaf = node.prevCodeLeaf()?.lastChildLeafOrSelf() ?: return
-        val nextCodeLeaf = node.nextCodeLeaf?.firstChildLeafOrSelf() ?: return
+        val nextCodeLeaf = node.nextCodeLeaf?.firstChildLeafOrSelf20 ?: return
         if (previousCodeLeaf.treeParent.elementType == ElementType.ENUM_ENTRY && nextCodeLeaf.elementType == RBRACE) {
             // Allow
             // enum class INDEX2 { ONE, TWO, THREE; }

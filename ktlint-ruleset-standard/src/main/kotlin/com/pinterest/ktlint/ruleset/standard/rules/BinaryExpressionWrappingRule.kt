@@ -26,7 +26,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.isLeaf20
@@ -95,7 +95,7 @@ public class BinaryExpressionWrappingRule :
             ?.takeIf { binaryExpression ->
                 binaryExpression
                     .prevSibling { it.elementType == EQ }
-                    ?.let { noNewLineInClosedRange(it, binaryExpression.firstChildLeafOrSelf()) }
+                    ?.let { noNewLineInClosedRange(it, binaryExpression.firstChildLeafOrSelf20) }
                     ?: false
             }?.takeIf { it.isOnLineExceedingMaxLineLength() }
             ?.let { expression ->

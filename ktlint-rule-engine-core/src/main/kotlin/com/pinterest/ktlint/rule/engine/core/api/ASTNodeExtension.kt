@@ -86,15 +86,25 @@ private val ASTNode.nextLeafAny
     }
 
 private val ASTNode.nextLeafStrict
-    get(): ASTNode? = treeNext?.firstChildLeafOrSelf() ?: treeParent?.nextLeafStrict
+    get(): ASTNode? = treeNext?.firstChildLeafOrSelf20 ?: treeParent?.nextLeafStrict
 
-public fun ASTNode.firstChildLeafOrSelf(): ASTNode {
-    var node = this
-    while (node.firstChildNode != null) {
-        node = node.firstChildNode
+@Deprecated(
+    "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
+        "the temporary property accessor. In 2.0 it can be replaced the final property accessor which will be the same as the " +
+        "current function name.",
+    replaceWith = ReplaceWith("firstChildLeafOrSelf20"),
+)
+public fun ASTNode.firstChildLeafOrSelf(): ASTNode = firstChildLeafOrSelf20
+
+// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+public val ASTNode.firstChildLeafOrSelf20
+    get(): ASTNode {
+        var node = this
+        while (node.firstChildNode != null) {
+            node = node.firstChildNode
+        }
+        return node
     }
-    return node
-}
 
 public fun ASTNode.prevLeaf(includeEmpty: Boolean = false): ASTNode? {
     var n = this.prevLeafAny()
@@ -599,7 +609,7 @@ public fun leavesInClosedRange(
             .lastChildLeafOrSelf()
             .nextLeaf
     return from
-        .firstChildLeafOrSelf()
+        .firstChildLeafOrSelf20
         .leavesForwardsIncludingSelf
         .takeWhile { it != stopAtLeaf }
 }
