@@ -153,11 +153,8 @@ public fun ASTNode.lastChildLeafOrSelf(): ASTNode = lastChildLeafOrSelf20
 public val ASTNode.lastChildLeafOrSelf20
     get(): ASTNode {
         var node = this
-        if (node.lastChildNode != null) {
-            do {
-                node = node.lastChildNode
-            } while (node.lastChildNode != null)
-            return node
+        while (node.lastChildNode != null) {
+            node = node.lastChildNode
         }
         return node
     }
