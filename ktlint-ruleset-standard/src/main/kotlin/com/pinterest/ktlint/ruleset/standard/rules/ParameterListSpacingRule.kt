@@ -15,12 +15,14 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children20
+import com.pinterest.ktlint.rule.engine.core.api.dropTrailingEolComment
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.lineLength
+import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
+import com.pinterest.ktlint.rule.engine.core.api.lineLengthWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
@@ -292,14 +294,19 @@ public class ParameterListSpacingRule :
             ?.takeIf { it.elementType == TYPE_REFERENCE }
             ?.let { typeReference ->
                 val length =
-                    // length of previous line
-                    lineLength(excludeEolComment = true) +
+                    // length of the previous line
+                    leavesOnLine20
+                        .dropTrailingEolComment()
+                        .lineLengthWithoutNewlinePrefix() +
                         // single space before type reference
                         1 -
                         // length of current indent before typeReference
                         this.text.substringAfterLast("\n").length +
                         // length of line containing typeReference
-                        typeReference.lineLength(excludeEolComment = true)
+                        typeReference
+                            .leavesOnLine20
+                            .dropTrailingEolComment()
+                            .lineLengthWithoutNewlinePrefix()
                 length > maxLineLength
             }
             ?: false

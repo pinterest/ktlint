@@ -862,7 +862,7 @@ class ASTNodeExtensionTest {
                     .firstChildLeafOrSelf()
                     .leaves()
                     .filter { it.elementType == IDENTIFIER }
-                    .map { identifier -> identifier.lineLength() }
+                    .map { identifier -> identifier.leavesOnLine20.lineLengthWithoutNewlinePrefix() }
                     .toList()
 
             assertThat(actual).contains(
@@ -891,7 +891,7 @@ class ASTNodeExtensionTest {
                     .firstChildLeafOrSelf()
                     .leaves()
                     .filter { it.elementType == IDENTIFIER }
-                    .map { identifier -> identifier.lineLength() }
+                    .map { identifier -> identifier.leavesOnLine20.lineLengthWithoutNewlinePrefix() }
                     .toList()
 
             assertThat(actual).contains(
@@ -920,7 +920,7 @@ class ASTNodeExtensionTest {
                     .firstChildLeafOrSelf()
                     .leaves()
                     .filter { it.elementType == IDENTIFIER }
-                    .map { identifier -> identifier.lineLength(excludeEolComment = true) }
+                    .map { identifier -> identifier.leavesOnLine20.dropTrailingEolComment().lineLengthWithoutNewlinePrefix() }
                     .toList()
 
             assertThat(actual).contains(
@@ -944,7 +944,9 @@ class ASTNodeExtensionTest {
                     .firstChildLeafOrSelf()
                     .leavesForwardsIncludingSelf
                     .first { it.elementType == ElementType.EOL_COMMENT }
-                    .lineLength(true)
+                    .leavesOnLine20
+                    .dropTrailingEolComment()
+                    .lineLengthWithoutNewlinePrefix()
 
             assertThat(actual).isEqualTo(4)
         }

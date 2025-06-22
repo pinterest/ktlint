@@ -20,6 +20,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.TokenSets
+import com.pinterest.ktlint.rule.engine.core.api.dropTrailingEolComment
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
@@ -30,7 +31,8 @@ import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.lineLength
+import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
+import com.pinterest.ktlint.rule.engine.core.api.lineLengthWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.ec4j.core.model.PropertyType
@@ -125,7 +127,8 @@ public class ArgumentListWrappingRule :
             false
         }
 
-    private fun ASTNode.exceedsMaxLineLength() = lineLength(excludeEolComment = true) > maxLineLength && !textContains('\n')
+    private fun ASTNode.exceedsMaxLineLength() =
+        leavesOnLine20.dropTrailingEolComment().lineLengthWithoutNewlinePrefix() > maxLineLength && !textContains('\n')
 
     private fun intendedIndent(child: ASTNode): String =
         when {

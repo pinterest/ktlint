@@ -694,6 +694,10 @@ public fun ASTNode.lineLengthWithoutNewlinePrefix(): Int = leavesOnLine(excludeE
  * max-line-length rule report this violation so that the developer can choose whether the comment can be shortened or that it can be placed
  * on a separate line.
  */
+@Deprecated(
+    "Marked for removal in Ktlint 2.0. Use `leavesOnLine20.dropTrailingEolComment().lineLength` instead to get the length of the line " +
+        "without the trailing EOL comment.`",
+)
 public fun ASTNode.lineLength(excludeEolComment: Boolean = false): Int = leavesOnLine(excludeEolComment).lineLengthWithoutNewlinePrefix()
 
 /**
