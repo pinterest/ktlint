@@ -47,10 +47,10 @@ public fun ASTNode.nextLeaf(
     includeEmpty: Boolean = false,
     skipSubtree: Boolean = false,
 ): ASTNode? {
-    var n = if (skipSubtree) this.lastChildLeafOrSelf().nextLeafAny() else this.nextLeafAny()
+    var n = if (skipSubtree) this.lastChildLeafOrSelf().nextLeafAny else this.nextLeafAny
     if (!includeEmpty) {
         while (n != null && n.textLength == 0) {
-            n = n.nextLeafAny()
+            n = n.nextLeafAny
         }
     }
     return n
@@ -58,29 +58,32 @@ public fun ASTNode.nextLeaf(
 
 public val ASTNode.nextLeaf
     get(): ASTNode? {
-        var node = this.nextLeafAny()
+        var node = this.nextLeafAny
         while (node != null && node.textLength == 0) {
-            node = node.nextLeafAny()
+            node = node.nextLeafAny
         }
         return node
     }
 
 public fun ASTNode.nextLeaf(p: (ASTNode) -> Boolean): ASTNode? {
-    var n = this.nextLeafAny()
+    var n = this.nextLeafAny
     while (n != null && !p(n)) {
-        n = n.nextLeafAny()
+        n = n.nextLeafAny
     }
     return n
 }
 
-private fun ASTNode.nextLeafAny(): ASTNode? {
-    if (firstChildNode == null) return nextLeafStrict()
-    var node = this
-    while (node.firstChildNode != null) {
-        node = node.firstChildNode
+private val ASTNode.nextLeafAny
+    get(): ASTNode? {
+        if (firstChildNode == null) {
+            return nextLeafStrict()
+        }
+        var node = this
+        while (node.firstChildNode != null) {
+            node = node.firstChildNode
+        }
+        return node
     }
-    return node
-}
 
 private fun ASTNode.nextLeafStrict(): ASTNode? = treeNext?.firstChildLeafOrSelf() ?: treeParent?.nextLeafStrict()
 
