@@ -117,7 +117,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
@@ -365,7 +365,7 @@ public class IndentationRule :
                         fromAstNode = node.treeParent,
                         toAstNode = node.treeParent.treeParent.lastChildLeafOrSelf(),
                     )
-                } else if (node.prevCodeSibling().isElvisOperator()) {
+                } else if (node.prevCodeSibling20.isElvisOperator()) {
                     startIndentContext(node)
                 } else if (node.treeParent.elementType in CHAINABLE_EXPRESSION) {
                     // Multiple dot qualified expressions and/or safe expression on the same line should not increase the indent level

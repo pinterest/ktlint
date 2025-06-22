@@ -46,7 +46,7 @@ import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesForwardsIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -177,7 +177,7 @@ public class MultilineExpressionWrappingRule :
 
     private fun ASTNode.isValueInAnAssignment() =
         null !=
-            prevCodeSibling()
+            prevCodeSibling20
                 ?.takeIf { it.elementType == EQ || it.elementType == OPERATION_REFERENCE }
                 ?.takeUnless { functionBodyExpressionWrapping == default && it.treeParent.elementType == FUN }
                 ?.takeUnless { it.isElvisOperator() }
@@ -217,7 +217,7 @@ public class MultilineExpressionWrappingRule :
     private fun ASTNode.isRightHandSideOfBinaryExpression() =
         null !=
             takeIf { it.treeParent.elementType == BINARY_EXPRESSION }
-                .takeIf { it?.prevCodeSibling()?.elementType == OPERATION_REFERENCE }
+                .takeIf { it?.prevCodeSibling20?.elementType == OPERATION_REFERENCE }
 
     private companion object {
         // Based  on https://kotlinlang.org/spec/expressions.html#expressions

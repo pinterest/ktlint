@@ -47,7 +47,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
@@ -275,7 +275,7 @@ public class ClassSignatureRule :
             ?.takeUnless {
                 // Allow:
                 //     class Foo constructor() { ... }
-                it.prevCodeSibling()?.elementType == CONSTRUCTOR_KEYWORD
+                it.prevCodeSibling20?.elementType == CONSTRUCTOR_KEYWORD
             }?.takeUnless {
                 // Allow
                 //     class Foo() {

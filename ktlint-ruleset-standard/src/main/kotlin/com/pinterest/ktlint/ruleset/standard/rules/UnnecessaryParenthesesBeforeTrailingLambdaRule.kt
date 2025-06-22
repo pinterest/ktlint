@@ -16,7 +16,7 @@ import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
@@ -52,7 +52,7 @@ public class UnnecessaryParenthesesBeforeTrailingLambdaRule : StandardRule("unne
                 .none()
 
     private fun ASTNode.isNotPrecededByCallExpressionEndingWithLambdaArgument() =
-        prevCodeSibling()
+        prevCodeSibling20
             ?.takeIf { it.elementType == CALL_EXPRESSION }
             ?.lastChildNode
             ?.takeIf { it.elementType == LAMBDA_ARGUMENT }

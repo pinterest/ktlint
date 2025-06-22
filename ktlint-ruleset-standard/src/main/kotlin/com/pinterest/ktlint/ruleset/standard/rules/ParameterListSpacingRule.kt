@@ -26,7 +26,7 @@ import com.pinterest.ktlint.rule.engine.core.api.lineLength
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -104,7 +104,7 @@ public class ParameterListSpacingRule :
                         // No whitespace between parameter name and comma allowed
                         removeUnexpectedWhiteSpace(el, emit)
                     } else if (el.elementType == WHITE_SPACE && el.isNotIndent() && el.isNotSingleSpace()) {
-                        require(el.prevCodeSibling()?.elementType == COMMA)
+                        require(el.prevCodeSibling20?.elementType == COMMA)
                         replaceWithSingleSpace(el, emit)
                     }
                 }
@@ -272,7 +272,7 @@ public class ParameterListSpacingRule :
     }
 
     private fun ASTNode.getPrecedingModifier(): ASTNode? =
-        prevCodeSibling()
+        prevCodeSibling20
             ?.let { prevCodeSibling ->
                 if (prevCodeSibling.elementType == MODIFIER_LIST) {
                     prevCodeSibling.lastChildNode

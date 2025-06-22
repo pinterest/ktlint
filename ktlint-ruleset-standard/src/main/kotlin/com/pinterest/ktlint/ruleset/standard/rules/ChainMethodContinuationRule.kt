@@ -52,7 +52,7 @@ import com.pinterest.ktlint.rule.engine.core.api.lineLength
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
@@ -159,7 +159,7 @@ public class ChainMethodContinuationRule :
 
     private fun ASTNode.isJavaClassReferenceExpression() =
         treeParent.elementType == DOT_QUALIFIED_EXPRESSION &&
-            prevCodeSibling()?.elementType == CLASS_LITERAL_EXPRESSION &&
+            prevCodeSibling20?.elementType == CLASS_LITERAL_EXPRESSION &&
             nextCodeSibling()?.elementType == REFERENCE_EXPRESSION &&
             nextCodeSibling()?.firstChildLeafOrSelf20?.text == "java"
 
@@ -218,7 +218,7 @@ public class ChainMethodContinuationRule :
         STRING_TEMPLATE ==
             chainOperators
                 .first()
-                .prevCodeSibling()
+                .prevCodeSibling20
                 ?.elementType
 
     private fun ChainedExpression.exceedsMaxLineLength() =
@@ -436,7 +436,7 @@ public class ChainMethodContinuationRule :
                 }
 
             private fun ASTNode.createBaseChainedExpression(chainOperator: ASTNode): ChainedExpression {
-                val chainBefore = chainOperator.prevCodeSibling()?.toChainedExpression()
+                val chainBefore = chainOperator.prevCodeSibling20?.toChainedExpression()
                 val chainAfter = chainOperator.nextCodeSibling()?.toChainedExpression()
                 val newlineAfter =
                     chainAfter.containsNewline() ||
@@ -463,7 +463,7 @@ public class ChainMethodContinuationRule :
             private fun ChainedExpression.modifyForFirstOperator(chainOperator: ASTNode): ChainedExpression =
                 copy(
                     hasNewlineBeforeFirstChainOperator =
-                        chainOperator.prevCodeSibling()!!.textContains('\n') || chainOperator.isPrecededByNewlineSibling(),
+                        chainOperator.prevCodeSibling20!!.textContains('\n') || chainOperator.isPrecededByNewlineSibling(),
                     hasNewlineBetweenFirstAndLastChainOperator = false,
                 )
 

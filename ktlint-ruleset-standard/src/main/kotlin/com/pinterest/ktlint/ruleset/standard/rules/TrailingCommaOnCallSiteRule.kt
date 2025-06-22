@@ -21,7 +21,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.ec4j.core.model.PropertyType
@@ -170,7 +170,7 @@ public class TrailingCommaOnCallSiteRule :
                         true,
                     ).ifAutocorrectAllowed {
                         inspectNode
-                            .prevCodeSibling()
+                            .prevCodeSibling20
                             ?.nextSibling()
                             ?.let { before ->
                                 before.treeParent.addChild(LeafPsiElement(COMMA, ","), before)

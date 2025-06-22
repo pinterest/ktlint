@@ -47,7 +47,7 @@ import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -435,7 +435,7 @@ public class AnnotationRule :
         //         FooBar()
         this
             ?.takeIf { it.treeParent?.elementType == CLASS }
-            ?.prevCodeSibling()
+            ?.prevCodeSibling20
             ?.takeIf { it.elementType == COLON }
             ?.prevCodeLeaf
             ?.takeIf { it.elementType == RPAR }

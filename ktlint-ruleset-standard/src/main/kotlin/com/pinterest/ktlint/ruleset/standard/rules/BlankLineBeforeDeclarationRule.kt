@@ -27,7 +27,7 @@ import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.isDeclaration20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -121,7 +121,7 @@ public class BlankLineBeforeDeclarationRule :
         }
 
         if (node.elementType == FUN &&
-            (node.prevCodeSibling()?.elementType == EQ || node.prevCodeSibling()?.elementType == RETURN_KEYWORD)
+            (node.prevCodeSibling20?.elementType == EQ || node.prevCodeSibling20?.elementType == RETURN_KEYWORD)
         ) {
             // Allow:
             //   val foo =
@@ -185,7 +185,7 @@ public class BlankLineBeforeDeclarationRule :
 
     private fun ASTNode.isConsecutiveProperty() =
         takeIf { it.propertyRelated() }
-            ?.prevCodeSibling()
+            ?.prevCodeSibling20
             ?.let { it.propertyRelated() || it.treeParent.propertyRelated() }
             ?: false
 

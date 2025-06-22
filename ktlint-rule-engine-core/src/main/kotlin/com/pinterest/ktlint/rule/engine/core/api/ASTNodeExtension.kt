@@ -205,7 +205,17 @@ public val ASTNode.nextCodeLeaf
         return node
     }
 
-public fun ASTNode.prevCodeSibling(): ASTNode? = prevSibling { it.isCode }
+@Deprecated(
+    "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
+        "the temporary property accessor. In 2.0 it can be replaced the final property accessor which will be the same as the " +
+        "current function name.",
+    replaceWith = ReplaceWith("prevCodeSibling20"),
+)
+public fun ASTNode.prevCodeSibling(): ASTNode? = prevCodeSibling20
+
+// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+public val ASTNode.prevCodeSibling20
+    get(): ASTNode? = prevSibling { it.isCode }
 
 public inline fun ASTNode.prevSibling(predicate: (ASTNode) -> Boolean = { true }): ASTNode? {
     var n = this.treePrev
@@ -788,7 +798,7 @@ public val Sequence<ASTNode>.lineLength
             .length
     }
 
-public fun ASTNode.afterCodeSibling(afterElementType: IElementType): Boolean = prevCodeSibling()?.elementType == afterElementType
+public fun ASTNode.afterCodeSibling(afterElementType: IElementType): Boolean = prevCodeSibling20?.elementType == afterElementType
 
 public fun ASTNode.beforeCodeSibling(beforeElementType: IElementType): Boolean = nextCodeSibling()?.elementType == beforeElementType
 
