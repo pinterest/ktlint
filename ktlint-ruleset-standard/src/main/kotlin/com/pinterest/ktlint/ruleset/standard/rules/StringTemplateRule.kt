@@ -20,8 +20,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -77,7 +76,7 @@ public class StringTemplateRule : StandardRule("string-template") {
     private fun ASTNode.splitCodeChildren(): Triple<ASTNode, ASTNode, ASTNode> {
         require(elementType == DOT_QUALIFIED_EXPRESSION)
         return children20
-            .filter { !it.isWhiteSpace20 && !it.isPartOfComment20 }
+            .filter { it.isCode }
             .toList()
             .also { require(it.size == 3) }
             .let { Triple(it[0], it[1], it[2]) }

@@ -38,7 +38,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PR
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
-import com.pinterest.ktlint.rule.engine.core.api.isCodeLeaf
+import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.isLeaf20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
@@ -628,7 +628,7 @@ public class FunctionSignatureRule :
     }
 
     private fun List<ASTNode>.isMultilineStringTemplate() =
-        first { it.isCodeLeaf() }
+        first { it.isCode }
             .let {
                 it.elementType == ElementType.OPEN_QUOTE &&
                     it

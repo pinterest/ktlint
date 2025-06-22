@@ -15,7 +15,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
+import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
@@ -104,9 +104,9 @@ public class ConditionWrappingRule :
         }
     }
 
-    private fun ASTNode.leftHandSide() = children20.firstOrNull { !it.isWhiteSpace20 && !it.isPartOfComment20 }
+    private fun ASTNode.leftHandSide() = children20.firstOrNull { it.isCode }
 
-    private fun ASTNode.rightHandSide() = children20.lastOrNull { !it.isWhiteSpace20 && !it.isPartOfComment20 }
+    private fun ASTNode.rightHandSide() = children20.lastOrNull { it.isCode }
 
     private fun ASTNode?.isMultilineOperand() =
         if (this == null) {

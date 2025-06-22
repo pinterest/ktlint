@@ -28,6 +28,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
+import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.isLeaf20
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfString20
@@ -117,7 +118,7 @@ public class SpacingAroundCurlyRule :
                                             // All consecutive whitespaces and comments preceding the curly have to be moved after the curly brace
                                             prevLeaf
                                                 .leavesBackwardsIncludingSelf
-                                                .takeWhile { it.isWhiteSpace20 || it.isPartOfComment20 }
+                                                .takeWhile { !it.isCode }
                                                 .toList()
                                                 .reversed()
                                                 .takeIf { it.isNotEmpty() }

@@ -11,8 +11,8 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent20
+import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.isDeclaration
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
@@ -70,7 +70,7 @@ public class SpacingBetweenDeclarationsWithAnnotationsRule : StandardRule("spaci
         prevDeclaration: ASTNode,
     ) = node
         .leaves(false)
-        .takeWhile { it.isWhiteSpace20 || it.isPartOfComment20 }
+        .takeWhile { !it.isCode }
         .takeWhile { it != prevDeclaration }
         .none { it.isBlankLine() }
 

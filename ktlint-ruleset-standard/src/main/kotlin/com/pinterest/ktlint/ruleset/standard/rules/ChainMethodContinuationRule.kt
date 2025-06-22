@@ -41,6 +41,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
+import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
@@ -269,7 +270,7 @@ public class ChainMethodContinuationRule :
     ) {
         chainOperator
             .prevLeaf()
-            .takeIf { it.isWhiteSpace20 || it?.isPartOfComment20 == true }
+            .takeUnless { it?.isCode == true }
             .let { whiteSpaceOrComment ->
                 when {
                     whiteSpaceOrComment?.isPartOfComment20 == true -> {

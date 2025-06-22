@@ -127,9 +127,12 @@ public fun ASTNode.lastChildLeafOrSelf(): ASTNode {
     return n
 }
 
+public val ASTNode.isCode
+    get() = elementType != WHITE_SPACE && !isPartOfComment20
+
 public fun ASTNode.prevCodeLeaf(includeEmpty: Boolean = false): ASTNode? {
     var n = prevLeaf(includeEmpty)
-    while (n != null && (n.elementType == WHITE_SPACE || n.isPartOfComment20)) {
+    while (n != null && !n.isCode) {
         n = n.prevLeaf(includeEmpty)
     }
     return n
@@ -140,13 +143,13 @@ public fun ASTNode.nextCodeLeaf(
     skipSubtree: Boolean = false,
 ): ASTNode? {
     var n = nextLeaf(includeEmpty, skipSubtree)
-    while (n != null && (n.elementType == WHITE_SPACE || n.isPartOfComment20)) {
+    while (n != null && !n.isCode) {
         n = n.nextLeaf(includeEmpty, skipSubtree)
     }
     return n
 }
 
-public fun ASTNode.prevCodeSibling(): ASTNode? = prevSibling { it.elementType != WHITE_SPACE && !it.isPartOfComment20 }
+public fun ASTNode.prevCodeSibling(): ASTNode? = prevSibling { it.isCode }
 
 public inline fun ASTNode.prevSibling(predicate: (ASTNode) -> Boolean = { true }): ASTNode? {
     var n = this.treePrev
@@ -159,7 +162,7 @@ public inline fun ASTNode.prevSibling(predicate: (ASTNode) -> Boolean = { true }
     return null
 }
 
-public fun ASTNode.nextCodeSibling(): ASTNode? = nextSibling { it.elementType != WHITE_SPACE && !it.isPartOfComment20 }
+public fun ASTNode.nextCodeSibling(): ASTNode? = nextSibling { it.isCode }
 
 public inline fun ASTNode.nextSibling(predicate: (ASTNode) -> Boolean = { true }): ASTNode? {
     var n = this.treeNext
@@ -314,7 +317,8 @@ public val ASTNode.isLeaf20
  * Check if the given [ASTNode] is a code leaf. E.g. it must be a leaf and may not be a whitespace or be part of a
  * comment.
  */
-public fun ASTNode.isCodeLeaf(): Boolean = isLeaf20 && !isWhiteSpace20 && !isPartOfComment20
+@Deprecated("Marked for removal in Ktlint 2.0. Use `isLeaf20 && isCode` instead")
+public fun ASTNode.isCodeLeaf(): Boolean = isLeaf20 && isCode
 
 @Deprecated(
     "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +

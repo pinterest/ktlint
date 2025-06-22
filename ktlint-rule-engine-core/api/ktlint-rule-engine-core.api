@@ -21,6 +21,7 @@ public final class com/pinterest/ktlint/rule/engine/core/api/ASTNodeExtensionKt 
 	public static final fun hasNewLineInClosedRange (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
 	public static final fun indent (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Z)Ljava/lang/String;
 	public static synthetic fun indent$default (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZILjava/lang/Object;)Ljava/lang/String;
+	public static final fun isCode (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
 	public static final fun isCodeLeaf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
 	public static final fun isDeclaration (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
 	public static final fun isKtAnnotated (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z

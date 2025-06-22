@@ -1002,7 +1002,7 @@ class ASTNodeExtensionTest {
     fun `Given a function declaration then the IDENTIFIER should be between the FUN_KEYWORD and the VALUE_PARAMETER_LIST element type`() {
         val code =
             """
-            fun foo() = 42
+            public fun /*test*/ foo /*test*/ (): Int = 42
             """.trimIndent()
         val actual =
             transformCodeToAST(code)

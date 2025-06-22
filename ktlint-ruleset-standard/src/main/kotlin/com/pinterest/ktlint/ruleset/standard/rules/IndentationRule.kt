@@ -103,6 +103,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
+import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isRoot20
@@ -1054,10 +1055,10 @@ public class IndentationRule :
             ?.let { modifierList ->
                 modifierList
                     .children20
-                    .firstOrNull { !it.isWhiteSpace20 && !it.isPartOfComment20 && it.elementType != ANNOTATION_ENTRY }
+                    .firstOrNull { it.isCode && it.elementType != ANNOTATION_ENTRY }
                     ?: modifierList.nextCodeSibling()
             }
-            ?: children20.firstOrNull { !it.isWhiteSpace20 && !it.isPartOfComment20 }
+            ?: children20.firstOrNull { it.isCode }
             ?: this
     }
 

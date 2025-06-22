@@ -62,7 +62,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
@@ -72,6 +71,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
@@ -682,7 +682,7 @@ public class WrappingRule :
                         node
                     } else {
                         // Other blocks have LBRACE and RBRACE as siblings of the block
-                        node.prevSibling { !it.isPartOfComment20 && !it.isWhiteSpace20 }
+                        node.prevCodeSibling()
                     }
                 }
         }
@@ -698,7 +698,7 @@ public class WrappingRule :
                         node
                     } else {
                         // Other blocks have LBRACE and RBRACE as siblings of the block
-                        node.nextSibling { !it.isPartOfComment20 && !it.isWhiteSpace20 }
+                        node.nextCodeSibling()
                     }
                 }
         }
