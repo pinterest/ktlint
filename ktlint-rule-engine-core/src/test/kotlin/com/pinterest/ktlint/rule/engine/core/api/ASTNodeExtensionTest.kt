@@ -20,6 +20,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.rule.engine.core.api.isKtAnnotated20
 import com.pinterest.ktlint.test.SPACE
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatNoException
@@ -1133,9 +1134,9 @@ class ASTNodeExtensionTest {
 
         val actual = transformCodeToAST(code).findChildByType(CLASS)!!
 
-        assertThat(actual.isKtAnnotated()).isTrue()
-        assertThat(actual.findChildByType(CLASS_KEYWORD)!!.isKtAnnotated()).isFalse()
-        assertThat(actual.findChildByType(IDENTIFIER)!!.isKtAnnotated()).isFalse()
+        assertThat(actual.isKtAnnotated20).isTrue()
+        assertThat(actual.findChildByType(CLASS_KEYWORD)!!.isKtAnnotated20).isFalse()
+        assertThat(actual.findChildByType(IDENTIFIER)!!.isKtAnnotated20).isFalse()
 
         assertThat(actual.isPsiType<KtAnnotated>()).isTrue()
         assertThat(actual.findChildByType(CLASS_KEYWORD)!!.isPsiType<KtAnnotated>()).isFalse()

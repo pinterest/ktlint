@@ -7,7 +7,7 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.TokenSets
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
-import com.pinterest.ktlint.rule.engine.core.api.isKtAnnotated
+import com.pinterest.ktlint.rule.engine.core.api.isKtAnnotated20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.recursiveChildren
@@ -183,7 +183,7 @@ internal class SuppressionLocator(
 
         if (suppressedRuleIds.isEmpty()) return null
 
-        val owner = parent { it.isKtAnnotated() } ?: return null
+        val owner = parent { it.isKtAnnotated20 } ?: return null
 
         val textRange = owner.textRange
 

@@ -789,7 +789,21 @@ private val elementTypeCache = hashMapOf<IElementType, PsiElement>()
  * Checks if the [AstNode] extends the [KtAnnotated] interface. Using this function to check the interface is more performant than checking
  * whether `psi is KtAnnotated` as the psi does not need to be derived from [ASTNode].
  */
-public fun ASTNode.isKtAnnotated(): Boolean = psiType { it is KtAnnotated }
+@Deprecated(
+    "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
+        "the temporary property accessor. In 2.0 it can be replaced the final property accessor which will be the same as the " +
+        "current function name.",
+    replaceWith = ReplaceWith("isKtAnnotated20"),
+)
+// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+public fun ASTNode.isKtAnnotated(): Boolean = isKtAnnotated20
+
+/**
+ * Checks if the [AstNode] extends the [KtAnnotated] interface. Using this function to check the interface is more performant than checking
+ * whether `psi is KtAnnotated` as the psi does not need to be derived from [ASTNode].
+ */
+public val ASTNode.isKtAnnotated20
+    get(): Boolean = psiType { it is KtAnnotated }
 
 public fun ASTNode.isKtExpression(): Boolean = psiType { it is KtExpression }
 
