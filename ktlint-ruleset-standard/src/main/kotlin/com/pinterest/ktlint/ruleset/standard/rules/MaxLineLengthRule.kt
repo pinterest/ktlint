@@ -112,7 +112,8 @@ public class MaxLineLengthRule :
             }.lineLength
 
     private fun ASTNode.isPartOfRawMultiLineString() =
-        parent(STRING_TEMPLATE, strict = false)
+        this
+            .parent(STRING_TEMPLATE)
             ?.let { it.firstChildNode.text == "\"\"\"" && it.textContains('\n') } == true
 
     private fun ASTNode.isLineOnlyContainingSingleTemplateString() =

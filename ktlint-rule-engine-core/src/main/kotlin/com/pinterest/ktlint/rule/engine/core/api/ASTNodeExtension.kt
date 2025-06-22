@@ -268,6 +268,10 @@ public inline val ASTNode.nextSibling20
 /**
  * @param elementType [ElementType].*
  */
+@Deprecated(
+    "Marked for removal in Ktlint 2.0",
+    replaceWith = ReplaceWith("parent(elementType)"),
+)
 public fun ASTNode.parent(
     elementType: IElementType,
     strict: Boolean = true,
@@ -278,6 +282,17 @@ public fun ASTNode.parent(
             return n
         }
         n = n.treeParent
+    }
+    return null
+}
+
+public fun ASTNode.parent(elementType: IElementType): ASTNode? {
+    var node: ASTNode? = treeParent
+    while (node != null) {
+        if (node.elementType == elementType) {
+            return node
+        }
+        node = node.treeParent
     }
     return null
 }
@@ -301,7 +316,7 @@ public fun ASTNode.isPartOf(tokenSet: TokenSet): Boolean = parent(strict = false
 /**
  * @param elementType [ElementType].*
  */
-public fun ASTNode.isPartOf(elementType: IElementType): Boolean = parent(elementType, strict = false) != null
+public fun ASTNode.isPartOf(elementType: IElementType): Boolean = parent(elementType) != null
 
 @Deprecated(
     "Marked for removal in Ktlint 2.x. Replace with ASTNode.isPartOf(elementType: IElementType) or ASTNode.isPartOf(tokenSet: TokenSet). " +
@@ -335,7 +350,7 @@ public fun ASTNode.isPartOfString(): Boolean = isPartOfString20
 
 // TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
 public val ASTNode.isPartOfString20
-    get(): Boolean = parent(STRING_TEMPLATE, strict = false) != null
+    get(): Boolean = this.parent(STRING_TEMPLATE) != null
 
 @Deprecated(
     "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
