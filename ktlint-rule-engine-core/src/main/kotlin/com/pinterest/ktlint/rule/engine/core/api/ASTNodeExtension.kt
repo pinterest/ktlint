@@ -638,10 +638,10 @@ public fun ASTNode.leavesOnLine(): Sequence<ASTNode> = leavesOnLine20
 // TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
 public val ASTNode.leavesOnLine20
     get(): Sequence<ASTNode> {
-        val lastLeafOnLineOrNull = getLastLeafOnLineOrNull()
+        val takeAll = lastLeafOnLineOrNull == null
         return firstLeafOnLineOrSelf
             .leavesForwardsIncludingSelf
-            .takeWhile { lastLeafOnLineOrNull == null || it.prevLeaf() != lastLeafOnLineOrNull }
+            .takeWhile { takeAll || it.prevLeaf() != lastLeafOnLineOrNull }
     }
 
 /**
@@ -670,7 +670,8 @@ internal val ASTNode.firstLeafOnLineOrSelf
         prevLeaf { (it.textContains('\n') && !it.isPartOfComment20) || it.prevLeaf() == null }
             ?: this
 
-internal fun ASTNode.getLastLeafOnLineOrNull() = nextLeaf { it.textContains('\n') }?.prevLeaf()
+internal val ASTNode.lastLeafOnLineOrNull
+    get() = nextLeaf { it.textContains('\n') }?.prevLeaf()
 
 /**
  * Get the total length of all leaves on the same line as the given node including the whitespace indentation but excluding all leading
