@@ -742,7 +742,7 @@ class ASTNodeExtensionTest {
                     .firstChildLeafOrSelf()
                     .leaves()
                     .filter { it.elementType == IDENTIFIER }
-                    .map { identifier -> identifier.lineLengthWithoutNewlinePrefix() }
+                    .map { identifier -> identifier.leavesOnLine20.lineLengthWithoutNewlinePrefix() }
                     .toList()
 
             assertThat(actual).contains(
@@ -772,7 +772,7 @@ class ASTNodeExtensionTest {
                     .firstChildLeafOrSelf()
                     .leaves()
                     .filter { it.elementType == IDENTIFIER }
-                    .map { identifier -> identifier.lineLengthWithoutNewlinePrefix() }
+                    .map { identifier -> identifier.leavesOnLine20.lineLengthWithoutNewlinePrefix() }
                     .toList()
 
             assertThat(actual).contains(
