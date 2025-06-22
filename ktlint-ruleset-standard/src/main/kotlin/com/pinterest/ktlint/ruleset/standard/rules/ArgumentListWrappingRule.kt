@@ -32,7 +32,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
-import com.pinterest.ktlint.rule.engine.core.api.lineLengthWithoutNewlinePrefix
+import com.pinterest.ktlint.rule.engine.core.api.lineLength
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.ec4j.core.model.PropertyType
@@ -127,8 +127,7 @@ public class ArgumentListWrappingRule :
             false
         }
 
-    private fun ASTNode.exceedsMaxLineLength() =
-        leavesOnLine20.dropTrailingEolComment().lineLengthWithoutNewlinePrefix() > maxLineLength && !textContains('\n')
+    private fun ASTNode.exceedsMaxLineLength() = leavesOnLine20.dropTrailingEolComment().lineLength > maxLineLength && !textContains('\n')
 
     private fun intendedIndent(child: ASTNode): String =
         when {

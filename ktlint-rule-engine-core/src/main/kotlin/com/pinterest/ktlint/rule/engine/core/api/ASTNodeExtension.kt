@@ -685,7 +685,7 @@ internal val ASTNode.lastLeafOnLineOrNull
         "Marked for removal in Ktlint 2.x. Rules should not modify code in case the EOL comment causes the max_line_length to be exceeded.",
     replaceWith = ReplaceWith("lineLength(excludeEolComment = false)"),
 )
-public fun ASTNode.lineLengthWithoutNewlinePrefix(): Int = leavesOnLine(excludeEolComment = false).lineLengthWithoutNewlinePrefix()
+public fun ASTNode.lineLengthWithoutNewlinePrefix(): Int = leavesOnLine(excludeEolComment = false).lineLength
 
 /**
  * Get the total length of all leaves on the same line as the given node including the whitespace indentation but excluding all leading
@@ -698,25 +698,35 @@ public fun ASTNode.lineLengthWithoutNewlinePrefix(): Int = leavesOnLine(excludeE
     "Marked for removal in Ktlint 2.0. Use `leavesOnLine20.dropTrailingEolComment().lineLength` instead to get the length of the line " +
         "without the trailing EOL comment.`",
 )
-public fun ASTNode.lineLength(excludeEolComment: Boolean = false): Int = leavesOnLine(excludeEolComment).lineLengthWithoutNewlinePrefix()
+public fun ASTNode.lineLength(excludeEolComment: Boolean = false): Int = leavesOnLine(excludeEolComment).lineLength
 
 /**
  * Get the total length of all leaves in the sequence including the whitespace indentation but excluding all leading newline characters in
  * the whitespace indentation. The first leaf node in the sequence must be a white space starting with at least one newline.
  */
-public fun Sequence<ASTNode>.lineLengthWithoutNewlinePrefix(): Int {
-    val first = firstOrNull() ?: return 0
-    require(first.textContains('\n') || first.prevLeaf() == null) {
-        "First node in non-empty sequence must be a whitespace containing a newline"
+@Deprecated(
+    "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
+        "the temporary property accessor. In 2.0 it can be replaced the final property accessor which will be the same as the " +
+        "current function name.",
+    replaceWith = ReplaceWith("lineLength"),
+)
+public fun Sequence<ASTNode>.lineLengthWithoutNewlinePrefix(): Int = lineLength
+
+// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+public val Sequence<ASTNode>.lineLength
+    get(): Int {
+        val first = firstOrNull() ?: return 0
+        require(first.textContains('\n') || first.prevLeaf() == null) {
+            "First node in non-empty sequence must be a whitespace containing a newline"
+        }
+        return joinToString(separator = "") { it.text }
+            // If a line is preceded by a blank line then the ident contains multiple newline chars
+            .dropWhile { it == '\n' }
+            // In case the last element on the line would contain a newline then only include chars before that newline. Note that this should
+            // not occur if the AST is parsed correctly
+            .takeWhile { it != '\n' }
+            .length
     }
-    return joinToString(separator = "") { it.text }
-        // If a line is preceded by a blank line then the ident contains multiple newline chars
-        .dropWhile { it == '\n' }
-        // In case the last element on the line would contain a newline then only include chars before that newline. Note that this should
-        // not occur if the AST is parsed correctly
-        .takeWhile { it != '\n' }
-        .length
-}
 
 public fun ASTNode.afterCodeSibling(afterElementType: IElementType): Boolean = prevCodeSibling()?.elementType == afterElementType
 

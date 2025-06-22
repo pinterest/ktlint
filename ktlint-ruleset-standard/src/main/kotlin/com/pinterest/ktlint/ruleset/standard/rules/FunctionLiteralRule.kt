@@ -35,7 +35,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesForwardsIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
-import com.pinterest.ktlint.rule.engine.core.api.lineLengthWithoutNewlinePrefix
+import com.pinterest.ktlint.rule.engine.core.api.lineLength
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
@@ -182,7 +182,7 @@ public class FunctionLiteralRule :
             .leavesOnLine20
             .dropTrailingEolComment()
             .takeWhile { it.prevLeaf() != lbrace }
-            .lineLengthWithoutNewlinePrefix()
+            .lineLength
     }
 
     private fun ASTNode.lengthOfParameterListWhenOnSingleLine(): Int {
@@ -201,7 +201,7 @@ public class FunctionLiteralRule :
             }.length
     }
 
-    private fun ASTNode.exceedsMaxLineLength() = maxLineLength < leavesOnLine20.dropTrailingEolComment().lineLengthWithoutNewlinePrefix()
+    private fun ASTNode.exceedsMaxLineLength() = maxLineLength < leavesOnLine20.dropTrailingEolComment().lineLength
 
     private fun ASTNode.wrapFirstParameterToNewline() =
         if (isFunctionLiteralLambdaWithNonEmptyValueParameterList()) {
@@ -217,7 +217,7 @@ public class FunctionLiteralRule :
             leavesOnLine20
                 .dropTrailingEolComment()
                 .takeWhile { it.prevLeaf() != stopAtLeaf }
-                .lineLengthWithoutNewlinePrefix()
+                .lineLength
                 .let { it > maxLineLength }
         } else {
             false

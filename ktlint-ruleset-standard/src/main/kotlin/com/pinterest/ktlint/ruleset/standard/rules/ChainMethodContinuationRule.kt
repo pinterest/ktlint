@@ -47,7 +47,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
-import com.pinterest.ktlint.rule.engine.core.api.lineLengthWithoutNewlinePrefix
+import com.pinterest.ktlint.rule.engine.core.api.lineLength
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
@@ -247,7 +247,7 @@ public class ChainMethodContinuationRule :
                 leavesOnLine20
                     .dropTrailingEolComment()
                     .takeWhile { it != stopAtLeaf }
-                    .lineLengthWithoutNewlinePrefix() > maxLineLength
+                    .lineLength > maxLineLength
             }
         }
 

@@ -21,7 +21,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
-import com.pinterest.ktlint.rule.engine.core.api.lineLengthWithoutNewlinePrefix
+import com.pinterest.ktlint.rule.engine.core.api.lineLength
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -109,7 +109,7 @@ public class MaxLineLengthRule :
                 ignoreBackTickedIdentifier &&
                     it.elementType == IDENTIFIER &&
                     it.text.matches(BACKTICKED_IDENTIFIER_REGEX)
-            }.lineLengthWithoutNewlinePrefix()
+            }.lineLength
 
     private fun ASTNode.isPartOfRawMultiLineString() =
         parent(STRING_TEMPLATE, strict = false)

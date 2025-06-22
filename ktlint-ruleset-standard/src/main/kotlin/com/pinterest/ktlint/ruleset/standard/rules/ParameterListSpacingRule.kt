@@ -22,7 +22,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
-import com.pinterest.ktlint.rule.engine.core.api.lineLengthWithoutNewlinePrefix
+import com.pinterest.ktlint.rule.engine.core.api.lineLength
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
@@ -297,7 +297,7 @@ public class ParameterListSpacingRule :
                     // length of the previous line
                     leavesOnLine20
                         .dropTrailingEolComment()
-                        .lineLengthWithoutNewlinePrefix() +
+                        .lineLength +
                         // single space before type reference
                         1 -
                         // length of current indent before typeReference
@@ -306,7 +306,7 @@ public class ParameterListSpacingRule :
                         typeReference
                             .leavesOnLine20
                             .dropTrailingEolComment()
-                            .lineLengthWithoutNewlinePrefix()
+                            .lineLength
                 length > maxLineLength
             }
             ?: false

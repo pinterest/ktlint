@@ -33,7 +33,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
-import com.pinterest.ktlint.rule.engine.core.api.lineLengthWithoutNewlinePrefix
+import com.pinterest.ktlint.rule.engine.core.api.lineLength
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.noNewLineInClosedRange
@@ -241,15 +241,14 @@ public class BinaryExpressionWrappingRule :
             }
     }
 
-    private fun ASTNode.isOnLineExceedingMaxLineLength() =
-        maxLineLength < leavesOnLine20.dropTrailingEolComment().lineLengthWithoutNewlinePrefix()
+    private fun ASTNode.isOnLineExceedingMaxLineLength() = maxLineLength < leavesOnLine20.dropTrailingEolComment().lineLength
 
     private fun ASTNode.causesMaxLineLengthToBeExceeded() =
         lastChildLeafOrSelf().let { lastChildLeaf ->
             leavesOnLine20
                 .dropTrailingEolComment()
                 .takeWhile { it.prevLeaf() != lastChildLeaf }
-                .lineLengthWithoutNewlinePrefix()
+                .lineLength
         } > maxLineLength
 }
 
