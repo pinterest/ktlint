@@ -76,7 +76,7 @@ public fun ASTNode.nextLeaf(p: (ASTNode) -> Boolean): ASTNode? {
 private val ASTNode.nextLeafAny
     get(): ASTNode? {
         if (firstChildNode == null) {
-            return nextLeafStrict()
+            return nextLeafStrict
         }
         var node = this
         while (node.firstChildNode != null) {
@@ -85,7 +85,8 @@ private val ASTNode.nextLeafAny
         return node
     }
 
-private fun ASTNode.nextLeafStrict(): ASTNode? = treeNext?.firstChildLeafOrSelf() ?: treeParent?.nextLeafStrict()
+private val ASTNode.nextLeafStrict
+    get(): ASTNode? = treeNext?.firstChildLeafOrSelf() ?: treeParent?.nextLeafStrict
 
 public fun ASTNode.firstChildLeafOrSelf(): ASTNode {
     var node = this
