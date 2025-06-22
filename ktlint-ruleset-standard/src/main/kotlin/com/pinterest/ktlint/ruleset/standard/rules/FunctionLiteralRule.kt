@@ -32,7 +32,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
-import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
+import com.pinterest.ktlint.rule.engine.core.api.leavesForwardsIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
 import com.pinterest.ktlint.rule.engine.core.api.lineLength
 import com.pinterest.ktlint.rule.engine.core.api.lineLengthWithoutNewlinePrefix
@@ -188,7 +188,7 @@ public class FunctionLiteralRule :
         require(elementType == VALUE_PARAMETER_LIST)
         val stopAtLeaf = lastChildLeafOrSelf().nextLeaf()
         return firstChildLeafOrSelf()
-            .leavesIncludingSelf()
+            .leavesForwardsIncludingSelf
             .takeWhile { it != stopAtLeaf }
             .joinToString(separator = "") {
                 if (it.isWhiteSpace20) {

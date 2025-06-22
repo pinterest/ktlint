@@ -22,7 +22,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
-import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
+import com.pinterest.ktlint.rule.engine.core.api.leavesBackwardsIncludingSelf
+import com.pinterest.ktlint.rule.engine.core.api.leavesForwardsIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -88,7 +89,7 @@ public class PropertyWrappingRule :
         val fromNode =
             node
                 .findChildByType(ElementType.IDENTIFIER)
-                ?.leavesIncludingSelf(forward = false)
+                ?.leavesBackwardsIncludingSelf
                 ?.firstOrNull { it.prevLeaf().isWhiteSpaceWithNewline20 || it == nodeFirstChildLeafOrSelf }
                 ?: node
 
@@ -132,7 +133,7 @@ public class PropertyWrappingRule :
 
     private fun ASTNode.sumOfTextLengthUntil(astNode: ASTNode): Int {
         val stopAtLeaf = astNode.lastChildLeafOrSelf()
-        return leavesIncludingSelf()
+        return leavesForwardsIncludingSelf
             .takeWhile { !it.isWhiteSpaceWithNewline20 && it.prevLeaf() != stopAtLeaf }
             .sumOf { it.textLength }
     }

@@ -944,7 +944,7 @@ class ASTNodeExtensionTest {
             val actual =
                 transformCodeToAST(code)
                     .firstChildLeafOrSelf()
-                    .leavesIncludingSelf()
+                    .leavesForwardsIncludingSelf
                     .first { it.elementType == ElementType.EOL_COMMENT }
                     .lineLength(true)
 

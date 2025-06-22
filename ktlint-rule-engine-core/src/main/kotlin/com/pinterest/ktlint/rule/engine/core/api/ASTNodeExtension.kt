@@ -577,7 +577,7 @@ public fun leavesInClosedRange(
             .nextLeaf()
     return from
         .firstChildLeafOrSelf()
-        .leavesIncludingSelf()
+        .leavesForwardsIncludingSelf
         .takeWhile { it != stopAtLeaf }
 }
 
@@ -588,6 +588,7 @@ public fun ASTNode.isValOrVarKeyword(): Boolean = elementType == VAL_KEYWORD || 
  * Creates a sequences of leaves including the [ASTNode] in case it is a [LeafElement] itself. By default, the leaves are traversed in
  * forward order. Setting [forward] to `false` changes this to traversal in backward direction.
  */
+@Deprecated("Marked for removal in Ktlint 2.0. Use `leavesForwardsIncludingSelf` or `leavesBackwardsIncludingSelf` instead")
 public fun ASTNode.leavesIncludingSelf(forward: Boolean = true): Sequence<ASTNode> {
     val sequence =
         if (isLeaf20) {
@@ -596,6 +597,30 @@ public fun ASTNode.leavesIncludingSelf(forward: Boolean = true): Sequence<ASTNod
             emptySequence()
         }
     return sequence.plus(leaves(forward))
+}
+
+/**
+ * Creates a forward sequence of leaves including the [ASTNode] in case it is a [LeafElement] itself. Otherwise, an empty sequence is
+ * returned.
+ */
+public val ASTNode.leavesForwardsIncludingSelf
+    get(): Sequence<ASTNode> = sequenceOfLeafOrEmpty().plus(leaves(forward = true))
+
+/**
+ * Creates a backward sequence of leaves including the [ASTNode] in case it is a [LeafElement] itself. Otherwise, an empty sequence is
+ *  * returned.
+ */
+public val ASTNode.leavesBackwardsIncludingSelf
+    get(): Sequence<ASTNode> = sequenceOfLeafOrEmpty().plus(leaves(forward = false))
+
+private fun ASTNode.sequenceOfLeafOrEmpty(): Sequence<ASTNode> {
+    val sequence =
+        if (isLeaf20) {
+            sequenceOf(this)
+        } else {
+            emptySequence()
+        }
+    return sequence
 }
 
 /**
@@ -616,7 +641,7 @@ public fun ASTNode.leavesOnLine(): Sequence<ASTNode> = leavesOnLine(excludeEolCo
 public fun ASTNode.leavesOnLine(excludeEolComment: Boolean): Sequence<ASTNode> {
     val lastLeafOnLineOrNull = getLastLeafOnLineOrNull()
     return getFirstLeafOnLineOrSelf()
-        .leavesIncludingSelf()
+        .leavesForwardsIncludingSelf
         .applyIf(excludeEolComment) { dropTrailingEolComment() }
         .takeWhile { lastLeafOnLineOrNull == null || it.prevLeaf() != lastLeafOnLineOrNull }
 }

@@ -43,7 +43,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
-import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
+import com.pinterest.ktlint.rule.engine.core.api.leavesForwardsIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
@@ -160,7 +160,7 @@ public class MultilineExpressionWrappingRule :
     private fun ASTNode.containsWhitespaceWithNewline(): Boolean {
         val lastLeaf = lastChildLeafOrSelf()
         return firstChildLeafOrSelf()
-            .leavesIncludingSelf()
+            .leavesForwardsIncludingSelf
             .takeWhile { it != lastLeaf }
             .any { it.isWhiteSpaceWithNewline20 || it.isRegularStringPartWithNewline() }
     }

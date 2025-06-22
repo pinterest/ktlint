@@ -66,7 +66,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
-import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
+import com.pinterest.ktlint.rule.engine.core.api.leavesForwardsIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -184,7 +184,7 @@ public class WrappingRule :
             val lengthUntilEndOfLine =
                 node
                     .firstChildLeafOrSelf()
-                    .leavesIncludingSelf()
+                    .leavesForwardsIncludingSelf
                     .takeWhile { !it.isWhiteSpaceWithNewline20 }
                     .sumOf { it.textLength }
             if (lengthUntilBeginOfLine + lengthUntilEndOfLine > maxLineLength) {

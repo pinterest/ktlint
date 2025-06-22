@@ -23,7 +23,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
-import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
+import com.pinterest.ktlint.rule.engine.core.api.leavesForwardsIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -91,7 +91,7 @@ public class EnumWrappingRule :
         if (firstEnumEntry != null) {
             node
                 .firstChildLeafOrSelf()
-                .leavesIncludingSelf()
+                .leavesForwardsIncludingSelf
                 .takeWhile { it != firstEnumEntry }
                 .firstOrNull { it.isPartOfComment20 }
                 ?.let { commentBeforeFirstEnumEntry ->
