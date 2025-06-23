@@ -297,6 +297,7 @@ public fun ASTNode.parent(elementType: IElementType): ASTNode? {
     return null
 }
 
+@Deprecated("Marked for removal in Ktlint 2.0")
 public fun ASTNode.parent(
     strict: Boolean = true,
     predicate: (ASTNode) -> Boolean,
@@ -311,12 +312,20 @@ public fun ASTNode.parent(
     return null
 }
 
-public fun ASTNode.isPartOf(tokenSet: TokenSet): Boolean = parent(strict = false) { tokenSet.contains(it.elementType) } != null
+public fun ASTNode.parent(predicate: (ASTNode) -> Boolean): ASTNode? {
+    var node: ASTNode? = this.treeParent
+    while (node != null && !predicate(node)) {
+        node = node.treeParent
+    }
+    return node
+}
+
+public fun ASTNode.isPartOf(tokenSet: TokenSet): Boolean = elementType in tokenSet || parent { it.elementType in tokenSet } != null
 
 /**
  * @param elementType [ElementType].*
  */
-public fun ASTNode.isPartOf(elementType: IElementType): Boolean = parent(elementType) != null
+public fun ASTNode.isPartOf(elementType: IElementType): Boolean = this.elementType == elementType || parent(elementType) != null
 
 @Deprecated(
     "Marked for removal in Ktlint 2.x. Replace with ASTNode.isPartOf(elementType: IElementType) or ASTNode.isPartOf(tokenSet: TokenSet). " +
