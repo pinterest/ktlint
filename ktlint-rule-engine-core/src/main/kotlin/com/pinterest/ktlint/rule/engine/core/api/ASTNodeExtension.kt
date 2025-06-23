@@ -343,9 +343,11 @@ public fun ASTNode.isPartOf(klass: KClass<out PsiElement>): Boolean {
     return false
 }
 
+@Deprecated("Marked for removal in KtLint 2.0")
 public fun ASTNode.isPartOfCompositeElementOfType(iElementType: IElementType): Boolean =
     iElementType == findCompositeParentElementOfType(iElementType)?.elementType
 
+@Deprecated("Marked for removal in KtLint 2.0")
 public fun ASTNode.findCompositeParentElementOfType(iElementType: IElementType): ASTNode? =
     parent { it.elementType == iElementType || it !is CompositeElement }
 

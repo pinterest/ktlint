@@ -10,14 +10,14 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.findCompositeParentElementOfType
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfCompositeElementOfType
+import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
@@ -84,7 +84,7 @@ public class TypeArgumentListSpacingRule :
                 // unless it is part of a type reference:
                 //    fun foo(): List<Foo> { ... }
                 //    var bar: List<Bar> = emptyList()
-                it.isPartOfCompositeElementOfType(ElementType.TYPE_REFERENCE)
+                it.isPartOf(ElementType.TYPE_REFERENCE)
             }?.takeUnless {
                 // unless it is part of a call expression followed by lambda:
                 //    bar<Foo> { ... }
@@ -168,7 +168,7 @@ public class TypeArgumentListSpacingRule :
 }
 
 private fun ASTNode.isPartOfCallExpressionFollowedByLambda(): Boolean =
-    findCompositeParentElementOfType(ElementType.CALL_EXPRESSION)
+    parent(ElementType.CALL_EXPRESSION)
         ?.takeIf { it.elementType == ElementType.CALL_EXPRESSION }
         ?.findChildByType(ElementType.LAMBDA_ARGUMENT)
         .let { it != null }
