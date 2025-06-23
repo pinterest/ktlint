@@ -460,12 +460,27 @@ public fun ASTNode.children(): Sequence<ASTNode> = children20
 public val ASTNode.children20
     get(): Sequence<ASTNode> = generateSequence(firstChildNode) { node -> node.treeNext }
 
-public fun ASTNode.recursiveChildren(includeSelf: Boolean = false): Sequence<ASTNode> =
+@Deprecated("Marked for removal in Ktlint 2.0")
+public fun ASTNode.recursiveChildren(includeSelf: Boolean = false): Sequence<ASTNode> = recursiveChildrenInternal(includeSelf)
+
+@Deprecated(
+    "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
+        "the temporary property accessor. In 2.0 it can be replaced the final property accessor which will be the same as the " +
+        "current function name.",
+    replaceWith = ReplaceWith("recursiveChildren20"),
+)
+public fun ASTNode.recursiveChildren(): Sequence<ASTNode> = recursiveChildrenInternal(false)
+
+// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+public val ASTNode.recursiveChildren20
+    get(): Sequence<ASTNode> = recursiveChildrenInternal(false)
+
+private fun ASTNode.recursiveChildrenInternal(includeSelf: Boolean = false): Sequence<ASTNode> =
     sequence {
         if (includeSelf) {
-            yield(this@recursiveChildren)
+            yield(this@recursiveChildrenInternal)
         }
-        this@recursiveChildren.children20.forEach { yieldAll(it.recursiveChildren(includeSelf = true)) }
+        this@recursiveChildrenInternal.children20.forEach { yieldAll(it.recursiveChildrenInternal(includeSelf = true)) }
     }
 
 /**
@@ -889,7 +904,7 @@ public fun ASTNode.findChildByTypeRecursively(
  * guaranteed to be returned if it has type [elementType].
  */
 public fun ASTNode.findChildByTypeRecursively(elementType: IElementType): ASTNode? =
-    recursiveChildren().firstOrNull { it.elementType == elementType }
+    recursiveChildren20.firstOrNull { it.elementType == elementType }
 
 /**
  * Returns the end offset of the text of this [ASTNode]

@@ -11,7 +11,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isKtAnnotated20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.parent
-import com.pinterest.ktlint.rule.engine.core.api.recursiveChildren
+import com.pinterest.ktlint.rule.engine.core.api.recursiveChildren20
 import com.pinterest.ktlint.rule.engine.internal.SuppressionLocator.CommentSuppressionHint.Type.BLOCK_END
 import com.pinterest.ktlint.rule.engine.internal.SuppressionLocator.CommentSuppressionHint.Type.BLOCK_START
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -57,7 +57,7 @@ internal class SuppressionLocator(
     private fun findSuppressionHints(rootNode: ASTNode): List<SuppressionHint> {
         val suppressionHints = ArrayList<SuppressionHint>()
         val commentSuppressionsHints = mutableListOf<CommentSuppressionHint>()
-        rootNode.recursiveChildren(includeSelf = true).forEach { node ->
+        rootNode.recursiveChildren20.forEach { node ->
             when (node.elementType) {
                 in TokenSets.COMMENTS -> {
                     node
@@ -176,7 +176,7 @@ internal class SuppressionLocator(
 
     private fun ASTNode.createSuppressionHintFromAnnotations(): SuppressionHint? {
         val suppressedRuleIds =
-            recursiveChildren()
+            recursiveChildren20
                 .filter { it.elementType == ElementType.VALUE_ARGUMENT }
                 .flatMapTo(mutableListOf()) {
                     it.text.removeSurrounding("\"").findRuleSuppressionIds()
