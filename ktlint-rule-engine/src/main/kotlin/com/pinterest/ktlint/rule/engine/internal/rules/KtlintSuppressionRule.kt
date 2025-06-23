@@ -98,7 +98,7 @@ public class KtlintSuppressionRule(
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .findChildByTypeRecursively(ElementType.LITERAL_STRING_TEMPLATE_ENTRY, includeSelf = true)
+            .findChildByTypeRecursively(ElementType.LITERAL_STRING_TEMPLATE_ENTRY)
             ?.let { literalStringTemplateEntry ->
                 val prefixedSuppression =
                     literalStringTemplateEntry

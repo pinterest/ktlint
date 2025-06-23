@@ -877,10 +877,19 @@ public fun ASTNode.remove() {
  * If [includeSelf] is `true`, includes the receiver in the search. The receiver would then be the first element searched, so it is
  * guaranteed to be returned if it has type [elementType].
  */
+@Deprecated("Marked for removal in KtLint 2.0")
 public fun ASTNode.findChildByTypeRecursively(
     elementType: IElementType,
     includeSelf: Boolean,
 ): ASTNode? = recursiveChildren(includeSelf).firstOrNull { it.elementType == elementType }
+
+/**
+ * Searches the receiver [ASTNode] recursively, returning the first child with type [elementType]. If none are found, returns `null`.
+ * If [includeSelf] is `true`, includes the receiver in the search. The receiver would then be the first element searched, so it is
+ * guaranteed to be returned if it has type [elementType].
+ */
+public fun ASTNode.findChildByTypeRecursively(elementType: IElementType): ASTNode? =
+    recursiveChildren().firstOrNull { it.elementType == elementType }
 
 /**
  * Returns the end offset of the text of this [ASTNode]

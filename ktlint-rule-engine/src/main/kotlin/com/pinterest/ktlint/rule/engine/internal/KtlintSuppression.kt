@@ -201,7 +201,7 @@ private fun ASTNode.existingSuppressions() =
         ?: getValueArguments()
 
 private fun ASTNode.existingSuppressionsFromNamedArgumentOrNull(): Set<String>? =
-    findChildByTypeRecursively(ElementType.COLLECTION_LITERAL_EXPRESSION, includeSelf = false)
+    findChildByTypeRecursively(ElementType.COLLECTION_LITERAL_EXPRESSION)
         ?.run {
             children()
                 .filter { it.elementType == ElementType.STRING_TEMPLATE }
