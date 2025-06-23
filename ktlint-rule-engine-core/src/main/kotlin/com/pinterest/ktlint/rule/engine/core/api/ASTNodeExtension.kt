@@ -864,9 +864,11 @@ public val Sequence<ASTNode>.lineLength
             .length
     }
 
-public fun ASTNode.afterCodeSibling(afterElementType: IElementType): Boolean = prevCodeSibling20?.elementType == afterElementType
+public fun ASTNode.afterCodeSibling(afterElementType: IElementType): Boolean =
+    prevSibling { it.isCode && it.elementType == afterElementType } != null
 
-public fun ASTNode.beforeCodeSibling(beforeElementType: IElementType): Boolean = nextCodeSibling20?.elementType == beforeElementType
+public fun ASTNode.beforeCodeSibling(beforeElementType: IElementType): Boolean =
+    nextSibling { it.isCode && it.elementType == beforeElementType } != null
 
 public fun ASTNode.betweenCodeSiblings(
     afterElementType: IElementType,

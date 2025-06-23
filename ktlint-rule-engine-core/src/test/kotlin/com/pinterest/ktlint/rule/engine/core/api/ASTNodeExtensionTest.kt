@@ -1009,13 +1009,13 @@ class ASTNodeExtensionTest {
             """
             public fun /*test*/ foo /*test*/ (): Int = 42
             """.trimIndent()
-        val actual =
+        val identifier =
             transformCodeToAST(code)
                 .findChildByType(FUN)
                 ?.findChildByType(IDENTIFIER)
-                ?.betweenCodeSiblings(FUN_KEYWORD, VALUE_PARAMETER_LIST)
 
-        assertThat(actual).isTrue()
+        assertThat(identifier?.betweenCodeSiblings(FUN_KEYWORD, VALUE_PARAMETER_LIST)).isTrue()
+        assertThat(identifier?.betweenCodeSiblings(MODIFIER_LIST, TYPE_REFERENCE)).isTrue()
     }
 
     @Test
