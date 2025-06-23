@@ -739,24 +739,25 @@ public fun ASTNode.leavesIncludingSelf(forward: Boolean = true): Sequence<ASTNod
  * returned.
  */
 public val ASTNode.leavesForwardsIncludingSelf
-    get(): Sequence<ASTNode> = sequenceOfLeafOrEmpty().plus(leaves(forward = true))
+    get(): Sequence<ASTNode> = sequenceOfLeafOrEmpty.plus(leaves(forward = true))
 
 /**
  * Creates a backward sequence of leaves including the [ASTNode] in case it is a [LeafElement] itself. Otherwise, an empty sequence is
  *  * returned.
  */
 public val ASTNode.leavesBackwardsIncludingSelf
-    get(): Sequence<ASTNode> = sequenceOfLeafOrEmpty().plus(leaves(forward = false))
+    get(): Sequence<ASTNode> = sequenceOfLeafOrEmpty.plus(leaves(forward = false))
 
-private fun ASTNode.sequenceOfLeafOrEmpty(): Sequence<ASTNode> {
-    val sequence =
-        if (isLeaf20) {
-            sequenceOf(this)
-        } else {
-            emptySequence()
-        }
-    return sequence
-}
+private val ASTNode.sequenceOfLeafOrEmpty
+    get(): Sequence<ASTNode> {
+        val sequence =
+            if (isLeaf20) {
+                sequenceOf(this)
+            } else {
+                emptySequence()
+            }
+        return sequence
+    }
 
 /**
  * Get all leaves on the same line as the given node including the whitespace indentation. Note that the whitespace indentation may start
