@@ -10,6 +10,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.ImportOrderingRule.Companion.ASCII_PATTERN
 import com.pinterest.ktlint.ruleset.standard.rules.ImportOrderingRule.Companion.IDEA_PATTERN
@@ -122,7 +123,7 @@ public class ImportOrderingRule :
                         node.removeRange(node.firstChildNode, node.lastChildNode.treeNext)
                         sortedImportsWithSpaces.reduce { current, next ->
                             node.addChild(current, null)
-                            if (current !is PsiWhiteSpace && next !is PsiWhiteSpace) {
+                            if (!current.isWhiteSpace20 && !next.isWhiteSpace20) {
                                 node.addChild(PsiWhiteSpaceImpl("\n"), null)
                             }
                             return@reduce next
@@ -170,7 +171,7 @@ public class ImportOrderingRule :
 
         val combined = actual.zip(expected)
         return combined.all { (first, second) ->
-            if (first is PsiWhiteSpace && second is PsiWhiteSpace) {
+            if (first.isWhiteSpace20 && second.isWhiteSpace20) {
                 return@all (first as PsiWhiteSpace).text == (second as PsiWhiteSpace).text
             }
             return@all first == second
@@ -179,11 +180,7 @@ public class ImportOrderingRule :
 
     private fun isCustomLayout() = importsLayout != IDEA_PATTERN && importsLayout != ASCII_PATTERN
 
-    private fun hasTooMuchWhitespace(nodes: Array<ASTNode>): Boolean =
-        nodes.any {
-            it is PsiWhiteSpace &&
-                (it as PsiWhiteSpace).text != "\n"
-        }
+    private fun hasTooMuchWhitespace(nodes: Array<ASTNode>): Boolean = nodes.any { it.isWhiteSpaceWithoutNewline20 }
 
     public companion object {
         /**

@@ -34,6 +34,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -41,7 +42,6 @@ import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 
 @SinceKtlint("0.1", STABLE)
@@ -81,8 +81,8 @@ public class SpacingAroundOperatorsRule : StandardRule("op-spacing") {
         if (node.elementType in OPERATORS ||
             (node.elementType == IDENTIFIER && node.treeParent.elementType == OPERATION_REFERENCE)
         ) {
-            val spacingBefore = node.prevLeaf is PsiWhiteSpace
-            val spacingAfter = node.nextLeaf is PsiWhiteSpace
+            val spacingBefore = node.prevLeaf.isWhiteSpace20
+            val spacingAfter = node.nextLeaf.isWhiteSpace20
             when {
                 !spacingBefore && !spacingAfter -> {
                     emit(node.startOffset, "Missing spacing around \"${node.text}\"", true)

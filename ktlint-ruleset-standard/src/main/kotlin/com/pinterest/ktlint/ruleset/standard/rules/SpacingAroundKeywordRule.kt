@@ -30,7 +30,6 @@ import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet.create
@@ -58,7 +57,7 @@ public class SpacingAroundKeywordRule : StandardRule("keyword-spacing") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node is LeafPsiElement) {
-            if (tokenSet.contains(node.elementType) && node.treeParent.elementType != KDOC_NAME && node.nextLeaf !is PsiWhiteSpace) {
+            if (tokenSet.contains(node.elementType) && node.treeParent.elementType != KDOC_NAME && !node.nextLeaf.isWhiteSpace20) {
                 emit(node.startOffset + node.text.length, "Missing spacing after \"${node.text}\"", true)
                     .ifAutocorrectAllowed {
                         (node as ASTNode).upsertWhitespaceAfterMe(" ")

@@ -37,7 +37,6 @@ import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.psiUtil.children
@@ -188,13 +187,16 @@ public class ArgumentListWrappingRule :
     ) {
         when (child.elementType) {
             LPAR -> {
-                val prevLeaf = child.prevLeaf
-                if (prevLeaf is PsiWhiteSpace && prevLeaf.textContains('\n')) {
-                    emit(child.startOffset, errorMessage(child), true)
-                        .ifAutocorrectAllowed {
-                            prevLeaf.delete()
+                child
+                    .prevLeaf
+                    ?.let { prevLeaf ->
+                        if (prevLeaf.isWhiteSpaceWithNewline20) {
+                            emit(child.startOffset, errorMessage(child), true)
+                                .ifAutocorrectAllowed {
+                                    prevLeaf.psi.delete()
+                                }
                         }
-                }
+                    }
             }
 
             VALUE_ARGUMENT,
@@ -206,12 +208,14 @@ public class ArgumentListWrappingRule :
                 // <line indent> RPAR
                 val intendedIndent = intendedIndent(child)
                 val prevLeaf = child.prevWhiteSpaceWithNewLine() ?: child.prevLeaf
-                if (prevLeaf is PsiWhiteSpace) {
-                    if (prevLeaf.getText().contains("\n")) {
+                when {
+                    prevLeaf.isWhiteSpaceWithNewline20 -> {
                         // The current child is already wrapped to a new line. Checking and fixing the
                         // correct size of the indent is the responsibility of the IndentationRule.
                         return
-                    } else {
+                    }
+
+                    prevLeaf.isWhiteSpace20 -> {
                         // The current child needs to be wrapped to a newline.
                         emit(child.startOffset, errorMessage(child), true)
                             .ifAutocorrectAllowed {
@@ -222,12 +226,14 @@ public class ArgumentListWrappingRule :
                                 (prevLeaf as LeafPsiElement).rawReplaceWithText(intendedIndent)
                             }
                     }
-                } else {
-                    // Insert a new whitespace element in order to wrap the current child to a new line.
-                    emit(child.startOffset, errorMessage(child), true)
-                        .ifAutocorrectAllowed {
-                            child.treeParent.addChild(PsiWhiteSpaceImpl(intendedIndent), child)
-                        }
+
+                    else -> {
+                        // Insert a new whitespace element in order to wrap the current child to a new line.
+                        emit(child.startOffset, errorMessage(child), true)
+                            .ifAutocorrectAllowed {
+                                child.treeParent.addChild(PsiWhiteSpaceImpl(intendedIndent), child)
+                            }
+                    }
                 }
                 // Indentation of child nodes need to be fixed by the IndentationRule.
             }

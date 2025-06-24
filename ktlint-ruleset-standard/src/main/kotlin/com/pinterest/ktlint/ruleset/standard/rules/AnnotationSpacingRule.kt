@@ -18,6 +18,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -160,15 +161,15 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
         }
     }
 
-    private fun rawReplaceExtraLineBreaks(leaf: LeafPsiElement) {
+    private fun rawReplaceExtraLineBreaks(node: ASTNode) {
         // Replace the extra white space with a single break
-        val text = leaf.text
+        val text = node.text
         val firstIndex = text.indexOf("\n") + 1
         val replacementText =
             text.substring(0, firstIndex) +
                 text.substringAfter("\n").replace("\n", "")
 
-        leaf.rawReplaceWithText(replacementText)
+        node.replaceTextWith(replacementText)
     }
 
     private fun removeIntraLineBreaks(
@@ -177,7 +178,7 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
     ) {
         // Pull the next before raw replace, or it will blow up
         val nextLeaf = fromNode.nextLeaf
-        if (fromNode is PsiWhiteSpaceImpl) {
+        if (fromNode.isWhiteSpace20) {
             if (fromNode.text.toCharArray().count { it == '\n' } > 1) {
                 rawReplaceExtraLineBreaks(fromNode)
             }

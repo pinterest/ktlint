@@ -7,9 +7,9 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 @SinceKtlint("0.2", STABLE)
@@ -19,7 +19,7 @@ public class NoMultipleSpacesRule : StandardRule("no-multi-spaces") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .takeIf { node is PsiWhiteSpace }
+            .takeIf { node.isWhiteSpace20 }
             .takeUnless { node.isPossibleAlignmentOfKdocTag() }
             ?.let {
                 val beforeIndentation = node.removeIndentation()

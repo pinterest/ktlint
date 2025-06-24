@@ -16,7 +16,9 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
+import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -27,8 +29,6 @@ import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiComment
-import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.lexer.KtTokens
 
 @SinceKtlint("0.1", STABLE)
@@ -62,9 +62,8 @@ public class NoSemicolonsRule :
                         prevLeaf.remove()
                     }
                 }
-        } else if (nextLeaf !is PsiWhiteSpace) {
-            val prevLeaf = node.prevLeaf
-            if (prevLeaf is PsiWhiteSpace && prevLeaf.textContains('\n')) {
+        } else if (!nextLeaf.isWhiteSpace20) {
+            if (node.prevLeaf.isWhiteSpaceWithNewline20) {
                 return
             }
             // todo: move to a separate rule
@@ -81,10 +80,9 @@ public class NoSemicolonsRule :
                 true
             }
 
-            this is PsiWhiteSpace -> {
+            this.isWhiteSpace20 -> {
                 nextLeaf {
-                    it !is PsiWhiteSpace &&
-                        it !is PsiComment &&
+                    it.isCode &&
                         it.parent(ElementType.KDOC) == null &&
                         it.parent(ElementType.ANNOTATION_ENTRY) == null
                 }.let { nextLeaf ->

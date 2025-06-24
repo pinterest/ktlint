@@ -502,12 +502,12 @@ private fun ASTNode.recursiveChildrenInternal(includeSelf: Boolean = false): Seq
 public fun ASTNode.upsertWhitespaceBeforeMe(text: String) {
     if (this is LeafElement) {
         if (this.elementType == WHITE_SPACE) {
-            return replaceWhitespaceWith(text)
+            return replaceTextWith(text)
         }
         val previous = treePrev ?: this.prevLeaf
         when {
             previous?.elementType == WHITE_SPACE -> {
-                previous.replaceWhitespaceWith(text)
+                previous.replaceTextWith(text)
             }
 
             treeParent.firstChildNode == this -> {
@@ -542,11 +542,10 @@ public fun ASTNode.upsertWhitespaceBeforeMe(text: String) {
     }
 }
 
-private fun ASTNode.replaceWhitespaceWith(text: String) {
-    require(this.elementType == WHITE_SPACE)
-    if (this.text != text) {
-        (this.psi as LeafElement).rawReplaceWithText(text)
-    }
+public fun ASTNode.replaceTextWith(text: String) {
+    require(this is LeafElement)
+    takeIf { it.text != text }
+        ?.rawReplaceWithText(text)
 }
 
 /**
@@ -557,12 +556,12 @@ private fun ASTNode.replaceWhitespaceWith(text: String) {
 public fun ASTNode.upsertWhitespaceAfterMe(text: String) {
     if (this is LeafElement) {
         if (this.elementType == WHITE_SPACE) {
-            return replaceWhitespaceWith(text)
+            return replaceTextWith(text)
         }
         val next = treeNext ?: nextLeaf
         when {
             next?.elementType == WHITE_SPACE -> {
-                next.replaceWhitespaceWith(text)
+                next.replaceTextWith(text)
             }
 
             treeParent.lastChildNode == this -> {

@@ -278,12 +278,14 @@ public class ParameterListWrappingRule :
                 // <line indent> RPAR
                 val intendedIndent = intendedIndent(child)
                 val prevLeaf = child.prevLeaf
-                if (prevLeaf is PsiWhiteSpace) {
-                    if (prevLeaf.getText().contains("\n")) {
+                when {
+                    prevLeaf.isWhiteSpaceWithNewline20 -> {
                         // The current child is already wrapped to a new line. Checking and fixing the
                         // correct size of the indent is the responsibility of the IndentationRule.
                         return
-                    } else {
+                    }
+
+                    prevLeaf.isWhiteSpace20 -> {
                         // The current child needs to be wrapped to a newline.
                         emit(child.startOffset, errorMessage(child), true)
                             .ifAutocorrectAllowed {
@@ -294,12 +296,14 @@ public class ParameterListWrappingRule :
                                 (prevLeaf as LeafPsiElement).rawReplaceWithText(intendedIndent)
                             }
                     }
-                } else {
-                    // Insert a new whitespace element in order to wrap the current child to a new line.
-                    emit(child.startOffset, errorMessage(child), true)
-                        .ifAutocorrectAllowed {
-                            child.treeParent.addChild(PsiWhiteSpaceImpl(intendedIndent), child)
-                        }
+
+                    else -> {
+                        // Insert a new whitespace element in order to wrap the current child to a new line.
+                        emit(child.startOffset, errorMessage(child), true)
+                            .ifAutocorrectAllowed {
+                                child.treeParent.addChild(PsiWhiteSpaceImpl(intendedIndent), child)
+                            }
+                    }
                 }
                 // Indentation of child nodes need to be fixed by the IndentationRule.
             }

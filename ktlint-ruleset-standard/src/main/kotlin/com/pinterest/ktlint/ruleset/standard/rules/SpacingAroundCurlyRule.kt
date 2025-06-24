@@ -43,7 +43,6 @@ import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.lexer.KtTokens
 
@@ -94,7 +93,7 @@ public class SpacingAroundCurlyRule :
                                         node.treeParent.treeParent.elementType == LAMBDA_EXPRESSION
                                 )
                         )
-                    spacingAfter = nextLeaf is PsiWhiteSpace || nextLeaf?.elementType == RBRACE
+                    spacingAfter = nextLeaf.isWhiteSpace20 || nextLeaf?.elementType == RBRACE
                     if (prevLeaf.isWhiteSpaceWithoutNewline20 &&
                         prevLeaf!!.isPrecededBy { it.elementType == LPAR || it.elementType == AT }
                     ) {
@@ -137,8 +136,8 @@ public class SpacingAroundCurlyRule :
                 }
 
                 RBRACE -> {
-                    spacingBefore = prevLeaf is PsiWhiteSpace || prevLeaf?.elementType == LBRACE
-                    spacingAfter = nextLeaf == null || nextLeaf is PsiWhiteSpace || shouldNotToBeSeparatedBySpace(nextLeaf)
+                    spacingBefore = prevLeaf.isWhiteSpace20 || prevLeaf?.elementType == LBRACE
+                    spacingAfter = nextLeaf == null || nextLeaf.isWhiteSpace20 || shouldNotToBeSeparatedBySpace(nextLeaf)
                     nextLeaf
                         .takeIf { it.isWhiteSpaceWithoutNewline20 }
                         ?.takeIf { shouldNotToBeSeparatedBySpace(it.nextLeaf) }
