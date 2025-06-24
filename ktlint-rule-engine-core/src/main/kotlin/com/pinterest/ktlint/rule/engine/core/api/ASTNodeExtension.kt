@@ -1,12 +1,12 @@
 package com.pinterest.ktlint.rule.engine.core.api
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VAL_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VARARG_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VAR_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import org.jetbrains.kotlin.KtNodeType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
@@ -160,7 +160,7 @@ public val ASTNode.lastChildLeafOrSelf20
     }
 
 public val ASTNode.isCode
-    get() = elementType != WHITE_SPACE && !isPartOfComment20
+    get() = !isWhiteSpace20 && !isPartOfComment20
 
 @Deprecated(
     "Marked for removal in KtLint 2.0. Replace calls to 'prevCodeLeaf()', and 'prevCodeLeaf(false)' with property accessor " +
@@ -402,7 +402,7 @@ public fun ASTNode?.isWhiteSpaceWithNewline(): Boolean = isWhiteSpaceWithNewline
 
 // TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
 public val ASTNode?.isWhiteSpaceWithNewline20
-    get(): Boolean = this != null && elementType == WHITE_SPACE && textContains('\n')
+    get(): Boolean = this != null && isWhiteSpace20 && textContains('\n')
 
 @Deprecated(
     "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
@@ -414,7 +414,7 @@ public fun ASTNode?.isWhiteSpaceWithoutNewline(): Boolean = isWhiteSpaceWithoutN
 
 // TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
 public val ASTNode?.isWhiteSpaceWithoutNewline20
-    get(): Boolean = this != null && elementType == WHITE_SPACE && !textContains('\n')
+    get(): Boolean = this != null && isWhiteSpace20 && !textContains('\n')
 
 @Deprecated(
     "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
@@ -500,13 +500,13 @@ private fun ASTNode.recursiveChildrenInternal(includeSelf: Boolean = false): Seq
  * added after the previous leaf node.
  */
 public fun ASTNode.upsertWhitespaceBeforeMe(text: String) {
-    if (this is LeafElement) {
-        if (this.elementType == WHITE_SPACE) {
+    if (isLeaf20) {
+        if (isWhiteSpace20) {
             return replaceTextWith(text)
         }
         val previous = treePrev ?: this.prevLeaf
         when {
-            previous?.elementType == WHITE_SPACE -> {
+            previous != null && previous.isWhiteSpace20 -> {
                 previous.replaceTextWith(text)
             }
 
@@ -554,18 +554,18 @@ public fun ASTNode.replaceTextWith(text: String) {
  * added after the last child leaf.
  */
 public fun ASTNode.upsertWhitespaceAfterMe(text: String) {
-    if (this is LeafElement) {
-        if (this.elementType == WHITE_SPACE) {
+    if (isLeaf20) {
+        if (isWhiteSpace20) {
             return replaceTextWith(text)
         }
         val next = treeNext ?: nextLeaf
         when {
-            next?.elementType == WHITE_SPACE -> {
+            next != null && next.isWhiteSpace20 -> {
                 next.replaceTextWith(text)
             }
 
             treeParent.lastChildNode == this -> {
-                // Never insert a whitespace as last node in a composite node
+                // Never insert whitespace as last node in a composite node
                 treeParent.upsertWhitespaceAfterMe(text)
             }
 
@@ -601,7 +601,7 @@ public val ASTNode.column: Int
         var leaf = prevLeaf
         var offsetToTheLeft = 0
         while (leaf != null) {
-            if ((leaf.elementType == WHITE_SPACE || leaf.elementType == REGULAR_STRING_PART) && leaf.textContains('\n')) {
+            if (leaf.isWhiteSpaceWithNewline20) {
                 offsetToTheLeft += leaf.textLength - 1 - leaf.text.lastIndexOf('\n')
                 break
             }

@@ -13,7 +13,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.SEMICOLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN_ENTRY
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
@@ -279,7 +278,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                         ?.findChildByType(ARROW)
                         ?.prevLeaf
                         ?.let { lastNodeBeforeArrow ->
-                            if (lastNodeBeforeArrow.elementType != WHITE_SPACE || !lastNodeBeforeArrow.textContains('\n')) {
+                            if (!lastNodeBeforeArrow.isWhiteSpaceWithNewline20) {
                                 emit(
                                     trailingCommaNode!!.startOffset,
                                     "Expected a newline between the trailing comma and  \"${inspectNode.text}\"",

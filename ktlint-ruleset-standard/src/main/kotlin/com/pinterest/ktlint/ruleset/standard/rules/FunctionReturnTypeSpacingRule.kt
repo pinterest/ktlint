@@ -3,7 +3,6 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
@@ -11,6 +10,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -53,7 +53,7 @@ public class FunctionReturnTypeSpacingRule :
         require(node.elementType == COLON)
         node
             .prevLeaf
-            ?.takeIf { it.elementType == WHITE_SPACE }
+            ?.takeIf { it.isWhiteSpace20 }
             ?.let { whitespaceBeforeColonNode ->
                 emit(whitespaceBeforeColonNode.startOffset, "Unexpected whitespace", true)
                     .ifAutocorrectAllowed {
@@ -69,7 +69,7 @@ public class FunctionReturnTypeSpacingRule :
         require(node.elementType == COLON)
         node
             .nextLeaf
-            ?.takeIf { it.elementType == WHITE_SPACE }
+            ?.takeIf { it.isWhiteSpace20 }
             .let { whiteSpaceAfterColon ->
                 if (whiteSpaceAfterColon?.text != " ") {
                     // In case the whitespace contains a newline than replacing it with a single space results in merging the lines to a

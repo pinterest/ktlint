@@ -81,7 +81,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHERE_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHILE
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.IndentStyle.SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.IndentStyle.TAB
@@ -1290,7 +1289,7 @@ public class IndentationRule :
             firstChildNode?.elementType == ELVIS
 
     private fun ASTNode.acceptableTrailingSpaces(): String {
-        require(elementType == WHITE_SPACE)
+        require(isWhiteSpace20)
         val acceptableTrailingSpaces =
             when (nextLeaf?.elementType) {
                 KDOC_LEADING_ASTERISK, KDOC_END -> {
@@ -1513,7 +1512,7 @@ private class StringTemplateIndenter(
     }
 
     private fun ASTNode.isRawStringLiteralFunctionBodyExpression() =
-        (prevLeaf?.elementType != WHITE_SPACE || prevLeaf?.text == " ") &&
+        (!prevLeaf.isWhiteSpace20 || prevLeaf?.text == " ") &&
             FUN ==
             prevCodeLeaf
                 .takeIf { it?.elementType == EQ }

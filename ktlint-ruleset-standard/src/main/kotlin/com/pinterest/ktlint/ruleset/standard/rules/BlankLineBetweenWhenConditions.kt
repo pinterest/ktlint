@@ -3,7 +3,6 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN_ENTRY
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
@@ -94,7 +93,7 @@ public class BlankLineBetweenWhenConditions :
             }
     }
 
-    private fun ASTNode.containsBlankLine(): Boolean = elementType == WHITE_SPACE && text.count { it == '\n' } > 1
+    private fun ASTNode.containsBlankLine(): Boolean = isWhiteSpace20 && text.count { it == '\n' } > 1
 
     private fun ASTNode.hasAnyMultilineWhenCondition() =
         children20

@@ -486,7 +486,7 @@ class ASTNodeExtensionTest {
                     }.findChildByType(CLASS)
                     ?.findChildByType(CLASS_BODY)
                     ?.prevSibling20
-                    ?.let { it.elementType == WHITE_SPACE && it.text == " " }
+                    ?.let { it.isWhiteSpace20 && it.text == " " }
                     ?: false
 
             assertThat(actual).isTrue()
@@ -658,7 +658,7 @@ class ASTNodeExtensionTest {
                     }.findChildByType(FUN)
                     ?.findChildByType(VALUE_PARAMETER_LIST)
                     ?.nextSibling20
-                    ?.let { it.elementType == WHITE_SPACE && it.text == " " }
+                    ?.let { it.isWhiteSpace20 && it.text == " " }
                     ?: false
 
             assertThat(actual).isTrue()

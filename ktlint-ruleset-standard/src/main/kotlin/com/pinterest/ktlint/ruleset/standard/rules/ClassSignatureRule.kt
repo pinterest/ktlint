@@ -43,6 +43,7 @@ import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.isLeaf20
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
@@ -322,7 +323,7 @@ public class ClassSignatureRule :
         val firstParameter = firstParameterInList.firstChildNode
         firstParameter
             ?.prevLeaf
-            ?.takeIf { it.elementType == WHITE_SPACE }
+            ?.takeIf { it.isWhiteSpace20 }
             .let { whiteSpaceBeforeIdentifier ->
                 if (multiline) {
                     if (whiteSpaceBeforeIdentifier == null ||
@@ -380,7 +381,7 @@ public class ClassSignatureRule :
                 val firstChildNodeInValueParameter = valueParameter.firstChildNode
                 firstChildNodeInValueParameter
                     ?.prevLeaf
-                    ?.takeIf { it.elementType == WHITE_SPACE }
+                    ?.takeIf { it.isWhiteSpace20 }
                     .let { whiteSpaceBeforeIdentifier ->
                         if (multiline) {
                             if (whiteSpaceBeforeIdentifier == null ||
@@ -429,7 +430,7 @@ public class ClassSignatureRule :
                 ?.findChildByType(RPAR)
         closingParenthesisPrimaryConstructor
             ?.prevSibling20
-            ?.takeIf { it.elementType == WHITE_SPACE }
+            ?.takeIf { it.isWhiteSpace20 }
             .let { whiteSpaceBeforeClosingParenthesis ->
                 if (multiline) {
                     if (whiteSpaceBeforeClosingParenthesis == null ||
@@ -487,7 +488,7 @@ public class ClassSignatureRule :
                             // Remove the whitespace before the super type call and do not insert a new whitespace as it will be fixed later
                             superTypeCallEntry
                                 .prevSibling20
-                                ?.takeIf { it.elementType == WHITE_SPACE }
+                                ?.takeIf { it.isWhiteSpace20 }
                                 ?.let { whitespaceBeforeSuperTypeCallEntry ->
                                     superTypeList.removeChild(whitespaceBeforeSuperTypeCallEntry)
                                 }
@@ -531,7 +532,7 @@ public class ClassSignatureRule :
                     ?.let { superTypeFirstChildNode ->
                         superTypeFirstChildNode
                             .prevLeaf
-                            ?.takeIf { it.elementType == WHITE_SPACE }
+                            ?.takeIf { it.isWhiteSpace20 }
                             .let { whiteSpaceBeforeIdentifier ->
                                 if (node.hasMultilineSuperTypeList() ||
                                     classSignaturesIncludingFirstSuperTypeExceedsMaxLineLength(node, emit)
@@ -565,7 +566,7 @@ public class ClassSignatureRule :
                     val firstChildNodeInSuperType = superType.firstChildNode
                     firstChildNodeInSuperType
                         ?.prevLeaf
-                        ?.takeIf { it.elementType == WHITE_SPACE }
+                        ?.takeIf { it.isWhiteSpace20 }
                         .let { whiteSpaceBeforeIdentifier ->
                             if (index == 0 && node.hasMultilinePrimaryConstructor()) {
                                 val expectedWhitespace = " "

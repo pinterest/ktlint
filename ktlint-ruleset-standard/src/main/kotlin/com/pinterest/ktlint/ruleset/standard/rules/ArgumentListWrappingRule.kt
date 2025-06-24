@@ -12,7 +12,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
@@ -255,7 +254,7 @@ public class ArgumentListWrappingRule :
                 child.isValueArgumentContaining(char)
         }
 
-    private fun ASTNode.isWhitespaceContaining(char: Char) = elementType == WHITE_SPACE && textContains(char)
+    private fun ASTNode.isWhitespaceContaining(char: Char) = isWhiteSpace20 && textContains(char)
 
     private fun ASTNode.isCollectionLiteralContaining(char: Char) = elementType == COLLECTION_LITERAL_EXPRESSION && textContains(char)
 

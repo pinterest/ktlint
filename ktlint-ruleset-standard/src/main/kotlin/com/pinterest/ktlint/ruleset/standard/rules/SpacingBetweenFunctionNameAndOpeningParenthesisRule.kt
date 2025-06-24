@@ -2,12 +2,12 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -24,7 +24,7 @@ public class SpacingBetweenFunctionNameAndOpeningParenthesisRule : StandardRule(
             .takeIf { node.elementType == ElementType.FUN }
             ?.findChildByType(ElementType.IDENTIFIER)
             ?.nextSibling20
-            ?.takeIf { it.elementType == WHITE_SPACE }
+            ?.takeIf { it.isWhiteSpace20 }
             ?.let { whiteSpace ->
                 emit(whiteSpace.startOffset, "Unexpected whitespace", true)
                     .ifAutocorrectAllowed { whiteSpace.remove() }

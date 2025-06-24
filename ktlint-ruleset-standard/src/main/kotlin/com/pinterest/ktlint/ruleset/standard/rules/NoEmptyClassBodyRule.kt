@@ -5,13 +5,13 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -26,7 +26,7 @@ public class NoEmptyClassBodyRule : StandardRule("no-empty-class-body") {
         if (node.elementType == CLASS_BODY &&
             node.firstChildNode?.let { n ->
                 n.elementType == LBRACE &&
-                    n.nextLeaf { it.elementType != WHITE_SPACE }?.elementType == RBRACE
+                    n.nextLeaf { !it.isWhiteSpace20 }?.elementType == RBRACE
             } == true &&
             !node.isPartOf(ElementType.OBJECT_LITERAL) &&
             node
@@ -37,11 +37,8 @@ public class NoEmptyClassBodyRule : StandardRule("no-empty-class-body") {
         ) {
             emit(node.startOffset, "Unnecessary block (\"{}\")", true)
                 .ifAutocorrectAllowed {
-                    val prevNode = node.treePrev
-                    if (prevNode.elementType == WHITE_SPACE) {
-                        // remove space between declaration and block
-                        prevNode.remove()
-                    }
+                    // remove space between declaration and block
+                    node.treePrev.takeIf { it.isWhiteSpace20 }?.remove()
                     // remove block
                     node.remove()
                 }

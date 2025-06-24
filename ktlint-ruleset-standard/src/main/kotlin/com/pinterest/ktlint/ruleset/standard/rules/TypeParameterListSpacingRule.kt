@@ -11,7 +11,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.LT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PRIMARY_CONSTRUCTOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPEALIAS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER_LIST
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
@@ -21,6 +20,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
@@ -83,7 +83,7 @@ public class TypeParameterListSpacingRule :
         //     class Bar <T>
         node
             .prevSibling20
-            ?.takeIf { it.elementType == WHITE_SPACE }
+            ?.takeIf { it.isWhiteSpace20 }
             ?.let { visitWhitespace(it, emit) }
 
         // No white space expected between parameter type list and the constructor except when followed by compound
@@ -91,7 +91,7 @@ public class TypeParameterListSpacingRule :
         //     class Bar<T> (...)
         node
             .nextSibling20
-            ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling20?.elementType == PRIMARY_CONSTRUCTOR }
+            ?.takeIf { it.isWhiteSpace20 && it.nextCodeSibling20?.elementType == PRIMARY_CONSTRUCTOR }
             ?.let { whiteSpace ->
                 if (whiteSpace.nextCodeSibling20?.findChildByType(CONSTRUCTOR_KEYWORD) != null) {
                     if (whiteSpace.isWhiteSpaceWithNewline20) {
@@ -133,7 +133,7 @@ public class TypeParameterListSpacingRule :
         //    class Bar<T> {
         node
             .nextSibling20
-            ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling20?.elementType == CLASS_BODY }
+            ?.takeIf { it.isWhiteSpace20 && it.nextCodeSibling20?.elementType == CLASS_BODY }
             ?.let { singleSpaceExpected(it, emit) }
     }
 
@@ -145,14 +145,14 @@ public class TypeParameterListSpacingRule :
         //     typealias Bar <T>
         node
             .prevSibling20
-            ?.takeIf { it.elementType == WHITE_SPACE }
+            ?.takeIf { it.isWhiteSpace20 }
             ?.let { visitWhitespace(it, emit) }
 
         // No white space expected between parameter type list and equals sign
         //    typealias Bar<T> = ...
         node
             .nextSibling20
-            ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling20?.elementType == EQ }
+            ?.takeIf { it.isWhiteSpace20 && it.nextCodeSibling20?.elementType == EQ }
             ?.let { singleSpaceExpected(it, emit) }
     }
 
@@ -165,7 +165,7 @@ public class TypeParameterListSpacingRule :
         node
             .prevLeaf(includeEmpty = true)
             ?.let { prevLeaf ->
-                if (prevLeaf.elementType == WHITE_SPACE) {
+                if (prevLeaf.isWhiteSpace20) {
                     singleSpaceExpected(prevLeaf, emit)
                 } else {
                     singleSpaceExpected(node.firstChildNode, emit)
@@ -190,7 +190,7 @@ public class TypeParameterListSpacingRule :
         node
             .findChildByType(LT)
             ?.nextSibling20
-            ?.takeIf { it.elementType == WHITE_SPACE }
+            ?.takeIf { it.isWhiteSpace20 }
             ?.let {
                 val expectedWhitespace =
                     if (node.textContains('\n')) {
@@ -204,7 +204,7 @@ public class TypeParameterListSpacingRule :
         node
             .findChildByType(GT)
             ?.prevSibling20
-            ?.takeIf { it.elementType == WHITE_SPACE }
+            ?.takeIf { it.isWhiteSpace20 }
             ?.let {
                 val expectedWhitespace =
                     if (node.textContains('\n')) {

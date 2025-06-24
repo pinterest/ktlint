@@ -4,7 +4,6 @@ import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
@@ -12,6 +11,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -42,12 +42,11 @@ public class ModifierListSpacingRule : StandardRule("modifier-list-spacing") {
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.elementType == WHITE_SPACE) {
+        if (node.isWhiteSpace20) {
             return
         }
         node
-            .nextSibling { it.elementType == WHITE_SPACE && it.nextLeaf?.isPartOfComment20 != true }
-            ?.takeIf { it.elementType == WHITE_SPACE }
+            .nextSibling { it.isWhiteSpace20 && it.nextLeaf?.isPartOfComment20 != true }
             ?.takeUnless {
                 // Regardless of element type, a single white space is always ok and does not need to be checked.
                 it.text == " "

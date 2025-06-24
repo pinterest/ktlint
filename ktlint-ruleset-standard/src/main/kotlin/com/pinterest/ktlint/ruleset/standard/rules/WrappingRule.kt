@@ -62,6 +62,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
@@ -369,7 +370,7 @@ public class WrappingRule :
                 // c, d
 
                 // insert \n in front of multi-line value
-                val prevSibling = c.prevSibling { it.elementType != WHITE_SPACE }
+                val prevSibling = c.prevSibling { !it.isWhiteSpace20 }
                 if (
                     prevSibling?.elementType == COMMA &&
                     !prevSibling.treeNext.isWhiteSpaceWithNewline20
@@ -377,7 +378,7 @@ public class WrappingRule :
                     requireNewlineAfterLeaf(prevSibling, emit)
                 }
                 // insert \n after multi-line value
-                val nextSibling = c.nextSibling { it.elementType != WHITE_SPACE }
+                val nextSibling = c.nextSibling { !it.isWhiteSpace20 }
                 val hasDestructuringDeclarationAsLastValueParameter =
                     c.isLastValueParameter() && c.firstChildNode.elementType == DESTRUCTURING_DECLARATION
                 if (
@@ -426,7 +427,7 @@ public class WrappingRule :
                 .findChildByType(GT)
                 ?.let { closingAngle ->
                     val prevSibling = closingAngle.prevSibling { !it.isPartOfComment20 }
-                    if (prevSibling?.elementType != WHITE_SPACE || prevSibling.isWhiteSpaceWithoutNewline20) {
+                    if (!prevSibling.isWhiteSpaceWithNewline20) {
                         emit(closingAngle.startOffset, "A newline was expected before '${closingAngle.text}'", true)
                             .ifAutocorrectAllowed {
                                 closingAngle.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))

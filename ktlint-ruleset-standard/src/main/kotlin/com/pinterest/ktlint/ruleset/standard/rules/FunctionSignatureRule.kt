@@ -384,7 +384,7 @@ public class FunctionSignatureRule :
         val firstParameter = firstParameterInList.firstChildNode
         firstParameter
             ?.prevLeaf
-            ?.takeIf { it.elementType == WHITE_SPACE }
+            ?.takeIf { it.isWhiteSpace20 }
             .let { whiteSpaceBeforeIdentifier ->
                 if (multiline) {
                     val expectedParameterIndent = indentConfig.childIndentOf(node)
@@ -443,7 +443,7 @@ public class FunctionSignatureRule :
                 val firstChildNodeInValueParameter = valueParameter.firstChildNode
                 firstChildNodeInValueParameter
                     ?.prevLeaf
-                    ?.takeIf { it.elementType == WHITE_SPACE }
+                    ?.takeIf { it.isWhiteSpace20 }
                     .let { whiteSpaceBeforeIdentifier ->
                         if (multiline) {
                             val expectedParameterIndent = indentConfig.childIndentOf(node)
@@ -497,7 +497,7 @@ public class FunctionSignatureRule :
         val closingParenthesis = valueParameterList.findChildByType(RPAR)
         closingParenthesis
             ?.prevSibling20
-            ?.takeIf { it.elementType == WHITE_SPACE }
+            ?.takeIf { it.isWhiteSpace20 }
             .let { whiteSpaceBeforeClosingParenthesis ->
                 if (multiline) {
                     if (whiteSpaceBeforeClosingParenthesis == null ||

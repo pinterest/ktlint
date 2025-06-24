@@ -14,7 +14,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RETURN_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
@@ -173,7 +172,7 @@ public class StringTemplateIndentRule :
         // is out of scope of this rule as it is owned by the indentation rule. Therefore, the indentation of the line at which the
         // string template is found, is assumed to be correct and is used to indent all lines of the string template. The indent will be
         // fixed once the indent rule is run as well.
-        val firstWhiteSpaceLeafOnSameLine = this.prevLeaf { it.elementType == WHITE_SPACE && it.textContains('\n') }
+        val firstWhiteSpaceLeafOnSameLine = this.prevLeaf { it.isWhiteSpaceWithNewline20 }
         return if (prevLeaf == firstWhiteSpaceLeafOnSameLine) {
             // The string template already is on a separate new line. Keep the current indent.
             firstWhiteSpaceLeafOnSameLine.getTextAfterLastNewline()

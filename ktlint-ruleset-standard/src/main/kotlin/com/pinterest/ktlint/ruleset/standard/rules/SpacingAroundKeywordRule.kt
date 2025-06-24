@@ -18,12 +18,12 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHILE_KEYWORD
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.remove
@@ -75,12 +75,10 @@ public class SpacingAroundKeywordRule : StandardRule("keyword-spacing") {
             if (noLFBeforeSet.contains(node.elementType)) {
                 val prevLeaf = node.prevLeaf
                 val isElseKeyword = node.elementType == ELSE_KEYWORD
-                if (
-                    prevLeaf?.elementType == WHITE_SPACE &&
-                    prevLeaf.textContains('\n') &&
+                if (prevLeaf.isWhiteSpaceWithNewline20 &&
                     (!isElseKeyword || node.treeParent.elementType != WHEN_ENTRY)
                 ) {
-                    val rBrace = prevLeaf.prevLeaf?.takeIf { it.elementType == RBRACE }
+                    val rBrace = prevLeaf?.prevLeaf?.takeIf { it.elementType == RBRACE }
                     val parentOfRBrace = rBrace?.treeParent
                     if (parentOfRBrace?.elementType == BLOCK &&
                         (!isElseKeyword || parentOfRBrace.treeParent?.treeParent == node.treeParent)

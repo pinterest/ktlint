@@ -20,6 +20,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
 import com.pinterest.ktlint.rule.engine.core.api.lineLength
@@ -103,7 +104,7 @@ public class ParameterListSpacingRule :
                     } else if (el.nextCodeSibling20?.elementType == COMMA) {
                         // No whitespace between parameter name and comma allowed
                         removeUnexpectedWhiteSpace(el, emit)
-                    } else if (el.elementType == WHITE_SPACE && el.isNotIndent() && el.isNotSingleSpace()) {
+                    } else if (el.isWhiteSpace20 && el.isNotIndent() && el.isNotSingleSpace()) {
                         require(el.prevCodeSibling20?.elementType == COMMA)
                         replaceWithSingleSpace(el, emit)
                     }
@@ -113,7 +114,7 @@ public class ParameterListSpacingRule :
                     // Comma, except when it is the trailing comma, must be followed by whitespace
                     el
                         .nextLeaf
-                        ?.takeUnless { it.elementType == WHITE_SPACE || it.elementType == RPAR }
+                        ?.takeUnless { it.isWhiteSpace20 || it.elementType == RPAR }
                         ?.let { addMissingWhiteSpaceAfterMe(el, emit) }
                 }
 
@@ -152,8 +153,8 @@ public class ParameterListSpacingRule :
         require(node.elementType == MODIFIER_LIST)
         node
             .children20
-            .filter { it.elementType == WHITE_SPACE }
-            // Store elements in list before changing them as otherwise only the first whitespace is being changed
+            .filter { it.isWhiteSpace20 }
+            // Store elements in the list before changing them as otherwise only the first whitespace is being changed
             .toList()
             .forEach { visitWhiteSpaceAfterModifier(it, emit) }
     }
@@ -177,7 +178,7 @@ public class ParameterListSpacingRule :
         require(node.elementType == MODIFIER_LIST)
         node
             .nextSibling20
-            ?.takeIf { it.elementType == WHITE_SPACE }
+            ?.takeIf { it.isWhiteSpace20 }
             ?.let { visitWhiteSpaceAfterModifier(it, emit) }
     }
 
@@ -188,7 +189,7 @@ public class ParameterListSpacingRule :
         node
             .findChildByType(COLON)
             ?.prevLeaf
-            ?.takeIf { it.elementType == WHITE_SPACE }
+            ?.takeIf { it.isWhiteSpace20 }
             ?.let { whiteSpaceBeforeColon ->
                 removeUnexpectedWhiteSpace(whiteSpaceBeforeColon, emit)
             }
@@ -201,7 +202,7 @@ public class ParameterListSpacingRule :
         val colonNode = node.findChildByType(COLON) ?: return
         colonNode
             .nextLeaf
-            ?.takeIf { it.elementType == WHITE_SPACE }
+            ?.takeIf { it.isWhiteSpace20 }
             .let { whiteSpaceAfterColon ->
                 if (whiteSpaceAfterColon == null) {
                     addMissingWhiteSpaceAfterMe(colonNode, emit)
@@ -241,13 +242,10 @@ public class ParameterListSpacingRule :
 
     private fun ASTNode.isNotIndent(): Boolean = !isIndent()
 
-    private fun ASTNode.isIndent(): Boolean {
-        require(elementType == WHITE_SPACE)
-        return text.startsWith("\n")
-    }
+    private fun ASTNode.isIndent(): Boolean = isWhiteSpaceWithNewline20
 
     private fun ASTNode.isNotSingleSpace(): Boolean {
-        require(elementType == WHITE_SPACE)
+        require(isWhiteSpace20)
         return text != " "
     }
 

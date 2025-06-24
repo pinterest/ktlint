@@ -3,11 +3,11 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_TYPE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -38,7 +38,7 @@ public class FunctionTypeModifierSpacingRule : StandardRule("function-type-modif
 
     private fun ASTNode.isPrecededBySingleSpace(): Boolean =
         prevSibling20
-            ?.let { it.elementType == WHITE_SPACE && it.text == " " }
+            ?.let { it.isWhiteSpace20 && it.text == " " }
             ?: false
 }
 
