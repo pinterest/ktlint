@@ -20,6 +20,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -133,7 +134,7 @@ public class TypeArgumentListSpacingRule :
 
         node
             .findChildByType(ElementType.GT)
-            ?.prevSibling()
+            ?.prevSibling20
             ?.let { prevSibling ->
                 if (multiline) {
                     if (prevSibling.text != expectedIndent) {

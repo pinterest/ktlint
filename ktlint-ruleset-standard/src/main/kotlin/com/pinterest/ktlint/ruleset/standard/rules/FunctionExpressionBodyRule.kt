@@ -28,7 +28,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.leavesInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -128,7 +128,7 @@ public class FunctionExpressionBodyRule :
                         with(block.treeParent) {
                             // Remove whitespace before block
                             block
-                                .prevSibling()
+                                .prevSibling20
                                 .takeIf { it.isWhiteSpace20 }
                                 ?.let { removeChild(it) }
                             if (findChildByType(TYPE_REFERENCE) == null) {

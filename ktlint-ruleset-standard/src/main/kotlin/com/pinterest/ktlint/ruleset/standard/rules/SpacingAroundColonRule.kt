@@ -17,7 +17,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -128,11 +128,11 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.prevSibling().isWhiteSpaceWithoutNewline20 && node.noSpacingBefore) {
+        if (node.prevSibling20.isWhiteSpaceWithoutNewline20 && node.noSpacingBefore) {
             emit(node.startOffset, "Unexpected spacing before \":\"", true)
                 .ifAutocorrectAllowed {
                     node
-                        .prevSibling()
+                        .prevSibling20
                         ?.remove()
                 }
         }
@@ -150,7 +150,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val missingSpacingBefore = !node.prevSibling().isWhiteSpace20 && node.spacingBefore
+        val missingSpacingBefore = !node.prevSibling20.isWhiteSpace20 && node.spacingBefore
         val missingSpacingAfter = !node.nextSibling20.isWhiteSpace20 && node.noSpacingAfter
         when {
             missingSpacingBefore && missingSpacingAfter -> {

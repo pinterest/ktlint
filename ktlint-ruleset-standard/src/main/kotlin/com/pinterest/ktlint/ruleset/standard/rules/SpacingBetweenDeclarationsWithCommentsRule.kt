@@ -12,6 +12,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
@@ -42,7 +43,7 @@ public class SpacingBetweenDeclarationsWithCommentsRule : StandardRule("spacing-
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .prevSibling()
+            .prevSibling20
             ?.takeUnless { it.isBlankLine() }
             ?.let { prevSibling ->
                 emit(node.startOffset, "Declarations and declarations with comments should have an empty space between.", true)

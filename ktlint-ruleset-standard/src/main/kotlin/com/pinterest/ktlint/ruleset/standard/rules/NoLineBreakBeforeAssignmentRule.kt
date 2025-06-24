@@ -10,7 +10,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -33,7 +33,7 @@ public class NoLineBreakBeforeAssignmentRule : StandardRule("no-line-break-befor
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         assignmentNode
-            .prevSibling()
+            .prevSibling20
             .takeIf { it.isWhiteSpaceWithNewline20 }
             ?.let { unexpectedNewlineBeforeAssignment ->
                 emit(unexpectedNewlineBeforeAssignment.startOffset, "Line break before assignment is not allowed", true)
@@ -45,7 +45,7 @@ public class NoLineBreakBeforeAssignmentRule : StandardRule("no-line-break-befor
                             .takeWhile { !it.isCode }
                             .last()
                             .let { before ->
-                                if (!before.prevSibling().isWhiteSpace20) {
+                                if (!before.prevSibling20.isWhiteSpace20) {
                                     parent.addChild(PsiWhiteSpaceImpl(" "), before)
                                 }
                                 parent.addChild(LeafPsiElement(EQ, "="), before)

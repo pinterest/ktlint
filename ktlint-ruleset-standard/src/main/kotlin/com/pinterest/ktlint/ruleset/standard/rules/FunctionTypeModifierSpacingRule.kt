@@ -9,7 +9,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -37,7 +37,7 @@ public class FunctionTypeModifierSpacingRule : StandardRule("function-type-modif
     }
 
     private fun ASTNode.isPrecededBySingleSpace(): Boolean =
-        prevSibling()
+        prevSibling20
             ?.let { it.elementType == WHITE_SPACE && it.text == " " }
             ?: false
 }

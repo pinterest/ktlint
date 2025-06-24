@@ -48,7 +48,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -496,7 +496,7 @@ public class FunctionSignatureRule :
 
         val closingParenthesis = valueParameterList.findChildByType(RPAR)
         closingParenthesis
-            ?.prevSibling()
+            ?.prevSibling20
             ?.takeIf { it.elementType == WHITE_SPACE }
             .let { whiteSpaceBeforeClosingParenthesis ->
                 if (multiline) {

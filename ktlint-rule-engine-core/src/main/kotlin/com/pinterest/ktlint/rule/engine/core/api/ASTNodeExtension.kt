@@ -234,6 +234,17 @@ public inline fun ASTNode.prevSibling(predicate: (ASTNode) -> Boolean = { true }
     "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
         "the temporary property accessor. In 2.0 it can be replaced the final property accessor which will be the same as the " +
         "current function name.",
+    replaceWith = ReplaceWith("prevSibling20"),
+)
+public fun ASTNode.prevSibling(): ASTNode? = prevSibling20
+
+public inline val ASTNode.prevSibling20
+    get(): ASTNode? = treePrev
+
+@Deprecated(
+    "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
+        "the temporary property accessor. In 2.0 it can be replaced the final property accessor which will be the same as the " +
+        "current function name.",
     replaceWith = ReplaceWith("nextCodeSibling20"),
 )
 // TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
@@ -511,7 +522,7 @@ public fun ASTNode.upsertWhitespaceBeforeMe(text: String) {
             }
         }
     } else {
-        when (val prevSibling = prevSibling()) {
+        when (val prevSibling = prevSibling20) {
             null -> {
                 // Never insert a whitespace element as first child node in a composite node. Instead, upsert just before the composite node
                 treeParent.upsertWhitespaceBeforeMe(text)

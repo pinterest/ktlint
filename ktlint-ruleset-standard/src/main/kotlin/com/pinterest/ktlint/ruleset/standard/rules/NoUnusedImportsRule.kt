@@ -23,7 +23,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -216,7 +216,7 @@ public class NoUnusedImportsRule :
             }
 
             treeParent.lastChildNode == this -> {
-                prevSibling()
+                prevSibling20
                     ?.takeIf { it.isWhiteSpaceWithNewline20 }
                     ?.remove()
             }

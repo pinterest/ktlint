@@ -28,7 +28,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -82,7 +82,7 @@ public class TypeParameterListSpacingRule :
         // No white space expected between class name and parameter list
         //     class Bar <T>
         node
-            .prevSibling()
+            .prevSibling20
             ?.takeIf { it.elementType == WHITE_SPACE }
             ?.let { visitWhitespace(it, emit) }
 
@@ -144,7 +144,7 @@ public class TypeParameterListSpacingRule :
         // No white space expected between typealias keyword name and parameter list
         //     typealias Bar <T>
         node
-            .prevSibling()
+            .prevSibling20
             ?.takeIf { it.elementType == WHITE_SPACE }
             ?.let { visitWhitespace(it, emit) }
 
@@ -203,7 +203,7 @@ public class TypeParameterListSpacingRule :
 
         node
             .findChildByType(GT)
-            ?.prevSibling()
+            ?.prevSibling20
             ?.takeIf { it.elementType == WHITE_SPACE }
             ?.let {
                 val expectedWhitespace =

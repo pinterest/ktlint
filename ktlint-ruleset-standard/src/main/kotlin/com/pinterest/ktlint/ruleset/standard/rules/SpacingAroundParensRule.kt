@@ -24,7 +24,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -77,7 +77,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
                 // Disallow:
                 //    val foo = fn("foo" )
                 //    val foo = fn( )
-                prevLeaf?.prevSibling()?.elementType != LPAR
+                prevLeaf?.prevSibling20?.elementType != LPAR
             }
 
             else -> {
@@ -132,7 +132,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
                 //     class Foo : Bar ("test")
                 //     class Foo : Bar<String> ("test")
                 treeParent.treeParent.elementType == SUPER_TYPE_CALL_ENTRY &&
-                    it.prevSibling()?.elementType == CONSTRUCTOR_CALLEE
+                    it.prevSibling20?.elementType == CONSTRUCTOR_CALLEE
             }
             ?: false
 
@@ -178,9 +178,9 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
     private fun ASTNode.isNextLeafAComment(): Boolean = nextLeaf?.elementType in commentTypes
 
     private fun ASTNode.hasNoNewlineAfterLpar() =
-        prevSibling()
+        prevSibling20
             .takeIf { it.isWhiteSpaceWithNewline20 }
-            ?.takeUnless { it.prevSibling()?.elementType == LPAR }
+            ?.takeUnless { it.prevSibling20?.elementType == LPAR }
             ?.siblings(false)
             ?.takeWhile { it.elementType != LPAR }
             ?.none { it.textContains('\n') }

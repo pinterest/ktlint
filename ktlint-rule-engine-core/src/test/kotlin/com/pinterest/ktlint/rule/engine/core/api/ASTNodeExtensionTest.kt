@@ -25,6 +25,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isKtAnnotated20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.test.SPACE
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatNoException
@@ -484,7 +485,7 @@ class ASTNodeExtensionTest {
                             ?.upsertWhitespaceBeforeMe(" ")
                     }.findChildByType(CLASS)
                     ?.findChildByType(CLASS_BODY)
-                    ?.prevSibling()
+                    ?.prevSibling20
                     ?.let { it.elementType == WHITE_SPACE && it.text == " " }
                     ?: false
 

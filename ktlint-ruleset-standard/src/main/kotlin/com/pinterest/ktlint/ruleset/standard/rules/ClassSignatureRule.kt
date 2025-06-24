@@ -50,6 +50,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -427,7 +428,7 @@ public class ClassSignatureRule :
                 .getPrimaryConstructorParameterListOrNull()
                 ?.findChildByType(RPAR)
         closingParenthesisPrimaryConstructor
-            ?.prevSibling()
+            ?.prevSibling20
             ?.takeIf { it.elementType == WHITE_SPACE }
             .let { whiteSpaceBeforeClosingParenthesis ->
                 if (multiline) {
@@ -485,7 +486,7 @@ public class ClassSignatureRule :
 
                             // Remove the whitespace before the super type call and do not insert a new whitespace as it will be fixed later
                             superTypeCallEntry
-                                .prevSibling()
+                                .prevSibling20
                                 ?.takeIf { it.elementType == WHITE_SPACE }
                                 ?.let { whitespaceBeforeSuperTypeCallEntry ->
                                     superTypeList.removeChild(whitespaceBeforeSuperTypeCallEntry)
@@ -512,7 +513,7 @@ public class ClassSignatureRule :
                         firstSuperType
                             .prevLeaf
                             .takeIf { it.isWhiteSpaceWithNewline20 }
-                            ?.takeUnless { it.prevSibling()?.elementType == EOL_COMMENT }
+                            ?.takeUnless { it.prevSibling20?.elementType == EOL_COMMENT }
                             ?.let { whiteSpaceBeforeSuperType ->
                                 val expectedWhitespace = " "
                                 if (whiteSpaceBeforeSuperType.text != expectedWhitespace) {
