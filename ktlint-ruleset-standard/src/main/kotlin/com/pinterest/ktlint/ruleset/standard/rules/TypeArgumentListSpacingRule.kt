@@ -74,7 +74,7 @@ public class TypeArgumentListSpacingRule :
         // No whitespace expected before type argument list of function call
         //    val list = listOf <String>()
         node
-            .prevLeaf(includeEmpty = true)
+            .prevLeaf
             ?.takeIf { it.elementType == ElementType.WHITE_SPACE }
             ?.let { noWhitespaceExpected(it, emit) }
 

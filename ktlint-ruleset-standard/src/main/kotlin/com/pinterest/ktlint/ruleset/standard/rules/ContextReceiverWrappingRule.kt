@@ -115,7 +115,7 @@ public class ContextReceiverWrappingRule :
                         true,
                     ).ifAutocorrectAllowed {
                         it
-                            .prevLeaf(includeEmpty = true)
+                            .prevLeaf
                             ?.upsertWhitespaceAfterMe(indentConfig.childIndentOf(node))
                     }
                 }

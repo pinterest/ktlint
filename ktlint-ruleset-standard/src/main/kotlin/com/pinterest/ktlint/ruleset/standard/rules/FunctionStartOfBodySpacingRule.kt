@@ -52,7 +52,7 @@ public class FunctionStartOfBodySpacingRule : StandardRule("function-start-of-bo
             .findChildByType(ElementType.EQ)
             ?.let { assignmentExpression ->
                 assignmentExpression
-                    .prevLeaf(includeEmpty = true)
+                    .prevLeaf
                     ?.takeIf { it.elementType == ElementType.WHITE_SPACE }
                     .let { whiteSpaceBeforeAssignment ->
                         if (whiteSpaceBeforeAssignment == null) {
@@ -106,7 +106,7 @@ public class FunctionStartOfBodySpacingRule : StandardRule("function-start-of-bo
             .findChildByType(ElementType.BLOCK)
             ?.let { block ->
                 block
-                    .prevLeaf(includeEmpty = true)
+                    .prevLeaf
                     ?.takeIf { it.elementType == ElementType.WHITE_SPACE }
                     .let { whiteSpaceBeforeExpressionBlock ->
                         if (whiteSpaceBeforeExpressionBlock?.text != " ") {
@@ -114,7 +114,7 @@ public class FunctionStartOfBodySpacingRule : StandardRule("function-start-of-bo
                                 .ifAutocorrectAllowed {
                                     block
                                         .firstChildNode
-                                        .prevLeaf(true)
+                                        .prevLeaf
                                         ?.upsertWhitespaceAfterMe(" ")
                                 }
                         }

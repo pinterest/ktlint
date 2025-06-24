@@ -642,7 +642,7 @@ public class ClassSignatureRule :
                     emit(classBody.startOffset, "Expected a single space before class body", true)
                         .ifAutocorrectAllowed {
                             classBody
-                                .prevLeaf(true)
+                                .prevLeaf
                                 ?.upsertWhitespaceAfterMe(" ")
                         }
                 }

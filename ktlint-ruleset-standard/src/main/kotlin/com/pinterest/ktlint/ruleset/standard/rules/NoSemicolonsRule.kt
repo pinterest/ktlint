@@ -54,7 +54,7 @@ public class NoSemicolonsRule :
         if (nextLeaf.doesNotRequirePreSemi() && isNoSemicolonRequiredAfter(node)) {
             emit(node.startOffset, "Unnecessary semicolon", true)
                 .ifAutocorrectAllowed {
-                    val prevLeaf = node.prevLeaf(true)
+                    val prevLeaf = node.prevLeaf
                     node.remove()
                     if ((prevLeaf != null && prevLeaf.isWhiteSpace20) &&
                         (nextLeaf == null || nextLeaf.isWhiteSpace20)

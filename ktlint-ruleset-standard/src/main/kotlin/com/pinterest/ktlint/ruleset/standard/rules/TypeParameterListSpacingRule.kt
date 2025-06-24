@@ -163,7 +163,7 @@ public class TypeParameterListSpacingRule :
         // Single space expected before type parameter list of function
         //    fun<T> foo(...)
         node
-            .prevLeaf(includeEmpty = true)
+            .prevLeaf
             ?.let { prevLeaf ->
                 if (prevLeaf.isWhiteSpace20) {
                     singleSpaceExpected(prevLeaf, emit)
