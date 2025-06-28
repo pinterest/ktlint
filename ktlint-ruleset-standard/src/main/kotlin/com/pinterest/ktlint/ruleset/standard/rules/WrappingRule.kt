@@ -76,6 +76,7 @@ import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -447,7 +448,7 @@ public class WrappingRule :
             ?.let { it.psi as KtStringTemplateExpression }
             ?.takeIf { it.isMultiLine() }
             ?.takeIf { it.isFollowedByTrimIndent() || it.isFollowedByTrimMargin() }
-            ?.takeIf { node.treePrev.text.isNotBlank() }
+            ?.takeUnless { node.prevSibling20?.text.isNullOrBlank() }
             ?.let {
                 // rewriting
                 // """

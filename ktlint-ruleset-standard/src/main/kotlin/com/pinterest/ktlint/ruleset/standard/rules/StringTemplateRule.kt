@@ -21,6 +21,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isCode
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -98,7 +99,7 @@ public class StringTemplateRule : StandardRule("string-template") {
                                     !nextSibling.text.substring(0, 1).isPartOfIdentifier()
                             )
                     }?.let {
-                        emit(treePrev.startOffset + 2, "Redundant curly braces", true)
+                        emit(prevSibling20!!.startOffset + 2, "Redundant curly braces", true)
                             .ifAutocorrectAllowed { removeCurlyBracesIfRedundant() }
                     }
             }

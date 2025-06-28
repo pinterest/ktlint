@@ -24,6 +24,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -98,7 +99,7 @@ public class MultiLineIfElseRule :
             return
         }
 
-        if (!node.treePrev.textContains('\n')) {
+        if (!node.prevSibling20!!.textContains('\n')) {
             if (node.firstChildNode.elementType == IF) {
                 // Allow single line for:
                 // else if (...)

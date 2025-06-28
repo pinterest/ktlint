@@ -49,6 +49,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -491,7 +492,7 @@ public class AnnotationRule :
         val nodeBeforeAnnotations =
             modifierListRoot
                 .treeParent
-                .treePrev
+                .prevSibling20
         // Make sure we only insert a single newline
         val indentWithoutNewline =
             nodeBeforeAnnotations

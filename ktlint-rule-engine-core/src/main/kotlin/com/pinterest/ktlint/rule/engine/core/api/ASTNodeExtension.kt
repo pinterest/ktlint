@@ -6,7 +6,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VAL_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VARARG_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VAR_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import org.jetbrains.kotlin.KtNodeType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
@@ -139,7 +138,7 @@ public fun ASTNode.prevLeaf(predicate: (ASTNode) -> Boolean): ASTNode? {
 }
 
 private val ASTNode.prevLeafAny
-    get(): ASTNode? = treePrev?.lastChildLeafOrSelf20 ?: treeParent?.prevLeafAny
+    get(): ASTNode? = prevSibling20?.lastChildLeafOrSelf20 ?: treeParent?.prevLeafAny
 
 @Deprecated(
     "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
@@ -220,12 +219,12 @@ public val ASTNode.prevCodeSibling20
     get(): ASTNode? = prevSibling { it.isCode }
 
 public inline fun ASTNode.prevSibling(predicate: (ASTNode) -> Boolean = { true }): ASTNode? {
-    var n = this.treePrev
-    while (n != null) {
-        if (predicate(n)) {
-            return n
+    var node = this.treePrev
+    while (node != null) {
+        if (predicate(node)) {
+            return node
         }
-        n = n.treePrev
+        node = node.treePrev
     }
     return null
 }
@@ -507,7 +506,7 @@ public fun ASTNode.upsertWhitespaceBeforeMe(text: String) {
         if (isWhiteSpace20) {
             return replaceTextWith(text)
         }
-        val previous = treePrev ?: this.prevLeaf
+        val previous = prevSibling20 ?: this.prevLeaf
         when {
             previous != null && previous.isWhiteSpace20 -> {
                 previous.replaceTextWith(text)

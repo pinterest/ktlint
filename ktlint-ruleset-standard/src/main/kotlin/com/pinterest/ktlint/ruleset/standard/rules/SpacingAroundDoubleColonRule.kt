@@ -13,6 +13,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -38,7 +39,7 @@ public class SpacingAroundDoubleColonRule : StandardRule("double-colon-spacing")
                     // Clazz::class
                     node.isPartOf(CALLABLE_REFERENCE_EXPRESSION) && prevLeaf.isWhiteSpace20 -> {
                         // String::length, ::isOdd
-                        if (node.treePrev == null) { // compose(length, ::isOdd), val predicate = ::isOdd
+                        if (node.prevSibling20 == null) { // compose(length, ::isOdd), val predicate = ::isOdd
                             removeSingleWhiteSpace = true
                             prevLeaf
                                 .takeIf { it.isWhiteSpaceWithoutNewline20 }

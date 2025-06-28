@@ -13,6 +13,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -38,7 +39,7 @@ public class NoEmptyClassBodyRule : StandardRule("no-empty-class-body") {
             emit(node.startOffset, "Unnecessary block (\"{}\")", true)
                 .ifAutocorrectAllowed {
                     // remove space between declaration and block
-                    node.treePrev.takeIf { it.isWhiteSpace20 }?.remove()
+                    node.prevSibling20.takeIf { it.isWhiteSpace20 }?.remove()
                     // remove block
                     node.remove()
                 }
