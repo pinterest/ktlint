@@ -31,6 +31,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
@@ -161,7 +162,7 @@ public class ParameterListWrappingRule :
 
     private fun ASTNode.hasNoParameters(): Boolean {
         require(elementType == VALUE_PARAMETER_LIST)
-        return firstChildNode?.treeNext?.elementType == RPAR
+        return firstChildNode?.nextSibling20?.elementType == RPAR
     }
 
     private fun ASTNode.isPartOfFunctionLiteralInNonKtlintOfficialCodeStyle(): Boolean {

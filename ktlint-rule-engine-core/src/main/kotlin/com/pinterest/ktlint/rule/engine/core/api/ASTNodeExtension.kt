@@ -85,7 +85,7 @@ private val ASTNode.nextLeafAny
     }
 
 private val ASTNode.nextLeafStrict
-    get(): ASTNode? = treeNext?.firstChildLeafOrSelf20 ?: treeParent?.nextLeafStrict
+    get(): ASTNode? = nextSibling20?.firstChildLeafOrSelf20 ?: treeParent?.nextLeafStrict
 
 @Deprecated(
     "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
@@ -471,7 +471,7 @@ public fun ASTNode.children(): Sequence<ASTNode> = children20
 
 // TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
 public val ASTNode.children20
-    get(): Sequence<ASTNode> = generateSequence(firstChildNode) { node -> node.treeNext }
+    get(): Sequence<ASTNode> = generateSequence(firstChildNode) { node -> node.nextSibling20 }
 
 @Deprecated("Marked for removal in Ktlint 2.0")
 public fun ASTNode.recursiveChildren(includeSelf: Boolean = false): Sequence<ASTNode> = recursiveChildrenInternal(includeSelf)
@@ -560,7 +560,7 @@ public fun ASTNode.upsertWhitespaceAfterMe(text: String) {
         if (isWhiteSpace20) {
             return replaceTextWith(text)
         }
-        val next = treeNext ?: nextLeaf
+        val next = nextSibling20 ?: nextLeaf
         when {
             next != null && next.isWhiteSpace20 -> {
                 next.replaceTextWith(text)

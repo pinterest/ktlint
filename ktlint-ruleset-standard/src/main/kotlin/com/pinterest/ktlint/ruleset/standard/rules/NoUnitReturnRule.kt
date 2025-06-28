@@ -10,6 +10,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -31,7 +32,7 @@ public class NoUnitReturnRule : StandardRule("no-unit-return") {
                     while (prevNode?.prevSibling20?.elementType != VALUE_PARAMETER_LIST) {
                         prevNode = prevNode?.prevSibling20
                     }
-                    node.treeParent.removeRange(prevNode, node.treeNext)
+                    node.treeParent.removeRange(prevNode, node.nextSibling20)
                 }
         }
     }

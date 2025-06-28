@@ -282,7 +282,7 @@ public class WrappingRule :
             //     true
             // ) {
             // }
-            node.treeNext?.elementType != CONDITION
+            node.nextSibling20?.elementType != CONDITION
         ) {
             requireNewlineAfterLeaf(node, emit)
         }
@@ -329,7 +329,7 @@ public class WrappingRule :
             // put entries on separate lines
             for (c in node.children20) {
                 if (c.elementType == COMMA &&
-                    !c.treeNext.isWhiteSpaceWithNewline20 &&
+                    !c.nextSibling20.isWhiteSpaceWithNewline20 &&
                     !c.isFollowedByCommentOnSameLine()
                 ) {
                     requireNewlineAfterLeaf(
@@ -374,7 +374,7 @@ public class WrappingRule :
                 val prevSibling = c.prevSibling { !it.isWhiteSpace20 }
                 if (
                     prevSibling?.elementType == COMMA &&
-                    !prevSibling.treeNext.isWhiteSpaceWithNewline20
+                    !prevSibling.nextSibling20.isWhiteSpaceWithNewline20
                 ) {
                     requireNewlineAfterLeaf(prevSibling, emit)
                 }
@@ -385,11 +385,11 @@ public class WrappingRule :
                 if (
                     nextSibling?.elementType == COMMA &&
                     !hasDestructuringDeclarationAsLastValueParameter &&
-                    !nextSibling.treeNext.isWhiteSpaceWithNewline20 &&
+                    !nextSibling.nextSibling20.isWhiteSpaceWithNewline20 &&
                     // value(
                     // ), // a comment
                     // c, d
-                    nextSibling.treeNext?.treeNext?.let { !TokenSets.COMMENTS.contains(it.elementType) } != false
+                    nextSibling.nextSibling20?.nextSibling20?.let { !TokenSets.COMMENTS.contains(it.elementType) } != false
                 ) {
                     requireNewlineAfterLeaf(nextSibling, emit)
                 }

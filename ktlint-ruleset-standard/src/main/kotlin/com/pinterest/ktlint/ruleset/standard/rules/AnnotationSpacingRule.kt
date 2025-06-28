@@ -64,7 +64,7 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
         //      val s: Any
         //
         val whiteSpaces =
-            (annotations.asSequence().map { it.nextSibling20 } + node.treeNext)
+            (annotations.asSequence().map { it.nextSibling20 } + node.nextSibling20)
                 .filterNotNull()
                 .filter { it.isWhiteSpace20 }
                 .take(annotations.size)
@@ -133,20 +133,20 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
         p: (ASTNode) -> Boolean,
         needsToOccur: (ASTNode) -> Boolean,
     ): ASTNode? {
-        var n = this.treeNext
+        var node = this.nextSibling20
         var occurrenceCount = 0
-        while (n != null) {
-            if (needsToOccur(n)) {
+        while (node != null) {
+            if (needsToOccur(node)) {
                 occurrenceCount++
             }
-            if (p(n)) {
+            if (p(node)) {
                 return if (occurrenceCount > 0) {
-                    n
+                    node
                 } else {
                     null
                 }
             }
-            n = n.treeNext
+            node = node.nextSibling20
         }
         return null
     }

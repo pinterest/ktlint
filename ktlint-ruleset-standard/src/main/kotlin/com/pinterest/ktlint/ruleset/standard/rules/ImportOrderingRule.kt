@@ -11,6 +11,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProper
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.ImportOrderingRule.Companion.ASCII_PATTERN
 import com.pinterest.ktlint.ruleset.standard.rules.ImportOrderingRule.Companion.IDEA_PATTERN
@@ -120,7 +121,7 @@ public class ImportOrderingRule :
                         ).ifAutocorrectAllowed { autocorrect = true }
                     }
                     if (autocorrect) {
-                        node.removeRange(node.firstChildNode, node.lastChildNode.treeNext)
+                        node.removeRange(node.firstChildNode, node.lastChildNode.nextSibling20)
                         sortedImportsWithSpaces.reduce { current, next ->
                             node.addChild(current, null)
                             if (!current.isWhiteSpace20 && !next.isWhiteSpace20) {

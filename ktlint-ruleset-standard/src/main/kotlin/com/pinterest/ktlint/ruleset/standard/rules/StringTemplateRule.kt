@@ -21,6 +21,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isCode
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -91,8 +92,8 @@ public class StringTemplateRule : StandardRule("string-template") {
             ?.firstOrNull { it.elementType != LONG_TEMPLATE_ENTRY_START }
             ?.takeIf { it.elementType == REFERENCE_EXPRESSION || it.elementType == THIS_EXPRESSION }
             ?.let {
-                treeNext
-                    .takeIf { nextSibling ->
+                nextSibling20
+                    ?.takeIf { nextSibling ->
                         nextSibling.elementType == CLOSING_QUOTE ||
                             (
                                 nextSibling.elementType == LITERAL_STRING_TEMPLATE_ENTRY &&

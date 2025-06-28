@@ -32,6 +32,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
 import com.pinterest.ktlint.rule.engine.core.api.lineLength
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.ec4j.core.model.PropertyType
@@ -110,7 +111,7 @@ public class ArgumentListWrappingRule :
 
     private fun needToWrapArgumentList(node: ASTNode) =
         if ( // skip when there are no arguments
-            node.firstChildNode?.treeNext?.elementType != RPAR &&
+            node.firstChildNode?.nextSibling20?.elementType != RPAR &&
             // skip lambda arguments
             node.treeParent?.elementType != FUNCTION_LITERAL &&
             // skip if number of arguments is big

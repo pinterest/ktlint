@@ -10,6 +10,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -65,7 +66,7 @@ public class NoConsecutiveBlankLinesRule : StandardRule("no-consecutive-blank-li
             ?.let { prevNode ->
                 prevNode.elementType == IDENTIFIER &&
                     prevNode.treeParent.elementType == CLASS &&
-                    this.treeNext?.elementType == PRIMARY_CONSTRUCTOR
+                    this.nextSibling20?.elementType == PRIMARY_CONSTRUCTOR
             }
             ?: false
 }

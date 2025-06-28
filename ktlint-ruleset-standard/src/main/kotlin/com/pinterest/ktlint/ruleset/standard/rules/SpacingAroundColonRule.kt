@@ -56,23 +56,19 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                             .reversed()
                     when {
                         parentType == ElementType.PROPERTY || parentType == ElementType.FUN -> {
-                            val equalsSignElement =
-                                node
-                                    .siblings(forward = true)
-                                    .firstOrNull { it.elementType == EQ }
-                            if (equalsSignElement != null) {
-                                equalsSignElement
-                                    .treeNext
-                                    ?.let { treeNext ->
-                                        prevNonCodeElements.forEach {
-                                            node.treeParent.addChild(it, treeNext)
-                                        }
-                                        if (treeNext.isWhiteSpace20) {
-                                            treeNext.remove()
-                                        }
-                                        Unit
+                            node
+                                .siblings(forward = true)
+                                .firstOrNull { it.elementType == EQ }
+                                ?.nextSibling20
+                                ?.let { nextSibling ->
+                                    prevNonCodeElements.forEach {
+                                        node.treeParent.addChild(it, nextSibling)
                                     }
-                            }
+                                    if (nextSibling.isWhiteSpace20) {
+                                        nextSibling.remove()
+                                    }
+                                    Unit
+                                }
                             val blockElement =
                                 node
                                     .siblings(forward = true)

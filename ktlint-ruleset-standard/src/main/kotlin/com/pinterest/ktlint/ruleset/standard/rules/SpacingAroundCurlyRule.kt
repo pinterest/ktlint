@@ -37,6 +37,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.leavesBackwardsIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
@@ -106,7 +107,7 @@ public class SpacingAroundCurlyRule :
                             prevLeaf.isPrecededBy { it.elementType == RPAR || KtTokens.KEYWORDS.contains(it.elementType) } ||
                                 node.treeParent.elementType == CLASS_BODY ||
                                 // allow newline for lambda return type
-                                (prevLeaf.treeParent.elementType == FUN && prevLeaf.treeNext.elementType != LAMBDA_EXPRESSION)
+                                (prevLeaf.treeParent.elementType == FUN && prevLeaf.nextSibling20?.elementType != LAMBDA_EXPRESSION)
                         )
                     ) {
                         prevLeaf
@@ -125,7 +126,7 @@ public class SpacingAroundCurlyRule :
                                                     node.treeParent.addChildren(
                                                         leavesToMoveAfterCurly.first(),
                                                         leavesToMoveAfterCurly.last(),
-                                                        node.treeNext,
+                                                        node.nextSibling20,
                                                     )
                                                 }
                                         }
