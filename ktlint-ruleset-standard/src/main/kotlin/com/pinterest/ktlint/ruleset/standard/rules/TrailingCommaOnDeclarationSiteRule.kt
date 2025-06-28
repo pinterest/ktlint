@@ -4,13 +4,20 @@ import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ARROW
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLLECTION_LITERAL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DESTRUCTURING_DECLARATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_TYPE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.LPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACKET
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SEMICOLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
@@ -22,6 +29,7 @@ import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.hasModifier
+import com.pinterest.ktlint.rule.engine.core.api.hasNewLineInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.isCode
@@ -39,21 +47,13 @@ import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.PropertyType.PropertyValueParser
 import org.jetbrains.kotlin.KtNodeTypes.WHEN_ENTRY_GUARD
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
-import org.jetbrains.kotlin.psi.KtCollectionLiteralExpression
-import org.jetbrains.kotlin.psi.KtDestructuringDeclaration
-import org.jetbrains.kotlin.psi.KtFunctionLiteral
-import org.jetbrains.kotlin.psi.KtParameterList
-import org.jetbrains.kotlin.psi.KtValueArgumentList
 import org.jetbrains.kotlin.psi.KtWhenEntry
 import org.jetbrains.kotlin.psi.KtWhenExpression
-import org.jetbrains.kotlin.psi.psiUtil.anyDescendantOfType
-import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
-import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
+import org.jetbrains.kotlin.psi.psiUtil.children
 
 /**
  * Linting trailing comma for declaration site.
@@ -261,7 +261,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                     TrailingCommaState.NOT_EXISTS
                 }
 
-                isMultiline(psi) -> {
+                isMultiline() -> {
                     if (trailingCommaNode != null) TrailingCommaState.EXISTS else TrailingCommaState.MISSING
                 }
 
@@ -372,41 +372,40 @@ public class TrailingCommaOnDeclarationSiteRule :
         }
     }
 
-    private fun isMultiline(element: PsiElement): Boolean =
+    private fun ASTNode.isMultiline(): Boolean =
         when {
-            element.parent is KtFunctionLiteral -> {
-                isMultiline(element.parent)
+            treeParent.elementType == FUNCTION_LITERAL -> {
+                treeParent.isMultiline()
             }
 
-            element is KtFunctionLiteral -> {
-                containsLineBreakInLeavesRange(element.valueParameterList!!, element.arrow!!)
+            elementType == FUNCTION_LITERAL -> {
+                hasNewLineInClosedRange(findChildByType(VALUE_PARAMETER_LIST)!!, findChildByType(ARROW)!!)
             }
 
-            element is KtWhenEntry -> {
-                containsLineBreakInLeavesRange(element.firstChild, element.arrow!!)
+            elementType == WHEN_ENTRY -> {
+                hasNewLineInClosedRange(firstChildNode, findChildByType(ARROW)!!)
             }
 
-            element is KtDestructuringDeclaration -> {
-                containsLineBreakInLeavesRange(element.lPar!!, element.rPar!!)
+            elementType == DESTRUCTURING_DECLARATION -> {
+                hasNewLineInClosedRange(findChildByType(LPAR)!!, findChildByType(RPAR)!!)
             }
 
-            element is KtValueArgumentList &&
-                element.children.size == 1 &&
-                element.anyDescendantOfType<KtCollectionLiteralExpression>() -> {
+            elementType == VALUE_ARGUMENT_LIST &&
+                children().count { it.elementType == VALUE_ARGUMENT } == 1 &&
+                findChildByType(VALUE_ARGUMENT_LIST)!!.elementType == COLLECTION_LITERAL_EXPRESSION -> {
                 // special handling for collection literal
                 // @Annotation([
                 //    "something",
                 // ])
-                val lastChild = element.collectDescendantsOfType<KtCollectionLiteralExpression>().last()
-                containsLineBreakInLeavesRange(lastChild.rightBracket!!, element.rightParenthesis!!)
+                hasNewLineInClosedRange(findChildByType(RBRACKET)!!, findChildByType(RPAR)!!)
             }
 
-            element is KtParameterList && element.parameters.isEmpty() -> {
+            elementType == VALUE_PARAMETER_LIST && findChildByType(VALUE_PARAMETER) == null -> {
                 false
             }
 
             else -> {
-                element.textContains('\n')
+                textContains('\n')
             }
         }
 
@@ -428,20 +427,6 @@ public class TrailingCommaOnDeclarationSiteRule :
     private fun ASTNode.hasWhenEntryGuard() = elementType == WHEN_ENTRY && hasWhenEntryGuardKotlin21()
 
     private fun ASTNode.hasWhenEntryGuardKotlin21(): Boolean = children20.any { it.elementType == WHEN_ENTRY_GUARD }
-
-    private fun containsLineBreakInLeavesRange(
-        from: PsiElement,
-        to: PsiElement,
-    ): Boolean {
-        var leaf: PsiElement? = from
-        while (leaf != null && !leaf.isEquivalentTo(to)) {
-            if (leaf.textContains('\n')) {
-                return true
-            }
-            leaf = leaf.nextLeaf(skipEmptyElements = false)
-        }
-        return leaf?.textContains('\n') ?: false
-    }
 
     private enum class TrailingCommaState {
         /**

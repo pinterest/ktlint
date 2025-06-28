@@ -197,20 +197,19 @@ public class AnnotationRule :
                             index == 0 &&
                                 codeStyle == CodeStyleValue.ktlint_official &&
                                 it.annotationOnSameLineAsClosingParenthesisOfClassParameterList()
-                        }?.let { prevLeaf ->
-                            // Let the indentation rule determine the exact indentation and only report and fix when the line needs to be
-                            // wrapped
-                            if (!prevLeaf.textContains('\n')) {
-                                emit(prevLeaf.startOffset, "Expected newline before annotation", true)
-                                    .ifAutocorrectAllowed {
-                                        prevLeaf.upsertWhitespaceBeforeMe(
-                                            prevLeaf
-                                                .text
-                                                .substringBeforeLast('\n', "")
-                                                .plus(expectedIndent),
-                                        )
-                                    }
-                            }
+                        }?.takeUnless { it.isWhiteSpaceWithNewline20 }
+                        ?.let { prevLeaf ->
+                            emit(prevLeaf.startOffset, "Expected newline before annotation", true)
+                                .ifAutocorrectAllowed {
+                                    // Let the indentation rule determine the exact indentation and only report and fix when the line needs
+                                    // to be wrapped
+                                    prevLeaf.upsertWhitespaceBeforeMe(
+                                        prevLeaf
+                                            .text
+                                            .substringBeforeLast('\n', "")
+                                            .plus(expectedIndent),
+                                    )
+                                }
                         }
                 }
 
@@ -220,14 +219,13 @@ public class AnnotationRule :
                 ?.lastChildLeafOrSelf20
                 ?.nextCodeLeaf
                 ?.prevLeaf
+                ?.takeUnless { it.isWhiteSpaceWithNewline20 }
                 ?.let { prevLeaf ->
                     // Let the indentation rule determine the exact indentation and only report and fix when the line needs to be wrapped
-                    if (!prevLeaf.textContains('\n')) {
-                        emit(prevLeaf.startOffset, "Expected newline after last annotation", true)
-                            .ifAutocorrectAllowed {
-                                prevLeaf.upsertWhitespaceAfterMe(expectedIndent)
-                            }
-                    }
+                    emit(prevLeaf.startOffset, "Expected newline after last annotation", true)
+                        .ifAutocorrectAllowed {
+                            prevLeaf.upsertWhitespaceAfterMe(expectedIndent)
+                        }
                 }
 
             node
@@ -236,14 +234,13 @@ public class AnnotationRule :
                 ?.lastChildLeafOrSelf20
                 ?.nextCodeLeaf
                 ?.prevLeaf
+                ?.takeUnless { it.isWhiteSpaceWithNewline20 }
                 ?.let { leaf ->
                     // Let the indentation rule determine the exact indentation and only report and fix when the line needs to be wrapped
-                    if (!leaf.textContains('\n')) {
-                        emit(leaf.startOffset, "Expected newline", true)
-                            .ifAutocorrectAllowed {
-                                leaf.upsertWhitespaceBeforeMe(node.indent20)
-                            }
-                    }
+                    emit(leaf.startOffset, "Expected newline", true)
+                        .ifAutocorrectAllowed {
+                            leaf.upsertWhitespaceBeforeMe(node.indent20)
+                        }
                 }
         }
     }

@@ -524,7 +524,7 @@ public class WrappingRule :
             //     0x200D // Zero-width Joiner
             //     -> true
             // }
-            (p.elementType == WHEN_ENTRY && node.prevLeaf?.textContains('\n') == true)
+            (p.elementType == WHEN_ENTRY && node.prevLeaf.isWhiteSpaceWithNewline20)
         ) {
             return
         }

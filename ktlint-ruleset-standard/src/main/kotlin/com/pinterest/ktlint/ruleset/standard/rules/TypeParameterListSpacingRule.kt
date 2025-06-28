@@ -256,7 +256,7 @@ public class TypeParameterListSpacingRule :
                 Unit
             }
 
-            node.textContains('\n') -> {
+            node.isWhiteSpaceWithNewline20 -> {
                 emit(node.startOffset, "Expected a single space instead of newline", true)
                     .ifAutocorrectAllowed {
                         (node as LeafPsiElement).rawReplaceWithText(" ")

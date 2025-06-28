@@ -45,6 +45,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isLeaf20
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewlineOrNull
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -204,7 +205,7 @@ public class ClassSignatureRule :
 
     private fun ASTNode.classSignatureExcludingSuperTypesIsMultiline() =
         classSignatureNodes(excludeSuperTypes = true)
-            .any { it.textContains('\n') }
+            .any { it.isWhiteSpaceWithNewline20 }
 
     private fun ASTNode.getClassSignatureLength(excludeSuperTypes: Boolean) =
         indentWithoutNewlinePrefix.length + getClassSignatureNodesLength(excludeSuperTypes)
@@ -326,9 +327,7 @@ public class ClassSignatureRule :
             ?.takeIf { it.isWhiteSpace20 }
             .let { whiteSpaceBeforeIdentifier ->
                 if (multiline) {
-                    if (whiteSpaceBeforeIdentifier == null ||
-                        !whiteSpaceBeforeIdentifier.textContains('\n')
-                    ) {
+                    if (whiteSpaceBeforeIdentifier.isWhiteSpaceWithoutNewlineOrNull) {
                         // Let indent rule determine the exact indent
                         val expectedParameterIndent = indentConfig.childIndentOf(node)
                         if (!dryRun) {
@@ -384,9 +383,7 @@ public class ClassSignatureRule :
                     ?.takeIf { it.isWhiteSpace20 }
                     .let { whiteSpaceBeforeIdentifier ->
                         if (multiline) {
-                            if (whiteSpaceBeforeIdentifier == null ||
-                                !whiteSpaceBeforeIdentifier.textContains('\n')
-                            ) {
+                            if (whiteSpaceBeforeIdentifier.isWhiteSpaceWithoutNewlineOrNull) {
                                 // Let IndentationRule determine the exact indent
                                 val expectedParameterIndent = indentConfig.childIndentOf(node)
                                 if (!dryRun) {
@@ -433,9 +430,7 @@ public class ClassSignatureRule :
             ?.takeIf { it.isWhiteSpace20 }
             .let { whiteSpaceBeforeClosingParenthesis ->
                 if (multiline) {
-                    if (whiteSpaceBeforeClosingParenthesis == null ||
-                        !whiteSpaceBeforeClosingParenthesis.textContains('\n')
-                    ) {
+                    if (whiteSpaceBeforeClosingParenthesis.isWhiteSpaceWithoutNewlineOrNull) {
                         // Let IndentationRule determine the exact indent
                         val expectedParameterIndent = node.indent20
                         if (!dryRun) {
@@ -537,9 +532,7 @@ public class ClassSignatureRule :
                                 if (node.hasMultilineSuperTypeList() ||
                                     classSignaturesIncludingFirstSuperTypeExceedsMaxLineLength(node, emit)
                                 ) {
-                                    if (whiteSpaceBeforeIdentifier == null ||
-                                        !whiteSpaceBeforeIdentifier.textContains('\n')
-                                    ) {
+                                    if (whiteSpaceBeforeIdentifier.isWhiteSpaceWithoutNewlineOrNull) {
                                         emit(superTypeFirstChildNode.startOffset, "Super type should start on a newline", true)
                                             .ifAutocorrectAllowed {
                                                 // Let IndentationRule determine the exact indent
@@ -579,9 +572,7 @@ public class ClassSignatureRule :
                                         }
                                 }
                             } else {
-                                if (whiteSpaceBeforeIdentifier == null ||
-                                    !whiteSpaceBeforeIdentifier.textContains('\n')
-                                ) {
+                                if (whiteSpaceBeforeIdentifier.isWhiteSpaceWithoutNewlineOrNull) {
                                     emit(firstChildNodeInSuperType.startOffset, "Super type should start on a newline", true)
                                         .ifAutocorrectAllowed {
                                             // Let IndentationRule determine the exact indent

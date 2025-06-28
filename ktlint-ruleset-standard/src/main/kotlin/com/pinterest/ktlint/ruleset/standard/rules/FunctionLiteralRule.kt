@@ -32,6 +32,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewlineOrNull
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.leavesForwardsIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
@@ -260,16 +261,12 @@ public class FunctionLiteralRule :
         require(valueParameter.elementType == VALUE_PARAMETER)
         valueParameter
             .prevLeaf
-            .takeIf { it.isWhiteSpace20 }
-            .let { whitespaceBeforeValueParameter ->
-                if (whitespaceBeforeValueParameter == null ||
-                    !whitespaceBeforeValueParameter.textContains('\n')
-                ) {
-                    emit(valueParameter.startOffset, "Newline expected before parameter", true)
-                        .ifAutocorrectAllowed {
-                            valueParameter.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(valueParameter.parent(FUNCTION_LITERAL)!!))
-                        }
-                }
+            .takeIf { it.isWhiteSpaceWithoutNewline20 }
+            ?.let { whitespaceBeforeValueParameter ->
+                emit(valueParameter.startOffset, "Newline expected before parameter", true)
+                    .ifAutocorrectAllowed {
+                        valueParameter.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(valueParameter.parent(FUNCTION_LITERAL)!!))
+                    }
             }
     }
 
@@ -288,16 +285,12 @@ public class FunctionLiteralRule :
         require(arrow.elementType == ARROW)
         arrow
             .prevLeaf
-            .takeIf { it.isWhiteSpace20 }
-            .let { whitespaceBeforeArrow ->
-                if (whitespaceBeforeArrow == null ||
-                    !whitespaceBeforeArrow.textContains('\n')
-                ) {
-                    emit(arrow.startOffset, "Newline expected before arrow", true)
-                        .ifAutocorrectAllowed {
-                            arrow.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(arrow.treeParent))
-                        }
-                }
+            .takeIf { it.isWhiteSpaceWithoutNewline20 }
+            ?.let {
+                emit(arrow.startOffset, "Newline expected before arrow", true)
+                    .ifAutocorrectAllowed {
+                        arrow.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(arrow.treeParent))
+                    }
             }
     }
 
@@ -308,16 +301,12 @@ public class FunctionLiteralRule :
         require(arrow.elementType == ARROW)
         arrow
             .nextLeaf
-            .takeIf { it.isWhiteSpace20 }
-            .let { whitespaceAfterArrow ->
-                if (whitespaceAfterArrow == null ||
-                    !whitespaceAfterArrow.textContains('\n')
-                ) {
-                    emit(arrow.startOffset + arrow.textLength - 1, "Newline expected after arrow", true)
-                        .ifAutocorrectAllowed {
-                            arrow.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(arrow))
-                        }
-                }
+            .takeIf { it.isWhiteSpaceWithoutNewlineOrNull }
+            ?.let {
+                emit(arrow.startOffset + arrow.textLength - 1, "Newline expected after arrow", true)
+                    .ifAutocorrectAllowed {
+                        arrow.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(arrow))
+                    }
             }
     }
 
@@ -328,16 +317,12 @@ public class FunctionLiteralRule :
         require(rbrace.elementType == RBRACE)
         rbrace
             .prevLeaf
-            .takeIf { it.isWhiteSpace20 }
-            .let { whitespaceBeforeRbrace ->
-                if (whitespaceBeforeRbrace == null ||
-                    !whitespaceBeforeRbrace.textContains('\n')
-                ) {
-                    emit(rbrace.startOffset, "Newline expected before closing brace", true)
-                        .ifAutocorrectAllowed {
-                            rbrace.upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(rbrace))
-                        }
-                }
+            .takeIf { it.isWhiteSpaceWithoutNewlineOrNull }
+            ?.let {
+                emit(rbrace.startOffset, "Newline expected before closing brace", true)
+                    .ifAutocorrectAllowed {
+                        rbrace.upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(rbrace))
+                    }
             }
     }
 
@@ -450,9 +435,7 @@ public class FunctionLiteralRule :
             .nextLeaf
             .takeIf { it.isWhiteSpace20 }
             .let { whitespaceAfterLbrace ->
-                if (whitespaceAfterLbrace == null ||
-                    !whitespaceAfterLbrace.textContains('\n')
-                ) {
+                if (whitespaceAfterLbrace.isWhiteSpaceWithoutNewlineOrNull) {
                     emit(lbrace.startOffset, "Newline expected after opening brace", true)
                         .ifAutocorrectAllowed {
                             lbrace.upsertWhitespaceAfterMe(indentConfig.childIndentOf(lbrace))

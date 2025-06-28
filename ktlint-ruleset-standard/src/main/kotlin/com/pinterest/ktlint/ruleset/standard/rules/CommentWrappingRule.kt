@@ -14,8 +14,8 @@ import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.hasNewLineInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -46,13 +46,13 @@ public class CommentWrappingRule :
             val beforeBlockComment =
                 node
                     .leaves(false)
-                    .takeWhile { it.isWhiteSpace20 && !it.textContains('\n') }
+                    .takeWhile { it.isWhiteSpaceWithoutNewline20 }
                     .firstOrNull()
                     ?: node.firstChildLeafOrSelf20
             val afterBlockComment =
                 node
                     .leaves()
-                    .takeWhile { it.isWhiteSpace20 && !it.textContains('\n') }
+                    .takeWhile { it.isWhiteSpaceWithoutNewline20 }
                     .firstOrNull()
                     ?: node.lastChildLeafOrSelf20
 

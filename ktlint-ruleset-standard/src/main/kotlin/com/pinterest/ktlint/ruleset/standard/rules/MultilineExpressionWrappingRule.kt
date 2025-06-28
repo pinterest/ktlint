@@ -110,49 +110,48 @@ public class MultilineExpressionWrappingRule :
         if (node.containsWhitespaceWithNewline() && node.needToWrapMultilineExpression()) {
             node
                 .prevLeaf { !it.isPartOfComment20 }
-                .let { prevLeaf ->
-                    if (prevLeaf != null && !prevLeaf.textContains('\n')) {
-                        emit(node.startOffset, "A multiline expression should start on a new line", true)
-                            .ifAutocorrectAllowed {
-                                node.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
-                                val leafOnSameLineAfterMultilineExpression =
-                                    node
-                                        .lastChildLeafOrSelf20
-                                        .nextLeaf { !it.isWhiteSpaceWithoutNewline20 && !it.isPartOfComment20 }
-                                        ?.takeIf { !it.isWhiteSpaceWithNewline20 }
-                                when {
-                                    leafOnSameLineAfterMultilineExpression == null -> {
-                                        Unit
-                                    }
+                .takeUnless { it.isWhiteSpaceWithNewline20 }
+                ?.let { prevLeaf ->
+                    emit(node.startOffset, "A multiline expression should start on a new line", true)
+                        .ifAutocorrectAllowed {
+                            node.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
+                            val leafOnSameLineAfterMultilineExpression =
+                                node
+                                    .lastChildLeafOrSelf20
+                                    .nextLeaf { !it.isWhiteSpaceWithoutNewline20 && !it.isPartOfComment20 }
+                                    ?.takeIf { !it.isWhiteSpaceWithNewline20 }
+                            when {
+                                leafOnSameLineAfterMultilineExpression == null -> {
+                                    Unit
+                                }
 
-                                    leafOnSameLineAfterMultilineExpression.treeParent.elementType == OPERATION_REFERENCE -> {
-                                        // When binary expressions are wrapped, each binary expression for itself is checked whether it is a
-                                        // multiline expression. So there is no need to check whether wrapping after the operation reference is
-                                        // needed
-                                        Unit
-                                    }
+                                leafOnSameLineAfterMultilineExpression.treeParent.elementType == OPERATION_REFERENCE -> {
+                                    // When binary expressions are wrapped, each binary expression for itself is checked whether it is a
+                                    // multiline expression. So there is no need to check whether wrapping after the operation reference is
+                                    // needed
+                                    Unit
+                                }
 
-                                    leafOnSameLineAfterMultilineExpression.elementType == COMMA &&
-                                        (
-                                            leafOnSameLineAfterMultilineExpression.treeParent.elementType == VALUE_ARGUMENT_LIST ||
-                                                leafOnSameLineAfterMultilineExpression.treeParent.elementType == VALUE_PARAMETER_LIST
-                                        ) -> {
-                                        // Keep comma on same line as multiline expression:
-                                        //   foo(
-                                        //      fooBar
-                                        //          .filter { it.bar },
-                                        //   )
-                                        leafOnSameLineAfterMultilineExpression
-                                            .nextLeaf
-                                            ?.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
-                                    }
+                                leafOnSameLineAfterMultilineExpression.elementType == COMMA &&
+                                    (
+                                        leafOnSameLineAfterMultilineExpression.treeParent.elementType == VALUE_ARGUMENT_LIST ||
+                                            leafOnSameLineAfterMultilineExpression.treeParent.elementType == VALUE_PARAMETER_LIST
+                                    ) -> {
+                                    // Keep comma on same line as multiline expression:
+                                    //   foo(
+                                    //      fooBar
+                                    //          .filter { it.bar },
+                                    //   )
+                                    leafOnSameLineAfterMultilineExpression
+                                        .nextLeaf
+                                        ?.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
+                                }
 
-                                    else -> {
-                                        leafOnSameLineAfterMultilineExpression.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
-                                    }
+                                else -> {
+                                    leafOnSameLineAfterMultilineExpression.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
                                 }
                             }
-                    }
+                        }
                 }
         }
     }

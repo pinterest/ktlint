@@ -416,6 +416,9 @@ public fun ASTNode?.isWhiteSpaceWithoutNewline(): Boolean = isWhiteSpaceWithoutN
 public val ASTNode?.isWhiteSpaceWithoutNewline20
     get(): Boolean = this != null && isWhiteSpace20 && !textContains('\n')
 
+public val ASTNode?.isWhiteSpaceWithoutNewlineOrNull
+    get(): Boolean = this == null || isWhiteSpaceWithoutNewline20
+
 @Deprecated(
     "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
         "the temporary property accessor. In 2.0 it can be replaced the final property accessor which will be the same as the " +

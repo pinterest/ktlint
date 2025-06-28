@@ -91,7 +91,7 @@ public class ParameterListWrappingRule :
             .takeUnless {
                 // skip when max line length is not exceeded
                 (node.column - 1 + node.textLength) <= maxLineLength
-            }?.takeUnless { it.textContains('\n') }
+            }?.takeUnless { it.isWhiteSpaceWithNewline20 }
             ?.takeIf { it.isFunctionTypeWithNonEmptyValueParameterList() }
             ?.let { nullableType ->
                 nullableType
@@ -317,7 +317,7 @@ public class ParameterListWrappingRule :
                 ?.elementType
 
     private fun ASTNode.isOnLineExceedingMaxLineLength(): Boolean {
-        val stopLeaf = nextLeaf { it.textContains('\n') }?.nextLeaf
+        val stopLeaf = nextLeaf { it.isWhiteSpaceWithNewline20 }?.nextLeaf
         val lineContent =
             leavesOnLine20
                 .dropTrailingEolComment()
