@@ -34,4 +34,47 @@ class UnnecessaryParenthesesBeforeTrailingLambdaRuleTest {
             """.trimIndent()
         unnecessaryParenthesesBeforeTrailingLambdaRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 3016 - Given some nested call expressions, and outmost call expression does not have arguments, and ending with a lambda argument then do not remove empty parameter list`() {
+        val code =
+            """
+            class Foo
+            class Bar
+            class Baz
+            operator fun Foo.invoke() = Bar()
+            operator fun Bar.invoke() = Baz()
+            inline operator fun Baz.invoke(function: () -> Unit) {}
+
+            fun main() {
+                val foo = Foo()
+                foo()()() {} // Do not remove empty parameter list
+                val bar = Bar()
+                bar()() {} // Do not remove empty parameter list
+                val baz = Baz()
+                baz() {} // Empty parameter list is to be removed
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            class Foo
+            class Bar
+            class Baz
+            operator fun Foo.invoke() = Bar()
+            operator fun Bar.invoke() = Baz()
+            inline operator fun Baz.invoke(function: () -> Unit) {}
+
+            fun main() {
+                val foo = Foo()
+                foo()()() {} // Do not remove empty parameter list
+                val bar = Bar()
+                bar()() {} // Do not remove empty parameter list
+                val baz = Baz()
+                baz {} // Empty parameter list is to be removed
+            }
+            """.trimIndent()
+        unnecessaryParenthesesBeforeTrailingLambdaRuleAssertThat(code)
+            .hasLintViolation(14, 8, "Empty parentheses in function call followed by lambda are unnecessary")
+            .isFormattedAs(formattedCode)
+    }
 }
