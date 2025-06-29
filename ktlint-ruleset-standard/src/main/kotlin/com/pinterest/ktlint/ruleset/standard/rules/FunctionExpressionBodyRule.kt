@@ -30,6 +30,7 @@ import com.pinterest.ktlint.rule.engine.core.api.leavesInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -115,9 +116,8 @@ public class FunctionExpressionBodyRule :
                             addChild(LeafPsiElement(EQ, "="), block)
                             addChild(PsiWhiteSpaceImpl(" "), block)
                             addChild(codeSibling, block)
-                            // Remove old (and now empty block)
-                            removeChild(block)
                         }
+                        block.remove()
                     }
             }
         block
@@ -131,7 +131,7 @@ public class FunctionExpressionBodyRule :
                             block
                                 .prevSibling20
                                 .takeIf { it.isWhiteSpace20 }
-                                ?.let { removeChild(it) }
+                                ?.remove()
                             if (findChildByType(TYPE_REFERENCE) == null) {
                                 // Insert Unit as return type as otherwise a compilation error results
                                 addChild(LeafPsiElement(COLON, ":"), block)
@@ -142,9 +142,8 @@ public class FunctionExpressionBodyRule :
                             addChild(LeafPsiElement(EQ, "="), block)
                             addChild(PsiWhiteSpaceImpl(" "), block)
                             addChild(throwNode, block)
-                            // Remove old (and now empty block)
-                            removeChild(block)
                         }
+                        block.remove()
                     }
             }
     }

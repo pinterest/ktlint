@@ -484,9 +484,7 @@ public class ClassSignatureRule :
                             superTypeCallEntry
                                 .prevSibling20
                                 ?.takeIf { it.isWhiteSpace20 }
-                                ?.let { whitespaceBeforeSuperTypeCallEntry ->
-                                    superTypeList.removeChild(whitespaceBeforeSuperTypeCallEntry)
-                                }
+                                ?.remove()
 
                             superTypeList.addChild(superTypeCallEntry, superTypes.first())
                             superTypeList.addChild(commaBeforeSuperTypeCall, originalFirstSuperType)

@@ -160,9 +160,7 @@ public class ChainWrappingRule :
                             insertionPoint.rawInsertAfterMe(node)
                             (insertionPoint as ASTNode).upsertWhitespaceAfterMe(" ")
                         }
-                        whiteSpaceToBeDeleted
-                            ?.parent
-                            ?.removeChild(whiteSpaceToBeDeleted)
+                        whiteSpaceToBeDeleted?.remove()
                     }
             }
         }

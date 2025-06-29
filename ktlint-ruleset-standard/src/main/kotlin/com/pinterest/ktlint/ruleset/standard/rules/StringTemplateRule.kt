@@ -109,15 +109,11 @@ public class StringTemplateRule : StandardRule("string-template") {
 
     private fun ASTNode.removeCurlyBracesIfRedundant() {
         if (isStringTemplate()) {
-            val leftCurlyBraceNode = findChildByType(LONG_TEMPLATE_ENTRY_START)
-            val rightCurlyBraceNode = findChildByType(LONG_TEMPLATE_ENTRY_END)
-            if (leftCurlyBraceNode != null && rightCurlyBraceNode != null) {
-                removeChild(leftCurlyBraceNode)
-                removeChild(rightCurlyBraceNode)
-                firstChildNode
-                    .toShortStringTemplateNode()
-                    .let { replaceChild(firstChildNode, it) }
-            }
+            findChildByType(LONG_TEMPLATE_ENTRY_START)?.remove()
+            findChildByType(LONG_TEMPLATE_ENTRY_END)?.remove()
+            firstChildNode
+                .toShortStringTemplateNode()
+                .let { replaceChild(firstChildNode, it) }
         }
     }
 

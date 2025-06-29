@@ -101,11 +101,11 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
                         if (eolComment != null) {
                             eolComment.prevSibling { it.isWhiteSpace20 }?.remove()
                             eolComment.nextSibling { it.isWhiteSpace20 }?.remove()
-                            eolComment.parent?.removeChild(eolComment)
+                            eolComment.remove()
                         } else {
                             node.nextSibling { it.isWhiteSpace20 }?.remove()
                         }
-                        node.parent?.removeChild(node)
+                        node.remove()
 
                         // Insert the annotation prior to the annotated construct
                         val beforeAnchor = next.nextCodeSibling20

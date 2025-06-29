@@ -342,9 +342,7 @@ public class ChainMethodContinuationRule :
                 //         .trimIndent()
                 if (whiteSpaceOrComment.isWhiteSpaceWithNewline20) {
                     emit(chainOperator.startOffset, "Unexpected newline before '${chainOperator.text}'", true)
-                        .ifAutocorrectAllowed {
-                            whiteSpaceOrComment?.parent?.removeChild(whiteSpaceOrComment)
-                        }
+                        .ifAutocorrectAllowed { whiteSpaceOrComment?.remove() }
                 }
             }
     }

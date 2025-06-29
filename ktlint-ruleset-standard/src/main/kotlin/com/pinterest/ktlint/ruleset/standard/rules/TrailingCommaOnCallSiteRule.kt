@@ -25,6 +25,7 @@ import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.PropertyType.PropertyValueParser
@@ -157,9 +158,7 @@ public class TrailingCommaOnCallSiteRule :
                         trailingCommaNode!!.startOffset,
                         "Unnecessary trailing comma before \"${inspectNode.text}\"",
                         true,
-                    ).ifAutocorrectAllowed {
-                        this.removeChild(trailingCommaNode)
-                    }
+                    ).ifAutocorrectAllowed { trailingCommaNode.remove() }
                 }
             }
 
@@ -186,9 +185,7 @@ public class TrailingCommaOnCallSiteRule :
                     trailingCommaNode!!.startOffset,
                     "Unnecessary trailing comma before \"${inspectNode.text}\"",
                     true,
-                ).ifAutocorrectAllowed {
-                    this.removeChild(trailingCommaNode)
-                }
+                ).ifAutocorrectAllowed { trailingCommaNode.remove() }
             }
 
             TrailingCommaState.NOT_EXISTS -> {

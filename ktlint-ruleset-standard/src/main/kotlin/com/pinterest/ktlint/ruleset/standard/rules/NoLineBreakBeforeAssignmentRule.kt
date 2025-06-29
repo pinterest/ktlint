@@ -12,6 +12,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -58,10 +59,8 @@ public class NoLineBreakBeforeAssignmentRule : StandardRule("no-line-break-befor
                         assignmentNode
                             .nextSibling20
                             .takeIf { it.isWhiteSpace20 }
-                            ?.let { whiteSpaceAfterEquals ->
-                                parent.removeChild(whiteSpaceAfterEquals)
-                            }
-                        parent.removeChild(assignmentNode)
+                            ?.remove()
+                        assignmentNode.remove()
                     }
             }
     }

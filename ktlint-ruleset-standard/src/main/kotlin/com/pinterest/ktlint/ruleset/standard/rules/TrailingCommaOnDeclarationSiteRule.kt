@@ -294,9 +294,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                         trailingCommaNode!!.startOffset,
                         "Unnecessary trailing comma before \"${inspectNode.text}\"",
                         true,
-                    ).ifAutocorrectAllowed {
-                        this.removeChild(trailingCommaNode)
-                    }
+                    ).ifAutocorrectAllowed { trailingCommaNode.remove() }
                 }
             }
 
@@ -361,9 +359,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                     trailingCommaNode!!.startOffset,
                     "Unnecessary trailing comma before \"${inspectNode.text}\"",
                     true,
-                ).ifAutocorrectAllowed {
-                    this.removeChild(trailingCommaNode)
-                }
+                ).ifAutocorrectAllowed { trailingCommaNode.remove() }
             }
 
             TrailingCommaState.NOT_EXISTS -> {

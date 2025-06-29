@@ -17,6 +17,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
@@ -39,9 +40,7 @@ public class UnnecessaryParenthesesBeforeTrailingLambdaRule : StandardRule("unne
                 node.startOffset,
                 "Empty parentheses in function call followed by lambda are unnecessary",
                 true,
-            ).ifAutocorrectAllowed {
-                node.removeChild(node)
-            }
+            ).ifAutocorrectAllowed { node.remove() }
         }
     }
 
