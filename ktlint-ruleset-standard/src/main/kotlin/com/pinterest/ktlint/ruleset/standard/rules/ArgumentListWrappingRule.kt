@@ -33,6 +33,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
 import com.pinterest.ktlint.rule.engine.core.api.lineLength
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.ec4j.core.model.PropertyType
@@ -113,7 +114,7 @@ public class ArgumentListWrappingRule :
         if ( // skip when there are no arguments
             node.firstChildNode?.nextSibling20?.elementType != RPAR &&
             // skip lambda arguments
-            node.treeParent?.elementType != FUNCTION_LITERAL &&
+            node.parent?.elementType != FUNCTION_LITERAL &&
             // skip if number of arguments is big
             node.children().count { it.elementType == VALUE_ARGUMENT } <= ignoreWhenParameterCountGreaterOrEqualThanProperty
         ) {
@@ -144,7 +145,7 @@ public class ArgumentListWrappingRule :
             //         1,
             //         2
             //     )
-            child.treeParent.hasTypeArgumentListInFront() -> -1
+            child.parent!!.hasTypeArgumentListInFront() -> -1
 
             // IDEA quirk:
             // foo
@@ -158,11 +159,11 @@ public class ArgumentListWrappingRule :
             //         1,
             //         2
             //     )
-            child.treeParent.isPartOfDotQualifiedAssignmentExpression() -> -1
+            child.parent!!.isPartOfDotQualifiedAssignmentExpression() -> -1
 
             else -> 0
         }.let {
-            if (child.treeParent.isOnSameLineAsControlFlowKeyword()) {
+            if (child.parent!!.isOnSameLineAsControlFlowKeyword()) {
                 it + 1
             } else {
                 it
@@ -176,7 +177,7 @@ public class ArgumentListWrappingRule :
         }.let { indentLevelFix ->
             val indentLevel =
                 editorConfigIndent
-                    .indentLevelFrom(child.treeParent.indentWithoutNewlinePrefix)
+                    .indentLevelFrom(child.parent!!.indentWithoutNewlinePrefix)
                     .plus(indentLevelFix)
             "\n" + editorConfigIndent.indent.repeat(maxOf(indentLevel, 0))
         }
@@ -231,7 +232,7 @@ public class ArgumentListWrappingRule :
                         // Insert a new whitespace element in order to wrap the current child to a new line.
                         emit(child.startOffset, errorMessage(child), true)
                             .ifAutocorrectAllowed {
-                                child.treeParent.addChild(PsiWhiteSpaceImpl(intendedIndent), child)
+                                child.parent?.addChild(PsiWhiteSpaceImpl(intendedIndent), child)
                             }
                     }
                 }
@@ -263,15 +264,14 @@ public class ArgumentListWrappingRule :
         elementType == VALUE_ARGUMENT && children().any { it.textContainsIgnoringLambda(char) }
 
     private fun ASTNode.hasTypeArgumentListInFront(): Boolean =
-        treeParent
-            .children()
-            .firstOrNull { it.elementType == TYPE_ARGUMENT_LIST }
+        parent
+            ?.findChildByType(TYPE_ARGUMENT_LIST)
             ?.children()
             ?.any { it.isWhiteSpaceWithNewline20 } == true
 
     private fun ASTNode.isPartOfDotQualifiedAssignmentExpression(): Boolean =
-        treeParent
-            ?.treeParent
+        parent
+            ?.parent
             ?.takeIf { it.elementType == BINARY_EXPRESSION }
             ?.let { binaryExpression ->
                 binaryExpression.firstChildNode.elementType == DOT_QUALIFIED_EXPRESSION &&

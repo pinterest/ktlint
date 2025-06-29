@@ -21,6 +21,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -108,7 +109,7 @@ public class TrailingCommaOnCallSiteRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.treeParent.elementType != ElementType.FUNCTION_LITERAL) {
+        if (node.parent?.elementType != ElementType.FUNCTION_LITERAL) {
             node
                 .children20
                 .lastOrNull { it.elementType == ElementType.RPAR }
@@ -174,7 +175,7 @@ public class TrailingCommaOnCallSiteRule :
                             .prevCodeSibling20
                             ?.nextSibling20
                             ?.let { before ->
-                                before.treeParent.addChild(LeafPsiElement(COMMA, ","), before)
+                                before.parent?.addChild(LeafPsiElement(COMMA, ","), before)
                             }
                     }
                 }

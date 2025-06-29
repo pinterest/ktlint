@@ -92,7 +92,7 @@ public class BinaryExpressionWrappingRule :
 
         // First check whether the entire expression has to be pushed to the next line after and assignment in a property or function
         node
-            .takeIf { it.treeParent.elementType.anyOf(PROPERTY, FUN) }
+            .takeIf { it.parent!!.elementType.anyOf(PROPERTY, FUN) }
             ?.takeIf { binaryExpression ->
                 binaryExpression
                     .prevSibling { it.elementType == EQ }
@@ -118,7 +118,7 @@ public class BinaryExpressionWrappingRule :
         //     fooBar("foooooo" +
         //         "bar")
         node
-            .takeIf { it.treeParent.elementType == VALUE_ARGUMENT }
+            .takeIf { it.parent?.elementType == VALUE_ARGUMENT }
             ?.takeUnless {
                 // Allow
                 //     fooBar(
@@ -157,8 +157,8 @@ public class BinaryExpressionWrappingRule :
         //   // Suppose that X is the last possible character on the
         //   // line                                             X
         //   if (leftHandSideExpression && rightHandSideExpression) {
-        treeParent
-            .takeIf { it.elementType == CONDITION }
+        parent
+            ?.takeIf { it.elementType == CONDITION }
             ?.lastChildLeafOrSelf20
             ?.nextLeaf { it.isWhiteSpaceWithNewline20 }
             ?.prevLeaf
@@ -171,7 +171,7 @@ public class BinaryExpressionWrappingRule :
     ) {
         node
             .takeIf { it.elementType == CALL_EXPRESSION }
-            ?.takeIf { it.treeParent.elementType == BINARY_EXPRESSION }
+            ?.takeIf { it.parent?.elementType == BINARY_EXPRESSION }
             ?.let { callExpression ->
                 // Breaking the lambda expression has priority over breaking value arguments
                 callExpression
@@ -184,7 +184,7 @@ public class BinaryExpressionWrappingRule :
                             ?.let { lbrace ->
                                 emit(lbrace.startOffset + 1, "Newline expected after '{'", true)
                                     .ifAutocorrectAllowed {
-                                        lbrace.upsertWhitespaceAfterMe(indentConfig.childIndentOf(lbrace.treeParent))
+                                        lbrace.upsertWhitespaceAfterMe(indentConfig.childIndentOf(lbrace.parent!!))
                                     }
                             }
                         functionLiteral
@@ -192,7 +192,7 @@ public class BinaryExpressionWrappingRule :
                             ?.let { rbrace ->
                                 emit(rbrace.startOffset, "Newline expected before '}'", true)
                                     .ifAutocorrectAllowed {
-                                        rbrace.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node.treeParent))
+                                        rbrace.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node.parent!!))
                                     }
                             }
                     }
@@ -210,7 +210,7 @@ public class BinaryExpressionWrappingRule :
                 //   val foo = "string too long to fit on the line" +
                 //       "more text"
                 it.nextSibling20.isWhiteSpaceWithNewline20
-            }?.takeIf { it.treeParent.elementType == BINARY_EXPRESSION }
+            }?.takeIf { it.parent?.elementType == BINARY_EXPRESSION }
             ?.takeIf { binaryExpression ->
                 // Ignore binary expression inside raw string literals. Raw string literals are allowed to exceed max-line-length. Wrapping
                 // (each) binary expression inside such a literal seems to create more chaos than it resolves.

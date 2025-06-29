@@ -6,6 +6,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -17,7 +18,7 @@ public class NoBlankLinesInChainedMethodCallsRule : StandardRule("no-blank-lines
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         val isBlankLine = node.isWhiteSpace20 && node.text.contains("\n\n")
-        if (isBlankLine && node.treeParent.elementType == DOT_QUALIFIED_EXPRESSION) {
+        if (isBlankLine && node.parent?.elementType == DOT_QUALIFIED_EXPRESSION) {
             emit(node.startOffset + 1, "Needless blank line(s)", true)
                 .ifAutocorrectAllowed {
                     (node as LeafPsiElement).rawReplaceWithText("\n" + node.getText().split("\n\n")[1])

@@ -27,6 +27,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
@@ -67,7 +68,7 @@ public class TypeParameterListSpacingRule :
             return
         }
 
-        when (node.treeParent.elementType) {
+        when (node.parent?.elementType) {
             CLASS -> visitClassDeclaration(node, emit)
             TYPEALIAS -> visitTypeAliasDeclaration(node, emit)
             FUN -> visitFunctionDeclaration(node, emit)

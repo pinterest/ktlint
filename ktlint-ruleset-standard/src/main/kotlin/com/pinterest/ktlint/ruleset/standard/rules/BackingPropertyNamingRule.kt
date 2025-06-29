@@ -61,7 +61,7 @@ public class BackingPropertyNamingRule :
             ?.takeIf { it.text.startsWith("_") }
             ?.takeUnless {
                 // Do not report overridden properties as they can only be changed by changing the base property
-                it.treeParent.hasModifier(OVERRIDE_KEYWORD)
+                it.parent!!.hasModifier(OVERRIDE_KEYWORD)
             }?.let { identifier ->
                 visitBackingProperty(identifier, emit)
             }
@@ -95,15 +95,15 @@ public class BackingPropertyNamingRule :
         }
     }
 
-    private fun ASTNode.hasPrivateModifierInPropertyDeclaration() = treeParent.hasModifier(PRIVATE_KEYWORD)
+    private fun ASTNode.hasPrivateModifierInPropertyDeclaration() = parent!!.hasModifier(PRIVATE_KEYWORD)
 
     private fun ASTNode.isDeclaredInPrivateCompanionObject() =
         true ==
-            treeParent
-                .treeParent
-                .findCompanionObject()
-                ?.treeParent
-                ?.treeParent
+            parent
+                ?.parent
+                ?.findCompanionObject()
+                ?.parent
+                ?.parent
                 ?.hasModifier(PRIVATE_KEYWORD)
 
     private fun ASTNode.findCorrelatedPropertyOrFunction() = findCorrelatedProperty() ?: findCorrelatedFunction()
@@ -127,10 +127,10 @@ public class BackingPropertyNamingRule :
             .filter { it.elementType == PROPERTY }
             .mapNotNull { it.findChildByType(IDENTIFIER) }
             .firstOrNull { it.text == name }
-            ?.treeParent
+            ?.parent
 
     private fun ASTNode.findCompanionObject() =
-        treeParent
+        parent
             ?.takeIf { it.elementType == OBJECT_DECLARATION }
             ?.findChildByType(MODIFIER_LIST)
             ?.children20
@@ -156,7 +156,7 @@ public class BackingPropertyNamingRule :
             .filter { it.hasNonEmptyParameterList() }
             .mapNotNull { it.findChildByType(IDENTIFIER) }
             .firstOrNull { it.text == name }
-            ?.treeParent
+            ?.parent
 
     private fun ASTNode.hasNonEmptyParameterList() =
         findChildByType(VALUE_PARAMETER_LIST)

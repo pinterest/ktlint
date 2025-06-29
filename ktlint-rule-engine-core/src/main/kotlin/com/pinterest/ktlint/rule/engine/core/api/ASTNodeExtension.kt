@@ -85,7 +85,7 @@ private val ASTNode.nextLeafAny
     }
 
 private val ASTNode.nextLeafStrict
-    get(): ASTNode? = nextSibling20?.firstChildLeafOrSelf20 ?: treeParent?.nextLeafStrict
+    get(): ASTNode? = nextSibling20?.firstChildLeafOrSelf20 ?: parent?.nextLeafStrict
 
 @Deprecated(
     "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
@@ -138,7 +138,7 @@ public fun ASTNode.prevLeaf(predicate: (ASTNode) -> Boolean): ASTNode? {
 }
 
 private val ASTNode.prevLeafAny
-    get(): ASTNode? = prevSibling20?.lastChildLeafOrSelf20 ?: treeParent?.prevLeafAny
+    get(): ASTNode? = prevSibling20?.lastChildLeafOrSelf20 ?: parent?.prevLeafAny
 
 @Deprecated(
     "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
@@ -275,6 +275,9 @@ public fun ASTNode.nextSibling(): ASTNode? = nextSibling20
 public inline val ASTNode.nextSibling20
     get(): ASTNode? = treeNext
 
+public inline val ASTNode.parent
+    get(): ASTNode? = treeParent
+
 /**
  * @param elementType [ElementType].*
  */
@@ -286,23 +289,23 @@ public fun ASTNode.parent(
     elementType: IElementType,
     strict: Boolean = true,
 ): ASTNode? {
-    var n: ASTNode? = if (strict) this.treeParent else this
+    var n: ASTNode? = if (strict) this.parent else this
     while (n != null) {
         if (n.elementType == elementType) {
             return n
         }
-        n = n.treeParent
+        n = n.parent
     }
     return null
 }
 
 public fun ASTNode.parent(elementType: IElementType): ASTNode? {
-    var node: ASTNode? = treeParent
+    var node: ASTNode? = parent
     while (node != null) {
         if (node.elementType == elementType) {
             return node
         }
-        node = node.treeParent
+        node = node.parent
     }
     return null
 }
@@ -312,20 +315,20 @@ public fun ASTNode.parent(
     strict: Boolean = true,
     predicate: (ASTNode) -> Boolean,
 ): ASTNode? {
-    var n: ASTNode? = if (strict) this.treeParent else this
+    var n: ASTNode? = if (strict) this.parent else this
     while (n != null) {
         if (predicate(n)) {
             return n
         }
-        n = n.treeParent
+        n = n.parent
     }
     return null
 }
 
 public fun ASTNode.parent(predicate: (ASTNode) -> Boolean): ASTNode? {
-    var node: ASTNode? = this.treeParent
+    var node: ASTNode? = this.parent
     while (node != null && !predicate(node)) {
-        node = node.treeParent
+        node = node.parent
     }
     return node
 }
@@ -343,12 +346,12 @@ public fun ASTNode.isPartOf(elementType: IElementType): Boolean = this.elementTy
     replaceWith = ReplaceWith("this.isPartOf(elementTypeOrTokenSet)"),
 )
 public fun ASTNode.isPartOf(klass: KClass<out PsiElement>): Boolean {
-    var n: ASTNode? = this
-    while (n != null) {
-        if (klass.java.isInstance(n.psi)) {
+    var node: ASTNode? = this
+    while (node != null) {
+        if (klass.java.isInstance(node.psi)) {
             return true
         }
-        n = n.treeParent
+        node = node.parent
     }
     return false
 }
@@ -512,9 +515,9 @@ public fun ASTNode.upsertWhitespaceBeforeMe(text: String) {
                 previous.replaceTextWith(text)
             }
 
-            treeParent.firstChildNode == this -> {
+            parent?.firstChildNode == this -> {
                 // Never insert a whitespace node as first node in a composite node
-                treeParent.upsertWhitespaceBeforeMe(text)
+                parent?.upsertWhitespaceBeforeMe(text)
             }
 
             else -> {
@@ -527,7 +530,7 @@ public fun ASTNode.upsertWhitespaceBeforeMe(text: String) {
         when (val prevSibling = prevSibling20) {
             null -> {
                 // Never insert a whitespace element as first child node in a composite node. Instead, upsert just before the composite node
-                treeParent.upsertWhitespaceBeforeMe(text)
+                parent?.upsertWhitespaceBeforeMe(text)
             }
 
             is LeafElement -> {
@@ -537,7 +540,7 @@ public fun ASTNode.upsertWhitespaceBeforeMe(text: String) {
             else -> {
                 // Insert in between two composite nodes
                 PsiWhiteSpaceImpl(text).also { psiWhiteSpace ->
-                    treeParent.addChild(psiWhiteSpace.node, this)
+                    parent?.addChild(psiWhiteSpace.node, this)
                 }
             }
         }
@@ -566,9 +569,9 @@ public fun ASTNode.upsertWhitespaceAfterMe(text: String) {
                 next.replaceTextWith(text)
             }
 
-            treeParent.lastChildNode == this -> {
+            parent?.lastChildNode == this -> {
                 // Never insert whitespace as last node in a composite node
-                treeParent.upsertWhitespaceAfterMe(text)
+                parent?.upsertWhitespaceAfterMe(text)
             }
 
             else -> {
@@ -581,7 +584,7 @@ public fun ASTNode.upsertWhitespaceAfterMe(text: String) {
         when (val nextSibling = nextSibling20) {
             null -> {
                 // Never insert a whitespace element as last child node in a composite node. Instead, upsert just after the composite node
-                treeParent?.upsertWhitespaceAfterMe(text)
+                parent?.upsertWhitespaceAfterMe(text)
             }
 
             is LeafElement -> {
@@ -591,7 +594,7 @@ public fun ASTNode.upsertWhitespaceAfterMe(text: String) {
             else -> {
                 // Insert in between two composite nodes
                 PsiWhiteSpaceImpl(text).also { psiWhiteSpace ->
-                    treeParent.addChild(psiWhiteSpace.node, nextSibling)
+                    parent?.addChild(psiWhiteSpace.node, nextSibling)
                 }
             }
         }
@@ -655,7 +658,7 @@ private fun ASTNode.indentInternal(): String =
 @Deprecated("Marked for removal in Ktlint 2.0. Use PsiViewer plugin instead")
 public fun ASTNode.logStructure(): ASTNode =
     also {
-        println("Processing ${text.replaceTabAndNewline()} : Type $elementType with parent ${treeParent?.elementType} ")
+        println("Processing ${text.replaceTabAndNewline()} : Type $elementType with parent ${parent?.elementType} ")
         children20
             .toList()
             .map {
@@ -894,12 +897,12 @@ public fun ASTNode.hasModifier(iElementType: IElementType): Boolean =
         .any { it.elementType == iElementType }
 
 public fun ASTNode.replaceWith(node: ASTNode) {
-    treeParent.addChild(node, this)
+    parent?.addChild(node, this)
     this.remove()
 }
 
 public fun ASTNode.remove() {
-    treeParent.removeChild(this)
+    parent?.removeChild(this)
 }
 
 /**

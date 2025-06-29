@@ -24,6 +24,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -105,11 +106,11 @@ public class MultiLineIfElseRule :
                 // else if (...)
                 return
             }
-            if (!node.treeParent.textContains('\n')) {
+            if (node.parent?.textContains('\n') == false) {
                 // Allow single line if statements as long as they are really simple (e.g. do not contain newlines)
                 //    if (...) <statement> // no else statement
                 //    if (...) <statement> else <statement>
-                if (node.treeParent.treeParent.elementType == ELSE) {
+                if (node.parent?.parent?.elementType == ELSE) {
                     // Except in case nested if-else-if on single line
                     //    if (...) <statement> else if (..) <statement>
                 } else {

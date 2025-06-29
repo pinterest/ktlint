@@ -21,10 +21,12 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.leavesInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
+import org.jetbrains.kotlin.psi.psiUtil.parents
 
 /**
  * Wraps a condition (a boolean binary expression) whenever the expression does not fit on the line. In addition to the
@@ -116,16 +118,11 @@ public class ConditionWrappingRule :
                 .any { it.isWhiteSpaceWithNewline20 }
         }
 
-    private fun ASTNode.anyParentBinaryExpression(predicate: (ASTNode) -> Boolean): Boolean {
-        var current = this
-        while (current.elementType == BINARY_EXPRESSION) {
-            if (predicate(current)) {
-                return true
-            }
-            current = current.treeParent
-        }
-        return false
-    }
+    private fun ASTNode.anyParentBinaryExpression(predicate: (ASTNode) -> Boolean): Boolean =
+        null !=
+            parents()
+                .takeWhile { it.elementType == BINARY_EXPRESSION }
+                .firstOrNull { predicate(it) }
 
     private companion object {
         val logicalOperators = TokenSet.create(OROR, ANDAND)

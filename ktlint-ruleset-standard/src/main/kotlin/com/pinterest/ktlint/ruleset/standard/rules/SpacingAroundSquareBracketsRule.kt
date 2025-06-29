@@ -12,6 +12,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -34,7 +35,7 @@ public class SpacingAroundSquareBracketsRule :
             val prevLeaf = node.prevLeaf
             val nextLeaf = node.nextLeaf
             val spacingBefore =
-                when (node.treeParent.elementType) {
+                when (node.parent?.elementType) {
                     KDOC_MARKDOWN_LINK -> {
                         // Allow:
                         //     /**

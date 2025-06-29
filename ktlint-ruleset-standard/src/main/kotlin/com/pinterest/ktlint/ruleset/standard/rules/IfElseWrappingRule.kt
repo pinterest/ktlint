@@ -29,6 +29,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -69,7 +70,7 @@ public class IfElseWrappingRule :
     ) {
         when {
             node.elementType == IF -> visitIf(node, emit)
-            node.isPartOfComment20 && node.treeParent.elementType == IF -> visitComment(node, emit)
+            node.isPartOfComment20 && node.parent?.elementType == IF -> visitComment(node, emit)
         }
     }
 

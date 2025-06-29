@@ -25,13 +25,13 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet.create
 
 @SinceKtlint("0.1", STABLE)
@@ -56,47 +56,45 @@ public class SpacingAroundKeywordRule : StandardRule("keyword-spacing") {
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node is LeafPsiElement) {
-            if (tokenSet.contains(node.elementType) && node.treeParent.elementType != KDOC_NAME && !node.nextLeaf.isWhiteSpace20) {
-                emit(node.startOffset + node.text.length, "Missing spacing after \"${node.text}\"", true)
-                    .ifAutocorrectAllowed {
-                        (node as ASTNode).upsertWhitespaceAfterMe(" ")
-                    }
+        if (node.elementType in tokenSet && node.parent?.elementType != KDOC_NAME && !node.nextLeaf.isWhiteSpace20) {
+            emit(node.startOffset + node.text.length, "Missing spacing after \"${node.text}\"", true)
+                .ifAutocorrectAllowed { node.upsertWhitespaceAfterMe(" ") }
+        }
+        node
+            .takeIf { keywordsWithoutSpaces.contains(it.elementType) }
+            .takeIf { node.isPropertyAccessorWithValueParameterList() }
+            ?.nextLeaf
+            ?.takeIf { it.isWhiteSpace20 }
+            ?.also { nextLeaf ->
+                emit(node.startOffset, "Unexpected spacing after \"${node.text}\"", true)
+                    .ifAutocorrectAllowed { nextLeaf.remove() }
             }
-            node
-                .takeIf { keywordsWithoutSpaces.contains(it.elementType) }
-                .takeIf { node.isPropertyAccessorWithValueParameterList() }
-                ?.nextLeaf
-                ?.takeIf { it.isWhiteSpace20 }
-                ?.also { nextLeaf ->
-                    emit(node.startOffset, "Unexpected spacing after \"${node.text}\"", true)
-                        .ifAutocorrectAllowed { nextLeaf.remove() }
-                }
-            if (noLFBeforeSet.contains(node.elementType)) {
-                val prevLeaf = node.prevLeaf
-                val isElseKeyword = node.elementType == ELSE_KEYWORD
-                if (prevLeaf.isWhiteSpaceWithNewline20 &&
-                    (!isElseKeyword || node.treeParent.elementType != WHEN_ENTRY)
-                ) {
-                    val rBrace = prevLeaf?.prevLeaf?.takeIf { it.elementType == RBRACE }
-                    val parentOfRBrace = rBrace?.treeParent
-                    if (parentOfRBrace?.elementType == BLOCK &&
-                        (!isElseKeyword || parentOfRBrace.treeParent?.treeParent == node.treeParent)
-                    ) {
+        if (noLFBeforeSet.contains(node.elementType)) {
+            val prevLeaf = node.prevLeaf
+            val isElseKeyword = node.elementType == ELSE_KEYWORD
+            if (prevLeaf.isWhiteSpaceWithNewline20 &&
+                (!isElseKeyword || node.parent?.elementType != WHEN_ENTRY)
+            ) {
+                val rBrace = prevLeaf?.prevLeaf?.takeIf { it.elementType == RBRACE }
+                rBrace
+                    ?.parent
+                    ?.takeIf { it.elementType == BLOCK }
+                    ?.takeIf { !isElseKeyword || it.parent?.parent == node.parent }
+                    ?.run {
                         emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
                             .ifAutocorrectAllowed {
                                 (prevLeaf as LeafElement).rawReplaceWithText(" ")
                             }
                     }
-                }
             }
         }
     }
 
-    private fun LeafPsiElement.isPropertyAccessorWithValueParameterList() =
-        with(treeParent) {
-            elementType == PROPERTY_ACCESSOR && findChildByType(VALUE_PARAMETER_LIST) != null
-        }
+    private fun ASTNode.isPropertyAccessorWithValueParameterList() =
+        null !=
+            parent
+                ?.takeIf { it.elementType == PROPERTY_ACCESSOR }
+                ?.findChildByType(VALUE_PARAMETER_LIST)
 }
 
 public val SPACING_AROUND_KEYWORD_RULE_ID: RuleId = SpacingAroundKeywordRule().ruleId

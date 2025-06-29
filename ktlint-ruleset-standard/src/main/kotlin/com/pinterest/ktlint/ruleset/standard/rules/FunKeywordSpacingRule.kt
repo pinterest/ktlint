@@ -9,6 +9,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -44,7 +45,7 @@ public class FunKeywordSpacingRule : StandardRule("fun-keyword-spacing") {
                         //     fun`foo`() {}
                         emit(leafAfterFunKeyword.startOffset, "Space expected between the fun keyword and backtick", true)
                             .ifAutocorrectAllowed {
-                                leafAfterFunKeyword.treeParent.addChild(PsiWhiteSpaceImpl(" "), leafAfterFunKeyword)
+                                leafAfterFunKeyword.parent?.addChild(PsiWhiteSpaceImpl(" "), leafAfterFunKeyword)
                             }
                     }
 

@@ -270,7 +270,7 @@ public class IndentationRule :
                         fromAstNode = node,
                         lastChildIndent = "",
                     )
-                } else if (node.treeParent.treeParent.elementType != IF) {
+                } else if (node.parent?.parent?.elementType != IF) {
                     startIndentContext(node)
                 }
             }
@@ -317,7 +317,7 @@ public class IndentationRule :
             }
 
             node.elementType == VALUE_PARAMETER_LIST &&
-                node.treeParent.elementType != FUNCTION_LITERAL -> {
+                node.parent?.elementType != FUNCTION_LITERAL -> {
                 startIndentContext(
                     fromAstNode = node,
                     lastChildIndent = "",
@@ -352,8 +352,8 @@ public class IndentationRule :
             node.elementType in CHAINABLE_EXPRESSION -> {
                 if (codeStyle == ktlint_official &&
                     node.elementType == DOT_QUALIFIED_EXPRESSION &&
-                    node.treeParent?.elementType == ARRAY_ACCESS_EXPRESSION &&
-                    node.treeParent?.treeParent?.elementType == CALL_EXPRESSION
+                    node.parent?.elementType == ARRAY_ACCESS_EXPRESSION &&
+                    node.parent?.parent?.elementType == CALL_EXPRESSION
                 ) {
                     // Issue 1540: Deviate and fix from incorrect formatting in IntelliJ IDEA formatting and produce following:
                     // val fooBar2 = foo
@@ -361,12 +361,12 @@ public class IndentationRule :
                     //        "foobar"
                     //    }
                     startIndentContext(
-                        fromAstNode = node.treeParent,
-                        toAstNode = node.treeParent.treeParent.lastChildLeafOrSelf20,
+                        fromAstNode = node.parent!!,
+                        toAstNode = node.parent!!.parent!!.lastChildLeafOrSelf20,
                     )
                 } else if (node.prevCodeSibling20.isElvisOperator()) {
                     startIndentContext(node)
-                } else if (node.treeParent.elementType in CHAINABLE_EXPRESSION) {
+                } else if (node.parent?.elementType in CHAINABLE_EXPRESSION) {
                     // Multiple dot qualified expressions and/or safe expression on the same line should not increase the indent level
                 } else {
                     startIndentContext(node)
@@ -374,7 +374,7 @@ public class IndentationRule :
             }
 
             node.elementType == IDENTIFIER &&
-                node.treeParent.elementType == PROPERTY -> {
+                node.parent?.elementType == PROPERTY -> {
                 visitIdentifierInProperty(node)
             }
 
@@ -433,8 +433,8 @@ public class IndentationRule :
     }
 
     private fun ASTNode.isPartOfClassWithAMultilinePrimaryConstructor() =
-        treeParent
-            .takeIf { it.elementType == CLASS }
+        parent
+            ?.takeIf { it.elementType == CLASS }
             ?.findChildByType(PRIMARY_CONSTRUCTOR)
             ?.textContains('\n') == true
 
@@ -532,7 +532,7 @@ public class IndentationRule :
 
         // Inner indent context in reversed order
         node
-            .treeParent
+            .parent
             ?.takeIf { it.elementType == FUNCTION_LITERAL }
             ?.findChildByType(ARROW)
             ?.let { arrow ->
@@ -584,7 +584,7 @@ public class IndentationRule :
             //     }
             this
                 .takeIf { it.isPartOf(CALL_EXPRESSION) }
-                ?.treeParent
+                ?.parent
                 ?.leaves(false)
                 ?.takeWhile { !it.isWhiteSpaceWithNewline20 }
                 ?.sumOf { it.textLength }
@@ -643,13 +643,12 @@ public class IndentationRule :
         val fromAstNode = node.skipLeadingWhitespaceCommentsAndAnnotations()
         if (fromAstNode != node.firstChildNode &&
             node.prevSibling { it.isWhiteSpaceWithNewline20 } == null &&
-            node == node.treeParent.findChildByType(VALUE_PARAMETER)
+            node == node.parent?.findChildByType(VALUE_PARAMETER)
         ) {
-            nextToAstNode =
-                startIndentContext(
-                    fromAstNode = fromAstNode,
-                    toAstNode = nextToAstNode,
-                ).fromASTNode.prevLeaf { !it.isWhiteSpace20 }!!
+            startIndentContext(
+                fromAstNode = fromAstNode,
+                toAstNode = nextToAstNode,
+            ).fromASTNode.prevLeaf { !it.isWhiteSpace20 }!!
         } else {
             startIndentContext(
                 fromAstNode = node,
@@ -796,7 +795,7 @@ public class IndentationRule :
                 childIndent = conditionIndentContext.childIndent,
             )
             startIndentContext(node.firstChildNode)
-        } else if (node.treeParent?.elementType != BINARY_EXPRESSION ||
+        } else if (node.parent?.elementType != BINARY_EXPRESSION ||
             node.findChildByType(OPERATION_REFERENCE)?.firstChildNode?.elementType == ELVIS
         ) {
             startIndentContext(node)
@@ -806,7 +805,7 @@ public class IndentationRule :
     private fun visitIdentifierInProperty(node: ASTNode) {
         startIndentContext(
             fromAstNode = node,
-            toAstNode = node.treeParent.lastChildLeafOrSelf20,
+            toAstNode = node.parent!!.lastChildLeafOrSelf20,
         )
     }
 
@@ -957,8 +956,8 @@ public class IndentationRule :
 
     private fun visitLBracket(node: ASTNode) {
         node
-            .treeParent
-            .takeUnless {
+            .parent
+            ?.takeUnless {
                 // Should be resolved in IntelliJ IDEA default formatter:
                 // https://youtrack.jetbrains.com/issue/KTIJ-14859/Too-little-indentation-inside-the-brackets-in-multiple-annotations-with-the-same-target
                 it.elementType == ANNOTATION
@@ -1280,7 +1279,7 @@ public class IndentationRule :
         if (!this::stringTemplateIndenter.isInitialized) {
             stringTemplateIndenter = StringTemplateIndenter(codeStyle, indentConfig)
         }
-        stringTemplateIndenter.visitClosingQuotes(currentIndent(), node.treeParent, emitAndApprove)
+        stringTemplateIndenter.visitClosingQuotes(currentIndent(), node.parent!!, emitAndApprove)
     }
 
     private fun ASTNode?.isElvisOperator() =
@@ -1516,7 +1515,7 @@ private class StringTemplateIndenter(
             FUN ==
             prevCodeLeaf
                 .takeIf { it?.elementType == EQ }
-                ?.treeParent
+                ?.parent
                 ?.elementType
 
     private fun ASTNode.isRawStringLiteralReturnInFunctionBodyBlock() = RETURN_KEYWORD == prevCodeLeaf?.elementType

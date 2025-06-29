@@ -30,6 +30,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.noNewLineInClosedRange
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -64,9 +65,9 @@ public class StatementWrappingRule :
     ) {
         when (node.elementType) {
             BLOCK -> {
-                if (node.treeParent.elementType == FUNCTION_LITERAL) {
+                if (node.parent?.elementType == FUNCTION_LITERAL) {
                     // LBRACE and RBRACE are outside of BLOCK
-                    visitBlock(node.treeParent, emit)
+                    visitBlock(node.parent!!, emit)
                 } else {
                     visitBlock(node, emit)
                 }
@@ -102,7 +103,7 @@ public class StatementWrappingRule :
                 // or
                 //     /** Some comment */
                 //     enum class FooBar { FOO, BAR }
-                it.treeParent.isEnumClassOnSingleLine
+                it.parent!!.isEnumClassOnSingleLine
             }?.findChildByType(LBRACE)
             ?.applyIf(node.isFunctionLiteralWithParameterList) {
                 // Allow:
@@ -188,10 +189,10 @@ public class StatementWrappingRule :
         get() = indent20.plus(indentConfig.indent)
 
     private inline val ASTNode.indentAsSibling: String
-        get() = treeParent.indent20.plus(indentConfig.indent)
+        get() = parent!!.indent20.plus(indentConfig.indent)
 
     private inline val ASTNode.indentAsParent: String
-        get() = treeParent.indent20
+        get() = parent!!.indent20
 
     private fun visitSemiColon(
         node: ASTNode,
@@ -199,7 +200,7 @@ public class StatementWrappingRule :
     ) {
         val previousCodeLeaf = node.prevCodeLeaf?.lastChildLeafOrSelf20 ?: return
         val nextCodeLeaf = node.nextCodeLeaf?.firstChildLeafOrSelf20 ?: return
-        if (previousCodeLeaf.treeParent.elementType == ElementType.ENUM_ENTRY && nextCodeLeaf.elementType == RBRACE) {
+        if (previousCodeLeaf.parent?.elementType == ElementType.ENUM_ENTRY && nextCodeLeaf.elementType == RBRACE) {
             // Allow
             // enum class INDEX2 { ONE, TWO, THREE; }
             return

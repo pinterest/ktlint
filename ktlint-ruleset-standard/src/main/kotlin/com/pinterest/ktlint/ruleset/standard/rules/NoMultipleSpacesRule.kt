@@ -8,6 +8,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -39,8 +40,7 @@ public class NoMultipleSpacesRule : StandardRule("no-multi-spaces") {
     // allow multiple spaces in KDoc in case of KDOC_TAG for alignment, e.g.
     // @param foo      stuff
     // @param foobar   stuff2
-    private fun ASTNode.isPossibleAlignmentOfKdocTag() =
-        prevSibling20?.elementType == KDOC_MARKDOWN_LINK && treeParent?.elementType == KDOC_TAG
+    private fun ASTNode.isPossibleAlignmentOfKdocTag() = prevSibling20?.elementType == KDOC_MARKDOWN_LINK && parent?.elementType == KDOC_TAG
 }
 
 public val NO_MULTIPLE_SPACES_RULE_ID: RuleId = NoMultipleSpacesRule().ruleId

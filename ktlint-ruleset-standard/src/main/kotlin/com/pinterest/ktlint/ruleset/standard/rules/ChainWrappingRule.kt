@@ -32,6 +32,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -144,15 +145,15 @@ public class ChainWrappingRule :
                                 }
                             }
 
-                        if (node.treeParent.elementType == OPERATION_REFERENCE) {
-                            val operationReference = node.treeParent
+                        val parent = node.parent
+                        if (parent?.elementType == OPERATION_REFERENCE) {
                             val insertBeforeSibling =
-                                operationReference
+                                parent
                                     .prevCodeSibling20
                                     ?.nextSibling20
-                            operationReference.remove()
-                            insertBeforeSibling?.treeParent?.addChild(operationReference, insertBeforeSibling)
-                            node.treeParent.upsertWhitespaceBeforeMe(" ")
+                            parent.remove()
+                            insertBeforeSibling?.parent?.addChild(parent, insertBeforeSibling)
+                            parent.upsertWhitespaceBeforeMe(" ")
                         } else {
                             val insertionPoint = prevLeaf.prevCodeLeaf as LeafPsiElement
                             (node as LeafPsiElement).remove()
@@ -160,7 +161,7 @@ public class ChainWrappingRule :
                             (insertionPoint as ASTNode).upsertWhitespaceAfterMe(" ")
                         }
                         whiteSpaceToBeDeleted
-                            ?.treeParent
+                            ?.parent
                             ?.removeChild(whiteSpaceToBeDeleted)
                     }
             }
@@ -179,7 +180,7 @@ public class ChainWrappingRule :
                         KtTokens.OPERATIONS.contains(type)
                 } == true
 
-    private fun ASTNode.isInPrefixPosition() = treeParent?.treeParent?.elementType == PREFIX_EXPRESSION
+    private fun ASTNode.isInPrefixPosition() = parent?.parent?.elementType == PREFIX_EXPRESSION
 
     private fun ASTNode.isElvisOperatorAndComment(): Boolean =
         elementType == ELVIS &&

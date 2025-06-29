@@ -194,8 +194,8 @@ public class KtlintSuppressionRule(
                     .toSet()
             node
                 .applyIf(node.elementType == BLOCK_COMMENT && shouldBePromotedToParentDeclaration(ruleIdValidator)) {
-                    treeParent.treeParent
-                }.insertKtlintRuleSuppression(suppressionIds, forceFileAnnotation = node.shouldBeConvertedToFileAnnotation())
+                    parent?.parent
+                }?.insertKtlintRuleSuppression(suppressionIds, forceFileAnnotation = node.shouldBeConvertedToFileAnnotation())
             if (node.elementType == EOL_COMMENT) {
                 node.removePrecedingWhitespace()
             } else {
@@ -249,9 +249,9 @@ private class KtLintDirective(
 
     private fun findMatchingKtlintEnableDirective(ruleIdValidator: (String) -> Boolean) =
         node
-            .applyIf(node.isSuppressibleDeclaration()) { node.treeParent }
-            .siblings()
-            .firstOrNull { node ->
+            .applyIf(node.isSuppressibleDeclaration()) { node.parent }
+            ?.siblings()
+            ?.firstOrNull { node ->
                 node
                     .ktlintDirectiveOrNull(ruleIdValidator)
                     ?.takeIf { it.ktlintDirectiveType == KTLINT_ENABLE }
@@ -272,8 +272,8 @@ private class KtLintDirective(
                     // block directive should be match with this declaration only and not be moved to the parent.
                     matchingKtlintEnabledDirective !=
                         node
-                            .treeParent
-                            .nextSibling { !it.isWhiteSpace20 }
+                            .parent
+                            ?.nextSibling { !it.isWhiteSpace20 }
                 }
                 ?: false
         }
@@ -283,7 +283,7 @@ private class KtLintDirective(
 
     private fun ASTNode.surroundsMultipleListElements(): Boolean {
         require(ktlintDirectiveType == KTLINT_DISABLE && elementType == BLOCK_COMMENT)
-        return if (treeParent.elementType in listTypeTokenSet) {
+        return if (parent?.elementType in listTypeTokenSet) {
             findMatchingKtlintEnableDirective(ruleIdValidator)
                 ?.siblings(false)
                 ?.takeWhile { it != this }
@@ -395,10 +395,10 @@ private fun String.toSuppressionIdChanges(ruleIdValidator: (String) -> Boolean) 
 
 private fun ASTNode.shouldBeConvertedToFileAnnotation() =
     isTopLevel() ||
-        (elementType == BLOCK_COMMENT && isSuppressibleDeclaration() && treeParent.isTopLevel())
+        (elementType == BLOCK_COMMENT && isSuppressibleDeclaration() && parent!!.isTopLevel())
 
 private fun ASTNode.isSuppressibleDeclaration() =
-    when (treeParent.elementType) {
+    when (parent?.elementType) {
         ElementType.CLASS, ElementType.FUN, ElementType.PROPERTY -> true
         else -> false
     }

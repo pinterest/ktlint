@@ -163,8 +163,8 @@ internal class SuppressionLocator(
     }
 
     private fun ASTNode.rbraceOfContainingBlock(): ASTNode? =
-        treeParent
-            .lastChildNode
+        parent
+            ?.lastChildNode
             ?.takeIf { it.elementType == RBRACE }
 
     private fun <T> List<T>.tail() = this.subList(1, this.size)

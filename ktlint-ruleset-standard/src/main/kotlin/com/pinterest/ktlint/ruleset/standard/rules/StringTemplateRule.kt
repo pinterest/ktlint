@@ -22,6 +22,7 @@ import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -65,7 +66,7 @@ public class StringTemplateRule : StandardRule("string-template") {
                                 "Redundant \".toString()\" call in string template",
                                 true,
                             ).ifAutocorrectAllowed {
-                                dotQualifiedExpression.treeParent.addChild(receiver, dotQualifiedExpression)
+                                dotQualifiedExpression.parent?.addChild(receiver, dotQualifiedExpression)
                                 dotQualifiedExpression.remove()
                                 takeIf { it.isStringTemplate() }
                                     ?.removeCurlyBracesIfRedundant()

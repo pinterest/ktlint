@@ -28,6 +28,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.leavesInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -91,7 +92,7 @@ public class FunctionExpressionBodyRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .takeIf { it.elementType == BLOCK && it.treeParent.elementType == FUN }
+            .takeIf { it.elementType == BLOCK && it.parent?.elementType == FUN }
             ?.let { visitFunctionBody(node, emit) }
     }
 
@@ -109,7 +110,7 @@ public class FunctionExpressionBodyRule :
             ?.let { codeSibling ->
                 emit(block.startOffset, "Function body should be replaced with body expression", true)
                     .ifAutocorrectAllowed {
-                        with(block.treeParent) {
+                        with(block.parent!!) {
                             // Insert the code sibling before the block
                             addChild(LeafPsiElement(EQ, "="), block)
                             addChild(PsiWhiteSpaceImpl(" "), block)
@@ -125,7 +126,7 @@ public class FunctionExpressionBodyRule :
             ?.let { throwNode ->
                 emit(block.startOffset, "Function body should be replaced with body expression", true)
                     .ifAutocorrectAllowed {
-                        with(block.treeParent) {
+                        with(block.parent!!) {
                             // Remove whitespace before block
                             block
                                 .prevSibling20

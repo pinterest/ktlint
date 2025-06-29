@@ -10,6 +10,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -38,7 +39,7 @@ public class NoLineBreakBeforeAssignmentRule : StandardRule("no-line-break-befor
             ?.let { unexpectedNewlineBeforeAssignment ->
                 emit(unexpectedNewlineBeforeAssignment.startOffset, "Line break before assignment is not allowed", true)
                     .ifAutocorrectAllowed {
-                        val parent = assignmentNode.treeParent
+                        val parent = assignmentNode.parent!!
                         // Insert assignment surrounded by whitespaces at new position
                         assignmentNode
                             .siblings(false)

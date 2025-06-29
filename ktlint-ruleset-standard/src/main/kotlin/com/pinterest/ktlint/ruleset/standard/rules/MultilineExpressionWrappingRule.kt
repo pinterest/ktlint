@@ -45,6 +45,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.leavesForwardsIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -88,12 +89,12 @@ public class MultilineExpressionWrappingRule :
     ) {
         if (node.elementType in CHAINABLE_EXPRESSION &&
             !node.isPartOfSpreadOperatorExpression() &&
-            (node.treeParent.elementType !in CHAINABLE_EXPRESSION || node.isRightHandSideOfBinaryExpression())
+            (node.parent?.elementType !in CHAINABLE_EXPRESSION || node.isRightHandSideOfBinaryExpression())
         ) {
             visitExpression(node, emit)
         }
         if (node.elementType == BINARY_EXPRESSION &&
-            node.treeParent.elementType != BINARY_EXPRESSION
+            node.parent?.elementType != BINARY_EXPRESSION
         ) {
             visitExpression(node, emit)
         }
@@ -101,7 +102,7 @@ public class MultilineExpressionWrappingRule :
 
     private fun ASTNode.isPartOfSpreadOperatorExpression() =
         prevCodeLeaf?.elementType == MUL &&
-            treeParent.elementType == VALUE_ARGUMENT
+            parent?.elementType == VALUE_ARGUMENT
 
     private fun visitExpression(
         node: ASTNode,
@@ -125,7 +126,7 @@ public class MultilineExpressionWrappingRule :
                                     Unit
                                 }
 
-                                leafOnSameLineAfterMultilineExpression.treeParent.elementType == OPERATION_REFERENCE -> {
+                                leafOnSameLineAfterMultilineExpression.parent?.elementType == OPERATION_REFERENCE -> {
                                     // When binary expressions are wrapped, each binary expression for itself is checked whether it is a
                                     // multiline expression. So there is no need to check whether wrapping after the operation reference is
                                     // needed
@@ -134,8 +135,8 @@ public class MultilineExpressionWrappingRule :
 
                                 leafOnSameLineAfterMultilineExpression.elementType == COMMA &&
                                     (
-                                        leafOnSameLineAfterMultilineExpression.treeParent.elementType == VALUE_ARGUMENT_LIST ||
-                                            leafOnSameLineAfterMultilineExpression.treeParent.elementType == VALUE_PARAMETER_LIST
+                                        leafOnSameLineAfterMultilineExpression.parent?.elementType == VALUE_ARGUMENT_LIST ||
+                                            leafOnSameLineAfterMultilineExpression.parent?.elementType == VALUE_PARAMETER_LIST
                                     ) -> {
                                     // Keep comma on same line as multiline expression:
                                     //   foo(
@@ -178,7 +179,7 @@ public class MultilineExpressionWrappingRule :
         null !=
             prevCodeSibling20
                 ?.takeIf { it.elementType == EQ || it.elementType == OPERATION_REFERENCE }
-                ?.takeUnless { functionBodyExpressionWrapping == default && it.treeParent.elementType == FUN }
+                ?.takeUnless { functionBodyExpressionWrapping == default && it.parent?.elementType == FUN }
                 ?.takeUnless { it.isElvisOperator() }
                 ?.takeUnless {
                     it
@@ -193,29 +194,29 @@ public class MultilineExpressionWrappingRule :
             firstChildNode.elementType == ElementType.ELVIS
 
     private fun ASTNode.closingParenthesisOfFunctionOrNull() =
-        takeIf { treeParent.elementType == FUN }
+        takeIf { parent?.elementType == FUN }
             ?.prevCodeLeaf
             ?.takeIf { it.elementType == RPAR }
 
     private fun ASTNode.isLambdaExpression() =
         null !=
-            treeParent
-                .takeIf {
+            parent
+                ?.takeIf {
                     // Function literals in lambda expression have an implicit block (no LBRACE and RBRACE). So only wrap when the node is
                     // the first node in the block
                     it.elementType == BLOCK && it.firstChildNode == this
-                }?.treeParent
+                }?.parent
                 ?.takeIf { it.elementType == ElementType.FUNCTION_LITERAL }
-                ?.treeParent
+                ?.parent
                 ?.takeIf { it.elementType == ElementType.LAMBDA_EXPRESSION }
 
-    private fun ASTNode.isValueArgument() = treeParent.elementType == VALUE_ARGUMENT
+    private fun ASTNode.isValueArgument() = parent?.elementType == VALUE_ARGUMENT
 
     private fun ASTNode.isAfterArrow() = prevCodeLeaf?.elementType == ARROW
 
     private fun ASTNode.isRightHandSideOfBinaryExpression() =
         null !=
-            takeIf { it.treeParent.elementType == BINARY_EXPRESSION }
+            takeIf { it.parent?.elementType == BINARY_EXPRESSION }
                 .takeIf { it?.prevCodeSibling20?.elementType == OPERATION_REFERENCE }
 
     private companion object {

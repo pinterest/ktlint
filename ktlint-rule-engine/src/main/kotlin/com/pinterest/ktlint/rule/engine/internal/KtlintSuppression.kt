@@ -24,6 +24,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isRoot20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.replaceWith
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
@@ -167,14 +168,14 @@ private val listElementTypeTokenSet = TokenSet.create(TYPE_PROJECTION, TYPE_PARA
 
 private fun PsiElement.isIgnorableListElement() =
     node
-        .takeIf { it.treeParent.elementType in listTypeTokenSet }
+        .takeIf { it.parent?.elementType in listTypeTokenSet }
         ?.let { it.elementType == COMMA || it.isWhiteSpace20 || it.isPartOfComment20 }
         ?: false
 
 /**
  * Determines whether a node is top level element
  */
-internal fun ASTNode.isTopLevel() = this.elementType == FILE || this.treeParent.elementType == FILE
+internal fun ASTNode.isTopLevel() = this.elementType == FILE || this.parent?.elementType == FILE
 
 private fun Set<String>.mergeInto(
     annotationNode: ASTNode,
@@ -255,8 +256,8 @@ private fun ASTNode.createSuppressAnnotation(
     suppressions: Set<String>,
 ) {
     val targetNode =
-        if (elementType == ElementType.ANNOTATION_ENTRY) {
-            treeParent
+        if (elementType == ANNOTATION_ENTRY) {
+            parent!!
         } else {
             this
         }
@@ -289,11 +290,11 @@ private fun ASTNode.createSuppressAnnotation(
                 this.elementType != VALUE_PARAMETER
             ) {
                 val annotatedExpression = targetNode.createAnnotatedExpression(suppressType, suppressions)
-                treeParent.replaceChild(targetNode, annotatedExpression)
+                parent!!.replaceChild(targetNode, annotatedExpression)
             } else {
                 val modifierListWithAnnotation = createModifierListWithAnnotationEntry(suppressType, suppressions)
-                treeParent.addChild(modifierListWithAnnotation.findChildByType(ANNOTATION_ENTRY)!!, this)
-                treeParent.addChild(PsiWhiteSpaceImpl(indent20), this)
+                parent!!.addChild(modifierListWithAnnotation.findChildByType(ANNOTATION_ENTRY)!!, this)
+                parent!!.addChild(PsiWhiteSpaceImpl(indent20), this)
             }
         }
     }
@@ -322,11 +323,11 @@ private fun ASTNode.createFileAnnotationList(annotation: ASTNode) {
     findChildByType(ElementType.PACKAGE_DIRECTIVE)
         ?.let { packageDirective ->
             packageDirective
-                .treeParent
-                .addChild(annotation, packageDirective)
+                .parent
+                ?.addChild(annotation, packageDirective)
             packageDirective
-                .treeParent
-                .addChild(PsiWhiteSpaceImpl("\n" + indent20), packageDirective)
+                .parent
+                ?.addChild(PsiWhiteSpaceImpl("\n" + indent20), packageDirective)
         }
 }
 

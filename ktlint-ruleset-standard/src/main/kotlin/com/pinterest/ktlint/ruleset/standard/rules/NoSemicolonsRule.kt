@@ -98,24 +98,26 @@ public class NoSemicolonsRule :
         }
 
     private fun isNoSemicolonRequiredAfter(node: ASTNode): Boolean {
-        val prevCodeLeaf =
-            node.prevCodeLeaf
-                ?: return true
-        if (prevCodeLeaf.elementType == OBJECT_KEYWORD) {
-            // https://github.com/pinterest/ktlint/issues/281
-            return false
-        }
+        node
+            .prevCodeLeaf
+            ?.also { prevCodeLeaf ->
+                if (prevCodeLeaf.elementType == OBJECT_KEYWORD) {
+                    // https://github.com/pinterest/ktlint/issues/281
+                    return false
+                }
+            }?.parent
+            ?.run {
+                if (isLoopWithoutBody()) {
+                    // https://github.com/pinterest/ktlint/issues/955
+                    return false
+                }
+                if (isIfExpressionWithoutThen()) {
+                    return false
+                }
+            }
 
-        val parentNode = prevCodeLeaf.treeParent
-        if (parentNode.isLoopWithoutBody()) {
-            // https://github.com/pinterest/ktlint/issues/955
-            return false
-        }
-        if (parentNode.isIfExpressionWithoutThen()) {
-            return false
-        }
         // In case of an enum entry the semicolon (e.g. the node) is a direct child node of enum entry
-        if (node.treeParent.elementType == ENUM_ENTRY) {
+        if (node.parent?.elementType == ENUM_ENTRY) {
             return node.isLastCodeLeafBeforeClosingOfClassBody()
         }
         if (node.isEnumClassWithoutValues()) {

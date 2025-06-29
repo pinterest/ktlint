@@ -7,6 +7,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
@@ -23,8 +24,8 @@ public class ValueParameterCommentRule : StandardRule("value-parameter-comment")
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.isPartOfComment20 && node.treeParent.elementType == VALUE_PARAMETER) {
-            if (node.elementType == KDOC && node.treeParent.firstChildNode == node) {
+        if (node.isPartOfComment20 && node.parent?.elementType == VALUE_PARAMETER) {
+            if (node.elementType == KDOC && node.parent?.firstChildNode == node) {
                 // Allow KDoc to be the first element of a value parameter. EOL and block comments directly before a value parameter are
                 // a child of the value parameter list, and as of that will never be the first child of the value.
                 //     class Foo(

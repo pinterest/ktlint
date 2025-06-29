@@ -47,6 +47,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
@@ -156,7 +157,7 @@ public class FunctionSignatureRule :
     private fun ASTNode.getFirstCodeChild(): ASTNode? {
         val funNode =
             if (elementType == FUN_KEYWORD) {
-                this.treeParent
+                this.parent
             } else {
                 this
             }
@@ -186,7 +187,7 @@ public class FunctionSignatureRule :
                 return nextSibling.nextCodeSibling20
             }
 
-        return funNode.nextCodeLeaf
+        return funNode?.nextCodeLeaf
     }
 
     private fun visitFunctionSignature(

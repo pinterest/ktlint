@@ -13,6 +13,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -30,11 +31,7 @@ public class NoEmptyClassBodyRule : StandardRule("no-empty-class-body") {
                     n.nextLeaf { !it.isWhiteSpace20 }?.elementType == RBRACE
             } == true &&
             !node.isPartOf(ElementType.OBJECT_LITERAL) &&
-            node
-                .treeParent
-                .firstChildNode
-                .children20
-                .none { it.text == "companion" }
+            isNotCompanion(node)
         ) {
             emit(node.startOffset, "Unnecessary block (\"{}\")", true)
                 .ifAutocorrectAllowed {
@@ -45,6 +42,19 @@ public class NoEmptyClassBodyRule : StandardRule("no-empty-class-body") {
                 }
         }
     }
+
+    private fun ASTNode.isEmptyBlockBody(): Boolean =
+        firstChildNode != null &&
+            firstChildNode.elementType == LBRACE &&
+            firstChildNode.nextLeaf { !it.isWhiteSpace20 }?.elementType == RBRACE
+
+    private fun isNotCompanion(node: ASTNode): Boolean =
+        node
+            .parent
+            ?.firstChildNode
+            ?.children20
+            .orEmpty()
+            .none { it.text == "companion" }
 }
 
 public val NO_EMPTY_CLASS_BODY_RULE_ID: RuleId = NoEmptyClassBodyRule().ruleId

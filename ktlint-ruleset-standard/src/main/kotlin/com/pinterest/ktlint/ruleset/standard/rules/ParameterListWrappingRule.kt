@@ -32,13 +32,14 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.psiUtil.children
@@ -167,18 +168,18 @@ public class ParameterListWrappingRule :
 
     private fun ASTNode.isPartOfFunctionLiteralInNonKtlintOfficialCodeStyle(): Boolean {
         require(elementType == VALUE_PARAMETER_LIST)
-        return treeParent?.elementType == FUNCTION_LITERAL
+        return parent?.elementType == FUNCTION_LITERAL
     }
 
     private fun ASTNode.isPartOfFunctionLiteralStartingOnSameLineAsClosingParenthesisOfPrecedingReferenceExpression(): Boolean {
         require(elementType == VALUE_PARAMETER_LIST)
         return firstChildLeafOrSelf20
             .let { startOfFunctionLiteral ->
-                treeParent
+                parent
                     ?.takeIf { it.elementType == FUNCTION_LITERAL }
                     ?.prevCodeLeaf
-                    ?.takeIf { it.treeParent.elementType == ElementType.VALUE_ARGUMENT_LIST }
-                    ?.takeIf { it.treeParent.treeParent.elementType == ElementType.CALL_EXPRESSION }
+                    ?.takeIf { it.parent?.elementType == ElementType.VALUE_ARGUMENT_LIST }
+                    ?.takeIf { it.parent?.parent?.elementType == ElementType.CALL_EXPRESSION }
                     ?.leaves()
                     ?.takeWhile { it != startOfFunctionLiteral }
                     ?.none { it.isWhiteSpaceWithNewline20 }
@@ -236,7 +237,7 @@ public class ParameterListWrappingRule :
             //         param1: T
             //         param2: R
             //     )
-            child.treeParent.isFunWithTypeParameterListInFront() -> -1
+            child.parent!!.isFunWithTypeParameterListInFront() -> -1
 
             else -> 0
         }.let {
@@ -248,7 +249,7 @@ public class ParameterListWrappingRule :
         }.let { indentLevelFix ->
             val indentLevel =
                 indentConfig
-                    .indentLevelFrom(child.treeParent.indentWithoutNewlinePrefix)
+                    .indentLevelFrom(child.parent!!.indentWithoutNewlinePrefix)
                     .plus(indentLevelFix)
             "\n" + indentConfig.indent.repeat(indentLevel)
         }
@@ -259,15 +260,15 @@ public class ParameterListWrappingRule :
     ) {
         when (child.elementType) {
             LPAR -> {
-                val prevLeaf = child.prevLeaf
-                if (!child.treeParent.isValueParameterListInFunctionType() &&
-                    prevLeaf.isWhiteSpaceWithNewline20
-                ) {
-                    emit(child.startOffset, errorMessage(child), true)
-                        .ifAutocorrectAllowed {
-                            (prevLeaf as PsiWhiteSpace).delete()
-                        }
-                }
+                child
+                    .parent
+                    ?.takeUnless { it.isValueParameterListInFunctionType() }
+                    ?.prevLeaf
+                    ?.takeIf { it.isWhiteSpaceWithNewline20 }
+                    ?.let { whitespace ->
+                        emit(child.startOffset, errorMessage(child), true)
+                            .ifAutocorrectAllowed { whitespace.remove() }
+                    }
             }
 
             VALUE_PARAMETER,
@@ -302,7 +303,7 @@ public class ParameterListWrappingRule :
                         // Insert a new whitespace element in order to wrap the current child to a new line.
                         emit(child.startOffset, errorMessage(child), true)
                             .ifAutocorrectAllowed {
-                                child.treeParent.addChild(PsiWhiteSpaceImpl(intendedIndent), child)
+                                child.parent?.addChild(PsiWhiteSpaceImpl(intendedIndent), child)
                             }
                     }
                 }
@@ -314,7 +315,7 @@ public class ParameterListWrappingRule :
     private fun ASTNode.isValueParameterListInFunctionType() =
         FUNCTION_TYPE ==
             takeIf { it.elementType == VALUE_PARAMETER_LIST }
-                ?.treeParent
+                ?.parent
                 ?.elementType
 
     private fun ASTNode.isOnLineExceedingMaxLineLength(): Boolean {
@@ -338,8 +339,8 @@ public class ParameterListWrappingRule :
         }
 
     private fun ASTNode.isFunWithTypeParameterListInFront() =
-        treeParent
-            .takeIf { elementType == FUN }
+        parent
+            ?.takeIf { elementType == FUN }
             ?.findChildByType(TYPE_PARAMETER_LIST)
             ?.children()
             ?.any { it.isWhiteSpaceWithNewline20 }

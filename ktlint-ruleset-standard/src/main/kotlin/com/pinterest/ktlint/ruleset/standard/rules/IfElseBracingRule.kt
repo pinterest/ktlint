@@ -24,6 +24,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -78,9 +79,9 @@ public class IfElseBracingRule :
         val elseNode = node.findChildByType(ELSE) ?: return
         val parentIfBracing =
             node
-                .treeParent
-                .takeIf { it.elementType == ELSE }
-                ?.treeParent
+                .parent
+                ?.takeIf { it.elementType == ELSE }
+                ?.parent
                 ?.hasBracing()
                 ?: false
         val thenBracing = thenNode.hasBracing()

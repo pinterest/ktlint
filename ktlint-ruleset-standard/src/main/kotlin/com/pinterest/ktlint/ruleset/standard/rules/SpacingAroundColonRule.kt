@@ -16,6 +16,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
@@ -43,81 +44,83 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val parentType = node.treeParent.elementType
-        val prevLeaf = node.prevLeaf
-        if (prevLeaf != null && prevLeaf.isWhiteSpaceWithNewline20) {
-            emit(prevLeaf.startOffset, "Unexpected newline before \":\"", true)
-                .ifAutocorrectAllowed {
-                    val prevNonCodeElements =
-                        node
-                            .siblings(forward = false)
-                            .takeWhile { !it.isCode }
-                            .toList()
-                            .reversed()
-                    when {
-                        parentType == ElementType.PROPERTY || parentType == ElementType.FUN -> {
+        node
+            .prevLeaf
+            ?.takeIf { it.isWhiteSpaceWithNewline20 }
+            ?.let { prevLeaf ->
+                emit(prevLeaf.startOffset, "Unexpected newline before \":\"", true)
+                    .ifAutocorrectAllowed {
+                        val parentType = node.parent?.elementType
+                        val prevNonCodeElements =
                             node
-                                .siblings(forward = true)
-                                .firstOrNull { it.elementType == EQ }
-                                ?.nextSibling20
-                                ?.let { nextSibling ->
-                                    prevNonCodeElements.forEach {
-                                        node.treeParent.addChild(it, nextSibling)
-                                    }
-                                    if (nextSibling.isWhiteSpace20) {
-                                        nextSibling.remove()
-                                    }
-                                    Unit
-                                }
-                            val blockElement =
+                                .siblings(forward = false)
+                                .takeWhile { !it.isCode }
+                                .toList()
+                                .reversed()
+                        when {
+                            parentType == ElementType.PROPERTY || parentType == ElementType.FUN -> {
                                 node
                                     .siblings(forward = true)
-                                    .firstOrNull { it.elementType == BLOCK }
-                            if (blockElement != null) {
-                                val before =
-                                    blockElement
-                                        .firstChildNode
-                                        .nextSibling20
-                                prevNonCodeElements
-                                    .let {
-                                        if (it.first().isWhiteSpace20) {
-                                            it.first().remove()
-                                            it.drop(1)
+                                    .firstOrNull { it.elementType == EQ }
+                                    ?.nextSibling20
+                                    ?.let { nextSibling ->
+                                        prevNonCodeElements.forEach {
+                                            node.parent?.addChild(it, nextSibling)
                                         }
-                                        if (it.last().isWhiteSpaceWithNewline20) {
-                                            it.last().remove()
-                                            it.dropLast(1)
-                                        } else {
-                                            it
+                                        if (nextSibling.isWhiteSpace20) {
+                                            nextSibling.remove()
                                         }
-                                    }.forEach {
-                                        blockElement.addChild(it, before)
+                                        Unit
                                     }
+                                val blockElement =
+                                    node
+                                        .siblings(forward = true)
+                                        .firstOrNull { it.elementType == BLOCK }
+                                if (blockElement != null) {
+                                    val before =
+                                        blockElement
+                                            .firstChildNode
+                                            .nextSibling20
+                                    prevNonCodeElements
+                                        .let {
+                                            if (it.first().isWhiteSpace20) {
+                                                it.first().remove()
+                                                it.drop(1)
+                                            }
+                                            if (it.last().isWhiteSpaceWithNewline20) {
+                                                it.last().remove()
+                                                it.dropLast(1)
+                                            } else {
+                                                it
+                                            }
+                                        }.forEach {
+                                            blockElement.addChild(it, before)
+                                        }
+                                }
                             }
-                        }
 
-                        prevLeaf.prevLeaf?.isPartOfComment20 == true -> {
-                            val nextLeaf = node.nextLeaf
-                            prevNonCodeElements.forEach {
-                                node.treeParent.addChild(it, nextLeaf)
+                            prevLeaf.prevLeaf?.isPartOfComment20 == true -> {
+                                val nextLeaf = node.nextLeaf
+                                prevNonCodeElements.forEach {
+                                    node.parent?.addChild(it, nextLeaf)
+                                }
+                                if (nextLeaf != null && nextLeaf.isWhiteSpace20) {
+                                    nextLeaf.remove()
+                                }
                             }
-                            if (nextLeaf != null && nextLeaf.isWhiteSpace20) {
-                                nextLeaf.remove()
-                            }
-                        }
 
-                        else -> {
-                            val text = prevLeaf.text
-                            if (node.spacingBefore) {
-                                (prevLeaf as LeafPsiElement).rawReplaceWithText(" ")
-                            } else {
-                                prevLeaf.remove()
+                            else -> {
+                                val text = prevLeaf.text
+                                if (node.spacingBefore) {
+                                    (prevLeaf as LeafPsiElement).rawReplaceWithText(" ")
+                                } else {
+                                    prevLeaf.remove()
+                                }
+                                node.upsertWhitespaceAfterMe(text)
                             }
-                            node.upsertWhitespaceAfterMe(text)
                         }
                     }
-                }
-        }
+            }
     }
 
     private fun removeUnexpectedSpacingAround(
@@ -175,7 +178,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
 
     private inline val ASTNode.spacingBefore: Boolean
         get() =
-            when (treeParent.elementType) {
+            when (parent?.elementType) {
 
                 ElementType.CLASS,
                 ElementType.OBJECT_DECLARATION,
@@ -194,10 +197,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                 }
 
                 else -> {
-                    when (treeParent.treeParent.elementType) {
-                        ElementType.TYPE_PARAMETER_LIST -> true
-                        else -> false
-                    }
+                    parent?.parent?.elementType == ElementType.TYPE_PARAMETER_LIST
                 }
             }
 
@@ -206,7 +206,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
 
     private inline val ASTNode.spacingAfter: Boolean
         get() =
-            when (treeParent.elementType) {
+            when (parent?.elementType) {
                 ElementType.ANNOTATION, ElementType.ANNOTATION_ENTRY -> true
                 else -> false
             }

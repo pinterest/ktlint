@@ -16,6 +16,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -36,9 +37,9 @@ public class NoBlankLineInListRule :
         }
 
         node
-            .treeParent
-            .elementType
-            .takeIf { it in LIST_TYPES }
+            .parent
+            ?.elementType
+            ?.takeIf { it in LIST_TYPES }
             ?.let { treeParentElementType ->
                 visitWhiteSpace(node, emit, treeParentElementType)
             }

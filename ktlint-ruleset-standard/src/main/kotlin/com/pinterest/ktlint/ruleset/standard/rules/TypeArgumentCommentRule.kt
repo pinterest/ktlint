@@ -10,6 +10,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -28,10 +29,10 @@ public class TypeArgumentCommentRule : StandardRule("type-argument-comment") {
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.isPartOfComment20 && node.treeParent.elementType in typeArgumentTokenSet) {
+        if (node.isPartOfComment20 && node.parent?.elementType in typeArgumentTokenSet) {
             when (node.elementType) {
                 EOL_COMMENT, BLOCK_COMMENT -> {
-                    if (node.treeParent.elementType == TYPE_PROJECTION) {
+                    if (node.parent?.elementType == TYPE_PROJECTION) {
                         // Disallow:
                         //     fun Foo<out /* some comment */ Any>.foo() {}
                         // or
@@ -42,7 +43,7 @@ public class TypeArgumentCommentRule : StandardRule("type-argument-comment") {
                                 "on a separate line above.",
                             false,
                         )
-                    } else if (node.treeParent.elementType == TYPE_ARGUMENT_LIST) {
+                    } else if (node.parent?.elementType == TYPE_ARGUMENT_LIST) {
                         if (node.prevLeaf.isWhiteSpaceWithNewline20) {
                             // Allow:
                             //     fun Foo<

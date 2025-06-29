@@ -168,7 +168,7 @@ public class FunctionLiteralRule :
     }
 
     private fun ASTNode.doesNotFitOnSameLineAsStartOfFunctionLiteral(): Boolean {
-        require(elementType == VALUE_PARAMETER_LIST && treeParent.elementType == FUNCTION_LITERAL)
+        require(elementType == VALUE_PARAMETER_LIST && parent?.elementType == FUNCTION_LITERAL)
         val lineLength =
             lineLengthIncludingLbrace()
                 .plus(1) // space before parameter list
@@ -178,8 +178,8 @@ public class FunctionLiteralRule :
     }
 
     private fun ASTNode.lineLengthIncludingLbrace(): Int {
-        require(elementType == VALUE_PARAMETER_LIST && treeParent.elementType == FUNCTION_LITERAL)
-        val lbrace = treeParent.findChildByType(LBRACE)!!
+        require(elementType == VALUE_PARAMETER_LIST && parent?.elementType == FUNCTION_LITERAL)
+        val lbrace = parent?.findChildByType(LBRACE)!!
         return lbrace
             .leavesOnLine20
             .dropTrailingEolComment()
@@ -228,11 +228,11 @@ public class FunctionLiteralRule :
     private fun ASTNode.isFunctionLiteralLambdaWithNonEmptyValueParameterList() =
         takeIf { it.elementType == VALUE_PARAMETER_LIST }
             ?.takeIf { it.findChildByType(VALUE_PARAMETER) != null }
-            ?.takeIf { it.treeParent.elementType == FUNCTION_LITERAL }
-            ?.treeParent
-            ?.takeIf { it.treeParent.elementType == LAMBDA_EXPRESSION }
-            ?.treeParent
-            ?.takeIf { it.treeParent.elementType == LAMBDA_ARGUMENT }
+            ?.takeIf { it.parent?.elementType == FUNCTION_LITERAL }
+            ?.parent
+            ?.takeIf { it.parent?.elementType == LAMBDA_EXPRESSION }
+            ?.parent
+            ?.takeIf { it.parent?.elementType == LAMBDA_ARGUMENT }
             .let { it != null }
 
     private fun rewriteToMultilineParameterList(
@@ -245,12 +245,12 @@ public class FunctionLiteralRule :
             .filter { it.elementType == VALUE_PARAMETER }
             .forEach { wrapValueParameter(it, emit) }
         parameterList
-            .treeParent
-            .findChildByType(ARROW)
+            .parent
+            ?.findChildByType(ARROW)
             ?.let { arrow -> wrapArrow(arrow, emit) }
         parameterList
-            .treeParent
-            .findChildByType(RBRACE)
+            .parent
+            ?.findChildByType(RBRACE)
             ?.let { rbrace -> wrapBeforeRbrace(rbrace, emit) }
     }
 
@@ -289,7 +289,7 @@ public class FunctionLiteralRule :
             ?.let {
                 emit(arrow.startOffset, "Newline expected before arrow", true)
                     .ifAutocorrectAllowed {
-                        arrow.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(arrow.treeParent))
+                        arrow.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(arrow.parent!!))
                     }
             }
     }
@@ -383,7 +383,7 @@ public class FunctionLiteralRule :
     private fun ASTNode.isLambdaExpressionNotWrappedInBlock(): Boolean {
         require(elementType == ARROW)
         return parent(LAMBDA_EXPRESSION)
-            ?.treeParent
+            ?.parent
             ?.elementType
             ?.let { parentElementType ->
                 // Allow:

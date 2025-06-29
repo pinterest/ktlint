@@ -23,6 +23,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
@@ -64,7 +65,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
             }
 
             elementType == LPAR -> {
-                treeParent?.elementType in elementListTokenSet &&
+                parent?.elementType in elementListTokenSet &&
                     (
                         isUnexpectedSpacingBetweenIdentifierAndElementList() ||
                             isUnexpectedSpacingInCallToSuper() ||
@@ -98,7 +99,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
             }?.let {
                 // But do allow:
                 //     val foo: @Composable () -> Unit
-                treeParent?.treeParent?.elementType != FUNCTION_TYPE
+                parent?.parent?.elementType != FUNCTION_TYPE
             }
             ?: false
 
@@ -120,7 +121,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
             ?.let {
                 // Disallow:
                 //     class Foo constructor ()
-                it.prevLeaf?.treeParent?.elementType == PRIMARY_CONSTRUCTOR
+                it.prevLeaf?.parent?.elementType == PRIMARY_CONSTRUCTOR
             }
             ?: false
 
@@ -131,7 +132,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
                 // Disallow:
                 //     class Foo : Bar ("test")
                 //     class Foo : Bar<String> ("test")
-                treeParent.treeParent.elementType == SUPER_TYPE_CALL_ENTRY &&
+                parent?.parent?.elementType == SUPER_TYPE_CALL_ENTRY &&
                     it.prevSibling20?.elementType == CONSTRUCTOR_CALLEE
             }
             ?: false

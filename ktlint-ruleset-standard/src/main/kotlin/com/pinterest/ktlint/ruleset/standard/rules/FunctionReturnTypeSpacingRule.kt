@@ -13,6 +13,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -57,7 +58,7 @@ public class FunctionReturnTypeSpacingRule :
             ?.let { whitespaceBeforeColonNode ->
                 emit(whitespaceBeforeColonNode.startOffset, "Unexpected whitespace", true)
                     .ifAutocorrectAllowed {
-                        whitespaceBeforeColonNode.treeParent?.removeChild(whitespaceBeforeColonNode)
+                        whitespaceBeforeColonNode.parent?.removeChild(whitespaceBeforeColonNode)
                     }
             }
     }

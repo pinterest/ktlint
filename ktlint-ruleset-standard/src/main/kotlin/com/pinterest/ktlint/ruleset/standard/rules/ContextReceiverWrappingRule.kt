@@ -33,6 +33,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -135,15 +136,15 @@ public class ContextReceiverWrappingRule :
 
     private fun ASTNode.isTypeReferenceParameterInFunction() =
         takeIf { it.elementType == CONTEXT_RECEIVER_LIST }
-            ?.treeParent
+            ?.parent
             ?.takeIf { it.elementType == FUNCTION_TYPE }
-            ?.treeParent
+            ?.parent
             ?.takeIf { it.elementType == TYPE_REFERENCE }
-            ?.treeParent
+            ?.parent
             ?.takeIf { it.elementType == VALUE_PARAMETER }
-            ?.treeParent
+            ?.parent
             ?.takeIf { it.elementType == VALUE_PARAMETER_LIST }
-            ?.treeParent
+            ?.parent
             ?.let { it.elementType == FUN }
             ?: false
 
@@ -151,11 +152,11 @@ public class ContextReceiverWrappingRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val contextReceiver = node.treeParent.text
+        val contextReceiverText = node.parent?.text.orEmpty()
         // Check line length assuming that the context receiver is indented correctly. Wrapping rule must however run
         // before indenting.
-        if (!contextReceiver.contains('\n') &&
-            node.indentWithoutNewlinePrefix.length + contextReceiver.length > maxLineLength
+        if (!contextReceiverText.contains('\n') &&
+            node.indentWithoutNewlinePrefix.length + contextReceiverText.length > maxLineLength
         ) {
             node
                 .children20

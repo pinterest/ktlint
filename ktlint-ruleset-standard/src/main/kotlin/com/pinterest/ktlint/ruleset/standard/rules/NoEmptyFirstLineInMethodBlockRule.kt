@@ -11,6 +11,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -28,7 +29,7 @@ public class NoEmptyFirstLineInMethodBlockRule : StandardRule("no-empty-first-li
             node.isPartOf(FUN) &&
             // Allow:
             //     fun fn() = object : Builder {\n\n fun stuff() = Unit }
-            node.treeParent.elementType != CLASS_BODY
+            node.parent?.elementType != CLASS_BODY
         ) {
             val split = node.text.split("\n")
             if (split.size > 2) {

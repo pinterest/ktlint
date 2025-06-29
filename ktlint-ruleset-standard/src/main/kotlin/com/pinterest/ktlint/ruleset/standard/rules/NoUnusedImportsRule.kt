@@ -22,6 +22,7 @@ import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
@@ -209,13 +210,13 @@ public class NoUnusedImportsRule :
     private fun ASTNode.removeImportDirective() {
         require(this.elementType == IMPORT_DIRECTIVE)
         when {
-            treeParent.firstChildNode == this -> {
+            parent?.firstChildNode == this -> {
                 nextSibling20
                     ?.takeIf { it.isWhiteSpaceWithNewline20 }
-                    ?.let { it.treeParent.removeChild(it) }
+                    ?.remove()
             }
 
-            treeParent.lastChildNode == this -> {
+            parent?.lastChildNode == this -> {
                 prevSibling20
                     ?.takeIf { it.isWhiteSpaceWithNewline20 }
                     ?.remove()
@@ -224,7 +225,7 @@ public class NoUnusedImportsRule :
             else -> {
                 nextLeaf
                     ?.takeIf { it.isWhiteSpaceWithNewline20 }
-                    ?.let { it.treeParent.removeChild(it) }
+                    ?.remove()
             }
         }
         this.remove()
@@ -284,11 +285,11 @@ public class NoUnusedImportsRule :
     }
 
     private fun ASTNode.parentCallExpressionOrNull() =
-        treeParent
-            .takeIf { it.elementType == ElementType.CALL_EXPRESSION }
+        parent
+            ?.takeIf { it.elementType == ElementType.CALL_EXPRESSION }
 
     private fun ASTNode.isDotQualifiedExpression() =
-        treeParent
+        parent
             ?.takeIf { it.elementType == DOT_QUALIFIED_EXPRESSION }
             ?.let { it.psi as? KtDotQualifiedExpression }
             ?.takeIf { it.selectorExpression?.node == this }

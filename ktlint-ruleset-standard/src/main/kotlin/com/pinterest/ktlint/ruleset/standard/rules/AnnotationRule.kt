@@ -46,6 +46,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -172,7 +173,7 @@ public class AnnotationRule :
                     }
 
                     node.hasAnnotationBeforeConstructor() -> {
-                        indentConfig.siblingIndentOf(node.treeParent)
+                        indentConfig.siblingIndentOf(node.parent!!)
                     }
 
                     else -> {
@@ -256,8 +257,8 @@ public class AnnotationRule :
         return children20
             .any {
                 it.isAnnotationEntryWithValueArgumentListThatShouldBeWrapped() &&
-                    it.treeParent.treeParent.elementType != VALUE_PARAMETER &&
-                    it.treeParent.treeParent.elementType != VALUE_ARGUMENT &&
+                    it.parent?.parent?.elementType != VALUE_PARAMETER &&
+                    it.parent?.parent?.elementType != VALUE_ARGUMENT &&
                     it.isNotReceiverTargetAnnotation()
             }
     }
@@ -266,9 +267,9 @@ public class AnnotationRule :
         require(elementType in ANNOTATION_CONTAINER)
         return children20
             .any {
-                it.treeParent.elementType != ANNOTATION &&
-                    it.treeParent.treeParent.elementType != VALUE_PARAMETER &&
-                    it.treeParent.treeParent.elementType != VALUE_ARGUMENT &&
+                it.parent?.elementType != ANNOTATION &&
+                    it.parent?.parent?.elementType != VALUE_PARAMETER &&
+                    it.parent?.parent?.elementType != VALUE_ARGUMENT &&
                     it.isPrecededByOtherAnnotationEntryOnTheSameLine() &&
                     it.isLastAnnotationEntry()
                 // Code below is disallowed
@@ -348,13 +349,13 @@ public class AnnotationRule :
             ).ifAutocorrectAllowed {
                 node
                     .firstChildLeafOrSelf20
-                    .upsertWhitespaceBeforeMe(getNewlineWithIndent(node.treeParent))
+                    .upsertWhitespaceBeforeMe(getNewlineWithIndent(node.parent!!))
             }
         }
     }
 
     private fun ASTNode.isPrecededByAnnotationOnAnotherLine(): Boolean {
-        val firstAnnotation = treeParent.findChildByType(ANNOTATION_ENTRY)
+        val firstAnnotation = parent?.findChildByType(ANNOTATION_ENTRY)
         return siblings(forward = false)
             .takeWhile { it != firstAnnotation }
             .any { it.isWhiteSpaceWithNewline20 }
@@ -400,9 +401,9 @@ public class AnnotationRule :
 
     private fun ASTNode.isLastAnnotationEntry() =
         this ==
-            treeParent
-                .children20
-                .lastOrNull { it.elementType == ANNOTATION_ENTRY }
+            parent
+                ?.children20
+                ?.lastOrNull { it.elementType == ANNOTATION_ENTRY }
 
     private fun ASTNode.isPrecededByOtherAnnotationEntryWithoutParametersOnTheSameLine() =
         siblings(forward = false)
@@ -432,7 +433,7 @@ public class AnnotationRule :
         //     ) : @Suppress("DEPRECATION")
         //         FooBar()
         this
-            ?.takeIf { it.treeParent?.elementType == CLASS }
+            ?.takeIf { it.parent?.elementType == CLASS }
             ?.prevCodeSibling20
             ?.takeIf { it.elementType == COLON }
             ?.prevCodeLeaf
@@ -480,9 +481,9 @@ public class AnnotationRule :
             emit(node.startOffset, "@[...] style annotations should be on a separate line from other annotations.", true)
                 .ifAutocorrectAllowed {
                     if (node.isFollowedByOtherAnnotationEntry()) {
-                        node.upsertWhitespaceAfterMe(getNewlineWithIndent(node.treeParent))
+                        node.upsertWhitespaceAfterMe(getNewlineWithIndent(node.parent!!))
                     } else if (node.isPrecededByOtherAnnotationEntry()) {
-                        node.upsertWhitespaceBeforeMe(getNewlineWithIndent(node.treeParent))
+                        node.upsertWhitespaceBeforeMe(getNewlineWithIndent(node.parent!!))
                     }
                 }
         }
@@ -491,8 +492,8 @@ public class AnnotationRule :
     private fun getNewlineWithIndent(modifierListRoot: ASTNode): String {
         val nodeBeforeAnnotations =
             modifierListRoot
-                .treeParent
-                .prevSibling20
+                .parent
+                ?.prevSibling20
         // Make sure we only insert a single newline
         val indentWithoutNewline =
             nodeBeforeAnnotations

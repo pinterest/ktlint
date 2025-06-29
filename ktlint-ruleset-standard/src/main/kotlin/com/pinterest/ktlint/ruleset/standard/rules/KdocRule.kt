@@ -17,6 +17,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
@@ -41,23 +42,24 @@ public class KdocRule :
     ) {
         node
             .takeIf { it.elementType == KDOC }
-            ?.let {
-                if (it.treeParent.elementType in allowedParentElementTypes) {
-                    if (it.treeParent.firstChildNode != it) {
+            ?.parent
+            ?.let { parent ->
+                if (parent.elementType in allowedParentElementTypes) {
+                    if (parent.firstChildNode != node) {
                         emit(
                             node.startOffset,
-                            "A KDoc is allowed only at start of '${it.treeParent.elementType.debugName.lowercase()}'",
+                            "A KDoc is allowed only at start of '${parent.elementType.debugName.lowercase()}'",
                             false,
                         )
                     }
                     Unit
                 } else {
-                    if (it.treeParent.elementType == FILE) {
+                    if (parent.elementType == FILE) {
                         emit(node.startOffset, "A dangling toplevel KDoc is not allowed", false)
                     } else {
                         emit(
                             node.startOffset,
-                            "A KDoc is not allowed inside '${it.treeParent.elementType.debugName.lowercase()}'",
+                            "A KDoc is not allowed inside '${parent.elementType.debugName.lowercase()}'",
                             false,
                         )
                     }

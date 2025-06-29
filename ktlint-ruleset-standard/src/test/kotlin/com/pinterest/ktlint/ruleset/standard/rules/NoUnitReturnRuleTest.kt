@@ -32,16 +32,19 @@ class NoUnitReturnRuleTest {
             """
             fun foo(): Unit {}
             fun foo(): Unit /* test */ {}
+            fun foo(): /* test */ Unit {}
             """.trimIndent()
         val formattedCode =
             """
             fun foo() {}
+            fun foo() /* test */ {}
             fun foo() /* test */ {}
             """.trimIndent()
         noUnitReturnRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 12, "Unnecessary \"Unit\" return type"),
                 LintViolation(2, 12, "Unnecessary \"Unit\" return type"),
+                LintViolation(3, 23, "Unnecessary \"Unit\" return type"),
             ).isFormattedAs(formattedCode)
     }
 

@@ -20,6 +20,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
@@ -57,7 +58,7 @@ public class TryCatchFinallySpacingRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.isPartOfComment20 && node.treeParent.elementType in TRY_CATCH_FINALLY_TOKEN_SET) {
+        if (node.isPartOfComment20 && node.parent?.elementType in TRY_CATCH_FINALLY_TOKEN_SET) {
             emit(node.startOffset, "No comment expected at this location", false)
             return
         }
@@ -76,7 +77,7 @@ public class TryCatchFinallySpacingRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.treeParent.elementType !in TRY_CATCH_FINALLY_TOKEN_SET) {
+        if (node.parent?.elementType !in TRY_CATCH_FINALLY_TOKEN_SET) {
             return
         }
 

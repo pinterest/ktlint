@@ -117,7 +117,7 @@ public class MaxLineLengthRule :
             ?.let { it.firstChildNode.text == "\"\"\"" && it.textContains('\n') } == true
 
     private fun ASTNode.isLineOnlyContainingSingleTemplateString() =
-        treeParent
+        parent
             ?.takeIf { it.elementType == STRING_TEMPLATE }
             ?.let { stringTemplate ->
                 stringTemplate

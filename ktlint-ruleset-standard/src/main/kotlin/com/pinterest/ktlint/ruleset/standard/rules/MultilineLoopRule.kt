@@ -20,6 +20,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -61,12 +62,13 @@ public class MultilineLoopRule :
                 // Ignore loop with empty body
                 it.firstChildNode == null
             }?.takeUnless { it.firstChildNode.elementType == BLOCK }
-            ?.takeUnless {
+            ?.parent
+            ?.takeIf {
                 // Allow single line loop statements as long as they are really simple (e.g. do not contain newlines)
                 //    for (...) <statement>
                 //    while (...) <statement>
                 //    do <statement> while (...)
-                !it.treeParent.textContains('\n')
+                it.textContains('\n')
             } ?: return
         emit(node.firstChildNode.startOffset, "Missing { ... }", true)
             .ifAutocorrectAllowed {

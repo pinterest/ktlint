@@ -20,6 +20,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.SafeEnumValueParser
 import com.pinterest.ktlint.rule.engine.core.api.hasModifier
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.internal.regExIgnoringDiacriticsAndStrokesOnLetters
 import org.ec4j.core.model.PropertyType
@@ -118,13 +119,13 @@ public class PropertyNamingRule :
 
     private fun ASTNode.hasConstModifier() = hasModifier(CONST_KEYWORD)
 
-    private fun ASTNode.isTopLevelValue() = treeParent.elementType == FILE && containsValKeyword()
+    private fun ASTNode.isTopLevelValue() = parent?.elementType == FILE && containsValKeyword()
 
     private fun ASTNode.containsValKeyword() = children20.any { it.elementType == VAL_KEYWORD }
 
     private fun ASTNode.isObjectValue() =
-        treeParent.elementType == CLASS_BODY &&
-            treeParent?.treeParent?.elementType == OBJECT_DECLARATION &&
+        parent?.elementType == CLASS_BODY &&
+            parent?.parent?.elementType == OBJECT_DECLARATION &&
             containsValKeyword() &&
             !hasModifier(OVERRIDE_KEYWORD)
 

@@ -38,6 +38,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.leavesBackwardsIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
@@ -90,8 +91,8 @@ public class SpacingAroundCurlyRule :
                         (
                             (prevLeaf?.elementType == LPAR || prevLeaf?.elementType == LBRACKET) &&
                                 (
-                                    node.treeParent.elementType == LAMBDA_EXPRESSION ||
-                                        node.treeParent.treeParent.elementType == LAMBDA_EXPRESSION
+                                    node.parent?.elementType == LAMBDA_EXPRESSION ||
+                                        node.parent?.parent?.elementType == LAMBDA_EXPRESSION
                                 )
                         )
                     spacingAfter = nextLeaf.isWhiteSpace20 || nextLeaf?.elementType == RBRACE
@@ -105,9 +106,9 @@ public class SpacingAroundCurlyRule :
                         prevLeaf != null &&
                         (
                             prevLeaf.isPrecededBy { it.elementType == RPAR || KtTokens.KEYWORDS.contains(it.elementType) } ||
-                                node.treeParent.elementType == CLASS_BODY ||
+                                node.parent?.elementType == CLASS_BODY ||
                                 // allow newline for lambda return type
-                                (prevLeaf.treeParent.elementType == FUN && prevLeaf.nextSibling20?.elementType != LAMBDA_EXPRESSION)
+                                (prevLeaf.parent?.elementType == FUN && prevLeaf.nextSibling20?.elementType != LAMBDA_EXPRESSION)
                         )
                     ) {
                         prevLeaf
@@ -123,7 +124,7 @@ public class SpacingAroundCurlyRule :
                                                 .reversed()
                                                 .takeIf { it.isNotEmpty() }
                                                 ?.let { leavesToMoveAfterCurly ->
-                                                    node.treeParent.addChildren(
+                                                    node.parent?.addChildren(
                                                         leavesToMoveAfterCurly.first(),
                                                         leavesToMoveAfterCurly.last(),
                                                         node.nextSibling20,

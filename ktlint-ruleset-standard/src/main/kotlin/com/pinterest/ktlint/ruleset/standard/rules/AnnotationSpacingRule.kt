@@ -16,6 +16,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
@@ -100,21 +101,24 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
                         if (eolComment != null) {
                             eolComment.prevSibling { it.isWhiteSpace20 }?.remove()
                             eolComment.nextSibling { it.isWhiteSpace20 }?.remove()
-                            eolComment.treeParent?.removeChild(eolComment)
+                            eolComment.parent?.removeChild(eolComment)
                         } else {
                             node.nextSibling { it.isWhiteSpace20 }?.remove()
                         }
-                        node.treeParent.removeChild(node)
+                        node.parent?.removeChild(node)
 
                         // Insert the annotation prior to the annotated construct
                         val beforeAnchor = next.nextCodeSibling20
-                        val treeParent = next.treeParent
-                        treeParent.addChild(node, beforeAnchor)
-                        if (eolComment != null) {
-                            treeParent.addChild(PsiWhiteSpaceImpl(" "), beforeAnchor)
-                            treeParent.addChild(eolComment, beforeAnchor)
-                        }
-                        treeParent.addChild(PsiWhiteSpaceImpl("\n"), beforeAnchor)
+                        next
+                            .parent!!
+                            .apply {
+                                addChild(node, beforeAnchor)
+                                if (eolComment != null) {
+                                    addChild(PsiWhiteSpaceImpl(" "), beforeAnchor)
+                                    addChild(eolComment, beforeAnchor)
+                                }
+                                addChild(PsiWhiteSpaceImpl("\n"), beforeAnchor)
+                            }
                     }
             }
         }

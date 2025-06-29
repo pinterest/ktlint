@@ -9,6 +9,7 @@ import com.pinterest.ktlint.rule.engine.core.api.TokenSets
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isDeclaration20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
@@ -30,13 +31,13 @@ public class SpacingBetweenDeclarationsWithCommentsRule : StandardRule("spacing-
         node
             .takeIf { it.elementType in TokenSets.COMMENTS }
             ?.takeUnless { it.isTailComment() }
-            ?.treeParent
+            ?.parent
             ?.takeIf { it.isDeclaration20 }
             ?.takeIf { it.prevCodeSibling20.isDeclaration20 }
             ?.let { visitCommentedDeclaration(it, emit) }
     }
 
-    private fun ASTNode.isTailComment() = startOffset > treeParent.startOffset
+    private fun ASTNode.isTailComment() = startOffset > parent!!.startOffset
 
     private fun visitCommentedDeclaration(
         node: ASTNode,

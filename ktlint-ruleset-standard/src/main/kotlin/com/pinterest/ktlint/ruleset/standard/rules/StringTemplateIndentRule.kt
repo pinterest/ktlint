@@ -33,6 +33,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -103,20 +104,19 @@ public class StringTemplateIndentRule :
                         ?.let { whiteSpace ->
                             emit(stringTemplate.startOffset, "Expected newline before multiline string template", true)
                                 .ifAutocorrectAllowed {
-                                    whiteSpace.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(whiteSpace.treeParent))
+                                    whiteSpace.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(whiteSpace.parent!!))
                                 }
                         }
                     stringTemplate
                         .getFirstLeafAfterTrimIndent()
                         ?.takeUnless { it.isWhiteSpaceWithNewline20 }
                         ?.takeUnless { it.elementType == COMMA }
-                        ?.takeUnless { it.treeParent.elementType == DOT_QUALIFIED_EXPRESSION }
-                        ?.takeUnless {
-                            it.treeParent.elementType == BINARY_EXPRESSION && it.nextSibling20?.elementType == OPERATION_REFERENCE
-                        }?.let { nextLeaf ->
+                        ?.takeUnless { it.parent?.elementType == DOT_QUALIFIED_EXPRESSION }
+                        ?.takeUnless { it.parent?.elementType == BINARY_EXPRESSION && it.nextSibling20?.elementType == OPERATION_REFERENCE }
+                        ?.let { nextLeaf ->
                             emit(nextLeaf.startOffset, "Expected newline after multiline string template", true)
                                 .ifAutocorrectAllowed {
-                                    nextLeaf.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(stringTemplate.treeParent))
+                                    nextLeaf.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(stringTemplate.parent!!))
                                 }
                         }
 
@@ -141,7 +141,7 @@ public class StringTemplateIndentRule :
     private fun ASTNode.getFirstLeafAfterTrimIndent() =
         takeIf { it.elementType == STRING_TEMPLATE }
             ?.takeIf { it.isFollowedByTrimIndent() }
-            ?.treeParent
+            ?.parent
             ?.lastChildLeafOrSelf20
             ?.nextLeaf
 
@@ -163,7 +163,7 @@ public class StringTemplateIndentRule :
             ?: false
 
     private fun ASTNode.closingParenthesisOfFunctionOrNull() =
-        takeIf { treeParent.elementType == ElementType.FUN }
+        takeIf { parent?.elementType == ElementType.FUN }
             ?.prevCodeLeaf
             ?.takeIf { it.elementType == ElementType.RPAR }
 

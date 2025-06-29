@@ -72,6 +72,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -204,7 +205,7 @@ public class WrappingRule :
 
     private fun ASTNode.followedByFunctionLiteralParameterList() =
         VALUE_PARAMETER_LIST ==
-            takeIf { treeParent.elementType == FUNCTION_LITERAL }
+            takeIf { parent?.elementType == FUNCTION_LITERAL }
                 ?.nextCodeSibling20
                 ?.elementType
 
@@ -443,8 +444,8 @@ public class WrappingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .treeParent
-            .takeIf { it.elementType == STRING_TEMPLATE }
+            .parent
+            ?.takeIf { it.elementType == STRING_TEMPLATE }
             ?.let { it.psi as KtStringTemplateExpression }
             ?.takeIf { it.isMultiLine() }
             ?.takeIf { it.isFollowedByTrimIndent() || it.isFollowedByTrimMargin() }
@@ -494,7 +495,7 @@ public class WrappingRule :
         if (lToken != null && lToken.elementType in LTOKEN_SET) {
             val rElementType = MATCHING_RTOKEN_MAP[lToken.elementType]
             val rToken = lToken.nextSibling { it.elementType == rElementType }
-            return rToken?.treeParent == lToken.treeParent
+            return rToken?.parent == lToken.parent
         }
         return nextCodeSibling?.textContains('\n') == false
     }
@@ -503,29 +504,29 @@ public class WrappingRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val p = node.treeParent
+        val parent = node.parent!!
         if (
             // check
             // `{ p -> ... }`
             // and
             // `when { m -> ... }`
             // only
-            p.elementType.let { it != FUNCTION_LITERAL && it != WHEN_ENTRY } ||
+            parent.elementType.let { it != FUNCTION_LITERAL && it != WHEN_ENTRY } ||
             // ... and only if expression after -> spans multiple lines
-            !p.textContains('\n') ||
+            !parent.textContains('\n') ||
             // permit
             // when {
             //     m -> 0 + d({
             //     })
             // }
-            (p.elementType == WHEN_ENTRY && mustBeFollowedByNewline(node)) ||
+            (parent.elementType == WHEN_ENTRY && mustBeFollowedByNewline(node)) ||
             // permit
             // when (this) {
             //     in 0x1F600..0x1F64F, // Emoticons
             //     0x200D // Zero-width Joiner
             //     -> true
             // }
-            (p.elementType == WHEN_ENTRY && node.prevLeaf.isWhiteSpaceWithNewline20)
+            (parent.elementType == WHEN_ENTRY && node.prevLeaf.isWhiteSpaceWithNewline20)
         ) {
             return
         }
@@ -624,11 +625,11 @@ public class WrappingRule :
      *     ) { ... }
      */
     private fun ASTNode.isPartOfForLoopConditionWithMultilineExpression(): Boolean {
-        if (treeParent.elementType != ElementType.FOR) {
+        if (parent?.elementType != ElementType.FOR) {
             return false
         }
         if (this.elementType != LPAR) {
-            return treeParent.findChildByType(LPAR)!!.isPartOfForLoopConditionWithMultilineExpression()
+            return parent?.findChildByType(LPAR)!!.isPartOfForLoopConditionWithMultilineExpression()
         }
         require(elementType == LPAR) {
             "Node should be the LPAR of the FOR loop"
@@ -675,8 +676,8 @@ public class WrappingRule :
     private fun ASTNode.isPrecededByNewline() = prevLeaf.isWhiteSpaceWithNewline20
 
     private fun ASTNode.getStartOfBlock() =
-        if (treeParent.elementType == FUNCTION_LITERAL) {
-            treeParent.findChildByType(LBRACE)
+        if (parent?.elementType == FUNCTION_LITERAL) {
+            parent!!.findChildByType(LBRACE)
         } else {
             firstChildLeafOrSelf20
                 .let { node ->
@@ -691,8 +692,8 @@ public class WrappingRule :
         }
 
     private fun ASTNode.getEndOfBlock() =
-        if (treeParent.elementType == FUNCTION_LITERAL) {
-            treeParent.findChildByType(RBRACE)
+        if (parent?.elementType == FUNCTION_LITERAL) {
+            parent!!.findChildByType(RBRACE)
         } else {
             lastChildLeafOrSelf20
                 .let { node ->
