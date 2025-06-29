@@ -26,11 +26,8 @@ public class NoEmptyClassBodyRule : StandardRule("no-empty-class-body") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == CLASS_BODY &&
-            node.firstChildNode?.let { n ->
-                n.elementType == LBRACE &&
-                    n.nextLeaf { !it.isWhiteSpace20 }?.elementType == RBRACE
-            } == true &&
-            !node.isPartOf(ElementType.OBJECT_LITERAL) &&
+            node.isEmptyBlockBody() &&
+            !node.isPartOf(OBJECT_LITERAL) &&
             isNotCompanion(node)
         ) {
             emit(node.startOffset, "Unnecessary block (\"{}\")", true)
