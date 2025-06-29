@@ -15,6 +15,7 @@ import com.pinterest.ktlint.rule.engine.core.api.IgnoreKtlintSuppressions
 import com.pinterest.ktlint.rule.engine.core.api.KtlintKotlinCompiler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.findChildByTypeRecursively
+import com.pinterest.ktlint.rule.engine.core.api.findParentByType
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
@@ -86,7 +87,7 @@ public class KtlintSuppressionRule(
             ?.takeIf { it.text.isKtlintSuppressionId() }
             ?.let { literalStringTemplate ->
                 literalStringTemplate
-                    .parent(VALUE_ARGUMENT)
+                    .findParentByType(VALUE_ARGUMENT)
                     ?.isPartOfAnnotation()
             }
             ?: false

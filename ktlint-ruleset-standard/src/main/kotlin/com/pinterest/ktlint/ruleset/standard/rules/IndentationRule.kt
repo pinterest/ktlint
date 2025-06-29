@@ -99,6 +99,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.findParentByType
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
@@ -595,7 +596,7 @@ public class IndentationRule :
         }
 
     private fun ASTNode.isFirstParameterOfFunctionLiteralPrecededByNewLine() =
-        parent(FUNCTION_LITERAL)
+        findParentByType(FUNCTION_LITERAL)
             ?.findChildByType(VALUE_PARAMETER_LIST)
             ?.prevSibling { it.textContains('\n') } != null
 

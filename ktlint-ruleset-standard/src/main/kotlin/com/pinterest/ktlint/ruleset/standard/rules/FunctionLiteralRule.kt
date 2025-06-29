@@ -26,6 +26,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.findParentByType
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
@@ -265,7 +266,9 @@ public class FunctionLiteralRule :
             ?.let { whitespaceBeforeValueParameter ->
                 emit(valueParameter.startOffset, "Newline expected before parameter", true)
                     .ifAutocorrectAllowed {
-                        valueParameter.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(valueParameter.parent(FUNCTION_LITERAL)!!))
+                        valueParameter.upsertWhitespaceBeforeMe(
+                            indentConfig.childIndentOf(valueParameter.findParentByType(FUNCTION_LITERAL)!!),
+                        )
                     }
             }
     }
@@ -382,7 +385,7 @@ public class FunctionLiteralRule :
 
     private fun ASTNode.isLambdaExpressionNotWrappedInBlock(): Boolean {
         require(elementType == ARROW)
-        return parent(LAMBDA_EXPRESSION)
+        return findParentByType(LAMBDA_EXPRESSION)
             ?.parent
             ?.elementType
             ?.let { parentElementType ->

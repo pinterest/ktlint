@@ -21,6 +21,7 @@ import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.android_studio
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
+import com.pinterest.ktlint.rule.engine.core.api.findParentByType
 import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -110,14 +111,14 @@ public class BackingPropertyNamingRule :
 
     private fun ASTNode.findCorrelatedProperty(): ASTNode? {
         val propertyName = text.removePrefix("_")
-        return parent(CLASS_BODY)
+        return findParentByType(CLASS_BODY)
             ?.let { classBody ->
                 // Check if related property exists in the same class body. If not, and the class body is the body of a companion object,
                 // than also search in the class body where the companion object is defined.
                 classBody.findPropertyWithName(propertyName)
                     ?: classBody
                         .findCompanionObject()
-                        ?.parent(CLASS_BODY)
+                        ?.findParentByType(CLASS_BODY)
                         ?.findPropertyWithName(propertyName)
             }
     }
@@ -138,14 +139,14 @@ public class BackingPropertyNamingRule :
 
     private fun ASTNode.findCorrelatedFunction(): ASTNode? {
         val correlatedFunctionName = "get${capitalizeFirstChar()}"
-        return parent(CLASS_BODY)
+        return findParentByType(CLASS_BODY)
             ?.let { classBody ->
                 // Check if related property exists in the same class body. If not, and the class body is the body of a companion object,
                 // than also search in the class body where the companion object is defined.
                 classBody.findFunctionWithName(correlatedFunctionName)
                     ?: classBody
                         .findCompanionObject()
-                        ?.parent(CLASS_BODY)
+                        ?.findParentByType(CLASS_BODY)
                         ?.findFunctionWithName(correlatedFunctionName)
             }
     }

@@ -299,7 +299,13 @@ public fun ASTNode.parent(
     return null
 }
 
-public fun ASTNode.parent(elementType: IElementType): ASTNode? {
+@Deprecated(
+    message = "Marked for removal in Ktlint 2.0",
+    replaceWith = ReplaceWith("findParentByType(elementType)"),
+)
+public fun ASTNode.parent(elementType: IElementType): ASTNode? = findParentByType(elementType)
+
+public fun ASTNode.findParentByType(elementType: IElementType): ASTNode? {
     var node: ASTNode? = parent
     while (node != null) {
         if (node.elementType == elementType) {
@@ -338,7 +344,7 @@ public fun ASTNode.isPartOf(tokenSet: TokenSet): Boolean = elementType in tokenS
 /**
  * @param elementType [ElementType].*
  */
-public fun ASTNode.isPartOf(elementType: IElementType): Boolean = this.elementType == elementType || parent(elementType) != null
+public fun ASTNode.isPartOf(elementType: IElementType): Boolean = this.elementType == elementType || findParentByType(elementType) != null
 
 @Deprecated(
     "Marked for removal in Ktlint 2.x. Replace with ASTNode.isPartOf(elementType: IElementType) or ASTNode.isPartOf(tokenSet: TokenSet). " +
@@ -374,7 +380,7 @@ public fun ASTNode.isPartOfString(): Boolean = isPartOfString20
 
 // TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
 public val ASTNode.isPartOfString20
-    get(): Boolean = this.parent(STRING_TEMPLATE) != null
+    get(): Boolean = findParentByType(STRING_TEMPLATE) != null
 
 @Deprecated(
     "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +

@@ -14,6 +14,7 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRu
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.findParentByType
 import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isCode
@@ -83,8 +84,8 @@ public class NoSemicolonsRule :
             this.isWhiteSpace20 -> {
                 nextLeaf {
                     it.isCode &&
-                        it.parent(ElementType.KDOC) == null &&
-                        it.parent(ElementType.ANNOTATION_ENTRY) == null
+                        it.findParentByType(ElementType.KDOC) == null &&
+                        it.findParentByType(ElementType.ANNOTATION_ENTRY) == null
                 }.let { nextLeaf ->
                     nextLeaf == null ||
                         // \s+ and then eof
@@ -137,16 +138,16 @@ public class NoSemicolonsRule :
 
     private fun ASTNode?.getLastCodeLeafBeforeClosingOfClassBody() =
         this
-            ?.parent(CLASS_BODY)
+            ?.findParentByType(CLASS_BODY)
             ?.lastChildLeafOrSelf20
             ?.prevCodeLeaf
 
     private fun ASTNode?.isEnumClassWithoutValues() =
         this
             ?.takeIf { !it.isLastCodeLeafBeforeClosingOfClassBody() }
-            ?.parent(CLASS_BODY)
+            ?.findParentByType(CLASS_BODY)
             ?.takeIf { this == it.firstChildNode.nextCodeSibling20 }
-            ?.parent(CLASS)
+            ?.findParentByType(CLASS)
             ?.hasModifier(ENUM_KEYWORD)
             ?: false
 }
