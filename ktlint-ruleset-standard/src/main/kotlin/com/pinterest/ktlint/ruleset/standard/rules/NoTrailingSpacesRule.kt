@@ -1,8 +1,8 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
@@ -74,7 +74,7 @@ public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
         }
     }
 
-    private fun ASTNode.isPartOfKDoc(): Boolean = isPartOf(ElementType.KDOC)
+    private fun ASTNode.isPartOfKDoc(): Boolean = isPartOf(KDOC)
 
     private fun ASTNode.hasTrailingSpacesBeforeNewline() = text.contains(SPACE_OR_TAB_BEFORE_NEWLINE_REGEX)
 

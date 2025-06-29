@@ -2,7 +2,10 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK_COMMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.IMPORT_DIRECTIVE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.IMPORT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
@@ -62,14 +65,14 @@ public class ImportOrderingRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.elementType == ElementType.IMPORT_LIST) {
+        if (node.elementType == IMPORT_LIST) {
             val children = node.getChildren(null)
             if (children.isNotEmpty()) {
                 // Get unique imports and blank lines
                 val (autoCorrectDuplicateImports: Boolean, imports: List<ASTNode>) =
                     getUniqueImportsAndBlankLines(children, emit)
 
-                val hasComments = children.any { it.elementType == ElementType.BLOCK_COMMENT || it.elementType == ElementType.EOL_COMMENT }
+                val hasComments = children.any { it.elementType == BLOCK_COMMENT || it.elementType == EOL_COMMENT }
                 val sortedImports =
                     imports
                         .asSequence()
@@ -150,7 +153,7 @@ public class ImportOrderingRule :
                     imports += current
                 }
 
-                current.elementType == ElementType.IMPORT_DIRECTIVE -> {
+                current.elementType == IMPORT_DIRECTIVE -> {
                     if (importTextSet.add(current.text)) {
                         imports += current
                     } else {

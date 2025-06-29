@@ -1,11 +1,15 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_KEYWORD
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FOR
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.IF
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SEMICOLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.THEN
@@ -84,8 +88,8 @@ public class NoSemicolonsRule :
             this.isWhiteSpace20 -> {
                 nextLeaf {
                     it.isCode &&
-                        it.findParentByType(ElementType.KDOC) == null &&
-                        it.findParentByType(ElementType.ANNOTATION_ENTRY) == null
+                        it.findParentByType(KDOC) == null &&
+                        it.findParentByType(ANNOTATION_ENTRY) == null
                 }.let { nextLeaf ->
                     nextLeaf == null ||
                         // \s+ and then eof
@@ -129,10 +133,10 @@ public class NoSemicolonsRule :
     }
 
     private fun ASTNode.isLoopWithoutBody() =
-        (elementType == WHILE || elementType == ElementType.FOR) &&
-            findChildByType(ElementType.BODY)?.firstChildNode == null
+        (elementType == WHILE || elementType == FOR) &&
+            findChildByType(BODY)?.firstChildNode == null
 
-    private fun ASTNode.isIfExpressionWithoutThen() = elementType == ElementType.IF && findChildByType(THEN)?.firstChildNode == null
+    private fun ASTNode.isIfExpressionWithoutThen() = elementType == IF && findChildByType(THEN)?.firstChildNode == null
 
     private fun ASTNode?.isLastCodeLeafBeforeClosingOfClassBody() = getLastCodeLeafBeforeClosingOfClassBody() == this
 

@@ -7,6 +7,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_ENTRY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN_KEYWORD
@@ -949,7 +950,7 @@ class ASTNodeExtensionTest {
                 transformCodeToAST(code)
                     .firstChildLeafOrSelf20
                     .leavesForwardsIncludingSelf
-                    .first { it.elementType == ElementType.EOL_COMMENT }
+                    .first { it.elementType == EOL_COMMENT }
                     .leavesOnLine20
                     .dropTrailingEolComment()
                     .lineLength

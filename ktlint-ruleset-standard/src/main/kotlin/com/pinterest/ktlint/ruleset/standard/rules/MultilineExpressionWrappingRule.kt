@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ARRAY_ACCESS_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ARROW
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BINARY_EXPRESSION
@@ -10,16 +9,20 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ELVIS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EQ
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IF
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IS_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.LAMBDA_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MUL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.POSTFIX_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PREFIX_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REFERENCE_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SAFE_ACCESS_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TRY
@@ -166,7 +169,7 @@ public class MultilineExpressionWrappingRule :
     }
 
     private fun ASTNode.isRegularStringPartWithNewline() =
-        elementType == ElementType.REGULAR_STRING_PART &&
+        elementType == REGULAR_STRING_PART &&
             text.startsWith("\n")
 
     private fun ASTNode.needToWrapMultilineExpression() =
@@ -191,7 +194,7 @@ public class MultilineExpressionWrappingRule :
     private fun ASTNode?.isElvisOperator() =
         this != null &&
             elementType == OPERATION_REFERENCE &&
-            firstChildNode.elementType == ElementType.ELVIS
+            firstChildNode.elementType == ELVIS
 
     private fun ASTNode.closingParenthesisOfFunctionOrNull() =
         takeIf { parent?.elementType == FUN }
@@ -206,9 +209,9 @@ public class MultilineExpressionWrappingRule :
                     // the first node in the block
                     it.elementType == BLOCK && it.firstChildNode == this
                 }?.parent
-                ?.takeIf { it.elementType == ElementType.FUNCTION_LITERAL }
+                ?.takeIf { it.elementType == FUNCTION_LITERAL }
                 ?.parent
-                ?.takeIf { it.elementType == ElementType.LAMBDA_EXPRESSION }
+                ?.takeIf { it.elementType == LAMBDA_EXPRESSION }
 
     private fun ASTNode.isValueArgument() = parent?.elementType == VALUE_ARGUMENT
 

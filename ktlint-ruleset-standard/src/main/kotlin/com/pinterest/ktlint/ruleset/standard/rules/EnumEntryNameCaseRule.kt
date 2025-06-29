@@ -1,7 +1,8 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_ENTRY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
@@ -58,8 +59,8 @@ public class EnumEntryNameCaseRule :
         if (node !is CompositeElement) {
             return
         }
-        if (node.elementType != ElementType.ENUM_ENTRY) return
-        val nameNode = node.findChildByType(ElementType.IDENTIFIER) ?: return
+        if (node.elementType != ENUM_ENTRY) return
+        val nameNode = node.findChildByType(IDENTIFIER) ?: return
         val name = KtPsiUtil.unquoteIdentifier(nameNode.text)
 
         if (!name.matches(enumEntryCasingRegex)) {

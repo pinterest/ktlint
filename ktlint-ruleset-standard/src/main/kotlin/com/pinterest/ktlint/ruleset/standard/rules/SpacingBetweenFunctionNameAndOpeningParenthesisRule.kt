@@ -1,7 +1,8 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
@@ -21,8 +22,8 @@ public class SpacingBetweenFunctionNameAndOpeningParenthesisRule : StandardRule(
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .takeIf { node.elementType == ElementType.FUN }
-            ?.findChildByType(ElementType.IDENTIFIER)
+            .takeIf { node.elementType == FUN }
+            ?.findChildByType(IDENTIFIER)
             ?.nextSibling20
             ?.takeIf { it.isWhiteSpace20 }
             ?.let { whiteSpace ->

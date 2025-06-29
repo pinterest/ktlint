@@ -1,8 +1,9 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN_KEYWORD
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
@@ -30,7 +31,7 @@ public class FunKeywordSpacingRule : StandardRule("fun-keyword-spacing") {
             ?.nextLeaf
             ?.let { leafAfterFunKeyword ->
                 when {
-                    leafAfterFunKeyword.elementType == ElementType.WHITE_SPACE && leafAfterFunKeyword.text != " " -> {
+                    leafAfterFunKeyword.elementType == WHITE_SPACE && leafAfterFunKeyword.text != " " -> {
                         emit(
                             leafAfterFunKeyword.startOffset,
                             "Single space expected after the fun keyword",
@@ -38,7 +39,7 @@ public class FunKeywordSpacingRule : StandardRule("fun-keyword-spacing") {
                         ).ifAutocorrectAllowed { leafAfterFunKeyword.replaceTextWith(" ") }
                     }
 
-                    leafAfterFunKeyword.elementType == ElementType.IDENTIFIER -> {
+                    leafAfterFunKeyword.elementType == IDENTIFIER -> {
                         // Identifier can only be adjacent to fun keyword in case the identifier is wrapped between backticks:
                         //     fun`foo`() {}
                         emit(leafAfterFunKeyword.startOffset, "Space expected between the fun keyword and backtick", true)

@@ -1,16 +1,25 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATED_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLLECTION_LITERAL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONSTRUCTOR_CALLEE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE_ANNOTATION_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.PACKAGE_DIRECTIVE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.REFERENCE_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PROJECTION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.USER_TYPE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
@@ -202,23 +211,23 @@ private fun ASTNode.existingSuppressions() =
         ?: getValueArguments()
 
 private fun ASTNode.existingSuppressionsFromNamedArgumentOrNull(): Set<String>? =
-    findChildByTypeRecursively(ElementType.COLLECTION_LITERAL_EXPRESSION)
+    findChildByTypeRecursively(COLLECTION_LITERAL_EXPRESSION)
         ?.run {
             children()
-                .filter { it.elementType == ElementType.STRING_TEMPLATE }
+                .filter { it.elementType == STRING_TEMPLATE }
                 .map { it.text }
                 .toSet()
         }
 
 private fun ASTNode.findSuppressionAnnotations(): Map<SuppressAnnotationType, ASTNode> =
     if (isRoot20) {
-        findChildByType(ElementType.FILE_ANNOTATION_LIST)
+        findChildByType(FILE_ANNOTATION_LIST)
             ?.toMapOfSuppressionAnnotations()
             .orEmpty()
-    } else if (this.elementType == ElementType.ANNOTATED_EXPRESSION) {
+    } else if (this.elementType == ANNOTATED_EXPRESSION) {
         this.toMapOfSuppressionAnnotations()
     } else {
-        findChildByType(ElementType.MODIFIER_LIST)
+        findChildByType(MODIFIER_LIST)
             ?.toMapOfSuppressionAnnotations()
             .orEmpty()
     }
@@ -234,12 +243,12 @@ private fun ASTNode.toMapOfSuppressionAnnotations(): Map<SuppressAnnotationType,
         }.toMap()
 
 private fun ASTNode.suppressionAnnotationTypeOrNull() =
-    takeIf { elementType == ElementType.ANNOTATION || elementType == ElementType.ANNOTATION_ENTRY }
-        ?.findChildByType(ElementType.CONSTRUCTOR_CALLEE)
-        ?.findChildByType(ElementType.TYPE_REFERENCE)
-        ?.findChildByType(ElementType.USER_TYPE)
-        ?.findChildByType(ElementType.REFERENCE_EXPRESSION)
-        ?.findChildByType(ElementType.IDENTIFIER)
+    takeIf { elementType == ANNOTATION || elementType == ANNOTATION_ENTRY }
+        ?.findChildByType(CONSTRUCTOR_CALLEE)
+        ?.findChildByType(TYPE_REFERENCE)
+        ?.findChildByType(USER_TYPE)
+        ?.findChildByType(REFERENCE_EXPRESSION)
+        ?.findChildByType(IDENTIFIER)
         ?.text
         ?.let { SuppressAnnotationType.findByIdOrNull(it) }
 
@@ -320,7 +329,7 @@ private fun ASTNode.createFileAnnotationList(annotation: ASTNode) {
     require(isRoot20) { "File annotation list can only be created for root node" }
     // Should always be inserted into the first (root) code child regardless in which root node the ktlint directive
     // was actually found
-    findChildByType(ElementType.PACKAGE_DIRECTIVE)
+    findChildByType(PACKAGE_DIRECTIVE)
         ?.let { packageDirective ->
             packageDirective
                 .parent

@@ -1,8 +1,10 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.EQ
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
@@ -28,11 +30,11 @@ public class FunctionStartOfBodySpacingRule : StandardRule("function-start-of-bo
     ) {
         if (node.elementType == FUN) {
             node
-                .findChildByType(ElementType.EQ)
+                .findChildByType(EQ)
                 ?.let { visitFunctionFollowedByBodyExpression(node, emit) }
 
             node
-                .findChildByType(ElementType.BLOCK)
+                .findChildByType(BLOCK)
                 ?.let { visitFunctionFollowedByBodyBlock(node, emit) }
         }
     }
@@ -50,11 +52,11 @@ public class FunctionStartOfBodySpacingRule : StandardRule("function-start-of-bo
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .findChildByType(ElementType.EQ)
+            .findChildByType(EQ)
             ?.let { assignmentExpression ->
                 assignmentExpression
                     .prevLeaf
-                    ?.takeIf { it.elementType == ElementType.WHITE_SPACE }
+                    ?.takeIf { it.elementType == WHITE_SPACE }
                     .let { whiteSpaceBeforeAssignment ->
                         if (whiteSpaceBeforeAssignment == null) {
                             emit(
@@ -80,11 +82,11 @@ public class FunctionStartOfBodySpacingRule : StandardRule("function-start-of-bo
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .findChildByType(ElementType.EQ)
+            .findChildByType(EQ)
             ?.let { assignmentExpression ->
                 assignmentExpression
                     .nextLeaf
-                    ?.takeIf { it.elementType == ElementType.WHITE_SPACE }
+                    ?.takeIf { it.elementType == WHITE_SPACE }
                     .let { whiteSpaceAfterAssignment ->
                         if (whiteSpaceAfterAssignment?.text != " " && !whiteSpaceAfterAssignment.isWhiteSpaceWithNewline20) {
                             emit(
@@ -104,11 +106,11 @@ public class FunctionStartOfBodySpacingRule : StandardRule("function-start-of-bo
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .findChildByType(ElementType.BLOCK)
+            .findChildByType(BLOCK)
             ?.let { block ->
                 block
                     .prevLeaf
-                    ?.takeIf { it.elementType == ElementType.WHITE_SPACE }
+                    ?.takeIf { it.elementType == WHITE_SPACE }
                     .let { whiteSpaceBeforeExpressionBlock ->
                         if (whiteSpaceBeforeExpressionBlock?.text != " ") {
                             emit(block.startOffset, "Expected a single white space before start of function body", true)

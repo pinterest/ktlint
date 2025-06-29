@@ -1,9 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.IMPORT_DIRECTIVE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.PACKAGE_DIRECTIVE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
@@ -81,9 +83,9 @@ public class MaxLineLengthRule :
             .takeIf { it is LeafPsiElement }
             ?.takeIf { it.nextLeaf == null || it.nextLeaf.isWhiteSpaceWithNewline20 }
             ?.takeIf { it.lineLength() > maxLineLength }
-            ?.takeUnless { it.isPartOf(ElementType.PACKAGE_DIRECTIVE) }
-            ?.takeUnless { it.isPartOf(ElementType.IMPORT_DIRECTIVE) }
-            ?.takeUnless { it.isPartOf(ElementType.KDOC) }
+            ?.takeUnless { it.isPartOf(PACKAGE_DIRECTIVE) }
+            ?.takeUnless { it.isPartOf(IMPORT_DIRECTIVE) }
+            ?.takeUnless { it.isPartOf(KDOC) }
             ?.takeUnless { it.isPartOfRawMultiLineString() }
             ?.takeUnless { it.isLineOnlyContainingSingleTemplateString() }
             ?.takeUnless { it.elementType == COMMA && it.prevLeaf?.isLineOnlyContainingSingleTemplateString() ?: false }

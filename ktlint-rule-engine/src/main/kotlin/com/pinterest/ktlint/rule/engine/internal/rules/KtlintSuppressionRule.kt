@@ -1,16 +1,24 @@
 package com.pinterest.ktlint.rule.engine.internal.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LITERAL_STRING_TEMPLATE_ENTRY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PROJECTION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.IgnoreKtlintSuppressions
 import com.pinterest.ktlint.rule.engine.core.api.KtlintKotlinCompiler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
@@ -99,7 +107,7 @@ public class KtlintSuppressionRule(
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .findChildByTypeRecursively(ElementType.LITERAL_STRING_TEMPLATE_ENTRY)
+            .findChildByTypeRecursively(LITERAL_STRING_TEMPLATE_ENTRY)
             ?.let { literalStringTemplateEntry ->
                 val prefixedSuppression =
                     literalStringTemplateEntry
@@ -298,18 +306,18 @@ private class KtLintDirective(
 
     private val listTypeTokenSet =
         TokenSet.create(
-            ElementType.TYPE_ARGUMENT_LIST,
-            ElementType.TYPE_PARAMETER_LIST,
-            ElementType.VALUE_ARGUMENT_LIST,
-            ElementType.VALUE_PARAMETER_LIST,
+            TYPE_ARGUMENT_LIST,
+            TYPE_PARAMETER_LIST,
+            VALUE_ARGUMENT_LIST,
+            VALUE_PARAMETER_LIST,
         )
 
     private val listElementTypeTokenSet =
         TokenSet.create(
-            ElementType.TYPE_PROJECTION,
-            ElementType.TYPE_PARAMETER,
+            TYPE_PROJECTION,
+            TYPE_PARAMETER,
             VALUE_ARGUMENT,
-            ElementType.VALUE_PARAMETER,
+            VALUE_PARAMETER,
         )
 
     enum class KtlintDirectiveType(
@@ -400,7 +408,7 @@ private fun ASTNode.shouldBeConvertedToFileAnnotation() =
 
 private fun ASTNode.isSuppressibleDeclaration() =
     when (parent?.elementType) {
-        ElementType.CLASS, ElementType.FUN, ElementType.PROPERTY -> true
+        CLASS, FUN, PROPERTY -> true
         else -> false
     }
 

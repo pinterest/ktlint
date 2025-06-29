@@ -1,7 +1,15 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.GT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.LAMBDA_ARGUMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.LT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_TYPE_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
@@ -54,12 +62,12 @@ public class TypeArgumentListSpacingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         when (node.elementType) {
-            ElementType.TYPE_ARGUMENT_LIST -> {
+            TYPE_ARGUMENT_LIST -> {
                 visitFunctionDeclaration(node, emit)
                 visitInsideTypeArgumentList(node, emit)
             }
 
-            ElementType.SUPER_TYPE_LIST, ElementType.SUPER_EXPRESSION -> {
+            SUPER_TYPE_LIST, SUPER_EXPRESSION -> {
                 visitInsideTypeArgumentList(node, emit)
             }
         }
@@ -73,7 +81,7 @@ public class TypeArgumentListSpacingRule :
         //    val list = listOf <String>()
         node
             .prevLeaf
-            ?.takeIf { it.elementType == ElementType.WHITE_SPACE }
+            ?.takeIf { it.elementType == WHITE_SPACE }
             ?.let { noWhitespaceExpected(it, emit) }
 
         // No whitespace expected after type argument list of function call
@@ -83,14 +91,14 @@ public class TypeArgumentListSpacingRule :
                 // unless it is part of a type reference:
                 //    fun foo(): List<Foo> { ... }
                 //    var bar: List<Bar> = emptyList()
-                it.isPartOf(ElementType.TYPE_REFERENCE)
+                it.isPartOf(TYPE_REFERENCE)
             }?.takeUnless {
                 // unless it is part of a call expression followed by lambda:
                 //    bar<Foo> { ... }
                 it.isPartOfCallExpressionFollowedByLambda()
             }?.lastChildNode
             ?.nextLeaf
-            ?.takeIf { it.elementType == ElementType.WHITE_SPACE }
+            ?.takeIf { it.elementType == WHITE_SPACE }
             ?.let { noWhitespaceExpected(it, emit) }
     }
 
@@ -107,7 +115,7 @@ public class TypeArgumentListSpacingRule :
             }
 
         node
-            .findChildByType(ElementType.LT)
+            .findChildByType(LT)
             ?.nextSibling20
             ?.let { nextSibling ->
                 if (multiline) {
@@ -131,7 +139,7 @@ public class TypeArgumentListSpacingRule :
             }
 
         node
-            .findChildByType(ElementType.GT)
+            .findChildByType(GT)
             ?.prevSibling20
             ?.let { prevSibling ->
                 if (multiline) {
@@ -167,9 +175,9 @@ public class TypeArgumentListSpacingRule :
 }
 
 private fun ASTNode.isPartOfCallExpressionFollowedByLambda(): Boolean =
-    findParentByType(ElementType.CALL_EXPRESSION)
-        ?.takeIf { it.elementType == ElementType.CALL_EXPRESSION }
-        ?.findChildByType(ElementType.LAMBDA_ARGUMENT)
+    findParentByType(CALL_EXPRESSION)
+        ?.takeIf { it.elementType == CALL_EXPRESSION }
+        ?.findChildByType(LAMBDA_ARGUMENT)
         .let { it != null }
 
 public val TYPE_ARGUMENT_LIST_SPACING_RULE_ID: RuleId = TypeArgumentListSpacingRule().ruleId

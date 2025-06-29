@@ -1,6 +1,8 @@
 package com.pinterest.ktlint.rule.engine.core.api
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VAL_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VARARG_KEYWORD
@@ -437,7 +439,7 @@ public fun ASTNode.isRoot(): Boolean = isRoot20
 
 // TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
 public val ASTNode.isRoot20
-    get(): Boolean = elementType == ElementType.FILE
+    get(): Boolean = elementType == FILE
 
 @Deprecated(
     "In Ktlint 2.0, it will be replaced with a property accessor. For easy migration replace current function call with " +
@@ -897,7 +899,7 @@ public fun ASTNode.betweenCodeSiblings(
 ): Boolean = afterCodeSibling(afterElementType) && beforeCodeSibling(beforeElementType)
 
 public fun ASTNode.hasModifier(iElementType: IElementType): Boolean =
-    findChildByType(ElementType.MODIFIER_LIST)
+    findChildByType(MODIFIER_LIST)
         ?.children20
         .orEmpty()
         .any { it.elementType == iElementType }

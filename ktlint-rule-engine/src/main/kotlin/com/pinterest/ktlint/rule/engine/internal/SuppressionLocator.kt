@@ -1,7 +1,10 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONSTRUCTOR_CALLEE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.IgnoreKtlintSuppressions
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
@@ -64,7 +67,7 @@ internal class SuppressionLocator(
                         ?.let(commentSuppressionsHints::add)
                 }
 
-                ElementType.ANNOTATION_ENTRY -> {
+                ANNOTATION_ENTRY -> {
                     node
                         .takeIf { it.isSuppressAnnotation() }
                         ?.createSuppressionHintFromAnnotations()
@@ -169,14 +172,14 @@ internal class SuppressionLocator(
     private fun <T> List<T>.tail() = this.subList(1, this.size)
 
     private fun ASTNode.isSuppressAnnotation(): Boolean =
-        findChildByType(ElementType.CONSTRUCTOR_CALLEE)
-            ?.findChildByType(ElementType.TYPE_REFERENCE)
+        findChildByType(CONSTRUCTOR_CALLEE)
+            ?.findChildByType(TYPE_REFERENCE)
             ?.text in SUPPRESS_ANNOTATIONS
 
     private fun ASTNode.createSuppressionHintFromAnnotations(): SuppressionHint? {
         val suppressedRuleIds =
             recursiveChildren20
-                .filter { it.elementType == ElementType.VALUE_ARGUMENT }
+                .filter { it.elementType == VALUE_ARGUMENT }
                 .flatMapTo(mutableListOf()) {
                     it.text.removeSurrounding("\"").findRuleSuppressionIds()
                 }

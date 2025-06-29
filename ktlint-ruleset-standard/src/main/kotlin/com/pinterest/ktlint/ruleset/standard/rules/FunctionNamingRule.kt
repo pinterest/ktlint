@@ -1,10 +1,10 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONSTRUCTOR_CALLEE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
@@ -167,7 +167,7 @@ public class FunctionNamingRule :
             ?: false
 
     private fun ASTNode.annotationEntryName() =
-        findChildByType(ElementType.CONSTRUCTOR_CALLEE)
+        findChildByType(CONSTRUCTOR_CALLEE)
             ?.findChildByType(TYPE_REFERENCE)
             ?.findChildByType(USER_TYPE)
             ?.findChildByType(REFERENCE_EXPRESSION)

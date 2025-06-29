@@ -1,18 +1,20 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BINARY_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLOSING_QUOTE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.EQ
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LITERAL_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPEN_QUOTE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RETURN_KEYWORD
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.Rule
@@ -157,16 +159,16 @@ public class StringTemplateIndentRule :
 
     private fun ASTNode.isFunctionBodyExpressionOnSameLine() =
         prevCodeLeaf
-            ?.takeIf { it.elementType == ElementType.EQ }
+            ?.takeIf { it.elementType == EQ }
             ?.closingParenthesisOfFunctionOrNull()
             ?.prevLeaf
             ?.isWhiteSpaceWithNewline20
             ?: false
 
     private fun ASTNode.closingParenthesisOfFunctionOrNull() =
-        takeIf { parent?.elementType == ElementType.FUN }
+        takeIf { parent?.elementType == FUN }
             ?.prevCodeLeaf
-            ?.takeIf { it.elementType == ElementType.RPAR }
+            ?.takeIf { it.elementType == RPAR }
 
     private fun ASTNode.getIndent(): String {
         // When executing this rule, the indentation rule may not have run yet. The functionality to determine the correct indentation level

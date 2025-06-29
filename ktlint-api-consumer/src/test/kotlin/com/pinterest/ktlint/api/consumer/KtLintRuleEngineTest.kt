@@ -9,7 +9,7 @@ import com.pinterest.ktlint.rule.engine.api.LintError
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.ALLOW_AUTOCORRECT
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.NO_AUTOCORRECT
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
@@ -758,7 +758,7 @@ class KtLintRuleEngineTest {
             autoCorrect: Boolean,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
         ) {
-            if (node.elementType == ElementType.EOL_COMMENT && node.text == "// foo") {
+            if (node.elementType == EOL_COMMENT && node.text == "// foo") {
                 emit(node.startOffset, "Foo comment without autocorrect approve handler", true)
                 if (autoCorrect) {
                     node.replaceTextWith("// FOO")
@@ -782,7 +782,7 @@ class KtLintRuleEngineTest {
             node: ASTNode,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         ) {
-            if (node.elementType == ElementType.EOL_COMMENT && node.text == "// bar") {
+            if (node.elementType == EOL_COMMENT && node.text == "// bar") {
                 emit(node.startOffset, "Bar comment with autocorrect approve handler", true)
                     .ifAutocorrectAllowed {
                         node.replaceTextWith("// BAR")

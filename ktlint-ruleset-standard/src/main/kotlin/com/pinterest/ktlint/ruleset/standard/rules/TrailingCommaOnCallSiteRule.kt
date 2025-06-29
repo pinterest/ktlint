@@ -1,10 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLLECTION_LITERAL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.GT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.INDICES
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACKET
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
@@ -81,7 +84,7 @@ public class TrailingCommaOnCallSiteRule :
         val inspectNode =
             node
                 .children20
-                .last { it.elementType == ElementType.RBRACKET }
+                .last { it.elementType == RBRACKET }
         node.reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
             emit = emit,
@@ -98,7 +101,7 @@ public class TrailingCommaOnCallSiteRule :
         val inspectNode =
             node
                 .children20
-                .last { it.elementType == ElementType.RBRACKET }
+                .last { it.elementType == RBRACKET }
         node.reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
             emit = emit,
@@ -110,10 +113,10 @@ public class TrailingCommaOnCallSiteRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.parent?.elementType != ElementType.FUNCTION_LITERAL) {
+        if (node.parent?.elementType != FUNCTION_LITERAL) {
             node
                 .children20
-                .lastOrNull { it.elementType == ElementType.RPAR }
+                .lastOrNull { it.elementType == RPAR }
                 ?.let { inspectNode ->
                     node.reportAndCorrectTrailingCommaNodeBefore(
                         inspectNode = inspectNode,
@@ -131,7 +134,7 @@ public class TrailingCommaOnCallSiteRule :
         val inspectNode =
             node
                 .children20
-                .first { it.elementType == ElementType.GT }
+                .first { it.elementType == GT }
         node.reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
             emit = emit,

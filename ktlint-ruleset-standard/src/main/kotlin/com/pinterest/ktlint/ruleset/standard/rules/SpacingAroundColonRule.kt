@@ -1,10 +1,18 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EQ
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.OBJECT_DECLARATION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.SECONDARY_CONSTRUCTOR
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_CONSTRAINT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
@@ -58,7 +66,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                                 .toList()
                                 .reversed()
                         when {
-                            parentType == ElementType.PROPERTY || parentType == ElementType.FUN -> {
+                            parentType == PROPERTY || parentType == FUN -> {
                                 node
                                     .siblings(forward = true)
                                     .firstOrNull { it.elementType == EQ }
@@ -180,24 +188,22 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
         get() =
             when (parent?.elementType) {
 
-                ElementType.CLASS,
-                ElementType.OBJECT_DECLARATION,
-                -> {
+                CLASS, OBJECT_DECLARATION -> {
                     true
                 }
 
-                ElementType.SECONDARY_CONSTRUCTOR -> {
+                SECONDARY_CONSTRUCTOR -> {
                     // constructor : this/super
                     true
                 }
 
-                ElementType.TYPE_CONSTRAINT -> {
+                TYPE_CONSTRAINT -> {
                     // where T : S
                     true
                 }
 
                 else -> {
-                    parent?.parent?.elementType == ElementType.TYPE_PARAMETER_LIST
+                    parent?.parent?.elementType == TYPE_PARAMETER_LIST
                 }
             }
 
@@ -207,7 +213,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
     private inline val ASTNode.spacingAfter: Boolean
         get() =
             when (parent?.elementType) {
-                ElementType.ANNOTATION, ElementType.ANNOTATION_ENTRY -> true
+                ANNOTATION, ANNOTATION_ENTRY -> true
                 else -> false
             }
 

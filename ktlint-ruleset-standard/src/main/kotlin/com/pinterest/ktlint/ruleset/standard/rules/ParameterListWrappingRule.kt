@@ -1,14 +1,17 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_TYPE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LPAR
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.NULLABLE_TYPE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
@@ -178,8 +181,8 @@ public class ParameterListWrappingRule :
                 parent
                     ?.takeIf { it.elementType == FUNCTION_LITERAL }
                     ?.prevCodeLeaf
-                    ?.takeIf { it.parent?.elementType == ElementType.VALUE_ARGUMENT_LIST }
-                    ?.takeIf { it.parent?.parent?.elementType == ElementType.CALL_EXPRESSION }
+                    ?.takeIf { it.parent?.elementType == VALUE_ARGUMENT_LIST }
+                    ?.takeIf { it.parent?.parent?.elementType == CALL_EXPRESSION }
                     ?.leaves()
                     ?.takeWhile { it != startOfFunctionLiteral }
                     ?.none { it.isWhiteSpaceWithNewline20 }
@@ -196,10 +199,10 @@ public class ParameterListWrappingRule :
     }
 
     private fun ASTNode.isAnnotated() =
-        findChildByType(ElementType.MODIFIER_LIST)
+        findChildByType(MODIFIER_LIST)
             ?.children()
             .orEmpty()
-            .any { it.elementType == ElementType.ANNOTATION_ENTRY }
+            .any { it.elementType == ANNOTATION_ENTRY }
 
     private fun visitParameterList(
         node: ASTNode,

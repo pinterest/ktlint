@@ -1,7 +1,9 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE_ANNOTATION_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
@@ -43,14 +45,14 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.elementType != ElementType.MODIFIER_LIST && node.elementType != ElementType.FILE_ANNOTATION_LIST) {
+        if (node.elementType != MODIFIER_LIST && node.elementType != FILE_ANNOTATION_LIST) {
             return
         }
 
         val annotations =
             node
                 .children()
-                .filter { it.elementType == ElementType.ANNOTATION_ENTRY }
+                .filter { it.elementType == ANNOTATION_ENTRY }
                 .toList()
         if (annotations.isEmpty()) {
             return
@@ -76,7 +78,7 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
                 {
                     !it.isWhiteSpace20 &&
                         it.textLength > 0 &&
-                        !it.isPartOf(ElementType.FILE_ANNOTATION_LIST) &&
+                        !it.isPartOf(FILE_ANNOTATION_LIST) &&
                         !it.isCommentOnSameLineAsPrevLeaf()
                 },
                 {
@@ -91,7 +93,7 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
                 },
             )
         if (next != null) {
-            if (node.elementType != ElementType.FILE_ANNOTATION_LIST && next.isPartOfComment20) {
+            if (node.elementType != FILE_ANNOTATION_LIST && next.isPartOfComment20) {
                 emit(node.endOffset20, ERROR_MESSAGE, true)
                     .ifAutocorrectAllowed {
                         // Special-case autocorrection when the annotation is separated from the annotated construct
@@ -122,7 +124,7 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
                     }
             }
         }
-        if (node.elementType != ElementType.FILE_ANNOTATION_LIST && whiteSpaces.any { it.containsMultipleNewlines() }) {
+        if (node.elementType != FILE_ANNOTATION_LIST && whiteSpaces.any { it.containsMultipleNewlines() }) {
             emit(node.endOffset20, ERROR_MESSAGE, true)
                 .ifAutocorrectAllowed {
                     removeIntraLineBreaks(node, annotations.last())

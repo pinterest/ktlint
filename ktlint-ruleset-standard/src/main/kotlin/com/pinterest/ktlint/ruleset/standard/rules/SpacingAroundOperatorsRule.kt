@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANDAND
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ARROW
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DIV
@@ -15,6 +14,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.EXCLEQEQEQ
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.GT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.GTEQ
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.IMPORT_DIRECTIVE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LTEQ
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MINUS
@@ -121,7 +121,7 @@ public class SpacingAroundOperatorsRule : StandardRule("op-spacing") {
 
     private fun ASTNode.isImport() =
         // import *
-        isPartOf(ElementType.IMPORT_DIRECTIVE)
+        isPartOf(IMPORT_DIRECTIVE)
 
     private companion object {
         private val OPERATORS =

@@ -1,7 +1,9 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.IMPORT_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.PACKAGE_DIRECTIVE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.SCRIPT
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
@@ -38,9 +40,9 @@ public class NoEmptyFileRule : StandardRule(id = "no-empty-file") {
             children20
                 .firstOrNull {
                     it.isCode &&
-                        it.elementType != ElementType.PACKAGE_DIRECTIVE &&
-                        it.elementType != ElementType.IMPORT_LIST &&
-                        !(it.elementType == ElementType.SCRIPT && it.text.isBlank())
+                        it.elementType != PACKAGE_DIRECTIVE &&
+                        it.elementType != IMPORT_LIST &&
+                        !(it.elementType == SCRIPT && it.text.isBlank())
                 }
 }
 

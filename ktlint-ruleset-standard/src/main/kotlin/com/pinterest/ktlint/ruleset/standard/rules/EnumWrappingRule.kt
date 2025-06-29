@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_ENTRY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
@@ -62,7 +62,7 @@ public class EnumWrappingRule :
     ) {
         node
             .takeIf { node.elementType == CLASS }
-            ?.takeIf { node.hasModifier(ElementType.ENUM_KEYWORD) }
+            ?.takeIf { node.hasModifier(ENUM_KEYWORD) }
             ?.findChildByType(CLASS_BODY)
             ?.let { classBody ->
                 visitEnumClass(classBody, emit)

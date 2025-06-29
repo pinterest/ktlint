@@ -1,11 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ARROW
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_ENTRY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
@@ -183,7 +185,7 @@ public class StatementWrappingRule :
                 ?.firstChildLeafOrSelf20
 
     private inline val ASTNode.isEnumClass: Boolean
-        get() = elementType == ElementType.CLASS && hasModifier(ElementType.ENUM_KEYWORD)
+        get() = elementType == CLASS && hasModifier(ENUM_KEYWORD)
 
     private inline val ASTNode.indentAsChild: String
         get() = indent20.plus(indentConfig.indent)
@@ -200,7 +202,7 @@ public class StatementWrappingRule :
     ) {
         val previousCodeLeaf = node.prevCodeLeaf?.lastChildLeafOrSelf20 ?: return
         val nextCodeLeaf = node.nextCodeLeaf?.firstChildLeafOrSelf20 ?: return
-        if (previousCodeLeaf.parent?.elementType == ElementType.ENUM_ENTRY && nextCodeLeaf.elementType == RBRACE) {
+        if (previousCodeLeaf.parent?.elementType == ENUM_ENTRY && nextCodeLeaf.elementType == RBRACE) {
             // Allow
             // enum class INDEX2 { ONE, TWO, THREE; }
             return

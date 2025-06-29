@@ -1,8 +1,8 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BY_KEYWORD
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
@@ -285,7 +285,7 @@ public class NoUnusedImportsRule :
 
     private fun ASTNode.parentCallExpressionOrNull() =
         parent
-            ?.takeIf { it.elementType == ElementType.CALL_EXPRESSION }
+            ?.takeIf { it.elementType == CALL_EXPRESSION }
 
     private fun ASTNode.isDotQualifiedExpression() =
         parent
