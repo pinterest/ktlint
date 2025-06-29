@@ -57,6 +57,9 @@ public fun ASTNode.nextLeaf(
     return n
 }
 
+/**
+ * The next leaf after [ASTNode], or null when no such leaf exists.
+ */
 public val ASTNode.nextLeaf
     get(): ASTNode? {
         var node = this.nextLeafAny
@@ -66,12 +69,15 @@ public val ASTNode.nextLeaf
         return node
     }
 
-public fun ASTNode.nextLeaf(p: (ASTNode) -> Boolean): ASTNode? {
-    var n = this.nextLeafAny
-    while (n != null && !p(n)) {
-        n = n.nextLeafAny
+/**
+ * The next leaf after [ASTNode] matching [predicate], or null when no such leaf exists.
+ */
+public fun ASTNode.nextLeaf(predicate: (ASTNode) -> Boolean): ASTNode? {
+    var node = this.nextLeafAny
+    while (node != null && !predicate(node)) {
+        node = node.nextLeafAny
     }
-    return n
+    return node
 }
 
 private val ASTNode.nextLeafAny
@@ -97,7 +103,9 @@ private val ASTNode.nextLeafStrict
 )
 public fun ASTNode.firstChildLeafOrSelf(): ASTNode = firstChildLeafOrSelf20
 
-// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+/**
+ * The first child leaf in [ASTNode], or [ASTNode] when it does not contain any children.
+ */
 public val ASTNode.firstChildLeafOrSelf20
     get(): ASTNode {
         var node = this
@@ -122,6 +130,9 @@ public fun ASTNode.prevLeaf(includeEmpty: Boolean = false): ASTNode? {
     return n
 }
 
+/**
+ * The previous leaf before [ASTNode], or null when no such leaf exists.
+ */
 public val ASTNode.prevLeaf
     get(): ASTNode? {
         var node = this.prevLeafAny
@@ -131,6 +142,9 @@ public val ASTNode.prevLeaf
         return node
     }
 
+/**
+ * The previous leaf before [ASTNode] matching [predicate], or null when no such leaf exists.
+ */
 public fun ASTNode.prevLeaf(predicate: (ASTNode) -> Boolean): ASTNode? {
     var node = this.prevLeafAny
     while (node != null && !predicate(node)) {
@@ -150,7 +164,9 @@ private val ASTNode.prevLeafAny
 )
 public fun ASTNode.lastChildLeafOrSelf(): ASTNode = lastChildLeafOrSelf20
 
-// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+/**
+ * The last child leaf in [ASTNode], or [ASTNode] when it does not contain any children.
+ */
 public val ASTNode.lastChildLeafOrSelf20
     get(): ASTNode {
         var node = this
@@ -160,8 +176,11 @@ public val ASTNode.lastChildLeafOrSelf20
         return node
     }
 
+/**
+ *  `true` when [ASTNode] is not a whitespace element, and is not part of a comment.
+ */
 public val ASTNode.isCode
-    get() = !isWhiteSpace20 && !isPartOfComment20
+    get(): Boolean = !isWhiteSpace20 && !isPartOfComment20
 
 @Deprecated(
     "Marked for removal in KtLint 2.0. Replace calls to 'prevCodeLeaf()', and 'prevCodeLeaf(false)' with property accessor " +
@@ -175,6 +194,9 @@ public fun ASTNode.prevCodeLeaf(includeEmpty: Boolean = false): ASTNode? {
     return n
 }
 
+/**
+ * The previous code leaf before [ASTNode], or null when no such leaf exists.
+ */
 public val ASTNode.prevCodeLeaf
     get(): ASTNode? {
         var node = prevLeaf
@@ -199,6 +221,9 @@ public fun ASTNode.nextCodeLeaf(
     return n
 }
 
+/**
+ * The next code leaf after [ASTNode], or null when no such leaf exists.
+ */
 public val ASTNode.nextCodeLeaf
     get(): ASTNode? {
         var node = nextLeaf
@@ -216,10 +241,15 @@ public val ASTNode.nextCodeLeaf
 )
 public fun ASTNode.prevCodeSibling(): ASTNode? = prevCodeSibling20
 
-// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+/**
+ * The previous code sibling of [ASTNode], or null when no such sibling exists.
+ */
 public val ASTNode.prevCodeSibling20
     get(): ASTNode? = prevSibling { it.isCode }
 
+/**
+ * The previous sibling of [ASTNode] matching [predicate], or null when no such sibling exists.
+ */
 public inline fun ASTNode.prevSibling(predicate: (ASTNode) -> Boolean = { true }): ASTNode? {
     var node = this.treePrev
     while (node != null) {
@@ -239,6 +269,9 @@ public inline fun ASTNode.prevSibling(predicate: (ASTNode) -> Boolean = { true }
 )
 public fun ASTNode.prevSibling(): ASTNode? = prevSibling20
 
+/**
+ * The previous sibling of [ASTNode], or null when no such sibling exists.
+ */
 public inline val ASTNode.prevSibling20
     get(): ASTNode? = treePrev
 
@@ -251,10 +284,15 @@ public inline val ASTNode.prevSibling20
 // TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
 public fun ASTNode.nextCodeSibling(): ASTNode? = nextCodeSibling20
 
-// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+/**
+ * The next code sibling of [ASTNode], or null when no such sibling exists.
+ */
 public val ASTNode.nextCodeSibling20
     get(): ASTNode? = nextSibling { it.isCode }
 
+/**
+ * The next sibling of [ASTNode] matching [predicate], or null when no such sibling exists.
+ */
 public inline fun ASTNode.nextSibling(predicate: (ASTNode) -> Boolean): ASTNode? {
     var node = this.treeNext
     while (node != null) {
@@ -274,9 +312,15 @@ public inline fun ASTNode.nextSibling(predicate: (ASTNode) -> Boolean): ASTNode?
 )
 public fun ASTNode.nextSibling(): ASTNode? = nextSibling20
 
+/**
+ * The next sibling of [ASTNode], or null when no such sibling exists.
+ */
 public inline val ASTNode.nextSibling20
     get(): ASTNode? = treeNext
 
+/**
+ * The parent of the [ASTNode]. This counterpart of the PSI `treeParent` function is nullable as the root node does not have a parent.
+ */
 public inline val ASTNode.parent
     get(): ASTNode? = treeParent
 
@@ -285,7 +329,7 @@ public inline val ASTNode.parent
  */
 @Deprecated(
     "Marked for removal in Ktlint 2.0",
-    replaceWith = ReplaceWith("parent(elementType)"),
+    replaceWith = ReplaceWith("findParentByType(elementType)"),
 )
 public fun ASTNode.parent(
     elementType: IElementType,
@@ -307,6 +351,9 @@ public fun ASTNode.parent(
 )
 public fun ASTNode.parent(elementType: IElementType): ASTNode? = findParentByType(elementType)
 
+/**
+ * Find the first parent from [ASTNode] with [elementType].
+ */
 public fun ASTNode.findParentByType(elementType: IElementType): ASTNode? {
     var node: ASTNode? = parent
     while (node != null) {
@@ -333,6 +380,9 @@ public fun ASTNode.parent(
     return null
 }
 
+/**
+ * Find the first parent from [ASTNode] matching [predicate].
+ */
 public fun ASTNode.parent(predicate: (ASTNode) -> Boolean): ASTNode? {
     var node: ASTNode? = this.parent
     while (node != null && !predicate(node)) {
@@ -341,10 +391,13 @@ public fun ASTNode.parent(predicate: (ASTNode) -> Boolean): ASTNode? {
     return node
 }
 
+/**
+ * `true` when the [ASTNode], or any of its parents, has an element type in [tokenSet]
+ */
 public fun ASTNode.isPartOf(tokenSet: TokenSet): Boolean = elementType in tokenSet || parent { it.elementType in tokenSet } != null
 
 /**
- * @param elementType [ElementType].*
+ * `true` when the [ASTNode], or any of its parents, has [elementType]
  */
 public fun ASTNode.isPartOf(elementType: IElementType): Boolean = this.elementType == elementType || findParentByType(elementType) != null
 
@@ -380,7 +433,9 @@ public fun ASTNode.findCompositeParentElementOfType(iElementType: IElementType):
 )
 public fun ASTNode.isPartOfString(): Boolean = isPartOfString20
 
-// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+/**
+ * `true` when [ASTNode] is part of a string template
+ */
 public val ASTNode.isPartOfString20
     get(): Boolean = findParentByType(STRING_TEMPLATE) != null
 
@@ -398,7 +453,9 @@ public fun ASTNode?.isWhiteSpace(): Boolean {
     return isWhiteSpace20
 }
 
-// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+/**
+ * `true` when [ASTNode] is a whitespace element
+ */
 public val ASTNode?.isWhiteSpace20
     get() = this != null && elementType == WHITE_SPACE
 
@@ -410,7 +467,9 @@ public val ASTNode?.isWhiteSpace20
 )
 public fun ASTNode?.isWhiteSpaceWithNewline(): Boolean = isWhiteSpaceWithNewline20
 
-// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+/**
+ * `true` when [ASTNode] is a whitespace element that contains a newline
+ */
 public val ASTNode?.isWhiteSpaceWithNewline20
     get(): Boolean = this != null && isWhiteSpace20 && textContains('\n')
 
@@ -422,10 +481,15 @@ public val ASTNode?.isWhiteSpaceWithNewline20
 )
 public fun ASTNode?.isWhiteSpaceWithoutNewline(): Boolean = isWhiteSpaceWithoutNewline20
 
-// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+/**
+ * `true` when [ASTNode] is a whitespace element not containing a newline
+ */
 public val ASTNode?.isWhiteSpaceWithoutNewline20
     get(): Boolean = this != null && isWhiteSpace20 && !textContains('\n')
 
+/**
+ * `true` when [ASTNode] is null, or when [ASTNode] is a whitespace element not containing a newline
+ */
 public val ASTNode?.isWhiteSpaceWithoutNewlineOrNull
     get(): Boolean = this == null || isWhiteSpaceWithoutNewline20
 
@@ -437,7 +501,9 @@ public val ASTNode?.isWhiteSpaceWithoutNewlineOrNull
 )
 public fun ASTNode.isRoot(): Boolean = isRoot20
 
-// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+/**
+ * `true` when [ASTNode] is the root (e.g. FILE) element type
+ */
 public val ASTNode.isRoot20
     get(): Boolean = elementType == FILE
 
@@ -449,7 +515,9 @@ public val ASTNode.isRoot20
 )
 public fun ASTNode.isLeaf(): Boolean = isLeaf20
 
-// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+/**
+ * `true` when [ASTNode] is a leaf element type
+ */
 public val ASTNode.isLeaf20
     get(): Boolean = firstChildNode == null
 
@@ -468,7 +536,9 @@ public fun ASTNode.isCodeLeaf(): Boolean = isLeaf20 && isCode
 )
 public fun ASTNode.isPartOfComment(): Boolean = isPartOfComment20
 
-// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+/**
+ * `true` when [ASTNode] is part of a comment
+ */
 public val ASTNode.isPartOfComment20
     get(): Boolean = isPartOf(TokenSets.COMMENTS)
 
@@ -480,7 +550,9 @@ public val ASTNode.isPartOfComment20
 )
 public fun ASTNode.children(): Sequence<ASTNode> = children20
 
-// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+/**
+ * A sequence of the children of [ASTNode]
+ */
 public val ASTNode.children20
     get(): Sequence<ASTNode> = generateSequence(firstChildNode) { node -> node.nextSibling20 }
 
@@ -493,9 +565,11 @@ public fun ASTNode.recursiveChildren(includeSelf: Boolean = false): Sequence<AST
         "current function name.",
     replaceWith = ReplaceWith("recursiveChildren20"),
 )
-public fun ASTNode.recursiveChildren(): Sequence<ASTNode> = recursiveChildrenInternal(false)
+public fun ASTNode.recursiveChildren(): Sequence<ASTNode> = recursiveChildren20
 
-// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+/**
+ * A sequence of the children of [ASTNode] recursively iterated
+ */
 public val ASTNode.recursiveChildren20
     get(): Sequence<ASTNode> = recursiveChildrenInternal(false)
 
@@ -555,6 +629,9 @@ public fun ASTNode.upsertWhitespaceBeforeMe(text: String) {
     }
 }
 
+/**
+ * Replace text [ASTNode] with [text]. [ASTNode] must be a [LeafElement].
+ */
 public fun ASTNode.replaceTextWith(text: String) {
     require(this is LeafElement)
     takeIf { it.text != text }
@@ -609,6 +686,9 @@ public fun ASTNode.upsertWhitespaceAfterMe(text: String) {
     }
 }
 
+/**
+ * The column offset at which the [ASTNode] starts
+ */
 public val ASTNode.column: Int
     get() {
         var leaf = prevLeaf
@@ -641,10 +721,15 @@ public fun ASTNode.indent(includeNewline: Boolean = true): String =
         indentWithoutNewlinePrefix
     }
 
-// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+/**
+ * The indentation of [ASTNode] including the newline prefix
+ */
 public val ASTNode.indent20
     get(): String = indentInternal().prefixIfNot("\n")
 
+/**
+ * The indentation of [ASTNode] excluding the newline prefix
+ */
 public val ASTNode.indentWithoutNewlinePrefix
     get(): String = indentInternal().removePrefix("\n")
 
@@ -794,7 +879,9 @@ private val ASTNode.sequenceOfLeafOrEmpty
 )
 public fun ASTNode.leavesOnLine(): Sequence<ASTNode> = leavesOnLine20
 
-// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+/**
+ * A sequence of all leaves on the same line at which the [ASTNode] starts
+ */
 public val ASTNode.leavesOnLine20
     get(): Sequence<ASTNode> {
         val takeAll = lastLeafOnLineOrNull == null
@@ -844,7 +931,7 @@ internal val ASTNode.lastLeafOnLineOrNull
         "Marked for removal in Ktlint 2.x. Rules should not modify code in case the EOL comment causes the max_line_length to be exceeded.",
     replaceWith = ReplaceWith("lineLength(excludeEolComment = false)"),
 )
-public fun ASTNode.lineLengthWithoutNewlinePrefix(): Int = leavesOnLine(excludeEolComment = false).lineLength
+public fun ASTNode.lineLengthWithoutNewlinePrefix(): Int = leavesOnLine20.lineLength
 
 /**
  * Get the total length of all leaves on the same line as the given node including the whitespace indentation but excluding all leading
@@ -871,7 +958,9 @@ public fun ASTNode.lineLength(excludeEolComment: Boolean = false): Int = leavesO
 )
 public fun Sequence<ASTNode>.lineLengthWithoutNewlinePrefix(): Int = lineLength
 
-// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+/**
+ * The length of the first non-empty line in the [Sequence] of [ASTNode]'s
+ */
 public val Sequence<ASTNode>.lineLength
     get(): Int {
         val first = firstOrNull() ?: return 0
@@ -887,28 +976,46 @@ public val Sequence<ASTNode>.lineLength
             .length
     }
 
+/**
+ * `true` if [ASTNode] is found after a code sibling with [afterElementType]
+ */
 public fun ASTNode.afterCodeSibling(afterElementType: IElementType): Boolean =
     prevSibling { it.isCode && it.elementType == afterElementType } != null
 
+/**
+ * `true` if [ASTNode] is found before a code sibling with [beforeElementType]
+ */
 public fun ASTNode.beforeCodeSibling(beforeElementType: IElementType): Boolean =
     nextSibling { it.isCode && it.elementType == beforeElementType } != null
 
+/**
+ * `true` if [ASTNode] is found between a code sibling with [afterElementType] and a code sibling with [beforeElementType]
+ */
 public fun ASTNode.betweenCodeSiblings(
     afterElementType: IElementType,
     beforeElementType: IElementType,
 ): Boolean = afterCodeSibling(afterElementType) && beforeCodeSibling(beforeElementType)
 
+/**
+ * `true` if [ASTNode] contains a modifier list with an element of [iElementType]
+ */
 public fun ASTNode.hasModifier(iElementType: IElementType): Boolean =
     findChildByType(MODIFIER_LIST)
         ?.children20
         .orEmpty()
         .any { it.elementType == iElementType }
 
+/**
+ * Replaces [ASTNode] with [node]
+ */
 public fun ASTNode.replaceWith(node: ASTNode) {
     parent?.addChild(node, this)
     this.remove()
 }
 
+/**
+ * Removes [ASTNode] from its current parent
+ */
 public fun ASTNode.remove() {
     parent?.removeChild(this)
 }
@@ -922,7 +1029,11 @@ public fun ASTNode.remove() {
 public fun ASTNode.findChildByTypeRecursively(
     elementType: IElementType,
     includeSelf: Boolean,
-): ASTNode? = recursiveChildren(includeSelf).firstOrNull { it.elementType == elementType }
+): ASTNode? =
+    recursiveChildren(includeSelf).firstOrNull {
+        it.elementType ==
+            elementType
+    }
 
 /**
  * Searches the receiver [ASTNode] recursively, returning the first child with type [elementType]. If none are found, returns `null`.
@@ -961,7 +1072,6 @@ private val elementTypeCache = hashMapOf<IElementType, PsiElement>()
         "current function name.",
     replaceWith = ReplaceWith("isKtAnnotated20"),
 )
-// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
 public fun ASTNode.isKtAnnotated(): Boolean = isKtAnnotated20
 
 /**
@@ -1021,6 +1131,8 @@ private fun createDummyKtFile(): KtFile = KtlintKotlinCompiler.createPsiFileFrom
 )
 public fun ASTNode?.isDeclaration(): Boolean = isDeclaration20
 
-// TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+/**
+ * `true` if [ASTNode] is a declaration
+ */
 public val ASTNode?.isDeclaration20
     get(): Boolean = this != null && elementType in KtTokenSets.DECLARATION_TYPES
