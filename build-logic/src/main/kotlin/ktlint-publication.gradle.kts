@@ -18,7 +18,7 @@ project.version =
 
 publishing {
     publications {
-        create<MavenPublication>("maven") {
+        register<MavenPublication>("maven") {
             groupId = localGradleProperty("POM_GROUP_ID").get()
             version = version.toString()
             artifactId = localGradleProperty("POM_ARTIFACT_ID").get()
@@ -56,7 +56,7 @@ publishing {
             name = "mavenCentral"
             url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
 
-            logger.lifecycle("Set publication repository for version $version to $url")
+            logger.info("Set publication repository for version $version to $url")
 
             credentials {
                 username = providers.gradleProperty("CENTRAL_PORTAL_USERNAME").orNull
