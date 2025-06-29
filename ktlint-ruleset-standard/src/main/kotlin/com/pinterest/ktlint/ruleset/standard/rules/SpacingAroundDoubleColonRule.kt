@@ -15,9 +15,9 @@ import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 @SinceKtlint("0.37", STABLE)
 public class SpacingAroundDoubleColonRule : StandardRule("double-colon-spacing") {
@@ -81,7 +81,7 @@ public class SpacingAroundDoubleColonRule : StandardRule("double-colon-spacing")
 
     private fun ASTNode.removeSelf(removeSingleWhiteSpace: Boolean) {
         if (removeSingleWhiteSpace) {
-            (this as LeafPsiElement).rawReplaceWithText(text.substring(0, textLength - 1))
+            replaceTextWith(text.substring(0, textLength - 1))
         } else {
             this.remove()
         }

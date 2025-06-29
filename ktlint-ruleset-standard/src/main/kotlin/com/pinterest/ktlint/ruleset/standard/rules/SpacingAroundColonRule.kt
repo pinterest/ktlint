@@ -20,11 +20,11 @@ import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.psi.psiUtil.siblings
 
 @SinceKtlint("0.1", STABLE)
@@ -112,7 +112,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                             else -> {
                                 val text = prevLeaf.text
                                 if (node.spacingBefore) {
-                                    (prevLeaf as LeafPsiElement).rawReplaceWithText(" ")
+                                    prevLeaf.replaceTextWith(" ")
                                 } else {
                                     prevLeaf.remove()
                                 }

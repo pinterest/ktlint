@@ -25,6 +25,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -150,9 +151,7 @@ public class IfElseBracingRule :
         prevLeaves
             .firstOrNull()
             .takeIf { it.isWhiteSpace20 }
-            ?.let {
-                (it as LeafPsiElement).rawReplaceWithText(" ")
-            }
+            ?.replaceTextWith(" ")
         KtBlockExpression(null).apply {
             val previousChild = node.firstChildNode
             if (previousChild == null) {

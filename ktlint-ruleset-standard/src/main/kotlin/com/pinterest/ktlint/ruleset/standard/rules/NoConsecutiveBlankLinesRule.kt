@@ -14,9 +14,9 @@ import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 @SinceKtlint("0.1", STABLE)
 public class NoConsecutiveBlankLinesRule : StandardRule("no-consecutive-blank-lines") {
@@ -56,7 +56,7 @@ public class NoConsecutiveBlankLinesRule : StandardRule("no-consecutive-blank-li
                                 }
                                 append(split.last())
                             }
-                        (node as LeafPsiElement).rawReplaceWithText(newText)
+                        node.replaceTextWith(newText)
                     }
             }
         }

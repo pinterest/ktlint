@@ -28,10 +28,10 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.END_OF_LINE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isRoot20
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -522,9 +522,7 @@ private class AutoCorrectErrorRule :
             when (node.text) {
                 STRING_VALUE_TO_BE_AUTOCORRECTED -> {
                     emit(node.startOffset, ERROR_MESSAGE_CAN_BE_AUTOCORRECTED, true)
-                        .ifAutocorrectAllowed {
-                            (node as LeafElement).rawReplaceWithText(STRING_VALUE_AFTER_AUTOCORRECT)
-                        }
+                        .ifAutocorrectAllowed { node.replaceTextWith(STRING_VALUE_AFTER_AUTOCORRECT) }
                 }
 
                 STRING_VALUE_NOT_TO_BE_CORRECTED -> {

@@ -18,14 +18,13 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.util.safeAs
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.rules.FilenameRule
 import com.pinterest.ktlint.ruleset.standard.rules.INDENTATION_RULE_ID
 import com.pinterest.ktlint.ruleset.standard.rules.IndentationRule
 import com.pinterest.ktlint.test.KtlintTestFileSystem
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -762,9 +761,7 @@ class KtLintRuleEngineTest {
             if (node.elementType == ElementType.EOL_COMMENT && node.text == "// foo") {
                 emit(node.startOffset, "Foo comment without autocorrect approve handler", true)
                 if (autoCorrect) {
-                    node
-                        .safeAs<LeafElement>()
-                        ?.rawReplaceWithText("// FOO")
+                    node.replaceTextWith("// FOO")
                 }
             }
         }
@@ -788,9 +785,7 @@ class KtLintRuleEngineTest {
             if (node.elementType == ElementType.EOL_COMMENT && node.text == "// bar") {
                 emit(node.startOffset, "Bar comment with autocorrect approve handler", true)
                     .ifAutocorrectAllowed {
-                        node
-                            .safeAs<LeafElement>()
-                            ?.rawReplaceWithText("// BAR")
+                        node.replaceTextWith("// BAR")
                     }
             }
         }

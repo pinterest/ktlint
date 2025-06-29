@@ -8,9 +8,9 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 
 /**
  * When present, align the initial star in a block comment.
@@ -61,7 +61,7 @@ public class BlockCommentInitialStarAlignmentRule :
             if (autocorrect) {
                 val newText = modifiedLines.joinToString(separator = "\n")
                 if (node.text != newText) {
-                    (node as LeafElement).rawReplaceWithText(newText)
+                    node.replaceTextWith(newText)
                 }
             }
         }

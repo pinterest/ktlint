@@ -36,11 +36,11 @@ import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.remove
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.psiUtil.children
 import org.jetbrains.kotlin.psi.psiUtil.leaves
@@ -295,7 +295,7 @@ public class ParameterListWrappingRule :
                                 // autoCorrect mode the indent rule, if enabled, runs after this rule and
                                 // determines the final indentation. But if the indent rule is disabled then the
                                 // indent of this rule is kept.
-                                (prevLeaf as LeafPsiElement).rawReplaceWithText(intendedIndent)
+                                prevLeaf?.replaceTextWith(intendedIndent)
                             }
                     }
 

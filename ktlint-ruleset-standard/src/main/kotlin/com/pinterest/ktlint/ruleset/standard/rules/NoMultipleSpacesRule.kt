@@ -10,9 +10,9 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 @SinceKtlint("0.2", STABLE)
 public class NoMultipleSpacesRule : StandardRule("no-multi-spaces") {
@@ -29,7 +29,7 @@ public class NoMultipleSpacesRule : StandardRule("no-multi-spaces") {
                     emit(node.startOffset + 1, "Unnecessary long whitespace", true)
                         .ifAutocorrectAllowed {
                             val remainder = node.text.substring(beforeIndentation.length)
-                            (node as LeafPsiElement).rawReplaceWithText(" $remainder")
+                            node.replaceTextWith(" $remainder")
                         }
                 }
             }

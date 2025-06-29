@@ -18,9 +18,9 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 
 @SinceKtlint("0.49", EXPERIMENTAL)
@@ -98,9 +98,9 @@ public class NoBlankLineInListRule :
                         true,
                     ).ifAutocorrectAllowed {
                         if (replaceWithSingeSpace) {
-                            (node as LeafPsiElement).rawReplaceWithText(" ")
+                            node.replaceTextWith(" ")
                         } else {
-                            (node as LeafPsiElement).rawReplaceWithText("${lines.first()}\n${lines.last()}")
+                            node.replaceTextWith("${lines.first()}\n${lines.last()}")
                         }
                     }
                 }

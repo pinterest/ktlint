@@ -13,9 +13,9 @@ import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 @SinceKtlint("0.34", EXPERIMENTAL)
 @SinceKtlint("0.46", STABLE)
@@ -38,7 +38,7 @@ public class NoEmptyFirstLineInMethodBlockRule : StandardRule("no-empty-first-li
                     "First line in a method block should not be empty",
                     true,
                 ).ifAutocorrectAllowed {
-                    (node as LeafPsiElement).rawReplaceWithText("${split.first()}\n${split.last()}")
+                    node.replaceTextWith("${split.first()}\n${split.last()}")
                 }
             }
         }

@@ -11,9 +11,9 @@ import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 @SinceKtlint("0.1", STABLE)
 public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
@@ -69,7 +69,7 @@ public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
                         modifiedLine
                     }
             if (autocorrect) {
-                (node as LeafPsiElement).rawReplaceWithText(modifiedLines.joinToString(separator = "\n"))
+                node.replaceTextWith(modifiedLines.joinToString(separator = "\n"))
             }
         }
     }
@@ -84,7 +84,7 @@ public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
                 regex = SPACE_OR_TAB_BEFORE_NEWLINE_REGEX,
                 replacement = "\n",
             )
-        (this as LeafPsiElement).rawReplaceWithText(newText)
+        replaceTextWith(newText)
     }
 
     private fun String.hasTrailingSpace() = takeLast(1) == " "

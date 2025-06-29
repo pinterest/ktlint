@@ -28,10 +28,10 @@ import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.remove
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet.create
 
 @SinceKtlint("0.1", STABLE)
@@ -82,9 +82,7 @@ public class SpacingAroundKeywordRule : StandardRule("keyword-spacing") {
                     ?.takeIf { !isElseKeyword || it.parent?.parent == node.parent }
                     ?.run {
                         emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
-                            .ifAutocorrectAllowed {
-                                (prevLeaf as LeafElement).rawReplaceWithText(" ")
-                            }
+                            .ifAutocorrectAllowed { prevLeaf.replaceTextWith(" ") }
                     }
             }
         }

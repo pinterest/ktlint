@@ -41,6 +41,7 @@ import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.remove
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.util.cast
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -48,7 +49,6 @@ import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.PropertyType.PropertyValueParser
 import org.jetbrains.kotlin.KtNodeTypes.WHEN_ENTRY_GUARD
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
@@ -319,7 +319,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                         if (addNewLine) {
                             val indent = prevNode.parent!!.indent20
                             if (leafBeforeArrowOrNull.isWhiteSpace20) {
-                                (leafBeforeArrowOrNull as LeafElement).rawReplaceWithText(indent)
+                                leafBeforeArrowOrNull.replaceTextWith(indent)
                             } else {
                                 inspectNode
                                     .prevCodeLeaf

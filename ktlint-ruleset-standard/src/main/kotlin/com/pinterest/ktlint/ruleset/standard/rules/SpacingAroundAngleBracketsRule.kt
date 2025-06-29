@@ -15,9 +15,9 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.remove
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 
 @SinceKtlint("0.30", STABLE)
 public class SpacingAroundAngleBracketsRule : StandardRule("spacing-around-angle-brackets") {
@@ -65,9 +65,7 @@ public class SpacingAroundAngleBracketsRule : StandardRule("spacing-around-angle
                         val newLineWithIndent = afterLeftAngle.text.trimBeforeLastLine()
                         if (newLineWithIndent != afterLeftAngle.text) {
                             emit(afterLeftAngle.startOffset, "Single newline expected after \"<\"", true)
-                                .ifAutocorrectAllowed {
-                                    (afterLeftAngle as LeafElement).rawReplaceWithText(newLineWithIndent)
-                                }
+                                .ifAutocorrectAllowed { afterLeftAngle.replaceTextWith(newLineWithIndent) }
                         }
                     }
                 }
@@ -96,9 +94,7 @@ public class SpacingAroundAngleBracketsRule : StandardRule("spacing-around-angle
                     val newLineWithIndent = beforeRightAngle.text.trimBeforeLastLine()
                     if (newLineWithIndent != beforeRightAngle.text) {
                         emit(beforeRightAngle.startOffset, "Single newline expected before \">\"", true)
-                            .ifAutocorrectAllowed {
-                                (beforeRightAngle as LeafElement).rawReplaceWithText(newLineWithIndent)
-                            }
+                            .ifAutocorrectAllowed { beforeRightAngle.replaceTextWith(newLineWithIndent) }
                     }
                 }
             }

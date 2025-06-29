@@ -11,9 +11,9 @@ import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 @SinceKtlint("0.15", STABLE)
 public class NoLineBreakAfterElseRule : StandardRule("no-line-break-after-else") {
@@ -26,9 +26,7 @@ public class NoLineBreakAfterElseRule : StandardRule("no-line-break-after-else")
             node.nextLeaf?.elementType.let { it == IF_KEYWORD || it == LBRACE }
         ) {
             emit(node.startOffset + 1, "Unexpected line break after \"else\"", true)
-                .ifAutocorrectAllowed {
-                    (node as LeafPsiElement).rawReplaceWithText(" ")
-                }
+                .ifAutocorrectAllowed { node.replaceTextWith(" ") }
         }
     }
 }

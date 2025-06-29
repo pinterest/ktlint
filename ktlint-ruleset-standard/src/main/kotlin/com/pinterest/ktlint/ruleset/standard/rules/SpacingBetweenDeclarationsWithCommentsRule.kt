@@ -14,9 +14,9 @@ import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 
 /**
  * @see https://youtrack.jetbrains.com/issue/KT-35088
@@ -55,7 +55,7 @@ public class SpacingBetweenDeclarationsWithCommentsRule : StandardRule("spacing-
                                 ?.text
                                 ?.trim('\n')
                                 ?: ""
-                        (prevSibling as LeafElement).rawReplaceWithText("\n\n$indent")
+                        prevSibling.replaceTextWith("\n\n$indent")
                     }
             }
     }

@@ -31,10 +31,10 @@ import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 /**
  * Lints and formats the spacing before and after the angle brackets of a type parameter list.
@@ -234,16 +234,12 @@ public class TypeParameterListSpacingRule :
 
             node.isWhiteSpaceWithoutNewline20 && expectedWhitespace.startsWith("\n") -> {
                 emit(node.startOffset, "Expected a newline", true)
-                    .ifAutocorrectAllowed {
-                        (node as LeafPsiElement).rawReplaceWithText(expectedWhitespace)
-                    }
+                    .ifAutocorrectAllowed { node.replaceTextWith(expectedWhitespace) }
             }
 
             expectedWhitespace == " " -> {
                 emit(node.startOffset, "Expected a single space", true)
-                    .ifAutocorrectAllowed {
-                        (node as LeafPsiElement).rawReplaceWithText(expectedWhitespace)
-                    }
+                    .ifAutocorrectAllowed { node.replaceTextWith(expectedWhitespace) }
             }
         }
     }
@@ -259,9 +255,7 @@ public class TypeParameterListSpacingRule :
 
             node.isWhiteSpaceWithNewline20 -> {
                 emit(node.startOffset, "Expected a single space instead of newline", true)
-                    .ifAutocorrectAllowed {
-                        (node as LeafPsiElement).rawReplaceWithText(" ")
-                    }
+                    .ifAutocorrectAllowed { node.replaceTextWith(" ") }
             }
 
             else -> {

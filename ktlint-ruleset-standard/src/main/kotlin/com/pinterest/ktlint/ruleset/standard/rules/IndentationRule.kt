@@ -120,6 +120,7 @@ import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.ec4j.core.model.PropertyType
@@ -1172,7 +1173,7 @@ public class IndentationRule :
                     "(from ${normalizedNodeIndent.length}) for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}"
             }
             if (autoCorrect) {
-                (node as LeafPsiElement).rawReplaceWithText(
+                node.replaceTextWith(
                     text.substringBeforeLast("\n") + "\n" + expectedIndentation,
                 )
             }
@@ -1499,9 +1500,7 @@ private class StringTemplateIndenter(
                                                 LeafPsiElement(REGULAR_STRING_PART, correctedExpectedIndent),
                                             )
                                         } else {
-                                            (it.firstChildNode as LeafPsiElement).rawReplaceWithText(
-                                                correctedExpectedIndent + actualContent,
-                                            )
+                                            it.firstChildNode.replaceTextWith(correctedExpectedIndent + actualContent)
                                         }
                                     }
                             }

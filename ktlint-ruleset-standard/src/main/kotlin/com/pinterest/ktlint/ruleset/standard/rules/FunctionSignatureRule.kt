@@ -51,6 +51,7 @@ import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -60,7 +61,6 @@ import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.Functio
 import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.PropertyType.PropertyValueParser.EnumValueParser
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 
 @SinceKtlint("0.46", EXPERIMENTAL)
@@ -587,9 +587,7 @@ public class FunctionSignatureRule :
                             whiteSpaceBeforeFunctionBodyExpression!!.startOffset,
                             "First line of body expression fits on same line as function signature",
                             true,
-                        ).ifAutocorrectAllowed {
-                            (whiteSpaceBeforeFunctionBodyExpression as LeafPsiElement).rawReplaceWithText(" ")
-                        }
+                        ).ifAutocorrectAllowed { whiteSpaceBeforeFunctionBodyExpression.replaceTextWith(" ") }
                     }
                 } else if (whiteSpaceBeforeFunctionBodyExpression.isWhiteSpaceWithoutNewlineOrNull) {
                     if (node.isMultilineFunctionSignatureWithoutExplicitReturnType(lastNodeOfFunctionSignatureWithBodyExpression) &&

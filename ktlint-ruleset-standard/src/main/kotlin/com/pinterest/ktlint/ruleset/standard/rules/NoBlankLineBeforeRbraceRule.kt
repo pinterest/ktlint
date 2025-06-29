@@ -8,9 +8,9 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 @SinceKtlint("0.10.2", STABLE)
 public class NoBlankLineBeforeRbraceRule : StandardRule("no-blank-line-before-rbrace") {
@@ -28,7 +28,7 @@ public class NoBlankLineBeforeRbraceRule : StandardRule("no-blank-line-before-rb
                     "Unexpected blank line(s) before \"}\"",
                     true,
                 ).ifAutocorrectAllowed {
-                    (node as LeafPsiElement).rawReplaceWithText("${split.first()}\n${split.last()}")
+                    node.replaceTextWith("${split.first()}\n${split.last()}")
                 }
             }
         }

@@ -7,6 +7,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -36,7 +37,7 @@ public class CommentSpacingRule : StandardRule("comment-spacing") {
             ) {
                 emit(node.startOffset, "Missing space after //", true)
                     .ifAutocorrectAllowed {
-                        (node as LeafPsiElement).rawReplaceWithText("// " + text.removePrefix("//"))
+                        node.replaceTextWith("// " + text.removePrefix("//"))
                     }
             }
         }

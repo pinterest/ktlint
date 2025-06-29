@@ -30,11 +30,11 @@ import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 /**
  * Ensures consistent spacing inside the parameter list. This rule partly overlaps with other rules like spacing around
@@ -265,9 +265,7 @@ public class ParameterListSpacingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         emit(node.startOffset, "Expected a single space", true)
-            .ifAutocorrectAllowed {
-                (node as LeafPsiElement).rawReplaceWithText(" ")
-            }
+            .ifAutocorrectAllowed { node.replaceTextWith(" ") }
     }
 
     private fun ASTNode.getPrecedingModifier(): ASTNode? =

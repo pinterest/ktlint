@@ -15,9 +15,9 @@ import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 /**
  * Lint and format the spacing between the modifiers in and after the last modifier in a modifier list.
@@ -60,22 +60,16 @@ public class ModifierListSpacingRule : StandardRule("modifier-list-spacing") {
                     if (whitespace.text.contains("\n\n")) {
                         emit(whitespace.startOffset, "Single newline expected after annotation", true)
                             .ifAutocorrectAllowed {
-                                (whitespace as LeafPsiElement).rawReplaceWithText(
-                                    "\n".plus(whitespace.text.substringAfterLast("\n")),
-                                )
+                                whitespace.replaceTextWith("\n".plus(whitespace.text.substringAfterLast("\n")))
                             }
                     } else if (!whitespace.text.contains('\n') && whitespace.text != " ") {
                         emit(whitespace.startOffset, "Single whitespace or newline expected after annotation", true)
-                            .ifAutocorrectAllowed {
-                                (whitespace as LeafPsiElement).rawReplaceWithText(" ")
-                            }
+                            .ifAutocorrectAllowed { whitespace.replaceTextWith(" ") }
                     }
                     Unit
                 } else {
                     emit(whitespace.startOffset, "Single whitespace expected after modifier", true)
-                        .ifAutocorrectAllowed {
-                            (whitespace as LeafPsiElement).rawReplaceWithText(" ")
-                        }
+                        .ifAutocorrectAllowed { whitespace.replaceTextWith(" ") }
                 }
             }
     }

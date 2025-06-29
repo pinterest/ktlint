@@ -26,10 +26,10 @@ import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.CompositeElement
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.kdoc.lexer.KDocTokens.MARKDOWN_LINK
 import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtImportDirective
@@ -183,7 +183,7 @@ public class NoUnusedImportsRule :
                                                     .text
                                                     .substringAfter("\n")
                                             if (textAfterFirstNewline.isNotBlank()) {
-                                                (whitespace as LeafElement).rawReplaceWithText(textAfterFirstNewline)
+                                                whitespace.replaceTextWith(textAfterFirstNewline)
                                             }
                                         }
                                     }

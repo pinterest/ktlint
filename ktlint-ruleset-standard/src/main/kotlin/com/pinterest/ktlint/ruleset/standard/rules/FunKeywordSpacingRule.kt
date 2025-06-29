@@ -10,9 +10,9 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.parent
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 
 /**
@@ -35,9 +35,7 @@ public class FunKeywordSpacingRule : StandardRule("fun-keyword-spacing") {
                             leafAfterFunKeyword.startOffset,
                             "Single space expected after the fun keyword",
                             true,
-                        ).ifAutocorrectAllowed {
-                            (leafAfterFunKeyword as LeafPsiElement).rawReplaceWithText(" ")
-                        }
+                        ).ifAutocorrectAllowed { leafAfterFunKeyword.replaceTextWith(" ") }
                     }
 
                     leafAfterFunKeyword.elementType == ElementType.IDENTIFIER -> {

@@ -36,6 +36,7 @@ import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -322,9 +323,7 @@ public class StringTemplateIndentRule :
             "Unexpected '$wrongIndentDescription' character(s) in margin of multiline string",
             true,
         ).ifAutocorrectAllowed {
-            (node.firstChildNode as LeafPsiElement).rawReplaceWithText(
-                newIndent + newContent,
-            )
+            node.firstChildNode.replaceTextWith(newIndent + newContent)
         }
     }
 
@@ -342,9 +341,7 @@ public class StringTemplateIndentRule :
                         LeafPsiElement(REGULAR_STRING_PART, newIndent),
                     )
                 } else {
-                    (node.firstChildLeafOrSelf20 as LeafPsiElement).rawReplaceWithText(
-                        newIndent + newContent,
-                    )
+                    node.firstChildLeafOrSelf20.replaceTextWith(newIndent + newContent)
                 }
             }
     }
