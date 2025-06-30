@@ -9,7 +9,7 @@ kotlinDev = "2.2.0-RC3"
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 checksum = "org.gradle.crypto.checksum:1.4.0"
-shadow = "com.gradleup.shadow:8.3.6"
+shadow = "com.gradleup.shadow:8.3.7"
 kotlinx-binary-compatibiltiy-validator = "org.jetbrains.kotlinx.binary-compatibility-validator:0.17.0"
 
 [libraries]
