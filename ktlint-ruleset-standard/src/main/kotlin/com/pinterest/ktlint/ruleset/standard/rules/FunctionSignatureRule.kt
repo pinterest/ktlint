@@ -35,7 +35,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY_OFF
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
@@ -44,8 +44,7 @@ import com.pinterest.ktlint.rule.engine.core.api.isLeaf20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewlineOrNull
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -143,7 +142,7 @@ public class FunctionSignatureRule :
         //     fun foo(bar: String) {
         // or
         //     fun foo(bar: String) =
-        val firstCodeChild = getFirstCodeChild()?.firstChildLeafOrSelf()
+        val firstCodeChild = getFirstCodeChild()?.firstChildLeafOrSelf20
         val startOfBodyBlock =
             this
                 .findChildByType(BLOCK)
@@ -172,10 +171,10 @@ public class FunctionSignatureRule :
                     currentNode = iterator.next()
                     if (currentNode.elementType == CONTEXT_RECEIVER_LIST) {
                         return currentNode
-                            .lastChildLeafOrSelf()
-                            .nextLeaf()
+                            .lastChildLeafOrSelf20
+                            .nextLeaf
                             .let { leafAfterCompositeContextReceiverList ->
-                                if (leafAfterCompositeContextReceiverList.isWhiteSpaceWithNewline()) {
+                                if (leafAfterCompositeContextReceiverList.isWhiteSpaceWithNewline20) {
                                     // Ignore context receiver when followed by newline or EOL comment. Also, ignore that newline or EOL
                                     // comment.
                                     //     context(Foo)
@@ -184,7 +183,7 @@ public class FunctionSignatureRule :
                                     //     context(_: Foo)
                                     //     fun foo()
                                     // Same when using context parameter instead of context receiver
-                                    leafAfterCompositeContextReceiverList?.nextLeaf()
+                                    leafAfterCompositeContextReceiverList?.nextLeaf
                                 } else {
                                     currentNode
                                 }

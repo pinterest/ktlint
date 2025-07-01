@@ -60,7 +60,7 @@ public fun ASTNode.nextLeaf(
 /**
  * The next leaf after [ASTNode], or null when no such leaf exists.
  */
-public val ASTNode.nextLeaf
+public val ASTNode.nextLeaf: ASTNode?
     get(): ASTNode? {
         var node = this.nextLeafAny
         while (node != null && node.textLength == 0) {
@@ -106,7 +106,7 @@ public fun ASTNode.firstChildLeafOrSelf(): ASTNode = firstChildLeafOrSelf20
 /**
  * The first child leaf in [ASTNode], or [ASTNode] when it does not contain any children.
  */
-public val ASTNode.firstChildLeafOrSelf20
+public val ASTNode.firstChildLeafOrSelf20: ASTNode
     get(): ASTNode {
         var node = this
         while (node.firstChildNode != null) {
@@ -133,7 +133,7 @@ public fun ASTNode.prevLeaf(includeEmpty: Boolean = false): ASTNode? {
 /**
  * The previous leaf before [ASTNode], or null when no such leaf exists.
  */
-public val ASTNode.prevLeaf
+public val ASTNode.prevLeaf: ASTNode?
     get(): ASTNode? {
         var node = this.prevLeafAny
         while (node != null && node.textLength == 0) {
@@ -167,7 +167,7 @@ public fun ASTNode.lastChildLeafOrSelf(): ASTNode = lastChildLeafOrSelf20
 /**
  * The last child leaf in [ASTNode], or [ASTNode] when it does not contain any children.
  */
-public val ASTNode.lastChildLeafOrSelf20
+public val ASTNode.lastChildLeafOrSelf20: ASTNode
     get(): ASTNode {
         var node = this
         while (node.lastChildNode != null) {
@@ -179,7 +179,7 @@ public val ASTNode.lastChildLeafOrSelf20
 /**
  *  `true` when [ASTNode] is not a whitespace element, and is not part of a comment.
  */
-public val ASTNode.isCode
+public val ASTNode.isCode: Boolean
     get(): Boolean = !isWhiteSpace20 && !isPartOfComment20
 
 @Deprecated(
@@ -197,7 +197,7 @@ public fun ASTNode.prevCodeLeaf(includeEmpty: Boolean = false): ASTNode? {
 /**
  * The previous code leaf before [ASTNode], or null when no such leaf exists.
  */
-public val ASTNode.prevCodeLeaf
+public val ASTNode.prevCodeLeaf: ASTNode?
     get(): ASTNode? {
         var node = prevLeaf
         while (node != null && !node.isCode) {
@@ -224,7 +224,7 @@ public fun ASTNode.nextCodeLeaf(
 /**
  * The next code leaf after [ASTNode], or null when no such leaf exists.
  */
-public val ASTNode.nextCodeLeaf
+public val ASTNode.nextCodeLeaf: ASTNode?
     get(): ASTNode? {
         var node = nextLeaf
         while (node != null && !node.isCode) {
@@ -244,7 +244,7 @@ public fun ASTNode.prevCodeSibling(): ASTNode? = prevCodeSibling20
 /**
  * The previous code sibling of [ASTNode], or null when no such sibling exists.
  */
-public val ASTNode.prevCodeSibling20
+public val ASTNode.prevCodeSibling20: ASTNode?
     get(): ASTNode? = prevSibling { it.isCode }
 
 /**
@@ -272,7 +272,7 @@ public fun ASTNode.prevSibling(): ASTNode? = prevSibling20
 /**
  * The previous sibling of [ASTNode], or null when no such sibling exists.
  */
-public inline val ASTNode.prevSibling20
+public inline val ASTNode.prevSibling20: ASTNode?
     get(): ASTNode? = treePrev
 
 @Deprecated(
@@ -287,7 +287,7 @@ public fun ASTNode.nextCodeSibling(): ASTNode? = nextCodeSibling20
 /**
  * The next code sibling of [ASTNode], or null when no such sibling exists.
  */
-public val ASTNode.nextCodeSibling20
+public val ASTNode.nextCodeSibling20: ASTNode?
     get(): ASTNode? = nextSibling { it.isCode }
 
 /**
@@ -315,13 +315,13 @@ public fun ASTNode.nextSibling(): ASTNode? = nextSibling20
 /**
  * The next sibling of [ASTNode], or null when no such sibling exists.
  */
-public inline val ASTNode.nextSibling20
+public inline val ASTNode.nextSibling20: ASTNode?
     get(): ASTNode? = treeNext
 
 /**
  * The parent of the [ASTNode]. This counterpart of the PSI `treeParent` function is nullable as the root node does not have a parent.
  */
-public inline val ASTNode.parent
+public inline val ASTNode.parent: ASTNode?
     get(): ASTNode? = treeParent
 
 /**
@@ -436,7 +436,7 @@ public fun ASTNode.isPartOfString(): Boolean = isPartOfString20
 /**
  * `true` when [ASTNode] is part of a string template
  */
-public val ASTNode.isPartOfString20
+public val ASTNode.isPartOfString20: Boolean
     get(): Boolean = findParentByType(STRING_TEMPLATE) != null
 
 @Deprecated(
@@ -456,7 +456,7 @@ public fun ASTNode?.isWhiteSpace(): Boolean {
 /**
  * `true` when [ASTNode] is a whitespace element
  */
-public val ASTNode?.isWhiteSpace20
+public val ASTNode?.isWhiteSpace20: Boolean
     get() = this != null && elementType == WHITE_SPACE
 
 @Deprecated(
@@ -470,7 +470,7 @@ public fun ASTNode?.isWhiteSpaceWithNewline(): Boolean = isWhiteSpaceWithNewline
 /**
  * `true` when [ASTNode] is a whitespace element that contains a newline
  */
-public val ASTNode?.isWhiteSpaceWithNewline20
+public val ASTNode?.isWhiteSpaceWithNewline20: Boolean
     get(): Boolean = this != null && isWhiteSpace20 && textContains('\n')
 
 @Deprecated(
@@ -484,13 +484,13 @@ public fun ASTNode?.isWhiteSpaceWithoutNewline(): Boolean = isWhiteSpaceWithoutN
 /**
  * `true` when [ASTNode] is a whitespace element not containing a newline
  */
-public val ASTNode?.isWhiteSpaceWithoutNewline20
+public val ASTNode?.isWhiteSpaceWithoutNewline20: Boolean
     get(): Boolean = this != null && isWhiteSpace20 && !textContains('\n')
 
 /**
  * `true` when [ASTNode] is null, or when [ASTNode] is a whitespace element not containing a newline
  */
-public val ASTNode?.isWhiteSpaceWithoutNewlineOrNull
+public val ASTNode?.isWhiteSpaceWithoutNewlineOrNull: Boolean
     get(): Boolean = this == null || isWhiteSpaceWithoutNewline20
 
 @Deprecated(
@@ -504,7 +504,7 @@ public fun ASTNode.isRoot(): Boolean = isRoot20
 /**
  * `true` when [ASTNode] is the root (e.g. FILE) element type
  */
-public val ASTNode.isRoot20
+public val ASTNode.isRoot20: Boolean
     get(): Boolean = elementType == FILE
 
 @Deprecated(
@@ -518,7 +518,7 @@ public fun ASTNode.isLeaf(): Boolean = isLeaf20
 /**
  * `true` when [ASTNode] is a leaf element type
  */
-public val ASTNode.isLeaf20
+public val ASTNode.isLeaf20: Boolean
     get(): Boolean = firstChildNode == null
 
 /**
@@ -539,7 +539,7 @@ public fun ASTNode.isPartOfComment(): Boolean = isPartOfComment20
 /**
  * `true` when [ASTNode] is part of a comment
  */
-public val ASTNode.isPartOfComment20
+public val ASTNode.isPartOfComment20: Boolean
     get(): Boolean = isPartOf(TokenSets.COMMENTS)
 
 @Deprecated(
@@ -553,7 +553,7 @@ public fun ASTNode.children(): Sequence<ASTNode> = children20
 /**
  * A sequence of the children of [ASTNode]
  */
-public val ASTNode.children20
+public val ASTNode.children20: Sequence<ASTNode>
     get(): Sequence<ASTNode> = generateSequence(firstChildNode) { node -> node.nextSibling20 }
 
 @Deprecated("Marked for removal in Ktlint 2.0")
@@ -570,7 +570,7 @@ public fun ASTNode.recursiveChildren(): Sequence<ASTNode> = recursiveChildren20
 /**
  * A sequence of the children of [ASTNode] recursively iterated
  */
-public val ASTNode.recursiveChildren20
+public val ASTNode.recursiveChildren20: Sequence<ASTNode>
     get(): Sequence<ASTNode> = recursiveChildrenInternal(false)
 
 private fun ASTNode.recursiveChildrenInternal(includeSelf: Boolean = false): Sequence<ASTNode> =
@@ -724,13 +724,13 @@ public fun ASTNode.indent(includeNewline: Boolean = true): String =
 /**
  * The indentation of [ASTNode] including the newline prefix
  */
-public val ASTNode.indent20
+public val ASTNode.indent20: String
     get(): String = indentInternal().prefixIfNot("\n")
 
 /**
  * The indentation of [ASTNode] excluding the newline prefix
  */
-public val ASTNode.indentWithoutNewlinePrefix
+public val ASTNode.indentWithoutNewlinePrefix: String
     get(): String = indentInternal().removePrefix("\n")
 
 /**
@@ -846,14 +846,14 @@ public fun ASTNode.leavesIncludingSelf(forward: Boolean = true): Sequence<ASTNod
  * Creates a forward sequence of leaves including the [ASTNode] in case it is a [LeafElement] itself. Otherwise, an empty sequence is
  * returned.
  */
-public val ASTNode.leavesForwardsIncludingSelf
+public val ASTNode.leavesForwardsIncludingSelf: Sequence<ASTNode>
     get(): Sequence<ASTNode> = sequenceOfLeafOrEmpty.plus(leaves(forward = true))
 
 /**
  * Creates a backward sequence of leaves including the [ASTNode] in case it is a [LeafElement] itself. Otherwise, an empty sequence is
  *  * returned.
  */
-public val ASTNode.leavesBackwardsIncludingSelf
+public val ASTNode.leavesBackwardsIncludingSelf: Sequence<ASTNode>
     get(): Sequence<ASTNode> = sequenceOfLeafOrEmpty.plus(leaves(forward = false))
 
 private val ASTNode.sequenceOfLeafOrEmpty
@@ -882,7 +882,7 @@ public fun ASTNode.leavesOnLine(): Sequence<ASTNode> = leavesOnLine20
 /**
  * A sequence of all leaves on the same line at which the [ASTNode] starts
  */
-public val ASTNode.leavesOnLine20
+public val ASTNode.leavesOnLine20: Sequence<ASTNode>
     get(): Sequence<ASTNode> {
         val takeAll = lastLeafOnLineOrNull == null
         return firstLeafOnLineOrSelf
@@ -961,7 +961,7 @@ public fun Sequence<ASTNode>.lineLengthWithoutNewlinePrefix(): Int = lineLength
 /**
  * The length of the first non-empty line in the [Sequence] of [ASTNode]'s
  */
-public val Sequence<ASTNode>.lineLength
+public val Sequence<ASTNode>.lineLength: Int
     get(): Int {
         val first = firstOrNull() ?: return 0
         require(first.textContains('\n') || first.prevLeaf == null) {
@@ -1057,7 +1057,7 @@ public fun ASTNode.endOffset(): Int = endOffset20
 /**
  * Returns the end offset of the text of this [ASTNode]
  */
-public val ASTNode.endOffset20 // TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
+public val ASTNode.endOffset20: Int // TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
     get(): Int = textRange.endOffset
 
 private val elementTypeCache = hashMapOf<IElementType, PsiElement>()
@@ -1078,7 +1078,7 @@ public fun ASTNode.isKtAnnotated(): Boolean = isKtAnnotated20
  * Checks if the [AstNode] extends the [KtAnnotated] interface. Using this function to check the interface is more performant than checking
  * whether `psi is KtAnnotated` as the psi does not need to be derived from [ASTNode].
  */
-public val ASTNode.isKtAnnotated20
+public val ASTNode.isKtAnnotated20: Boolean
     get(): Boolean = psiType { it is KtAnnotated }
 
 @Deprecated("Marked for removal in KtLint 2.0")
@@ -1134,5 +1134,5 @@ public fun ASTNode?.isDeclaration(): Boolean = isDeclaration20
 /**
  * `true` if [ASTNode] is a declaration
  */
-public val ASTNode?.isDeclaration20
+public val ASTNode?.isDeclaration20: Boolean
     get(): Boolean = this != null && elementType in KtTokenSets.DECLARATION_TYPES
