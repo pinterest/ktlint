@@ -35,16 +35,17 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY_OFF
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.isLeaf
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
@@ -138,7 +139,7 @@ public class FunctionSignatureRule :
         //     fun foo(bar: String) {
         // or
         //     fun foo(bar: String) =
-        val firstCodeChild = getFirstCodeChild()
+        val firstCodeChild = getFirstCodeChild()?.firstChildLeafOrSelf()
         val startOfBodyBlock =
             this
                 .findChildByType(BLOCK)
@@ -165,7 +166,26 @@ public class FunctionSignatureRule :
                 var currentNode: ASTNode
                 while (iterator.hasNext()) {
                     currentNode = iterator.next()
-                    if (currentNode.elementType != ANNOTATION &&
+                    if (currentNode.elementType == CONTEXT_RECEIVER_LIST) {
+                        return currentNode
+                            .lastChildLeafOrSelf()
+                            .nextLeaf()
+                            .let { leafAfterCompositeContextReceiverList ->
+                                if (leafAfterCompositeContextReceiverList.isWhiteSpaceWithNewline()) {
+                                    // Ignore context receiver when followed by newline or EOL comment. Also, ignore that newline or EOL
+                                    // comment.
+                                    //     context(Foo)
+                                    //     fun foo()
+                                    // or
+                                    //     context(_: Foo)
+                                    //     fun foo()
+                                    // Same when using context parameter instead of context receiver
+                                    leafAfterCompositeContextReceiverList?.nextLeaf()
+                                } else {
+                                    currentNode
+                                }
+                            }
+                    } else if (currentNode.elementType != ANNOTATION &&
                         currentNode.elementType != ANNOTATION_ENTRY &&
                         currentNode.elementType != WHITE_SPACE
                     ) {
@@ -173,15 +193,6 @@ public class FunctionSignatureRule :
                     }
                 }
                 return modifierList.nextCodeSibling()
-            }
-        // Ignore the context receiver in case it is followed by a newline or EOL-comment. Note that when the ContextReceiverWrapping rule
-        // is disabled, it is possible that context receiver and fun keyword are kept on same line
-        funNode
-            ?.findChildByType(CONTEXT_RECEIVER_LIST)
-            ?.nextSibling()
-            ?.takeIf { it.isWhiteSpaceWithNewline() || it.elementType == EOL_COMMENT }
-            ?.let { nextSibling ->
-                return nextSibling.nextCodeSibling()
             }
 
         return funNode.nextCodeLeaf()
