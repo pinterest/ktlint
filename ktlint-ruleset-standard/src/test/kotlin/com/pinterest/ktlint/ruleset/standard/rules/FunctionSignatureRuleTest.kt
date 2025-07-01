@@ -1497,9 +1497,87 @@ class FunctionSignatureRuleTest {
                 """.trimIndent()
             functionSignatureWrappingRuleAssertThat(code)
                 .setMaxLineLength()
+                .isFormattedAs(formattedCode)
                 .hasLintViolations(
                     LintViolation(2, 22, "Newline expected after opening parenthesis"),
                     LintViolation(2, 36, "Newline expected before closing parenthesis"),
+                ).isFormattedAs(formattedCode)
+        }
+    }
+
+    @Nested
+    inner class `Issue 3018 - Given a function signature with a context parameter` {
+        @Test
+        fun `Issue 2800 - Given context parameter on a separate line then ignore the context parameter before rewriting the signature`() {
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER           $EOL_CHAR
+                context(_: Foo)
+                fun barrrrrrrrrrrrrr(string: String) {
+                   println(string)
+                }
+                """.trimIndent()
+            functionSignatureWrappingRuleAssertThat(code)
+                .setMaxLineLength()
+                .hasNoLintViolations()
+        }
+
+        @Test
+        fun `Issue 2800 - Given context parameter on a separate line, followed by a comment on separate line then ignore the context parameter and comment before rewriting the signature`() {
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER           $EOL_CHAR
+                context(_: Foo)
+                // some comment
+                fun barrrrrrrrrrrrrr(string: String) {
+                   println(string)
+                }
+                """.trimIndent()
+            functionSignatureWrappingRuleAssertThat(code)
+                .setMaxLineLength()
+                .hasNoLintViolations()
+        }
+
+        @Test
+        fun `Issue 2800 - Given context parameter on a separate line, followed by an EOL comment then ignore the context parameter and comment before rewriting the signature`() {
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER           $EOL_CHAR
+                context(_: Foo) // some comment
+                fun barrrrrrrrrrrrrr(string: String) {
+                   println(string)
+                }
+                """.trimIndent()
+            functionSignatureWrappingRuleAssertThat(code)
+                .setMaxLineLength()
+                .hasNoLintViolations()
+        }
+
+        @Test
+        fun `Issue 2800 - Given context parameter on same line then take the context parameter into account when rewriting the signature`() {
+            // Normally the
+            val code =
+                """
+                // $MAX_LINE_LENGTH_MARKER          $EOL_CHAR
+                context(_: Foo) fun bar(string: String) {
+                   println(string)
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                // $MAX_LINE_LENGTH_MARKER          $EOL_CHAR
+                context(_: Foo) fun bar(
+                    string: String
+                ) {
+                   println(string)
+                }
+                """.trimIndent()
+            functionSignatureWrappingRuleAssertThat(code)
+                .setMaxLineLength()
+                .isFormattedAs(formattedCode)
+                .hasLintViolations(
+                    LintViolation(2, 25, "Newline expected after opening parenthesis"),
+                    LintViolation(2, 39, "Newline expected before closing parenthesis"),
                 ).isFormattedAs(formattedCode)
         }
     }
