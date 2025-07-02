@@ -43,6 +43,10 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 /**
  * Wrapping of context receiver to a separate line. Arguments of the context receiver are wrapped to separate line
  * whenever the max line length is exceeded.
+ *
+ * In Kotlin 2.1.21 the context parameters have been introduced as a replacement for context receiver. Like the context receiver, the
+ * context parameters are wrapped inside a context receiver list. This rule will be removed once context receivers are no longer supported
+ * by the Kotlin compiler. A new rule (ContextReceiverListWrapping) will take care of wrapping the context parameters.
  */
 @SinceKtlint("0.48", EXPERIMENTAL)
 @SinceKtlint("1.0", STABLE)
@@ -73,7 +77,7 @@ public class ContextReceiverWrappingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         when {
-            node.elementType == CONTEXT_RECEIVER_LIST -> {
+            node.elementType == CONTEXT_RECEIVER_LIST && node.findChildByType(CONTEXT_RECEIVER) != null -> {
                 visitContextReceiverList(node, emit)
             }
 
