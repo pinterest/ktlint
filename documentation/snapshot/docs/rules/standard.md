@@ -4367,7 +4367,13 @@ Suppress or disable rule (1)
 
 ### Context receiver wrapping
 
-Wraps the context receiver list of a function to a separate line regardless of maximum line length. If the maximum line length is configured and is exceeded, wrap the context receivers and if needed its projection types to separate lines.
+!!! important
+    Context receivers are deprecated starting from Kotlin 2.2.0 and will be removed in a future version. Once KtLint is upgraded to a Kotlin version that no longer supports context receivers, then you will not be able to use that KtLint version as long as your code still contains context receiver.
+
+!!! tip
+    This rule does not affect context parameters. See rule `context-receiver-list-wrapping` for wrapping of context parameters.
+
+Wraps the context receiver list containing a context receiver to a separate line regardless of maximum line length. If the maximum line length is configured and is exceeded, wrap the context receivers and if needed its projection types to separate lines.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -4437,6 +4443,83 @@ Suppress or disable rule (1)
    Disable rule via `.editorconfig`
     ```editorconfig
     ktlint_standard_context-receiver-wrapping = disabled
+    ```
+   
+### Context receiver list wrapping
+
+!!! tip
+    This rule does not affect context receivers. See rule `context-receiver-wrapping` for wrapping of context receivers.
+
+Wraps the context receiver list containing a context parameter to a separate line regardless of maximum line length. If the maximum line length is configured and is exceeded, wrap the context receivers and if needed its projection types to separate lines.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    // Always wrap regardless of whether max line length is set
+    context(_: Foo)
+    fun fooBar()
+    
+    // Wrap each context receiver to a separate line when the
+    // entire context receiver list does not fit on a single line
+    context(
+        foo1: Fooooooooooooooooooo1,
+        foo2: Foooooooooooooooooooooooooooooo2
+    )
+    fun fooBar()
+    
+    // Wrap each context receiver to a separate line when the
+    // entire context receiver list does not fit on a single line.
+    // Also, wrap each of it projection types in case a context
+    // receiver does not fit on a single line after it has been
+    // wrapped.
+    context(
+        _: Foooooooooooooooo<
+            Foo,
+            Bar,
+            >
+    )
+    fun fooBar()
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    // Should be wrapped regardless of whether max line length is set
+    context(_: Foo) fun fooBar()
+
+    // Should be wrapped when the entire context receiver list does not
+    // fit on a single line
+    context(foo1: Fooooooooooooooooooo1, foo2: Foooooooooooooooooooooooooooooo2)
+    fun fooBar()
+
+    // Should be wrapped when the entire context receiver list does not
+    // fit on a single line. Also, it should wrap each of it projection
+    // type in case a context receiver does not fit on a single line 
+    // after it has been wrapped.
+    context(_: Foooooooooooooooo<Foo, Bar>)
+    fun fooBar()
+    ```
+
+| Configuration setting                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i> |       140       |     `off`     |     `100`      |
+
+Rule id: `standard:context-receiver-list-wrapping`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:context-receiver-list-wrapping")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_context-receiver-list-wrapping = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_context-receiver-list-wrapping = disabled
     ```
 
 ### Enum wrapping

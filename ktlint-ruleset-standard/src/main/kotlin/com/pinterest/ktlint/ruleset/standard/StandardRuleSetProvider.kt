@@ -18,6 +18,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.ClassSignatureRule
 import com.pinterest.ktlint.ruleset.standard.rules.CommentSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.CommentWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ConditionWrappingRule
+import com.pinterest.ktlint.ruleset.standard.rules.ContextReceiverListWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ContextReceiverWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.DiscouragedCommentLocationRule
 import com.pinterest.ktlint.ruleset.standard.rules.EnumEntryNameCaseRule
@@ -121,6 +122,7 @@ public class StandardRuleSetProvider : RuleSetProviderV3(RuleSetId.STANDARD) {
             RuleProvider { CommentWrappingRule() },
             RuleProvider { ConditionWrappingRule() },
             RuleProvider { ContextReceiverWrappingRule() },
+            RuleProvider { ContextReceiverListWrappingRule() },
             RuleProvider { DiscouragedCommentLocationRule() },
             RuleProvider { EnumEntryNameCaseRule() },
             RuleProvider { EnumWrappingRule() },
