@@ -21,14 +21,14 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent
-import com.pinterest.ktlint.rule.engine.core.api.isDeclaration
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.indent20
+import com.pinterest.ktlint.rule.engine.core.api.isCode
+import com.pinterest.ktlint.rule.engine.core.api.isDeclaration20
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -113,7 +113,7 @@ public class BlankLineBeforeDeclarationRule :
             return
         }
 
-        if (node.elementType == PROPERTY && node.treeParent.elementType == WHEN) {
+        if (node.elementType == PROPERTY && node.parent?.elementType == WHEN) {
             // Allow:
             //   when(val foo = foo()) {
             //       ...
@@ -122,7 +122,7 @@ public class BlankLineBeforeDeclarationRule :
         }
 
         if (node.elementType == FUN &&
-            (node.prevCodeSibling()?.elementType == EQ || node.prevCodeSibling()?.elementType == RETURN_KEYWORD)
+            (node.prevCodeSibling20?.elementType == EQ || node.prevCodeSibling20?.elementType == RETURN_KEYWORD)
         ) {
             // Allow:
             //   val foo =
@@ -132,13 +132,13 @@ public class BlankLineBeforeDeclarationRule :
             return
         }
 
-        if (node.elementType == FUN && node.treeParent.elementType == VALUE_ARGUMENT) {
+        if (node.elementType == FUN && node.parent?.elementType == VALUE_ARGUMENT) {
             // Allow:
             //   val foo1 = foo2(fun() = 42)
             return
         }
 
-        if (node.elementType == OBJECT_DECLARATION && node.treeParent.elementType == OBJECT_LITERAL) {
+        if (node.elementType == OBJECT_DECLARATION && node.parent?.elementType == OBJECT_LITERAL) {
             // Allow:
             //   fun foo() =
             //      object : Foo() {
@@ -148,12 +148,12 @@ public class BlankLineBeforeDeclarationRule :
         }
 
         node
-            .takeIf { it.isDeclaration() }
-            ?.takeUnless { it.prevLeaf().isBlankLine() }
+            .takeIf { it.isDeclaration20 }
+            ?.takeUnless { it.prevLeaf.isBlankLine() }
             ?.let { insertBeforeNode ->
                 emit(insertBeforeNode.startOffset, "Expected a blank line for this declaration", true)
                     .ifAutocorrectAllowed {
-                        insertBeforeNode.upsertWhitespaceBeforeMe("\n".plus(node.indent()))
+                        insertBeforeNode.upsertWhitespaceBeforeMe("\n".plus(node.indent20))
                     }
             }
     }
@@ -162,37 +162,37 @@ public class BlankLineBeforeDeclarationRule :
 
     private fun ASTNode.isFirstCodeSiblingInClassBody() =
         this ==
-            treeParent
-                .takeIf { it.elementType == CLASS_BODY }
+            parent
+                ?.takeIf { it.elementType == CLASS_BODY }
                 ?.findChildByType(LBRACE)
-                ?.nextCodeSibling()
+                ?.nextCodeSibling20
 
     private fun ASTNode.isFirstCodeSiblingInBlock() =
         this ==
-            treeParent
-                .takeIf { it.elementType == BLOCK }
+            parent
+                ?.takeIf { it.elementType == BLOCK }
                 ?.findChildByType(LBRACE)
-                ?.nextCodeSibling()
+                ?.nextCodeSibling20
 
     private fun ASTNode.isFirstCodeSiblingInBodyOfFunctionLiteral() =
         this ==
-            treeParent
-                .takeIf { it.elementType == BLOCK && it.treeParent.elementType == FUNCTION_LITERAL }
-                ?.treeParent
+            parent
+                ?.takeIf { it.elementType == BLOCK && it.parent?.elementType == FUNCTION_LITERAL }
+                ?.parent
                 ?.takeIf { it.elementType == FUNCTION_LITERAL }
                 ?.findChildByType(BLOCK)
-                ?.children()
-                ?.firstOrNull { !it.isWhiteSpace() && !it.isPartOfComment() }
+                ?.children20
+                ?.firstOrNull { isCode }
 
     private fun ASTNode.isConsecutiveProperty() =
         takeIf { it.propertyRelated() }
-            ?.prevCodeSibling()
-            ?.let { it.propertyRelated() || it.treeParent.propertyRelated() }
+            ?.prevCodeSibling20
+            ?.let { it.propertyRelated() || it.parent!!.propertyRelated() }
             ?: false
 
     private fun ASTNode.isLocalProperty() =
         takeIf { it.propertyRelated() }
-            ?.treeParent
+            ?.parent
             ?.let { it.elementType == BLOCK }
             ?: false
 

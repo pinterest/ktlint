@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ABSTRACT_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ACTUAL_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
@@ -18,6 +17,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.INLINE_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.INNER_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.INTERNAL_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LATEINIT_KEYWORD
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPEN_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPERATOR_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OVERRIDE_KEYWORD
@@ -42,7 +42,7 @@ public class ModifierOrderRule : StandardRule("modifier-order") {
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.elementType == ElementType.MODIFIER_LIST) {
+        if (node.elementType == MODIFIER_LIST) {
             val modifierArr = node.getChildren(tokenSet)
             val sorted = modifierArr.copyOf().apply { sortWith(compareBy { ORDERED_MODIFIERS.indexOf(it.elementType) }) }
             if (!modifierArr.contentEquals(sorted)) {
@@ -68,7 +68,7 @@ public class ModifierOrderRule : StandardRule("modifier-order") {
     }
 
     private fun squashAnnotations(sorted: Array<ASTNode>): List<String> {
-        val nonAnnotationModifiers = sorted.filter { it.elementType != ElementType.ANNOTATION_ENTRY }
+        val nonAnnotationModifiers = sorted.filter { it.elementType != ANNOTATION_ENTRY }
         return if (nonAnnotationModifiers.size != sorted.size) {
             listOf("@Annotation...") + nonAnnotationModifiers.map { it.text }
         } else {

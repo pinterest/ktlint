@@ -1,20 +1,21 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BINARY_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLOSING_QUOTE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.EQ
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LITERAL_STRING_TEMPLATE_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPEN_QUOTE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RETURN_KEYWORD
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
@@ -22,19 +23,22 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -103,20 +107,19 @@ public class StringTemplateIndentRule :
                         ?.let { whiteSpace ->
                             emit(stringTemplate.startOffset, "Expected newline before multiline string template", true)
                                 .ifAutocorrectAllowed {
-                                    whiteSpace.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(whiteSpace.treeParent))
+                                    whiteSpace.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(whiteSpace.parent!!))
                                 }
                         }
                     stringTemplate
                         .getFirstLeafAfterTrimIndent()
-                        ?.takeUnless { it.isWhiteSpaceWithNewline() }
+                        ?.takeUnless { it.isWhiteSpaceWithNewline20 }
                         ?.takeUnless { it.elementType == COMMA }
-                        ?.takeUnless { it.treeParent.elementType == DOT_QUALIFIED_EXPRESSION }
-                        ?.takeUnless {
-                            it.treeParent.elementType == BINARY_EXPRESSION && it.nextSibling()?.elementType == OPERATION_REFERENCE
-                        }?.let { nextLeaf ->
+                        ?.takeUnless { it.parent?.elementType == DOT_QUALIFIED_EXPRESSION }
+                        ?.takeUnless { it.parent?.elementType == BINARY_EXPRESSION && it.nextSibling20?.elementType == OPERATION_REFERENCE }
+                        ?.let { nextLeaf ->
                             emit(nextLeaf.startOffset, "Expected newline after multiline string template", true)
                                 .ifAutocorrectAllowed {
-                                    nextLeaf.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(stringTemplate.treeParent))
+                                    nextLeaf.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(stringTemplate.parent!!))
                                 }
                         }
 
@@ -141,39 +144,39 @@ public class StringTemplateIndentRule :
     private fun ASTNode.getFirstLeafAfterTrimIndent() =
         takeIf { it.elementType == STRING_TEMPLATE }
             ?.takeIf { it.isFollowedByTrimIndent() }
-            ?.treeParent
-            ?.lastChildLeafOrSelf()
-            ?.nextLeaf()
+            ?.parent
+            ?.lastChildLeafOrSelf20
+            ?.nextLeaf
 
-    private fun ASTNode.isPrecededByWhitespaceWithNewline() = prevLeaf().isWhiteSpaceWithNewline()
+    private fun ASTNode.isPrecededByWhitespaceWithNewline() = prevLeaf.isWhiteSpaceWithNewline20
 
     private fun ASTNode.isPrecededByReturnKeyword() =
         // Allow below as otherwise it results in compilation failure:
         //   return """
         //       some string
         //       """
-        prevCodeLeaf()?.elementType == RETURN_KEYWORD
+        prevCodeLeaf?.elementType == RETURN_KEYWORD
 
     private fun ASTNode.isFunctionBodyExpressionOnSameLine() =
-        prevCodeLeaf()
-            ?.takeIf { it.elementType == ElementType.EQ }
+        prevCodeLeaf
+            ?.takeIf { it.elementType == EQ }
             ?.closingParenthesisOfFunctionOrNull()
-            ?.prevLeaf()
-            ?.isWhiteSpaceWithNewline()
+            ?.prevLeaf
+            ?.isWhiteSpaceWithNewline20
             ?: false
 
     private fun ASTNode.closingParenthesisOfFunctionOrNull() =
-        takeIf { treeParent.elementType == ElementType.FUN }
-            ?.prevCodeLeaf()
-            ?.takeIf { it.elementType == ElementType.RPAR }
+        takeIf { parent?.elementType == FUN }
+            ?.prevCodeLeaf
+            ?.takeIf { it.elementType == RPAR }
 
     private fun ASTNode.getIndent(): String {
         // When executing this rule, the indentation rule may not have run yet. The functionality to determine the correct indentation level
         // is out of scope of this rule as it is owned by the indentation rule. Therefore, the indentation of the line at which the
         // string template is found, is assumed to be correct and is used to indent all lines of the string template. The indent will be
         // fixed once the indent rule is run as well.
-        val firstWhiteSpaceLeafOnSameLine = this.prevLeaf { it.elementType == WHITE_SPACE && it.textContains('\n') }
-        return if (this.prevLeaf() == firstWhiteSpaceLeafOnSameLine) {
+        val firstWhiteSpaceLeafOnSameLine = this.prevLeaf { it.isWhiteSpaceWithNewline20 }
+        return if (prevLeaf == firstWhiteSpaceLeafOnSameLine) {
             // The string template already is on a separate new line. Keep the current indent.
             firstWhiteSpaceLeafOnSameLine.getTextAfterLastNewline()
         } else {
@@ -243,13 +246,13 @@ public class StringTemplateIndentRule :
         checkAndFixNewLineAfterOpeningQuotes(node, newIndent, emit)
 
         node
-            .children()
+            .children20
             .filterNot { it.elementType == OPEN_QUOTE }
             .filterNot {
                 // Blank lines inside the string template should not be indented
                 it.text == "\n"
             }.forEach {
-                if (it.prevLeaf()?.text == "\n") {
+                if (it.prevLeaf?.text == "\n") {
                     val (currentIndent, currentContent) =
                         if (it.isIndentBeforeClosingQuote()) {
                             Pair(it.text, "")
@@ -295,7 +298,7 @@ public class StringTemplateIndentRule :
                 // The string template can start with an INTERPOLATION_PREFIX (multi dollar string interpolation, see
                 // https://kotlinlang.org/docs/strings.html#multi-dollar-string-interpolation), which is to be skipped.
                 .findChildByType(OPEN_QUOTE)
-                ?.nextLeaf()
+                ?.nextLeaf
                 ?: return
         if (firstNodeAfterOpeningQuotes.text.isNotBlank()) {
             emit(
@@ -322,9 +325,7 @@ public class StringTemplateIndentRule :
             "Unexpected '$wrongIndentDescription' character(s) in margin of multiline string",
             true,
         ).ifAutocorrectAllowed {
-            (node.firstChildNode as LeafPsiElement).rawReplaceWithText(
-                newIndent + newContent,
-            )
+            node.firstChildNode.replaceTextWith(newIndent + newContent)
         }
     }
 
@@ -342,9 +343,7 @@ public class StringTemplateIndentRule :
                         LeafPsiElement(REGULAR_STRING_PART, newIndent),
                     )
                 } else {
-                    (node.firstChildLeafOrSelf() as LeafPsiElement).rawReplaceWithText(
-                        newIndent + newContent,
-                    )
+                    node.firstChildLeafOrSelf20.replaceTextWith(newIndent + newContent)
                 }
             }
     }
@@ -354,7 +353,7 @@ public class StringTemplateIndentRule :
         indent: String,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val lastNodeBeforeClosingQuotes = node.lastChildNode.prevLeaf() ?: return
+        val lastNodeBeforeClosingQuotes = node.lastChildNode.prevLeaf ?: return
         if (lastNodeBeforeClosingQuotes.text.isNotBlank()) {
             emit(
                 lastNodeBeforeClosingQuotes.startOffset + lastNodeBeforeClosingQuotes.text.length,
@@ -370,7 +369,7 @@ public class StringTemplateIndentRule :
 
     private fun ASTNode.containsLiteralStringTemplateEntryWithNewline(): Boolean {
         require(elementType == STRING_TEMPLATE)
-        return children()
+        return children20
             .any { it.elementType == LITERAL_STRING_TEMPLATE_ENTRY && it.text == "\n" }
     }
 
@@ -408,7 +407,7 @@ public class StringTemplateIndentRule :
         )
     }
 
-    private fun ASTNode.isIndentBeforeClosingQuote() = text.isBlank() && nextCodeSibling()?.elementType == CLOSING_QUOTE
+    private fun ASTNode.isIndentBeforeClosingQuote() = text.isBlank() && nextCodeSibling20?.elementType == CLOSING_QUOTE
 
     private companion object {
         const val RAW_STRING_LITERAL_QUOTES = "\"\"\""

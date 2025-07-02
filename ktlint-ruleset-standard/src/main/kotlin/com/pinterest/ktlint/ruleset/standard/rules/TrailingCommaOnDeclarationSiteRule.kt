@@ -1,38 +1,50 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ARROW
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLLECTION_LITERAL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DESTRUCTURING_DECLARATION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_ENTRY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_TYPE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.GT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.LPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACKET
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SEMICOLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN_ENTRY
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.hasModifier
+import com.pinterest.ktlint.rule.engine.core.api.hasNewLineInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent
-import com.pinterest.ktlint.rule.engine.core.api.isCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.indent20
+import com.pinterest.ktlint.rule.engine.core.api.isCode
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.noNewLineInClosedRange
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.remove
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.util.cast
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -40,21 +52,12 @@ import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.PropertyType.PropertyValueParser
 import org.jetbrains.kotlin.KtNodeTypes.WHEN_ENTRY_GUARD
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiElement
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
-import org.jetbrains.kotlin.psi.KtCollectionLiteralExpression
-import org.jetbrains.kotlin.psi.KtDestructuringDeclaration
-import org.jetbrains.kotlin.psi.KtFunctionLiteral
-import org.jetbrains.kotlin.psi.KtParameterList
-import org.jetbrains.kotlin.psi.KtValueArgumentList
 import org.jetbrains.kotlin.psi.KtWhenEntry
 import org.jetbrains.kotlin.psi.KtWhenExpression
-import org.jetbrains.kotlin.psi.psiUtil.anyDescendantOfType
-import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
-import org.jetbrains.kotlin.psi.psiUtil.nextLeaf
+import org.jetbrains.kotlin.psi.psiUtil.children
 
 /**
  * Linting trailing comma for declaration site.
@@ -105,8 +108,8 @@ public class TrailingCommaOnDeclarationSiteRule :
     ) {
         val inspectNode =
             node
-                .children()
-                .last { it.elementType == ElementType.RPAR }
+                .children20
+                .last { it.elementType == RPAR }
         node.reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
             isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
@@ -122,7 +125,7 @@ public class TrailingCommaOnDeclarationSiteRule :
     ) {
         val inspectNode =
             node
-                .children()
+                .children20
                 .lastOrNull { it.elementType == ARROW }
                 ?: // lambda w/o an arrow -> no arguments -> no commas
                 return
@@ -137,10 +140,10 @@ public class TrailingCommaOnDeclarationSiteRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.treeParent.elementType != FUNCTION_LITERAL) {
+        if (node.parent?.elementType != FUNCTION_LITERAL) {
             node
-                .children()
-                .lastOrNull { it.elementType == ElementType.RPAR }
+                .children20
+                .lastOrNull { it.elementType == RPAR }
                 ?.let { inspectNode ->
                     node.reportAndCorrectTrailingCommaNodeBefore(
                         inspectNode = inspectNode,
@@ -157,8 +160,8 @@ public class TrailingCommaOnDeclarationSiteRule :
     ) {
         val inspectNode =
             node
-                .children()
-                .first { it.elementType == ElementType.GT }
+                .children20
+                .first { it.elementType == GT }
         node.reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
             isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
@@ -179,7 +182,7 @@ public class TrailingCommaOnDeclarationSiteRule :
 
         val inspectNode =
             node
-                .children()
+                .children20
                 .first { it.elementType == ARROW }
         node.reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
@@ -195,8 +198,8 @@ public class TrailingCommaOnDeclarationSiteRule :
         require(node.elementType == CLASS)
 
         node
-            .takeIf { node.hasModifier(ElementType.ENUM_KEYWORD) }
-            ?.findChildByType(ElementType.CLASS_BODY)
+            .takeIf { node.hasModifier(ENUM_KEYWORD) }
+            ?.findChildByType(CLASS_BODY)
             ?.takeUnless { it.noEnumEntries() }
             ?.let { classBody ->
                 classBody
@@ -223,12 +226,12 @@ public class TrailingCommaOnDeclarationSiteRule :
             }
     }
 
-    private fun ASTNode.noEnumEntries() = children().none { it.elementType == ElementType.ENUM_ENTRY }
+    private fun ASTNode.noEnumEntries() = children20.none { it.elementType == ENUM_ENTRY }
 
     private fun ASTNode.lastTwoEnumEntriesAreOnSameLine(): Boolean {
         val lastTwoEnumEntries =
-            children()
-                .filter { it.elementType == ElementType.ENUM_ENTRY }
+            children20
+                .filter { it.elementType == ENUM_ENTRY }
                 .toList()
                 .takeLast(2)
 
@@ -242,9 +245,9 @@ public class TrailingCommaOnDeclarationSiteRule :
      * last element of the class.
      */
     private fun ASTNode.findNodeAfterLastEnumEntry() =
-        children()
-            .lastOrNull { it.elementType == ElementType.ENUM_ENTRY }
-            ?.children()
+        children20
+            .lastOrNull { it.elementType == ENUM_ENTRY }
+            ?.children20
             ?.singleOrNull { it.elementType == SEMICOLON }
             ?: lastChildNode
 
@@ -253,7 +256,7 @@ public class TrailingCommaOnDeclarationSiteRule :
         isTrailingCommaAllowed: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val prevLeaf = inspectNode.prevLeaf()
+        val prevLeaf = inspectNode.prevLeaf
         val trailingCommaNode = prevLeaf?.findPreviousTrailingCommaNodeOrNull()
         val trailingCommaState =
             when {
@@ -262,7 +265,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                     TrailingCommaState.NOT_EXISTS
                 }
 
-                isMultiline(psi) -> {
+                isMultiline() -> {
                     if (trailingCommaNode != null) TrailingCommaState.EXISTS else TrailingCommaState.MISSING
                 }
 
@@ -274,18 +277,18 @@ public class TrailingCommaOnDeclarationSiteRule :
             TrailingCommaState.EXISTS -> {
                 if (isTrailingCommaAllowed) {
                     inspectNode
-                        .treeParent
-                        .takeIf { it.elementType == WHEN_ENTRY }
+                        .parent
+                        ?.takeIf { it.elementType == WHEN_ENTRY }
                         ?.findChildByType(ARROW)
-                        ?.prevLeaf()
+                        ?.prevLeaf
                         ?.let { lastNodeBeforeArrow ->
-                            if (lastNodeBeforeArrow.elementType != WHITE_SPACE || !lastNodeBeforeArrow.textContains('\n')) {
+                            if (!lastNodeBeforeArrow.isWhiteSpaceWithNewline20) {
                                 emit(
                                     trailingCommaNode!!.startOffset,
                                     "Expected a newline between the trailing comma and  \"${inspectNode.text}\"",
                                     true,
                                 ).ifAutocorrectAllowed {
-                                    lastNodeBeforeArrow.upsertWhitespaceAfterMe(inspectNode.treeParent.indent())
+                                    lastNodeBeforeArrow.upsertWhitespaceAfterMe(inspectNode.parent!!.indent20)
                                 }
                             }
                         }
@@ -294,17 +297,15 @@ public class TrailingCommaOnDeclarationSiteRule :
                         trailingCommaNode!!.startOffset,
                         "Unnecessary trailing comma before \"${inspectNode.text}\"",
                         true,
-                    ).ifAutocorrectAllowed {
-                        this.removeChild(trailingCommaNode)
-                    }
+                    ).ifAutocorrectAllowed { trailingCommaNode.remove() }
                 }
             }
 
             TrailingCommaState.MISSING -> {
                 if (isTrailingCommaAllowed) {
                     val leafBeforeArrowOrNull = leafBeforeArrowOrNull()
-                    val addNewLine = !(leafBeforeArrowOrNull?.isWhiteSpaceWithNewline() ?: true)
-                    val prevNode = inspectNode.prevCodeLeaf()!!
+                    val addNewLine = !(leafBeforeArrowOrNull?.isWhiteSpaceWithNewline20 ?: true)
+                    val prevNode = inspectNode.prevCodeLeaf!!
                     if (addNewLine) {
                         emit(
                             prevNode.startOffset + prevNode.textLength,
@@ -319,38 +320,37 @@ public class TrailingCommaOnDeclarationSiteRule :
                         )
                     }.ifAutocorrectAllowed {
                         if (addNewLine) {
-                            val indent =
-                                prevNode
-                                    .treeParent
-                                    .indent()
-                            if (leafBeforeArrowOrNull.isWhiteSpace()) {
-                                (leafBeforeArrowOrNull as LeafElement).rawReplaceWithText(indent)
+                            val indent = prevNode.parent!!.indent20
+                            if (leafBeforeArrowOrNull.isWhiteSpace20) {
+                                leafBeforeArrowOrNull.replaceTextWith(indent)
                             } else {
                                 inspectNode
-                                    .prevCodeLeaf()
-                                    ?.nextLeaf()
+                                    .prevCodeLeaf
+                                    ?.nextLeaf
                                     ?.let { before ->
-                                        before.treeParent.addChild(PsiWhiteSpaceImpl(indent), before)
+                                        before.parent?.addChild(PsiWhiteSpaceImpl(indent), before)
                                     }
                             }
                         }
 
-                        if (inspectNode.treeParent.elementType == ElementType.ENUM_ENTRY) {
+                        if (inspectNode.parent?.elementType == ENUM_ENTRY) {
                             val parentIndent =
-                                (prevNode.treeParent.prevLeaf()?.takeIf { it.isWhiteSpace() })?.text
-                                    ?: prevNode.indent()
-                            (inspectNode as LeafPsiElement).apply {
-                                this.treeParent.addChild(LeafPsiElement(COMMA, ","), this)
-                                this.treeParent.addChild(PsiWhiteSpaceImpl(parentIndent), null)
-                                this.treeParent.addChild(LeafPsiElement(SEMICOLON, ";"), null)
-                            }
+                                (prevNode.parent?.prevLeaf?.takeIf { it.isWhiteSpace20 })?.text
+                                    ?: prevNode.indent20
+                            inspectNode
+                                .parent
+                                ?.apply {
+                                    addChild(LeafPsiElement(COMMA, ","), inspectNode)
+                                    addChild(PsiWhiteSpaceImpl(parentIndent), null)
+                                    addChild(LeafPsiElement(SEMICOLON, ";"), null)
+                                }
                             inspectNode.remove()
                         } else {
                             inspectNode
-                                .prevCodeLeaf()
-                                ?.nextLeaf()
+                                .prevCodeLeaf
+                                ?.nextLeaf
                                 ?.let { before ->
-                                    before.treeParent.addChild(LeafPsiElement(COMMA, ","), before)
+                                    before.parent?.addChild(LeafPsiElement(COMMA, ","), before)
                                 }
                         }
                     }
@@ -362,9 +362,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                     trailingCommaNode!!.startOffset,
                     "Unnecessary trailing comma before \"${inspectNode.text}\"",
                     true,
-                ).ifAutocorrectAllowed {
-                    this.removeChild(trailingCommaNode)
-                }
+                ).ifAutocorrectAllowed { trailingCommaNode.remove() }
             }
 
             TrailingCommaState.NOT_EXISTS -> {
@@ -373,76 +371,61 @@ public class TrailingCommaOnDeclarationSiteRule :
         }
     }
 
-    private fun isMultiline(element: PsiElement): Boolean =
+    private fun ASTNode.isMultiline(): Boolean =
         when {
-            element.parent is KtFunctionLiteral -> {
-                isMultiline(element.parent)
+            parent?.elementType == FUNCTION_LITERAL -> {
+                parent!!.isMultiline()
             }
 
-            element is KtFunctionLiteral -> {
-                containsLineBreakInLeavesRange(element.valueParameterList!!, element.arrow!!)
+            elementType == FUNCTION_LITERAL -> {
+                hasNewLineInClosedRange(findChildByType(VALUE_PARAMETER_LIST)!!, findChildByType(ARROW)!!)
             }
 
-            element is KtWhenEntry -> {
-                containsLineBreakInLeavesRange(element.firstChild, element.arrow!!)
+            elementType == WHEN_ENTRY -> {
+                hasNewLineInClosedRange(firstChildNode, findChildByType(ARROW)!!)
             }
 
-            element is KtDestructuringDeclaration -> {
-                containsLineBreakInLeavesRange(element.lPar!!, element.rPar!!)
+            elementType == DESTRUCTURING_DECLARATION -> {
+                hasNewLineInClosedRange(findChildByType(LPAR)!!, findChildByType(RPAR)!!)
             }
 
-            element is KtValueArgumentList &&
-                element.children.size == 1 &&
-                element.anyDescendantOfType<KtCollectionLiteralExpression>() -> {
+            elementType == VALUE_ARGUMENT_LIST &&
+                children().count { it.elementType == VALUE_ARGUMENT } == 1 &&
+                findChildByType(VALUE_ARGUMENT_LIST)!!.elementType == COLLECTION_LITERAL_EXPRESSION -> {
                 // special handling for collection literal
                 // @Annotation([
                 //    "something",
                 // ])
-                val lastChild = element.collectDescendantsOfType<KtCollectionLiteralExpression>().last()
-                containsLineBreakInLeavesRange(lastChild.rightBracket!!, element.rightParenthesis!!)
+                hasNewLineInClosedRange(findChildByType(RBRACKET)!!, findChildByType(RPAR)!!)
             }
 
-            element is KtParameterList && element.parameters.isEmpty() -> {
+            elementType == VALUE_PARAMETER_LIST && findChildByType(VALUE_PARAMETER) == null -> {
                 false
             }
 
             else -> {
-                element.textContains('\n')
+                textContains('\n')
             }
         }
 
     private fun ASTNode.leafBeforeArrowOrNull() =
         takeIf { it.elementType == WHEN_ENTRY || it.elementType == FUNCTION_LITERAL }
             ?.findChildByType(ARROW)
-            ?.prevLeaf()
+            ?.prevLeaf
 
     private fun ASTNode.findPreviousTrailingCommaNodeOrNull(): ASTNode? {
         val codeLeaf =
-            if (isCodeLeaf()) {
+            if (isCode) {
                 this
             } else {
-                prevCodeLeaf()
+                prevCodeLeaf
             }
         return codeLeaf?.takeIf { it.elementType == COMMA }
     }
 
     private fun ASTNode.hasWhenEntryGuard() = elementType == WHEN_ENTRY && hasWhenEntryGuardKotlin21()
 
-    private fun ASTNode.hasWhenEntryGuardKotlin21(): Boolean = children().any { it.elementType == WHEN_ENTRY_GUARD }
-
-    private fun containsLineBreakInLeavesRange(
-        from: PsiElement,
-        to: PsiElement,
-    ): Boolean {
-        var leaf: PsiElement? = from
-        while (leaf != null && !leaf.isEquivalentTo(to)) {
-            if (leaf.textContains('\n')) {
-                return true
-            }
-            leaf = leaf.nextLeaf(skipEmptyElements = false)
-        }
-        return leaf?.textContains('\n') ?: false
-    }
+    private fun ASTNode.hasWhenEntryGuardKotlin21(): Boolean = children20.any { it.elementType == WHEN_ENTRY_GUARD }
 
     private enum class TrailingCommaState {
         /**

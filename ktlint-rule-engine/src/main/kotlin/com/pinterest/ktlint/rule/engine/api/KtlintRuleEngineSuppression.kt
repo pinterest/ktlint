@@ -1,7 +1,8 @@
 package com.pinterest.ktlint.rule.engine.api
 
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.internal.RuleExecutionContext
 import com.pinterest.ktlint.rule.engine.internal.insertKtlintRuleSuppression
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -42,9 +43,9 @@ private fun ASTNode.findLeafElementAt(suppression: KtlintSuppression): ASTNode =
         is KtlintSuppressionAtOffset -> {
             findLeafElementAt(suppression.offsetFromStartOf(text))
                 ?.let {
-                    if (it.isWhiteSpace()) {
+                    if (it.isWhiteSpace20) {
                         // A suppression can not be added at a whitespace element. Insert it at the parent instead
-                        it.treeParent
+                        it.parent
                     } else {
                         it
                     }

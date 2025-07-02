@@ -7,12 +7,12 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.lexer.KtSingleValueToken
 
 @SinceKtlint("0.13", STABLE)
@@ -22,25 +22,25 @@ public class SpacingAroundRangeOperatorRule : StandardRule("range-spacing") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == RANGE || node.elementType == RANGE_UNTIL) {
-            val prevLeaf = node.prevLeaf()
-            val nextLeaf = node.nextLeaf()
+            val prevLeaf = node.prevLeaf
+            val nextLeaf = node.nextLeaf
             when {
-                prevLeaf is PsiWhiteSpace && nextLeaf is PsiWhiteSpace -> {
+                prevLeaf.isWhiteSpace20 && nextLeaf.isWhiteSpace20 -> {
                     emit(node.startOffset, "Unexpected spacing around \"${node.elementTypeDescription()}\"", true)
                         .ifAutocorrectAllowed {
-                            prevLeaf.node.remove()
-                            nextLeaf.node.remove()
+                            prevLeaf?.remove()
+                            nextLeaf?.remove()
                         }
                 }
 
-                prevLeaf is PsiWhiteSpace -> {
-                    emit(prevLeaf.node.startOffset, "Unexpected spacing before \"${node.elementTypeDescription()}\"", true)
-                        .ifAutocorrectAllowed { prevLeaf.node.remove() }
+                prevLeaf != null && prevLeaf.isWhiteSpace20 -> {
+                    emit(prevLeaf.startOffset, "Unexpected spacing before \"${node.elementTypeDescription()}\"", true)
+                        .ifAutocorrectAllowed { prevLeaf.remove() }
                 }
 
-                nextLeaf is PsiWhiteSpace -> {
-                    emit(nextLeaf.node.startOffset, "Unexpected spacing after \"${node.elementTypeDescription()}\"", true)
-                        .ifAutocorrectAllowed { nextLeaf.node.remove() }
+                nextLeaf != null && nextLeaf.isWhiteSpace20 -> {
+                    emit(nextLeaf.startOffset, "Unexpected spacing after \"${node.elementTypeDescription()}\"", true)
+                        .ifAutocorrectAllowed { nextLeaf.remove() }
                 }
             }
         }

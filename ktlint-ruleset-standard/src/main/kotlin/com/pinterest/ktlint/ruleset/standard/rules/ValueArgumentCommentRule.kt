@@ -5,7 +5,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
@@ -22,7 +23,7 @@ public class ValueArgumentCommentRule : StandardRule("value-argument-comment") {
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.isPartOfComment() && node.treeParent.elementType == VALUE_ARGUMENT) {
+        if (node.isPartOfComment20 && node.parent?.elementType == VALUE_ARGUMENT) {
             // Disallow:
             //     val foo = foo(
             //         bar /* some comment */ = "bar"

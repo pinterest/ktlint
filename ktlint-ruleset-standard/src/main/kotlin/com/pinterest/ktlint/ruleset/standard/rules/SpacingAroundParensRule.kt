@@ -18,13 +18,14 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -55,16 +56,16 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
 
     private fun ASTNode.isUnexpectedSpacingBeforeParenthesis(): Boolean =
         when {
-            prevLeaf().isWhiteSpaceWithNewline() && hasNoNewlineAfterLpar() -> {
+            prevLeaf.isWhiteSpaceWithNewline20 && hasNoNewlineAfterLpar() -> {
                 true
             }
 
-            !prevLeaf().isWhiteSpaceWithoutNewline() -> {
+            !prevLeaf.isWhiteSpaceWithoutNewline20 -> {
                 false
             }
 
             elementType == LPAR -> {
-                treeParent?.elementType in elementListTokenSet &&
+                parent?.elementType in elementListTokenSet &&
                     (
                         isUnexpectedSpacingBetweenIdentifierAndElementList() ||
                             isUnexpectedSpacingInCallToSuper() ||
@@ -77,7 +78,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
                 // Disallow:
                 //    val foo = fn("foo" )
                 //    val foo = fn( )
-                prevLeaf()?.prevSibling()?.elementType != LPAR
+                prevLeaf?.prevSibling20?.elementType != LPAR
             }
 
             else -> {
@@ -86,64 +87,64 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
         }
 
     private fun ASTNode.isUnexpectedSpacingBetweenIdentifierAndElementList() =
-        prevLeaf()
-            ?.takeIf { it.isWhiteSpace() }
+        prevLeaf
+            ?.takeIf { it.isWhiteSpace20 }
             ?.takeIf {
                 // Disallow:
                 //     fun foo () {}
                 // and
                 //     @Deprecated ("bar)
                 //     fun foo() {}
-                it.prevLeaf()?.elementType == IDENTIFIER
+                it.prevLeaf?.elementType == IDENTIFIER
             }?.let {
                 // But do allow:
                 //     val foo: @Composable () -> Unit
-                treeParent?.treeParent?.elementType != FUNCTION_TYPE
+                parent?.parent?.elementType != FUNCTION_TYPE
             }
             ?: false
 
     private fun ASTNode.isUnexpectedSpacingInCallToSuper() =
-        prevLeaf()
-            ?.takeIf { it.isWhiteSpace() }
+        prevLeaf
+            ?.takeIf { it.isWhiteSpace20 }
             ?.let {
                 // Disallow:
                 //     class Foo : Bar {
                 //         constructor(string: String) : super ()
                 //     }
-                it.prevLeaf()?.elementType == SUPER_KEYWORD
+                it.prevLeaf?.elementType == SUPER_KEYWORD
             }
             ?: false
 
     private fun ASTNode.isUnexpectedSpacingInExplicitConstructor() =
-        prevLeaf()
-            ?.takeIf { it.isWhiteSpace() }
+        prevLeaf
+            ?.takeIf { it.isWhiteSpace20 }
             ?.let {
                 // Disallow:
                 //     class Foo constructor ()
-                it.prevLeaf()?.treeParent?.elementType == PRIMARY_CONSTRUCTOR
+                it.prevLeaf?.parent?.elementType == PRIMARY_CONSTRUCTOR
             }
             ?: false
 
     private fun ASTNode.isUnexpectedSpacingInSuperTypeCallEntry() =
-        prevLeaf()
-            ?.takeIf { it.isWhiteSpace() }
+        prevLeaf
+            ?.takeIf { it.isWhiteSpace20 }
             ?.let {
                 // Disallow:
                 //     class Foo : Bar ("test")
                 //     class Foo : Bar<String> ("test")
-                treeParent.treeParent.elementType == SUPER_TYPE_CALL_ENTRY &&
-                    it.prevSibling()?.elementType == CONSTRUCTOR_CALLEE
+                parent?.parent?.elementType == SUPER_TYPE_CALL_ENTRY &&
+                    it.prevSibling20?.elementType == CONSTRUCTOR_CALLEE
             }
             ?: false
 
     private fun ASTNode.isUnexpectedSpacingAfterParenthesis(): Boolean =
         when {
-            elementType == LPAR && nextSibling().isWhiteSpaceWithNewline() && hasNoOtherNewlineBeforeRpar() -> {
+            elementType == LPAR && nextSibling20.isWhiteSpaceWithNewline20 && hasNoOtherNewlineBeforeRpar() -> {
                 true
             }
 
             elementType == LPAR -> {
-                nextLeaf()
+                nextLeaf
                     ?.takeUnless { it.isNextLeafAComment() }
                     ?.let { it.isUnexpectedSpaceAfterLpar() || it.isUnexpectedNewlineAfterLpar() }
                     ?: false
@@ -159,28 +160,28 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
         //     val foo = fn( )
         //     val foo = fn( "bar")
         //     val foo = ( (1 + 2) / 3)
-        isWhiteSpaceWithoutNewline()
+        isWhiteSpaceWithoutNewline20
 
     private fun ASTNode.isUnexpectedNewlineAfterLpar() =
         // Disallow:
         //     val foo = fn(
         //         )
-        isWhiteSpaceWithNewline() && nextLeaf()?.elementType == RPAR
+        isWhiteSpaceWithNewline20 && nextLeaf?.elementType == RPAR
 
     private fun ASTNode.hasNoOtherNewlineBeforeRpar() =
-        nextSibling()
-            .takeIf { it.isWhiteSpaceWithNewline() }
+        nextSibling20
+            .takeIf { it.isWhiteSpaceWithNewline20 }
             ?.siblings()
             ?.takeWhile { it.elementType != RPAR }
-            ?.none { it.isWhiteSpaceWithNewline() }
+            ?.none { it.isWhiteSpaceWithNewline20 }
             ?: false
 
-    private fun ASTNode.isNextLeafAComment(): Boolean = nextLeaf()?.elementType in commentTypes
+    private fun ASTNode.isNextLeafAComment(): Boolean = nextLeaf?.elementType in commentTypes
 
     private fun ASTNode.hasNoNewlineAfterLpar() =
-        prevSibling()
-            .takeIf { it.isWhiteSpaceWithNewline() }
-            ?.takeUnless { it.prevSibling()?.elementType == LPAR }
+        prevSibling20
+            .takeIf { it.isWhiteSpaceWithNewline20 }
+            ?.takeUnless { it.prevSibling20?.elementType == LPAR }
             ?.siblings(false)
             ?.takeWhile { it.elementType != LPAR }
             ?.none { it.textContains('\n') }
@@ -191,23 +192,23 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
     ) {
         emit(startOffset, "Unexpected spacing around \"$text\"", true)
             .ifAutocorrectAllowed {
-                prevLeaf()!!.remove()
-                nextLeaf()!!.remove()
+                prevLeaf!!.remove()
+                nextLeaf!!.remove()
             }
     }
 
     private fun ASTNode.fixUnexpectedSpacingBefore(
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        emit(prevLeaf()!!.startOffset, "Unexpected spacing before \"${text}\"", true)
-            .ifAutocorrectAllowed { prevLeaf()?.remove() }
+        emit(prevLeaf!!.startOffset, "Unexpected spacing before \"${text}\"", true)
+            .ifAutocorrectAllowed { prevLeaf?.remove() }
     }
 
     private fun ASTNode.fixUnexpectSpacingAfter(
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         emit(startOffset + 1, "Unexpected spacing after \"$text\"", true)
-            .ifAutocorrectAllowed { nextLeaf()!!.remove() }
+            .ifAutocorrectAllowed { nextLeaf!!.remove() }
     }
 
     private companion object {

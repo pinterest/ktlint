@@ -1,23 +1,32 @@
 package com.pinterest.ktlint.rule.engine.internal.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LITERAL_STRING_TEMPLATE_ENTRY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PROJECTION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.IgnoreKtlintSuppressions
 import com.pinterest.ktlint.rule.engine.core.api.KtlintKotlinCompiler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.findChildByTypeRecursively
+import com.pinterest.ktlint.rule.engine.core.api.findParentByType
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
@@ -86,7 +95,7 @@ public class KtlintSuppressionRule(
             ?.takeIf { it.text.isKtlintSuppressionId() }
             ?.let { literalStringTemplate ->
                 literalStringTemplate
-                    .parent(VALUE_ARGUMENT)
+                    .findParentByType(VALUE_ARGUMENT)
                     ?.isPartOfAnnotation()
             }
             ?: false
@@ -98,7 +107,7 @@ public class KtlintSuppressionRule(
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .findChildByTypeRecursively(ElementType.LITERAL_STRING_TEMPLATE_ENTRY, includeSelf = true)
+            .findChildByTypeRecursively(LITERAL_STRING_TEMPLATE_ENTRY)
             ?.let { literalStringTemplateEntry ->
                 val prefixedSuppression =
                     literalStringTemplateEntry
@@ -120,8 +129,8 @@ public class KtlintSuppressionRule(
     }
 
     private fun ASTNode.removePrecedingWhitespace() {
-        prevLeaf()
-            .takeIf { it.isWhiteSpace() }
+        prevLeaf
+            .takeIf { it.isWhiteSpace20 }
             ?.remove()
     }
 
@@ -139,7 +148,7 @@ public class KtlintSuppressionRule(
     ) {
         when (ktlintDirectiveType) {
             KTLINT_DISABLE -> {
-                if (node.elementType == EOL_COMMENT && node.prevLeaf().isWhiteSpaceWithNewline()) {
+                if (node.elementType == EOL_COMMENT && node.prevLeaf.isWhiteSpaceWithNewline20) {
                     removeDanglingEolCommentWithKtlintDisableDirective(emit)
                 } else {
                     visitKtlintDisableDirective(emit)
@@ -194,14 +203,14 @@ public class KtlintSuppressionRule(
                     .toSet()
             node
                 .applyIf(node.elementType == BLOCK_COMMENT && shouldBePromotedToParentDeclaration(ruleIdValidator)) {
-                    treeParent.treeParent
-                }.insertKtlintRuleSuppression(suppressionIds, forceFileAnnotation = node.shouldBeConvertedToFileAnnotation())
+                    parent?.parent
+                }?.insertKtlintRuleSuppression(suppressionIds, forceFileAnnotation = node.shouldBeConvertedToFileAnnotation())
             if (node.elementType == EOL_COMMENT) {
                 node.removePrecedingWhitespace()
             } else {
-                if (node.nextLeaf().isWhiteSpaceWithNewline()) {
+                if (node.nextLeaf.isWhiteSpaceWithNewline20) {
                     node
-                        .nextLeaf()
+                        .nextLeaf
                         ?.remove()
                 } else {
                     node.removePrecedingWhitespace()
@@ -249,9 +258,9 @@ private class KtLintDirective(
 
     private fun findMatchingKtlintEnableDirective(ruleIdValidator: (String) -> Boolean) =
         node
-            .applyIf(node.isSuppressibleDeclaration()) { node.treeParent }
-            .siblings()
-            .firstOrNull { node ->
+            .applyIf(node.isSuppressibleDeclaration()) { node.parent }
+            ?.siblings()
+            ?.firstOrNull { node ->
                 node
                     .ktlintDirectiveOrNull(ruleIdValidator)
                     ?.takeIf { it.ktlintDirectiveType == KTLINT_ENABLE }
@@ -272,8 +281,8 @@ private class KtLintDirective(
                     // block directive should be match with this declaration only and not be moved to the parent.
                     matchingKtlintEnabledDirective !=
                         node
-                            .treeParent
-                            .nextSibling { !it.isWhiteSpace() }
+                            .parent
+                            ?.nextSibling { !it.isWhiteSpace20 }
                 }
                 ?: false
         }
@@ -283,7 +292,7 @@ private class KtLintDirective(
 
     private fun ASTNode.surroundsMultipleListElements(): Boolean {
         require(ktlintDirectiveType == KTLINT_DISABLE && elementType == BLOCK_COMMENT)
-        return if (treeParent.elementType in listTypeTokenSet) {
+        return if (parent?.elementType in listTypeTokenSet) {
             findMatchingKtlintEnableDirective(ruleIdValidator)
                 ?.siblings(false)
                 ?.takeWhile { it != this }
@@ -297,18 +306,18 @@ private class KtLintDirective(
 
     private val listTypeTokenSet =
         TokenSet.create(
-            ElementType.TYPE_ARGUMENT_LIST,
-            ElementType.TYPE_PARAMETER_LIST,
-            ElementType.VALUE_ARGUMENT_LIST,
-            ElementType.VALUE_PARAMETER_LIST,
+            TYPE_ARGUMENT_LIST,
+            TYPE_PARAMETER_LIST,
+            VALUE_ARGUMENT_LIST,
+            VALUE_PARAMETER_LIST,
         )
 
     private val listElementTypeTokenSet =
         TokenSet.create(
-            ElementType.TYPE_PROJECTION,
-            ElementType.TYPE_PARAMETER,
+            TYPE_PROJECTION,
+            TYPE_PARAMETER,
             VALUE_ARGUMENT,
-            ElementType.VALUE_PARAMETER,
+            VALUE_PARAMETER,
         )
 
     enum class KtlintDirectiveType(
@@ -395,11 +404,11 @@ private fun String.toSuppressionIdChanges(ruleIdValidator: (String) -> Boolean) 
 
 private fun ASTNode.shouldBeConvertedToFileAnnotation() =
     isTopLevel() ||
-        (elementType == BLOCK_COMMENT && isSuppressibleDeclaration() && treeParent.isTopLevel())
+        (elementType == BLOCK_COMMENT && isSuppressibleDeclaration() && parent!!.isTopLevel())
 
 private fun ASTNode.isSuppressibleDeclaration() =
-    when (treeParent.elementType) {
-        ElementType.CLASS, ElementType.FUN, ElementType.PROPERTY -> true
+    when (parent?.elementType) {
+        CLASS, FUN, PROPERTY -> true
         else -> false
     }
 

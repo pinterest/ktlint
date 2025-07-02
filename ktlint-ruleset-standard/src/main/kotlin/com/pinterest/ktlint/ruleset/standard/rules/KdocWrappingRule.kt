@@ -4,7 +4,6 @@ import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC_END
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC_START
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
@@ -12,7 +11,8 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.indent20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
@@ -40,10 +40,10 @@ public class KdocWrappingRule :
         if (node.elementType == KDOC) {
             node
                 .findChildByType(KDOC_START)
-                ?.prevLeaf()
-                ?.takeIf { isNonIndentLeafOnSameLine(it) }
+                ?.prevLeaf
+                ?.takeIf { !it.isWhiteSpaceWithNewline20 }
                 ?.let {
-                    // It can not be autocorrected as it might depend on the situation and code style what is
+                    // It cannot be autocorrected as it might depend on the situation and code style what is
                     // preferred.
                     emit(
                         node.startOffset,
@@ -54,18 +54,16 @@ public class KdocWrappingRule :
 
             node
                 .findChildByType(KDOC_END)
-                ?.nextLeaf()
-                ?.takeIf { isNonIndentLeafOnSameLine(it) }
+                ?.nextLeaf
+                ?.takeIf { !it.isWhiteSpaceWithNewline20 }
                 ?.let { nextLeaf ->
                     emit(nextLeaf.startOffset, "A KDoc comment may not be followed by any other element on that same line", true)
                         .ifAutocorrectAllowed {
-                            node.upsertWhitespaceAfterMe(node.indent())
+                            node.upsertWhitespaceAfterMe(node.indent20)
                         }
                 }
         }
     }
-
-    private fun isNonIndentLeafOnSameLine(it: ASTNode) = it.elementType != WHITE_SPACE || !it.textContains('\n')
 }
 
 public val KDOC_WRAPPING_RULE_ID: RuleId = KdocWrappingRule().ruleId

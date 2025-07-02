@@ -18,10 +18,12 @@ import com.pinterest.ktlint.rule.engine.core.api.KtlintKotlinCompiler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isCode
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -64,7 +66,7 @@ public class StringTemplateRule : StandardRule("string-template") {
                                 "Redundant \".toString()\" call in string template",
                                 true,
                             ).ifAutocorrectAllowed {
-                                dotQualifiedExpression.treeParent.addChild(receiver, dotQualifiedExpression)
+                                dotQualifiedExpression.parent?.addChild(receiver, dotQualifiedExpression)
                                 dotQualifiedExpression.remove()
                                 takeIf { it.isStringTemplate() }
                                     ?.removeCurlyBracesIfRedundant()
@@ -76,8 +78,8 @@ public class StringTemplateRule : StandardRule("string-template") {
 
     private fun ASTNode.splitCodeChildren(): Triple<ASTNode, ASTNode, ASTNode> {
         require(elementType == DOT_QUALIFIED_EXPRESSION)
-        return children()
-            .filter { !it.isWhiteSpace() && !it.isPartOfComment() }
+        return children20
+            .filter { it.isCode }
             .toList()
             .also { require(it.size == 3) }
             .let { Triple(it[0], it[1], it[2]) }
@@ -87,19 +89,19 @@ public class StringTemplateRule : StandardRule("string-template") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         takeIf { it.isStringTemplate() }
-            ?.children()
+            ?.children20
             ?.firstOrNull { it.elementType != LONG_TEMPLATE_ENTRY_START }
             ?.takeIf { it.elementType == REFERENCE_EXPRESSION || it.elementType == THIS_EXPRESSION }
             ?.let {
-                treeNext
-                    .takeIf { nextSibling ->
+                nextSibling20
+                    ?.takeIf { nextSibling ->
                         nextSibling.elementType == CLOSING_QUOTE ||
                             (
                                 nextSibling.elementType == LITERAL_STRING_TEMPLATE_ENTRY &&
                                     !nextSibling.text.substring(0, 1).isPartOfIdentifier()
                             )
                     }?.let {
-                        emit(treePrev.startOffset + 2, "Redundant curly braces", true)
+                        emit(prevSibling20!!.startOffset + 2, "Redundant curly braces", true)
                             .ifAutocorrectAllowed { removeCurlyBracesIfRedundant() }
                     }
             }
@@ -107,15 +109,11 @@ public class StringTemplateRule : StandardRule("string-template") {
 
     private fun ASTNode.removeCurlyBracesIfRedundant() {
         if (isStringTemplate()) {
-            val leftCurlyBraceNode = findChildByType(LONG_TEMPLATE_ENTRY_START)
-            val rightCurlyBraceNode = findChildByType(LONG_TEMPLATE_ENTRY_END)
-            if (leftCurlyBraceNode != null && rightCurlyBraceNode != null) {
-                removeChild(leftCurlyBraceNode)
-                removeChild(rightCurlyBraceNode)
-                firstChildNode
-                    .toShortStringTemplateNode()
-                    .let { replaceChild(firstChildNode, it) }
-            }
+            findChildByType(LONG_TEMPLATE_ENTRY_START)?.remove()
+            findChildByType(LONG_TEMPLATE_ENTRY_END)?.remove()
+            firstChildNode
+                .toShortStringTemplateNode()
+                .let { replaceChild(firstChildNode, it) }
         }
     }
 

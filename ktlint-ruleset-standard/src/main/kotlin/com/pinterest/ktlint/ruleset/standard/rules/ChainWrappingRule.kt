@@ -26,14 +26,15 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
@@ -75,11 +76,11 @@ public class ChainWrappingRule :
     ) {
         val elementType = node.elementType
         if (nextLineTokens.contains(elementType)) {
-            if (node.isPartOfComment()) {
+            if (node.isPartOfComment20) {
                 return
             }
-            val nextLeaf = node.nextCodeLeaf()?.prevLeaf()
-            if (nextLeaf.isWhiteSpaceWithNewline() && !node.isElvisOperatorAndComment()) {
+            val nextLeaf = node.nextCodeLeaf?.prevLeaf
+            if (nextLeaf.isWhiteSpaceWithNewline20 && !node.isElvisOperatorAndComment()) {
                 emit(node.startOffset, "Line must not end with \"${node.text}\"", true)
                     .ifAutocorrectAllowed {
                         // rewriting
@@ -98,10 +99,10 @@ public class ChainWrappingRule :
                     }
             }
         } else if (sameLineTokens.contains(elementType) || prefixTokens.contains(elementType)) {
-            if (node.isPartOfComment()) {
+            if (node.isPartOfComment20) {
                 return
             }
-            val prevLeaf = node.prevLeaf()
+            val prevLeaf = node.prevLeaf
             if (node.isPartOfSpread()) {
                 // Allow:
                 //    fn(
@@ -117,7 +118,7 @@ public class ChainWrappingRule :
                 return
             }
 
-            if (prevLeaf != null && prevLeaf.isWhiteSpaceWithNewline()) {
+            if (prevLeaf != null && prevLeaf.isWhiteSpaceWithNewline20) {
                 emit(node.startOffset, "Line must not begin with \"${node.text}\"", true)
                     .ifAutocorrectAllowed {
                         // rewriting
@@ -126,16 +127,16 @@ public class ChainWrappingRule :
                         // (or)
                         // <insertionPoint><spaceBeforeComment><comment><prevLeaf="\n"><node="&&"><nextLeaf=" "> to
                         // <insertionPoint><space if needed><node="&&"><spaceBeforeComment><comment><prevLeaf="\n"><delete node="&&"><delete nextLeaf=" ">
-                        val nextLeaf = node.nextLeaf()
+                        val nextLeaf = node.nextLeaf
                         val whiteSpaceToBeDeleted =
                             when {
-                                nextLeaf.isWhiteSpaceWithNewline() -> {
+                                nextLeaf.isWhiteSpaceWithNewline20 -> {
                                     // Node is preceded and followed by whitespace. Prefer to remove the whitespace before the node as this will
                                     // change the indent of the next line
                                     prevLeaf
                                 }
 
-                                nextLeaf.isWhiteSpaceWithoutNewline() -> {
+                                nextLeaf.isWhiteSpaceWithoutNewline20 -> {
                                     nextLeaf
                                 }
 
@@ -144,24 +145,22 @@ public class ChainWrappingRule :
                                 }
                             }
 
-                        if (node.treeParent.elementType == OPERATION_REFERENCE) {
-                            val operationReference = node.treeParent
+                        val parent = node.parent
+                        if (parent?.elementType == OPERATION_REFERENCE) {
                             val insertBeforeSibling =
-                                operationReference
-                                    .prevCodeSibling()
-                                    ?.nextSibling()
-                            operationReference.remove()
-                            insertBeforeSibling?.treeParent?.addChild(operationReference, insertBeforeSibling)
-                            node.treeParent.upsertWhitespaceBeforeMe(" ")
+                                parent
+                                    .prevCodeSibling20
+                                    ?.nextSibling20
+                            parent.remove()
+                            insertBeforeSibling?.parent?.addChild(parent, insertBeforeSibling)
+                            parent.upsertWhitespaceBeforeMe(" ")
                         } else {
-                            val insertionPoint = prevLeaf.prevCodeLeaf() as LeafPsiElement
+                            val insertionPoint = prevLeaf.prevCodeLeaf as LeafPsiElement
                             (node as LeafPsiElement).remove()
                             insertionPoint.rawInsertAfterMe(node)
                             (insertionPoint as ASTNode).upsertWhitespaceAfterMe(" ")
                         }
-                        whiteSpaceToBeDeleted
-                            ?.treeParent
-                            ?.removeChild(whiteSpaceToBeDeleted)
+                        whiteSpaceToBeDeleted?.remove()
                     }
             }
         }
@@ -169,7 +168,7 @@ public class ChainWrappingRule :
 
     private fun ASTNode.isPartOfSpread() =
         elementType == MUL &&
-            prevCodeLeaf()
+            prevCodeLeaf
                 ?.let { leaf ->
                     val type = leaf.elementType
                     type == LPAR ||
@@ -179,11 +178,11 @@ public class ChainWrappingRule :
                         KtTokens.OPERATIONS.contains(type)
                 } == true
 
-    private fun ASTNode.isInPrefixPosition() = treeParent?.treeParent?.elementType == PREFIX_EXPRESSION
+    private fun ASTNode.isInPrefixPosition() = parent?.parent?.elementType == PREFIX_EXPRESSION
 
     private fun ASTNode.isElvisOperatorAndComment(): Boolean =
         elementType == ELVIS &&
-            leaves().takeWhile { it.isWhiteSpaceWithoutNewline() || it.isPartOfComment() }.any()
+            leaves().takeWhile { it.isWhiteSpaceWithoutNewline20 || it.isPartOfComment20 }.any()
 }
 
 public val CHAIN_WRAPPING_RULE_ID: RuleId = ChainWrappingRule().ruleId

@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ARROW
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN
@@ -13,15 +12,17 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
@@ -61,7 +62,7 @@ public class WhenEntryBracing :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.elementType == ElementType.WHEN) {
+        if (node.elementType == WHEN) {
             visitWhenStatement(node, emit)
         }
     }
@@ -75,7 +76,7 @@ public class WhenEntryBracing :
         }
     }
 
-    private fun ASTNode.hasAnyWhenEntryWithBlockAfterArrow() = children().any { it.elementType == WHEN_ENTRY && it.hasBlockAfterArrow() }
+    private fun ASTNode.hasAnyWhenEntryWithBlockAfterArrow() = children20.any { it.elementType == WHEN_ENTRY && it.hasBlockAfterArrow() }
 
     private fun ASTNode.hasBlockAfterArrow(): Boolean {
         require(elementType == WHEN_ENTRY)
@@ -85,14 +86,14 @@ public class WhenEntryBracing :
             .any { it.elementType == BLOCK }
     }
 
-    private fun ASTNode.hasAnyWhenEntryWithMultilineBody() = children().any { it.elementType == WHEN_ENTRY && it.hasMultilineBody() }
+    private fun ASTNode.hasAnyWhenEntryWithMultilineBody() = children20.any { it.elementType == WHEN_ENTRY && it.hasMultilineBody() }
 
     private fun ASTNode.hasMultilineBody(): Boolean {
         require(elementType == WHEN_ENTRY)
         return findChildByType(ARROW)
             ?.siblings()
             .orEmpty()
-            .any { it.isWhiteSpaceWithNewline() }
+            .any { it.isWhiteSpaceWithNewline20 }
     }
 
     private fun addBracesToWhenEntry(
@@ -100,14 +101,14 @@ public class WhenEntryBracing :
         emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .children()
+            .children20
             .filter { it.elementType == WHEN_ENTRY }
             .filter { !it.hasBlockAfterArrow() }
             .forEach { whenEntry ->
                 whenEntry
                     .findChildByType(ARROW)
                     ?.let { arrow ->
-                        val nonWhiteSpaceSibling = arrow.nextSibling { !it.isWhiteSpace() } ?: arrow
+                        val nonWhiteSpaceSibling = arrow.nextSibling { !it.isWhiteSpace20 } ?: arrow
                         emitAndApprove(
                             nonWhiteSpaceSibling.startOffset,
                             "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces " +
@@ -131,14 +132,17 @@ public class WhenEntryBracing :
                 // the body was already a multiline statement, then the second and following lines should already be properly indented.
                 indentConfig.childIndentOf(this) +
                 siblings()
-                    .dropWhile { it.isWhiteSpace() }
+                    .dropWhile { it.isWhiteSpace20 }
                     .joinToString(separator = "") { it.text } +
                 "\n$whenEntryIndent}"
         val blockExpression = createBlockExpression(whenEntry)
-        val prevSibling = prevSibling()!!
-        treeParent.removeRange(nextSibling()!!, null)
-        prevSibling.treeParent.addChild(PsiWhiteSpaceImpl(" "), null)
-        prevSibling.treeParent.addChild(blockExpression!!, null)
+        parent?.removeRange(nextSibling20!!, null)
+        prevSibling20!!
+            .parent
+            ?.run {
+                addChild(PsiWhiteSpaceImpl(" "), null)
+                addChild(blockExpression!!, null)
+            }
     }
 
     private fun createBlockExpression(whenEntry: String) =

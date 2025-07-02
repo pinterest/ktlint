@@ -1,28 +1,39 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATED_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLLECTION_LITERAL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONSTRUCTOR_CALLEE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE_ANNOTATION_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.PACKAGE_DIRECTIVE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.REFERENCE_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PROJECTION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.USER_TYPE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.KtlintKotlinCompiler
 import com.pinterest.ktlint.rule.engine.core.api.findChildByTypeRecursively
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
-import com.pinterest.ktlint.rule.engine.core.api.indent
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isRoot
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.indent20
+import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
+import com.pinterest.ktlint.rule.engine.core.api.isRoot20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.replaceWith
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
@@ -148,8 +159,8 @@ private fun ASTNode.findParentDeclarationOrExpression(forceFileAnnotation: Boole
                     // moved to the next list element. When no such element is found, it will be moved to the parent of the list type
                     targetPsiElement
                         .node
-                        .nextCodeSibling()
-                        ?.firstChildLeafOrSelf()
+                        .nextCodeSibling20
+                        ?.firstChildLeafOrSelf20
                         ?.psi
                 }
 
@@ -166,14 +177,14 @@ private val listElementTypeTokenSet = TokenSet.create(TYPE_PROJECTION, TYPE_PARA
 
 private fun PsiElement.isIgnorableListElement() =
     node
-        .takeIf { it.treeParent.elementType in listTypeTokenSet }
-        ?.let { it.elementType == COMMA || it.isWhiteSpace() || it.isPartOfComment() }
+        .takeIf { it.parent?.elementType in listTypeTokenSet }
+        ?.let { it.elementType == COMMA || it.isWhiteSpace20 || it.isPartOfComment20 }
         ?: false
 
 /**
  * Determines whether a node is top level element
  */
-internal fun ASTNode.isTopLevel() = this.elementType == FILE || this.treeParent.elementType == FILE
+internal fun ASTNode.isTopLevel() = this.elementType == FILE || this.parent?.elementType == FILE
 
 private fun Set<String>.mergeInto(
     annotationNode: ASTNode,
@@ -200,23 +211,23 @@ private fun ASTNode.existingSuppressions() =
         ?: getValueArguments()
 
 private fun ASTNode.existingSuppressionsFromNamedArgumentOrNull(): Set<String>? =
-    findChildByTypeRecursively(ElementType.COLLECTION_LITERAL_EXPRESSION, includeSelf = false)
+    findChildByTypeRecursively(COLLECTION_LITERAL_EXPRESSION)
         ?.run {
             children()
-                .filter { it.elementType == ElementType.STRING_TEMPLATE }
+                .filter { it.elementType == STRING_TEMPLATE }
                 .map { it.text }
                 .toSet()
         }
 
 private fun ASTNode.findSuppressionAnnotations(): Map<SuppressAnnotationType, ASTNode> =
-    if (this.isRoot()) {
-        findChildByType(ElementType.FILE_ANNOTATION_LIST)
+    if (isRoot20) {
+        findChildByType(FILE_ANNOTATION_LIST)
             ?.toMapOfSuppressionAnnotations()
             .orEmpty()
-    } else if (this.elementType == ElementType.ANNOTATED_EXPRESSION) {
+    } else if (this.elementType == ANNOTATED_EXPRESSION) {
         this.toMapOfSuppressionAnnotations()
     } else {
-        findChildByType(ElementType.MODIFIER_LIST)
+        findChildByType(MODIFIER_LIST)
             ?.toMapOfSuppressionAnnotations()
             .orEmpty()
     }
@@ -232,12 +243,12 @@ private fun ASTNode.toMapOfSuppressionAnnotations(): Map<SuppressAnnotationType,
         }.toMap()
 
 private fun ASTNode.suppressionAnnotationTypeOrNull() =
-    takeIf { elementType == ElementType.ANNOTATION || elementType == ElementType.ANNOTATION_ENTRY }
-        ?.findChildByType(ElementType.CONSTRUCTOR_CALLEE)
-        ?.findChildByType(ElementType.TYPE_REFERENCE)
-        ?.findChildByType(ElementType.USER_TYPE)
-        ?.findChildByType(ElementType.REFERENCE_EXPRESSION)
-        ?.findChildByType(ElementType.IDENTIFIER)
+    takeIf { elementType == ANNOTATION || elementType == ANNOTATION_ENTRY }
+        ?.findChildByType(CONSTRUCTOR_CALLEE)
+        ?.findChildByType(TYPE_REFERENCE)
+        ?.findChildByType(USER_TYPE)
+        ?.findChildByType(REFERENCE_EXPRESSION)
+        ?.findChildByType(IDENTIFIER)
         ?.text
         ?.let { SuppressAnnotationType.findByIdOrNull(it) }
 
@@ -254,8 +265,8 @@ private fun ASTNode.createSuppressAnnotation(
     suppressions: Set<String>,
 ) {
     val targetNode =
-        if (elementType == ElementType.ANNOTATION_ENTRY) {
-            treeParent
+        if (elementType == ANNOTATION_ENTRY) {
+            parent!!
         } else {
             this
         }
@@ -277,7 +288,7 @@ private fun ASTNode.createSuppressAnnotation(
         }
 
         is KtClass, is KtFunction, is KtProperty, is KtPropertyAccessor -> {
-            this.addChild(PsiWhiteSpaceImpl(indent()), this.firstChildNode)
+            this.addChild(PsiWhiteSpaceImpl(indent20), this.firstChildNode)
             val modifierListWithAnnotation = createModifierListWithAnnotationEntry(suppressType, suppressions)
             this.addChild(modifierListWithAnnotation, this.firstChildNode)
         }
@@ -288,11 +299,11 @@ private fun ASTNode.createSuppressAnnotation(
                 this.elementType != VALUE_PARAMETER
             ) {
                 val annotatedExpression = targetNode.createAnnotatedExpression(suppressType, suppressions)
-                treeParent.replaceChild(targetNode, annotatedExpression)
+                parent!!.replaceChild(targetNode, annotatedExpression)
             } else {
                 val modifierListWithAnnotation = createModifierListWithAnnotationEntry(suppressType, suppressions)
-                treeParent.addChild(modifierListWithAnnotation.findChildByType(ANNOTATION_ENTRY)!!, this)
-                treeParent.addChild(PsiWhiteSpaceImpl(indent()), this)
+                parent!!.addChild(modifierListWithAnnotation.findChildByType(ANNOTATION_ENTRY)!!, this)
+                parent!!.addChild(PsiWhiteSpaceImpl(indent20), this)
             }
         }
     }
@@ -315,17 +326,17 @@ private fun ASTNode.createFileAnnotation(
         }
 
 private fun ASTNode.createFileAnnotationList(annotation: ASTNode) {
-    require(isRoot()) { "File annotation list can only be created for root node" }
+    require(isRoot20) { "File annotation list can only be created for root node" }
     // Should always be inserted into the first (root) code child regardless in which root node the ktlint directive
     // was actually found
-    findChildByType(ElementType.PACKAGE_DIRECTIVE)
+    findChildByType(PACKAGE_DIRECTIVE)
         ?.let { packageDirective ->
             packageDirective
-                .treeParent
-                .addChild(annotation, packageDirective)
+                .parent
+                ?.addChild(annotation, packageDirective)
             packageDirective
-                .treeParent
-                .addChild(PsiWhiteSpaceImpl("\n" + indent()), packageDirective)
+                .parent
+                ?.addChild(PsiWhiteSpaceImpl("\n" + indent20), packageDirective)
         }
 }
 
@@ -362,8 +373,8 @@ private fun ASTNode.createAnnotatedExpression(
             KtlintKotlinCompiler
                 .createASTNodeFromText(
                     """
-                    |${this.indent(false)}$annotation
-                    |${this.indent(false)}${this.text}
+                    |${this.indentWithoutNewlinePrefix}$annotation
+                    |${this.indentWithoutNewlinePrefix}${this.text}
                     """.trimMargin(),
                 )?.findChildByType(ANNOTATED_EXPRESSION)
                 ?: throw IllegalStateException("Can not create annotation '$annotation'")

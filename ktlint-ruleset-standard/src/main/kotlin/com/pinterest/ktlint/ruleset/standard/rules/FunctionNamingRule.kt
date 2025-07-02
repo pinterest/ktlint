@@ -1,10 +1,10 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONSTRUCTOR_CALLEE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
@@ -19,11 +19,11 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CommaSeparatedListValueParser
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.internal.regExIgnoringDiacriticsAndStrokesOnLetters
 import org.ec4j.core.model.PropertyType
@@ -129,7 +129,7 @@ public class FunctionNamingRule :
     private fun ASTNode.isAnonymousFunction() =
         VALUE_PARAMETER_LIST ==
             findChildByType(FUN_KEYWORD)
-                ?.nextCodeSibling()
+                ?.nextCodeSibling20
                 ?.elementType
 
     /*
@@ -139,7 +139,7 @@ public class FunctionNamingRule :
      */
     private fun ASTNode.isOverrideFunction() =
         findChildByType(MODIFIER_LIST)
-            ?.children()
+            ?.children20
             .orEmpty()
             .any { it.elementType == OVERRIDE_KEYWORD }
 
@@ -148,7 +148,7 @@ public class FunctionNamingRule :
 
     private fun ASTNode?.containsAnnotationEntryWithIdentifierIn(excludeWhenAnnotatedWith: Set<String>): Boolean =
         this
-            ?.children()
+            ?.children20
             ?.any {
                 when (it.elementType) {
                     ANNOTATION -> {
@@ -167,7 +167,7 @@ public class FunctionNamingRule :
             ?: false
 
     private fun ASTNode.annotationEntryName() =
-        findChildByType(ElementType.CONSTRUCTOR_CALLEE)
+        findChildByType(CONSTRUCTOR_CALLEE)
             ?.findChildByType(TYPE_REFERENCE)
             ?.findChildByType(USER_TYPE)
             ?.findChildByType(REFERENCE_EXPRESSION)

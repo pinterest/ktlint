@@ -27,11 +27,11 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.END_OF_LINE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isRoot
+import com.pinterest.ktlint.rule.engine.core.api.isRoot20
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -52,7 +52,7 @@ class KtLintTest {
                         setOf(
                             RuleProvider {
                                 DummyRule { node ->
-                                    if (node.isRoot()) {
+                                    if (node.isRoot20) {
                                         numberOfRootNodesVisited++
                                     }
                                 }
@@ -118,7 +118,7 @@ class KtLintTest {
                         setOf(
                             RuleProvider {
                                 DummyRule { node ->
-                                    if (node.isRoot()) {
+                                    if (node.isRoot20) {
                                         numberOfRootNodesVisited++
                                     }
                                 }
@@ -522,9 +522,7 @@ private class AutoCorrectErrorRule :
             when (node.text) {
                 STRING_VALUE_TO_BE_AUTOCORRECTED -> {
                     emit(node.startOffset, ERROR_MESSAGE_CAN_BE_AUTOCORRECTED, true)
-                        .ifAutocorrectAllowed {
-                            (node as LeafElement).rawReplaceWithText(STRING_VALUE_AFTER_AUTOCORRECT)
-                        }
+                        .ifAutocorrectAllowed { node.replaceTextWith(STRING_VALUE_AFTER_AUTOCORRECT) }
                 }
 
                 STRING_VALUE_NOT_TO_BE_CORRECTED -> {
@@ -636,7 +634,7 @@ private data class RuleExecutionCall(
 
 private val ASTNode.visitNodeType: RuleExecutionCall.VisitNodeType
     get() =
-        if (isRoot()) {
+        if (isRoot20) {
             ROOT
         } else {
             CHILD

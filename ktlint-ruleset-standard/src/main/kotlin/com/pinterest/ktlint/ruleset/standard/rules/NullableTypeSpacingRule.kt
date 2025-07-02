@@ -2,12 +2,12 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.QUEST
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -22,8 +22,8 @@ public class NullableTypeSpacingRule : StandardRule("nullable-type-spacing") {
     ) {
         node
             .takeIf { node.elementType == QUEST }
-            ?.prevLeaf()
-            ?.takeIf { it.elementType == WHITE_SPACE }
+            ?.prevLeaf
+            ?.takeIf { it.isWhiteSpace20 }
             ?.let { whiteSpaceBeforeQuest ->
                 emit(whiteSpaceBeforeQuest.startOffset, "Unexpected whitespace", true)
                     .ifAutocorrectAllowed {

@@ -1,10 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLLECTION_LITERAL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.GT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.INDICES
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACKET
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
@@ -13,16 +16,19 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isCode
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.PropertyType.PropertyValueParser
@@ -77,8 +83,8 @@ public class TrailingCommaOnCallSiteRule :
     ) {
         val inspectNode =
             node
-                .children()
-                .last { it.elementType == ElementType.RBRACKET }
+                .children20
+                .last { it.elementType == RBRACKET }
         node.reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
             emit = emit,
@@ -94,8 +100,8 @@ public class TrailingCommaOnCallSiteRule :
     ) {
         val inspectNode =
             node
-                .children()
-                .last { it.elementType == ElementType.RBRACKET }
+                .children20
+                .last { it.elementType == RBRACKET }
         node.reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
             emit = emit,
@@ -107,10 +113,10 @@ public class TrailingCommaOnCallSiteRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.treeParent.elementType != ElementType.FUNCTION_LITERAL) {
+        if (node.parent?.elementType != FUNCTION_LITERAL) {
             node
-                .children()
-                .lastOrNull { it.elementType == ElementType.RPAR }
+                .children20
+                .lastOrNull { it.elementType == RPAR }
                 ?.let { inspectNode ->
                     node.reportAndCorrectTrailingCommaNodeBefore(
                         inspectNode = inspectNode,
@@ -127,8 +133,8 @@ public class TrailingCommaOnCallSiteRule :
     ) {
         val inspectNode =
             node
-                .children()
-                .first { it.elementType == ElementType.GT }
+                .children20
+                .first { it.elementType == GT }
         node.reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
             emit = emit,
@@ -141,7 +147,7 @@ public class TrailingCommaOnCallSiteRule :
         isTrailingCommaAllowed: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val prevLeaf = inspectNode.prevLeaf()
+        val prevLeaf = inspectNode.prevLeaf
         val trailingCommaNode = prevLeaf?.findPreviousTrailingCommaNodeOrNull()
         val trailingCommaState =
             when {
@@ -155,25 +161,23 @@ public class TrailingCommaOnCallSiteRule :
                         trailingCommaNode!!.startOffset,
                         "Unnecessary trailing comma before \"${inspectNode.text}\"",
                         true,
-                    ).ifAutocorrectAllowed {
-                        this.removeChild(trailingCommaNode)
-                    }
+                    ).ifAutocorrectAllowed { trailingCommaNode.remove() }
                 }
             }
 
             TrailingCommaState.MISSING -> {
                 if (isTrailingCommaAllowed) {
-                    val prevNode = inspectNode.prevCodeLeaf()!!
+                    val prevNode = inspectNode.prevCodeLeaf!!
                     emit(
                         prevNode.startOffset + prevNode.textLength,
                         "Missing trailing comma before \"${inspectNode.text}\"",
                         true,
                     ).ifAutocorrectAllowed {
                         inspectNode
-                            .prevCodeSibling()
-                            ?.nextSibling()
+                            .prevCodeSibling20
+                            ?.nextSibling20
                             ?.let { before ->
-                                before.treeParent.addChild(LeafPsiElement(COMMA, ","), before)
+                                before.parent?.addChild(LeafPsiElement(COMMA, ","), before)
                             }
                     }
                 }
@@ -184,9 +188,7 @@ public class TrailingCommaOnCallSiteRule :
                     trailingCommaNode!!.startOffset,
                     "Unnecessary trailing comma before \"${inspectNode.text}\"",
                     true,
-                ).ifAutocorrectAllowed {
-                    this.removeChild(trailingCommaNode)
-                }
+                ).ifAutocorrectAllowed { trailingCommaNode.remove() }
             }
 
             TrailingCommaState.NOT_EXISTS -> {
@@ -208,16 +210,16 @@ public class TrailingCommaOnCallSiteRule :
     private fun ASTNode.findValueArgumentFollowedByWhiteSpaceWithNewline() =
         this
             .findChildByType(VALUE_ARGUMENT)
-            ?.nextSibling { it.isWhiteSpaceWithNewline() }
+            ?.nextSibling { it.isWhiteSpaceWithNewline20 }
 
-    private fun ASTNode.hasAtLeastOneArgument() = children().any { it.elementType == VALUE_ARGUMENT }
+    private fun ASTNode.hasAtLeastOneArgument() = children20.any { it.elementType == VALUE_ARGUMENT }
 
     private fun ASTNode.findPreviousTrailingCommaNodeOrNull(): ASTNode? {
         val codeLeaf =
-            if (isCodeLeaf()) {
+            if (isCode) {
                 this
             } else {
-                prevCodeLeaf()
+                prevCodeLeaf
             }
         return codeLeaf?.takeIf { it.elementType == COMMA }
     }

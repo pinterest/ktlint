@@ -1,14 +1,17 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_TYPE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LPAR
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.NULLABLE_TYPE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
@@ -16,28 +19,31 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.column
+import com.pinterest.ktlint.rule.engine.core.api.dropTrailingEolComment
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
+import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.remove
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.psiUtil.children
 import org.jetbrains.kotlin.psi.psiUtil.leaves
@@ -90,12 +96,12 @@ public class ParameterListWrappingRule :
             .takeUnless {
                 // skip when max line length is not exceeded
                 (node.column - 1 + node.textLength) <= maxLineLength
-            }?.takeUnless { it.textContains('\n') }
+            }?.takeUnless { it.isWhiteSpaceWithNewline20 }
             ?.takeIf { it.isFunctionTypeWithNonEmptyValueParameterList() }
             ?.let { nullableType ->
                 nullableType
                     .findChildByType(LPAR)
-                    ?.takeUnless { it.nextLeaf()?.isWhiteSpaceWithNewline() == true }
+                    ?.takeUnless { it.nextLeaf?.isWhiteSpaceWithNewline20 == true }
                     ?.let { lpar ->
                         emit(
                             lpar.startOffset + 1,
@@ -107,7 +113,7 @@ public class ParameterListWrappingRule :
                     }
                 nullableType
                     .findChildByType(RPAR)
-                    ?.takeUnless { it.prevLeaf()?.isWhiteSpaceWithNewline() == true }
+                    ?.takeUnless { it.prevLeaf?.isWhiteSpaceWithNewline20 == true }
                     ?.let { rpar ->
                         emit(
                             rpar.startOffset,
@@ -160,26 +166,26 @@ public class ParameterListWrappingRule :
 
     private fun ASTNode.hasNoParameters(): Boolean {
         require(elementType == VALUE_PARAMETER_LIST)
-        return firstChildNode?.treeNext?.elementType == RPAR
+        return firstChildNode?.nextSibling20?.elementType == RPAR
     }
 
     private fun ASTNode.isPartOfFunctionLiteralInNonKtlintOfficialCodeStyle(): Boolean {
         require(elementType == VALUE_PARAMETER_LIST)
-        return treeParent?.elementType == FUNCTION_LITERAL
+        return parent?.elementType == FUNCTION_LITERAL
     }
 
     private fun ASTNode.isPartOfFunctionLiteralStartingOnSameLineAsClosingParenthesisOfPrecedingReferenceExpression(): Boolean {
         require(elementType == VALUE_PARAMETER_LIST)
-        return firstChildLeafOrSelf()
+        return firstChildLeafOrSelf20
             .let { startOfFunctionLiteral ->
-                treeParent
+                parent
                     ?.takeIf { it.elementType == FUNCTION_LITERAL }
-                    ?.prevCodeLeaf()
-                    ?.takeIf { it.treeParent.elementType == ElementType.VALUE_ARGUMENT_LIST }
-                    ?.takeIf { it.treeParent.treeParent.elementType == ElementType.CALL_EXPRESSION }
+                    ?.prevCodeLeaf
+                    ?.takeIf { it.parent?.elementType == VALUE_ARGUMENT_LIST }
+                    ?.takeIf { it.parent?.parent?.elementType == CALL_EXPRESSION }
                     ?.leaves()
                     ?.takeWhile { it != startOfFunctionLiteral }
-                    ?.none { it.isWhiteSpaceWithNewline() }
+                    ?.none { it.isWhiteSpaceWithNewline20 }
                     ?: false
             }
     }
@@ -193,10 +199,10 @@ public class ParameterListWrappingRule :
     }
 
     private fun ASTNode.isAnnotated() =
-        findChildByType(ElementType.MODIFIER_LIST)
+        findChildByType(MODIFIER_LIST)
             ?.children()
             .orEmpty()
-            .any { it.elementType == ElementType.ANNOTATION_ENTRY }
+            .any { it.elementType == ANNOTATION_ENTRY }
 
     private fun visitParameterList(
         node: ASTNode,
@@ -213,9 +219,9 @@ public class ParameterListWrappingRule :
 
     private fun isPrecededByComment(node: ASTNode) =
         node
-            .prevLeaf { !it.isWhiteSpace() }
-            ?.prevLeaf()
-            ?.isPartOfComment()
+            .prevLeaf { !it.isWhiteSpace20 }
+            ?.prevLeaf
+            ?.isPartOfComment20
             ?: false
 
     private fun intendedIndent(child: ASTNode): String =
@@ -234,7 +240,7 @@ public class ParameterListWrappingRule :
             //         param1: T
             //         param2: R
             //     )
-            child.treeParent.isFunWithTypeParameterListInFront() -> -1
+            child.parent!!.isFunWithTypeParameterListInFront() -> -1
 
             else -> 0
         }.let {
@@ -246,7 +252,7 @@ public class ParameterListWrappingRule :
         }.let { indentLevelFix ->
             val indentLevel =
                 indentConfig
-                    .indentLevelFrom(child.treeParent.indent(false))
+                    .indentLevelFrom(child.parent!!.indentWithoutNewlinePrefix)
                     .plus(indentLevelFix)
             "\n" + indentConfig.indent.repeat(indentLevel)
         }
@@ -257,15 +263,15 @@ public class ParameterListWrappingRule :
     ) {
         when (child.elementType) {
             LPAR -> {
-                val prevLeaf = child.prevLeaf()
-                if (!child.treeParent.isValueParameterListInFunctionType() &&
-                    prevLeaf.isWhiteSpaceWithNewline()
-                ) {
-                    emit(child.startOffset, errorMessage(child), true)
-                        .ifAutocorrectAllowed {
-                            (prevLeaf as PsiWhiteSpace).delete()
-                        }
-                }
+                child
+                    .parent
+                    ?.takeUnless { it.isValueParameterListInFunctionType() }
+                    ?.prevLeaf
+                    ?.takeIf { it.isWhiteSpaceWithNewline20 }
+                    ?.let { whitespace ->
+                        emit(child.startOffset, errorMessage(child), true)
+                            .ifAutocorrectAllowed { whitespace.remove() }
+                    }
             }
 
             VALUE_PARAMETER,
@@ -276,13 +282,15 @@ public class ParameterListWrappingRule :
                 // <line indent + indentSize> VALUE_PARAMETER...
                 // <line indent> RPAR
                 val intendedIndent = intendedIndent(child)
-                val prevLeaf = child.prevLeaf()
-                if (prevLeaf is PsiWhiteSpace) {
-                    if (prevLeaf.getText().contains("\n")) {
+                val prevLeaf = child.prevLeaf
+                when {
+                    prevLeaf.isWhiteSpaceWithNewline20 -> {
                         // The current child is already wrapped to a new line. Checking and fixing the
                         // correct size of the indent is the responsibility of the IndentationRule.
                         return
-                    } else {
+                    }
+
+                    prevLeaf.isWhiteSpace20 -> {
                         // The current child needs to be wrapped to a newline.
                         emit(child.startOffset, errorMessage(child), true)
                             .ifAutocorrectAllowed {
@@ -290,15 +298,17 @@ public class ParameterListWrappingRule :
                                 // autoCorrect mode the indent rule, if enabled, runs after this rule and
                                 // determines the final indentation. But if the indent rule is disabled then the
                                 // indent of this rule is kept.
-                                (prevLeaf as LeafPsiElement).rawReplaceWithText(intendedIndent)
+                                prevLeaf?.replaceTextWith(intendedIndent)
                             }
                     }
-                } else {
-                    // Insert a new whitespace element in order to wrap the current child to a new line.
-                    emit(child.startOffset, errorMessage(child), true)
-                        .ifAutocorrectAllowed {
-                            child.treeParent.addChild(PsiWhiteSpaceImpl(intendedIndent), child)
-                        }
+
+                    else -> {
+                        // Insert a new whitespace element in order to wrap the current child to a new line.
+                        emit(child.startOffset, errorMessage(child), true)
+                            .ifAutocorrectAllowed {
+                                child.parent?.addChild(PsiWhiteSpaceImpl(intendedIndent), child)
+                            }
+                    }
                 }
                 // Indentation of child nodes need to be fixed by the IndentationRule.
             }
@@ -308,14 +318,15 @@ public class ParameterListWrappingRule :
     private fun ASTNode.isValueParameterListInFunctionType() =
         FUNCTION_TYPE ==
             takeIf { it.elementType == VALUE_PARAMETER_LIST }
-                ?.treeParent
+                ?.parent
                 ?.elementType
 
     private fun ASTNode.isOnLineExceedingMaxLineLength(): Boolean {
-        val stopLeaf = nextLeaf { it.textContains('\n') }?.nextLeaf()
+        val stopLeaf = nextLeaf { it.isWhiteSpaceWithNewline20 }?.nextLeaf
         val lineContent =
-            leavesOnLine(excludeEolComment = true)
-                .takeWhile { it.prevLeaf() != stopLeaf }
+            leavesOnLine20
+                .dropTrailingEolComment()
+                .takeWhile { it.prevLeaf != stopLeaf }
                 .joinToString(separator = "") { it.text }
                 .substringAfter('\n')
                 .substringBefore('\n')
@@ -331,11 +342,11 @@ public class ParameterListWrappingRule :
         }
 
     private fun ASTNode.isFunWithTypeParameterListInFront() =
-        treeParent
-            .takeIf { elementType == FUN }
+        parent
+            ?.takeIf { elementType == FUN }
             ?.findChildByType(TYPE_PARAMETER_LIST)
             ?.children()
-            ?.any { it.isWhiteSpaceWithNewline() }
+            ?.any { it.isWhiteSpaceWithNewline20 }
             ?: false
 }
 

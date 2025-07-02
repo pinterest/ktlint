@@ -8,15 +8,15 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent
-import com.pinterest.ktlint.rule.engine.core.api.isDeclaration
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.indent20
+import com.pinterest.ktlint.rule.engine.core.api.isCode
+import com.pinterest.ktlint.rule.engine.core.api.isDeclaration20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -37,31 +37,31 @@ public class SpacingBetweenDeclarationsWithAnnotationsRule : StandardRule("spaci
         }
     }
 
-    private fun ASTNode.isDeclarationOrPropertyAccessor() = isDeclaration() || elementType == PROPERTY_ACCESSOR
+    private fun ASTNode.isDeclarationOrPropertyAccessor() = isDeclaration20 || elementType == PROPERTY_ACCESSOR
 
     private fun visitDeclaration(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .prevCodeSibling()
+            .prevCodeSibling20
             ?.takeIf { it.isDeclarationOrPropertyAccessor() }
             ?.takeIf { prevDeclaration -> hasNoBlankLineBetweenDeclarations(node, prevDeclaration) }
             ?.let {
-                val prevLeaf = node.prevCodeLeaf()?.nextLeaf { it.isWhiteSpace() }!!
+                val prevLeaf = node.prevCodeLeaf?.nextLeaf { it.isWhiteSpace20 }!!
                 emit(
                     prevLeaf.startOffset + 1,
                     "Declarations and declarations with annotations should have an empty space between.",
                     true,
                 ).ifAutocorrectAllowed {
-                    prevLeaf.upsertWhitespaceBeforeMe("\n".plus(node.indent()))
+                    prevLeaf.upsertWhitespaceBeforeMe("\n".plus(node.indent20))
                 }
             }
     }
 
     private fun ASTNode.isAnnotated(): Boolean =
         findChildByType(MODIFIER_LIST)
-            ?.children()
+            ?.children20
             ?.any { it.elementType == ANNOTATION_ENTRY }
             ?: false
 
@@ -70,11 +70,11 @@ public class SpacingBetweenDeclarationsWithAnnotationsRule : StandardRule("spaci
         prevDeclaration: ASTNode,
     ) = node
         .leaves(false)
-        .takeWhile { it.isWhiteSpace() || it.isPartOfComment() }
+        .takeWhile { !it.isCode }
         .takeWhile { it != prevDeclaration }
         .none { it.isBlankLine() }
 
-    private fun ASTNode.isBlankLine() = isWhiteSpace() && text.count { it == '\n' } > 1
+    private fun ASTNode.isBlankLine() = isWhiteSpace20 && text.count { it == '\n' } > 1
 }
 
 public val SPACING_BETWEEN_DECLARATIONS_WITH_ANNOTATIONS_RULE_ID: RuleId = SpacingBetweenDeclarationsWithAnnotationsRule().ruleId

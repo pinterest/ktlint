@@ -12,11 +12,12 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
@@ -33,27 +34,25 @@ public class UnnecessaryParenthesesBeforeTrailingLambdaRule : StandardRule("unne
         if (node.isEmptyArgumentList() &&
             node.isPartOf(CALL_EXPRESSION) &&
             node.isNotPrecededByCallExpressionEndingWithLambdaArgument() &&
-            node.nextCodeSibling()?.elementType == LAMBDA_ARGUMENT &&
-            node.prevCodeSibling()?.elementType != CALL_EXPRESSION
+            node.nextCodeSibling20?.elementType == LAMBDA_ARGUMENT &&
+            node.prevCodeSibling20?.elementType != CALL_EXPRESSION
         ) {
             emit(
                 node.startOffset,
                 "Empty parentheses in function call followed by lambda are unnecessary",
                 true,
-            ).ifAutocorrectAllowed {
-                node.removeChild(node)
-            }
+            ).ifAutocorrectAllowed { node.remove() }
         }
     }
 
     private fun ASTNode.isEmptyArgumentList(): Boolean =
         elementType == VALUE_ARGUMENT_LIST &&
-            children()
+            children20
                 .filterNot { it.elementType == LPAR || it.elementType == RPAR }
                 .none()
 
     private fun ASTNode.isNotPrecededByCallExpressionEndingWithLambdaArgument() =
-        prevCodeSibling()
+        prevCodeSibling20
             ?.takeIf { it.elementType == CALL_EXPRESSION }
             ?.lastChildNode
             ?.takeIf { it.elementType == LAMBDA_ARGUMENT }

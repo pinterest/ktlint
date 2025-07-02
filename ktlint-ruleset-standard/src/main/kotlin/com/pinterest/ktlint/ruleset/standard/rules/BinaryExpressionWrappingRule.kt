@@ -20,22 +20,23 @@ import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
+import com.pinterest.ktlint.rule.engine.core.api.dropTrailingEolComment
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
-import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
+import com.pinterest.ktlint.rule.engine.core.api.isCode
+import com.pinterest.ktlint.rule.engine.core.api.isLeaf20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
 import com.pinterest.ktlint.rule.engine.core.api.lineLength
-import com.pinterest.ktlint.rule.engine.core.api.lineLengthWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.noNewLineInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -90,11 +91,11 @@ public class BinaryExpressionWrappingRule :
 
         // First check whether the entire expression has to be pushed to the next line after and assignment in a property or function
         node
-            .takeIf { it.treeParent.elementType.anyOf(PROPERTY, FUN) }
+            .takeIf { it.parent!!.elementType.anyOf(PROPERTY, FUN) }
             ?.takeIf { binaryExpression ->
                 binaryExpression
                     .prevSibling { it.elementType == EQ }
-                    ?.let { noNewLineInClosedRange(it, binaryExpression.firstChildLeafOrSelf()) }
+                    ?.let { noNewLineInClosedRange(it, binaryExpression.firstChildLeafOrSelf20) }
                     ?: false
             }?.takeIf { it.isOnLineExceedingMaxLineLength() }
             ?.let { expression ->
@@ -116,14 +117,14 @@ public class BinaryExpressionWrappingRule :
         //     fooBar("foooooo" +
         //         "bar")
         node
-            .takeIf { it.treeParent.elementType == VALUE_ARGUMENT }
+            .takeIf { it.parent?.elementType == VALUE_ARGUMENT }
             ?.takeUnless {
                 // Allow
                 //     fooBar(
                 //         "tooLongToFitOnSingleLine" +
                 //             "bar",
                 //     )
-                node.prevLeaf().isWhiteSpaceWithNewline()
+                node.prevLeaf.isWhiteSpaceWithNewline20
             }?.takeIf { it.causesMaxLineLengthToBeExceeded() }
             ?.let { expression ->
                 emit(
@@ -137,8 +138,8 @@ public class BinaryExpressionWrappingRule :
 
         // When left hand side is a call expression which causes the max line length to be exceeded then first wrap that expression
         node
-            .children()
-            .firstOrNull { !it.isCodeLeaf() }
+            .children20
+            .firstOrNull { !it.isLeaf20 || !it.isCode }
             ?.takeIf { it.elementType == CALL_EXPRESSION }
             ?.takeIf { it.causesMaxLineLengthToBeExceeded() }
             ?.let { callExpression -> visitCallExpression(callExpression, emit) }
@@ -155,11 +156,11 @@ public class BinaryExpressionWrappingRule :
         //   // Suppose that X is the last possible character on the
         //   // line                                             X
         //   if (leftHandSideExpression && rightHandSideExpression) {
-        treeParent
-            .takeIf { it.elementType == CONDITION }
-            ?.lastChildLeafOrSelf()
-            ?.nextLeaf { it.isWhiteSpaceWithNewline() }
-            ?.prevLeaf()
+        parent
+            ?.takeIf { it.elementType == CONDITION }
+            ?.lastChildLeafOrSelf20
+            ?.nextLeaf { it.isWhiteSpaceWithNewline20 }
+            ?.prevLeaf
             ?.causesMaxLineLengthToBeExceeded()
             ?: false
 
@@ -169,7 +170,7 @@ public class BinaryExpressionWrappingRule :
     ) {
         node
             .takeIf { it.elementType == CALL_EXPRESSION }
-            ?.takeIf { it.treeParent.elementType == BINARY_EXPRESSION }
+            ?.takeIf { it.parent?.elementType == BINARY_EXPRESSION }
             ?.let { callExpression ->
                 // Breaking the lambda expression has priority over breaking value arguments
                 callExpression
@@ -182,7 +183,7 @@ public class BinaryExpressionWrappingRule :
                             ?.let { lbrace ->
                                 emit(lbrace.startOffset + 1, "Newline expected after '{'", true)
                                     .ifAutocorrectAllowed {
-                                        lbrace.upsertWhitespaceAfterMe(indentConfig.childIndentOf(lbrace.treeParent))
+                                        lbrace.upsertWhitespaceAfterMe(indentConfig.childIndentOf(lbrace.parent!!))
                                     }
                             }
                         functionLiteral
@@ -190,7 +191,7 @@ public class BinaryExpressionWrappingRule :
                             ?.let { rbrace ->
                                 emit(rbrace.startOffset, "Newline expected before '}'", true)
                                     .ifAutocorrectAllowed {
-                                        rbrace.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node.treeParent))
+                                        rbrace.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node.parent!!))
                                     }
                             }
                     }
@@ -207,8 +208,8 @@ public class BinaryExpressionWrappingRule :
                 // Allow:
                 //   val foo = "string too long to fit on the line" +
                 //       "more text"
-                it.nextSibling().isWhiteSpaceWithNewline()
-            }?.takeIf { it.treeParent.elementType == BINARY_EXPRESSION }
+                it.nextSibling20.isWhiteSpaceWithNewline20
+            }?.takeIf { it.parent?.elementType == BINARY_EXPRESSION }
             ?.takeIf { binaryExpression ->
                 // Ignore binary expression inside raw string literals. Raw string literals are allowed to exceed max-line-length. Wrapping
                 // (each) binary expression inside such a literal seems to create more chaos than it resolves.
@@ -216,8 +217,8 @@ public class BinaryExpressionWrappingRule :
             }?.let { operationReference ->
                 if (operationReference.firstChildNode.elementType == ELVIS) {
                     operationReference
-                        .prevLeaf { it.isWhiteSpace() }
-                        .takeUnless { it.isWhiteSpaceWithNewline() }
+                        .prevLeaf { it.isWhiteSpace20 }
+                        .takeUnless { it.isWhiteSpaceWithNewline20 }
                         ?.let {
                             // Wrapping after the elvis operator leads to violating the 'chain-wrapping' rule, so it must wrapped itself
                             emit(operationReference.startOffset, "Line is exceeding max line length. Break line before '?:'", true)
@@ -227,7 +228,7 @@ public class BinaryExpressionWrappingRule :
                         }
                 } else {
                     operationReference
-                        .nextSibling()
+                        .nextSibling20
                         ?.let { nextSibling ->
                             emit(
                                 nextSibling.startOffset,
@@ -241,13 +242,14 @@ public class BinaryExpressionWrappingRule :
             }
     }
 
-    private fun ASTNode.isOnLineExceedingMaxLineLength() = maxLineLength < lineLength(excludeEolComment = true)
+    private fun ASTNode.isOnLineExceedingMaxLineLength() = maxLineLength < leavesOnLine20.dropTrailingEolComment().lineLength
 
     private fun ASTNode.causesMaxLineLengthToBeExceeded() =
-        lastChildLeafOrSelf().let { lastChildLeaf ->
-            leavesOnLine(excludeEolComment = true)
-                .takeWhile { it.prevLeaf() != lastChildLeaf }
-                .lineLengthWithoutNewlinePrefix()
+        lastChildLeafOrSelf20.let { lastChildLeaf ->
+            leavesOnLine20
+                .dropTrailingEolComment()
+                .takeWhile { it.prevLeaf != lastChildLeaf }
+                .lineLength
         } > maxLineLength
 }
 

@@ -45,7 +45,7 @@ public class MixedConditionOperatorsRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .parent { it.elementType == BINARY_EXPRESSION && it.treeParent.elementType != BINARY_EXPRESSION }
+            .parent { it.elementType == BINARY_EXPRESSION && it.parent?.elementType != BINARY_EXPRESSION }
             ?.let { rootBinaryExpression ->
                 emit(
                     rootBinaryExpression.startOffset,
@@ -56,12 +56,12 @@ public class MixedConditionOperatorsRule :
     }
 
     private fun ASTNode.anyParentBinaryExpression(predicate: (ASTNode) -> Boolean): Boolean {
-        var current = this
-        while (current.elementType == BINARY_EXPRESSION) {
+        var current: ASTNode? = this
+        while (current?.elementType == BINARY_EXPRESSION) {
             if (predicate(current)) {
                 return true
             }
-            current = current.treeParent
+            current = current.parent
         }
         return false
     }

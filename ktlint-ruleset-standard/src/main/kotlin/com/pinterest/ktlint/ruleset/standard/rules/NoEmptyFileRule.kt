@@ -1,15 +1,16 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.IMPORT_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.PACKAGE_DIRECTIVE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.SCRIPT
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isRoot
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.children20
+import com.pinterest.ktlint.rule.engine.core.api.isCode
+import com.pinterest.ktlint.rule.engine.core.api.isRoot20
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
@@ -21,7 +22,7 @@ public class NoEmptyFileRule : StandardRule(id = "no-empty-file") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .takeIf { it.isRoot() }
+            .takeIf { it.isRoot20 }
             ?.takeIf { it.isEmptyFile() }
             ?.let { emit(0, "File '${node.getFileName()}' should not be empty", false) }
     }
@@ -36,13 +37,12 @@ public class NoEmptyFileRule : StandardRule(id = "no-empty-file") {
 
     private fun ASTNode.isEmptyFile(): Boolean =
         null ==
-            children()
+            children20
                 .firstOrNull {
-                    !it.isWhiteSpace() &&
-                        !it.isPartOfComment() &&
-                        it.elementType != ElementType.PACKAGE_DIRECTIVE &&
-                        it.elementType != ElementType.IMPORT_LIST &&
-                        !(it.elementType == ElementType.SCRIPT && it.text.isBlank())
+                    it.isCode &&
+                        it.elementType != PACKAGE_DIRECTIVE &&
+                        it.elementType != IMPORT_LIST &&
+                        !(it.elementType == SCRIPT && it.text.isBlank())
                 }
 }
 

@@ -3,7 +3,6 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
@@ -11,9 +10,11 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -52,13 +53,11 @@ public class FunctionReturnTypeSpacingRule :
     ) {
         require(node.elementType == COLON)
         node
-            .prevLeaf()
-            ?.takeIf { it.elementType == WHITE_SPACE }
+            .prevLeaf
+            ?.takeIf { it.isWhiteSpace20 }
             ?.let { whitespaceBeforeColonNode ->
                 emit(whitespaceBeforeColonNode.startOffset, "Unexpected whitespace", true)
-                    .ifAutocorrectAllowed {
-                        whitespaceBeforeColonNode.treeParent?.removeChild(whitespaceBeforeColonNode)
-                    }
+                    .ifAutocorrectAllowed { whitespaceBeforeColonNode.remove() }
             }
     }
 
@@ -68,8 +67,8 @@ public class FunctionReturnTypeSpacingRule :
     ) {
         require(node.elementType == COLON)
         node
-            .nextLeaf()
-            ?.takeIf { it.elementType == WHITE_SPACE }
+            .nextLeaf
+            ?.takeIf { it.isWhiteSpace20 }
             .let { whiteSpaceAfterColon ->
                 if (whiteSpaceAfterColon?.text != " ") {
                     // In case the whitespace contains a newline than replacing it with a single space results in merging the lines to a
@@ -101,7 +100,7 @@ public class FunctionReturnTypeSpacingRule :
             0
         } else {
             leaves(forward = forward)
-                .takeWhile { !it.isWhiteSpaceWithNewline() }
+                .takeWhile { !it.isWhiteSpaceWithNewline20 }
                 .sumOf { it.textLength }
         }
 }

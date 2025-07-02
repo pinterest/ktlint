@@ -3,13 +3,13 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_TYPE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -25,7 +25,7 @@ public class FunctionTypeModifierSpacingRule : StandardRule("function-type-modif
     ) {
         node
             .takeIf { it.elementType == MODIFIER_LIST }
-            ?.nextCodeSibling()
+            ?.nextCodeSibling20
             ?.takeIf { it.elementType == FUNCTION_TYPE }
             ?.takeUnless { it.isPrecededBySingleSpace() }
             ?.let { functionTypeNode ->
@@ -37,8 +37,8 @@ public class FunctionTypeModifierSpacingRule : StandardRule("function-type-modif
     }
 
     private fun ASTNode.isPrecededBySingleSpace(): Boolean =
-        prevSibling()
-            ?.let { it.elementType == WHITE_SPACE && it.text == " " }
+        prevSibling20
+            ?.let { it.isWhiteSpace20 && it.text == " " }
             ?: false
 }
 

@@ -1,8 +1,8 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BY_KEYWORD
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
@@ -16,18 +16,19 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
-import com.pinterest.ktlint.rule.engine.core.api.isRoot
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.isRoot20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.CompositeElement
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 import org.jetbrains.kotlin.kdoc.lexer.KDocTokens.MARKDOWN_LINK
 import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtImportDirective
@@ -53,7 +54,7 @@ public class NoUnusedImportsRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.isRoot()) {
+        if (node.isRoot20) {
             rootNode = node
         }
         when (node.elementType) {
@@ -163,15 +164,15 @@ public class NoUnusedImportsRule :
                 ) {
                     emit(node.startOffset, "Unused import", true)
                         .ifAutocorrectAllowed {
-                            val nextSibling = node.nextSibling()
+                            val nextSibling = node.nextSibling20
                             if (nextSibling == null) {
                                 // Last import
                                 node
-                                    .lastChildLeafOrSelf()
-                                    .nextLeaf()
-                                    ?.takeIf { it.isWhiteSpaceWithNewline() }
+                                    .lastChildLeafOrSelf20
+                                    .nextLeaf
+                                    ?.takeIf { it.isWhiteSpaceWithNewline20 }
                                     ?.let { whitespace ->
-                                        if (node.prevLeaf() == null) {
+                                        if (node.prevLeaf == null) {
                                             // Also it was the first import, and it is not preceded by any other node containing some text. So
                                             // all whitespace until the next is redundant
                                             whitespace.remove()
@@ -181,13 +182,13 @@ public class NoUnusedImportsRule :
                                                     .text
                                                     .substringAfter("\n")
                                             if (textAfterFirstNewline.isNotBlank()) {
-                                                (whitespace as LeafElement).rawReplaceWithText(textAfterFirstNewline)
+                                                whitespace.replaceTextWith(textAfterFirstNewline)
                                             }
                                         }
                                     }
                             } else {
                                 nextSibling
-                                    .takeIf { it.isWhiteSpaceWithNewline() }
+                                    .takeIf { it.isWhiteSpaceWithNewline20 }
                                     ?.remove()
                             }
                             importDirective.delete()
@@ -208,22 +209,22 @@ public class NoUnusedImportsRule :
     private fun ASTNode.removeImportDirective() {
         require(this.elementType == IMPORT_DIRECTIVE)
         when {
-            treeParent.firstChildNode == this -> {
-                nextSibling()
-                    ?.takeIf { it.isWhiteSpaceWithNewline() }
-                    ?.let { it.treeParent.removeChild(it) }
+            parent?.firstChildNode == this -> {
+                nextSibling20
+                    ?.takeIf { it.isWhiteSpaceWithNewline20 }
+                    ?.remove()
             }
 
-            treeParent.lastChildNode == this -> {
-                prevSibling()
-                    ?.takeIf { it.isWhiteSpaceWithNewline() }
+            parent?.lastChildNode == this -> {
+                prevSibling20
+                    ?.takeIf { it.isWhiteSpaceWithNewline20 }
                     ?.remove()
             }
 
             else -> {
-                nextLeaf(true)
-                    ?.takeIf { it.isWhiteSpaceWithNewline() }
-                    ?.let { it.treeParent.removeChild(it) }
+                nextLeaf
+                    ?.takeIf { it.isWhiteSpaceWithNewline20 }
+                    ?.remove()
             }
         }
         this.remove()
@@ -283,11 +284,11 @@ public class NoUnusedImportsRule :
     }
 
     private fun ASTNode.parentCallExpressionOrNull() =
-        treeParent
-            .takeIf { it.elementType == ElementType.CALL_EXPRESSION }
+        parent
+            ?.takeIf { it.elementType == CALL_EXPRESSION }
 
     private fun ASTNode.isDotQualifiedExpression() =
-        treeParent
+        parent
             ?.takeIf { it.elementType == DOT_QUALIFIED_EXPRESSION }
             ?.let { it.psi as? KtDotQualifiedExpression }
             ?.takeIf { it.selectorExpression?.node == this }

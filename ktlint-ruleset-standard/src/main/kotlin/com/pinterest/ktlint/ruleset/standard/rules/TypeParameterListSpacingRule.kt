@@ -11,7 +11,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.LT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PRIMARY_CONSTRUCTOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPEALIAS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER_LIST
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
@@ -21,18 +20,20 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 /**
  * Lints and formats the spacing before and after the angle brackets of a type parameter list.
@@ -66,7 +67,7 @@ public class TypeParameterListSpacingRule :
             return
         }
 
-        when (node.treeParent.elementType) {
+        when (node.parent?.elementType) {
             CLASS -> visitClassDeclaration(node, emit)
             TYPEALIAS -> visitTypeAliasDeclaration(node, emit)
             FUN -> visitFunctionDeclaration(node, emit)
@@ -81,19 +82,19 @@ public class TypeParameterListSpacingRule :
         // No white space expected between class name and parameter list
         //     class Bar <T>
         node
-            .prevSibling()
-            ?.takeIf { it.elementType == WHITE_SPACE }
+            .prevSibling20
+            ?.takeIf { it.isWhiteSpace20 }
             ?.let { visitWhitespace(it, emit) }
 
         // No white space expected between parameter type list and the constructor except when followed by compound
         // constructor
         //     class Bar<T> (...)
         node
-            .nextSibling()
-            ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling()?.elementType == PRIMARY_CONSTRUCTOR }
+            .nextSibling20
+            ?.takeIf { it.isWhiteSpace20 && it.nextCodeSibling20?.elementType == PRIMARY_CONSTRUCTOR }
             ?.let { whiteSpace ->
-                if (whiteSpace.nextCodeSibling()?.findChildByType(CONSTRUCTOR_KEYWORD) != null) {
-                    if (whiteSpace.isWhiteSpaceWithNewline()) {
+                if (whiteSpace.nextCodeSibling20?.findChildByType(CONSTRUCTOR_KEYWORD) != null) {
+                    if (whiteSpace.isWhiteSpaceWithNewline20) {
                         // Newline is acceptable before (modifier list of) constructor
                         //    class Bar<T>
                         //        constructor(...)
@@ -131,8 +132,8 @@ public class TypeParameterListSpacingRule :
         // No white space expected between parameter type list and class body when constructor is missing
         //    class Bar<T> {
         node
-            .nextSibling()
-            ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling()?.elementType == CLASS_BODY }
+            .nextSibling20
+            ?.takeIf { it.isWhiteSpace20 && it.nextCodeSibling20?.elementType == CLASS_BODY }
             ?.let { singleSpaceExpected(it, emit) }
     }
 
@@ -143,15 +144,15 @@ public class TypeParameterListSpacingRule :
         // No white space expected between typealias keyword name and parameter list
         //     typealias Bar <T>
         node
-            .prevSibling()
-            ?.takeIf { it.elementType == WHITE_SPACE }
+            .prevSibling20
+            ?.takeIf { it.isWhiteSpace20 }
             ?.let { visitWhitespace(it, emit) }
 
         // No white space expected between parameter type list and equals sign
         //    typealias Bar<T> = ...
         node
-            .nextSibling()
-            ?.takeIf { it.elementType == WHITE_SPACE && it.nextCodeSibling()?.elementType == EQ }
+            .nextSibling20
+            ?.takeIf { it.isWhiteSpace20 && it.nextCodeSibling20?.elementType == EQ }
             ?.let { singleSpaceExpected(it, emit) }
     }
 
@@ -162,9 +163,9 @@ public class TypeParameterListSpacingRule :
         // Single space expected before type parameter list of function
         //    fun<T> foo(...)
         node
-            .prevLeaf(includeEmpty = true)
+            .prevLeaf
             ?.let { prevLeaf ->
-                if (prevLeaf.elementType == WHITE_SPACE) {
+                if (prevLeaf.isWhiteSpace20) {
                     singleSpaceExpected(prevLeaf, emit)
                 } else {
                     singleSpaceExpected(node.firstChildNode, emit)
@@ -176,7 +177,7 @@ public class TypeParameterListSpacingRule :
         //   fun <T>List<T>foo(...)
         node
             .lastChildNode
-            .nextLeaf(includeEmpty = true)
+            .nextLeaf
             ?.let { nextSibling ->
                 singleSpaceExpected(nextSibling, emit)
             }
@@ -188,8 +189,8 @@ public class TypeParameterListSpacingRule :
     ) {
         node
             .findChildByType(LT)
-            ?.nextSibling()
-            ?.takeIf { it.elementType == WHITE_SPACE }
+            ?.nextSibling20
+            ?.takeIf { it.isWhiteSpace20 }
             ?.let {
                 val expectedWhitespace =
                     if (node.textContains('\n')) {
@@ -202,8 +203,8 @@ public class TypeParameterListSpacingRule :
 
         node
             .findChildByType(GT)
-            ?.prevSibling()
-            ?.takeIf { it.elementType == WHITE_SPACE }
+            ?.prevSibling20
+            ?.takeIf { it.isWhiteSpace20 }
             ?.let {
                 val expectedWhitespace =
                     if (node.textContains('\n')) {
@@ -230,18 +231,14 @@ public class TypeParameterListSpacingRule :
                     .ifAutocorrectAllowed { node.remove() }
             }
 
-            node.isWhiteSpaceWithoutNewline() && expectedWhitespace.startsWith("\n") -> {
+            node.isWhiteSpaceWithoutNewline20 && expectedWhitespace.startsWith("\n") -> {
                 emit(node.startOffset, "Expected a newline", true)
-                    .ifAutocorrectAllowed {
-                        (node as LeafPsiElement).rawReplaceWithText(expectedWhitespace)
-                    }
+                    .ifAutocorrectAllowed { node.replaceTextWith(expectedWhitespace) }
             }
 
             expectedWhitespace == " " -> {
                 emit(node.startOffset, "Expected a single space", true)
-                    .ifAutocorrectAllowed {
-                        (node as LeafPsiElement).rawReplaceWithText(expectedWhitespace)
-                    }
+                    .ifAutocorrectAllowed { node.replaceTextWith(expectedWhitespace) }
             }
         }
     }
@@ -255,11 +252,9 @@ public class TypeParameterListSpacingRule :
                 Unit
             }
 
-            node.textContains('\n') -> {
+            node.isWhiteSpaceWithNewline20 -> {
                 emit(node.startOffset, "Expected a single space instead of newline", true)
-                    .ifAutocorrectAllowed {
-                        (node as LeafPsiElement).rawReplaceWithText(" ")
-                    }
+                    .ifAutocorrectAllowed { node.replaceTextWith(" ") }
             }
 
             else -> {

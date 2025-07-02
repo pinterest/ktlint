@@ -1,9 +1,11 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.IMPORT_DIRECTIVE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.PACKAGE_DIRECTIVE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
@@ -16,12 +18,13 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PR
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RULE_EXECUTION_PROPERTY_TYPE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.ktLintRuleExecutionPropertyName
+import com.pinterest.ktlint.rule.engine.core.api.findParentByType
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
-import com.pinterest.ktlint.rule.engine.core.api.lineLengthWithoutNewlinePrefix
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
+import com.pinterest.ktlint.rule.engine.core.api.lineLength
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -73,25 +76,25 @@ public class MaxLineLengthRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.isWhiteSpace()) {
+        if (node.isWhiteSpace20) {
             return
         }
         node
             .takeIf { it is LeafPsiElement }
-            ?.takeIf { it.nextLeaf() == null || it.nextLeaf().isWhiteSpaceWithNewline() }
+            ?.takeIf { it.nextLeaf == null || it.nextLeaf.isWhiteSpaceWithNewline20 }
             ?.takeIf { it.lineLength() > maxLineLength }
-            ?.takeUnless { it.isPartOf(ElementType.PACKAGE_DIRECTIVE) }
-            ?.takeUnless { it.isPartOf(ElementType.IMPORT_DIRECTIVE) }
-            ?.takeUnless { it.isPartOf(ElementType.KDOC) }
+            ?.takeUnless { it.isPartOf(PACKAGE_DIRECTIVE) }
+            ?.takeUnless { it.isPartOf(IMPORT_DIRECTIVE) }
+            ?.takeUnless { it.isPartOf(KDOC) }
             ?.takeUnless { it.isPartOfRawMultiLineString() }
             ?.takeUnless { it.isLineOnlyContainingSingleTemplateString() }
-            ?.takeUnless { it.elementType == COMMA && it.prevLeaf()?.isLineOnlyContainingSingleTemplateString() ?: false }
+            ?.takeUnless { it.elementType == COMMA && it.prevLeaf?.isLineOnlyContainingSingleTemplateString() ?: false }
             ?.takeUnless { it.isLineOnlyContainingComment() }
             ?.let {
                 // Calculate the offset at the last possible position at which the newline should be inserted on the line
                 val offset =
                     node
-                        .leavesOnLine(excludeEolComment = false)
+                        .leavesOnLine20
                         .first()
                         .startOffset
                         .plus(maxLineLength + 1)
@@ -104,32 +107,33 @@ public class MaxLineLengthRule :
     }
 
     private fun ASTNode.lineLength() =
-        leavesOnLine(false)
+        leavesOnLine20
             .filterNot {
                 ignoreBackTickedIdentifier &&
                     it.elementType == IDENTIFIER &&
                     it.text.matches(BACKTICKED_IDENTIFIER_REGEX)
-            }.lineLengthWithoutNewlinePrefix()
+            }.lineLength
 
     private fun ASTNode.isPartOfRawMultiLineString() =
-        parent(STRING_TEMPLATE, strict = false)
+        this
+            .findParentByType(STRING_TEMPLATE)
             ?.let { it.firstChildNode.text == "\"\"\"" && it.textContains('\n') } == true
 
     private fun ASTNode.isLineOnlyContainingSingleTemplateString() =
-        treeParent
+        parent
             ?.takeIf { it.elementType == STRING_TEMPLATE }
             ?.let { stringTemplate ->
                 stringTemplate
-                    .prevLeaf()
+                    .prevLeaf
                     .let { leafBeforeStringTemplate ->
-                        leafBeforeStringTemplate == null || leafBeforeStringTemplate.isWhiteSpaceWithNewline()
+                        leafBeforeStringTemplate == null || leafBeforeStringTemplate.isWhiteSpaceWithNewline20
                     }
             }
             ?: false
 
     private fun ASTNode.isLineOnlyContainingComment() =
-        isPartOfComment() &&
-            (prevLeaf() == null || prevLeaf().isWhiteSpaceWithNewline())
+        isPartOfComment20 &&
+            (prevLeaf == null || prevLeaf.isWhiteSpaceWithNewline20)
 
     public companion object {
         public val IGNORE_BACKTICKED_IDENTIFIER_PROPERTY: EditorConfigProperty<Boolean> =

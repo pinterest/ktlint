@@ -1,7 +1,15 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.GT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.LAMBDA_ARGUMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.LT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_EXPRESSION
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_TYPE_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
@@ -10,15 +18,15 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.findCompositeParentElementOfType
+import com.pinterest.ktlint.rule.engine.core.api.findParentByType
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfCompositeElementOfType
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.isPartOf
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -54,12 +62,12 @@ public class TypeArgumentListSpacingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         when (node.elementType) {
-            ElementType.TYPE_ARGUMENT_LIST -> {
+            TYPE_ARGUMENT_LIST -> {
                 visitFunctionDeclaration(node, emit)
                 visitInsideTypeArgumentList(node, emit)
             }
 
-            ElementType.SUPER_TYPE_LIST, ElementType.SUPER_EXPRESSION -> {
+            SUPER_TYPE_LIST, SUPER_EXPRESSION -> {
                 visitInsideTypeArgumentList(node, emit)
             }
         }
@@ -72,8 +80,8 @@ public class TypeArgumentListSpacingRule :
         // No whitespace expected before type argument list of function call
         //    val list = listOf <String>()
         node
-            .prevLeaf(includeEmpty = true)
-            ?.takeIf { it.elementType == ElementType.WHITE_SPACE }
+            .prevLeaf
+            ?.takeIf { it.elementType == WHITE_SPACE }
             ?.let { noWhitespaceExpected(it, emit) }
 
         // No whitespace expected after type argument list of function call
@@ -83,14 +91,14 @@ public class TypeArgumentListSpacingRule :
                 // unless it is part of a type reference:
                 //    fun foo(): List<Foo> { ... }
                 //    var bar: List<Bar> = emptyList()
-                it.isPartOfCompositeElementOfType(ElementType.TYPE_REFERENCE)
+                it.isPartOf(TYPE_REFERENCE)
             }?.takeUnless {
                 // unless it is part of a call expression followed by lambda:
                 //    bar<Foo> { ... }
                 it.isPartOfCallExpressionFollowedByLambda()
             }?.lastChildNode
-            ?.nextLeaf(includeEmpty = true)
-            ?.takeIf { it.elementType == ElementType.WHITE_SPACE }
+            ?.nextLeaf
+            ?.takeIf { it.elementType == WHITE_SPACE }
             ?.let { noWhitespaceExpected(it, emit) }
     }
 
@@ -107,12 +115,12 @@ public class TypeArgumentListSpacingRule :
             }
 
         node
-            .findChildByType(ElementType.LT)
-            ?.nextSibling()
+            .findChildByType(LT)
+            ?.nextSibling20
             ?.let { nextSibling ->
                 if (multiline) {
                     if (nextSibling.text != expectedIndent) {
-                        if (nextSibling.isWhiteSpaceWithoutNewline()) {
+                        if (nextSibling.isWhiteSpaceWithoutNewline20) {
                             emit(nextSibling.startOffset, "Expected newline", true)
                                 .ifAutocorrectAllowed {
                                     nextSibling.upsertWhitespaceAfterMe(expectedIndent)
@@ -122,7 +130,7 @@ public class TypeArgumentListSpacingRule :
                         }
                     }
                 } else {
-                    if (nextSibling.isWhiteSpace()) {
+                    if (nextSibling.isWhiteSpace20) {
                         // Disallow
                         //    val list = listOf< String>()
                         noWhitespaceExpected(nextSibling, emit)
@@ -131,12 +139,12 @@ public class TypeArgumentListSpacingRule :
             }
 
         node
-            .findChildByType(ElementType.GT)
-            ?.prevSibling()
+            .findChildByType(GT)
+            ?.prevSibling20
             ?.let { prevSibling ->
                 if (multiline) {
                     if (prevSibling.text != expectedIndent) {
-                        if (prevSibling.isWhiteSpaceWithoutNewline()) {
+                        if (prevSibling.isWhiteSpaceWithoutNewline20) {
                             emit(prevSibling.startOffset, "Expected newline", true)
                                 .ifAutocorrectAllowed {
                                     prevSibling.upsertWhitespaceBeforeMe(expectedIndent)
@@ -146,7 +154,7 @@ public class TypeArgumentListSpacingRule :
                         }
                     }
                 } else {
-                    if (prevSibling.isWhiteSpace()) {
+                    if (prevSibling.isWhiteSpace20) {
                         // Disallow
                         //    val list = listOf<String >()
                         noWhitespaceExpected(prevSibling, emit)
@@ -167,9 +175,9 @@ public class TypeArgumentListSpacingRule :
 }
 
 private fun ASTNode.isPartOfCallExpressionFollowedByLambda(): Boolean =
-    findCompositeParentElementOfType(ElementType.CALL_EXPRESSION)
-        ?.takeIf { it.elementType == ElementType.CALL_EXPRESSION }
-        ?.findChildByType(ElementType.LAMBDA_ARGUMENT)
+    findParentByType(CALL_EXPRESSION)
+        ?.takeIf { it.elementType == CALL_EXPRESSION }
+        ?.findChildByType(LAMBDA_ARGUMENT)
         .let { it != null }
 
 public val TYPE_ARGUMENT_LIST_SPACING_RULE_ID: RuleId = TypeArgumentListSpacingRule().ruleId

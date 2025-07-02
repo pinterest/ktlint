@@ -10,7 +10,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -34,7 +34,7 @@ public class NoConsecutiveCommentsRule :
     ) {
         node
             .takeIf { it.isStartOfComment() }
-            ?.prevLeaf { !it.isWhiteSpace() }
+            ?.prevLeaf { !it.isWhiteSpace20 }
             ?.takeIf { previousNonWhiteSpace -> previousNonWhiteSpace.isEndOfComment() }
             ?.let { previousComment ->
                 when {
@@ -102,8 +102,8 @@ public class NoConsecutiveCommentsRule :
 
                     previousComment.elementType != node.elementType &&
                         node
-                            .prevLeaf()
-                            .takeIf { it.isWhiteSpace() }
+                            .prevLeaf
+                            .takeIf { it.isWhiteSpace20 }
                             ?.text
                             .orEmpty()
                             .count { it == '\n' } > 1 -> {

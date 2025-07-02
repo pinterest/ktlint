@@ -1,24 +1,24 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN_ENTRY
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.indent20
+import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -51,7 +51,7 @@ public class BlankLineBetweenWhenConditions :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.elementType == ElementType.WHEN) {
+        if (node.elementType == WHEN) {
             visitWhenStatement(node, emit)
         }
     }
@@ -73,7 +73,7 @@ public class BlankLineBetweenWhenConditions :
         emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .children()
+            .children20
             .filter { it.elementType == WHEN_ENTRY }
             // Blank lines should only be added *between* when-conditions, so first when-condition is to be skipped
             .drop(1)
@@ -87,31 +87,31 @@ public class BlankLineBetweenWhenConditions :
                             "Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement",
                             true,
                         ).ifAutocorrectAllowed {
-                            whitespaceBeforeWhenEntry.upsertWhitespaceBeforeMe("\n${whenEntry.indent()}")
+                            whitespaceBeforeWhenEntry.upsertWhitespaceBeforeMe("\n${whenEntry.indent20}")
                         }
                     }
             }
     }
 
-    private fun ASTNode.containsBlankLine(): Boolean = elementType == WHITE_SPACE && text.count { it == '\n' } > 1
+    private fun ASTNode.containsBlankLine(): Boolean = isWhiteSpace20 && text.count { it == '\n' } > 1
 
     private fun ASTNode.hasAnyMultilineWhenCondition() =
-        children()
+        children20
             .any { it.elementType == WHEN_ENTRY && (it.textContains('\n') || it.isPrecededByComment()) }
 
-    private fun ASTNode.isPrecededByComment() = prevSibling { !it.isWhiteSpace() }?.isPartOfComment() ?: false
+    private fun ASTNode.isPrecededByComment() = prevSibling { !it.isWhiteSpace20 }?.isPartOfComment20 ?: false
 
     private fun ASTNode.findWhitespaceAfterPreviousCodeSibling() =
-        prevCodeSibling()
-            ?.lastChildLeafOrSelf()
-            ?.nextLeaf { it.isWhiteSpace() }
+        prevCodeSibling20
+            ?.lastChildLeafOrSelf20
+            ?.nextLeaf { it.isWhiteSpace20 }
 
     private fun removeBlankLinesBetweenWhenConditions(
         node: ASTNode,
         emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .children()
+            .children20
             .filter { it.elementType == WHEN_ENTRY }
             // Blank lines should only be removed *between* when-conditions, so first when-condition is to be skipped
             .drop(1)
@@ -125,7 +125,7 @@ public class BlankLineBetweenWhenConditions :
                             "Unexpected blank lines between when-condition if all when-conditions are single lines",
                             true,
                         ).ifAutocorrectAllowed {
-                            whitespaceBeforeWhenEntry.upsertWhitespaceBeforeMe("\n${whenEntry.indent(includeNewline = false)}")
+                            whitespaceBeforeWhenEntry.upsertWhitespaceBeforeMe("\n${whenEntry.indentWithoutNewlinePrefix}")
                         }
                     }
             }

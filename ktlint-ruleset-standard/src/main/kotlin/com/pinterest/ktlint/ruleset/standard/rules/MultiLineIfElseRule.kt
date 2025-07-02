@@ -19,11 +19,14 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.indent20
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.parent
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -98,17 +101,17 @@ public class MultiLineIfElseRule :
             return
         }
 
-        if (!node.treePrev.textContains('\n')) {
+        if (!node.prevSibling20!!.textContains('\n')) {
             if (node.firstChildNode.elementType == IF) {
                 // Allow single line for:
                 // else if (...)
                 return
             }
-            if (!node.treeParent.textContains('\n')) {
+            if (node.parent?.textContains('\n') == false) {
                 // Allow single line if statements as long as they are really simple (e.g. do not contain newlines)
                 //    if (...) <statement> // no else statement
                 //    if (...) <statement> else <statement>
-                if (node.treeParent.treeParent.elementType == ELSE) {
+                if (node.parent?.parent?.elementType == ELSE) {
                     // Except in case nested if-else-if on single line
                     //    if (...) <statement> else if (..) <statement>
                 } else {
@@ -133,34 +136,32 @@ public class MultiLineIfElseRule :
         val nextLeaves =
             node
                 .leaves(forward = true)
-                .takeWhile { it.isWhiteSpaceWithoutNewline() || it.isPartOfComment() }
+                .takeWhile { it.isWhiteSpaceWithoutNewline20 || it.isPartOfComment20 }
                 .toList()
-                .dropLastWhile { it.isWhiteSpaceWithoutNewline() }
+                .dropLastWhile { it.isWhiteSpaceWithoutNewline20 }
 
         prevLeaves
             .firstOrNull()
-            .takeIf { it.isWhiteSpace() }
-            ?.let {
-                (it as LeafPsiElement).rawReplaceWithText(" ")
-            }
+            .takeIf { it.isWhiteSpace20 }
+            ?.replaceTextWith(" ")
         KtBlockExpression(null).apply {
             val previousChild = node.firstChildNode
             node.replaceChild(node.firstChildNode, this)
             addChild(LeafPsiElement(LBRACE, "{"))
             addChild(PsiWhiteSpaceImpl(indentConfig.childIndentOf(node)))
             prevLeaves
-                .dropWhile { it.isWhiteSpace() }
+                .dropWhile { it.isWhiteSpace20 }
                 .forEach(::addChild)
             addChild(previousChild)
             nextLeaves.forEach(::addChild)
-            addChild(PsiWhiteSpaceImpl(node.indent()))
+            addChild(PsiWhiteSpaceImpl(node.indent20))
             addChild(LeafPsiElement(RBRACE, "}"))
         }
 
         // Make sure else starts on same line as newly inserted right brace
         if (node.elementType == THEN) {
             node
-                .nextSibling { !it.isPartOfComment() }
+                .nextSibling { !it.isPartOfComment20 }
                 ?.upsertWhitespaceBeforeMe(" ")
         }
     }

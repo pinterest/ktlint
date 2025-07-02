@@ -19,28 +19,31 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRu
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
+import com.pinterest.ktlint.rule.engine.core.api.dropTrailingEolComment
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.findParentByType
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
-import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
-import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewlineOrNull
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.leavesForwardsIncludingSelf
+import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
 import com.pinterest.ktlint.rule.engine.core.api.lineLength
-import com.pinterest.ktlint.rule.engine.core.api.lineLengthWithoutNewlinePrefix
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.parent
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
@@ -131,7 +134,7 @@ public class FunctionLiteralRule :
     ) {
         val valueParameters =
             parameterList
-                .children()
+                .children20
                 .filter { it.elementType == VALUE_PARAMETER }
         if (valueParameters.count() > 1 || parameterList.wrapFirstParameterToNewline()) {
             if (parameterList.textContains('\n') || parameterList.doesNotFitOnSameLineAsStartOfFunctionLiteral()) {
@@ -166,7 +169,7 @@ public class FunctionLiteralRule :
     }
 
     private fun ASTNode.doesNotFitOnSameLineAsStartOfFunctionLiteral(): Boolean {
-        require(elementType == VALUE_PARAMETER_LIST && treeParent.elementType == FUNCTION_LITERAL)
+        require(elementType == VALUE_PARAMETER_LIST && parent?.elementType == FUNCTION_LITERAL)
         val lineLength =
             lineLengthIncludingLbrace()
                 .plus(1) // space before parameter list
@@ -176,22 +179,23 @@ public class FunctionLiteralRule :
     }
 
     private fun ASTNode.lineLengthIncludingLbrace(): Int {
-        require(elementType == VALUE_PARAMETER_LIST && treeParent.elementType == FUNCTION_LITERAL)
-        val lbrace = treeParent.findChildByType(LBRACE)!!
+        require(elementType == VALUE_PARAMETER_LIST && parent?.elementType == FUNCTION_LITERAL)
+        val lbrace = parent?.findChildByType(LBRACE)!!
         return lbrace
-            .leavesOnLine(excludeEolComment = true)
-            .takeWhile { it.prevLeaf() != lbrace }
-            .lineLengthWithoutNewlinePrefix()
+            .leavesOnLine20
+            .dropTrailingEolComment()
+            .takeWhile { it.prevLeaf != lbrace }
+            .lineLength
     }
 
     private fun ASTNode.lengthOfParameterListWhenOnSingleLine(): Int {
         require(elementType == VALUE_PARAMETER_LIST)
-        val stopAtLeaf = lastChildLeafOrSelf().nextLeaf()
-        return firstChildLeafOrSelf()
-            .leavesIncludingSelf()
+        val stopAtLeaf = lastChildLeafOrSelf20.nextLeaf
+        return firstChildLeafOrSelf20
+            .leavesForwardsIncludingSelf
             .takeWhile { it != stopAtLeaf }
             .joinToString(separator = "") {
-                if (it.isWhiteSpace()) {
+                if (it.isWhiteSpace20) {
                     // Eliminate newlines and redundant spaces
                     " "
                 } else {
@@ -200,7 +204,7 @@ public class FunctionLiteralRule :
             }.length
     }
 
-    private fun ASTNode.exceedsMaxLineLength() = lineLength(excludeEolComment = true) > maxLineLength
+    private fun ASTNode.exceedsMaxLineLength() = maxLineLength < leavesOnLine20.dropTrailingEolComment().lineLength
 
     private fun ASTNode.wrapFirstParameterToNewline() =
         if (isFunctionLiteralLambdaWithNonEmptyValueParameterList()) {
@@ -209,13 +213,14 @@ public class FunctionLiteralRule :
             //        bar()
             //    }
             val stopAtLeaf =
-                children()
+                children20
                     .first { it.elementType == VALUE_PARAMETER }
-                    .lastChildLeafOrSelf()
-                    .nextLeaf { !it.isWhiteSpaceWithoutNewline() && !it.isPartOfComment() }
-            leavesOnLine(excludeEolComment = true)
-                .takeWhile { it.prevLeaf() != stopAtLeaf }
-                .lineLengthWithoutNewlinePrefix()
+                    .lastChildLeafOrSelf20
+                    .nextLeaf { !it.isWhiteSpaceWithoutNewline20 && !it.isPartOfComment20 }
+            leavesOnLine20
+                .dropTrailingEolComment()
+                .takeWhile { it.prevLeaf != stopAtLeaf }
+                .lineLength
                 .let { it > maxLineLength }
         } else {
             false
@@ -224,11 +229,11 @@ public class FunctionLiteralRule :
     private fun ASTNode.isFunctionLiteralLambdaWithNonEmptyValueParameterList() =
         takeIf { it.elementType == VALUE_PARAMETER_LIST }
             ?.takeIf { it.findChildByType(VALUE_PARAMETER) != null }
-            ?.takeIf { it.treeParent.elementType == FUNCTION_LITERAL }
-            ?.treeParent
-            ?.takeIf { it.treeParent.elementType == LAMBDA_EXPRESSION }
-            ?.treeParent
-            ?.takeIf { it.treeParent.elementType == LAMBDA_ARGUMENT }
+            ?.takeIf { it.parent?.elementType == FUNCTION_LITERAL }
+            ?.parent
+            ?.takeIf { it.parent?.elementType == LAMBDA_EXPRESSION }
+            ?.parent
+            ?.takeIf { it.parent?.elementType == LAMBDA_ARGUMENT }
             .let { it != null }
 
     private fun rewriteToMultilineParameterList(
@@ -237,16 +242,16 @@ public class FunctionLiteralRule :
     ) {
         require(parameterList.elementType == VALUE_PARAMETER_LIST)
         parameterList
-            .children()
+            .children20
             .filter { it.elementType == VALUE_PARAMETER }
             .forEach { wrapValueParameter(it, emit) }
         parameterList
-            .treeParent
-            .findChildByType(ARROW)
+            .parent
+            ?.findChildByType(ARROW)
             ?.let { arrow -> wrapArrow(arrow, emit) }
         parameterList
-            .treeParent
-            .findChildByType(RBRACE)
+            .parent
+            ?.findChildByType(RBRACE)
             ?.let { rbrace -> wrapBeforeRbrace(rbrace, emit) }
     }
 
@@ -256,17 +261,15 @@ public class FunctionLiteralRule :
     ) {
         require(valueParameter.elementType == VALUE_PARAMETER)
         valueParameter
-            .prevLeaf()
-            .takeIf { it.isWhiteSpace() }
-            .let { whitespaceBeforeValueParameter ->
-                if (whitespaceBeforeValueParameter == null ||
-                    !whitespaceBeforeValueParameter.textContains('\n')
-                ) {
-                    emit(valueParameter.startOffset, "Newline expected before parameter", true)
-                        .ifAutocorrectAllowed {
-                            valueParameter.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(valueParameter.parent(FUNCTION_LITERAL)!!))
-                        }
-                }
+            .prevLeaf
+            .takeIf { it.isWhiteSpaceWithoutNewline20 }
+            ?.let { whitespaceBeforeValueParameter ->
+                emit(valueParameter.startOffset, "Newline expected before parameter", true)
+                    .ifAutocorrectAllowed {
+                        valueParameter.upsertWhitespaceBeforeMe(
+                            indentConfig.childIndentOf(valueParameter.findParentByType(FUNCTION_LITERAL)!!),
+                        )
+                    }
             }
     }
 
@@ -284,17 +287,13 @@ public class FunctionLiteralRule :
     ) {
         require(arrow.elementType == ARROW)
         arrow
-            .prevLeaf()
-            .takeIf { it.isWhiteSpace() }
-            .let { whitespaceBeforeArrow ->
-                if (whitespaceBeforeArrow == null ||
-                    !whitespaceBeforeArrow.textContains('\n')
-                ) {
-                    emit(arrow.startOffset, "Newline expected before arrow", true)
-                        .ifAutocorrectAllowed {
-                            arrow.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(arrow.treeParent))
-                        }
-                }
+            .prevLeaf
+            .takeIf { it.isWhiteSpaceWithoutNewline20 }
+            ?.let {
+                emit(arrow.startOffset, "Newline expected before arrow", true)
+                    .ifAutocorrectAllowed {
+                        arrow.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(arrow.parent!!))
+                    }
             }
     }
 
@@ -304,17 +303,13 @@ public class FunctionLiteralRule :
     ) {
         require(arrow.elementType == ARROW)
         arrow
-            .nextLeaf()
-            .takeIf { it.isWhiteSpace() }
-            .let { whitespaceAfterArrow ->
-                if (whitespaceAfterArrow == null ||
-                    !whitespaceAfterArrow.textContains('\n')
-                ) {
-                    emit(arrow.startOffset + arrow.textLength - 1, "Newline expected after arrow", true)
-                        .ifAutocorrectAllowed {
-                            arrow.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(arrow))
-                        }
-                }
+            .nextLeaf
+            .takeIf { it.isWhiteSpaceWithoutNewlineOrNull }
+            ?.let {
+                emit(arrow.startOffset + arrow.textLength - 1, "Newline expected after arrow", true)
+                    .ifAutocorrectAllowed {
+                        arrow.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(arrow))
+                    }
             }
     }
 
@@ -324,17 +319,13 @@ public class FunctionLiteralRule :
     ) {
         require(rbrace.elementType == RBRACE)
         rbrace
-            .prevLeaf()
-            .takeIf { it.isWhiteSpace() }
-            .let { whitespaceBeforeRbrace ->
-                if (whitespaceBeforeRbrace == null ||
-                    !whitespaceBeforeRbrace.textContains('\n')
-                ) {
-                    emit(rbrace.startOffset, "Newline expected before closing brace", true)
-                        .ifAutocorrectAllowed {
-                            rbrace.upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(rbrace))
-                        }
-                }
+            .prevLeaf
+            .takeIf { it.isWhiteSpaceWithoutNewlineOrNull }
+            ?.let {
+                emit(rbrace.startOffset, "Newline expected before closing brace", true)
+                    .ifAutocorrectAllowed {
+                        rbrace.upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(rbrace))
+                    }
             }
     }
 
@@ -345,7 +336,7 @@ public class FunctionLiteralRule :
         require(parameterList.elementType == VALUE_PARAMETER_LIST)
         parameterList
             .takeUnless { it.isPrecededByComment() }
-            ?.prevSibling { it.isWhiteSpaceWithNewline() }
+            ?.prevSibling { it.isWhiteSpaceWithNewline20 }
             ?.let { whitespaceBeforeParameterList ->
                 emit(parameterList.startOffset, "No newline expected before parameter", true)
                     .ifAutocorrectAllowed {
@@ -353,8 +344,8 @@ public class FunctionLiteralRule :
                     }
             }
         parameterList
-            .nextSibling { it.isWhiteSpace() }
-            ?.takeIf { it.isWhiteSpaceWithNewline() }
+            .nextSibling { it.isWhiteSpace20 }
+            ?.takeIf { it.isWhiteSpaceWithNewline20 }
             ?.let { whitespaceAfterParameterList ->
                 emit(parameterList.startOffset + parameterList.textLength, "No newline expected after parameter", true)
                     .ifAutocorrectAllowed {
@@ -363,7 +354,7 @@ public class FunctionLiteralRule :
             }
     }
 
-    private fun ASTNode.isPrecededByComment() = siblings(forward = false).any { it.isPartOfComment() }
+    private fun ASTNode.isPrecededByComment() = siblings(forward = false).any { it.isPartOfComment20 }
 
     private fun visitArrow(
         arrow: ASTNode,
@@ -379,8 +370,8 @@ public class FunctionLiteralRule :
                 emit(arrow.startOffset, "Arrow is redundant when parameter list is empty", true)
                     .ifAutocorrectAllowed {
                         arrow
-                            .nextSibling()
-                            .takeIf { it.isWhiteSpace() }
+                            .nextSibling20
+                            .takeIf { it.isWhiteSpace20 }
                             ?.remove()
                         arrow.remove()
                     }
@@ -394,8 +385,8 @@ public class FunctionLiteralRule :
 
     private fun ASTNode.isLambdaExpressionNotWrappedInBlock(): Boolean {
         require(elementType == ARROW)
-        return parent(LAMBDA_EXPRESSION)
-            ?.treeParent
+        return findParentByType(LAMBDA_EXPRESSION)
+            ?.parent
             ?.elementType
             ?.let { parentElementType ->
                 // Allow:
@@ -422,7 +413,7 @@ public class FunctionLiteralRule :
         require(block.elementType == BLOCK)
         if (block.textContains('\n') || block.exceedsMaxLineLength()) {
             block
-                .prevCodeSibling()
+                .prevCodeSibling20
                 ?.let { prevCodeSibling ->
                     when (prevCodeSibling.elementType) {
                         ARROW -> wrapAfterArrow(prevCodeSibling, emit)
@@ -432,7 +423,7 @@ public class FunctionLiteralRule :
                 }
 
             block
-                .nextCodeSibling()
+                .nextCodeSibling20
                 ?.takeIf { it.elementType == RBRACE }
                 ?.let { rbrace -> wrapBeforeRbrace(rbrace, emit) }
         }
@@ -444,12 +435,10 @@ public class FunctionLiteralRule :
     ) {
         require(lbrace.elementType == LBRACE)
         lbrace
-            .nextLeaf()
-            .takeIf { it.isWhiteSpace() }
+            .nextLeaf
+            .takeIf { it.isWhiteSpace20 }
             .let { whitespaceAfterLbrace ->
-                if (whitespaceAfterLbrace == null ||
-                    !whitespaceAfterLbrace.textContains('\n')
-                ) {
+                if (whitespaceAfterLbrace.isWhiteSpaceWithoutNewlineOrNull) {
                     emit(lbrace.startOffset, "Newline expected after opening brace", true)
                         .ifAutocorrectAllowed {
                             lbrace.upsertWhitespaceAfterMe(indentConfig.childIndentOf(lbrace))

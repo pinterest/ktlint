@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ELSE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ELSE_KEYWORD
@@ -9,6 +8,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.IF
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IF_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.THEN
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.Rule
@@ -17,18 +17,19 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.betweenCodeSiblings
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.indent20
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -69,7 +70,7 @@ public class IfElseWrappingRule :
     ) {
         when {
             node.elementType == IF -> visitIf(node, emit)
-            node.isPartOfComment() && node.treeParent.elementType == IF -> visitComment(node, emit)
+            node.isPartOfComment20 && node.parent?.elementType == IF -> visitComment(node, emit)
         }
     }
 
@@ -131,13 +132,13 @@ public class IfElseWrappingRule :
                 // Allow "else if" on single line
                 return
             }
-            if (node.elementType == ELSE_KEYWORD && node.nextCodeLeaf()?.elementType == LBRACE) {
+            if (node.elementType == ELSE_KEYWORD && node.nextCodeLeaf?.elementType == LBRACE) {
                 // Allow "else {" on single line
                 return
             }
         } else {
             // Outer if statement is a single line statement
-            if (node.elementType == ELSE && node.nextCodeLeaf()?.elementType == IF_KEYWORD) {
+            if (node.elementType == ELSE && node.nextCodeLeaf?.elementType == IF_KEYWORD) {
                 // Ignore "else if" as it is reported via another message
                 return
             }
@@ -145,14 +146,14 @@ public class IfElseWrappingRule :
 
         with(node.findFirstNodeInBlockToBeIndented() ?: node) {
             val expectedIndent =
-                if (nextSibling()?.elementType == RBRACE) {
-                    node.indent()
+                if (nextSibling20?.elementType == RBRACE) {
+                    node.indent20
                 } else {
                     indentConfig.siblingIndentOf(node)
                 }
 
-            applyIf(elementType == THEN || elementType == ELSE || elementType == ELSE_KEYWORD) { prevLeaf()!! }
-                .takeUnless { it.isWhiteSpaceWithNewline() }
+            applyIf(elementType == THEN || elementType == ELSE || elementType == ELSE_KEYWORD) { prevLeaf!! }
+                .takeUnless { it.isWhiteSpaceWithNewline20 }
                 ?.let {
                     // Expected a newline with indent. Leave it up to the IndentationRule to determine exact indent
                     emit(startOffset, "Expected a newline", true)
@@ -165,21 +166,21 @@ public class IfElseWrappingRule :
 
     private fun ASTNode.isElseIf() =
         when (elementType) {
-            IF -> prevCodeLeaf()?.elementType == ELSE_KEYWORD
-            ELSE, ELSE_KEYWORD -> nextCodeLeaf()?.elementType == IF_KEYWORD
+            IF -> prevCodeLeaf?.elementType == ELSE_KEYWORD
+            ELSE, ELSE_KEYWORD -> nextCodeLeaf?.elementType == IF_KEYWORD
             else -> false
         }
 
     private fun ASTNode.findFirstNodeInBlockToBeIndented(): ASTNode? =
         findChildByType(BLOCK)
-            ?.children()
+            ?.children20
             ?.first {
                 it.elementType != LBRACE &&
                     !it.isWhitespaceBeforeComment() &&
-                    !it.isPartOfComment()
+                    !it.isPartOfComment20
             }
 
-    private fun ASTNode.isWhitespaceBeforeComment() = isWhiteSpaceWithoutNewline() && nextLeaf()?.isPartOfComment() == true
+    private fun ASTNode.isWhitespaceBeforeComment() = isWhiteSpaceWithoutNewline20 && nextLeaf?.isPartOfComment20 == true
 
     private fun ASTNode.outerIf(): ASTNode {
         require(this.elementType == IF)
@@ -199,8 +200,8 @@ public class IfElseWrappingRule :
         comment: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        require(comment.isPartOfComment())
-        if (comment.betweenCodeSiblings(ElementType.RPAR, THEN) ||
+        require(comment.isPartOfComment20)
+        if (comment.betweenCodeSiblings(RPAR, THEN) ||
             comment.betweenCodeSiblings(THEN, ELSE_KEYWORD) ||
             comment.betweenCodeSiblings(ELSE_KEYWORD, ELSE)
         ) {

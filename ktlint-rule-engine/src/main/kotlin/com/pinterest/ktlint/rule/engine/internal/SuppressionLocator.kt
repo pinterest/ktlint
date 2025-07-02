@@ -1,16 +1,19 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONSTRUCTOR_CALLEE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.IgnoreKtlintSuppressions
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.TokenSets
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
-import com.pinterest.ktlint.rule.engine.core.api.isKtAnnotated
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.isKtAnnotated20
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.parent
-import com.pinterest.ktlint.rule.engine.core.api.recursiveChildren
+import com.pinterest.ktlint.rule.engine.core.api.recursiveChildren20
 import com.pinterest.ktlint.rule.engine.internal.SuppressionLocator.CommentSuppressionHint.Type.BLOCK_END
 import com.pinterest.ktlint.rule.engine.internal.SuppressionLocator.CommentSuppressionHint.Type.BLOCK_START
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -56,7 +59,7 @@ internal class SuppressionLocator(
     private fun findSuppressionHints(rootNode: ASTNode): List<SuppressionHint> {
         val suppressionHints = ArrayList<SuppressionHint>()
         val commentSuppressionsHints = mutableListOf<CommentSuppressionHint>()
-        rootNode.recursiveChildren(includeSelf = true).forEach { node ->
+        rootNode.recursiveChildren20.forEach { node ->
             when (node.elementType) {
                 in TokenSets.COMMENTS -> {
                     node
@@ -64,7 +67,7 @@ internal class SuppressionLocator(
                         ?.let(commentSuppressionsHints::add)
                 }
 
-                ElementType.ANNOTATION_ENTRY -> {
+                ANNOTATION_ENTRY -> {
                     node
                         .takeIf { it.isSuppressAnnotation() }
                         ?.createSuppressionHintFromAnnotations()
@@ -139,7 +142,7 @@ internal class SuppressionLocator(
                 if (rbraceOfContainingBlock == null) {
                     // Apply suppression on next sibling only, when the outer element does not end with a RBRACE
                     it.node
-                        .nextSibling()
+                        .nextSibling20
                         .let { nextSibling ->
                             SuppressionHint(
                                 IntRange(
@@ -162,28 +165,28 @@ internal class SuppressionLocator(
     }
 
     private fun ASTNode.rbraceOfContainingBlock(): ASTNode? =
-        treeParent
-            .lastChildNode
+        parent
+            ?.lastChildNode
             ?.takeIf { it.elementType == RBRACE }
 
     private fun <T> List<T>.tail() = this.subList(1, this.size)
 
     private fun ASTNode.isSuppressAnnotation(): Boolean =
-        findChildByType(ElementType.CONSTRUCTOR_CALLEE)
-            ?.findChildByType(ElementType.TYPE_REFERENCE)
+        findChildByType(CONSTRUCTOR_CALLEE)
+            ?.findChildByType(TYPE_REFERENCE)
             ?.text in SUPPRESS_ANNOTATIONS
 
     private fun ASTNode.createSuppressionHintFromAnnotations(): SuppressionHint? {
         val suppressedRuleIds =
-            recursiveChildren()
-                .filter { it.elementType == ElementType.VALUE_ARGUMENT }
+            recursiveChildren20
+                .filter { it.elementType == VALUE_ARGUMENT }
                 .flatMapTo(mutableListOf()) {
                     it.text.removeSurrounding("\"").findRuleSuppressionIds()
                 }
 
         if (suppressedRuleIds.isEmpty()) return null
 
-        val owner = parent { it.isKtAnnotated() } ?: return null
+        val owner = parent { it.isKtAnnotated20 } ?: return null
 
         val textRange = owner.textRange
 

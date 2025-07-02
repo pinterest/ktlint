@@ -16,19 +16,21 @@ import com.pinterest.ktlint.rule.engine.core.api.KtlintKotlinCompiler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.leavesInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.parent
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -91,7 +93,7 @@ public class FunctionExpressionBodyRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .takeIf { it.elementType == BLOCK && it.treeParent.elementType == FUN }
+            .takeIf { it.elementType == BLOCK && it.parent?.elementType == FUN }
             ?.let { visitFunctionBody(node, emit) }
     }
 
@@ -105,18 +107,17 @@ public class FunctionExpressionBodyRule :
             ?.takeUnless { it.countReturnKeywords() > 1 }
             ?.findChildByType(RETURN)
             ?.findChildByType(RETURN_KEYWORD)
-            ?.nextSibling { !it.isWhiteSpace() }
+            ?.nextSibling { !it.isWhiteSpace20 }
             ?.let { codeSibling ->
                 emit(block.startOffset, "Function body should be replaced with body expression", true)
                     .ifAutocorrectAllowed {
-                        with(block.treeParent) {
+                        with(block.parent!!) {
                             // Insert the code sibling before the block
                             addChild(LeafPsiElement(EQ, "="), block)
                             addChild(PsiWhiteSpaceImpl(" "), block)
                             addChild(codeSibling, block)
-                            // Remove old (and now empty block)
-                            removeChild(block)
                         }
+                        block.remove()
                     }
             }
         block
@@ -125,12 +126,12 @@ public class FunctionExpressionBodyRule :
             ?.let { throwNode ->
                 emit(block.startOffset, "Function body should be replaced with body expression", true)
                     .ifAutocorrectAllowed {
-                        with(block.treeParent) {
+                        with(block.parent!!) {
                             // Remove whitespace before block
                             block
-                                .prevSibling()
-                                .takeIf { it.isWhiteSpace() }
-                                ?.let { removeChild(it) }
+                                .prevSibling20
+                                .takeIf { it.isWhiteSpace20 }
+                                ?.remove()
                             if (findChildByType(TYPE_REFERENCE) == null) {
                                 // Insert Unit as return type as otherwise a compilation error results
                                 addChild(LeafPsiElement(COLON, ":"), block)
@@ -141,22 +142,21 @@ public class FunctionExpressionBodyRule :
                             addChild(LeafPsiElement(EQ, "="), block)
                             addChild(PsiWhiteSpaceImpl(" "), block)
                             addChild(throwNode, block)
-                            // Remove old (and now empty block)
-                            removeChild(block)
                         }
+                        block.remove()
                     }
             }
     }
 
     private fun ASTNode.containingOnly(iElementType: IElementType) =
         iElementType ==
-            children()
-                .filterNot { it.elementType == LBRACE || it.elementType == RBRACE || it.isWhiteSpace() }
+            children20
+                .filterNot { it.elementType == LBRACE || it.elementType == RBRACE || it.isWhiteSpace20 }
                 .singleOrNull()
                 ?.elementType
 
     private fun ASTNode.countReturnKeywords() =
-        leavesInClosedRange(this.firstChildLeafOrSelf(), this.lastChildLeafOrSelf())
+        leavesInClosedRange(firstChildLeafOrSelf20, lastChildLeafOrSelf20)
             .count { it.elementType == RETURN_KEYWORD }
 
     private fun createUnitTypeReference() =

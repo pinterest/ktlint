@@ -3,10 +3,10 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.NO_AUTOCORRECT
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EQ
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
@@ -17,12 +17,13 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
-import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
+import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.leavesBackwardsIncludingSelf
+import com.pinterest.ktlint.rule.engine.core.api.leavesForwardsIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -81,15 +82,15 @@ public class PropertyWrappingRule :
     ) {
         require(node.elementType == PROPERTY)
 
-        val baseIndentLength = node.indent(false).length
+        val baseIndentLength = node.indentWithoutNewlinePrefix.length
 
         // Find the first node after the indenting whitespace on the same line as the identifier
-        val nodeFirstChildLeafOrSelf = node.firstChildLeafOrSelf()
+        val nodeFirstChildLeafOrSelf = node.firstChildLeafOrSelf20
         val fromNode =
             node
-                .findChildByType(ElementType.IDENTIFIER)
-                ?.leavesIncludingSelf(forward = false)
-                ?.firstOrNull { it.prevLeaf().isWhiteSpaceWithNewline() || it == nodeFirstChildLeafOrSelf }
+                .findChildByType(IDENTIFIER)
+                ?.leavesBackwardsIncludingSelf
+                ?.firstOrNull { it.prevLeaf.isWhiteSpaceWithNewline20 || it == nodeFirstChildLeafOrSelf }
                 ?: node
 
         node
@@ -131,9 +132,9 @@ public class PropertyWrappingRule :
     }
 
     private fun ASTNode.sumOfTextLengthUntil(astNode: ASTNode): Int {
-        val stopAtLeaf = astNode.lastChildLeafOrSelf()
-        return leavesIncludingSelf()
-            .takeWhile { !it.isWhiteSpaceWithNewline() && it.prevLeaf() != stopAtLeaf }
+        val stopAtLeaf = astNode.lastChildLeafOrSelf20
+        return leavesForwardsIncludingSelf
+            .takeWhile { !it.isWhiteSpaceWithNewline20 && it.prevLeaf != stopAtLeaf }
             .sumOf { it.textLength }
     }
 

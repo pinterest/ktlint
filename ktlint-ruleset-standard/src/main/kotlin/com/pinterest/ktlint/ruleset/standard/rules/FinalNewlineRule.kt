@@ -7,11 +7,13 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isRoot
+import com.pinterest.ktlint.rule.engine.core.api.isRoot20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 
 @SinceKtlint("0.9", STABLE)
@@ -30,23 +32,23 @@ public class FinalNewlineRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.isRoot()) {
+        if (node.isRoot20) {
             if (node.textLength == 0) {
                 stopTraversalOfAST()
                 return
             }
             val lastNode = lastChildNodeOf(node)
-            if (insertFinalNewline) {
-                if (lastNode !is PsiWhiteSpace || !lastNode.textContains('\n')) {
+            when {
+                insertFinalNewline && (!lastNode.isWhiteSpace20 || lastNode.isWhiteSpaceWithoutNewline20) -> {
                     emit(node.textLength - 1, "File must end with a newline (\\n)", true)
                         .ifAutocorrectAllowed {
                             node.addChild(PsiWhiteSpaceImpl("\n"), null)
                         }
                 }
-            } else {
-                if (lastNode is PsiWhiteSpace && lastNode.textContains('\n')) {
+
+                !insertFinalNewline && lastNode != null && lastNode.isWhiteSpaceWithNewline20 -> {
                     emit(lastNode.startOffset, "Redundant newline (\\n) at the end of file", true)
-                        .ifAutocorrectAllowed { lastNode.node.remove() }
+                        .ifAutocorrectAllowed { lastNode.remove() }
                 }
             }
         }

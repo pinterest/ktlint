@@ -10,11 +10,12 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 @SinceKtlint("0.34", EXPERIMENTAL)
 @SinceKtlint("0.46", STABLE)
@@ -23,12 +24,12 @@ public class NoEmptyFirstLineInMethodBlockRule : StandardRule("no-empty-first-li
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.isWhiteSpaceWithNewline() &&
-            node.prevLeaf()?.elementType == LBRACE &&
+        if (node.isWhiteSpaceWithNewline20 &&
+            node.prevLeaf?.elementType == LBRACE &&
             node.isPartOf(FUN) &&
             // Allow:
             //     fun fn() = object : Builder {\n\n fun stuff() = Unit }
-            node.treeParent.elementType != CLASS_BODY
+            node.parent?.elementType != CLASS_BODY
         ) {
             val split = node.text.split("\n")
             if (split.size > 2) {
@@ -37,7 +38,7 @@ public class NoEmptyFirstLineInMethodBlockRule : StandardRule("no-empty-first-li
                     "First line in a method block should not be empty",
                     true,
                 ).ifAutocorrectAllowed {
-                    (node as LeafPsiElement).rawReplaceWithText("${split.first()}\n${split.last()}")
+                    node.replaceTextWith("${split.first()}\n${split.last()}")
                 }
             }
         }

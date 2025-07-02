@@ -7,7 +7,7 @@ import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.plus
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.LintError
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
@@ -511,7 +511,7 @@ class SuppressionLocatorTest {
             node: ASTNode,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         ) {
-            if (node.elementType == ElementType.IDENTIFIER && node.text.startsWith("foo")) {
+            if (node.elementType == IDENTIFIER && node.text.startsWith("foo")) {
                 emit(node.startOffset, "Line should not contain a foo identifier", false)
             }
         }

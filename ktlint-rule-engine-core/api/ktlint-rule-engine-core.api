@@ -3,33 +3,67 @@ public final class com/pinterest/ktlint/rule/engine/core/api/ASTNodeExtensionKt 
 	public static final fun beforeCodeSibling (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;)Z
 	public static final fun betweenCodeSiblings (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;)Z
 	public static final fun children (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lkotlin/sequences/Sequence;
+	public static final fun dropTrailingEolComment (Lkotlin/sequences/Sequence;)Lkotlin/sequences/Sequence;
 	public static final fun dummyPsiElement (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/psi/PsiElement;
 	public static final fun endOffset (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)I
+	public static final fun findChildByTypeRecursively (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
 	public static final fun findChildByTypeRecursively (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;Z)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
 	public static final fun findCompositeParentElementOfType (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun findParentByType (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
 	public static final fun firstChildLeafOrSelf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun getChildren20 (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lkotlin/sequences/Sequence;
 	public static final fun getColumn (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)I
+	public static final fun getEndOffset20 (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)I
+	public static final fun getFirstChildLeafOrSelf20 (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun getIndent20 (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Ljava/lang/String;
+	public static final fun getIndentWithoutNewlinePrefix (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Ljava/lang/String;
+	public static final fun getLastChildLeafOrSelf20 (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun getLeavesBackwardsIncludingSelf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lkotlin/sequences/Sequence;
+	public static final fun getLeavesForwardsIncludingSelf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lkotlin/sequences/Sequence;
+	public static final fun getLeavesOnLine20 (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lkotlin/sequences/Sequence;
+	public static final fun getLineLength (Lkotlin/sequences/Sequence;)I
+	public static final fun getNextCodeLeaf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun getNextCodeSibling20 (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun getNextLeaf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun getNextSibling20 (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun getParent (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun getPrevCodeLeaf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun getPrevCodeSibling20 (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun getPrevLeaf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun getPrevSibling20 (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun getRecursiveChildren20 (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lkotlin/sequences/Sequence;
 	public static final fun hasModifier (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;)Z
 	public static final fun hasNewLineInClosedRange (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
 	public static final fun indent (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Z)Ljava/lang/String;
 	public static synthetic fun indent$default (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZILjava/lang/Object;)Ljava/lang/String;
+	public static final fun isCode (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
 	public static final fun isCodeLeaf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
 	public static final fun isDeclaration (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
+	public static final fun isDeclaration20 (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
 	public static final fun isKtAnnotated (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
+	public static final fun isKtAnnotated20 (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
 	public static final fun isKtExpression (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
 	public static final fun isKtLoopExpression (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
 	public static final fun isLeaf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
+	public static final fun isLeaf20 (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
 	public static final fun isPartOf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/reflect/KClass;)Z
 	public static final fun isPartOf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;)Z
 	public static final fun isPartOf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/TokenSet;)Z
 	public static final fun isPartOfComment (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
+	public static final fun isPartOfComment20 (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
 	public static final fun isPartOfCompositeElementOfType (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;)Z
 	public static final fun isPartOfString (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
+	public static final fun isPartOfString20 (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
 	public static final fun isRoot (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
+	public static final fun isRoot20 (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
 	public static final fun isValOrVarKeyword (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
 	public static final fun isWhiteSpace (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
+	public static final fun isWhiteSpace20 (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
 	public static final fun isWhiteSpaceWithNewline (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
+	public static final fun isWhiteSpaceWithNewline20 (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
 	public static final fun isWhiteSpaceWithoutNewline (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
+	public static final fun isWhiteSpaceWithoutNewline20 (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
+	public static final fun isWhiteSpaceWithoutNewlineOrNull (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
 	public static final fun lastChildLeafOrSelf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
 	public static final fun leavesInClosedRange (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lkotlin/sequences/Sequence;
 	public static final fun leavesInOpenRange (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lkotlin/sequences/Sequence;
@@ -48,10 +82,12 @@ public final class com/pinterest/ktlint/rule/engine/core/api/ASTNodeExtensionKt 
 	public static final fun nextLeaf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
 	public static final fun nextLeaf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZZ)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
 	public static synthetic fun nextLeaf$default (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZZILjava/lang/Object;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun nextSibling (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
 	public static final fun nextSibling (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
-	public static synthetic fun nextSibling$default (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
 	public static final fun noNewLineInClosedRange (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
 	public static final fun noNewLineInOpenRange (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
+	public static final fun parent (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun parent (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
 	public static final fun parent (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;Z)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
 	public static final fun parent (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function1;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
 	public static synthetic fun parent$default (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;ZILjava/lang/Object;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
@@ -62,11 +98,14 @@ public final class com/pinterest/ktlint/rule/engine/core/api/ASTNodeExtensionKt 
 	public static final fun prevLeaf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
 	public static final fun prevLeaf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Z)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
 	public static synthetic fun prevLeaf$default (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZILjava/lang/Object;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun prevSibling (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
 	public static final fun prevSibling (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
 	public static synthetic fun prevSibling$default (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
+	public static final fun recursiveChildren (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lkotlin/sequences/Sequence;
 	public static final fun recursiveChildren (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Z)Lkotlin/sequences/Sequence;
 	public static synthetic fun recursiveChildren$default (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZILjava/lang/Object;)Lkotlin/sequences/Sequence;
 	public static final fun remove (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)V
+	public static final fun replaceTextWith (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Ljava/lang/String;)V
 	public static final fun replaceWith (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)V
 	public static final fun upsertWhitespaceAfterMe (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Ljava/lang/String;)V
 	public static final fun upsertWhitespaceBeforeMe (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Ljava/lang/String;)V

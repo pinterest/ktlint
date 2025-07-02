@@ -1,11 +1,13 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ARROW
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_ENTRY
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_LITERAL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
@@ -18,18 +20,19 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.indent20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.noNewLineInClosedRange
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -64,9 +67,9 @@ public class StatementWrappingRule :
     ) {
         when (node.elementType) {
             BLOCK -> {
-                if (node.treeParent.elementType == FUNCTION_LITERAL) {
+                if (node.parent?.elementType == FUNCTION_LITERAL) {
                     // LBRACE and RBRACE are outside of BLOCK
-                    visitBlock(node.treeParent, emit)
+                    visitBlock(node.parent!!, emit)
                 } else {
                     visitBlock(node, emit)
                 }
@@ -102,7 +105,7 @@ public class StatementWrappingRule :
                 // or
                 //     /** Some comment */
                 //     enum class FooBar { FOO, BAR }
-                it.treeParent.isEnumClassOnSingleLine
+                it.parent!!.isEnumClassOnSingleLine
             }?.findChildByType(LBRACE)
             ?.applyIf(node.isFunctionLiteralWithParameterList) {
                 // Allow:
@@ -112,7 +115,7 @@ public class StatementWrappingRule :
                 //     }
                 node.findChildByType(ARROW)
             }?.let { lbraceOrArrow ->
-                val nextCodeLeaf = lbraceOrArrow.nextCodeLeaf()
+                val nextCodeLeaf = lbraceOrArrow.nextCodeLeaf
                 if (nextCodeLeaf != null && noNewLineInClosedRange(lbraceOrArrow, nextCodeLeaf)) {
                     emit(nextCodeLeaf.startOffset, "Missing newline after '${lbraceOrArrow.text}'", true)
                         .ifAutocorrectAllowed {
@@ -127,7 +130,7 @@ public class StatementWrappingRule :
                 node
                     .findChildByType(RBRACE)
                     ?.let { rbrace ->
-                        val prevCodeLeaf = rbrace.prevCodeLeaf()
+                        val prevCodeLeaf = rbrace.prevCodeLeaf
                         if (prevCodeLeaf != null && noNewLineInClosedRange(prevCodeLeaf, rbrace)) {
                             emit(rbrace.startOffset, "Missing newline before '}'", true)
                                 .ifAutocorrectAllowed {
@@ -142,7 +145,7 @@ public class StatementWrappingRule :
         get() =
             RBRACE ==
                 findChildByType(LBRACE)
-                    ?.nextCodeLeaf()
+                    ?.nextCodeLeaf
                     ?.elementType
 
     private inline val ASTNode.isFunctionLiteralWithParameterList: Boolean
@@ -155,7 +158,7 @@ public class StatementWrappingRule :
             takeIf { elementType == FUNCTION_LITERAL }
                 ?.takeUnless { it.textContains('\n') }
                 ?.findChildByType(BLOCK)
-                ?.children()
+                ?.children20
                 ?.count { it.elementType != VALUE_PARAMETER_LIST && it.elementType != ARROW }
                 ?.let { count -> count <= 1 }
                 ?: false
@@ -163,7 +166,7 @@ public class StatementWrappingRule :
     private inline val ASTNode.isEnumClassOnSingleLine: Boolean
         get() =
             if (isEnumClass) {
-                val lastChildLeaf = lastChildLeafOrSelf()
+                val lastChildLeaf = lastChildLeafOrSelf20
                 // Ignore the leading comment
                 noNewLineInClosedRange(firstCodeLeafOrNull!!, lastChildLeaf)
             } else {
@@ -174,32 +177,32 @@ public class StatementWrappingRule :
         get() =
             // Skip the comment on top of the node by getting modifier list
             findChildByType(MODIFIER_LIST)
-                ?.children()
+                ?.children20
                 ?.dropWhile {
                     // Ignore annotations placed on separate lines above the node
-                    it.elementType == ANNOTATION_ENTRY || it.isWhiteSpace()
+                    it.elementType == ANNOTATION_ENTRY || it.isWhiteSpace20
                 }?.firstOrNull()
-                ?.firstChildLeafOrSelf()
+                ?.firstChildLeafOrSelf20
 
     private inline val ASTNode.isEnumClass: Boolean
-        get() = elementType == ElementType.CLASS && hasModifier(ElementType.ENUM_KEYWORD)
+        get() = elementType == CLASS && hasModifier(ENUM_KEYWORD)
 
     private inline val ASTNode.indentAsChild: String
-        get() = indent().plus(indentConfig.indent)
+        get() = indent20.plus(indentConfig.indent)
 
     private inline val ASTNode.indentAsSibling: String
-        get() = treeParent.indent().plus(indentConfig.indent)
+        get() = parent!!.indent20.plus(indentConfig.indent)
 
     private inline val ASTNode.indentAsParent: String
-        get() = treeParent.indent()
+        get() = parent!!.indent20
 
     private fun visitSemiColon(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val previousCodeLeaf = node.prevCodeLeaf()?.lastChildLeafOrSelf() ?: return
-        val nextCodeLeaf = node.nextCodeLeaf()?.firstChildLeafOrSelf() ?: return
-        if (previousCodeLeaf.treeParent.elementType == ElementType.ENUM_ENTRY && nextCodeLeaf.elementType == RBRACE) {
+        val previousCodeLeaf = node.prevCodeLeaf?.lastChildLeafOrSelf20 ?: return
+        val nextCodeLeaf = node.nextCodeLeaf?.firstChildLeafOrSelf20 ?: return
+        if (previousCodeLeaf.parent?.elementType == ENUM_ENTRY && nextCodeLeaf.elementType == RBRACE) {
             // Allow
             // enum class INDEX2 { ONE, TWO, THREE; }
             return
@@ -207,7 +210,7 @@ public class StatementWrappingRule :
         if (noNewLineInClosedRange(previousCodeLeaf, nextCodeLeaf)) {
             emit(node.startOffset + 1, """Missing newline after '${node.text}'""", true)
                 .ifAutocorrectAllowed {
-                    node.upsertWhitespaceAfterMe(previousCodeLeaf.indent())
+                    node.upsertWhitespaceAfterMe(previousCodeLeaf.indent20)
                 }
         }
     }

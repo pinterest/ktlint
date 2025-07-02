@@ -12,11 +12,11 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -50,23 +50,23 @@ public class NoSingleLineBlockCommentRule :
             val afterBlockComment =
                 node
                     .leaves()
-                    .takeWhile { it.isWhiteSpace() && !it.textContains('\n') }
+                    .takeWhile { it.isWhiteSpaceWithoutNewline20 }
                     .firstOrNull()
-                    ?: node.lastChildLeafOrSelf()
+                    ?: node.lastChildLeafOrSelf20
 
             if (!node.textContains('\n') &&
-                afterBlockComment.nextLeaf().isWhitespaceWithNewlineOrNull()
+                afterBlockComment.nextLeaf.isWhitespaceWithNewlineOrNull()
             ) {
                 emit(node.startOffset, "Replace the block comment with an EOL comment", true)
                     .ifAutocorrectAllowed {
                         val beforeBlockComment =
                             node
                                 .leaves(false)
-                                .takeWhile { it.isWhiteSpace() && !it.textContains('\n') }
+                                .takeWhile { it.isWhiteSpaceWithoutNewline20 }
                                 .firstOrNull()
-                                ?: node.firstChildLeafOrSelf()
+                                ?: node.firstChildLeafOrSelf20
                         beforeBlockComment
-                            .prevLeaf()
+                            .prevLeaf
                             .takeIf { !it.isWhitespaceWithNewlineOrNull() }
                             ?.let {
                                 node.upsertWhitespaceBeforeMe(" ")
@@ -84,7 +84,7 @@ public class NoSingleLineBlockCommentRule :
         rawRemove()
     }
 
-    private fun ASTNode?.isWhitespaceWithNewlineOrNull() = this == null || this.isWhiteSpaceWithNewline()
+    private fun ASTNode?.isWhitespaceWithNewlineOrNull() = this == null || this.isWhiteSpaceWithNewline20
 }
 
 public val NO_SINGLE_LINE_BLOCK_COMMENT_RULE_ID: RuleId = NoSingleLineBlockCommentRule().ruleId

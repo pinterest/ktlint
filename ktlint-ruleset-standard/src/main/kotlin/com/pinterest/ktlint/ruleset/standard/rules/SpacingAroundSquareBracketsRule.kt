@@ -10,8 +10,9 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -31,10 +32,10 @@ public class SpacingAroundSquareBracketsRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == LBRACKET || node.elementType == RBRACKET) {
-            val prevLeaf = node.prevLeaf()
-            val nextLeaf = node.nextLeaf()
+            val prevLeaf = node.prevLeaf
+            val nextLeaf = node.nextLeaf
             val spacingBefore =
-                when (node.treeParent.elementType) {
+                when (node.parent?.elementType) {
                     KDOC_MARKDOWN_LINK -> {
                         // Allow:
                         //     /**
@@ -53,11 +54,11 @@ public class SpacingAroundSquareBracketsRule :
                         //        ]
                         // Disallow:
                         //     @Foo(fooBar = ["foo", "bar" ])
-                        node.elementType == RBRACKET && prevLeaf.isWhiteSpaceWithoutNewline()
+                        node.elementType == RBRACKET && prevLeaf.isWhiteSpaceWithoutNewline20
                     }
 
                     else -> {
-                        prevLeaf.isWhiteSpaceWithoutNewline()
+                        prevLeaf.isWhiteSpaceWithoutNewline20
                     }
                 }
             val spacingAfter =
@@ -74,7 +75,7 @@ public class SpacingAroundSquareBracketsRule :
                 //        ]
                 // Disallow:
                 //     @Foo(fooBar = [ "foo", "bar"])
-                node.elementType == LBRACKET && nextLeaf.isWhiteSpaceWithoutNewline()
+                node.elementType == LBRACKET && nextLeaf.isWhiteSpaceWithoutNewline20
             when {
                 spacingBefore && spacingAfter -> {
                     emit(node.startOffset, "Unexpected spacing around '${node.text}'", true)

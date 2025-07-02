@@ -1,19 +1,21 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONSTRUCTOR_DELEGATION_CALL
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONSTRUCTOR_DELEGATION_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONSTRUCTOR_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EXPECT_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PRIMARY_CONSTRUCTOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.SECONDARY_CONSTRUCTOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_TYPE_CALL_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SUPER_TYPE_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
@@ -27,7 +29,7 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAsLateA
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
@@ -38,17 +40,21 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PR
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY_OFF
 import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent
-import com.pinterest.ktlint.rule.engine.core.api.isLeaf
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.indent20
+import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
+import com.pinterest.ktlint.rule.engine.core.api.isCode
+import com.pinterest.ktlint.rule.engine.core.api.isLeaf20
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewlineOrNull
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -135,15 +141,15 @@ public class ClassSignatureRule :
 
     private fun ASTNode.superTypes() =
         findChildByType(SUPER_TYPE_LIST)
-            ?.children()
-            ?.filterNot { it.isWhiteSpace() || it.isPartOfComment() || it.elementType == COMMA }
+            ?.children20
+            ?.filter { it.isCode && it.elementType != COMMA }
 
     private fun ASTNode.hasMultilineSuperTypeList() = findChildByType(SUPER_TYPE_LIST)?.textContains('\n') == true
 
     private fun ASTNode.getFirstChildInSignature(): ASTNode? {
         findChildByType(MODIFIER_LIST)
             ?.let { modifierList ->
-                val iterator = modifierList.children().iterator()
+                val iterator = modifierList.children20.iterator()
                 var currentNode: ASTNode
                 while (iterator.hasNext()) {
                     currentNode = iterator.next()
@@ -155,9 +161,9 @@ public class ClassSignatureRule :
                         return currentNode
                     }
                 }
-                return modifierList.nextCodeSibling()
+                return modifierList.nextCodeSibling20
             }
-        return nextCodeLeaf()
+        return nextCodeLeaf
     }
 
     private fun visitClass(
@@ -180,7 +186,7 @@ public class ClassSignatureRule :
 
     private fun ASTNode.containsEolComment() =
         getPrimaryConstructorParameterListOrNull()
-            ?.children()
+            ?.children20
             ?.any { it.elementType == EOL_COMMENT }
             ?: false
 
@@ -201,10 +207,10 @@ public class ClassSignatureRule :
 
     private fun ASTNode.classSignatureExcludingSuperTypesIsMultiline() =
         classSignatureNodes(excludeSuperTypes = true)
-            .any { it.textContains('\n') }
+            .any { it.isWhiteSpaceWithNewline20 }
 
     private fun ASTNode.getClassSignatureLength(excludeSuperTypes: Boolean) =
-        indent(false).length + getClassSignatureNodesLength(excludeSuperTypes)
+        indentWithoutNewlinePrefix.length + getClassSignatureNodesLength(excludeSuperTypes)
 
     private fun ASTNode.getClassSignatureNodesLength(excludeSuperTypes: Boolean) =
         classSignatureNodes(excludeSuperTypes)
@@ -213,21 +219,21 @@ public class ClassSignatureRule :
 
     private fun ASTNode.containsMultilineParameter(): Boolean =
         getPrimaryConstructorParameterListOrNull()
-            ?.children()
+            ?.children20
             .orEmpty()
             .filter { it.elementType == VALUE_PARAMETER }
             .any { it.textContains('\n') }
 
     private fun ASTNode.containsAnnotatedParameter(): Boolean =
         getPrimaryConstructorParameterListOrNull()
-            ?.children()
+            ?.children20
             .orEmpty()
             .filter { it.elementType == VALUE_PARAMETER }
             .any { it.isAnnotated() }
 
     private fun ASTNode.isAnnotated() =
         findChildByType(MODIFIER_LIST)
-            ?.children()
+            ?.children20
             .orEmpty()
             .any { it.elementType == ANNOTATION_ENTRY }
 
@@ -242,7 +248,7 @@ public class ClassSignatureRule :
         val primaryConstructorParameterList = node.getPrimaryConstructorParameterListOrNull()
         val hasNoValueParameters =
             primaryConstructorParameterList
-                ?.children()
+                ?.children20
                 .orEmpty()
                 .none { it.elementType == VALUE_PARAMETER }
 
@@ -274,7 +280,7 @@ public class ClassSignatureRule :
             ?.takeUnless {
                 // Allow:
                 //     class Foo constructor() { ... }
-                it.prevCodeSibling()?.elementType == CONSTRUCTOR_KEYWORD
+                it.prevCodeSibling20?.elementType == CONSTRUCTOR_KEYWORD
             }?.takeUnless {
                 // Allow
                 //     class Foo() {
@@ -284,10 +290,10 @@ public class ClassSignatureRule :
                 //     }
                 node
                     .findChildByType(CLASS_BODY)
-                    ?.findChildByType(ElementType.SECONDARY_CONSTRUCTOR)
-                    ?.findChildByType(ElementType.CONSTRUCTOR_DELEGATION_CALL)
+                    ?.findChildByType(SECONDARY_CONSTRUCTOR)
+                    ?.findChildByType(CONSTRUCTOR_DELEGATION_CALL)
                     ?.firstChildNode
-                    ?.elementType == ElementType.CONSTRUCTOR_DELEGATION_REFERENCE
+                    ?.elementType == CONSTRUCTOR_DELEGATION_REFERENCE
             }?.let { parameterList ->
                 if (!dryRun) {
                     emit(parameterList.startOffset, "No parenthesis expected", true)
@@ -300,7 +306,7 @@ public class ClassSignatureRule :
         return whiteSpaceCorrection
     }
 
-    private fun ASTNode.containsComment() = children().any { it.isPartOfComment() }
+    private fun ASTNode.containsComment() = children20.any { it.isPartOfComment20 }
 
     private fun fixWhiteSpacesBeforeFirstParameterInValueParameterList(
         node: ASTNode,
@@ -313,19 +319,17 @@ public class ClassSignatureRule :
         val valueParameterList = node.getPrimaryConstructorParameterListOrNull()
         val firstParameterInList =
             valueParameterList
-                ?.children()
+                ?.children20
                 ?.first { it.elementType == VALUE_PARAMETER }
                 ?: return 0
 
         val firstParameter = firstParameterInList.firstChildNode
         firstParameter
-            ?.prevLeaf()
-            ?.takeIf { it.elementType == WHITE_SPACE }
+            ?.prevLeaf
+            ?.takeIf { it.isWhiteSpace20 }
             .let { whiteSpaceBeforeIdentifier ->
                 if (multiline) {
-                    if (whiteSpaceBeforeIdentifier == null ||
-                        !whiteSpaceBeforeIdentifier.textContains('\n')
-                    ) {
+                    if (whiteSpaceBeforeIdentifier.isWhiteSpaceWithoutNewlineOrNull) {
                         // Let indent rule determine the exact indent
                         val expectedParameterIndent = indentConfig.childIndentOf(node)
                         if (!dryRun) {
@@ -366,24 +370,22 @@ public class ClassSignatureRule :
         val valueParameterList = node.getPrimaryConstructorParameterListOrNull()
         val firstParameterInList =
             valueParameterList
-                ?.children()
+                ?.children20
                 ?.first { it.elementType == VALUE_PARAMETER }
                 ?: return 0
 
         valueParameterList
-            .children()
+            .children20
             .filter { it.elementType == VALUE_PARAMETER }
             .filter { it != firstParameterInList }
             .forEach { valueParameter ->
                 val firstChildNodeInValueParameter = valueParameter.firstChildNode
                 firstChildNodeInValueParameter
-                    ?.prevLeaf()
-                    ?.takeIf { it.elementType == WHITE_SPACE }
+                    ?.prevLeaf
+                    ?.takeIf { it.isWhiteSpace20 }
                     .let { whiteSpaceBeforeIdentifier ->
                         if (multiline) {
-                            if (whiteSpaceBeforeIdentifier == null ||
-                                !whiteSpaceBeforeIdentifier.textContains('\n')
-                            ) {
+                            if (whiteSpaceBeforeIdentifier.isWhiteSpaceWithoutNewlineOrNull) {
                                 // Let IndentationRule determine the exact indent
                                 val expectedParameterIndent = indentConfig.childIndentOf(node)
                                 if (!dryRun) {
@@ -426,15 +428,13 @@ public class ClassSignatureRule :
                 .getPrimaryConstructorParameterListOrNull()
                 ?.findChildByType(RPAR)
         closingParenthesisPrimaryConstructor
-            ?.prevSibling()
-            ?.takeIf { it.elementType == WHITE_SPACE }
+            ?.prevSibling20
+            ?.takeIf { it.isWhiteSpace20 }
             .let { whiteSpaceBeforeClosingParenthesis ->
                 if (multiline) {
-                    if (whiteSpaceBeforeClosingParenthesis == null ||
-                        !whiteSpaceBeforeClosingParenthesis.textContains('\n')
-                    ) {
+                    if (whiteSpaceBeforeClosingParenthesis.isWhiteSpaceWithoutNewlineOrNull) {
                         // Let IndentationRule determine the exact indent
-                        val expectedParameterIndent = node.indent()
+                        val expectedParameterIndent = node.indent20
                         if (!dryRun) {
                             emit(closingParenthesisPrimaryConstructor!!.startOffset, "Newline expected before closing parenthesis", true)
                                 .ifAutocorrectAllowed {
@@ -446,7 +446,7 @@ public class ClassSignatureRule :
                     }
                 } else {
                     if (whiteSpaceBeforeClosingParenthesis != null &&
-                        whiteSpaceBeforeClosingParenthesis.nextLeaf()?.elementType == RPAR
+                        whiteSpaceBeforeClosingParenthesis.nextLeaf?.elementType == RPAR
                     ) {
                         if (!dryRun) {
                             emit(
@@ -484,11 +484,9 @@ public class ClassSignatureRule :
 
                             // Remove the whitespace before the super type call and do not insert a new whitespace as it will be fixed later
                             superTypeCallEntry
-                                .prevSibling()
-                                ?.takeIf { it.elementType == WHITE_SPACE }
-                                ?.let { whitespaceBeforeSuperTypeCallEntry ->
-                                    superTypeList.removeChild(whitespaceBeforeSuperTypeCallEntry)
-                                }
+                                .prevSibling20
+                                ?.takeIf { it.isWhiteSpace20 }
+                                ?.remove()
 
                             superTypeList.addChild(superTypeCallEntry, superTypes.first())
                             superTypeList.addChild(commaBeforeSuperTypeCall, originalFirstSuperType)
@@ -509,9 +507,9 @@ public class ClassSignatureRule :
                     .first()
                     .let { firstSuperType ->
                         firstSuperType
-                            .prevLeaf()
-                            .takeIf { it.isWhiteSpaceWithNewline() }
-                            ?.takeUnless { it.prevSibling()?.elementType == EOL_COMMENT }
+                            .prevLeaf
+                            .takeIf { it.isWhiteSpaceWithNewline20 }
+                            ?.takeUnless { it.prevSibling20?.elementType == EOL_COMMENT }
                             ?.let { whiteSpaceBeforeSuperType ->
                                 val expectedWhitespace = " "
                                 if (whiteSpaceBeforeSuperType.text != expectedWhitespace) {
@@ -528,15 +526,13 @@ public class ClassSignatureRule :
                     .firstChildNode
                     ?.let { superTypeFirstChildNode ->
                         superTypeFirstChildNode
-                            .prevLeaf()
-                            ?.takeIf { it.elementType == WHITE_SPACE }
+                            .prevLeaf
+                            ?.takeIf { it.isWhiteSpace20 }
                             .let { whiteSpaceBeforeIdentifier ->
                                 if (node.hasMultilineSuperTypeList() ||
                                     classSignaturesIncludingFirstSuperTypeExceedsMaxLineLength(node, emit)
                                 ) {
-                                    if (whiteSpaceBeforeIdentifier == null ||
-                                        !whiteSpaceBeforeIdentifier.textContains('\n')
-                                    ) {
+                                    if (whiteSpaceBeforeIdentifier.isWhiteSpaceWithoutNewlineOrNull) {
                                         emit(superTypeFirstChildNode.startOffset, "Super type should start on a newline", true)
                                             .ifAutocorrectAllowed {
                                                 // Let IndentationRule determine the exact indent
@@ -562,12 +558,12 @@ public class ClassSignatureRule :
                 .forEachIndexed { index, superType ->
                     val firstChildNodeInSuperType = superType.firstChildNode
                     firstChildNodeInSuperType
-                        ?.prevLeaf()
-                        ?.takeIf { it.elementType == WHITE_SPACE }
+                        ?.prevLeaf
+                        ?.takeIf { it.isWhiteSpace20 }
                         .let { whiteSpaceBeforeIdentifier ->
                             if (index == 0 && node.hasMultilinePrimaryConstructor()) {
                                 val expectedWhitespace = " "
-                                if (whiteSpaceBeforeIdentifier?.prevLeaf()?.elementType != EOL_COMMENT &&
+                                if (whiteSpaceBeforeIdentifier?.prevLeaf?.elementType != EOL_COMMENT &&
                                     (whiteSpaceBeforeIdentifier == null || whiteSpaceBeforeIdentifier.text != expectedWhitespace)
                                 ) {
                                     emit(firstChildNodeInSuperType.startOffset, "Expected single space before the first super type", true)
@@ -576,9 +572,7 @@ public class ClassSignatureRule :
                                         }
                                 }
                             } else {
-                                if (whiteSpaceBeforeIdentifier == null ||
-                                    !whiteSpaceBeforeIdentifier.textContains('\n')
-                                ) {
+                                if (whiteSpaceBeforeIdentifier.isWhiteSpaceWithoutNewlineOrNull) {
                                     emit(firstChildNodeInSuperType.startOffset, "Super type should start on a newline", true)
                                         .ifAutocorrectAllowed {
                                             // Let IndentationRule determine the exact indent
@@ -625,8 +619,8 @@ public class ClassSignatureRule :
         findChildByType(PRIMARY_CONSTRUCTOR)
             ?.findChildByType(VALUE_PARAMETER_LIST)
             ?.findChildByType(RPAR)
-            ?.prevLeaf { !it.isPartOfComment() }
-            .isWhiteSpaceWithNewline()
+            ?.prevLeaf { !it.isPartOfComment20 }
+            .isWhiteSpaceWithNewline20
 
     private fun fixClassBody(
         node: ASTNode,
@@ -635,11 +629,11 @@ public class ClassSignatureRule :
         node
             .findChildByType(CLASS_BODY)
             ?.let { classBody ->
-                if (classBody.prevLeaf()?.text != " ") {
+                if (classBody.prevLeaf?.text != " ") {
                     emit(classBody.startOffset, "Expected a single space before class body", true)
                         .ifAutocorrectAllowed {
                             classBody
-                                .prevLeaf(true)
+                                .prevLeaf
                                 ?.upsertWhitespaceAfterMe(" ")
                         }
                 }
@@ -651,10 +645,10 @@ public class ClassSignatureRule :
     private fun List<ASTNode>.collectLeavesRecursively(): List<ASTNode> = flatMap { it.collectLeavesRecursively() }
 
     private fun ASTNode.collectLeavesRecursively(): List<ASTNode> =
-        if (isLeaf()) {
+        if (isLeaf20) {
             listOf(this)
         } else {
-            children()
+            children20
                 .flatMap { it.collectLeavesRecursively() }
                 .toList()
         }
@@ -692,7 +686,7 @@ public class ClassSignatureRule :
 
     private fun ASTNode.countParameters() =
         getPrimaryConstructorParameterListOrNull()
-            ?.children()
+            ?.children20
             .orEmpty()
             .count { it.elementType == VALUE_PARAMETER }
 

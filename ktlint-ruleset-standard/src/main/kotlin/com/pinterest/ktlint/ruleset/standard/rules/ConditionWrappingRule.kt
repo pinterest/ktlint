@@ -9,22 +9,23 @@ import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.isCode
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.leavesInClosedRange
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
+import org.jetbrains.kotlin.psi.psiUtil.parents
 
 /**
  * Wraps a condition (a boolean binary expression) whenever the expression does not fit on the line. In addition to the
@@ -74,14 +75,14 @@ public class ConditionWrappingRule :
     ) {
         node
             .findChildByType(OPERATION_REFERENCE)
-            ?.takeUnless { it.nextSibling().isWhiteSpaceWithNewline() }
+            ?.takeUnless { it.nextSibling20.isWhiteSpaceWithNewline20 }
             ?.let { operationReference ->
                 val startOffset =
                     with(operationReference) { startOffset + textLength }
                         .plus(
                             operationReference
-                                .nextSibling()
-                                ?.takeIf { it.isWhiteSpace() }
+                                .nextSibling20
+                                ?.takeIf { it.isWhiteSpace20 }
                                 ?.textLength
                                 ?: 0,
                         )
@@ -100,32 +101,27 @@ public class ConditionWrappingRule :
         }
 
         return anyParentBinaryExpression { parent ->
-            parent.children().any { it.isWhiteSpaceWithNewline() }
+            parent.children20.any { it.isWhiteSpaceWithNewline20 }
         }
     }
 
-    private fun ASTNode.leftHandSide() = children().firstOrNull { !it.isWhiteSpace() && !it.isPartOfComment() }
+    private fun ASTNode.leftHandSide() = children20.firstOrNull { it.isCode }
 
-    private fun ASTNode.rightHandSide() = children().lastOrNull { !it.isWhiteSpace() && !it.isPartOfComment() }
+    private fun ASTNode.rightHandSide() = children20.lastOrNull { it.isCode }
 
     private fun ASTNode?.isMultilineOperand() =
         if (this == null) {
             false
         } else {
-            leavesInClosedRange(this.firstChildLeafOrSelf(), this.lastChildLeafOrSelf())
-                .any { it.isWhiteSpaceWithNewline() }
+            leavesInClosedRange(this.firstChildLeafOrSelf20, this.lastChildLeafOrSelf20)
+                .any { it.isWhiteSpaceWithNewline20 }
         }
 
-    private fun ASTNode.anyParentBinaryExpression(predicate: (ASTNode) -> Boolean): Boolean {
-        var current = this
-        while (current.elementType == BINARY_EXPRESSION) {
-            if (predicate(current)) {
-                return true
-            }
-            current = current.treeParent
-        }
-        return false
-    }
+    private fun ASTNode.anyParentBinaryExpression(predicate: (ASTNode) -> Boolean): Boolean =
+        null !=
+            parents()
+                .takeWhile { it.elementType == BINARY_EXPRESSION }
+                .firstOrNull { predicate(it) }
 
     private companion object {
         val logicalOperators = TokenSet.create(OROR, ANDAND)

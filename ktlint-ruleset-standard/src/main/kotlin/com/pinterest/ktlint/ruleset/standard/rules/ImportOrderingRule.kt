@@ -2,14 +2,19 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK_COMMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.IMPORT_DIRECTIVE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.IMPORT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.ImportOrderingRule.Companion.ASCII_PATTERN
 import com.pinterest.ktlint.ruleset.standard.rules.ImportOrderingRule.Companion.IDEA_PATTERN
@@ -60,14 +65,14 @@ public class ImportOrderingRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.elementType == ElementType.IMPORT_LIST) {
+        if (node.elementType == IMPORT_LIST) {
             val children = node.getChildren(null)
             if (children.isNotEmpty()) {
                 // Get unique imports and blank lines
                 val (autoCorrectDuplicateImports: Boolean, imports: List<ASTNode>) =
                     getUniqueImportsAndBlankLines(children, emit)
 
-                val hasComments = children.any { it.elementType == ElementType.BLOCK_COMMENT || it.elementType == ElementType.EOL_COMMENT }
+                val hasComments = children.any { it.elementType == BLOCK_COMMENT || it.elementType == EOL_COMMENT }
                 val sortedImports =
                     imports
                         .asSequence()
@@ -119,10 +124,10 @@ public class ImportOrderingRule :
                         ).ifAutocorrectAllowed { autocorrect = true }
                     }
                     if (autocorrect) {
-                        node.removeRange(node.firstChildNode, node.lastChildNode.treeNext)
+                        node.removeRange(node.firstChildNode, node.lastChildNode.nextSibling20)
                         sortedImportsWithSpaces.reduce { current, next ->
                             node.addChild(current, null)
-                            if (current !is PsiWhiteSpace && next !is PsiWhiteSpace) {
+                            if (!current.isWhiteSpace20 && !next.isWhiteSpace20) {
                                 node.addChild(PsiWhiteSpaceImpl("\n"), null)
                             }
                             return@reduce next
@@ -144,11 +149,11 @@ public class ImportOrderingRule :
 
         children.forEach { current ->
             when {
-                current.isWhiteSpace() && current.text.count { it == '\n' } > 1 -> {
+                current.isWhiteSpace20 && current.text.count { it == '\n' } > 1 -> {
                     imports += current
                 }
 
-                current.elementType == ElementType.IMPORT_DIRECTIVE -> {
+                current.elementType == IMPORT_DIRECTIVE -> {
                     if (importTextSet.add(current.text)) {
                         imports += current
                     } else {
@@ -170,7 +175,7 @@ public class ImportOrderingRule :
 
         val combined = actual.zip(expected)
         return combined.all { (first, second) ->
-            if (first is PsiWhiteSpace && second is PsiWhiteSpace) {
+            if (first.isWhiteSpace20 && second.isWhiteSpace20) {
                 return@all (first as PsiWhiteSpace).text == (second as PsiWhiteSpace).text
             }
             return@all first == second
@@ -179,11 +184,7 @@ public class ImportOrderingRule :
 
     private fun isCustomLayout() = importsLayout != IDEA_PATTERN && importsLayout != ASCII_PATTERN
 
-    private fun hasTooMuchWhitespace(nodes: Array<ASTNode>): Boolean =
-        nodes.any {
-            it is PsiWhiteSpace &&
-                (it as PsiWhiteSpace).text != "\n"
-        }
+    private fun hasTooMuchWhitespace(nodes: Array<ASTNode>): Boolean = nodes.any { it.isWhiteSpaceWithoutNewline20 }
 
     public companion object {
         /**

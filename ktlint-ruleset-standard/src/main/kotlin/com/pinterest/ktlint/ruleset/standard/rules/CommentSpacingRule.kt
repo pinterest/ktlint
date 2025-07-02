@@ -5,11 +5,12 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 @SinceKtlint("0.23", SinceKtlint.Status.STABLE)
@@ -19,8 +20,8 @@ public class CommentSpacingRule : StandardRule("comment-spacing") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == EOL_COMMENT) {
-            val prevLeaf = node.prevLeaf()
-            if (prevLeaf !is PsiWhiteSpace && prevLeaf is LeafPsiElement) {
+            val prevLeaf = node.prevLeaf
+            if (!prevLeaf.isWhiteSpace20 && prevLeaf is LeafPsiElement) {
                 emit(node.startOffset, "Missing space before //", true)
                     .ifAutocorrectAllowed {
                         node.upsertWhitespaceBeforeMe(" ")
@@ -36,7 +37,7 @@ public class CommentSpacingRule : StandardRule("comment-spacing") {
             ) {
                 emit(node.startOffset, "Missing space after //", true)
                     .ifAutocorrectAllowed {
-                        (node as LeafPsiElement).rawReplaceWithText("// " + text.removePrefix("//"))
+                        node.replaceTextWith("// " + text.removePrefix("//"))
                     }
             }
         }

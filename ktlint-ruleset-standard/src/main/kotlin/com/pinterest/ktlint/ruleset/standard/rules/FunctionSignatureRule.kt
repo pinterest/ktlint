@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATED_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
@@ -15,6 +14,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPEN_QUOTE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
@@ -26,7 +26,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
@@ -35,20 +35,24 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY_OFF
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent
-import com.pinterest.ktlint.rule.engine.core.api.isCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.isLeaf
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.indent20
+import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
+import com.pinterest.ktlint.rule.engine.core.api.isCode
+import com.pinterest.ktlint.rule.engine.core.api.isLeaf20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewlineOrNull
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -58,7 +62,6 @@ import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.Functio
 import org.ec4j.core.model.PropertyType
 import org.ec4j.core.model.PropertyType.PropertyValueParser.EnumValueParser
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 
 @SinceKtlint("0.46", EXPERIMENTAL)
@@ -139,7 +142,7 @@ public class FunctionSignatureRule :
         //     fun foo(bar: String) {
         // or
         //     fun foo(bar: String) =
-        val firstCodeChild = getFirstCodeChild()?.firstChildLeafOrSelf()
+        val firstCodeChild = getFirstCodeChild()?.firstChildLeafOrSelf20
         val startOfBodyBlock =
             this
                 .findChildByType(BLOCK)
@@ -155,23 +158,23 @@ public class FunctionSignatureRule :
     private fun ASTNode.getFirstCodeChild(): ASTNode? {
         val funNode =
             if (elementType == FUN_KEYWORD) {
-                this.treeParent
+                this.parent
             } else {
                 this
             }
         funNode
             ?.findChildByType(MODIFIER_LIST)
             ?.let { modifierList ->
-                val iterator = modifierList.children().iterator()
+                val iterator = modifierList.children20.iterator()
                 var currentNode: ASTNode
                 while (iterator.hasNext()) {
                     currentNode = iterator.next()
                     if (currentNode.elementType == CONTEXT_RECEIVER_LIST) {
                         return currentNode
-                            .lastChildLeafOrSelf()
-                            .nextLeaf()
+                            .lastChildLeafOrSelf20
+                            .nextLeaf
                             .let { leafAfterCompositeContextReceiverList ->
-                                if (leafAfterCompositeContextReceiverList.isWhiteSpaceWithNewline()) {
+                                if (leafAfterCompositeContextReceiverList.isWhiteSpaceWithNewline20) {
                                     // Ignore context receiver when followed by newline or EOL comment. Also, ignore that newline or EOL
                                     // comment.
                                     //     context(Foo)
@@ -180,7 +183,7 @@ public class FunctionSignatureRule :
                                     //     context(_: Foo)
                                     //     fun foo()
                                     // Same when using context parameter instead of context receiver
-                                    leafAfterCompositeContextReceiverList?.nextLeaf()
+                                    leafAfterCompositeContextReceiverList?.nextLeaf
                                 } else {
                                     currentNode
                                 }
@@ -192,10 +195,10 @@ public class FunctionSignatureRule :
                         return currentNode
                     }
                 }
-                return modifierList.nextCodeSibling()
+                return modifierList.nextCodeSibling20
             }
 
-        return funNode.nextCodeLeaf()
+        return funNode?.nextCodeLeaf
     }
 
     private fun visitFunctionSignature(
@@ -268,27 +271,27 @@ public class FunctionSignatureRule :
                     endASTNodePredicate = { false },
                 )
 
-        return node.indent(false).length +
+        return node.indentWithoutNewlinePrefix.length +
             tailNodesOfFunctionSignature.sumOf { it.text.length }
     }
 
     private fun ASTNode.containsMultilineParameter(): Boolean =
         findChildByType(VALUE_PARAMETER_LIST)
-            ?.children()
+            ?.children20
             .orEmpty()
             .filter { it.elementType == VALUE_PARAMETER }
             .any { it.textContains('\n') }
 
     private fun ASTNode.containsAnnotatedParameter(): Boolean =
         findChildByType(VALUE_PARAMETER_LIST)
-            ?.children()
+            ?.children20
             .orEmpty()
             .filter { it.elementType == VALUE_PARAMETER }
             .any { it.isAnnotated() }
 
     private fun ASTNode.isAnnotated() =
         findChildByType(MODIFIER_LIST)
-            ?.children()
+            ?.children20
             .orEmpty()
             .any { it.elementType == ANNOTATION_ENTRY }
 
@@ -310,7 +313,7 @@ public class FunctionSignatureRule :
             }
     }
 
-    private fun ASTNode.getFunctionSignatureLength() = indent(false).length + getFunctionSignatureNodesLength()
+    private fun ASTNode.getFunctionSignatureLength() = indentWithoutNewlinePrefix.length + getFunctionSignatureNodesLength()
 
     private fun ASTNode.getFunctionSignatureNodesLength() =
         functionSignatureNodes()
@@ -328,7 +331,7 @@ public class FunctionSignatureRule :
         val valueParameterList = requireNotNull(node.findChildByType(VALUE_PARAMETER_LIST))
         val firstParameterInList =
             valueParameterList
-                .children()
+                .children20
                 .firstOrNull { it.elementType == VALUE_PARAMETER }
 
         whiteSpaceCorrection +=
@@ -354,7 +357,7 @@ public class FunctionSignatureRule :
         val valueParameterList = requireNotNull(node.findChildByType(VALUE_PARAMETER_LIST))
 
         valueParameterList
-            .children()
+            .children20
             .filter { it.elementType != LPAR && it.elementType != RPAR }
             .also { elementsInValueParameterList ->
                 // Functions with comments in the value parameter list are excluded from processing before. So an "empty" value
@@ -387,13 +390,13 @@ public class FunctionSignatureRule :
         val valueParameterList = requireNotNull(node.findChildByType(VALUE_PARAMETER_LIST))
         val firstParameterInList =
             valueParameterList
-                .children()
+                .children20
                 .first { it.elementType == VALUE_PARAMETER }
 
         val firstParameter = firstParameterInList.firstChildNode
         firstParameter
-            ?.prevLeaf()
-            ?.takeIf { it.elementType == WHITE_SPACE }
+            ?.prevLeaf
+            ?.takeIf { it.isWhiteSpace20 }
             .let { whiteSpaceBeforeIdentifier ->
                 if (multiline) {
                     val expectedParameterIndent = indentConfig.childIndentOf(node)
@@ -441,18 +444,18 @@ public class FunctionSignatureRule :
         val valueParameterList = requireNotNull(node.findChildByType(VALUE_PARAMETER_LIST))
         val firstParameterInList =
             valueParameterList
-                .children()
+                .children20
                 .first { it.elementType == VALUE_PARAMETER }
 
         valueParameterList
-            .children()
+            .children20
             .filter { it.elementType == VALUE_PARAMETER }
             .filter { it != firstParameterInList }
             .forEach { valueParameter ->
                 val firstChildNodeInValueParameter = valueParameter.firstChildNode
                 firstChildNodeInValueParameter
-                    ?.prevLeaf()
-                    ?.takeIf { it.elementType == WHITE_SPACE }
+                    ?.prevLeaf
+                    ?.takeIf { it.isWhiteSpace20 }
                     .let { whiteSpaceBeforeIdentifier ->
                         if (multiline) {
                             val expectedParameterIndent = indentConfig.childIndentOf(node)
@@ -500,13 +503,13 @@ public class FunctionSignatureRule :
     ): Int {
         var whiteSpaceCorrection = 0
 
-        val newlineAndIndent = node.indent()
+        val newlineAndIndent = node.indent20
         val valueParameterList = requireNotNull(node.findChildByType(VALUE_PARAMETER_LIST))
 
         val closingParenthesis = valueParameterList.findChildByType(RPAR)
         closingParenthesis
-            ?.prevSibling()
-            ?.takeIf { it.elementType == WHITE_SPACE }
+            ?.prevSibling20
+            ?.takeIf { it.isWhiteSpace20 }
             .let { whiteSpaceBeforeClosingParenthesis ->
                 if (multiline) {
                     if (whiteSpaceBeforeClosingParenthesis == null ||
@@ -526,7 +529,7 @@ public class FunctionSignatureRule :
                     }
                 } else {
                     if (whiteSpaceBeforeClosingParenthesis != null &&
-                        whiteSpaceBeforeClosingParenthesis.nextLeaf()?.elementType == RPAR
+                        whiteSpaceBeforeClosingParenthesis.nextLeaf?.elementType == RPAR
                     ) {
                         if (!dryRun) {
                             emit(
@@ -551,11 +554,11 @@ public class FunctionSignatureRule :
         val lastNodeOfFunctionSignatureWithBodyExpression =
             node
                 .findChildByType(EQ)
-                ?.nextLeaf(includeEmpty = true)
+                ?.nextLeaf
                 ?: return
         val bodyNodes = node.getFunctionBody(lastNodeOfFunctionSignatureWithBodyExpression)
         val whiteSpaceBeforeFunctionBodyExpression = bodyNodes.getStartingWhitespaceOrNull()
-        val functionBodyExpressionNodes = bodyNodes.dropWhile { it.isWhiteSpace() }
+        val functionBodyExpressionNodes = bodyNodes.dropWhile { it.isWhiteSpace20 }
 
         val functionBodyExpressionLines =
             functionBodyExpressionNodes
@@ -564,9 +567,9 @@ public class FunctionSignatureRule :
         functionBodyExpressionLines
             .firstOrNull()
             ?.also { firstLineOfBodyExpression ->
-                if (whiteSpaceBeforeFunctionBodyExpression.isWhiteSpaceWithNewline()) {
+                if (whiteSpaceBeforeFunctionBodyExpression.isWhiteSpaceWithNewline20) {
                     lastNodeOfFunctionSignatureWithBodyExpression
-                        .nextCodeSibling()
+                        .nextCodeSibling20
                         .takeIf { it?.elementType == ANNOTATED_EXPRESSION }
                         ?.let {
                             // Never merge an annotated expression body with function signature as this conflicts with the Annotation rule
@@ -595,13 +598,9 @@ public class FunctionSignatureRule :
                             whiteSpaceBeforeFunctionBodyExpression!!.startOffset,
                             "First line of body expression fits on same line as function signature",
                             true,
-                        ).ifAutocorrectAllowed {
-                            (whiteSpaceBeforeFunctionBodyExpression as LeafPsiElement).rawReplaceWithText(" ")
-                        }
+                        ).ifAutocorrectAllowed { whiteSpaceBeforeFunctionBodyExpression.replaceTextWith(" ") }
                     }
-                } else if (whiteSpaceBeforeFunctionBodyExpression == null ||
-                    !whiteSpaceBeforeFunctionBodyExpression.textContains('\n')
-                ) {
+                } else if (whiteSpaceBeforeFunctionBodyExpression.isWhiteSpaceWithoutNewlineOrNull) {
                     if (node.isMultilineFunctionSignatureWithoutExplicitReturnType(lastNodeOfFunctionSignatureWithBodyExpression) &&
                         firstLineOfBodyExpression.length + 1 <= maxLengthRemainingForFirstLineOfBodyExpression &&
                         functionBodyExpressionWrapping != always
@@ -638,11 +637,11 @@ public class FunctionSignatureRule :
     }
 
     private fun List<ASTNode>.isMultilineStringTemplate() =
-        first { it.isCodeLeaf() }
+        first { it.isCode }
             .let {
-                it.elementType == ElementType.OPEN_QUOTE &&
+                it.elementType == OPEN_QUOTE &&
                     it
-                        .nextLeaf()
+                        .nextLeaf
                         ?.text
                         .orEmpty()
                         .startsWith("\n")
@@ -671,8 +670,8 @@ public class FunctionSignatureRule :
             ?.takeIf { it.findChildByType(LBRACE) != null }
             ?.let { block ->
                 block
-                    .prevLeaf()
-                    .takeIf { it.isWhiteSpace() }
+                    .prevLeaf
+                    .takeIf { it.isWhiteSpace20 }
                     .let { whiteSpaceBeforeBlock ->
                         if (whiteSpaceBeforeBlock == null || whiteSpaceBeforeBlock.text != " ") {
                             if (!dryRun) {
@@ -704,17 +703,17 @@ public class FunctionSignatureRule :
     private fun List<ASTNode>.getStartingWhitespaceOrNull() =
         this
             .firstOrNull()
-            ?.takeIf { first -> first.isWhiteSpace() }
+            ?.takeIf { first -> first.isWhiteSpace20 }
 
     private fun isMaxLineLengthSet() = maxLineLength != MAX_LINE_LENGTH_PROPERTY_OFF
 
     private fun List<ASTNode>.collectLeavesRecursively(): List<ASTNode> = flatMap { it.collectLeavesRecursively() }
 
     private fun ASTNode.collectLeavesRecursively(): List<ASTNode> =
-        if (isLeaf()) {
+        if (isLeaf20) {
             listOf(this)
         } else {
-            children()
+            children20
                 .flatMap { it.collectLeavesRecursively() }
                 .toList()
         }
@@ -754,7 +753,7 @@ public class FunctionSignatureRule :
     private fun ASTNode.countParameters(): Int {
         val valueParameterList = requireNotNull(findChildByType(VALUE_PARAMETER_LIST))
         return valueParameterList
-            .children()
+            .children20
             .count { it.elementType == VALUE_PARAMETER }
     }
 

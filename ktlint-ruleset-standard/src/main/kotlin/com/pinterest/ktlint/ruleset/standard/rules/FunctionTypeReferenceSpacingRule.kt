@@ -5,12 +5,12 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.NULLABLE_TYPE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -47,7 +47,7 @@ public class FunctionTypeReferenceSpacingRule : StandardRule("function-type-refe
             if (currentNode.elementType == TYPE_REFERENCE) {
                 return currentNode
             }
-            currentNode = currentNode.nextSibling()
+            currentNode = currentNode.nextSibling20
         }
         return null
     }
@@ -58,7 +58,7 @@ public class FunctionTypeReferenceSpacingRule : StandardRule("function-type-refe
     ) {
         var currentNode: ASTNode? = node
         while (currentNode != null && currentNode.elementType != VALUE_PARAMETER_LIST) {
-            val nextNode = currentNode.nextSibling()
+            val nextNode = currentNode.nextSibling20
             removeIfNonEmptyWhiteSpace(currentNode, emit)
             currentNode = nextNode
         }
@@ -68,7 +68,7 @@ public class FunctionTypeReferenceSpacingRule : StandardRule("function-type-refe
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.elementType == WHITE_SPACE && node.text.isNotEmpty()) {
+        if (node.isWhiteSpace20 && node.text.isNotEmpty()) {
             emit(node.startOffset, "Unexpected whitespace", true)
                 .ifAutocorrectAllowed { node.remove() }
         }

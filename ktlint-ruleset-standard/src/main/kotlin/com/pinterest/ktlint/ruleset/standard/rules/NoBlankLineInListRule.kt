@@ -8,18 +8,19 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_CONSTRAINT_LIS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 
 @SinceKtlint("0.49", EXPERIMENTAL)
@@ -31,14 +32,14 @@ public class NoBlankLineInListRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.elementType != WHITE_SPACE) {
+        if (!node.isWhiteSpace20) {
             return
         }
 
         node
-            .treeParent
-            .elementType
-            .takeIf { it in LIST_TYPES }
+            .parent
+            ?.elementType
+            ?.takeIf { it in LIST_TYPES }
             ?.let { treeParentElementType ->
                 visitWhiteSpace(node, emit, treeParentElementType)
             }
@@ -49,7 +50,7 @@ public class NoBlankLineInListRule :
         // the SUPER_TYPE_LIST of a CLASS the whitespaces before the first super type is a child of the CLASS. The whitespace after the last
         // SUPER_TYPE is part of the class only when the class has a body.
         node
-            .nextSibling()
+            .nextSibling20
             ?.elementType
             ?.takeIf { it in LIST_TYPES }
             ?.let { treeParentElementType ->
@@ -67,7 +68,7 @@ public class NoBlankLineInListRule :
         // the SUPER_TYPE_LIST of a CLASS the whitespaces before the first super type is a child of the CLASS. The whitespace after the last
         // SUPER_TYPE is part of the class only when the class has a body.
         node
-            .prevSibling()
+            .prevSibling20
             ?.elementType
             ?.takeIf { it in LIST_TYPES }
             ?.let { treeParentElementType ->
@@ -75,7 +76,7 @@ public class NoBlankLineInListRule :
                     node = node,
                     emit = emit,
                     partOfElementType = treeParentElementType,
-                    replaceWithSingeSpace = node.nextSibling()?.elementType == CLASS_BODY,
+                    replaceWithSingeSpace = node.nextSibling20?.elementType == CLASS_BODY,
                 )
             }
     }
@@ -97,9 +98,9 @@ public class NoBlankLineInListRule :
                         true,
                     ).ifAutocorrectAllowed {
                         if (replaceWithSingeSpace) {
-                            (node as LeafPsiElement).rawReplaceWithText(" ")
+                            node.replaceTextWith(" ")
                         } else {
-                            (node as LeafPsiElement).rawReplaceWithText("${lines.first()}\n${lines.last()}")
+                            node.replaceTextWith("${lines.first()}\n${lines.last()}")
                         }
                     }
                 }

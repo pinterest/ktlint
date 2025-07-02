@@ -28,22 +28,24 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isLeaf
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfString
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
-import com.pinterest.ktlint.rule.engine.core.api.leavesIncludingSelf
+import com.pinterest.ktlint.rule.engine.core.api.isCode
+import com.pinterest.ktlint.rule.engine.core.api.isLeaf20
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfString20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
+import com.pinterest.ktlint.rule.engine.core.api.leavesBackwardsIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.remove
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.PsiWhiteSpace
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.lexer.KtTokens
 
 @SinceKtlint("0.1", STABLE)
@@ -76,37 +78,37 @@ public class SpacingAroundCurlyRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.isLeaf() && !node.isPartOfString()) {
-            val prevLeaf = node.prevLeaf()
-            val nextLeaf = node.nextLeaf()
+        if (node.isLeaf20 && !node.isPartOfString20) {
+            val prevLeaf = node.prevLeaf
+            val nextLeaf = node.nextLeaf
             val spacingBefore: Boolean
             val spacingAfter: Boolean
             when (node.elementType) {
                 LBRACE -> {
                     spacingBefore =
-                        prevLeaf.isWhiteSpace() ||
+                        prevLeaf.isWhiteSpace20 ||
                         prevLeaf?.elementType == AT ||
                         (
                             (prevLeaf?.elementType == LPAR || prevLeaf?.elementType == LBRACKET) &&
                                 (
-                                    node.treeParent.elementType == LAMBDA_EXPRESSION ||
-                                        node.treeParent.treeParent.elementType == LAMBDA_EXPRESSION
+                                    node.parent?.elementType == LAMBDA_EXPRESSION ||
+                                        node.parent?.parent?.elementType == LAMBDA_EXPRESSION
                                 )
                         )
-                    spacingAfter = nextLeaf is PsiWhiteSpace || nextLeaf?.elementType == RBRACE
-                    if (prevLeaf.isWhiteSpaceWithoutNewline() &&
+                    spacingAfter = nextLeaf.isWhiteSpace20 || nextLeaf?.elementType == RBRACE
+                    if (prevLeaf.isWhiteSpaceWithoutNewline20 &&
                         prevLeaf!!.isPrecededBy { it.elementType == LPAR || it.elementType == AT }
                     ) {
                         emit(node.startOffset, "Unexpected space before \"${node.text}\"", true)
                             .ifAutocorrectAllowed { prevLeaf.remove() }
                     }
-                    if (prevLeaf.isWhiteSpaceWithNewline() &&
+                    if (prevLeaf.isWhiteSpaceWithNewline20 &&
                         prevLeaf != null &&
                         (
                             prevLeaf.isPrecededBy { it.elementType == RPAR || KtTokens.KEYWORDS.contains(it.elementType) } ||
-                                node.treeParent.elementType == CLASS_BODY ||
+                                node.parent?.elementType == CLASS_BODY ||
                                 // allow newline for lambda return type
-                                (prevLeaf.treeParent.elementType == FUN && prevLeaf.treeNext.elementType != LAMBDA_EXPRESSION)
+                                (prevLeaf.parent?.elementType == FUN && prevLeaf.nextSibling20?.elementType != LAMBDA_EXPRESSION)
                         )
                     ) {
                         prevLeaf
@@ -116,31 +118,31 @@ public class SpacingAroundCurlyRule :
                                         if (prevLeaf.isPrecededByEolComment()) {
                                             // All consecutive whitespaces and comments preceding the curly have to be moved after the curly brace
                                             prevLeaf
-                                                .leavesIncludingSelf(forward = false)
-                                                .takeWhile { it.isWhiteSpace() || it.isPartOfComment() }
+                                                .leavesBackwardsIncludingSelf
+                                                .takeWhile { !it.isCode }
                                                 .toList()
                                                 .reversed()
                                                 .takeIf { it.isNotEmpty() }
                                                 ?.let { leavesToMoveAfterCurly ->
-                                                    node.treeParent.addChildren(
+                                                    node.parent?.addChildren(
                                                         leavesToMoveAfterCurly.first(),
                                                         leavesToMoveAfterCurly.last(),
-                                                        node.treeNext,
+                                                        node.nextSibling20,
                                                     )
                                                 }
                                         }
-                                        (this as LeafPsiElement).rawReplaceWithText(" ")
+                                        replaceTextWith(" ")
                                     }
                             }
                     }
                 }
 
                 RBRACE -> {
-                    spacingBefore = prevLeaf is PsiWhiteSpace || prevLeaf?.elementType == LBRACE
-                    spacingAfter = nextLeaf == null || nextLeaf is PsiWhiteSpace || shouldNotToBeSeparatedBySpace(nextLeaf)
+                    spacingBefore = prevLeaf.isWhiteSpace20 || prevLeaf?.elementType == LBRACE
+                    spacingAfter = nextLeaf == null || nextLeaf.isWhiteSpace20 || shouldNotToBeSeparatedBySpace(nextLeaf)
                     nextLeaf
-                        .takeIf { it.isWhiteSpaceWithoutNewline() }
-                        ?.takeIf { shouldNotToBeSeparatedBySpace(it.nextLeaf()) }
+                        .takeIf { it.isWhiteSpaceWithoutNewline20 }
+                        ?.takeIf { shouldNotToBeSeparatedBySpace(it.nextLeaf) }
                         ?.let { leaf ->
                             emit(node.startOffset, "Unexpected space after \"${node.text}\"", true)
                                 .ifAutocorrectAllowed { leaf.remove() }
@@ -178,13 +180,13 @@ public class SpacingAroundCurlyRule :
     }
 
     private fun ASTNode.isPrecededBy(predicate: (ASTNode) -> Boolean) =
-        prevLeaf()
+        prevLeaf
             ?.let { predicate(it) }
             ?: false
 
     private fun ASTNode.isPrecededByEolComment() =
-        prevLeaf()
-            ?.isPartOfComment()
+        prevLeaf
+            ?.isPartOfComment20
             ?: false
 
     private fun shouldNotToBeSeparatedBySpace(leaf: ASTNode?): Boolean {

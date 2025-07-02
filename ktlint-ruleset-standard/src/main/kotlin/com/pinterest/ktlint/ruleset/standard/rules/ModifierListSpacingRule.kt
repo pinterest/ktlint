@@ -4,20 +4,20 @@ import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children
+import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 /**
  * Lint and format the spacing between the modifiers in and after the last modifier in a modifier list.
@@ -31,7 +31,7 @@ public class ModifierListSpacingRule : StandardRule("modifier-list-spacing") {
     ) {
         if (node.elementType == MODIFIER_LIST) {
             node
-                .children()
+                .children20
                 .forEach { visitModifierChild(it, emit) }
             // The whitespace of the last entry of the modifier list is actually placed outside the modifier list
             visitModifierChild(node, emit)
@@ -42,18 +42,17 @@ public class ModifierListSpacingRule : StandardRule("modifier-list-spacing") {
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.elementType == WHITE_SPACE) {
+        if (node.isWhiteSpace20) {
             return
         }
         node
-            .nextSibling { it.elementType == WHITE_SPACE && it.nextLeaf()?.isPartOfComment() != true }
-            ?.takeIf { it.elementType == WHITE_SPACE }
+            .nextSibling { it.isWhiteSpace20 && it.nextLeaf?.isPartOfComment20 != true }
             ?.takeUnless {
                 // Regardless of element type, a single white space is always ok and does not need to be checked.
                 it.text == " "
             }?.takeUnless {
                 // A single newline after a comment is always ok and does not need further checking.
-                it.text.trim(' ', '\t').contains('\n') && it.prevLeaf()?.isPartOfComment() == true
+                it.text.trim(' ', '\t').contains('\n') && it.prevLeaf?.isPartOfComment20 == true
             }?.let { whitespace ->
                 if (node.isAnnotationElement() ||
                     (node.elementType == MODIFIER_LIST && node.lastChildNode.isAnnotationElement())
@@ -61,22 +60,16 @@ public class ModifierListSpacingRule : StandardRule("modifier-list-spacing") {
                     if (whitespace.text.contains("\n\n")) {
                         emit(whitespace.startOffset, "Single newline expected after annotation", true)
                             .ifAutocorrectAllowed {
-                                (whitespace as LeafPsiElement).rawReplaceWithText(
-                                    "\n".plus(whitespace.text.substringAfterLast("\n")),
-                                )
+                                whitespace.replaceTextWith("\n".plus(whitespace.text.substringAfterLast("\n")))
                             }
                     } else if (!whitespace.text.contains('\n') && whitespace.text != " ") {
                         emit(whitespace.startOffset, "Single whitespace or newline expected after annotation", true)
-                            .ifAutocorrectAllowed {
-                                (whitespace as LeafPsiElement).rawReplaceWithText(" ")
-                            }
+                            .ifAutocorrectAllowed { whitespace.replaceTextWith(" ") }
                     }
                     Unit
                 } else {
                     emit(whitespace.startOffset, "Single whitespace expected after modifier", true)
-                        .ifAutocorrectAllowed {
-                            (whitespace as LeafPsiElement).rawReplaceWithText(" ")
-                        }
+                        .ifAutocorrectAllowed { whitespace.replaceTextWith(" ") }
                 }
             }
     }

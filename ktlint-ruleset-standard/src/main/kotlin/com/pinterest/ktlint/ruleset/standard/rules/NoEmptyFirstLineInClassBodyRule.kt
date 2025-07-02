@@ -12,11 +12,11 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 @SinceKtlint("0.49", EXPERIMENTAL)
 @SinceKtlint("1.0", STABLE)
@@ -47,8 +47,8 @@ public class NoEmptyFirstLineInClassBodyRule :
         if (node.elementType == CLASS_BODY) {
             node
                 .firstChildNode // LBRACE
-                .nextLeaf()
-                .takeIf { it.isWhiteSpaceWithNewline() }
+                .nextLeaf
+                .takeIf { it.isWhiteSpaceWithNewline20 }
                 ?.let { whitespace ->
                     val countNewlines =
                         whitespace
@@ -60,7 +60,7 @@ public class NoEmptyFirstLineInClassBodyRule :
                             "Class body should not start with blank line",
                             true,
                         ).ifAutocorrectAllowed {
-                            (whitespace as LeafPsiElement).rawReplaceWithText(indentConfig.childIndentOf(node))
+                            whitespace.replaceTextWith(indentConfig.childIndentOf(node))
                         }
                     }
                 }
