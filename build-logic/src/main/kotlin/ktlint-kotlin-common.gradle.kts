@@ -64,5 +64,7 @@ tasks.withType<Test>().configureEach {
     ) {
         // workaround for https://github.com/pinterest/ktlint/issues/1618. Java 11 started printing warning logs. Java 16 throws an error
         jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
+        // Suppress warning "sun.misc.Unsafe::objectFieldOffset" on Java24+ (https://github.com/pinterest/ktlint/issues/2973)
+        // jvmArgs("--sun-misc-unsafe-memory-access=allow")
     }
 }

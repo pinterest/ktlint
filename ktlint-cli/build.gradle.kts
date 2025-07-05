@@ -98,6 +98,9 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
                 # Add --add-opens for java version 16 and above
                 X=$( [ "${"$"}JV" -ge "16" ] && echo "--add-opens java.base/java.lang=ALL-UNNAMED" || echo "")
 
+                # Suppress warning "sun.misc.Unsafe::objectFieldOffset" on Java24+ (https://github.com/pinterest/ktlint/issues/2973)
+                X=$( [ "${"$"}JV" -ge "24" ] && echo "--sun-misc-unsafe-memory-access=allow" || echo "")
+
                 exec java ${"$"}X -Xmx512m -jar "$0" "$@"
 
                 """.trimIndent(),
