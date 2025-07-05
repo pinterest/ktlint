@@ -1,13 +1,18 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class NoUnusedImportsRuleTest {
-    private val noUnusedImportsRuleAssertThat = assertThatRule { NoUnusedImportsRule() }
+    private val noUnusedImportsRuleAssertThat =
+        assertThatRuleBuilder { NoUnusedImportsRule() }
+            .withEditorConfigOverride(NO_UNUSED_IMPORTS_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled)
+            .assertThat()
 
     @Test
     fun `Given that the first import is unused than the file should not start with a linebreak`() {
