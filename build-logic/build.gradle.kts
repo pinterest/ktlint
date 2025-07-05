@@ -1,5 +1,5 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `java-gradle-plugin`
@@ -24,6 +24,18 @@ kotlin {
             .get()
             .toInt(),
     )
+
+    compilerOptions {
+        // Match language version enforced by current Gradle version https://docs.gradle.org/current/userguide/compatibility.html#kotlin
+        @Suppress("DEPRECATION")
+        apiVersion.set(KotlinVersion.KOTLIN_1_8)
+    }
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    compilerOptions {
+        freeCompilerArgs.add("-Xsuppress-version-warnings") // ignores deprecated kotlin language version
+    }
 }
 
 gradlePlugin {
