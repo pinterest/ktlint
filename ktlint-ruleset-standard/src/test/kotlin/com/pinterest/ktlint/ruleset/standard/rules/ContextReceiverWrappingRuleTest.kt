@@ -211,4 +211,22 @@ class ContextReceiverWrappingRuleTest {
             """.trimIndent()
         contextReceiverWrappingRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 3028 - Given some functions with context receiver list on the same line as the fun keyword then only wrap context receivers to a newline`() {
+        val code =
+            """
+            context(Foo) fun foo()
+            context(_: Foo) fun foo()
+
+            context(Foooooooooooooooo<Foo, Bar>) fun fooBar()
+            context(_: Foooooooooooooooo<Foo, Bar>) fun fooBar()
+            """.trimIndent()
+        contextReceiverWrappingRuleAssertThat(code)
+            // Find violations on the context receivers, but skip the context parameters
+            .hasLintViolations(
+                LintViolation(1, 14, "Expected a newline after the context receiver"),
+                LintViolation(4, 38, "Expected a newline after the context receiver"),
+            )
+    }
 }
