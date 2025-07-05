@@ -2,13 +2,17 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
-    // TODO: Remove if the build is migrated to Gradle 9
-    kotlin("jvm") version libs.versions.kotlin.get() apply false // Enforce higher Kotlin version to make `poko-gradle-plugin` compatible.
-    `kotlin-dsl`
+    `java-gradle-plugin`
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.sam.with.receiver)
 }
 
 repositories {
     mavenCentral()
+}
+
+samWithReceiver {
+    annotation("org.gradle.api.HasImplicitReceiver")
 }
 
 kotlin {
@@ -22,13 +26,25 @@ kotlin {
     )
 }
 
-// Override java target for build-logic, to the latest version. Kotlin version forced by kotlin-dsl doesn't yet support targeting Java 24
-val buildLogicJavaTarget = JvmTarget.JVM_22
-tasks.withType<KotlinJvmCompile>().configureEach {
-    compilerOptions.jvmTarget.set(buildLogicJavaTarget)
-}
-tasks.withType<JavaCompile>().configureEach {
-    options.release.set(buildLogicJavaTarget.target.toInt())
+gradlePlugin {
+    plugins {
+        register("ktlint-dokka") {
+            id = "ktlint-dokka"
+            implementationClass = "DokkaPlugin"
+        }
+        register("ktlint-kotlin-common") {
+            id = "ktlint-kotlin-common"
+            implementationClass = "KotlinCommonPlugin"
+        }
+        register("ktlint-publication") {
+            id = "ktlint-publication"
+            implementationClass = "PublicationPlugin"
+        }
+        register("ktlint-publication-library") {
+            id = "ktlint-publication-library"
+            implementationClass = "PublicationLibraryPlugin"
+        }
+    }
 }
 
 dependencies {
@@ -41,6 +57,7 @@ dependencies {
             libs.kotlin.plugin.asProvider()
         }
     implementation(kotlinPlugin)
+    implementation(gradleKotlinDsl())
     implementation(libs.dokka)
     implementation(libs.poko)
 }
