@@ -1,4 +1,5 @@
 plugins {
+    kotlin("jvm") version libs.versions.kotlin.get() apply false // Enforce higher Kotlin version to make `poko-gradle-plugin` compatible.
     `kotlin-dsl`
 }
 
