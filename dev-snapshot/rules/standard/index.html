@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
     
     
       
@@ -1594,6 +1594,15 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 </li>
         
           <li class="md-nav__item">
+  <a href="#context-receiver-list-wrapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      Context receiver list wrapping
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#enum-wrapping" class="md-nav__link">
     <span class="md-ellipsis">
       Enum wrapping
@@ -2927,6 +2936,15 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
   <a href="#context-receiver-wrapping" class="md-nav__link">
     <span class="md-ellipsis">
       Context receiver wrapping
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#context-receiver-list-wrapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      Context receiver list wrapping
     </span>
   </a>
   
@@ -7181,7 +7199,15 @@ Although this code sample might look ok, it is semantically and programmatically
 </code></pre></div></li>
 </ol>
 <h3 id="context-receiver-wrapping">Context receiver wrapping<a class="headerlink" href="#context-receiver-wrapping" title="Permanent link">&para;</a></h3>
-<p>Wraps the context receiver list of a function to a separate line regardless of maximum line length. If the maximum line length is configured and is exceeded, wrap the context receivers and if needed its projection types to separate lines.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Context receivers are deprecated starting from Kotlin 2.2.0 and will be removed in a future version. Once KtLint is upgraded to a Kotlin version that no longer supports context receivers, then you will not be able to use that KtLint version as long as your code still contains context receiver.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>This rule does not affect context parameters. See rule <code>context-receiver-list-wrapping</code> for wrapping of context parameters.</p>
+</div>
+<p>Wraps the context receiver list containing a context receiver to a separate line regardless of maximum line length. If the maximum line length is configured and is exceeded, wrap the context receivers and if needed its projection types to separate lines.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="86:2"><input checked="checked" id="__tabbed_86_1" name="__tabbed_86" type="radio" /><input id="__tabbed_86_2" name="__tabbed_86" type="radio" /><div class="tabbed-labels"><label for="__tabbed_86_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint</label><label for="__tabbed_86_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -7261,35 +7287,120 @@ Although this code sample might look ok, it is semantically and programmatically
     <div class="highlight"><pre><span></span><code><a id="__codelineno-432-1" name="__codelineno-432-1" href="#__codelineno-432-1"></a>ktlint_standard_context-receiver-wrapping = disabled
 </code></pre></div></li>
 </ol>
-<h3 id="enum-wrapping">Enum wrapping<a class="headerlink" href="#enum-wrapping" title="Permanent link">&para;</a></h3>
-<p>Each individual enum entry should be on a separate line. Multiple enums cannot be on the same line. In case the enumeration contains enum entries and declarations, those are to be separated by a blank line.</p>
+<h3 id="context-receiver-list-wrapping">Context receiver list wrapping<a class="headerlink" href="#context-receiver-list-wrapping" title="Permanent link">&para;</a></h3>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>This rule does not affect context receivers. See rule <code>context-receiver-wrapping</code> for wrapping of context receivers.</p>
+</div>
+<p>Wraps the context receiver list containing a context parameter to a separate line regardless of maximum line length. If the maximum line length is configured and is exceeded, wrap the context receivers and if needed its projection types to separate lines.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="87:2"><input checked="checked" id="__tabbed_87_1" name="__tabbed_87" type="radio" /><input id="__tabbed_87_2" name="__tabbed_87" type="radio" /><div class="tabbed-labels"><label for="__tabbed_87_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint</label><label for="__tabbed_87_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-433-1" name="__codelineno-433-1" href="#__codelineno-433-1"></a><span class="kd">enum</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">Foo</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-433-2" name="__codelineno-433-2" href="#__codelineno-433-2"></a>
-<a id="__codelineno-433-3" name="__codelineno-433-3" href="#__codelineno-433-3"></a><span class="kd">enum</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">Foo</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-433-4" name="__codelineno-433-4" href="#__codelineno-433-4"></a><span class="w">    </span><span class="n">A</span><span class="p">,</span>
-<a id="__codelineno-433-5" name="__codelineno-433-5" href="#__codelineno-433-5"></a><span class="w">    </span><span class="n">B</span><span class="p">,</span>
-<a id="__codelineno-433-6" name="__codelineno-433-6" href="#__codelineno-433-6"></a><span class="w">    </span><span class="n">C</span><span class="p">,</span>
-<a id="__codelineno-433-7" name="__codelineno-433-7" href="#__codelineno-433-7"></a><span class="w">    </span><span class="n">D</span><span class="p">,</span>
-<a id="__codelineno-433-8" name="__codelineno-433-8" href="#__codelineno-433-8"></a><span class="w">    </span><span class="p">;</span>
-<a id="__codelineno-433-9" name="__codelineno-433-9" href="#__codelineno-433-9"></a>
-<a id="__codelineno-433-10" name="__codelineno-433-10" href="#__codelineno-433-10"></a><span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">foo</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;foo&quot;</span>
-<a id="__codelineno-433-11" name="__codelineno-433-11" href="#__codelineno-433-11"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-433-1" name="__codelineno-433-1" href="#__codelineno-433-1"></a><span class="c1">// Always wrap regardless of whether max line length is set</span>
+<a id="__codelineno-433-2" name="__codelineno-433-2" href="#__codelineno-433-2"></a><span class="n">context</span><span class="p">(</span><span class="n">_</span><span class="p">:</span><span class="w"> </span><span class="n">Foo</span><span class="p">)</span>
+<a id="__codelineno-433-3" name="__codelineno-433-3" href="#__codelineno-433-3"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">fooBar</span><span class="p">()</span>
+<a id="__codelineno-433-4" name="__codelineno-433-4" href="#__codelineno-433-4"></a>
+<a id="__codelineno-433-5" name="__codelineno-433-5" href="#__codelineno-433-5"></a><span class="c1">// Wrap each context receiver to a separate line when the</span>
+<a id="__codelineno-433-6" name="__codelineno-433-6" href="#__codelineno-433-6"></a><span class="c1">// entire context receiver list does not fit on a single line</span>
+<a id="__codelineno-433-7" name="__codelineno-433-7" href="#__codelineno-433-7"></a><span class="n">context</span><span class="p">(</span>
+<a id="__codelineno-433-8" name="__codelineno-433-8" href="#__codelineno-433-8"></a><span class="w">    </span><span class="n">foo1</span><span class="p">:</span><span class="w"> </span><span class="n">Fooooooooooooooooooo1</span><span class="p">,</span>
+<a id="__codelineno-433-9" name="__codelineno-433-9" href="#__codelineno-433-9"></a><span class="w">    </span><span class="n">foo2</span><span class="p">:</span><span class="w"> </span><span class="n">Foooooooooooooooooooooooooooooo2</span>
+<a id="__codelineno-433-10" name="__codelineno-433-10" href="#__codelineno-433-10"></a><span class="p">)</span>
+<a id="__codelineno-433-11" name="__codelineno-433-11" href="#__codelineno-433-11"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">fooBar</span><span class="p">()</span>
+<a id="__codelineno-433-12" name="__codelineno-433-12" href="#__codelineno-433-12"></a>
+<a id="__codelineno-433-13" name="__codelineno-433-13" href="#__codelineno-433-13"></a><span class="c1">// Wrap each context receiver to a separate line when the</span>
+<a id="__codelineno-433-14" name="__codelineno-433-14" href="#__codelineno-433-14"></a><span class="c1">// entire context receiver list does not fit on a single line.</span>
+<a id="__codelineno-433-15" name="__codelineno-433-15" href="#__codelineno-433-15"></a><span class="c1">// Also, wrap each of it projection types in case a context</span>
+<a id="__codelineno-433-16" name="__codelineno-433-16" href="#__codelineno-433-16"></a><span class="c1">// receiver does not fit on a single line after it has been</span>
+<a id="__codelineno-433-17" name="__codelineno-433-17" href="#__codelineno-433-17"></a><span class="c1">// wrapped.</span>
+<a id="__codelineno-433-18" name="__codelineno-433-18" href="#__codelineno-433-18"></a><span class="n">context</span><span class="p">(</span>
+<a id="__codelineno-433-19" name="__codelineno-433-19" href="#__codelineno-433-19"></a><span class="w">    </span><span class="n">_</span><span class="p">:</span><span class="w"> </span><span class="n">Foooooooooooooooo</span><span class="o">&lt;</span>
+<a id="__codelineno-433-20" name="__codelineno-433-20" href="#__codelineno-433-20"></a><span class="w">        </span><span class="n">Foo</span><span class="p">,</span>
+<a id="__codelineno-433-21" name="__codelineno-433-21" href="#__codelineno-433-21"></a><span class="w">        </span><span class="n">Bar</span><span class="p">,</span>
+<a id="__codelineno-433-22" name="__codelineno-433-22" href="#__codelineno-433-22"></a><span class="w">        </span><span class="o">&gt;</span>
+<a id="__codelineno-433-23" name="__codelineno-433-23" href="#__codelineno-433-23"></a><span class="p">)</span>
+<a id="__codelineno-433-24" name="__codelineno-433-24" href="#__codelineno-433-24"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">fooBar</span><span class="p">()</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-434-1" name="__codelineno-434-1" href="#__codelineno-434-1"></a><span class="kd">enum</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">Foo</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-434-2" name="__codelineno-434-2" href="#__codelineno-434-2"></a><span class="w">    </span><span class="n">A</span><span class="p">,</span>
-<a id="__codelineno-434-3" name="__codelineno-434-3" href="#__codelineno-434-3"></a><span class="w">    </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">C</span><span class="p">,</span>
-<a id="__codelineno-434-4" name="__codelineno-434-4" href="#__codelineno-434-4"></a><span class="w">    </span><span class="n">D</span>
-<a id="__codelineno-434-5" name="__codelineno-434-5" href="#__codelineno-434-5"></a><span class="p">}</span>
-<a id="__codelineno-434-6" name="__codelineno-434-6" href="#__codelineno-434-6"></a>
-<a id="__codelineno-434-7" name="__codelineno-434-7" href="#__codelineno-434-7"></a><span class="kd">enum</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">Foo</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-434-8" name="__codelineno-434-8" href="#__codelineno-434-8"></a><span class="w">    </span><span class="n">A</span><span class="p">;</span>
-<a id="__codelineno-434-9" name="__codelineno-434-9" href="#__codelineno-434-9"></a><span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">foo</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;foo&quot;</span>
-<a id="__codelineno-434-10" name="__codelineno-434-10" href="#__codelineno-434-10"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-434-1" name="__codelineno-434-1" href="#__codelineno-434-1"></a><span class="c1">// Should be wrapped regardless of whether max line length is set</span>
+<a id="__codelineno-434-2" name="__codelineno-434-2" href="#__codelineno-434-2"></a><span class="n">context</span><span class="p">(</span><span class="n">_</span><span class="p">:</span><span class="w"> </span><span class="n">Foo</span><span class="p">)</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">fooBar</span><span class="p">()</span>
+<a id="__codelineno-434-3" name="__codelineno-434-3" href="#__codelineno-434-3"></a>
+<a id="__codelineno-434-4" name="__codelineno-434-4" href="#__codelineno-434-4"></a><span class="c1">// Should be wrapped when the entire context receiver list does not</span>
+<a id="__codelineno-434-5" name="__codelineno-434-5" href="#__codelineno-434-5"></a><span class="c1">// fit on a single line</span>
+<a id="__codelineno-434-6" name="__codelineno-434-6" href="#__codelineno-434-6"></a><span class="n">context</span><span class="p">(</span><span class="n">foo1</span><span class="p">:</span><span class="w"> </span><span class="n">Fooooooooooooooooooo1</span><span class="p">,</span><span class="w"> </span><span class="n">foo2</span><span class="p">:</span><span class="w"> </span><span class="n">Foooooooooooooooooooooooooooooo2</span><span class="p">)</span>
+<a id="__codelineno-434-7" name="__codelineno-434-7" href="#__codelineno-434-7"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">fooBar</span><span class="p">()</span>
+<a id="__codelineno-434-8" name="__codelineno-434-8" href="#__codelineno-434-8"></a>
+<a id="__codelineno-434-9" name="__codelineno-434-9" href="#__codelineno-434-9"></a><span class="c1">// Should be wrapped when the entire context receiver list does not</span>
+<a id="__codelineno-434-10" name="__codelineno-434-10" href="#__codelineno-434-10"></a><span class="c1">// fit on a single line. Also, it should wrap each of it projection</span>
+<a id="__codelineno-434-11" name="__codelineno-434-11" href="#__codelineno-434-11"></a><span class="c1">// type in case a context receiver does not fit on a single line </span>
+<a id="__codelineno-434-12" name="__codelineno-434-12" href="#__codelineno-434-12"></a><span class="c1">// after it has been wrapped.</span>
+<a id="__codelineno-434-13" name="__codelineno-434-13" href="#__codelineno-434-13"></a><span class="n">context</span><span class="p">(</span><span class="n">_</span><span class="p">:</span><span class="w"> </span><span class="n">Foooooooooooooooo</span><span class="o">&lt;</span><span class="n">Foo</span><span class="p">,</span><span class="w"> </span><span class="n">Bar</span><span class="o">&gt;</span><span class="p">)</span>
+<a id="__codelineno-434-14" name="__codelineno-434-14" href="#__codelineno-434-14"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">fooBar</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Configuration setting</th>
+<th style="text-align: center;">ktlint_official</th>
+<th style="text-align: center;">intellij_idea</th>
+<th style="text-align: center;">android_studio</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>max_line_length</code><br/><i>Maximum length of a (regular) line. This property is ignored in case the <code>max-line-length</code> rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i></td>
+<td style="text-align: center;">140</td>
+<td style="text-align: center;"><code>off</code></td>
+<td style="text-align: center;"><code>100</code></td>
+</tr>
+</tbody>
+</table>
+<p>Rule id: <code>standard:context-receiver-list-wrapping</code></p>
+<p class="annotate">Suppress or disable rule (1)</p>
+<ol>
+<li>Suppress rule in code with annotation below:
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-435-1" name="__codelineno-435-1" href="#__codelineno-435-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:standard:context-receiver-list-wrapping&quot;</span><span class="p">)</span>
+</code></pre></div>
+   Enable rule via <code>.editorconfig</code>
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-436-1" name="__codelineno-436-1" href="#__codelineno-436-1"></a>ktlint_standard_context-receiver-list-wrapping = enabled
+</code></pre></div>
+   Disable rule via <code>.editorconfig</code>
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-437-1" name="__codelineno-437-1" href="#__codelineno-437-1"></a>ktlint_standard_context-receiver-list-wrapping = disabled
+</code></pre></div></li>
+</ol>
+<h3 id="enum-wrapping">Enum wrapping<a class="headerlink" href="#enum-wrapping" title="Permanent link">&para;</a></h3>
+<p>Each individual enum entry should be on a separate line. Multiple enums cannot be on the same line. In case the enumeration contains enum entries and declarations, those are to be separated by a blank line.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="88:2"><input checked="checked" id="__tabbed_88_1" name="__tabbed_88" type="radio" /><input id="__tabbed_88_2" name="__tabbed_88" type="radio" /><div class="tabbed-labels"><label for="__tabbed_88_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint</label><label for="__tabbed_88_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-438-1" name="__codelineno-438-1" href="#__codelineno-438-1"></a><span class="kd">enum</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">Foo</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-438-2" name="__codelineno-438-2" href="#__codelineno-438-2"></a>
+<a id="__codelineno-438-3" name="__codelineno-438-3" href="#__codelineno-438-3"></a><span class="kd">enum</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">Foo</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-438-4" name="__codelineno-438-4" href="#__codelineno-438-4"></a><span class="w">    </span><span class="n">A</span><span class="p">,</span>
+<a id="__codelineno-438-5" name="__codelineno-438-5" href="#__codelineno-438-5"></a><span class="w">    </span><span class="n">B</span><span class="p">,</span>
+<a id="__codelineno-438-6" name="__codelineno-438-6" href="#__codelineno-438-6"></a><span class="w">    </span><span class="n">C</span><span class="p">,</span>
+<a id="__codelineno-438-7" name="__codelineno-438-7" href="#__codelineno-438-7"></a><span class="w">    </span><span class="n">D</span><span class="p">,</span>
+<a id="__codelineno-438-8" name="__codelineno-438-8" href="#__codelineno-438-8"></a><span class="w">    </span><span class="p">;</span>
+<a id="__codelineno-438-9" name="__codelineno-438-9" href="#__codelineno-438-9"></a>
+<a id="__codelineno-438-10" name="__codelineno-438-10" href="#__codelineno-438-10"></a><span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">foo</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;foo&quot;</span>
+<a id="__codelineno-438-11" name="__codelineno-438-11" href="#__codelineno-438-11"></a><span class="p">}</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-439-1" name="__codelineno-439-1" href="#__codelineno-439-1"></a><span class="kd">enum</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">Foo</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-439-2" name="__codelineno-439-2" href="#__codelineno-439-2"></a><span class="w">    </span><span class="n">A</span><span class="p">,</span>
+<a id="__codelineno-439-3" name="__codelineno-439-3" href="#__codelineno-439-3"></a><span class="w">    </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">C</span><span class="p">,</span>
+<a id="__codelineno-439-4" name="__codelineno-439-4" href="#__codelineno-439-4"></a><span class="w">    </span><span class="n">D</span>
+<a id="__codelineno-439-5" name="__codelineno-439-5" href="#__codelineno-439-5"></a><span class="p">}</span>
+<a id="__codelineno-439-6" name="__codelineno-439-6" href="#__codelineno-439-6"></a>
+<a id="__codelineno-439-7" name="__codelineno-439-7" href="#__codelineno-439-7"></a><span class="kd">enum</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">Foo</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-439-8" name="__codelineno-439-8" href="#__codelineno-439-8"></a><span class="w">    </span><span class="n">A</span><span class="p">;</span>
+<a id="__codelineno-439-9" name="__codelineno-439-9" href="#__codelineno-439-9"></a><span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">foo</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;foo&quot;</span>
+<a id="__codelineno-439-10" name="__codelineno-439-10" href="#__codelineno-439-10"></a><span class="p">}</span>
 </code></pre></div>
 </div>
 </div>
@@ -7298,33 +7409,33 @@ Although this code sample might look ok, it is semantically and programmatically
 <p class="annotate">Suppress or disable rule (1)</p>
 <ol>
 <li>Suppress rule in code with annotation below:
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-435-1" name="__codelineno-435-1" href="#__codelineno-435-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:enum-wrapping&quot;</span><span class="p">)</span>
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-440-1" name="__codelineno-440-1" href="#__codelineno-440-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:enum-wrapping&quot;</span><span class="p">)</span>
 </code></pre></div>
    Enable rule via <code>.editorconfig</code>
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-436-1" name="__codelineno-436-1" href="#__codelineno-436-1"></a>ktlint_standard_enum-wrapping = enabled
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-441-1" name="__codelineno-441-1" href="#__codelineno-441-1"></a>ktlint_standard_enum-wrapping = enabled
 </code></pre></div>
    Disable rule via <code>.editorconfig</code>
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-437-1" name="__codelineno-437-1" href="#__codelineno-437-1"></a>ktlint_standard_enum-wrapping = disabled
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-442-1" name="__codelineno-442-1" href="#__codelineno-442-1"></a>ktlint_standard_enum-wrapping = disabled
 </code></pre></div></li>
 </ol>
 <h3 id="if-else-wrapping">If else wrapping<a class="headerlink" href="#if-else-wrapping" title="Permanent link">&para;</a></h3>
 <p>A single line if-statement should be kept simple. It may contain no more than one else-branch. The branches may not be wrapped in a block.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="88:2"><input checked="checked" id="__tabbed_88_1" name="__tabbed_88" type="radio" /><input id="__tabbed_88_2" name="__tabbed_88" type="radio" /><div class="tabbed-labels"><label for="__tabbed_88_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint</label><label for="__tabbed_88_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="89:2"><input checked="checked" id="__tabbed_89_1" name="__tabbed_89" type="radio" /><input id="__tabbed_89_2" name="__tabbed_89" type="radio" /><div class="tabbed-labels"><label for="__tabbed_89_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint</label><label for="__tabbed_89_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-438-1" name="__codelineno-438-1" href="#__codelineno-438-1"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">foobar</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-438-2" name="__codelineno-438-2" href="#__codelineno-438-2"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kc">true</span><span class="p">)</span><span class="w"> </span><span class="n">foo</span><span class="p">()</span>
-<a id="__codelineno-438-3" name="__codelineno-438-3" href="#__codelineno-438-3"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kc">true</span><span class="p">)</span><span class="w"> </span><span class="n">foo</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">bar</span><span class="p">()</span>
-<a id="__codelineno-438-4" name="__codelineno-438-4" href="#__codelineno-438-4"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-443-1" name="__codelineno-443-1" href="#__codelineno-443-1"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">foobar</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-443-2" name="__codelineno-443-2" href="#__codelineno-443-2"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kc">true</span><span class="p">)</span><span class="w"> </span><span class="n">foo</span><span class="p">()</span>
+<a id="__codelineno-443-3" name="__codelineno-443-3" href="#__codelineno-443-3"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kc">true</span><span class="p">)</span><span class="w"> </span><span class="n">foo</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">bar</span><span class="p">()</span>
+<a id="__codelineno-443-4" name="__codelineno-443-4" href="#__codelineno-443-4"></a><span class="p">}</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-439-1" name="__codelineno-439-1" href="#__codelineno-439-1"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">foobar</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-439-2" name="__codelineno-439-2" href="#__codelineno-439-2"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kc">true</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kc">false</span><span class="p">)</span><span class="w"> </span><span class="n">foo</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">bar</span><span class="p">()</span>
-<a id="__codelineno-439-3" name="__codelineno-439-3" href="#__codelineno-439-3"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kc">true</span><span class="p">)</span><span class="w"> </span><span class="n">bar</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kc">false</span><span class="p">)</span><span class="w"> </span><span class="n">foo</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">bar</span><span class="p">()</span>
-<a id="__codelineno-439-4" name="__codelineno-439-4" href="#__codelineno-439-4"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kc">true</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">foo</span><span class="p">()</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">bar</span><span class="p">()</span>
-<a id="__codelineno-439-5" name="__codelineno-439-5" href="#__codelineno-439-5"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kc">true</span><span class="p">)</span><span class="w"> </span><span class="n">bar</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kc">false</span><span class="p">)</span><span class="w"> </span><span class="n">foo</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">bar</span><span class="p">()</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-439-6" name="__codelineno-439-6" href="#__codelineno-439-6"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-444-1" name="__codelineno-444-1" href="#__codelineno-444-1"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">foobar</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-444-2" name="__codelineno-444-2" href="#__codelineno-444-2"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kc">true</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kc">false</span><span class="p">)</span><span class="w"> </span><span class="n">foo</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">bar</span><span class="p">()</span>
+<a id="__codelineno-444-3" name="__codelineno-444-3" href="#__codelineno-444-3"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kc">true</span><span class="p">)</span><span class="w"> </span><span class="n">bar</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kc">false</span><span class="p">)</span><span class="w"> </span><span class="n">foo</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">bar</span><span class="p">()</span>
+<a id="__codelineno-444-4" name="__codelineno-444-4" href="#__codelineno-444-4"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kc">true</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">foo</span><span class="p">()</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">bar</span><span class="p">()</span>
+<a id="__codelineno-444-5" name="__codelineno-444-5" href="#__codelineno-444-5"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kc">true</span><span class="p">)</span><span class="w"> </span><span class="n">bar</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kc">false</span><span class="p">)</span><span class="w"> </span><span class="n">foo</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">bar</span><span class="p">()</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-444-6" name="__codelineno-444-6" href="#__codelineno-444-6"></a><span class="p">}</span>
 </code></pre></div>
 </div>
 </div>
@@ -7333,13 +7444,13 @@ Although this code sample might look ok, it is semantically and programmatically
 <p class="annotate">Suppress or disable rule (1)</p>
 <ol>
 <li>Suppress rule in code with annotation below:
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-440-1" name="__codelineno-440-1" href="#__codelineno-440-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:standard:if-else-wrapping&quot;</span><span class="p">)</span>
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-445-1" name="__codelineno-445-1" href="#__codelineno-445-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:standard:if-else-wrapping&quot;</span><span class="p">)</span>
 </code></pre></div>
    Enable rule via <code>.editorconfig</code>
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-441-1" name="__codelineno-441-1" href="#__codelineno-441-1"></a>ktlint_standard_if-else-wrapping = enabled
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-446-1" name="__codelineno-446-1" href="#__codelineno-446-1"></a>ktlint_standard_if-else-wrapping = enabled
 </code></pre></div>
    Disable rule via <code>.editorconfig</code>
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-442-1" name="__codelineno-442-1" href="#__codelineno-442-1"></a>ktlint_standard_if-else-wrapping = disabled
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-447-1" name="__codelineno-447-1" href="#__codelineno-447-1"></a>ktlint_standard_if-else-wrapping = disabled
 </code></pre></div></li>
 </ol>
 <div class="admonition note">
@@ -7349,24 +7460,24 @@ Although this code sample might look ok, it is semantically and programmatically
 <h3 id="multiline-expression-wrapping">Multiline expression wrapping<a class="headerlink" href="#multiline-expression-wrapping" title="Permanent link">&para;</a></h3>
 <p>Multiline expressions on the right hand side of an expression are forced to start on a separate line. Expressions in return statement are excluded as that would result in a compilation error.</p>
 <p>Setting <code>ktlint_function_signature_body_expression_wrapping</code> of the <code>function-signature</code> rule takes precedence when set to <code>default</code>. This setting keeps the first line of a multiline expression body on the same line as the end of function signature as long as the max line length is not exceeded. In that case, this rule does not wrap the multiline expression. </p>
-<div class="tabbed-set tabbed-alternate" data-tabs="89:2"><input checked="checked" id="__tabbed_89_1" name="__tabbed_89" type="radio" /><input id="__tabbed_89_2" name="__tabbed_89" type="radio" /><div class="tabbed-labels"><label for="__tabbed_89_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint</label><label for="__tabbed_89_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="90:2"><input checked="checked" id="__tabbed_90_1" name="__tabbed_90" type="radio" /><input id="__tabbed_90_2" name="__tabbed_90" type="radio" /><div class="tabbed-labels"><label for="__tabbed_90_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint</label><label for="__tabbed_90_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-443-1" name="__codelineno-443-1" href="#__codelineno-443-1"></a><span class="kd">val</span><span class="w"> </span><span class="nv">foo</span><span class="w"> </span><span class="o">=</span>
-<a id="__codelineno-443-2" name="__codelineno-443-2" href="#__codelineno-443-2"></a><span class="w">    </span><span class="n">foo</span><span class="p">(</span>
-<a id="__codelineno-443-3" name="__codelineno-443-3" href="#__codelineno-443-3"></a><span class="w">        </span><span class="n">parameterName</span><span class="w"> </span><span class="o">=</span>
-<a id="__codelineno-443-4" name="__codelineno-443-4" href="#__codelineno-443-4"></a><span class="w">            </span><span class="s">&quot;The quick brown fox &quot;</span>
-<a id="__codelineno-443-5" name="__codelineno-443-5" href="#__codelineno-443-5"></a><span class="w">                </span><span class="p">.</span><span class="na">plus</span><span class="p">(</span><span class="s">&quot;jumps &quot;</span><span class="p">)</span>
-<a id="__codelineno-443-6" name="__codelineno-443-6" href="#__codelineno-443-6"></a><span class="w">                </span><span class="p">.</span><span class="na">plus</span><span class="p">(</span><span class="s">&quot;over the lazy dog&quot;</span><span class="p">),</span>
-<a id="__codelineno-443-7" name="__codelineno-443-7" href="#__codelineno-443-7"></a><span class="w">    </span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-448-1" name="__codelineno-448-1" href="#__codelineno-448-1"></a><span class="kd">val</span><span class="w"> </span><span class="nv">foo</span><span class="w"> </span><span class="o">=</span>
+<a id="__codelineno-448-2" name="__codelineno-448-2" href="#__codelineno-448-2"></a><span class="w">    </span><span class="n">foo</span><span class="p">(</span>
+<a id="__codelineno-448-3" name="__codelineno-448-3" href="#__codelineno-448-3"></a><span class="w">        </span><span class="n">parameterName</span><span class="w"> </span><span class="o">=</span>
+<a id="__codelineno-448-4" name="__codelineno-448-4" href="#__codelineno-448-4"></a><span class="w">            </span><span class="s">&quot;The quick brown fox &quot;</span>
+<a id="__codelineno-448-5" name="__codelineno-448-5" href="#__codelineno-448-5"></a><span class="w">                </span><span class="p">.</span><span class="na">plus</span><span class="p">(</span><span class="s">&quot;jumps &quot;</span><span class="p">)</span>
+<a id="__codelineno-448-6" name="__codelineno-448-6" href="#__codelineno-448-6"></a><span class="w">                </span><span class="p">.</span><span class="na">plus</span><span class="p">(</span><span class="s">&quot;over the lazy dog&quot;</span><span class="p">),</span>
+<a id="__codelineno-448-7" name="__codelineno-448-7" href="#__codelineno-448-7"></a><span class="w">    </span><span class="p">)</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-444-1" name="__codelineno-444-1" href="#__codelineno-444-1"></a><span class="kd">val</span><span class="w"> </span><span class="nv">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">foo</span><span class="p">(</span>
-<a id="__codelineno-444-2" name="__codelineno-444-2" href="#__codelineno-444-2"></a><span class="w">    </span><span class="n">parameterName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;The quick brown fox &quot;</span>
-<a id="__codelineno-444-3" name="__codelineno-444-3" href="#__codelineno-444-3"></a><span class="w">        </span><span class="p">.</span><span class="na">plus</span><span class="p">(</span><span class="s">&quot;jumps &quot;</span><span class="p">)</span>
-<a id="__codelineno-444-4" name="__codelineno-444-4" href="#__codelineno-444-4"></a><span class="w">        </span><span class="p">.</span><span class="na">plus</span><span class="p">(</span><span class="s">&quot;over the lazy dog&quot;</span><span class="p">),</span>
-<a id="__codelineno-444-5" name="__codelineno-444-5" href="#__codelineno-444-5"></a><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-449-1" name="__codelineno-449-1" href="#__codelineno-449-1"></a><span class="kd">val</span><span class="w"> </span><span class="nv">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">foo</span><span class="p">(</span>
+<a id="__codelineno-449-2" name="__codelineno-449-2" href="#__codelineno-449-2"></a><span class="w">    </span><span class="n">parameterName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;The quick brown fox &quot;</span>
+<a id="__codelineno-449-3" name="__codelineno-449-3" href="#__codelineno-449-3"></a><span class="w">        </span><span class="p">.</span><span class="na">plus</span><span class="p">(</span><span class="s">&quot;jumps &quot;</span><span class="p">)</span>
+<a id="__codelineno-449-4" name="__codelineno-449-4" href="#__codelineno-449-4"></a><span class="w">        </span><span class="p">.</span><span class="na">plus</span><span class="p">(</span><span class="s">&quot;over the lazy dog&quot;</span><span class="p">),</span>
+<a id="__codelineno-449-5" name="__codelineno-449-5" href="#__codelineno-449-5"></a><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -7375,13 +7486,13 @@ Although this code sample might look ok, it is semantically and programmatically
 <p class="annotate">Suppress or disable rule (1)</p>
 <ol>
 <li>Suppress rule in code with annotation below:
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-445-1" name="__codelineno-445-1" href="#__codelineno-445-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:standard:multiline-expression-wrapping&quot;</span><span class="p">)</span>
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-450-1" name="__codelineno-450-1" href="#__codelineno-450-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:standard:multiline-expression-wrapping&quot;</span><span class="p">)</span>
 </code></pre></div>
    Enable rule via <code>.editorconfig</code>
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-446-1" name="__codelineno-446-1" href="#__codelineno-446-1"></a>ktlint_standard_multiline-expression-wrapping = enabled
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-451-1" name="__codelineno-451-1" href="#__codelineno-451-1"></a>ktlint_standard_multiline-expression-wrapping = enabled
 </code></pre></div>
    Disable rule via <code>.editorconfig</code>
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-447-1" name="__codelineno-447-1" href="#__codelineno-447-1"></a>ktlint_standard_multiline-expression-wrapping = disabled
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-452-1" name="__codelineno-452-1" href="#__codelineno-452-1"></a>ktlint_standard_multiline-expression-wrapping = disabled
 </code></pre></div></li>
 </ol>
 <div class="admonition note">
@@ -7394,58 +7505,58 @@ Although this code sample might look ok, it is semantically and programmatically
 <p class="admonition-title">Note</p>
 <p>Wrapping of parameters is also influenced by the <code>function-signature</code> rule.</p>
 </div>
-<div class="tabbed-set tabbed-alternate" data-tabs="90:3"><input checked="checked" id="__tabbed_90_1" name="__tabbed_90" type="radio" /><input id="__tabbed_90_2" name="__tabbed_90" type="radio" /><input id="__tabbed_90_3" name="__tabbed_90" type="radio" /><div class="tabbed-labels"><label for="__tabbed_90_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint</label><label for="__tabbed_90_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed (ktlint_official)</label><label for="__tabbed_90_3"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed (non ktlint_official)"</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="91:3"><input checked="checked" id="__tabbed_91_1" name="__tabbed_91" type="radio" /><input id="__tabbed_91_2" name="__tabbed_91" type="radio" /><input id="__tabbed_91_3" name="__tabbed_91" type="radio" /><div class="tabbed-labels"><label for="__tabbed_91_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint</label><label for="__tabbed_91_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed (ktlint_official)</label><label for="__tabbed_91_3"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed (non ktlint_official)"</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-448-1" name="__codelineno-448-1" href="#__codelineno-448-1"></a><span class="c1">// If `ktlint_class_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than` equals</span>
-<a id="__codelineno-448-2" name="__codelineno-448-2" href="#__codelineno-448-2"></a><span class="c1">// `unset` the parameters are not wrapped as long as they fit on a single line</span>
-<a id="__codelineno-448-3" name="__codelineno-448-3" href="#__codelineno-448-3"></a><span class="kd">class</span><span class="w"> </span><span class="nc">ClassA</span><span class="p">(</span><span class="n">paramA</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="n">paramB</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="n">paramC</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">)</span>
-<a id="__codelineno-448-4" name="__codelineno-448-4" href="#__codelineno-448-4"></a>
-<a id="__codelineno-448-5" name="__codelineno-448-5" href="#__codelineno-448-5"></a><span class="kd">class</span><span class="w"> </span><span class="nc">ClassA</span><span class="p">(</span>
-<a id="__codelineno-448-6" name="__codelineno-448-6" href="#__codelineno-448-6"></a><span class="w">    </span><span class="n">paramA</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
-<a id="__codelineno-448-7" name="__codelineno-448-7" href="#__codelineno-448-7"></a><span class="w">    </span><span class="n">paramB</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
-<a id="__codelineno-448-8" name="__codelineno-448-8" href="#__codelineno-448-8"></a><span class="w">    </span><span class="n">paramC</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span>
-<a id="__codelineno-448-9" name="__codelineno-448-9" href="#__codelineno-448-9"></a><span class="p">)</span>
-<a id="__codelineno-448-10" name="__codelineno-448-10" href="#__codelineno-448-10"></a>
-<a id="__codelineno-448-11" name="__codelineno-448-11" href="#__codelineno-448-11"></a><span class="c1">// If `ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than` equals</span>
-<a id="__codelineno-448-12" name="__codelineno-448-12" href="#__codelineno-448-12"></a><span class="c1">// `unset` the parameters are not wrapped as long as they fit on a single line</span>
-<a id="__codelineno-448-13" name="__codelineno-448-13" href="#__codelineno-448-13"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">)</span>
-<a id="__codelineno-448-14" name="__codelineno-448-14" href="#__codelineno-448-14"></a>
-<a id="__codelineno-448-15" name="__codelineno-448-15" href="#__codelineno-448-15"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span>
-<a id="__codelineno-448-16" name="__codelineno-448-16" href="#__codelineno-448-16"></a><span class="w">    </span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span>
-<a id="__codelineno-448-17" name="__codelineno-448-17" href="#__codelineno-448-17"></a><span class="w">    </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span>
-<a id="__codelineno-448-18" name="__codelineno-448-18" href="#__codelineno-448-18"></a><span class="w">    </span><span class="n">c</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span>
-<a id="__codelineno-448-19" name="__codelineno-448-19" href="#__codelineno-448-19"></a><span class="p">)</span>
-<a id="__codelineno-448-20" name="__codelineno-448-20" href="#__codelineno-448-20"></a>
-<a id="__codelineno-448-21" name="__codelineno-448-21" href="#__codelineno-448-21"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span>
-<a id="__codelineno-448-22" name="__codelineno-448-22" href="#__codelineno-448-22"></a><span class="w">    </span><span class="nd">@Bar</span><span class="w"> </span><span class="n">fooBar</span><span class="p">:</span><span class="w"> </span><span class="n">FooBar</span>
-<a id="__codelineno-448-23" name="__codelineno-448-23" href="#__codelineno-448-23"></a><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-453-1" name="__codelineno-453-1" href="#__codelineno-453-1"></a><span class="c1">// If `ktlint_class_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than` equals</span>
+<a id="__codelineno-453-2" name="__codelineno-453-2" href="#__codelineno-453-2"></a><span class="c1">// `unset` the parameters are not wrapped as long as they fit on a single line</span>
+<a id="__codelineno-453-3" name="__codelineno-453-3" href="#__codelineno-453-3"></a><span class="kd">class</span><span class="w"> </span><span class="nc">ClassA</span><span class="p">(</span><span class="n">paramA</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="n">paramB</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="n">paramC</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">)</span>
+<a id="__codelineno-453-4" name="__codelineno-453-4" href="#__codelineno-453-4"></a>
+<a id="__codelineno-453-5" name="__codelineno-453-5" href="#__codelineno-453-5"></a><span class="kd">class</span><span class="w"> </span><span class="nc">ClassA</span><span class="p">(</span>
+<a id="__codelineno-453-6" name="__codelineno-453-6" href="#__codelineno-453-6"></a><span class="w">    </span><span class="n">paramA</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<a id="__codelineno-453-7" name="__codelineno-453-7" href="#__codelineno-453-7"></a><span class="w">    </span><span class="n">paramB</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<a id="__codelineno-453-8" name="__codelineno-453-8" href="#__codelineno-453-8"></a><span class="w">    </span><span class="n">paramC</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span>
+<a id="__codelineno-453-9" name="__codelineno-453-9" href="#__codelineno-453-9"></a><span class="p">)</span>
+<a id="__codelineno-453-10" name="__codelineno-453-10" href="#__codelineno-453-10"></a>
+<a id="__codelineno-453-11" name="__codelineno-453-11" href="#__codelineno-453-11"></a><span class="c1">// If `ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than` equals</span>
+<a id="__codelineno-453-12" name="__codelineno-453-12" href="#__codelineno-453-12"></a><span class="c1">// `unset` the parameters are not wrapped as long as they fit on a single line</span>
+<a id="__codelineno-453-13" name="__codelineno-453-13" href="#__codelineno-453-13"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">)</span>
+<a id="__codelineno-453-14" name="__codelineno-453-14" href="#__codelineno-453-14"></a>
+<a id="__codelineno-453-15" name="__codelineno-453-15" href="#__codelineno-453-15"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span>
+<a id="__codelineno-453-16" name="__codelineno-453-16" href="#__codelineno-453-16"></a><span class="w">    </span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span>
+<a id="__codelineno-453-17" name="__codelineno-453-17" href="#__codelineno-453-17"></a><span class="w">    </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span>
+<a id="__codelineno-453-18" name="__codelineno-453-18" href="#__codelineno-453-18"></a><span class="w">    </span><span class="n">c</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span>
+<a id="__codelineno-453-19" name="__codelineno-453-19" href="#__codelineno-453-19"></a><span class="p">)</span>
+<a id="__codelineno-453-20" name="__codelineno-453-20" href="#__codelineno-453-20"></a>
+<a id="__codelineno-453-21" name="__codelineno-453-21" href="#__codelineno-453-21"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span>
+<a id="__codelineno-453-22" name="__codelineno-453-22" href="#__codelineno-453-22"></a><span class="w">    </span><span class="nd">@Bar</span><span class="w"> </span><span class="n">fooBar</span><span class="p">:</span><span class="w"> </span><span class="n">FooBar</span>
+<a id="__codelineno-453-23" name="__codelineno-453-23" href="#__codelineno-453-23"></a><span class="p">)</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-449-1" name="__codelineno-449-1" href="#__codelineno-449-1"></a><span class="kd">class</span><span class="w"> </span><span class="nc">ClassA</span><span class="p">(</span>
-<a id="__codelineno-449-2" name="__codelineno-449-2" href="#__codelineno-449-2"></a><span class="w">    </span><span class="n">paramA</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="n">paramB</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
-<a id="__codelineno-449-3" name="__codelineno-449-3" href="#__codelineno-449-3"></a><span class="w">    </span><span class="n">paramC</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span>
-<a id="__codelineno-449-4" name="__codelineno-449-4" href="#__codelineno-449-4"></a><span class="p">)</span>
-<a id="__codelineno-449-5" name="__codelineno-449-5" href="#__codelineno-449-5"></a>
-<a id="__codelineno-449-6" name="__codelineno-449-6" href="#__codelineno-449-6"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span>
-<a id="__codelineno-449-7" name="__codelineno-449-7" href="#__codelineno-449-7"></a><span class="w">    </span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span>
-<a id="__codelineno-449-8" name="__codelineno-449-8" href="#__codelineno-449-8"></a><span class="w">    </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span>
-<a id="__codelineno-449-9" name="__codelineno-449-9" href="#__codelineno-449-9"></a><span class="p">)</span>
-<a id="__codelineno-449-10" name="__codelineno-449-10" href="#__codelineno-449-10"></a>
-<a id="__codelineno-449-11" name="__codelineno-449-11" href="#__codelineno-449-11"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span><span class="nd">@Bar</span><span class="w"> </span><span class="n">fooBar</span><span class="p">:</span><span class="w"> </span><span class="n">FooBar</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-454-1" name="__codelineno-454-1" href="#__codelineno-454-1"></a><span class="kd">class</span><span class="w"> </span><span class="nc">ClassA</span><span class="p">(</span>
+<a id="__codelineno-454-2" name="__codelineno-454-2" href="#__codelineno-454-2"></a><span class="w">    </span><span class="n">paramA</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="n">paramB</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<a id="__codelineno-454-3" name="__codelineno-454-3" href="#__codelineno-454-3"></a><span class="w">    </span><span class="n">paramC</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span>
+<a id="__codelineno-454-4" name="__codelineno-454-4" href="#__codelineno-454-4"></a><span class="p">)</span>
+<a id="__codelineno-454-5" name="__codelineno-454-5" href="#__codelineno-454-5"></a>
+<a id="__codelineno-454-6" name="__codelineno-454-6" href="#__codelineno-454-6"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span>
+<a id="__codelineno-454-7" name="__codelineno-454-7" href="#__codelineno-454-7"></a><span class="w">    </span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span>
+<a id="__codelineno-454-8" name="__codelineno-454-8" href="#__codelineno-454-8"></a><span class="w">    </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span>
+<a id="__codelineno-454-9" name="__codelineno-454-9" href="#__codelineno-454-9"></a><span class="p">)</span>
+<a id="__codelineno-454-10" name="__codelineno-454-10" href="#__codelineno-454-10"></a>
+<a id="__codelineno-454-11" name="__codelineno-454-11" href="#__codelineno-454-11"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span><span class="nd">@Bar</span><span class="w"> </span><span class="n">fooBar</span><span class="p">:</span><span class="w"> </span><span class="n">FooBar</span><span class="p">)</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-450-1" name="__codelineno-450-1" href="#__codelineno-450-1"></a><span class="kd">class</span><span class="w"> </span><span class="nc">ClassA</span><span class="p">(</span>
-<a id="__codelineno-450-2" name="__codelineno-450-2" href="#__codelineno-450-2"></a><span class="w">    </span><span class="n">paramA</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="n">paramB</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
-<a id="__codelineno-450-3" name="__codelineno-450-3" href="#__codelineno-450-3"></a><span class="w">    </span><span class="n">paramC</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span>
-<a id="__codelineno-450-4" name="__codelineno-450-4" href="#__codelineno-450-4"></a><span class="p">)</span>
-<a id="__codelineno-450-5" name="__codelineno-450-5" href="#__codelineno-450-5"></a>
-<a id="__codelineno-450-6" name="__codelineno-450-6" href="#__codelineno-450-6"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span>
-<a id="__codelineno-450-7" name="__codelineno-450-7" href="#__codelineno-450-7"></a><span class="w">    </span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span>
-<a id="__codelineno-450-8" name="__codelineno-450-8" href="#__codelineno-450-8"></a><span class="w">    </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span>
-<a id="__codelineno-450-9" name="__codelineno-450-9" href="#__codelineno-450-9"></a><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-455-1" name="__codelineno-455-1" href="#__codelineno-455-1"></a><span class="kd">class</span><span class="w"> </span><span class="nc">ClassA</span><span class="p">(</span>
+<a id="__codelineno-455-2" name="__codelineno-455-2" href="#__codelineno-455-2"></a><span class="w">    </span><span class="n">paramA</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="n">paramB</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<a id="__codelineno-455-3" name="__codelineno-455-3" href="#__codelineno-455-3"></a><span class="w">    </span><span class="n">paramC</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span>
+<a id="__codelineno-455-4" name="__codelineno-455-4" href="#__codelineno-455-4"></a><span class="p">)</span>
+<a id="__codelineno-455-5" name="__codelineno-455-5" href="#__codelineno-455-5"></a>
+<a id="__codelineno-455-6" name="__codelineno-455-6" href="#__codelineno-455-6"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span>
+<a id="__codelineno-455-7" name="__codelineno-455-7" href="#__codelineno-455-7"></a><span class="w">    </span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span>
+<a id="__codelineno-455-8" name="__codelineno-455-8" href="#__codelineno-455-8"></a><span class="w">    </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span>
+<a id="__codelineno-455-9" name="__codelineno-455-9" href="#__codelineno-455-9"></a><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -7472,57 +7583,57 @@ Although this code sample might look ok, it is semantically and programmatically
 <p class="annotate">Suppress or disable rule (1)</p>
 <ol>
 <li>Suppress rule in code with annotation below:
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-451-1" name="__codelineno-451-1" href="#__codelineno-451-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:parameter-list-wrapping&quot;</span><span class="p">)</span>
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-456-1" name="__codelineno-456-1" href="#__codelineno-456-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:parameter-list-wrapping&quot;</span><span class="p">)</span>
 </code></pre></div>
    Enable rule via <code>.editorconfig</code>
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-452-1" name="__codelineno-452-1" href="#__codelineno-452-1"></a>ktlint_standard_parameter-list-wrapping = enabled
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-457-1" name="__codelineno-457-1" href="#__codelineno-457-1"></a>ktlint_standard_parameter-list-wrapping = enabled
 </code></pre></div>
    Disable rule via <code>.editorconfig</code>
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-453-1" name="__codelineno-453-1" href="#__codelineno-453-1"></a>ktlint_standard_parameter-list-wrapping = disabled
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-458-1" name="__codelineno-458-1" href="#__codelineno-458-1"></a>ktlint_standard_parameter-list-wrapping = disabled
 </code></pre></div></li>
 </ol>
 <h3 id="parameter-wrapping">Parameter wrapping<a class="headerlink" href="#parameter-wrapping" title="Permanent link">&para;</a></h3>
 <p>When a function or class parameter doesn't fit on a single line, wrap the type or value to a separate line.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="91:3"><input checked="checked" id="__tabbed_91_1" name="__tabbed_91" type="radio" /><input id="__tabbed_91_2" name="__tabbed_91" type="radio" /><input id="__tabbed_91_3" name="__tabbed_91" type="radio" /><div class="tabbed-labels"><label for="__tabbed_91_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint (ktlint_official)</label><label for="__tabbed_91_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint (non ktlint_official)</label><label for="__tabbed_91_3"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="92:3"><input checked="checked" id="__tabbed_92_1" name="__tabbed_92" type="radio" /><input id="__tabbed_92_2" name="__tabbed_92" type="radio" /><input id="__tabbed_92_3" name="__tabbed_92" type="radio" /><div class="tabbed-labels"><label for="__tabbed_92_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint (ktlint_official)</label><label for="__tabbed_92_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint (non ktlint_official)</label><label for="__tabbed_92_3"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-454-1" name="__codelineno-454-1" href="#__codelineno-454-1"></a><span class="c1">// Assume that the last allowed character is</span>
-<a id="__codelineno-454-2" name="__codelineno-454-2" href="#__codelineno-454-2"></a><span class="c1">// at the X character on the right           X</span>
-<a id="__codelineno-454-3" name="__codelineno-454-3" href="#__codelineno-454-3"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Bar</span><span class="p">(</span>
-<a id="__codelineno-454-4" name="__codelineno-454-4" href="#__codelineno-454-4"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">fooooooooooooooooooooooooTooLong</span><span class="p">:</span>
-<a id="__codelineno-454-5" name="__codelineno-454-5" href="#__codelineno-454-5"></a><span class="w">        </span><span class="n">Foo</span><span class="p">,</span>
-<a id="__codelineno-454-6" name="__codelineno-454-6" href="#__codelineno-454-6"></a><span class="p">)</span>
-<a id="__codelineno-454-7" name="__codelineno-454-7" href="#__codelineno-454-7"></a>
-<a id="__codelineno-454-8" name="__codelineno-454-8" href="#__codelineno-454-8"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">bar</span><span class="p">(</span>
-<a id="__codelineno-454-9" name="__codelineno-454-9" href="#__codelineno-454-9"></a><span class="w">    </span><span class="n">fooooooooooooooooooooooooTooLong</span><span class="p">:</span>
-<a id="__codelineno-454-10" name="__codelineno-454-10" href="#__codelineno-454-10"></a><span class="w">        </span><span class="n">Foo</span><span class="p">,</span>
-<a id="__codelineno-454-11" name="__codelineno-454-11" href="#__codelineno-454-11"></a><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-459-1" name="__codelineno-459-1" href="#__codelineno-459-1"></a><span class="c1">// Assume that the last allowed character is</span>
+<a id="__codelineno-459-2" name="__codelineno-459-2" href="#__codelineno-459-2"></a><span class="c1">// at the X character on the right           X</span>
+<a id="__codelineno-459-3" name="__codelineno-459-3" href="#__codelineno-459-3"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Bar</span><span class="p">(</span>
+<a id="__codelineno-459-4" name="__codelineno-459-4" href="#__codelineno-459-4"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">fooooooooooooooooooooooooTooLong</span><span class="p">:</span>
+<a id="__codelineno-459-5" name="__codelineno-459-5" href="#__codelineno-459-5"></a><span class="w">        </span><span class="n">Foo</span><span class="p">,</span>
+<a id="__codelineno-459-6" name="__codelineno-459-6" href="#__codelineno-459-6"></a><span class="p">)</span>
+<a id="__codelineno-459-7" name="__codelineno-459-7" href="#__codelineno-459-7"></a>
+<a id="__codelineno-459-8" name="__codelineno-459-8" href="#__codelineno-459-8"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">bar</span><span class="p">(</span>
+<a id="__codelineno-459-9" name="__codelineno-459-9" href="#__codelineno-459-9"></a><span class="w">    </span><span class="n">fooooooooooooooooooooooooTooLong</span><span class="p">:</span>
+<a id="__codelineno-459-10" name="__codelineno-459-10" href="#__codelineno-459-10"></a><span class="w">        </span><span class="n">Foo</span><span class="p">,</span>
+<a id="__codelineno-459-11" name="__codelineno-459-11" href="#__codelineno-459-11"></a><span class="p">)</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-455-1" name="__codelineno-455-1" href="#__codelineno-455-1"></a><span class="c1">// Assume that the last allowed character is</span>
-<a id="__codelineno-455-2" name="__codelineno-455-2" href="#__codelineno-455-2"></a><span class="c1">// at the X character on the right           X</span>
-<a id="__codelineno-455-3" name="__codelineno-455-3" href="#__codelineno-455-3"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Bar</span><span class="p">(</span>
-<a id="__codelineno-455-4" name="__codelineno-455-4" href="#__codelineno-455-4"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">fooooooooooooooooooooooooTooLong</span><span class="p">:</span>
-<a id="__codelineno-455-5" name="__codelineno-455-5" href="#__codelineno-455-5"></a><span class="w">    </span><span class="n">Foo</span><span class="p">,</span>
-<a id="__codelineno-455-6" name="__codelineno-455-6" href="#__codelineno-455-6"></a><span class="p">)</span>
-<a id="__codelineno-455-7" name="__codelineno-455-7" href="#__codelineno-455-7"></a>
-<a id="__codelineno-455-8" name="__codelineno-455-8" href="#__codelineno-455-8"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">bar</span><span class="p">(</span>
-<a id="__codelineno-455-9" name="__codelineno-455-9" href="#__codelineno-455-9"></a><span class="w">    </span><span class="n">fooooooooooooooooooooooooTooLong</span><span class="p">:</span>
-<a id="__codelineno-455-10" name="__codelineno-455-10" href="#__codelineno-455-10"></a><span class="w">    </span><span class="n">Foo</span><span class="p">,</span>
-<a id="__codelineno-455-11" name="__codelineno-455-11" href="#__codelineno-455-11"></a><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-460-1" name="__codelineno-460-1" href="#__codelineno-460-1"></a><span class="c1">// Assume that the last allowed character is</span>
+<a id="__codelineno-460-2" name="__codelineno-460-2" href="#__codelineno-460-2"></a><span class="c1">// at the X character on the right           X</span>
+<a id="__codelineno-460-3" name="__codelineno-460-3" href="#__codelineno-460-3"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Bar</span><span class="p">(</span>
+<a id="__codelineno-460-4" name="__codelineno-460-4" href="#__codelineno-460-4"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">fooooooooooooooooooooooooTooLong</span><span class="p">:</span>
+<a id="__codelineno-460-5" name="__codelineno-460-5" href="#__codelineno-460-5"></a><span class="w">    </span><span class="n">Foo</span><span class="p">,</span>
+<a id="__codelineno-460-6" name="__codelineno-460-6" href="#__codelineno-460-6"></a><span class="p">)</span>
+<a id="__codelineno-460-7" name="__codelineno-460-7" href="#__codelineno-460-7"></a>
+<a id="__codelineno-460-8" name="__codelineno-460-8" href="#__codelineno-460-8"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">bar</span><span class="p">(</span>
+<a id="__codelineno-460-9" name="__codelineno-460-9" href="#__codelineno-460-9"></a><span class="w">    </span><span class="n">fooooooooooooooooooooooooTooLong</span><span class="p">:</span>
+<a id="__codelineno-460-10" name="__codelineno-460-10" href="#__codelineno-460-10"></a><span class="w">    </span><span class="n">Foo</span><span class="p">,</span>
+<a id="__codelineno-460-11" name="__codelineno-460-11" href="#__codelineno-460-11"></a><span class="p">)</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-456-1" name="__codelineno-456-1" href="#__codelineno-456-1"></a><span class="c1">// Assume that the last allowed character is</span>
-<a id="__codelineno-456-2" name="__codelineno-456-2" href="#__codelineno-456-2"></a><span class="c1">// at the X character on the right           X</span>
-<a id="__codelineno-456-3" name="__codelineno-456-3" href="#__codelineno-456-3"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Bar</span><span class="p">(</span>
-<a id="__codelineno-456-4" name="__codelineno-456-4" href="#__codelineno-456-4"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">fooooooooooooooooooooooooTooLong</span><span class="p">:</span><span class="w"> </span><span class="n">Foo</span><span class="p">,</span>
-<a id="__codelineno-456-5" name="__codelineno-456-5" href="#__codelineno-456-5"></a><span class="p">)</span>
-<a id="__codelineno-456-6" name="__codelineno-456-6" href="#__codelineno-456-6"></a>
-<a id="__codelineno-456-7" name="__codelineno-456-7" href="#__codelineno-456-7"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">bar</span><span class="p">(</span>
-<a id="__codelineno-456-8" name="__codelineno-456-8" href="#__codelineno-456-8"></a><span class="w">    </span><span class="n">fooooooooooooooooooooooooooooTooLong</span><span class="p">:</span><span class="w"> </span><span class="n">Foo</span><span class="p">,</span>
-<a id="__codelineno-456-9" name="__codelineno-456-9" href="#__codelineno-456-9"></a><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-461-1" name="__codelineno-461-1" href="#__codelineno-461-1"></a><span class="c1">// Assume that the last allowed character is</span>
+<a id="__codelineno-461-2" name="__codelineno-461-2" href="#__codelineno-461-2"></a><span class="c1">// at the X character on the right           X</span>
+<a id="__codelineno-461-3" name="__codelineno-461-3" href="#__codelineno-461-3"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Bar</span><span class="p">(</span>
+<a id="__codelineno-461-4" name="__codelineno-461-4" href="#__codelineno-461-4"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">fooooooooooooooooooooooooTooLong</span><span class="p">:</span><span class="w"> </span><span class="n">Foo</span><span class="p">,</span>
+<a id="__codelineno-461-5" name="__codelineno-461-5" href="#__codelineno-461-5"></a><span class="p">)</span>
+<a id="__codelineno-461-6" name="__codelineno-461-6" href="#__codelineno-461-6"></a>
+<a id="__codelineno-461-7" name="__codelineno-461-7" href="#__codelineno-461-7"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">bar</span><span class="p">(</span>
+<a id="__codelineno-461-8" name="__codelineno-461-8" href="#__codelineno-461-8"></a><span class="w">    </span><span class="n">fooooooooooooooooooooooooooooTooLong</span><span class="p">:</span><span class="w"> </span><span class="n">Foo</span><span class="p">,</span>
+<a id="__codelineno-461-9" name="__codelineno-461-9" href="#__codelineno-461-9"></a><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -7549,30 +7660,30 @@ Although this code sample might look ok, it is semantically and programmatically
 <p class="annotate">Suppress or disable rule (1)</p>
 <ol>
 <li>Suppress rule in code with annotation below:
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-457-1" name="__codelineno-457-1" href="#__codelineno-457-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:standard:parameter-wrapping&quot;</span><span class="p">)</span>
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-462-1" name="__codelineno-462-1" href="#__codelineno-462-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:standard:parameter-wrapping&quot;</span><span class="p">)</span>
 </code></pre></div>
    Enable rule via <code>.editorconfig</code>
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-458-1" name="__codelineno-458-1" href="#__codelineno-458-1"></a>ktlint_standard_parameter-wrapping = enabled
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-463-1" name="__codelineno-463-1" href="#__codelineno-463-1"></a>ktlint_standard_parameter-wrapping = enabled
 </code></pre></div>
    Disable rule via <code>.editorconfig</code>
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-459-1" name="__codelineno-459-1" href="#__codelineno-459-1"></a>ktlint_standard_parameter-wrapping = disabled
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-464-1" name="__codelineno-464-1" href="#__codelineno-464-1"></a>ktlint_standard_parameter-wrapping = disabled
 </code></pre></div></li>
 </ol>
 <h3 id="property-wrapping">Property wrapping<a class="headerlink" href="#property-wrapping" title="Permanent link">&para;</a></h3>
 <p>When a property doesn't fit on a single line, wrap the type or value to a separate line.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="92:2"><input checked="checked" id="__tabbed_92_1" name="__tabbed_92" type="radio" /><input id="__tabbed_92_2" name="__tabbed_92" type="radio" /><div class="tabbed-labels"><label for="__tabbed_92_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint</label><label for="__tabbed_92_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="93:2"><input checked="checked" id="__tabbed_93_1" name="__tabbed_93" type="radio" /><input id="__tabbed_93_2" name="__tabbed_93" type="radio" /><div class="tabbed-labels"><label for="__tabbed_93_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint</label><label for="__tabbed_93_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-460-1" name="__codelineno-460-1" href="#__codelineno-460-1"></a><span class="c1">// Assume that the last allowed character is</span>
-<a id="__codelineno-460-2" name="__codelineno-460-2" href="#__codelineno-460-2"></a><span class="c1">// at the X character on the right           X</span>
-<a id="__codelineno-460-3" name="__codelineno-460-3" href="#__codelineno-460-3"></a><span class="kd">val</span><span class="w"> </span><span class="nv">aVariableWithALooooooooooooongName</span><span class="p">:</span>
-<a id="__codelineno-460-4" name="__codelineno-460-4" href="#__codelineno-460-4"></a><span class="w">    </span><span class="kt">String</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-465-1" name="__codelineno-465-1" href="#__codelineno-465-1"></a><span class="c1">// Assume that the last allowed character is</span>
+<a id="__codelineno-465-2" name="__codelineno-465-2" href="#__codelineno-465-2"></a><span class="c1">// at the X character on the right           X</span>
+<a id="__codelineno-465-3" name="__codelineno-465-3" href="#__codelineno-465-3"></a><span class="kd">val</span><span class="w"> </span><span class="nv">aVariableWithALooooooooooooongName</span><span class="p">:</span>
+<a id="__codelineno-465-4" name="__codelineno-465-4" href="#__codelineno-465-4"></a><span class="w">    </span><span class="kt">String</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-461-1" name="__codelineno-461-1" href="#__codelineno-461-1"></a><span class="c1">// Assume that the last allowed character is</span>
-<a id="__codelineno-461-2" name="__codelineno-461-2" href="#__codelineno-461-2"></a><span class="c1">// at the X character on the right           X</span>
-<a id="__codelineno-461-3" name="__codelineno-461-3" href="#__codelineno-461-3"></a><span class="kd">val</span><span class="w"> </span><span class="nv">aVariableWithALooooooooooooongName</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-466-1" name="__codelineno-466-1" href="#__codelineno-466-1"></a><span class="c1">// Assume that the last allowed character is</span>
+<a id="__codelineno-466-2" name="__codelineno-466-2" href="#__codelineno-466-2"></a><span class="c1">// at the X character on the right           X</span>
+<a id="__codelineno-466-3" name="__codelineno-466-3" href="#__codelineno-466-3"></a><span class="kd">val</span><span class="w"> </span><span class="nv">aVariableWithALooooooooooooongName</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span>
 </code></pre></div>
 </div>
 </div>
@@ -7599,47 +7710,47 @@ Although this code sample might look ok, it is semantically and programmatically
 <p class="annotate">Suppress or disable rule (1)</p>
 <ol>
 <li>Suppress rule in code with annotation below:
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-462-1" name="__codelineno-462-1" href="#__codelineno-462-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:property-wrapping&quot;</span><span class="p">)</span>
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-467-1" name="__codelineno-467-1" href="#__codelineno-467-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:property-wrapping&quot;</span><span class="p">)</span>
 </code></pre></div>
    Enable rule via <code>.editorconfig</code>
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-463-1" name="__codelineno-463-1" href="#__codelineno-463-1"></a>ktlint_standard_property-wrapping = enabled
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-468-1" name="__codelineno-468-1" href="#__codelineno-468-1"></a>ktlint_standard_property-wrapping = enabled
 </code></pre></div>
    Disable rule via <code>.editorconfig</code>
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-464-1" name="__codelineno-464-1" href="#__codelineno-464-1"></a>ktlint_standard_property-wrapping = disabled
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-469-1" name="__codelineno-469-1" href="#__codelineno-469-1"></a>ktlint_standard_property-wrapping = disabled
 </code></pre></div></li>
 </ol>
 <h3 id="statement-wrapping">Statement wrapping<a class="headerlink" href="#statement-wrapping" title="Permanent link">&para;</a></h3>
 <p>A function, class/object body or other block body statement has to be placed on different line than the braces of the body block.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="93:2"><input checked="checked" id="__tabbed_93_1" name="__tabbed_93" type="radio" /><input id="__tabbed_93_2" name="__tabbed_93" type="radio" /><div class="tabbed-labels"><label for="__tabbed_93_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint</label><label for="__tabbed_93_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="94:2"><input checked="checked" id="__tabbed_94_1" name="__tabbed_94" type="radio" /><input id="__tabbed_94_2" name="__tabbed_94" type="radio" /><div class="tabbed-labels"><label for="__tabbed_94_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint</label><label for="__tabbed_94_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-465-1" name="__codelineno-465-1" href="#__codelineno-465-1"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">foo</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-465-2" name="__codelineno-465-2" href="#__codelineno-465-2"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kc">true</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-465-3" name="__codelineno-465-3" href="#__codelineno-465-3"></a><span class="w">        </span><span class="c1">// do something</span>
-<a id="__codelineno-465-4" name="__codelineno-465-4" href="#__codelineno-465-4"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-465-5" name="__codelineno-465-5" href="#__codelineno-465-5"></a><span class="p">}</span>
-<a id="__codelineno-465-6" name="__codelineno-465-6" href="#__codelineno-465-6"></a>
-<a id="__codelineno-465-7" name="__codelineno-465-7" href="#__codelineno-465-7"></a><span class="kd">class</span><span class="w"> </span><span class="nc">A</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-465-8" name="__codelineno-465-8" href="#__codelineno-465-8"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>
-<a id="__codelineno-465-9" name="__codelineno-465-9" href="#__codelineno-465-9"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span>
-<a id="__codelineno-465-10" name="__codelineno-465-10" href="#__codelineno-465-10"></a><span class="p">}</span>
-<a id="__codelineno-465-11" name="__codelineno-465-11" href="#__codelineno-465-11"></a>
-<a id="__codelineno-465-12" name="__codelineno-465-12" href="#__codelineno-465-12"></a><span class="kd">enum</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">FooBar1</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">FOO</span><span class="p">,</span><span class="w"> </span><span class="n">BAR</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-465-13" name="__codelineno-465-13" href="#__codelineno-465-13"></a>
-<a id="__codelineno-465-14" name="__codelineno-465-14" href="#__codelineno-465-14"></a><span class="kd">enum</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">FooBar2</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-465-15" name="__codelineno-465-15" href="#__codelineno-465-15"></a><span class="w">    </span><span class="n">FOO</span><span class="p">,</span>
-<a id="__codelineno-465-16" name="__codelineno-465-16" href="#__codelineno-465-16"></a><span class="w">    </span><span class="n">BAR</span><span class="p">,</span>
-<a id="__codelineno-465-17" name="__codelineno-465-17" href="#__codelineno-465-17"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-470-1" name="__codelineno-470-1" href="#__codelineno-470-1"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">foo</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-470-2" name="__codelineno-470-2" href="#__codelineno-470-2"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kc">true</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-470-3" name="__codelineno-470-3" href="#__codelineno-470-3"></a><span class="w">        </span><span class="c1">// do something</span>
+<a id="__codelineno-470-4" name="__codelineno-470-4" href="#__codelineno-470-4"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-470-5" name="__codelineno-470-5" href="#__codelineno-470-5"></a><span class="p">}</span>
+<a id="__codelineno-470-6" name="__codelineno-470-6" href="#__codelineno-470-6"></a>
+<a id="__codelineno-470-7" name="__codelineno-470-7" href="#__codelineno-470-7"></a><span class="kd">class</span><span class="w"> </span><span class="nc">A</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-470-8" name="__codelineno-470-8" href="#__codelineno-470-8"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>
+<a id="__codelineno-470-9" name="__codelineno-470-9" href="#__codelineno-470-9"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span>
+<a id="__codelineno-470-10" name="__codelineno-470-10" href="#__codelineno-470-10"></a><span class="p">}</span>
+<a id="__codelineno-470-11" name="__codelineno-470-11" href="#__codelineno-470-11"></a>
+<a id="__codelineno-470-12" name="__codelineno-470-12" href="#__codelineno-470-12"></a><span class="kd">enum</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">FooBar1</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">FOO</span><span class="p">,</span><span class="w"> </span><span class="n">BAR</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-470-13" name="__codelineno-470-13" href="#__codelineno-470-13"></a>
+<a id="__codelineno-470-14" name="__codelineno-470-14" href="#__codelineno-470-14"></a><span class="kd">enum</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">FooBar2</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-470-15" name="__codelineno-470-15" href="#__codelineno-470-15"></a><span class="w">    </span><span class="n">FOO</span><span class="p">,</span>
+<a id="__codelineno-470-16" name="__codelineno-470-16" href="#__codelineno-470-16"></a><span class="w">    </span><span class="n">BAR</span><span class="p">,</span>
+<a id="__codelineno-470-17" name="__codelineno-470-17" href="#__codelineno-470-17"></a><span class="p">}</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-466-1" name="__codelineno-466-1" href="#__codelineno-466-1"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">foo</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kc">true</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-466-2" name="__codelineno-466-2" href="#__codelineno-466-2"></a><span class="w">        </span><span class="c1">// do something</span>
-<a id="__codelineno-466-3" name="__codelineno-466-3" href="#__codelineno-466-3"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-466-4" name="__codelineno-466-4" href="#__codelineno-466-4"></a><span class="p">}</span>
-<a id="__codelineno-466-5" name="__codelineno-466-5" href="#__codelineno-466-5"></a>
-<a id="__codelineno-466-6" name="__codelineno-466-6" href="#__codelineno-466-6"></a><span class="kd">class</span><span class="w"> </span><span class="nc">A</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>
-<a id="__codelineno-466-7" name="__codelineno-466-7" href="#__codelineno-466-7"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-471-1" name="__codelineno-471-1" href="#__codelineno-471-1"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">foo</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kc">true</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-471-2" name="__codelineno-471-2" href="#__codelineno-471-2"></a><span class="w">        </span><span class="c1">// do something</span>
+<a id="__codelineno-471-3" name="__codelineno-471-3" href="#__codelineno-471-3"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-471-4" name="__codelineno-471-4" href="#__codelineno-471-4"></a><span class="p">}</span>
+<a id="__codelineno-471-5" name="__codelineno-471-5" href="#__codelineno-471-5"></a>
+<a id="__codelineno-471-6" name="__codelineno-471-6" href="#__codelineno-471-6"></a><span class="kd">class</span><span class="w"> </span><span class="nc">A</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>
+<a id="__codelineno-471-7" name="__codelineno-471-7" href="#__codelineno-471-7"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 </div>
 </div>
@@ -7648,33 +7759,33 @@ Although this code sample might look ok, it is semantically and programmatically
 <p class="annotate">Suppress or disable rule (1)</p>
 <ol>
 <li>Suppress rule in code with annotation below:
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-467-1" name="__codelineno-467-1" href="#__codelineno-467-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:standard:statement-wrapping&quot;</span><span class="p">)</span>
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-472-1" name="__codelineno-472-1" href="#__codelineno-472-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:standard:statement-wrapping&quot;</span><span class="p">)</span>
 </code></pre></div>
    Enable rule via <code>.editorconfig</code>
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-468-1" name="__codelineno-468-1" href="#__codelineno-468-1"></a>ktlint_standard_statement-wrapping = enabled
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-473-1" name="__codelineno-473-1" href="#__codelineno-473-1"></a>ktlint_standard_statement-wrapping = enabled
 </code></pre></div>
    Disable rule via <code>.editorconfig</code>
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-469-1" name="__codelineno-469-1" href="#__codelineno-469-1"></a>ktlint_standard_statement-wrapping = disabled
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-474-1" name="__codelineno-474-1" href="#__codelineno-474-1"></a>ktlint_standard_statement-wrapping = disabled
 </code></pre></div></li>
 </ol>
 <h3 id="wrapping_1">Wrapping<a class="headerlink" href="#wrapping_1" title="Permanent link">&para;</a></h3>
 <p>Inserts missing newlines (for example, between parentheses of a multi-line function call).</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="94:2"><input checked="checked" id="__tabbed_94_1" name="__tabbed_94" type="radio" /><input id="__tabbed_94_2" name="__tabbed_94" type="radio" /><div class="tabbed-labels"><label for="__tabbed_94_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint</label><label for="__tabbed_94_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="95:2"><input checked="checked" id="__tabbed_95_1" name="__tabbed_95" type="radio" /><input id="__tabbed_95_2" name="__tabbed_95" type="radio" /><div class="tabbed-labels"><label for="__tabbed_95_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint</label><label for="__tabbed_95_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-470-1" name="__codelineno-470-1" href="#__codelineno-470-1"></a><span class="kd">val</span><span class="w"> </span><span class="nv">foo</span><span class="w"> </span><span class="o">=</span>
-<a id="__codelineno-470-2" name="__codelineno-470-2" href="#__codelineno-470-2"></a><span class="w">    </span><span class="n">foo</span><span class="p">(</span>
-<a id="__codelineno-470-3" name="__codelineno-470-3" href="#__codelineno-470-3"></a><span class="w">        </span><span class="n">a</span><span class="p">,</span>
-<a id="__codelineno-470-4" name="__codelineno-470-4" href="#__codelineno-470-4"></a><span class="w">        </span><span class="n">b</span><span class="p">,</span>
-<a id="__codelineno-470-5" name="__codelineno-470-5" href="#__codelineno-470-5"></a><span class="w">        </span><span class="n">c</span><span class="p">,</span>
-<a id="__codelineno-470-6" name="__codelineno-470-6" href="#__codelineno-470-6"></a><span class="w">    </span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-475-1" name="__codelineno-475-1" href="#__codelineno-475-1"></a><span class="kd">val</span><span class="w"> </span><span class="nv">foo</span><span class="w"> </span><span class="o">=</span>
+<a id="__codelineno-475-2" name="__codelineno-475-2" href="#__codelineno-475-2"></a><span class="w">    </span><span class="n">foo</span><span class="p">(</span>
+<a id="__codelineno-475-3" name="__codelineno-475-3" href="#__codelineno-475-3"></a><span class="w">        </span><span class="n">a</span><span class="p">,</span>
+<a id="__codelineno-475-4" name="__codelineno-475-4" href="#__codelineno-475-4"></a><span class="w">        </span><span class="n">b</span><span class="p">,</span>
+<a id="__codelineno-475-5" name="__codelineno-475-5" href="#__codelineno-475-5"></a><span class="w">        </span><span class="n">c</span><span class="p">,</span>
+<a id="__codelineno-475-6" name="__codelineno-475-6" href="#__codelineno-475-6"></a><span class="w">    </span><span class="p">)</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-471-1" name="__codelineno-471-1" href="#__codelineno-471-1"></a><span class="kd">val</span><span class="w"> </span><span class="nv">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">foo</span><span class="p">(</span>
-<a id="__codelineno-471-2" name="__codelineno-471-2" href="#__codelineno-471-2"></a><span class="w">    </span><span class="n">a</span><span class="p">,</span>
-<a id="__codelineno-471-3" name="__codelineno-471-3" href="#__codelineno-471-3"></a><span class="w">    </span><span class="n">b</span><span class="p">,</span>
-<a id="__codelineno-471-4" name="__codelineno-471-4" href="#__codelineno-471-4"></a><span class="w">    </span><span class="n">c</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-476-1" name="__codelineno-476-1" href="#__codelineno-476-1"></a><span class="kd">val</span><span class="w"> </span><span class="nv">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">foo</span><span class="p">(</span>
+<a id="__codelineno-476-2" name="__codelineno-476-2" href="#__codelineno-476-2"></a><span class="w">    </span><span class="n">a</span><span class="p">,</span>
+<a id="__codelineno-476-3" name="__codelineno-476-3" href="#__codelineno-476-3"></a><span class="w">    </span><span class="n">b</span><span class="p">,</span>
+<a id="__codelineno-476-4" name="__codelineno-476-4" href="#__codelineno-476-4"></a><span class="w">    </span><span class="n">c</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -7701,13 +7812,13 @@ Although this code sample might look ok, it is semantically and programmatically
 <p class="annotate">Suppress or disable rule (1)</p>
 <ol>
 <li>Suppress rule in code with annotation below:
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-472-1" name="__codelineno-472-1" href="#__codelineno-472-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:standard:wrapping&quot;</span><span class="p">)</span>
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-477-1" name="__codelineno-477-1" href="#__codelineno-477-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:standard:wrapping&quot;</span><span class="p">)</span>
 </code></pre></div>
    Enable rule via <code>.editorconfig</code>
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-473-1" name="__codelineno-473-1" href="#__codelineno-473-1"></a>ktlint_standard_wrapping = enabled
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-478-1" name="__codelineno-478-1" href="#__codelineno-478-1"></a>ktlint_standard_wrapping = enabled
 </code></pre></div>
    Disable rule via <code>.editorconfig</code>
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-474-1" name="__codelineno-474-1" href="#__codelineno-474-1"></a>ktlint_standard_wrapping = disabled
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-479-1" name="__codelineno-479-1" href="#__codelineno-479-1"></a>ktlint_standard_wrapping = disabled
 </code></pre></div></li>
 </ol>
 
@@ -7761,7 +7872,7 @@ Although this code sample might look ok, it is semantically and programmatically
       <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "search.suggest", "search.share", "content.code.copy"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../../assets/javascripts/bundle.56ea9cef.min.js"></script>
       
     
   </body>
