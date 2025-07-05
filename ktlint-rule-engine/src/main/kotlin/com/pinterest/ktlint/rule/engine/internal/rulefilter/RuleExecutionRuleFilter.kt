@@ -106,6 +106,10 @@ private class RuleExecutionFilter(
                 isOfficialCodeStyleEnabled(rule)
             }
 
+            rule is Rule.OnlyWhenEnabledInEditorconfig -> {
+                ruleExecution(rule.ruleId.ktLintRuleExecutionPropertyName()) == RuleExecution.disabled
+            }
+
             else -> {
                 isRuleSetEnabled(rule)
             }

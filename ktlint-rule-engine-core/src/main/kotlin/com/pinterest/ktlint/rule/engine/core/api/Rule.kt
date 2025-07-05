@@ -277,4 +277,11 @@ public open class Rule(
      * in Ktlint internally only. It may be subject to change at any time without providing any backward compatibility.
      */
     public interface OfficialCodeStyle
+
+    /**
+     * This interface marks a rule to be run only on explicitly enabled in the `.editorconfig`. This can be used to mark a rule as
+     * deprecated, or when a rule is not applicable for general use.
+     * This interface should not be used on a rule that is also marked with [Experimental], or [OfficialCodeStyle].
+     */
+    public interface OnlyWhenEnabledInEditorconfig
 }

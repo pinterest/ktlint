@@ -192,6 +192,31 @@ class RuleExecutionRuleFilterTest {
         assertThat(actual).isEmpty()
     }
 
+    @Test
+    fun `Given a rule that only should be run when enabled explicitly, and the rule execution property is not set, then do not execute the rule`() {
+        val actual =
+            runWithRuleExecutionRuleFilter(
+                RuleProvider { OnlyWhenEnabledInEditorconfigRule(STANDARD_RULE_A) },
+                editorConfig = EditorConfig(),
+            ).toRuleIds()
+
+        assertThat(actual).isEmpty()
+    }
+
+    @Test
+    fun `Given a rule that only should be run when enabled explicitly, and the rule execution property is enabled, then do execute the rule`() {
+        val actual =
+            runWithRuleExecutionRuleFilter(
+                RuleProvider { OnlyWhenEnabledInEditorconfigRule(STANDARD_RULE_A) },
+                editorConfig =
+                    EditorConfig(
+                        ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_A, RuleExecution.enabled),
+                    ),
+            ).toRuleIds()
+
+        assertThat(actual).containsExactly(STANDARD_RULE_A)
+    }
+
     /**
      * Create a [RuleExecutionRuleFilter] for a given set of [RuleProvider]s and an [EditorConfig].
      */
@@ -255,4 +280,12 @@ class RuleExecutionRuleFilterTest {
             about = About(),
         ),
         Rule.Experimental
+
+    private open class OnlyWhenEnabledInEditorconfigRule(
+        ruleId: RuleId,
+    ) : Rule(
+            ruleId = ruleId,
+            about = About(),
+        ),
+        Rule.OnlyWhenEnabledInEditorconfig
 }

@@ -2558,8 +2558,13 @@ Suppress or disable rule (1)
 
 ## No unused imports
 
-!!! warning
-    This rule is not able to detect *all* unused imports as mentioned in this [issue comment](https://github.com/pinterest/ktlint/issues/1754#issuecomment-1368201667).
+!!! important
+    Starting from KtLint `1.7.0` this rule no longer runs by default. In some cases the rule marks imports as unused, while after removal of the import the code no longer compiles. This rule will be removed in KtLint `2.0`. See [issue](https://github.com/pinterest/ktlint/issues/3038) for more background. 
+    If you insist on running the rule despite its shortcomings, you need to enable the rule in the `.editorconfig` by adding:
+    ```
+    ktlint_standard_no-unused-imports = enabled
+    ```
+
 
 Rule id: `standard:no-unused-imports`
 

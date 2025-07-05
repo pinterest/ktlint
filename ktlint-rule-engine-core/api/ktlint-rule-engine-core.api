@@ -482,6 +482,9 @@ public abstract interface class com/pinterest/ktlint/rule/engine/core/api/Rule$E
 public abstract interface class com/pinterest/ktlint/rule/engine/core/api/Rule$OfficialCodeStyle {
 }
 
+public abstract interface class com/pinterest/ktlint/rule/engine/core/api/Rule$OnlyWhenEnabledInEditorconfig {
+}
+
 public abstract class com/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier {
 }
 
