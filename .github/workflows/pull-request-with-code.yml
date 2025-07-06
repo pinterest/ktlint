@@ -42,6 +42,9 @@ jobs:
       - run: java -jar ktlint-dev.jar --help
         shell: bash
 
+      - run: java --add-opens=java.base/java.lang=ALL-UNNAMED --sun-misc-unsafe-memory-access=allow -jar ktlint-dev.jar --log-level=trace --help
+        shell: bash
+
   build:
     strategy:
       matrix:
