@@ -52,7 +52,7 @@ tasks.register<JavaExec>("ktlintFormat") {
     classpath = ktlint
     mainClass = "com.pinterest.ktlint.Main"
     // Suppress "sun.misc.Unsafe::objectFieldOffset" on Java24 (warning) (https://github.com/pinterest/ktlint/issues/2973)
-    jvmArgs("--sun-misc-unsafe-memory-access=allow") // Java 24+
+    // jvmArgs("--sun-misc-unsafe-memory-access=allow") // Java 24+
     args(
         "-F",
         "**/src/**/*.kt",
