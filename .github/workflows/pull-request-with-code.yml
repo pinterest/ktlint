@@ -29,6 +29,19 @@ env:
 
 # Note that all "jobs" (build, tests) including "jobs.*.runs-on" should be kept in sync with "pull-request-without-code"
 jobs:
+  smoke-test:
+    runs-on: [windows-latest]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+
+      - uses: ./.github/actions/setup-gradle-build
+
+      - run: java -version
+        shell: bash
+
+      - run: java -jar ktlint-dev.jar --help
+        shell: bash
+
   build:
     strategy:
       matrix:

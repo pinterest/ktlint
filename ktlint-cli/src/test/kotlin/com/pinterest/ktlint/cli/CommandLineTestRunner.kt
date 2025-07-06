@@ -136,6 +136,7 @@ class CommandLineTestRunner(
     private fun ktlintCommand(arguments: List<String>): String =
         mutableListOf<String>()
             .apply {
+                println("Java version is=${System.getProperty("java.specification.version")}")
                 if (isWindows()) {
                     // KtLint is not an executable command on Windows OS
                     add("java")
