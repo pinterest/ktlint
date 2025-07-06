@@ -60,7 +60,7 @@ tasks.withType<Test>().configureEach {
             .get()
             .metadata
             .languageVersion
-            .canCompileOrRun(JavaLanguageVersion.of(11))
+            .canCompileOrRun(JavaLanguageVersion.of(24))
     ) {
         // Suppress warning "sun.misc.Unsafe::objectFieldOffset" on Java24+ (https://github.com/pinterest/ktlint/issues/2973)
          jvmArgs("--sun-misc-unsafe-memory-access=allow") // Java 24+
