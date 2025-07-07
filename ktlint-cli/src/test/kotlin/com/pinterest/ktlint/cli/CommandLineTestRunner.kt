@@ -153,7 +153,7 @@ class CommandLineTestRunner(
                                 // Suppress warning "sun.misc.Unsafe::objectFieldOffset" on Java24+ (https://github.com/pinterest/ktlint/issues/2973)
                                 add("--sun-misc-unsafe-memory-access=allow")
                                 // Suppress warning "A restricted method in java.lang.System has been called" on Java24+ (https://github.com/pinterest/ktlint/issues/3041)
-                                add("--sun-misc-unsafe-memory-access=allow")
+                                add("--enable-native-access=ALL-UNNAMED")
                             }
                         }
                     add("-jar")
