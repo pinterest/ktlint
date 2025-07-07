@@ -95,11 +95,15 @@ val shadowJarExecutable by tasks.registering(DefaultTask::class) {
                 # versions, e.g. 1.8 = Java 8
                 JV=$(java -version 2>&1 | sed -E -n 's/.* version "([^.-]*).*".*/\1/p')
 
-                # Add --add-opens for java version 16 and above
-                X=$( [ "${"$"}JV" -ge "16" ] && echo "--add-opens java.base/java.lang=ALL-UNNAMED" || echo "")
+                # Suppress "An illegal reflective access operation has occurred" on Java 11 (warning) / Java 16 (error) (https://github.com/pinterest/ktlint/issues/1618)
+                X=$( [ "${"$"}JV" -ge "11" ] && echo "--add-opens java.base/java.lang=ALL-UNNAMED" || echo "")
 
                 # Suppress warning "sun.misc.Unsafe::objectFieldOffset" on Java24+ (https://github.com/pinterest/ktlint/issues/2973)
-                X=$( [ "${"$"}JV" -ge "24" ] && echo "--sun-misc-unsafe-memory-access=allow" || echo "")
+                X=$( [ "${"$"}JV" -ge "24" ] && echo "${"$"}X --sun-misc-unsafe-memory-access=allow" || echo "")
+
+                # Suppress warning "A restricted method in java.lang.System has been called" on Java 24
+                # Error is only printed when running command "ktlint --help"
+                X=$( [ "${"$"}JV" -ge "24" ] && echo "${"$"}X --enable-native-access=ALL-UNNAMED" || echo "")
 
                 exec java ${"$"}X -Xmx512m -jar "$0" "$@"
 

@@ -136,26 +136,24 @@ class CommandLineTestRunner(
     private fun ktlintCommand(arguments: List<String>): String =
         mutableListOf<String>()
             .apply {
+                println("Java version is=${System.getProperty("java.specification.version")}")
                 if (isWindows()) {
                     // KtLint is not an executable command on Windows OS
                     add("java")
 
-                    val javaVersion = System.getProperty("java.specification.version").javaVersionAsInt()
-                    when {
-                        javaVersion == null -> {
-                            Unit
+                    System
+                        .getProperty("java.specification.version")
+                        .javaVersionAsInt()
+                        ?.let { javaVersion ->
+                            if (javaVersion >= 16) {
+                                // https://docs.gradle.org/7.5/userguide/upgrading_version_7.html#removes_implicit_add_opens_for_test_workers
+                                add("--add-opens=java.base/java.lang=ALL-UNNAMED")
+                            }
+                            if (javaVersion >= 24) {
+                                // Suppress warning "sun.misc.Unsafe::objectFieldOffset" on Java24+ (https://github.com/pinterest/ktlint/issues/2973)
+                                add("--sun-misc-unsafe-memory-access=allow")
+                            }
                         }
-
-                        javaVersion >= 24 -> {
-                            // Suppress warning "sun.misc.Unsafe::objectFieldOffset" on Java24+ (https://github.com/pinterest/ktlint/issues/2973)
-                            add("--sun-misc-unsafe-memory-access=allow")
-                        }
-
-                        javaVersion >= 16 -> {
-                            // https://docs.gradle.org/7.5/userguide/upgrading_version_7.html#removes_implicit_add_opens_for_test_workers
-                            add("--add-opens=java.base/java.lang=ALL-UNNAMED")
-                        }
-                    }
                     add("-jar")
                 }
 

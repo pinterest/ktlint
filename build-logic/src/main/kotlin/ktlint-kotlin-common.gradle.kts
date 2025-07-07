@@ -62,9 +62,9 @@ tasks.withType<Test>().configureEach {
             .languageVersion
             .canCompileOrRun(JavaLanguageVersion.of(11))
     ) {
-        // workaround for https://github.com/pinterest/ktlint/issues/1618. Java 11 started printing warning logs. Java 16 throws an error
-        jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
+        // Suppress "An illegal reflective access operation has occurred" on Java 11 (warning) / Java 16 (error) (https://github.com/pinterest/ktlint/issues/1618)
+        jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED") // Java 11+
         // Suppress warning "sun.misc.Unsafe::objectFieldOffset" on Java24+ (https://github.com/pinterest/ktlint/issues/2973)
-        // jvmArgs("--sun-misc-unsafe-memory-access=allow")
+        // jvmArgs("--sun-misc-unsafe-memory-access=allow") // Java 24+
     }
 }
