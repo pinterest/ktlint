@@ -51,8 +51,6 @@ tasks.register<JavaExec>("ktlintFormat") {
     description = "Check Kotlin code style and format"
     classpath = ktlint
     mainClass = "com.pinterest.ktlint.Main"
-    // Suppress "An illegal reflective access operation has occurred" on Java 11 (warning) / Java 16 (error) (https://github.com/pinterest/ktlint/issues/1618)
-    jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED") // Java 11+
     // Suppress "sun.misc.Unsafe::objectFieldOffset" on Java24 (warning) (https://github.com/pinterest/ktlint/issues/2973)
     // jvmArgs("--sun-misc-unsafe-memory-access=allow") // Java 24+
     args(
