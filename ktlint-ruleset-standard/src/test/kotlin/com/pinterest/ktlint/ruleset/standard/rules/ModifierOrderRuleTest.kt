@@ -25,6 +25,47 @@ class ModifierOrderRuleTest {
     }
 
     @Test
+    fun `Issue 3027 - Given context receiver list in correct order`() {
+        val code =
+            """
+            // context receiver
+            @Bar context(Foo) private fun bar() {}
+            // context parameter
+            @Bar context(_: Foo) private fun bar() {}
+            """.trimIndent()
+        modifierOrderRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 3027 - Given context receiver list in incorrect order`() {
+        val code =
+            """
+            // context receiver
+            context(Foo) @Bar private fun bar1() {}
+            private context(Foo) @Bar fun bar2() {}
+            // context parameter
+            context(_: Foo) @Bar private fun bar1() {}
+            private context(_: Foo) @Bar fun bar2() {}
+            """.trimIndent()
+        val formattedCode =
+            """
+            // context receiver
+            @Bar context(Foo) private fun bar1() {}
+            @Bar context(Foo) private fun bar2() {}
+            // context parameter
+            @Bar context(_: Foo) private fun bar1() {}
+            @Bar context(_: Foo) private fun bar2() {}
+            """.trimIndent()
+        modifierOrderRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 1, "Incorrect modifier order (should be \"@Annotation... context(Foo) private\")"),
+                LintViolation(3, 1, "Incorrect modifier order (should be \"@Annotation... context(Foo) private\")"),
+                LintViolation(5, 1, "Incorrect modifier order (should be \"@Annotation... context(_: Foo) private\")"),
+                LintViolation(6, 1, "Incorrect modifier order (should be \"@Annotation... context(_: Foo) private\")"),
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
     fun `Given function modifiers in an open abstract class`() {
         val code =
             """

@@ -7,6 +7,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMPANION_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONST_KEYWORD
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONTEXT_RECEIVER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DATA_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ENUM_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EXPECT_KEYWORD
@@ -81,6 +82,7 @@ public class ModifierOrderRule : StandardRule("modifier-order") {
         private val ORDERED_MODIFIERS =
             arrayOf(
                 ANNOTATION_ENTRY,
+                CONTEXT_RECEIVER_LIST,
                 PUBLIC_KEYWORD,
                 PROTECTED_KEYWORD,
                 PRIVATE_KEYWORD,
