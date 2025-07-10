@@ -43,7 +43,7 @@ abstract class KotlinCommonPlugin : Plugin<Project> {
 
             val requestedJdkVersion = project.findProperty("testJdkVersion")?.toString()?.toInt()
             // List all non-current Java versions the developers may want to run via IDE click
-            setOfNotNull(8, 11, 17, requestedJdkVersion).forEach { version ->
+            setOfNotNull(8, 11, 17, 21, requestedJdkVersion).forEach { version ->
                 tasks.register<Test>("testOnJdk$version") {
                     javaLauncher.set(
                         target
