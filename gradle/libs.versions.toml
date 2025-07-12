@@ -1,6 +1,6 @@
 [versions]
 # The java-compilation version is the latest supported (not necessarily LTS) version of Java. It should be identical to Java-version used in `actions/setup-java`
-java-compilation = "21"
+java-compilation = "24"
 # The java-target version is the lowest supported LTS version of Java. Jar's produced are bytecode compatible with this version.
 java-target = "8"
 kotlin = "2.2.0"
@@ -8,6 +8,7 @@ kotlinDev = "2.2.0"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-sam-with-receiver = { id = "org.jetbrains.kotlin.plugin.sam.with.receiver", version.ref = "kotlin" }
 checksum = "org.gradle.crypto.checksum:1.4.0"
 shadow = "com.gradleup.shadow:8.3.8"
 kotlinx-binary-compatibiltiy-validator = "org.jetbrains.kotlinx.binary-compatibility-validator:0.18.0"

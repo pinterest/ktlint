@@ -130,8 +130,8 @@ public class FilenameRule : StandardRule("filename") {
         if (this != className) {
             emit(
                 0,
-                "File '$this.kt' contains a single class and possibly also extension functions for that class and should be named same " +
-                    "after that class '$className.kt'",
+                "File '$this.kt' contains a single class, and possibly related top level declarations for that class. The file should be " +
+                    "named after the class, '$className.kt'",
                 false,
             )
         }

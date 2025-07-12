@@ -20,6 +20,8 @@ class SimpleCLITest {
             .run(
                 "no-code-style-error",
                 listOf("--help"),
+                // The clikt command does not print the exit code as last logline.
+                expectExitCodeLoggedWhenKtlintIsFinished = false,
             ) {
                 SoftAssertions()
                     .apply {
@@ -47,6 +49,7 @@ class SimpleCLITest {
             .run(
                 "no-code-style-error",
                 listOf(version),
+                expectExitCodeLoggedWhenKtlintIsFinished = false,
             ) {
                 SoftAssertions()
                     .apply {
@@ -355,6 +358,7 @@ class SimpleCLITest {
                 .run(
                     "too-many-empty-lines",
                     listOf("generateEditorConfig", "--code-style ktlint_official"),
+                    expectExitCodeLoggedWhenKtlintIsFinished = false,
                 ) {
                     SoftAssertions()
                         .apply {
@@ -373,6 +377,7 @@ class SimpleCLITest {
                 .run(
                     "too-many-empty-lines",
                     listOf("generateEditorConfig"),
+                    expectExitCodeLoggedWhenKtlintIsFinished = false,
                 ) {
                     SoftAssertions()
                         .apply {
@@ -508,6 +513,7 @@ class SimpleCLITest {
             .run(
                 testProjectName = "too-many-empty-lines",
                 arguments = listOf("--code-style=android_studio"),
+                expectExitCodeLoggedWhenKtlintIsFinished = false,
             ) {
                 assertThat(errorOutput).containsLineMatching(
                     "Parameter '--code-style' is no longer valid. The code style should be defined as '.editorconfig' property " +

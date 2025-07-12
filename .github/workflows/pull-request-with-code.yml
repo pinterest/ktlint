@@ -29,6 +29,22 @@ env:
 
 # Note that all "jobs" (build, tests) including "jobs.*.runs-on" should be kept in sync with "pull-request-without-code"
 jobs:
+  smoke-test:
+    runs-on: [windows-latest]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+
+      - uses: ./.github/actions/setup-gradle-build
+
+      - run: java -version
+        shell: bash
+
+      - run: java -jar ktlint-dev.jar --help
+        shell: bash
+
+      - run: java --add-opens=java.base/java.lang=ALL-UNNAMED --sun-misc-unsafe-memory-access=allow -jar ktlint-dev.jar --log-level=trace --help
+        shell: bash
+
   build:
     strategy:
       matrix:
@@ -83,7 +99,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        jdk: [8, 11, 17] # list of Java versions to run tests against (excluding `java-compilation` version for which tests already have run during `build` job)
+        jdk: [8, 11, 17, 21] # list of Java versions to run tests against (excluding `java-compilation` version for which tests already have run during `build` job)
     runs-on: ${{ matrix.os }}
     name: "[tests] OS=${{ matrix.os }}, Java=${{ matrix.jdk }}"
     steps:
