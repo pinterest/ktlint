@@ -4321,55 +4321,6 @@ Suppress or disable rule (1)
     ktlint_standard_comment-wrapping = disabled
     ```
 
-### Condition wrapping
-
-Wraps each operand in a multiline condition to a separate line.
-
-=== "[:material-heart:](#) Ktlint"
-
-    ```kotlin
-    val foo = bar || baz
-    if (bar1 ||
-        bar2 ||
-        baz1 ||
-        (baz2 && baz3)
-    ) {
-       // do something
-    }
-    ```
-
-=== "[:material-heart-off-outline:](#) Disallowed"
-
-    ```kotlin
-    val foo =
-      multiLineOperand(
-          "bar"
-      ) || baz
-    if (bar1 || bar2 ||
-        baz1 || (baz2 && baz3)
-    ) {
-       // do something
-    }
-    ```
-
-Rule id: `standard:condition-wrapping`
-
-Suppress or disable rule (1)
-{ .annotate }
-
-1. Suppress rule in code with annotation below:
-    ```kotlin
-    @Suppress("ktlint:condition-wrapping")
-    ```
-   Enable rule via `.editorconfig`
-    ```editorconfig
-    ktlint_standard_condition-wrapping = enabled
-    ```
-   Disable rule via `.editorconfig`
-    ```editorconfig
-    ktlint_standard_condition-wrapping = disabled
-    ```
-
 ### Context receiver wrapping
 
 !!! important
