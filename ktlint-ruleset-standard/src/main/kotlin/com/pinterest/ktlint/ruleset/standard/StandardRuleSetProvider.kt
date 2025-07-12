@@ -23,6 +23,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.ContextReceiverWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.DiscouragedCommentLocationRule
 import com.pinterest.ktlint.ruleset.standard.rules.EnumEntryNameCaseRule
 import com.pinterest.ktlint.ruleset.standard.rules.EnumWrappingRule
+import com.pinterest.ktlint.ruleset.standard.rules.ExpressionOperandWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.FilenameRule
 import com.pinterest.ktlint.ruleset.standard.rules.FinalNewlineRule
 import com.pinterest.ktlint.ruleset.standard.rules.FunKeywordSpacingRule
@@ -126,6 +127,7 @@ public class StandardRuleSetProvider : RuleSetProviderV3(RuleSetId.STANDARD) {
             RuleProvider { DiscouragedCommentLocationRule() },
             RuleProvider { EnumEntryNameCaseRule() },
             RuleProvider { EnumWrappingRule() },
+            RuleProvider { ExpressionOperandWrappingRule() },
             RuleProvider { FilenameRule() },
             RuleProvider { FinalNewlineRule() },
             RuleProvider { FunKeywordSpacingRule() },
