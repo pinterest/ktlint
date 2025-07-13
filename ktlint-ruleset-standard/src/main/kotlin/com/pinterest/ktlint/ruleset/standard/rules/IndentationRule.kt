@@ -1170,7 +1170,7 @@ public class IndentationRule :
                     true
                 }
             LOGGER.trace {
-                "Line $line: " + (if (!autoCorrect) "would have " else "") + "changed indentation to ${expectedIndentation.length} " +
+                "Line $line: ${if (!autoCorrect) "would have " else ""} changed indentation to ${expectedIndentation.length} " +
                     "(from ${normalizedNodeIndent.length}) for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}"
             }
             if (autoCorrect) {

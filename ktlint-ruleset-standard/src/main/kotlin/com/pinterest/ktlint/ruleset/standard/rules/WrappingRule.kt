@@ -466,8 +466,7 @@ public class WrappingRule :
                     true,
                 ).also { autocorrectDecision ->
                     LOGGER.trace {
-                        "$line: " + (if (autocorrectDecision == NO_AUTOCORRECT) "would have " else "") +
-                            "inserted newline before (closing) \"\"\""
+                        "$line: ${if (autocorrectDecision == NO_AUTOCORRECT) "would have" else ""} inserted newline before (closing) \"\"\""
                     }
                 }.ifAutocorrectAllowed {
                     node as LeafPsiElement
@@ -569,8 +568,7 @@ public class WrappingRule :
             true,
         ).also { autocorrectDecision ->
             LOGGER.trace {
-                "$line: " + (if (autocorrectDecision == NO_AUTOCORRECT) "would have " else "") +
-                    "inserted newline after ${nodeAfterWhichNewlineIsRequired.text}"
+                "$line: ${if (autocorrectDecision == NO_AUTOCORRECT) "would have" else ""} inserted newline after ${nodeAfterWhichNewlineIsRequired.text}"
             }
         }.ifAutocorrectAllowed {
             val tempIndent = indent ?: (indentConfig.childIndentOf(nodeToFix))

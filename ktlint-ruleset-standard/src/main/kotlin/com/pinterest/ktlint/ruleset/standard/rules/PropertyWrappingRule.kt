@@ -166,8 +166,7 @@ public class PropertyWrappingRule :
             true,
         ).also { autocorrectDecision ->
             LOGGER.trace {
-                "$line: " + (if (autocorrectDecision == NO_AUTOCORRECT) "would have " else "") +
-                    "inserted newline after ${nodeAfterWhichNewlineIsRequired.text}"
+                "$line: ${if (autocorrectDecision == NO_AUTOCORRECT) "would have" else ""} inserted newline after ${nodeAfterWhichNewlineIsRequired.text}"
             }
         }.ifAutocorrectAllowed {
             nodeToFix.upsertWhitespaceAfterMe(indentConfig.childIndentOf(nodeToFix))
