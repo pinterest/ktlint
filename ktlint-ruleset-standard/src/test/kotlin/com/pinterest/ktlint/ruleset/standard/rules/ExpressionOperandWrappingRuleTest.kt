@@ -1,6 +1,8 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Nested
@@ -351,5 +353,52 @@ class ExpressionOperandWrappingRuleTest {
                     LintViolation(5, 12, "Newline expected before operand in multiline expression"),
                 ).isFormattedAs(formattedCode)
         }
+    }
+
+    @Test
+    fun `Given an if-expression containing two simple expression on the same line, and another arithmetic expression on a separate line not exceeding max line length, then wrap on the logical operands only`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER      $EOL_CHAR
+            fun foo() {
+                if (bar1 || bar2 ||
+                    baz1 + baz2 + baz3 > baz4
+                ) {
+                    // do something
+                }
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            // $MAX_LINE_LENGTH_MARKER      $EOL_CHAR
+            fun foo() {
+                if (bar1 ||
+                    bar2 ||
+                    baz1 + baz2 + baz3 > baz4
+                ) {
+                    // do something
+                }
+            }
+            """.trimIndent()
+        expressionOperandWrappingRuleAssertThat(code)
+            .setMaxLineLength()
+            .hasLintViolation(3, 17, "Newline expected before operand in multiline expression")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a multiline expression containing EOL comments after the wrappable operand the wrap but leave the EOL after the operand on the same line`() {
+        val code =
+            """
+            val foo1 =
+                bar1 || // some comment
+                    bar2 || // some comment
+                    (baz1 && baz2) // some comment
+            val foo2 =
+                bar1 + // some comment
+                    bar2 + // some comment
+                    (baz1 - baz2) // some comment
+            """.trimIndent()
+        expressionOperandWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 }
