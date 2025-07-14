@@ -2,6 +2,7 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
+import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.NO_AUTOCORRECT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
@@ -157,8 +158,7 @@ public class ParameterWrappingRule :
             true,
         ).also { autocorrectDecision ->
             LOGGER.trace {
-                "$line: " + (if (autocorrectDecision == AutocorrectDecision.NO_AUTOCORRECT) "would have " else "") +
-                    "inserted newline before ${node.text}"
+                "$line: ${if (autocorrectDecision == NO_AUTOCORRECT) "would have" else ""} inserted newline before ${node.text}"
             }
         }.ifAutocorrectAllowed {
             node.upsertWhitespaceBeforeMe(node.indent20)
@@ -176,8 +176,7 @@ public class ParameterWrappingRule :
             true,
         ).also { autocorrectDecision ->
             LOGGER.trace {
-                "$line: " + (if (autocorrectDecision == AutocorrectDecision.NO_AUTOCORRECT) "would have " else "") +
-                    "inserted newline after ${nodeAfterWhichNewlineIsRequired.text}"
+                "$line: ${if (autocorrectDecision == NO_AUTOCORRECT) "would have" else ""} inserted newline after ${nodeAfterWhichNewlineIsRequired.text}"
             }
         }.ifAutocorrectAllowed {
             nodeToFix.upsertWhitespaceAfterMe(indentConfig.childIndentOf(nodeToFix))
