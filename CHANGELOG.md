@@ -2,6 +2,92 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.7.0] - 2025-07-14
+
+### 🆕 Features
+
+#### Context receiver / parameters
+
+With upgrade to Kotlin 2.2.0, Ktlint 1.7.0 supports context parameters. 
+
+* Add `context-receiver-list-wrapping` rule - [#3034](https://github.com/pinterest/ktlint/pull/3034), by @paul-dingemans
+
+* Add context receiver list to `modifier-order` rule - [#3031](https://github.com/pinterest/ktlint/pull/3031), by @paul-dingemans
+
+* Ignore context parameters in rule `context-receiver-wrapping` - [#3033](https://github.com/pinterest/ktlint/pull/3033), by @paul-dingemans
+
+#### Other rule changes
+
+* Do not run `no-unused-imports` rule by default - [#3039](https://github.com/pinterest/ktlint/pull/3039), by @paul-dingemans  
+  The `no-unused-import` rule is no longer run by default as it keeps causing problems. It will be removed in Ktlint `2.0`. Until then, the rule can still be run, when enabled explicitly in `.editorconfig`.
+
+* Add experimental rule `expression-operand-wrapping` - [#3056](https://github.com/pinterest/ktlint/pull/3056), by @paul-dingemans  
+  This rule aligns wrapping of arithmetic and logical multiline expressions. The `condition-wrapping` rule which did something similar for logical multiline expressions only no longer reports and fixes violations. It will be removed in Ktlint `2.0`.
+
+#### Other features
+
+* Deprecate functions in `ASTNodeExtensions`, and where applicable provide property accessors - [#3026](https://github.com/pinterest/ktlint/pull/3026), by @paul-dingemans  
+  When using `ASTNodeExtensions` please replace function calls with the new (temporary) property accessors. The temporary property accessors are needed to maintain backwards compatability with Java integration. In Ktlint `2.0` the functions will be removed, and the temporary property accessors will be replaced with final names. 
+
+* Suppress warning "sun.misc.Unsafe::objectFieldOffset" in Ktlint CLI (Java24+) - [#3040](https://github.com/pinterest/ktlint/pull/3040), by @paul-dingemans
+
+* Suppress error "A restricted method in java.lang.System has been called" on Java 24 in KtLint CLI only - [#3043](https://github.com/pinterest/ktlint/pull/3043), by @paul-dingemans
+
+* Remove unneeded "--add-opens=java.base/java.lang=ALL-UNNAMED" - [#3044](https://github.com/pinterest/ktlint/pull/3044), by @paul-dingemans
+
+
+### 🔧 Fixes
+
+
+* Do not remove an empty value parameter list from a call expression when it is nested - [#3017](https://github.com/pinterest/ktlint/pull/3017), by @paul-dingemans
+
+* Clarify violation message in `filename` rule - [#3046](https://github.com/pinterest/ktlint/pull/3046), by @paul-dingemans
+
+### 📦 Dependencies
+
+
+* chore(deps): update plugin org.gradle.toolchains.foojay-resolver-convention to v1 - [#2989](https://github.com/pinterest/ktlint/pull/2989), by @renovate[bot]
+
+* chore(deps): update plugin com.gradle.develocity to v4.0.2 - [#2996](https://github.com/pinterest/ktlint/pull/2996), by @renovate[bot]
+
+* fix(deps): update junit5 monorepo - [#3005](https://github.com/pinterest/ktlint/pull/3005), by @renovate[bot]
+
+* fix(deps): update dependency org.jetbrains.kotlin:kotlin-gradle-plugin to v2.2.0-rc3 - [#3015](https://github.com/pinterest/ktlint/pull/3015), by @renovate[bot]
+
+* fix(deps): update dependency org.junit.jupiter:junit-jupiter to v5.13.2 - [#3020](https://github.com/pinterest/ktlint/pull/3020), by @renovate[bot]
+
+* fix(deps): update dependency org.junit.platform:junit-platform-launcher to v1.13.2 - [#3021](https://github.com/pinterest/ktlint/pull/3021), by @renovate[bot]
+
+* fix(deps): update kotlin monorepo to v2.2.0 - [#3018](https://github.com/pinterest/ktlint/pull/3018), by @renovate[bot]
+
+* chore(deps): update plugin shadow to v8.3.8 - [#3030](https://github.com/pinterest/ktlint/pull/3030), by @renovate[bot]
+
+* fix(deps): update junit-framework monorepo - [#3037](https://github.com/pinterest/ktlint/pull/3037), by @renovate[bot]
+
+* chore(deps): update plugin kotlinx-binary-compatibiltiy-validator to v0.18.1 - [#3050](https://github.com/pinterest/ktlint/pull/3050), by @renovate[bot]
+
+* fix(deps): update dependency dev.drewhamilton.poko:poko-gradle-plugin to v0.19.1 - [#3053](https://github.com/pinterest/ktlint/pull/3053), by @renovate[bot]
+
+* fix(deps): update dependency com.google.jimfs:jimfs to v1.3.1 - [#3054](https://github.com/pinterest/ktlint/pull/3054), by @renovate[bot]
+
+* chore(deps): update dependency gradle to v9.0.0-rc-2 - [#3055](https://github.com/pinterest/ktlint/pull/3055), by @renovate[bot]
+
+### 💬 Other
+
+* Update publishing URLs to point to Central Portal OSSRH staging API - [#3006](https://github.com/pinterest/ktlint/pull/3006), by @shashachu
+
+* Update publishing credentials to use new Central Portal username/token - [#3007](https://github.com/pinterest/ktlint/pull/3007), by @shashachu
+
+* Improve build - [#3025](https://github.com/pinterest/ktlint/pull/3025), by @mateuszkwiecinski
+
+* Bump `poko-gradle-plugin` with a workaround (enforce compatible Kotlin version) - [#3035](https://github.com/pinterest/ktlint/pull/3035), by @mateuszkwiecinski
+
+* Java 24 - [#3049](https://github.com/pinterest/ktlint/pull/3049), by @paul-dingemans
+
+* Make `build-logic` plugins expose binary plugins - [#3047](https://github.com/pinterest/ktlint/pull/3047), by @mateuszkwiecinski
+
+* Cleanup Java 24 bump  - [#3051](https://github.com/pinterest/ktlint/pull/3051), by @mateuszkwiecinski
+
 ## [1.6.0] - 2025-05-19
 
 🆕 Features
@@ -2716,6 +2802,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[1.7.0]: https://github.com/pinterest/ktlint/compare/1.7.0...1.6.0
 [1.6.0]: https://github.com/pinterest/ktlint/compare/1.6.0...1.5.0
 [1.5.0]: https://github.com/pinterest/ktlint/compare/1.5.0...1.4.1
 [1.4.1]: https://github.com/pinterest/ktlint/compare/1.4.1...1.4.0
