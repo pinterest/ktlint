@@ -131,25 +131,27 @@ abstract class PublicationPlugin : Plugin<Project> {
     // See https://central.sonatype.org/publish/requirements/#supply-javadoc-and-sources
     private fun Project.createPlaceholderJarTasks() {
         val readmePath = "$rootDir/gradle/"
-        val sourcePlaceholderJar = tasks.register("sourcePlaceholderJar", Jar::class.java) {
-            archiveBaseName.set("${localGradleProperty("POM_NAME").get()}")
-            archiveVersion.set(this@createPlaceholderJarTasks.version.toString())
-            archiveClassifier.set("sources")
-            from(layout.projectDirectory.file("$readmePath/README-sources.md")) {
-                into("")
-                rename { "README.md" }
+        val sourcePlaceholderJar =
+            tasks.register("sourcePlaceholderJar", Jar::class.java) {
+                archiveBaseName.set("${localGradleProperty("POM_NAME").get()}")
+                archiveVersion.set(this@createPlaceholderJarTasks.version.toString())
+                archiveClassifier.set("sources")
+                from(layout.projectDirectory.file("$readmePath/README-sources.md")) {
+                    into("")
+                    rename { "README.md" }
+                }
             }
-        }
 
-        val docsPlaceholderJar = tasks.register("docsPlaceholderJar", Jar::class.java) {
-            archiveBaseName.set("${localGradleProperty("POM_NAME").get()}")
-            archiveVersion.set(this@createPlaceholderJarTasks.version.toString())
-            archiveClassifier.set("javadoc")
-            from(layout.projectDirectory.file("$readmePath/README-javadoc.md")) {
-                into("")
-                rename { "README.md" }
+        val docsPlaceholderJar =
+            tasks.register("docsPlaceholderJar", Jar::class.java) {
+                archiveBaseName.set("${localGradleProperty("POM_NAME").get()}")
+                archiveVersion.set(this@createPlaceholderJarTasks.version.toString())
+                archiveClassifier.set("javadoc")
+                from(layout.projectDirectory.file("$readmePath/README-javadoc.md")) {
+                    into("")
+                    rename { "README.md" }
+                }
             }
-        }
 
         tasks.named("publishMavenPublicationToMavenCentralRepository") {
             dependsOn(sourcePlaceholderJar, docsPlaceholderJar)
