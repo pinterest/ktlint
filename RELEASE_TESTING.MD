@@ -40,7 +40,7 @@ Before releasing a new version of KtLint, the release candidate is tested on a s
    ```
 4. Create an alias or script to run the latest released version of ktlint (note that this script will print the version as reference to which version is used):
    ```shell
-   alias ktlint-prev="ktlint-1.3.1 $@" # Replace with the latest release version
+   alias ktlint-prev="ktlint-1.6.0 $@" # Replace with the latest release version
    ```
    Note that `~/git/ktlint` is the directory in which the ktlint project is checked out and that `~/git/ktlint/ktlint` refers to the `ktlint` CLI-module.
 5. Create an alias or script to run the latest development-version of ktlint (note that this script will print the version and the datetime of compilation as reference to which version is used):
@@ -99,7 +99,7 @@ Formatting projects in which ktlint is not used may result in a huge amount of f
    ```shell
    ./exec-in-each-project.sh "git add --all && git commit -m \"Update .editorconfig to fallback to integration test settings\""
    ```
-3. Format with previous (*latest released*) version of Lint
+3. Format with previous (*latest released*) version of KtLint
    ```shell
    ktlint-prev --format --relative # Do not call this command via the "./exec-in-each-project.sh" script.
    ```
@@ -108,13 +108,13 @@ Formatting projects in which ktlint is not used may result in a huge amount of f
    ```shell
    ./exec-in-each-project.sh "git add --all && git commit -m \"Format with previous ktlint version (round #)\""
    ```
-   Repeat step 4 and 5 until no files are changed anymore. Although ktlint reruns up to 3 times in case new violations are introduced, it can still happen that not all violations have been fixed with a single invocation.
+   Repeat step 3 and 4 until no files are changed anymore. Although ktlint reruns up to 3 times in case new violations are introduced, it can still happen that not all violations have been fixed with a single invocation.
 5. Build baseline file with previous (*latest released*) version of Lint (when building with format the offsets of the error are not saved correctly in the baseline) so that all errors which cannot be autocorrected are ignored.
    ```shell
    rm baseline.xml
    ktlint-prev --baseline=baseline.xml --relative # Do not call this command via the "./exec-in-each-project.sh" script.
    ```
-   Note: Ignore all output as this is the old version! Inspect the baseline roughly to verify that it only contains errors that cannot be autocorrected. 
+   Note: Ignore all output as this is the old version! Inspect the baseline roughly to verify that it only contains errors that cannot be autocorrected.
 6. Format the sample projects with the previous (*latest released*) ktlint version:
    ```shell
    ktlint-prev -F --baseline=baseline.xml --relative # Do not call this command via the "./exec-in-each-project.sh" script.
@@ -147,8 +147,8 @@ Formatting projects in which ktlint is not used may result in a huge amount of f
    * Usually it helps to disable all rules that emit violations, except one of those rules. In this way it is possible to evaluate the changes rule by rule.
    * Ideally, no violations are shown. This means that all violations have been autocorrected. Note that violations might pop up that previously were suppressed via the baseline. This can happen as due to code changes, the references in the baseline.xml no longer match with the positions where they occur. First check the code changes, and regenerating the baseline before verifying the next can be a helpful approach.
    * Violations which could not be autocorrected should be validated for correctness but do not block the release as most likely this is intended behavior.
-   * If a violation is shown which is not marked as being "can not be autocorrected" this means that during autocorrect of another violation a new violations has been introduced. This should be fixed before releasing especially when the next format introduces the original violation again which of course would result in an endless loop.
-10. Inspect all fixed violations, Of course inspection similar violations tens of times does not make sense. At least check different types of violations a couple of times. Commit changes which do not need to be inspected again:
+   * If a violation is shown which is not marked as being "cannot be autocorrected" this means that during autocorrect of another violation a new violations has been introduced. This should be fixed before releasing especially when the next format introduces the original violation again which of course would result in an endless loop.
+10. Inspect all fixed violations. Of course, inspection similar violations tens of times does not make sense. At least check different types of violations a couple of times. Commit changes which do not need to be inspected again:
     ```shell
     ./exec-in-each-project.sh "git add --all && git commit -m \"Fixed with latest development version\""
     ```
