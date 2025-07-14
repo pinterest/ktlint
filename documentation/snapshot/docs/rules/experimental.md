@@ -125,7 +125,7 @@ Suppress or disable rule (1)
     ktlint_standard_blank-line-between-when-conditions = disabled
     ```
 
-### Expression operand wrapping
+## Expression operand wrapping
 
 Wraps each operand in a multiline expression to a separate line.
 
