@@ -59,6 +59,8 @@ val shadowJarExecutable by tasks.registering(ShadowJarExecutableTask::class) {
     allJarFile.set(ktlintCliAllJarFile)
     windowsBatchScriptSource.set(layout.projectDirectory.file("src/main/scripts/ktlint.bat"))
     outputDirectory.set(ktlintOutputRoot)
+
+    finalizedBy("signShadowJarExecutable", "shadowJarExecutableChecksum")
 }
 
 val signShadowJarExecutable by tasks.registering(Sign::class) {
@@ -76,7 +78,6 @@ tasks.register<Checksum>("shadowJarExecutableChecksum") {
 
     inputFiles.from(shadowJarExecutable.map { it.selfExecutable })
     inputFiles.from(shadowJarExecutable.map { it.windowsBatchScript })
-    inputFiles.from(signShadowJarExecutable.map { it.outputs.files })
 
     // put the checksums in the same folder with the executable itself
     outputDirectory.set(ktlintOutputRoot)
