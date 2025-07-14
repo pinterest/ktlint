@@ -3,6 +3,7 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.register
@@ -116,6 +117,8 @@ abstract class PublicationPlugin : Plugin<Project> {
                 sign(the<PublishingExtension>().publications["maven"])
                 isRequired = enableSigning && !version.toString().endsWith("SNAPSHOT")
             }
+
+            project.createPlaceholderJarTasks()
         }
 
     // TODO: remove this once https://github.com/gradle/gradle/issues/23572 is fixed
@@ -123,4 +126,35 @@ abstract class PublicationPlugin : Plugin<Project> {
         provider {
             if (hasProperty(name)) property(name)?.toString() else null
         }
+
+    // Create placeholder jars to satisfy Central Portal validation.
+    // See https://central.sonatype.org/publish/requirements/#supply-javadoc-and-sources
+    private fun Project.createPlaceholderJarTasks() {
+        val readmePath = "$rootDir/gradle/"
+        val sourcePlaceholderJar =
+            tasks.register("sourcePlaceholderJar", Jar::class.java) {
+                archiveBaseName.set("${localGradleProperty("POM_NAME").get()}")
+                archiveVersion.set(this@createPlaceholderJarTasks.version.toString())
+                archiveClassifier.set("sources")
+                from(layout.projectDirectory.file("$readmePath/README-sources.md")) {
+                    into("")
+                    rename { "README.md" }
+                }
+            }
+
+        val docsPlaceholderJar =
+            tasks.register("docsPlaceholderJar", Jar::class.java) {
+                archiveBaseName.set("${localGradleProperty("POM_NAME").get()}")
+                archiveVersion.set(this@createPlaceholderJarTasks.version.toString())
+                archiveClassifier.set("javadoc")
+                from(layout.projectDirectory.file("$readmePath/README-javadoc.md")) {
+                    into("")
+                    rename { "README.md" }
+                }
+            }
+
+        tasks.named("publishMavenPublicationToMavenCentralRepository") {
+            dependsOn(sourcePlaceholderJar, docsPlaceholderJar)
+        }
+    }
 }
