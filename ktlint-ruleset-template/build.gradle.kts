@@ -6,21 +6,9 @@ plugins {
 
 group = "com.github.username"
 
-val sourcesJar by tasks.registering(Jar::class) {
-    dependsOn(tasks.classes)
-    archiveClassifier = "sources"
-    from(sourceSets.main.map { it.allSource })
-}
-
-val javadocJar by tasks.registering(Jar::class) {
-    dependsOn(tasks.javadoc)
-    archiveClassifier = "javadoc"
-    from(tasks.javadoc.map { it.destinationDir!! })
-}
-
-artifacts {
-    archives(sourcesJar)
-    archives(javadocJar)
+java {
+    withSourcesJar()
+    withJavadocJar()
 }
 
 val ktlint: Configuration by configurations.creating
@@ -56,6 +44,7 @@ tasks.check {
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
+            from(components.named("java").get())
             pom {
                 licenses {
                     license {
