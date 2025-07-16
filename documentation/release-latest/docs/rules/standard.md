@@ -1,6 +1,6 @@
 ## Annotation formatting
 
-Multiple annotations should be on a separate line than the annotated declaration; annotations with parameters should each be on separate lines; annotations should be followed by a space
+Multiple annotations should be on a separate line than the annotated declaration. Annotations with parameters should be on separate lines. Annotations should be followed by a space.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -198,7 +198,7 @@ Suppress or disable rule (1)
 
 ## Block comment initial star alignment
 
-Lines in a block comment which (exclusive the indentation) start with a `*` should have this `*` aligned with the `*` in the opening of the block comment.
+Lines in a block comment which (excluding the indentation) start with a `*` should have this `*` aligned with the `*` in the opening of the block comment.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -1079,7 +1079,7 @@ Suppress or disable rule (1)
 
 ## If else bracing
 
-If at least one branch of an if-else statement or an if-else-if statement is wrapped between curly braces then all branches should be wrapped between braces.
+If at least one branch of an if-else statement or an if-else-if statement is wrapped between curly braces, then all branches should be wrapped between braces.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -1152,7 +1152,7 @@ Ensures that imports are ordered consistently.
 
 | Configuration setting                                                                                                |          ktlint_official           |            intellij_idea            | android_studio |
 |:---------------------------------------------------------------------------------------------------------------------|:----------------------------------:|:-----------------------------------:|:--------------:|
-| `ij_kotlin_imports_layout`</br><i>Defines imports order layout for Kotlin files</i>For more details see below table. | *,java.**,javax.**,kotlin.**,^ <1> | *,java.**,javax.**,kotlin.**,^ <1>  |     * <2>      |
+| `ij_kotlin_imports_layout`</br><i>Defines imports order layout for Kotlin files</i>. For more details see below table. | *,java.**,javax.**,kotlin.**,^ <1> | *,java.**,javax.**,kotlin.**,^ <1>  |     * <2>      |
 
 ### ij_kotlin_packages_to_use_import_on_demand
 
@@ -1721,8 +1721,11 @@ Suppress or disable rule (1)
 ## No consecutive comments
 
 Consecutive comments are disallowed in following cases:
+
 - Any mix of a consecutive kdoc, a block comment or an EOL comment unless separated by a blank line in between
+
 - Consecutive KDocs (even when separated by a blank line)
+
 - Consecutive block comments (even when separated by a blank line)
 
 Consecutive EOL comments are always allowed as they are often used instead of a block comment.
@@ -1809,7 +1812,7 @@ Suppress or disable rule (1)
 
 ## No empty first line at start in class body
 
-Detect blank lines at start of a class body.
+Detect blank lines at the start of a class body.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -2000,7 +2003,7 @@ Suppress or disable rule (1)
 
 ## Modifier order
 
-Consistent order of modifiers
+Requires consistent order of modifiers.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -2555,8 +2558,13 @@ Suppress or disable rule (1)
 
 ## No unused imports
 
-!!! warning
-    This rule is not able to detect *all* unused imports as mentioned in this [issue comment](https://github.com/pinterest/ktlint/issues/1754#issuecomment-1368201667).
+!!! important
+    Starting from KtLint `1.7.0` this rule no longer runs by default. In some cases the rule marks imports as unused, while after removal of the import the code no longer compiles. This rule will be removed in KtLint `2.0`. See [issue](https://github.com/pinterest/ktlint/issues/3038) for more background. 
+    If you insist on running the rule despite its shortcomings, you need to enable the rule in the `.editorconfig` by adding:
+    ```
+    ktlint_standard_no-unused-imports = enabled
+    ```
+
 
 Rule id: `standard:no-unused-imports`
 
@@ -3245,7 +3253,7 @@ Suppress or disable rule (1)
 
 ### Keyword spacing
 
-Consistent spacing around keywords.
+Requires consistent spacing around keywords.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3286,7 +3294,7 @@ Suppress or disable rule (1)
 
 ### Modifier list spacing
 
-Consistent spacing between modifiers in and after the last modifier in a modifier list.
+Requires consistent spacing between modifiers in and after the last modifier in a modifier list.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3330,7 +3338,7 @@ Suppress or disable rule (1)
 
 ### Nullable type spacing
 
-No spaces in a nullable type.
+Disallows spaces in a nullable type.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3365,7 +3373,7 @@ Suppress or disable rule (1)
 
 ### Operator spacing
 
-Consistent spacing around operators.
+Requires consistent spacing around operators.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3404,7 +3412,7 @@ Suppress or disable rule (1)
 
 ### Parameter list spacing
 
-Consistent spacing inside the parameter list.
+Requires consistent spacing inside the parameter list.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3445,7 +3453,7 @@ Suppress or disable rule (1)
 
 ### Parenthesis spacing
 
-Consistent spacing around parenthesis.
+Requires consistent spacing around parenthesis.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3486,7 +3494,7 @@ Suppress or disable rule (1)
 
 ### Range spacing
 
-Consistent spacing around range operators.
+Requires consistent spacing around range operators.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3523,7 +3531,7 @@ Suppress or disable rule (1)
 
 ### Spacing between function name and opening parenthesis
 
-Consistent spacing between function name and opening parenthesis.
+Requires consistent spacing between function name and opening parenthesis.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3556,7 +3564,7 @@ Suppress or disable rule (1)
 
 ### Try catch finally spacing
 
-Enforce consistent spacing in `try { .. } catch { .. } finally { .. }`.
+Enforces consistent spacing in `try { .. } catch { .. } finally { .. }`.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3609,7 +3617,7 @@ Suppress or disable rule (1)
 
 ### Type argument list spacing
 
-Spacing before and after the angle brackets of a type argument list.
+Disallows spacing before and after the angle brackets of a type argument list.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3650,7 +3658,7 @@ Suppress or disable rule (1)
 
 ### Type parameter list spacing
 
-Spacing after a type parameter list in function and class declarations.
+Disallows spacing after a type parameter list in function and class declarations.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3691,7 +3699,7 @@ Suppress or disable rule (1)
 
 ### Unary operator spacing
 
-No spaces around unary operators.
+Disallows spaces around unary operators.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3733,7 +3741,7 @@ Suppress or disable rule (1)
 
 ## String template
 
-Consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`)
+Enforces consistent string templates (`$v` instead of `${v}`, `${p.v}` instead of `${p.v.toString()}`)
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3766,7 +3774,7 @@ Suppress or disable rule (1)
 
 ## String template indent
 
-Enforce consistent string template indentation for multiline string templates which are post-fixed with `.trimIndent()`. The opening and closing `"""` are placed on separate lines and the indentation of the content of the template is aligned with the `"""`.
+Enforces consistent string template indentation for multiline string templates which are post-fixed with `.trimIndent()`. The opening and closing `"""` are placed on separate lines and the indentation of the content of the template is aligned with the `"""`.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3824,7 +3832,7 @@ Suppress or disable rule (1)
 
 ## Trailing comma on call site
 
-Consistent removal (default) or adding of trailing commas on call site.
+Enforces consistent removal (default) or adding of trailing commas on call site.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -3880,7 +3888,7 @@ Suppress or disable rule (1)
 
 ## Trailing comma on declaration site
 
-Consistent removal (default) or adding of trailing commas on declaration site.
+Enforces consistent removal (default) or adding of trailing commas on declaration site.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -4013,14 +4021,14 @@ Disallows comments to be placed at certain locations inside a type parameter.
     ```
 
 !!! note
-    In some projects it is an accepted practice to use EOL comments to document the parameter *before* the comma as is shown below:
+    In some projects, it is an accepted practice to use EOL comments to document the parameter *before* the comma as is shown below:
     ```kotlin
     class Foo<
         out Bar1, // some comment
         out Bar2, // some other comment
     >
     ```
-   Although this code sample might look ok, it is semantically and programmatically unclear on which parameter `some comment` refers. From the developer perspective it might be clear that it belongs to type `Bar1`. From the parsers perspective, it does belong to type `Bar2`.
+   Although this code sample might look ok, it is semantically and programmatically unclear on which parameter `some comment` refers. From the developer perspective, it might be clear that it belongs to type `Bar1`. From the parsers perspective, it does belong to type `Bar2`.
 
 Rule id: `standard:type-parameter-comment`
 
@@ -4181,7 +4189,7 @@ Suppress or disable rule (1)
 
 ### Argument list wrapping
 
-All arguments should be on the same line, or every argument should be on a separate line.
+All arguments should either be on the same line, or on a separate line.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -4275,7 +4283,7 @@ Suppress or disable rule (1)
 
 ### Comment wrapping
 
-A block comment should start and end on a line that does not contain any other element.
+A block comment must start and end on a line that does not contain any other element.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -4313,58 +4321,15 @@ Suppress or disable rule (1)
     ktlint_standard_comment-wrapping = disabled
     ```
 
-### Condition wrapping
-
-Wraps each operand in a multiline condition to a separate line.
-
-=== "[:material-heart:](#) Ktlint"
-
-    ```kotlin
-    val foo = bar || baz
-    if (bar1 ||
-        bar2 ||
-        baz1 ||
-        (baz2 && baz3)
-    ) {
-       // do something
-    }
-    ```
-
-=== "[:material-heart-off-outline:](#) Disallowed"
-
-    ```kotlin
-    val foo =
-      multiLineOperand(
-          "bar"
-      ) || baz
-    if (bar1 || bar2 ||
-        baz1 || (baz2 && baz3)
-    ) {
-       // do something
-    }
-    ```
-
-Rule id: `standard:condition-wrapping`
-
-Suppress or disable rule (1)
-{ .annotate }
-
-1. Suppress rule in code with annotation below:
-    ```kotlin
-    @Suppress("ktlint:condition-wrapping")
-    ```
-   Enable rule via `.editorconfig`
-    ```editorconfig
-    ktlint_standard_condition-wrapping = enabled
-    ```
-   Disable rule via `.editorconfig`
-    ```editorconfig
-    ktlint_standard_condition-wrapping = disabled
-    ```
-
 ### Context receiver wrapping
 
-Wraps the context receiver list of a function to a separate line regardless of maximum line length. If the maximum line length is configured and is exceeded, wrap the context receivers and if needed its projection types to separate lines.
+!!! important
+    Context receivers are deprecated starting from Kotlin 2.2.0 and will be removed in a future version. Once KtLint is upgraded to a Kotlin version that no longer supports context receivers, then you will not be able to use that KtLint version as long as your code still contains context receiver.
+
+!!! tip
+    This rule does not affect context parameters. See rule `context-receiver-list-wrapping` for wrapping of context parameters.
+
+Wraps the context receiver list containing a context receiver to a separate line regardless of maximum line length. If the maximum line length is configured and is exceeded, wrap the context receivers and if needed its projection types to separate lines.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -4435,10 +4400,87 @@ Suppress or disable rule (1)
     ```editorconfig
     ktlint_standard_context-receiver-wrapping = disabled
     ```
+   
+### Context receiver list wrapping
+
+!!! tip
+    This rule does not affect context receivers. See rule `context-receiver-wrapping` for wrapping of context receivers.
+
+Wraps the context receiver list containing a context parameter to a separate line regardless of maximum line length. If the maximum line length is configured and is exceeded, wrap the context receivers and if needed its projection types to separate lines.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    // Always wrap regardless of whether max line length is set
+    context(_: Foo)
+    fun fooBar()
+    
+    // Wrap each context receiver to a separate line when the
+    // entire context receiver list does not fit on a single line
+    context(
+        foo1: Fooooooooooooooooooo1,
+        foo2: Foooooooooooooooooooooooooooooo2
+    )
+    fun fooBar()
+    
+    // Wrap each context receiver to a separate line when the
+    // entire context receiver list does not fit on a single line.
+    // Also, wrap each of it projection types in case a context
+    // receiver does not fit on a single line after it has been
+    // wrapped.
+    context(
+        _: Foooooooooooooooo<
+            Foo,
+            Bar,
+            >
+    )
+    fun fooBar()
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    // Should be wrapped regardless of whether max line length is set
+    context(_: Foo) fun fooBar()
+
+    // Should be wrapped when the entire context receiver list does not
+    // fit on a single line
+    context(foo1: Fooooooooooooooooooo1, foo2: Foooooooooooooooooooooooooooooo2)
+    fun fooBar()
+
+    // Should be wrapped when the entire context receiver list does not
+    // fit on a single line. Also, it should wrap each of it projection
+    // type in case a context receiver does not fit on a single line 
+    // after it has been wrapped.
+    context(_: Foooooooooooooooo<Foo, Bar>)
+    fun fooBar()
+    ```
+
+| Configuration setting                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i> |       140       |     `off`     |     `100`      |
+
+Rule id: `standard:context-receiver-list-wrapping`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:context-receiver-list-wrapping")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_context-receiver-list-wrapping = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_context-receiver-list-wrapping = disabled
+    ```
 
 ### Enum wrapping
 
-An enum should be a single line, or each enum entry has to be placed on a separate line. In case the enumeration contains enum entries and declarations those are to be separated by a blank line.
+Each individual enum entry should be on a separate line. Multiple enums cannot be on the same line. In case the enumeration contains enum entries and declarations, those are to be separated by a blank line.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -4536,7 +4578,7 @@ Suppress or disable rule (1)
 
 ### Multiline expression wrapping
 
-Multiline expression on the right hand side of an expression are forced to start on a separate line. Expressions in return statement are excluded as that would result in a compilation error.
+Multiline expressions on the right hand side of an expression are forced to start on a separate line. Expressions in return statement are excluded as that would result in a compilation error.
 
 Setting `ktlint_function_signature_body_expression_wrapping` of the `function-signature` rule takes precedence when set to `default`. This setting keeps the first line of a multiline expression body on the same line as the end of function signature as long as the max line length is not exceeded. In that case, this rule does not wrap the multiline expression. 
 
@@ -4670,7 +4712,7 @@ Suppress or disable rule (1)
 
 ### Parameter wrapping
 
-When a function or class parameter doesn't fit on a single line, wrap the type or value to a separate line
+When a function or class parameter doesn't fit on a single line, wrap the type or value to a separate line.
 
 === "[:material-heart:](#) Ktlint (ktlint_official)"
 
@@ -4740,7 +4782,7 @@ Suppress or disable rule (1)
 
 ### Property wrapping
 
-When a property doesn't fit on a single line, wrap the type or value to a separate line
+When a property doesn't fit on a single line, wrap the type or value to a separate line.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -4838,7 +4880,7 @@ Suppress or disable rule (1)
 
 ### Wrapping
 
-Inserts missing newlines (for example between parentheses of a multi-line function call).
+Inserts missing newlines (for example, between parentheses of a multi-line function call).
 
 === "[:material-heart:](#) Ktlint"
 

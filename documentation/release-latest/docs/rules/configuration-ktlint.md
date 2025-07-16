@@ -2,7 +2,7 @@ Ktlint uses a limited set of `.editorconfig` properties for additional configura
 
 !!! danger
 
-    Unfortunately [IntelliJ IDEA](https://www.jetbrains.com/idea/) has an [autoformat issue regarding `.editorconfig`](https://youtrack.jetbrains.com/issue/IDEA-242506). Due to this error an additional space is added between glob statements, resulting in `[*{kt, kts}]` instead of `[*{kt,kts}]`. The `.editorconfig` library used by `ktlint` [ignores sections after encountering a space in the list](https://github.com/editorconfig/editorconfig/issues/148). As a result, the rule is not applied on all files as documented in the [original ktlint issue](https://github.com/pinterest/ktlint/issues/762).
+    Unfortunately, [IntelliJ IDEA](https://www.jetbrains.com/idea/) has an [autoformat issue regarding `.editorconfig`](https://youtrack.jetbrains.com/issue/IDEA-242506). Due to this error, an additional space is added between glob statements, resulting in `[*{kt, kts}]` instead of `[*{kt,kts}]`. The `.editorconfig` library used by `ktlint` [ignores sections after encountering a space in the list](https://github.com/editorconfig/editorconfig/issues/148). As a result, the rule is not applied on all files as documented in the [original ktlint issue](https://github.com/pinterest/ktlint/issues/762).
 
 ## Code style
 
@@ -24,7 +24,7 @@ ktlint_experimental = enabled # Enable all `experimental` rules from all rule se
 ktlint_custom-rule-set = enabled # Enable all rules in the `custom-rule-set` rule set (not provided by KtLint)
 ```
 
-Rules that are marked as experimental will not be run, unless explicitly enabled:
+Rules that are marked as experimental will not run unless explicitly enabled:
 ```editorconfig
 ktlint_experimental = enabled # Enable rules marked as experimental for all rule sets that are enabled
 ```
@@ -41,7 +41,7 @@ ktlint_custom-rule-set_custom-rule = disabled # Disables the `custom-rule` rule 
 
 ## Rule specific configuration settings
 
-The configuration settings below are used to configure the behavior of a specific rule. As of that, those settings only take effect when the corresponding rule is enabled. See description of rule for more information about the setting.
+The configuration settings below are used to configure the behavior of a specific rule. As of that, those settings only take effect when the corresponding rule is enabled. See the description of the specific rule for more information about the setting.
 
 | Configuration setting                                                                     | Rule                                                                                  |
 |:------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------|
@@ -72,4 +72,4 @@ ktlint_standard_import-ordering = disabled
 ktlint_standard_indent = disabled
 ```
 
-Note that in example above the `import-ordering` rule is disabled for *all* packages including the `api` sub package. Next to this the `indent` rule is disabled for the `api` package and its sub packages.
+Note: In the example above the `import-ordering` rule is disabled for *all* packages, including the `api` sub package. Next to this, the `indent` rule is disabled for the `api` package and its sub packages.
