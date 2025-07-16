@@ -15,10 +15,7 @@ jobs:
       - uses: ./.github/actions/setup-gradle-build
 
       - name: Announce 1.7.0 release
-        if: ${{ success() }}
         run: |
           git config user.email "ktlint@github.com"
           git config user.name "Ktlint Release Workflow" |
           ./.announce170 -y
-        env:
-          VERSION: ${{ env.version }}
