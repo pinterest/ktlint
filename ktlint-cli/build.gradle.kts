@@ -1,9 +1,6 @@
-import org.gradle.crypto.checksum.Checksum
-
 plugins {
     id("ktlint-publication-library")
     alias(libs.plugins.shadow)
-    alias(libs.plugins.checksum)
     signing
 }
 
@@ -60,28 +57,13 @@ val shadowJarExecutable by tasks.registering(ShadowJarExecutableTask::class) {
     windowsBatchScriptSource.set(layout.projectDirectory.file("src/main/scripts/ktlint.bat"))
     outputDirectory.set(ktlintOutputRoot)
 
-    finalizedBy("signShadowJarExecutable", "shadowJarExecutableChecksum")
+    finalizedBy("signShadowJarExecutable")
 }
 
 val signShadowJarExecutable by tasks.registering(Sign::class) {
     dependsOn(shadowJarExecutable)
 
     sign(shadowJarExecutable.flatMap { it.selfExecutable }.get())
-}
-
-tasks.register<Checksum>("shadowJarExecutableChecksum") {
-    description = "Generates MD5 checksum for ktlint executable"
-    group = "Distribution"
-
-    dependsOn(shadowJarExecutable)
-    dependsOn(signShadowJarExecutable)
-
-    inputFiles.from(shadowJarExecutable.map { it.selfExecutable })
-    inputFiles.from(shadowJarExecutable.map { it.windowsBatchScript })
-
-    // put the checksums in the same folder with the executable itself
-    outputDirectory.set(ktlintOutputRoot)
-    checksumAlgorithm = Checksum.Algorithm.MD5
 }
 
 tasks.withType<Test>().configureEach {
