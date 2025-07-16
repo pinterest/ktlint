@@ -42,7 +42,7 @@ See [cli usage](../cli) for arguments that can be supplied to `ktlint`.
     <dependency>
       <groupId>com.pinterest.ktlint</groupId>
       <artifactId>ktlint-cli</artifactId>
-      <version>1.6.0</version>
+      <version>1.7.0</version>
       <!-- Use fat jar of ktlint-cli -->
       <classifier>all</classifier>
       <type>jar</type>
@@ -103,7 +103,7 @@ configurations {
 }
 
 dependencies {
-    ktlint("com.pinterest.ktlint:ktlint-cli:1.6.0") {
+    ktlint("com.pinterest.ktlint:ktlint-cli:1.7.0") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, getObjects().named(Bundling, Bundling.EXTERNAL))
         }
@@ -133,6 +133,7 @@ tasks.register("ktlintFormat", JavaExec) {
     mainClass = "com.pinterest.ktlint.Main"
     // Suppress "sun.misc.Unsafe::objectFieldOffset" on Java24 (warning) (https://github.com/pinterest/ktlint/issues/2973)
     // jvmArgs("--sun-misc-unsafe-memory-access=allow") // Java 24+
+    // see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information
     args "-F", "src/**/*.kt", "**.kts", "!**/build/**"
 }
 ```
@@ -153,7 +154,7 @@ The configuration below, defines following task:
 val ktlint by configurations.creating
 
 dependencies {
-    ktlint("com.pinterest.ktlint:ktlint-cli:1.6.0") {
+    ktlint("com.pinterest.ktlint:ktlint-cli:1.7.0") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
         }
@@ -184,7 +185,7 @@ tasks.register<JavaExec>("ktlintFormat") {
     classpath = ktlint
     mainClass.set("com.pinterest.ktlint.Main")
     // Suppress "sun.misc.Unsafe::objectFieldOffset" on Java24 (warning) (https://github.com/pinterest/ktlint/issues/2973)
-    // jvmArgs("--sun-misc-unsafe-memory-access=allow") // Java 24+
+    jvmArgs("--sun-misc-unsafe-memory-access=allow") // Java 24+
     // see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information
     args(
         "-F",

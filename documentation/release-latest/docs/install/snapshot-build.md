@@ -10,7 +10,7 @@ so by changing version of ktlint to `<latest-version>-SNAPSHOT` + adding a repo:
 ...
 <repository>
     <id>sonatype-snapshots</id>
-    <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     <snapshots>
         <enabled>true</enabled>
     </snapshots>
@@ -26,7 +26,7 @@ so by changing version of ktlint to `<latest-version>-SNAPSHOT` + adding a repo:
 ```groovy
 repositories {
   maven {
-    url "https://central.sonatype.com/repository/maven-snapshots/"
+    url "https://oss.sonatype.org/content/repositories/snapshots"
   }
 }
 ```
