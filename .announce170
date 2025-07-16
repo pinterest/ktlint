@@ -1,0 +1,111 @@
+#!/bin/bash -e
+
+if [ "$1" = "-y" ]; then
+  AUTOACCEPT=true
+else
+  AUTOACCEPT=false
+fi
+
+VERSION="1.7.0"
+PREVIOUS_VERSION="1.6.0"
+
+if [ -z "$PREVIOUS_VERSION" ]; then
+  echo "Cannot find PREVIOUS_VERSION."
+  exit 1
+fi
+
+if [ "$VERSION" == "$PREVIOUS_VERSION" ]; then
+  echo "VERSION $VERSION equal to PREVIOUS_VERSION $PREVIOUS_VERSION"
+  exit 1
+fi
+
+echo "Announcing $PREVIOUS_VERSION -> $VERSION"
+
+DOCUMENTATION_DIR="documentation"
+RELEASE_DOCS_DIR="${DOCUMENTATION_DIR}/release-latest"
+SNAPSHOT_DOCS_DIR="${DOCUMENTATION_DIR}/snapshot"
+
+if [ "$(git status --porcelain=v1 $DOCUMENTATION)" != "" ]; then
+  echo "ERROR: To proceed, the current branch must not contain uncommitted changes in directory '${DOCUMENTATION_DIR}'"
+  # ask for user confirmation
+  if [[ "$AUTOACCEPT" = false ]]; then
+    read -p "revert changes? (y/n)? " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+      git checkout ${DOCUMENTATION_DIR}
+    else
+      exit 1
+    fi
+  else
+    echo "Reverting changes in directory '${DOCUMENTATION_DIR}'"
+    git checkout ${DOCUMENTATION_DIR}
+  fi
+fi
+
+#escape_for_sed() { echo "$1" | sed -e 's/[]\/$*.^|[]/\\&/g'; }
+
+# Make a separate branch because master branch is protected
+
+BRANCH="$VERSION-update-refs"
+if [ "$(git show-ref refs/heads/$BRANCH)" != "" ]; then
+  echo "ERROR: Branch $BRANCH already exists."
+  if [[ "$AUTOACCEPT" = false ]]; then
+      read -p "Delete local branch? (y/n)? " -n 1 -r
+      echo
+      if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        exit 1
+      else
+        git branch -D $BRANCH
+      fi
+    else
+      echo "Deleting local branch $BRANCH"
+      git branch -D $BRANCH
+    fi
+  # Checkout local master branch so that changes to this script can be tested without pushing the script to the remote branch
+  git checkout --track master -b $BRANCH
+else
+  git checkout --track origin/master -b $BRANCH
+fi
+
+# update version number in snapshot docs
+
+echo "Updating version numbers in (snapshot) installation documentation"
+# On local machine (OSX) Use "sed -i '' ..." instead of "sed -i -e ..." as the latter creates a new file.
+# On Github Action workflow the "sed -i -e ..." is required as otherwise it results in failure
+#   "can't read s/0.49.0/0.49.1/g: No such file or directory"
+sed -i -e "s/$PREVIOUS_VERSION/$VERSION/g" ${SNAPSHOT_DOCS_DIR}/docs/install/cli.md
+sed -i -e "s/$PREVIOUS_VERSION/$VERSION/g" ${SNAPSHOT_DOCS_DIR}/docs/install/integrations.md
+git --no-pager diff ${DOCUMENTATION_DIR}
+
+# ask for user confirmation before committing
+if [[ "$AUTOACCEPT" = false ]]; then
+  read -p "Accept changes (y/n)? " -n 1 -r
+  echo
+  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    exit 1
+  fi
+fi
+
+# Replace release documentation with current snapshot documentation.
+
+echo "Replace release documentation with current snapshot documentation"
+# Support removal of files which still exists in release docs but which are no longer present in snapshot docs
+rm -rf ${RELEASE_DOCS_DIR}/docs/
+cp -r ${SNAPSHOT_DOCS_DIR}/docs/ ${RELEASE_DOCS_DIR}/docs/
+# Note that directory "${SNAPSHOT_DOCS_DIR}/overrides/" should not replace "${RELEASE_DOCS_DIR}/overrides/"
+cp -r ${SNAPSHOT_DOCS_DIR}/mkdocs.yml ${RELEASE_DOCS_DIR}
+# Add files which previously did not yet exists in the release docs but were present in the snapshot docs
+git add --all
+# Display sorted list of files changed but do not show contents as that could be a lot
+git status --porcelain=v1 documentation | sort
+
+# Commit and push changes
+if [[ "$AUTOACCEPT" = false ]]; then
+  read -p "Commit and push changes (y/n)? " -n 1 -r
+  echo
+  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    exit 1
+  fi
+fi
+git commit -m "Updated refs to latest ($VERSION) release"
+git push origin $BRANCH
