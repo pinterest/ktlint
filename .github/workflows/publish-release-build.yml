@@ -18,7 +18,7 @@ jobs:
       - uses: ./.github/actions/setup-gradle-build
 
       - name: Build executable and publish to Maven
-        run: ./gradlew clean shadowJarExecutable publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel --no-configuration-cache
+        run: ./gradlew clean ktlintCliFiles publishMavenPublicationToMavenCentralRepository --no-daemon --no-parallel --no-configuration-cache
         env:
           CENTRAL_PORTAL_USERNAME: ${{ secrets.CENTRAL_PORTAL_USERNAME }}
           CENTRAL_PORTAL_TOKEN: ${{ secrets.CENTRAL_PORTAL_TOKEN }}
