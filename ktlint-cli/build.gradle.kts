@@ -40,9 +40,8 @@ dependencies {
     testRuntimeOnly(libs.junit5.platform.launcher)
 }
 
-// Output is the self-executable file, the signature file and a batch file for Windows OS.
-// Folder content is published as GitHub release artifacts
-val ktlintOutputRoot = layout.buildDirectory.dir("run")
+// Directory for files to be distributed as Ktlint CLI
+val ktlintCliOutputRoot = layout.buildDirectory.dir("run")
 
 val ktlintCliFiles by tasks.registering(KtlintCliTask::class) {
     dependsOn(tasks.shadowJar)
@@ -55,7 +54,7 @@ val ktlintCliFiles by tasks.registering(KtlintCliTask::class) {
             .get()
     allJarFile.set(ktlintCliAllJarFile)
     windowsBatchScriptSource.set(layout.projectDirectory.file("src/main/scripts/ktlint.bat"))
-    outputDirectory.set(ktlintOutputRoot)
+    outputDirectory.set(ktlintCliOutputRoot)
 
     finalizedBy("signktlintCliFiles")
 }
