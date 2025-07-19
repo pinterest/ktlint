@@ -40,11 +40,10 @@ dependencies {
     testRuntimeOnly(libs.junit5.platform.launcher)
 }
 
-// Output is the self-executable file, the signature file and a batch file for Windows OS.
-// Folder content is published as GitHub release artifacts
-val ktlintOutputRoot = layout.buildDirectory.dir("run")
+// Directory for files to be distributed as Ktlint CLI
+val ktlintCliOutputRoot = layout.buildDirectory.dir("run")
 
-val shadowJarExecutable by tasks.registering(ShadowJarExecutableTask::class) {
+val ktlintCliFiles by tasks.registering(KtlintCliTask::class) {
     dependsOn(tasks.shadowJar)
 
     // Find the "ktlint-cli-<version>-all.jar" file
@@ -53,29 +52,29 @@ val shadowJarExecutable by tasks.registering(ShadowJarExecutableTask::class) {
             .get()
             .archiveFile
             .get()
-    allJarFile.set(ktlintCliAllJarFile)
-    windowsBatchScriptSource.set(layout.projectDirectory.file("src/main/scripts/ktlint.bat"))
-    outputDirectory.set(ktlintOutputRoot)
+    ktlintCliJarFile.set(ktlintCliAllJarFile)
+    ktlintCliWindowsBatchScriptSource.set(layout.projectDirectory.file("src/main/scripts/ktlint.bat"))
+    ktlintCliOutputDirectory.set(ktlintCliOutputRoot)
 
-    finalizedBy("signShadowJarExecutable")
+    finalizedBy("signKtlintCliFiles")
 }
 
-val signShadowJarExecutable by tasks.registering(Sign::class) {
-    dependsOn(shadowJarExecutable)
+val signKtlintCliFiles by tasks.registering(Sign::class) {
+    dependsOn(ktlintCliFiles)
 
-    sign(shadowJarExecutable.flatMap { it.selfExecutable }.get())
+    sign(ktlintCliFiles.flatMap { it.ktlintCliExecutable }.get())
 }
 
 tasks.withType<Test>().configureEach {
-    dependsOn(shadowJarExecutable)
+    dependsOn(ktlintCliFiles)
 
     // TODO: Use providers directly after https://github.com/gradle/gradle/issues/12247 is fixed.
-    val executableFilePath = shadowJarExecutable.flatMap { it.selfExecutable }.map { it.absolutePath }.get()
+    val ktlintCliExecutableFilePath = ktlintCliFiles.flatMap { it.ktlintCliExecutable }.map { it.absolutePath }.get()
     val ktlintVersion = providers.provider { version }.get()
     doFirst {
         systemProperty(
             "ktlint-cli",
-            executableFilePath,
+            ktlintCliExecutableFilePath,
         )
         systemProperty("ktlint-version", ktlintVersion)
     }
