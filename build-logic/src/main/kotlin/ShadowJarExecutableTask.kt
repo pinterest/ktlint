@@ -10,7 +10,7 @@ import javax.inject.Inject
 
 // Implements https://github.com/brianm/really-executable-jars-maven-plugin maven plugin behaviour.
 // To check details how it works, see https://skife.org/java/unix/2011/06/20/really_executable_jars.html.
-abstract class ShadowJarExecutableTask
+abstract class KtlintCliTask
     @Inject
     constructor(
         objects: ObjectFactory,

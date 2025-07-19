@@ -44,7 +44,7 @@ dependencies {
 // Folder content is published as GitHub release artifacts
 val ktlintOutputRoot = layout.buildDirectory.dir("run")
 
-val shadowJarExecutable by tasks.registering(ShadowJarExecutableTask::class) {
+val shadowJarExecutable by tasks.registering(KtlintCliTask::class) {
     dependsOn(tasks.shadowJar)
 
     // Find the "ktlint-cli-<version>-all.jar" file
