@@ -56,10 +56,10 @@ val ktlintCliFiles by tasks.registering(KtlintCliTask::class) {
     ktlintCliWindowsBatchScriptSource.set(layout.projectDirectory.file("src/main/scripts/ktlint.bat"))
     ktlintCliOutputDirectory.set(ktlintCliOutputRoot)
 
-    finalizedBy("signktlintCliFiles")
+    finalizedBy("signKtlintCliFiles")
 }
 
-val signktlintCliFiles by tasks.registering(Sign::class) {
+val signKtlintCliFiles by tasks.registering(Sign::class) {
     dependsOn(ktlintCliFiles)
 
     sign(ktlintCliFiles.flatMap { it.ktlintCliExecutable }.get())
