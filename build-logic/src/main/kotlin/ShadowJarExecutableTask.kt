@@ -16,7 +16,7 @@ abstract class KtlintCliTask
         objects: ObjectFactory,
     ) : DefaultTask() {
         @InputFile
-        val allJarFile = objects.fileProperty()
+        val ktlintCliJarFile = objects.fileProperty()
 
         @PathSensitive(PathSensitivity.RELATIVE)
         @InputFile
@@ -32,16 +32,16 @@ abstract class KtlintCliTask
         val windowsBatchScript = outputDirectory.map { it.asFile.resolve("ktlint.bat") }
 
         init {
-            description = "Creates self-executable file, that runs generated shadow jar"
+            description = "Creates Ktlint CLI files"
             group = "Distribution"
         }
 
         @TaskAction
         fun action() {
-            logger.lifecycle("ktlint-cli: Base jar to build self-executable file: ${allJarFile.get()}")
+            logger.lifecycle("Start creating Ktlint CLI files")
 
             ktlintCliExecutable.get().apply {
-                logger.lifecycle("Creating the self-executable file: $this")
+                logger.lifecycle("ktlint-cli: build self-executable jar file: $this")
 
                 // writeText effective replaces the entire content if the file already exists. If appendText is used, the file keeps on growing
                 // with each build if the clean target is not used.
@@ -67,12 +67,12 @@ abstract class KtlintCliTask
                     """.trimIndent(),
                 )
                 // Add the jar
-                appendBytes(allJarFile.get().asFile.readBytes())
+                appendBytes(ktlintCliJarFile.get().asFile.readBytes())
 
                 setExecutable(true, false)
             }
             logger.lifecycle("Creating the batch file for Windows OS: ${windowsBatchScript.get()}")
             windowsBatchScript.get().writeText(windowsBatchScriptSource.asFile.get().readText())
-            logger.lifecycle("Finished creating output files ktlint-cli")
+            logger.lifecycle("Finished creating Ktlint CLI files")
         }
     }
