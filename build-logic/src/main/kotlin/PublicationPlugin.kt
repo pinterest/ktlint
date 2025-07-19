@@ -143,7 +143,13 @@ abstract class PublicationPlugin : Plugin<Project> {
                     // This also improves error messages if something's misconfigured
                     useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
                 } else {
-                    logger.info("No signing info")
+                    logger.info(
+                        listOfNotNull(
+                            "signingKeyId".takeIf { signingKeyId.isNullOrBlank() },
+                            "signingKey".takeIf { signingKey.isNullOrBlank() },
+                            "signingPassword".takeIf { signingPassword.isNullOrBlank() },
+                        ).joinToString(prefix = "Signing info not complete. Field(s) should not be empty: "),
+                    )
                 }
 
                 // This property allows OS package maintainers to disable signing
