@@ -20,7 +20,7 @@ abstract class KtlintCliTask
 
         @PathSensitive(PathSensitivity.RELATIVE)
         @InputFile
-        val windowsBatchScriptSource = objects.fileProperty()
+        val ktlintCliWindowsBatchScriptSource = objects.fileProperty()
 
         @Internal
         val outputDirectory = objects.directoryProperty()
@@ -29,7 +29,7 @@ abstract class KtlintCliTask
         val ktlintCliExecutable = outputDirectory.map { it.asFile.resolve("ktlint") }
 
         @OutputFile
-        val windowsBatchScript = outputDirectory.map { it.asFile.resolve("ktlint.bat") }
+        val ktlintCliWindowsBatchScript = outputDirectory.map { it.asFile.resolve("ktlint.bat") }
 
         init {
             description = "Creates Ktlint CLI files"
@@ -71,8 +71,8 @@ abstract class KtlintCliTask
 
                 setExecutable(true, false)
             }
-            logger.lifecycle("Creating the batch file for Windows OS: ${windowsBatchScript.get()}")
-            windowsBatchScript.get().writeText(windowsBatchScriptSource.asFile.get().readText())
+            logger.lifecycle("Creating the batch file for Windows OS: ${ktlintCliWindowsBatchScript.get()}")
+            ktlintCliWindowsBatchScript.get().writeText(ktlintCliWindowsBatchScriptSource.asFile.get().readText())
             logger.lifecycle("Finished creating Ktlint CLI files")
         }
     }
