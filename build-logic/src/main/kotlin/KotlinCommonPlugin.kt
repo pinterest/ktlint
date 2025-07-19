@@ -13,6 +13,8 @@ import org.gradle.kotlin.dsl.the
 import org.gradle.kotlin.dsl.withType
 import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -27,10 +29,14 @@ abstract class KotlinCommonPlugin : Plugin<Project> {
                 JavaLanguageVersion.of(projectLibs.findVersion("java-compilation").get().requiredVersion)
             val javaTargetVersion = JavaLanguageVersion.of(projectLibs.findVersion("java-target").get().requiredVersion)
 
-            kotlinExtension.apply {
+            (kotlinExtension as KotlinJvmExtension).apply {
                 // All modules, the CLI included, must have an explicit API
                 explicitApi()
                 jvmToolchain(jdkVersion = javaCompilationVersion.asInt())
+
+                compilerOptions {
+                    apiVersion.set(KotlinVersion.KOTLIN_2_0)
+                }
             }
 
             tasks.withType<JavaCompile>().configureEach {
