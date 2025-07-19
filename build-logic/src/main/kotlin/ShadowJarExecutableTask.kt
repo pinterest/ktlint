@@ -26,7 +26,7 @@ abstract class ShadowJarExecutableTask
         val outputDirectory = objects.directoryProperty()
 
         @OutputFile
-        val selfExecutable = outputDirectory.map { it.asFile.resolve("ktlint") }
+        val ktlintCliExecutable = outputDirectory.map { it.asFile.resolve("ktlint") }
 
         @OutputFile
         val windowsBatchScript = outputDirectory.map { it.asFile.resolve("ktlint.bat") }
@@ -40,7 +40,7 @@ abstract class ShadowJarExecutableTask
         fun action() {
             logger.lifecycle("ktlint-cli: Base jar to build self-executable file: ${allJarFile.get()}")
 
-            selfExecutable.get().apply {
+            ktlintCliExecutable.get().apply {
                 logger.lifecycle("Creating the self-executable file: $this")
 
                 // writeText effective replaces the entire content if the file already exists. If appendText is used, the file keeps on growing

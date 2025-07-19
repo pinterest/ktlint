@@ -63,19 +63,19 @@ val shadowJarExecutable by tasks.registering(ShadowJarExecutableTask::class) {
 val signShadowJarExecutable by tasks.registering(Sign::class) {
     dependsOn(shadowJarExecutable)
 
-    sign(shadowJarExecutable.flatMap { it.selfExecutable }.get())
+    sign(shadowJarExecutable.flatMap { it.ktlintCliExecutable }.get())
 }
 
 tasks.withType<Test>().configureEach {
     dependsOn(shadowJarExecutable)
 
     // TODO: Use providers directly after https://github.com/gradle/gradle/issues/12247 is fixed.
-    val executableFilePath = shadowJarExecutable.flatMap { it.selfExecutable }.map { it.absolutePath }.get()
+    val ktlintCliExecutableFilePath = shadowJarExecutable.flatMap { it.ktlintCliExecutable }.map { it.absolutePath }.get()
     val ktlintVersion = providers.provider { version }.get()
     doFirst {
         systemProperty(
             "ktlint-cli",
-            executableFilePath,
+            ktlintCliExecutableFilePath,
         )
         systemProperty("ktlint-version", ktlintVersion)
     }
