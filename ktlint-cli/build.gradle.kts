@@ -54,7 +54,7 @@ val ktlintCliFiles by tasks.registering(KtlintCliTask::class) {
             .get()
     ktlintCliJarFile.set(ktlintCliAllJarFile)
     ktlintCliWindowsBatchScriptSource.set(layout.projectDirectory.file("src/main/scripts/ktlint.bat"))
-    outputDirectory.set(ktlintCliOutputRoot)
+    ktlintCliOutputDirectory.set(ktlintCliOutputRoot)
 
     finalizedBy("signktlintCliFiles")
 }

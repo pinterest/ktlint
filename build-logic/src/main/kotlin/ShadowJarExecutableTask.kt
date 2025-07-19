@@ -23,13 +23,13 @@ abstract class KtlintCliTask
         val ktlintCliWindowsBatchScriptSource = objects.fileProperty()
 
         @Internal
-        val outputDirectory = objects.directoryProperty()
+        val ktlintCliOutputDirectory = objects.directoryProperty()
 
         @OutputFile
-        val ktlintCliExecutable = outputDirectory.map { it.asFile.resolve("ktlint") }
+        val ktlintCliExecutable = ktlintCliOutputDirectory.map { it.asFile.resolve("ktlint") }
 
         @OutputFile
-        val ktlintCliWindowsBatchScript = outputDirectory.map { it.asFile.resolve("ktlint.bat") }
+        val ktlintCliWindowsBatchScript = ktlintCliOutputDirectory.map { it.asFile.resolve("ktlint.bat") }
 
         init {
             description = "Creates Ktlint CLI files"
