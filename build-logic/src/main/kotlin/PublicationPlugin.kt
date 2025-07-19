@@ -134,10 +134,17 @@ abstract class PublicationPlugin : Plugin<Project> {
                 // See https://docs.gradle.org/current/userguide/signing_plugin.html#sec:using_gpg_agent how to configure it
                 // useGpgCmd()
 
-                val signingKeyId = System.getenv("ORG_GRADLE_PROJECT_signingKeyId")
-                val signingKey = System.getenv("ORG_GRADLE_PROJECT_signingKey")
-                val signingPassword = System.getenv("ORG_GRADLE_PROJECT_signingKeyPassword")
-                useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+                val signingKeyId = System.getenv("ORG_GRADLE_PROJECT_signingKeyId")?.takeIf { it.isNotEmpty() }
+                val signingKey = System.getenv("ORG_GRADLE_PROJECT_signingKey")?.takeIf { it.isNotEmpty() }
+                val signingPassword = System.getenv("ORG_GRADLE_PROJECT_signingKeyPassword")?.takeIf { it.isNotEmpty() }
+                if (signingKeyId != null && signingKey != null && signingPassword != null) {
+                    // Avoid setting empty strings as signing keys. This avoids breaking the build when PR is opened from a fork.
+                    // Also, due to https://github.com/gradle/gradle/issues/18477 signing tasks try to prematurely access the signatory.
+                    // This also improves error messages if something's misconfigured
+                    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+                } else {
+                    logger.info("No signing info")
+                }
 
                 // This property allows OS package maintainers to disable signing
                 val enableSigning = providers.gradleProperty("ktlint.publication.signing.enable").orNull != "false"

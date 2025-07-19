@@ -9,7 +9,6 @@ kotlinDev = "2.2.0"
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-sam-with-receiver = { id = "org.jetbrains.kotlin.plugin.sam.with.receiver", version.ref = "kotlin" }
-checksum = "org.gradle.crypto.checksum:1.4.0"
 shadow = "com.gradleup.shadow:8.3.8"
 kotlinx-binary-compatibiltiy-validator = "org.jetbrains.kotlinx.binary-compatibility-validator:0.18.1"
 
