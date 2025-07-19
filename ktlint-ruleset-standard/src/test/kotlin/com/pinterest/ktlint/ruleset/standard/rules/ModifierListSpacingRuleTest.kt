@@ -185,4 +185,58 @@ class ModifierListSpacingRuleTest {
             """.trimIndent()
         modifierListSpacingRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 3065 - Given a context parameter on same line as function then wrap to new line after context parameter`() {
+        val code =
+            """
+            class Bar {
+                context(Foo) fun foo()
+                context(_: Foo) fun foo()
+
+                context(Foooooooooooooooo<Foo, Bar>) fun fooBar()
+                context(_: Foooooooooooooooo<Foo, Bar>) fun fooBar()
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            class Bar {
+                context(Foo)
+                fun foo()
+                context(_: Foo)
+                fun foo()
+
+                context(Foooooooooooooooo<Foo, Bar>)
+                fun fooBar()
+                context(_: Foooooooooooooooo<Foo, Bar>)
+                fun fooBar()
+            }
+            """.trimIndent()
+        modifierListSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 17, "Single newline expected after context receiver list"),
+                LintViolation(3, 20, "Single newline expected after context receiver list"),
+                LintViolation(5, 41, "Single newline expected after context receiver list"),
+                LintViolation(6, 44, "Single newline expected after context receiver list"),
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given an annotation, a context parameter, and other modifiers on a single line in incorrect order`() {
+        val code =
+            """
+            @Suppress("DEPRECATED") open context(_: Foo) public fun foo() {}
+            """.trimIndent()
+        val formattedCode =
+            """
+            @Suppress("DEPRECATED")
+            context(_: Foo)
+            public open fun foo() {}
+            """.trimIndent()
+        modifierListSpacingRuleAssertThat(code)
+            .addAdditionalRuleProvider { ModifierOrderRule() }
+            .addAdditionalRuleProvider { AnnotationRule() }
+            .hasLintViolation(1, 45, "Single newline expected after context receiver list")
+            .isFormattedAs(formattedCode)
+    }
 }
