@@ -40,7 +40,7 @@ Before releasing a new version of KtLint, the release candidate is tested on a s
    ```
 4. Create an alias or script to run the latest released version of ktlint (note that this script will print the version as reference to which version is used):
    ```shell
-   alias ktlint-prev="ktlint-1.6.0 $@" # Replace with the latest release version
+   alias ktlint-prev="ktlint-1.7.0 $@" # Replace with the latest release version
    ```
    Note that `~/git/ktlint` is the directory in which the ktlint project is checked out and that `~/git/ktlint/ktlint` refers to the `ktlint` CLI-module.
 5. Create an alias or script to run the latest development-version of ktlint (note that this script will print the version and the datetime of compilation as reference to which version is used):

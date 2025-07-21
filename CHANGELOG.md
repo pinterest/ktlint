@@ -2,6 +2,19 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.7.1] - 2025-07-21
+
+### 🔧 Fixes
+
+* Make Ktlint code backwards compatible with lower Kotlin versions (down to 2.0) - [#3063](https://github.com/pinterest/ktlint/pull/3063), by @mateuszkwiecinski
+* Fix conflict between `modifier-list-spacing` and `context-receiver-list-wrapping` - [#3077](https://github.com/pinterest/ktlint/pull/3077), by @paul-dingemans
+* Mark `operand-expression-wrapping` rule as experimental - [#3081](https://github.com/pinterest/ktlint/pull/3081), by @paul-dingemans
+
+### 💬 Other
+
+* Update signing config, fix configuration-cache compatibility - [#3058](https://github.com/pinterest/ktlint/pull/3058), by @mateuszkwiecinski
+* Refactor ShadowJarExecutableTask to KtlintCLiTask - [#3078](https://github.com/pinterest/ktlint/pull/3078), by @paul-dingemans
+
 ## [1.7.0] - 2025-07-14
 
 ### 🆕 Features
@@ -2802,6 +2815,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[1.7.1]: https://github.com/pinterest/ktlint/compare/1.7.1...1.7.0
 [1.7.0]: https://github.com/pinterest/ktlint/compare/1.7.0...1.6.0
 [1.6.0]: https://github.com/pinterest/ktlint/compare/1.6.0...1.5.0
 [1.5.0]: https://github.com/pinterest/ktlint/compare/1.5.0...1.4.1
