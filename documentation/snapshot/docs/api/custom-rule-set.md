@@ -1,6 +1,3 @@
-!!! Tip
-    See [Writing your first ktlint rule](https://medium.com/@vanniktech/writing-your-first-ktlint-rule-5a1707f4ca5b) by [Niklas Baudy](https://github.com/vanniktech).
-
 In a nutshell: a "rule set" is a JAR containing one or more [Rule](https://github.com/pinterest/ktlint/blob/master/ktlint-rule-engine-core/src/main/kotlin/com/pinterest/ktlint/rule/engine/core/api/Rule.kt)s. `ktlint` is relying on the [ServiceLoader](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html) to discover all available "RuleSet"s on the classpath. As a ruleset author, all you need to do is to include a `META-INF/services/RuleSetProviderV3` file containing a fully qualified name of your [RuleSetProviderV3](https://github.com/pinterest/ktlint/blob/master/ktlint-cli-ruleset-core/src/main/kotlin/com/pinterest/ktlint/cli/ruleset/core/api/RuleSetProviderV3.kt) implementation.
 
 ## ktlint-ruleset-template
@@ -65,6 +62,35 @@ $ ktlint -R build/libs/ktlint-ruleset-template.jar --log-level=debug --relative 
 
 !!! tip
     Multiple custom rule sets can be loaded at the same time.
+
+## Custom ruleset dependencies
+
+The template repository is a great example for how to create your custom ruleset, write rules, and test those rules. However, since it is nested inside of the larger ktlint project it does not provide a good example of how to setup your dependencies. Here is a sample `build.gradle.kts` file to get started:
+
+```kotlin
+plugins {
+  kotlin("jvm") version "2.1.21"
+}
+
+repositories {
+  mavenCentral()
+}
+
+tasks.named<Test>("test") {
+  useJUnitPlatform()
+}
+
+dependencies {
+  implementation("com.pinterest.ktlint:ktlint-cli-ruleset-core:1.6.0")
+  implementation("com.pinterest.ktlint:ktlint-rule-engine-core:1.6.0")
+  implementation(kotlin("stdlib"))
+
+  testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
+  testImplementation("org.junit.platform:junit-platform-launcher")
+  testImplementation("org.slf4j:slf4j-simple:2.0.17")
+  testImplementation("com.pinterest.ktlint:ktlint-test:1.6.0")
+}
+```
 
 ## Abstract Syntax Tree (AST)
 
