@@ -60,6 +60,7 @@ java {
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
+            from(components["java"])
             pom {
                 licenses {
                     license {
