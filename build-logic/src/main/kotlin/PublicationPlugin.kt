@@ -28,14 +28,25 @@ abstract class PublicationPlugin : Plugin<Project> {
                     version = version.toString(),
                 )
 
+                // Pass `-PuseGpgCmd` to sign artifacts using local gpg agent
+                val useGpgCmd = localGradleProperty("useGpgCmd").orNull
+
                 val signingKeyId = localGradleProperty("signingKeyId").orNull?.takeIf { it.isNotEmpty() }
                 val signingKey = localGradleProperty("signingKey").orNull?.takeIf { it.isNotEmpty() }
                 val signingPassword = localGradleProperty("signingKeyPassword").orNull?.takeIf { it.isNotEmpty() }
-                if (signingKeyId != null && signingKey != null && signingPassword != null) {
-                    // Avoid setting empty strings as signing keys. This avoids breaking the build when PR is opened from a fork.
-                    // Also, due to https://github.com/gradle/gradle/issues/18477 signing tasks try to prematurely access the signatory.
-                    // This also improves error messages if something's misconfigured
+                val signingConfigPresent = signingKeyId != null && signingKey != null && signingPassword != null
+
+                // Avoid setting empty strings as signing keys. This avoids breaking the build when PR is opened from a fork.
+                // Also, due to https://github.com/gradle/gradle/issues/18477 signing tasks try to prematurely access the signatory.
+                // This also improves error messages if something's misconfigured
+                if (signingConfigPresent || useGpgCmd != null) {
                     signAllPublications()
+
+                    configure<SigningExtension> {
+                        if (useGpgCmd != "false") {
+                            useGpgCmd()
+                        }
+                    }
                 } else {
                     logger.info(
                         listOfNotNull(
