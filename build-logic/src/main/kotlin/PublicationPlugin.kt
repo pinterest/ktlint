@@ -2,13 +2,9 @@ import com.vanniktech.maven.publish.MavenPublishBaseExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
-import org.gradle.api.publish.PublishingExtension
-import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.the
 import org.gradle.plugins.signing.SigningExtension
-import org.gradle.plugins.signing.SigningPlugin
 
 abstract class PublicationPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit =
@@ -32,11 +28,23 @@ abstract class PublicationPlugin : Plugin<Project> {
                     version = version.toString(),
                 )
 
-                // This property allows OS package maintainers to disable signing
-                val enableSigning = providers.gradleProperty("ktlint.publication.signing.enable").orNull != "false"
-
-                signAllPublications()
-                the<SigningExtension>().isRequired = enableSigning && !version.toString().endsWith("SNAPSHOT")
+                val signingKeyId = localGradleProperty("signingKeyId").orNull?.takeIf { it.isNotEmpty() }
+                val signingKey = localGradleProperty("signingKey").orNull?.takeIf { it.isNotEmpty() }
+                val signingPassword = localGradleProperty("signingKeyPassword").orNull?.takeIf { it.isNotEmpty() }
+                if (signingKeyId != null && signingKey != null && signingPassword != null) {
+                    // Avoid setting empty strings as signing keys. This avoids breaking the build when PR is opened from a fork.
+                    // Also, due to https://github.com/gradle/gradle/issues/18477 signing tasks try to prematurely access the signatory.
+                    // This also improves error messages if something's misconfigured
+                    signAllPublications()
+                } else {
+                    logger.info(
+                        listOfNotNull(
+                            "signingKeyId".takeIf { signingKeyId.isNullOrBlank() },
+                            "signingKey".takeIf { signingKey.isNullOrBlank() },
+                            "signingPassword".takeIf { signingPassword.isNullOrBlank() },
+                        ).joinToString(prefix = "Signing info not complete. Field(s) should not be empty: "),
+                    )
+                }
 
                 configureBasedOnAppliedPlugins()
 
