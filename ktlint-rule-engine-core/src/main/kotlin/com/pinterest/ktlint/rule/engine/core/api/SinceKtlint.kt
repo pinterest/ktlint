@@ -14,7 +14,7 @@ package com.pinterest.ktlint.rule.engine.core.api
     AnnotationTarget.PROPERTY_SETTER,
     AnnotationTarget.TYPEALIAS,
 )
-@Retention(AnnotationRetention.BINARY)
+@Retention(AnnotationRetention.RUNTIME)
 @MustBeDocumented
 public annotation class SinceKtlint(
     val version: String,
