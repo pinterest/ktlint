@@ -33,7 +33,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  * Ktlint uses the property `ij_kotlin_line_break_after_multiline_when_entry` to consistently add/remove blank line between all
  * when-conditions in the when-statement depending on whether the statement contains at least one multiline when-condition.
  */
-@SinceKtlint("1.2.0", EXPERIMENTAL)
+@SinceKtlint("1.2", EXPERIMENTAL)
 public class BlankLineBetweenWhenConditions :
     StandardRule(
         id = "blank-line-between-when-conditions",

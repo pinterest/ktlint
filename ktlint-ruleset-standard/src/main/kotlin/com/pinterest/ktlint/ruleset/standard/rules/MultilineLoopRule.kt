@@ -10,6 +10,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
@@ -33,7 +34,8 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
 /**
  * https://developer.android.com/kotlin/style-guide#braces
  */
-@SinceKtlint("1.0", STABLE)
+@SinceKtlint("1.0", EXPERIMENTAL)
+@SinceKtlint("1.3", STABLE)
 public class MultilineLoopRule :
     StandardRule(
         id = "multiline-loop",

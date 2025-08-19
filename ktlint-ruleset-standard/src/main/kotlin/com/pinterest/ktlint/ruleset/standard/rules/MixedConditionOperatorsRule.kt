@@ -18,7 +18,7 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
  * Conditions should not use a both '&&' and '||' operators between operators at the same level. By using parenthesis the expression is to
  * be clarified.
  */
-@SinceKtlint("1.1.0", EXPERIMENTAL)
+@SinceKtlint("1.1", EXPERIMENTAL)
 public class MixedConditionOperatorsRule :
     StandardRule("condition-wrapping"),
     Rule.Experimental {

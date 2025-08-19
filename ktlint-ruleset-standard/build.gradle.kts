@@ -9,6 +9,7 @@ dependencies {
     api(projects.ktlintRuleEngineCore)
 
     testImplementation(projects.ktlintTest)
+    testImplementation(libs.kotlin.reflect)
     testRuntimeOnly(libs.logback)
 
     testImplementation(libs.junit5.jupiter)
