@@ -22,7 +22,6 @@ import org.jetbrains.kotlin.lexer.KtTokens
  * well as it is more consistent with name of test functions.
  */
 @SinceKtlint("0.48", EXPERIMENTAL)
-@SinceKtlint("0.49", EXPERIMENTAL)
 @SinceKtlint("1.0", STABLE)
 public class ClassNamingRule : StandardRule("class-naming") {
     private var allowBacktickedClassName = false
