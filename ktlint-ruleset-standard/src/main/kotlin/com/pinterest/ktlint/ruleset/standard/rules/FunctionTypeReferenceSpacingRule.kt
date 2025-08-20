@@ -17,7 +17,6 @@ import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 @SinceKtlint("0.45", EXPERIMENTAL)
-@SinceKtlint("0.49", EXPERIMENTAL)
 @SinceKtlint("1.0", STABLE)
 public class FunctionTypeReferenceSpacingRule : StandardRule("function-type-reference-spacing") {
     override fun beforeVisitChildNodes(
