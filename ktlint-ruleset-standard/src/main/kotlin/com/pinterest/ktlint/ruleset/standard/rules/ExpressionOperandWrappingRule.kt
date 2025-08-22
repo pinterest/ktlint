@@ -47,7 +47,7 @@ import org.jetbrains.kotlin.psi.psiUtil.parents
  *            bar +
  *            baz
  */
-@SinceKtlint("1.7.0", EXPERIMENTAL)
+@SinceKtlint("1.7", EXPERIMENTAL)
 public class ExpressionOperandWrappingRule :
     StandardRule(
         id = "expression-operand-wrapping",

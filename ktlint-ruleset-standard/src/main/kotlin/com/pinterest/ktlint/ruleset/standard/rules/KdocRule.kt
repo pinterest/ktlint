@@ -25,7 +25,7 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 /**
  * Disallow KDoc except of classes, functions and xxx
  */
-@SinceKtlint("1.2.0", EXPERIMENTAL)
+@SinceKtlint("1.2", EXPERIMENTAL)
 public class KdocRule :
     StandardRule(
         id = "kdoc",

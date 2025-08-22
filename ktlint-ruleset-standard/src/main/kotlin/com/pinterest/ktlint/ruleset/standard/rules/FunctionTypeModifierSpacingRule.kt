@@ -5,6 +5,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_TYPE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
@@ -17,7 +18,8 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 /**
  * Lints and formats a single space between the modifier list and the function type
  */
-@SinceKtlint("1.0", STABLE)
+@SinceKtlint("1.0", EXPERIMENTAL)
+@SinceKtlint("1.3", STABLE)
 public class FunctionTypeModifierSpacingRule : StandardRule("function-type-modifier-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,

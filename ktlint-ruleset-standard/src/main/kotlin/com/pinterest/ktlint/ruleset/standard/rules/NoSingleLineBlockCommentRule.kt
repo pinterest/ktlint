@@ -29,7 +29,7 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
 /**
  * A block comment following another element on the same line is replaced with an EOL comment, if possible.
  */
-@SinceKtlint("0.49.1", EXPERIMENTAL)
+@SinceKtlint("0.49", EXPERIMENTAL)
 @SinceKtlint("1.0", STABLE)
 public class NoSingleLineBlockCommentRule :
     StandardRule(

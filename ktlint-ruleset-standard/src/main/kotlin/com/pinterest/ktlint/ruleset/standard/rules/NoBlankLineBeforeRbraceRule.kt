@@ -12,7 +12,7 @@ import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
-@SinceKtlint("0.10.2", STABLE)
+@SinceKtlint("0.10", STABLE)
 public class NoBlankLineBeforeRbraceRule : StandardRule("no-blank-line-before-rbrace") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
