@@ -35,7 +35,7 @@ import org.jetbrains.kotlin.psi.psiUtil.siblings
  *   - Bodies of the when-conditions are all aligned at same column position
  *   - Closing braces helps in separation the when-conditions
  */
-@SinceKtlint("1.4.0", EXPERIMENTAL)
+@SinceKtlint("1.4", EXPERIMENTAL)
 public class WhenEntryBracing :
     StandardRule(
         id = "when-entry-bracing",

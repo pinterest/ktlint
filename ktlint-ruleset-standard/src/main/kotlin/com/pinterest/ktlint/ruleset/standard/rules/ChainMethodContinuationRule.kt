@@ -30,6 +30,7 @@ import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRu
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.dropTrailingEolComment
@@ -73,7 +74,8 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
  *
  * As of that the rule is restricted to ktlint_official code style unless explicitly enabled.
  */
-@SinceKtlint("1.0", STABLE)
+@SinceKtlint("1.0", EXPERIMENTAL)
+@SinceKtlint("1.3", STABLE)
 public class ChainMethodContinuationRule :
     StandardRule(
         id = "chain-method-continuation",

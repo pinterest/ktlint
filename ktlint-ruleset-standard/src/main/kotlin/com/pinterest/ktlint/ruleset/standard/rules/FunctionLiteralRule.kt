@@ -18,6 +18,7 @@ import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.dropTrailingEolComment
@@ -78,7 +79,8 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
  * }
  * ```
  */
-@SinceKtlint("1.0", STABLE)
+@SinceKtlint("1.0", EXPERIMENTAL)
+@SinceKtlint("1.3", STABLE)
 public class FunctionLiteralRule :
     StandardRule(
         id = "function-literal",

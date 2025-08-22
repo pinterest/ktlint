@@ -2,6 +2,9 @@ package com.pinterest.ktlint.rule.engine.core.api
 
 /**
  * The version in which the rule was introduced.
+ *
+ * @param version The version in "major.minor" format (e.g., "1.2"), never including patch level
+ * @param status The status of the rule in the specified version
  */
 @Repeatable
 @Target(
@@ -14,7 +17,7 @@ package com.pinterest.ktlint.rule.engine.core.api
     AnnotationTarget.PROPERTY_SETTER,
     AnnotationTarget.TYPEALIAS,
 )
-@Retention(AnnotationRetention.BINARY)
+@Retention(AnnotationRetention.RUNTIME)
 @MustBeDocumented
 public annotation class SinceKtlint(
     val version: String,
