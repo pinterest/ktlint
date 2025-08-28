@@ -36,6 +36,7 @@ abstract class KotlinCommonPlugin : Plugin<Project> {
 
                 compilerOptions {
                     apiVersion.set(KotlinVersion.KOTLIN_2_0)
+                    languageVersion.set(KotlinVersion.KOTLIN_2_0)
                 }
             }
 
