@@ -510,8 +510,8 @@ public final class com/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifie
 }
 
 public abstract interface class com/pinterest/ktlint/rule/engine/core/api/RuleAutocorrectApproveHandler {
-	public fun afterVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
+	public abstract fun afterVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
+	public abstract fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class com/pinterest/ktlint/rule/engine/core/api/RuleAutocorrectApproveHandler$DefaultImpls {
