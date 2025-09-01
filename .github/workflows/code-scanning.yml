@@ -60,7 +60,7 @@ jobs:
           # queries: security-extended,security-and-quality
 
       # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
-      - if: matrix.build-mode == 'java-kotlin'
+      - if: matrix.build-mode == 'kotlin'
         name: Build with release Kotlin version
         shell: bash
         run: ./gradlew build -x test
