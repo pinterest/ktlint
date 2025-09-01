@@ -42,7 +42,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
-      - if: matrix.build-mode == 'java-kotlin'
+      - if: matrix.language == 'java-kotlin'
         name: Setup Gradle build
         uses: ./.github/actions/setup-gradle-build
 
@@ -60,7 +60,7 @@ jobs:
           # queries: security-extended,security-and-quality
 
       # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
-      - if: matrix.build-mode == 'java-kotlin'
+      - if: matrix.language == 'java-kotlin'
         name: Build with release Kotlin version
         shell: bash
         run: ./gradlew build -x test
