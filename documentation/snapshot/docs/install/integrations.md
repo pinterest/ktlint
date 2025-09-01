@@ -1,4 +1,4 @@
-## [Maven](https://github.com/shyiko/mvnw) integration
+## [Maven](https://github.com/apache/maven-wrapper) integration
 
 By adding the plugin definition below to the `<plugins>` section in the `pom.xml`:
 
