@@ -1,4 +1,6 @@
 name: Publish release build
+permissions:
+  contents: read
 
 on:
   push:

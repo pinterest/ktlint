@@ -1,4 +1,6 @@
 name: Publish release documentation
+permissions:
+  contents: read
 
 on:
   push:
