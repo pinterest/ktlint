@@ -1,4 +1,6 @@
 name: Publish snapshot build
+permissions:
+  contents: read
 
 on:
   push:

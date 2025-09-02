@@ -1,4 +1,6 @@
 name: Publish snapshot documentation
+permissions:
+  contents: read
 
 on:
   push:

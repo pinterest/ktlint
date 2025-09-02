@@ -1,4 +1,6 @@
 name: Generate changelog
+permissions:
+  contents: read
 
 on: [ workflow_dispatch ]
 

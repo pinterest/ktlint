@@ -1,5 +1,7 @@
 # name must be identical to name of 'pull-request-with-code'
 name: Pull request
+permissions:
+  contents: read
 
 on:
   push:
