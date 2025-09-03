@@ -29,6 +29,7 @@ echo "Announcing $PREVIOUS_VERSION -> $VERSION"
 DOCUMENTATION_DIR="documentation"
 RELEASE_DOCS_DIR="${DOCUMENTATION_DIR}/release-latest"
 SNAPSHOT_DOCS_DIR="${DOCUMENTATION_DIR}/snapshot"
+KTLINT_RULESET_TEMPLATE_DIR="ktlint-ruleset-template"
 
 if [ "$(git status --porcelain=v1 $DOCUMENTATION)" != "" ]; then
   echo "ERROR: To proceed, the current branch must not contain uncommitted changes in directory '${DOCUMENTATION_DIR}'"
@@ -80,6 +81,7 @@ echo "Updating version numbers in (snapshot) installation documentation"
 #   "can't read s/0.49.0/0.49.1/g: No such file or directory"
 sed -i -e "s/$PREVIOUS_VERSION/$VERSION/g" ${SNAPSHOT_DOCS_DIR}/docs/install/cli.md
 sed -i -e "s/$PREVIOUS_VERSION/$VERSION/g" ${SNAPSHOT_DOCS_DIR}/docs/install/integrations.md
+sed -i -e "s/$PREVIOUS_VERSION/$VERSION/g" ${KTLINT_RULESET_TEMPLATE_DIR}/build.gradle.kts
 git --no-pager diff ${DOCUMENTATION_DIR}
 
 # ask for user confirmation before committing

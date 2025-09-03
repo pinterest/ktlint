@@ -1,16 +1,47 @@
-!!! Tip
-    See [Writing your first ktlint rule](https://medium.com/@vanniktech/writing-your-first-ktlint-rule-5a1707f4ca5b) by [Niklas Baudy](https://github.com/vanniktech).
+You can provide custom rules via a separate ruleset to Ktlint. A ruleset is a JAR containing one or more [Rule](https://github.com/pinterest/ktlint/blob/master/ktlint-rule-engine-core/src/main/kotlin/com/pinterest/ktlint/rule/engine/core/api/Rule.kt)s.
 
-In a nutshell: a "rule set" is a JAR containing one or more [Rule](https://github.com/pinterest/ktlint/blob/master/ktlint-rule-engine-core/src/main/kotlin/com/pinterest/ktlint/rule/engine/core/api/Rule.kt)s. `ktlint` is relying on the [ServiceLoader](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html) to discover all available "RuleSet"s on the classpath. As a ruleset author, all you need to do is to include a `META-INF/services/RuleSetProviderV3` file containing a fully qualified name of your [RuleSetProviderV3](https://github.com/pinterest/ktlint/blob/master/ktlint-cli-ruleset-core/src/main/kotlin/com/pinterest/ktlint/cli/ruleset/core/api/RuleSetProviderV3.kt) implementation.
+A complete sample project is included in this repo under the [ktlint-ruleset-template](https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-template) directory. This directory can be cloned, and used as a starting point for a new project containing your custom ruleset.
 
 ## ktlint-ruleset-template
 
-A complete sample project (with tests and build files) is included in this repo under the [ktlint-ruleset-template](https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-template) directory (make sure to check [NoVarRuleTest](https://github.com/pinterest/ktlint/blob/master/ktlint-ruleset-template/src/test/kotlin/yourpkgname/NoVarRuleTest.kt) as it contains some useful information).
+### Gradle build
+
+The [Gradle build file](https://github.com/pinterest/ktlint/blob/master/ktlint-ruleset-template/build.gradle.kts) of the sample project includes the setup for:
+
+* publishing the custom ruleset artifact to Maven
+* the custom Gradle task 'ktlintCheck' that is using the Ktlint CLI to run the rules provided by the ktlint project, as well as the custom rule(s) from this project on the project itself ([dogfood principle](https://en.wikipedia.org/wiki/Eating_your_own_dog_food)).
+
+### Rule
+
+The Rule contains the logic for linting and formatting the code. For example, see [NoVarRuleTest](https://github.com/pinterest/ktlint/blob/master/ktlint-ruleset-template/src/main/kotlin/yourpkgname/NoVarRule.kt).
+
+A rule has to implement one or more of hooks below:
+* `Rule.beforeFirstNode`
+* `RuleAutocorrectApproveHandler.beforeVisitChildNodes`
+* `RuleAutocorrectApproveHandler.afterVisitChildNodes`
+* `Rule.afterLastNode`
+
+!!! Tip
+    See `ktlint-ruleset-standard` for examples of rules that implement the hooks above.
+
+Upon traversal of the Abstract Syntax Tree (AST), the hooks of the Rule are visited as indicated by their names. The [Jetbrains PsiViewer plugin for IntelliJ IDEA](https://github.com/JetBrains/psiviewer) is a convenient tool to inspect the AST for any piece of code.
+
+![Image](../assets/images/psi-viewer.png)
+
+### Rule Set Provider
+
+The RuleSetProvider provides new instances of the rule, see [CustomRuleSetProvider](https://github.com/pinterest/ktlint/blob/master/ktlint-ruleset-template/src/main/kotlin/yourpkgname/CustomRuleSetProvider.kt) for an example.
+
+`ktlint` is relying on the [ServiceLoader](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html) to discover all available "RuleSet"s on the classpath. For this, the RuleSetProvider needs to be registered in file `resources/META-INF/services/com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3`, see [Registration for Java ServiceLoader](https://github.com/pinterest/ktlint/blob/master/ktlint-ruleset-template/src/main/resources/META-INF/services/com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3).
+
+### Building the project
 
 ```shell title="Building the ktlint-ruleset-template"
 $ cd ktlint-ruleset-template/
 $ ../gradlew build
 ```
+
+### Running Ktlint CLI with the custom ruleset
 
 ```shell title="Provide code sample that violates rule `custom:no-var"
 $ echo 'var v = 0' > test.kt
@@ -51,8 +82,8 @@ $ ktlint -R build/libs/ktlint-ruleset-template.jar --log-level=debug --relative 
            - standard:no-unit-return, 
            - standard:no-unused-imports, 
            - standard:no-wildcard-imports, 
-           - standard:op-spacing, 
-           - standard:parameter-list-wrapping, 
+           - standard:op-spacing, ¡
+           - standard:pa¡rameter-list-wrapping, 
            - standard:paren-spacing, 
            - standard:range-spacing, 
            - standard:string-template, 
@@ -64,10 +95,4 @@ $ ktlint -R build/libs/ktlint-ruleset-template.jar --log-level=debug --relative 
 ```
 
 !!! tip
-    Multiple custom rule sets can be loaded at the same time.
-
-## Abstract Syntax Tree (AST)
-
-While writing/debugging [Rule](https://github.com/pinterest/ktlint/blob/master/ktlint-rule-engine-core/src/main/kotlin/com/pinterest/ktlint/rule/engine/core/api/Rule.kt)s it's often helpful to inspect the Abstract Syntax Tree (AST) of the code snippet that is to be linted / formatted. The [Jetbrain PsiViewer plugin for IntelliJ IDEA](https://github.com/JetBrains/psiviewer) is a convenient tool to inspect code as shown below:
-
-![Image](../assets/images/psi-viewer.png)
+Multiple custom rule sets can be loaded at the same time.
