@@ -2,7 +2,7 @@
 // build logic of other internal ktlint modules (https://github.com/pinterest/ktlint/issues/3048)..
 
 plugins {
-    kotlin("jvm") version "2.1.21"
+    kotlin("jvm") version "2.2.10"
     // Remove when this custom ruleset is not to be published to maven
     `maven-publish`
 }
