@@ -16,15 +16,16 @@ The [Gradle build file](https://github.com/pinterest/ktlint/blob/master/ktlint-r
 The Rule contains the logic for linting and formatting the code. For example, see [NoVarRuleTest](https://github.com/pinterest/ktlint/blob/master/ktlint-ruleset-template/src/main/kotlin/yourpkgname/NoVarRule.kt).
 
 A rule has to implement one or more of hooks below:
+
 * `Rule.beforeFirstNode`
 * `RuleAutocorrectApproveHandler.beforeVisitChildNodes`
 * `RuleAutocorrectApproveHandler.afterVisitChildNodes`
 * `Rule.afterLastNode`
 
 !!! Tip
-    See `ktlint-ruleset-standard` for examples of rules that implement the hooks above.
+See `ktlint-ruleset-standard` for examples of rules that implement the hooks above.
 
-Upon traversal of the Abstract Syntax Tree (AST), the hooks of the Rule are visited as indicated by their names. The [Jetbrains PsiViewer plugin for IntelliJ IDEA](https://github.com/JetBrains/psiviewer) is a convenient tool to inspect the AST for any piece of code.
+Upon traversal of the Abstract Syntax Tree (AST), the hooks of the Rule are visited as indicated by their names. The [Jetbrains PsiViewer plugin for IntelliJ IDEA](https://plugins.jetbrains.com/plugin/227-psiviewer) is a convenient tool to inspect the AST for any piece of code.
 
 ![Image](../assets/images/psi-viewer.png)
 
