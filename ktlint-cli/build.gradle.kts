@@ -1,7 +1,6 @@
 plugins {
     id("ktlint-publication-library")
     alias(libs.plugins.shadow)
-    signing
 }
 
 tasks.jar {
@@ -54,7 +53,9 @@ val ktlintCliFiles by tasks.registering(KtlintCliTask::class) {
     ktlintCliWindowsBatchScriptSource.set(layout.projectDirectory.file("src/main/scripts/ktlint.bat"))
     ktlintCliOutputDirectory.set(ktlintCliOutputRoot)
 
-    finalizedBy("signKtlintCliFiles")
+    if (pluginManager.hasPlugin("signing")) {
+        finalizedBy("signKtlintCliFiles")
+    }
 }
 
 val signKtlintCliFiles by tasks.registering(Sign::class) {

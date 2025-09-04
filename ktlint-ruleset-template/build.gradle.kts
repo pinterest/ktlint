@@ -51,29 +51,16 @@ kotlin {
 }
 
 // Remove when this custom ruleset is not to be published to maven
-val sourcesJar by tasks.registering(Jar::class) {
-    dependsOn(tasks.classes)
-    archiveClassifier = "sources"
-    from(sourceSets.main.map { it.allSource })
-}
-
-// Remove when this custom ruleset is not to be published to maven
-val javadocJar by tasks.registering(Jar::class) {
-    dependsOn(tasks.javadoc)
-    archiveClassifier = "javadoc"
-    from(tasks.javadoc.map { it.destinationDir!! })
-}
-
-// Remove when this custom ruleset is not to be published to maven
-artifacts {
-    archives(sourcesJar)
-    archives(javadocJar)
+java {
+    withSourcesJar()
+    withJavadocJar()
 }
 
 // Remove when this custom ruleset is not to be published to maven
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
+            from(components["java"])
             pom {
                 licenses {
                     license {
