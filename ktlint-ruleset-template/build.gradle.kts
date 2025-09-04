@@ -3,7 +3,15 @@
 
 plugins {
     kotlin("jvm") version "2.2.10"
-    // Remove when this custom ruleset is not to be published to maven
+    // Remove the line below when this custom ruleset is not to be published to maven. If you do want to publish your ruleset to Maven, you
+    // still might need to configure the Maven Central repository in file `settings.gradle.xml` which is not included in the sample project
+    // as it conflicts with the build of the Ktlint itself. Suggested content of that file:
+    //     dependencyResolutionManagement {
+    //          repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    //          repositories {
+    //               mavenCentral()
+    //          }
+    //     }
     `maven-publish`
 }
 
@@ -11,9 +19,9 @@ plugins {
 group = "com.github.username.ktlint.ruleset"
 version = "1.0-SNAPSHOT"
 
-repositories {
-    mavenCentral()
-}
+// repositories {
+//    mavenCentral()
+// }
 
 // Remove when the Gradle task 'ktlintCheck' is not to be added to the project
 val ktlint: Configuration by configurations.creating
