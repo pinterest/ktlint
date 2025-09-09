@@ -1,12 +1,12 @@
 name: Publish snapshot documentation
 permissions:
   contents: read
-  pages: write
 
 on:
   push:
     branches: ['master']
     paths: ['documentation/snapshot/**']
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -28,7 +28,8 @@ jobs:
           git config user.email "ktlint@github.com"
           git config user.name "Ktlint Release Workflow"
 
-      - run: |
+      - name: Build and push snapshot documentation to GitHub Pages
+        run: |
           cd documentation/snapshot
           # The dev-snapshot version has no release number as the version will only be tagged when an official release is build
           # This also prevents that multiple snapshot versions of the documentation will be published in parallel
