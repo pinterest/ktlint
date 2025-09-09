@@ -1,6 +1,6 @@
 name: Publish snapshot documentation
 permissions:
-  contents: read
+  contents: write
 
 on:
   push:
