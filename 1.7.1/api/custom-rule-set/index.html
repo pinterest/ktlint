@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.18">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.19">
     
     
       
@@ -989,14 +989,56 @@ You're not viewing the latest version.
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#abstract-syntax-tree-ast" class="md-nav__link">
+    <nav class="md-nav" aria-label="ktlint-ruleset-template">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gradle-build" class="md-nav__link">
     <span class="md-ellipsis">
-      Abstract Syntax Tree (AST)
+      Gradle build
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rule
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rule-set-provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rule Set Provider
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#building-the-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      Building the project
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-ktlint-cli-with-the-custom-ruleset" class="md-nav__link">
+    <span class="md-ellipsis">
+      Running Ktlint CLI with the custom ruleset
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1236,14 +1278,56 @@ You're not viewing the latest version.
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#abstract-syntax-tree-ast" class="md-nav__link">
+    <nav class="md-nav" aria-label="ktlint-ruleset-template">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gradle-build" class="md-nav__link">
     <span class="md-ellipsis">
-      Abstract Syntax Tree (AST)
+      Gradle build
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rule
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rule-set-provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rule Set Provider
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#building-the-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      Building the project
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-ktlint-cli-with-the-custom-ruleset" class="md-nav__link">
+    <span class="md-ellipsis">
+      Running Ktlint CLI with the custom ruleset
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1268,16 +1352,38 @@ You're not viewing the latest version.
 
   <h1>Custom rule set</h1>
 
+<p>You can provide custom rules via a separate ruleset to Ktlint. A ruleset is a JAR containing one or more <a href="https://github.com/pinterest/ktlint/blob/master/ktlint-rule-engine-core/src/main/kotlin/com/pinterest/ktlint/rule/engine/core/api/Rule.kt">Rule</a>s.</p>
+<p>A complete sample project is included in this repo under the <a href="https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-template">ktlint-ruleset-template</a> directory. This directory can be cloned, and used as a starting point for a new project containing your custom ruleset.</p>
+<h2 id="ktlint-ruleset-template">ktlint-ruleset-template<a class="headerlink" href="#ktlint-ruleset-template" title="Permanent link">&para;</a></h2>
+<h3 id="gradle-build">Gradle build<a class="headerlink" href="#gradle-build" title="Permanent link">&para;</a></h3>
+<p>The <a href="https://github.com/pinterest/ktlint/blob/master/ktlint-ruleset-template/build.gradle.kts">Gradle build file</a> of the sample project includes the setup for:</p>
+<ul>
+<li>publishing the custom ruleset artifact to Maven</li>
+<li>the custom Gradle task 'ktlintCheck' that is using the Ktlint CLI to run the rules provided by the ktlint project, as well as the custom rule(s) from this project on the project itself (<a href="https://en.wikipedia.org/wiki/Eating_your_own_dog_food">dogfood principle</a>).</li>
+</ul>
+<h3 id="rule">Rule<a class="headerlink" href="#rule" title="Permanent link">&para;</a></h3>
+<p>The Rule contains the logic for linting and formatting the code. For example, see <a href="https://github.com/pinterest/ktlint/blob/master/ktlint-ruleset-template/src/main/kotlin/yourpkgname/NoVarRule.kt">NoVarRuleTest</a>.</p>
+<p>A rule has to implement one or more of hooks below:</p>
+<ul>
+<li><code>Rule.beforeFirstNode</code></li>
+<li><code>RuleAutocorrectApproveHandler.beforeVisitChildNodes</code></li>
+<li><code>RuleAutocorrectApproveHandler.afterVisitChildNodes</code></li>
+<li><code>Rule.afterLastNode</code></li>
+</ul>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>See <a href="https://medium.com/@vanniktech/writing-your-first-ktlint-rule-5a1707f4ca5b">Writing your first ktlint rule</a> by <a href="https://github.com/vanniktech">Niklas Baudy</a>.</p>
 </div>
-<p>In a nutshell: a "rule set" is a JAR containing one or more <a href="https://github.com/pinterest/ktlint/blob/master/ktlint-rule-engine-core/src/main/kotlin/com/pinterest/ktlint/rule/engine/core/api/Rule.kt">Rule</a>s. <code>ktlint</code> is relying on the <a href="https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html">ServiceLoader</a> to discover all available "RuleSet"s on the classpath. As a ruleset author, all you need to do is to include a <code>META-INF/services/RuleSetProviderV3</code> file containing a fully qualified name of your <a href="https://github.com/pinterest/ktlint/blob/master/ktlint-cli-ruleset-core/src/main/kotlin/com/pinterest/ktlint/cli/ruleset/core/api/RuleSetProviderV3.kt">RuleSetProviderV3</a> implementation.</p>
-<h2 id="ktlint-ruleset-template">ktlint-ruleset-template<a class="headerlink" href="#ktlint-ruleset-template" title="Permanent link">&para;</a></h2>
-<p>A complete sample project (with tests and build files) is included in this repo under the <a href="https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-template">ktlint-ruleset-template</a> directory (make sure to check <a href="https://github.com/pinterest/ktlint/blob/master/ktlint-ruleset-template/src/test/kotlin/yourpkgname/NoVarRuleTest.kt">NoVarRuleTest</a> as it contains some useful information).</p>
+<p>See <code>ktlint-ruleset-standard</code> for examples of rules that implement the hooks above.</p>
+<p>Upon traversal of the Abstract Syntax Tree (AST), the hooks of the Rule are visited as indicated by their names. The <a href="https://plugins.jetbrains.com/plugin/227-psiviewer">Jetbrains PsiViewer plugin for IntelliJ IDEA</a> is a convenient tool to inspect the AST for any piece of code.</p>
+<p><img alt="Image" src="../../assets/images/psi-viewer.png" /></p>
+<h3 id="rule-set-provider">Rule Set Provider<a class="headerlink" href="#rule-set-provider" title="Permanent link">&para;</a></h3>
+<p>The RuleSetProvider provides new instances of the rule, see <a href="https://github.com/pinterest/ktlint/blob/master/ktlint-ruleset-template/src/main/kotlin/yourpkgname/CustomRuleSetProvider.kt">CustomRuleSetProvider</a> for an example.</p>
+<p><code>ktlint</code> is relying on the <a href="https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html">ServiceLoader</a> to discover all available "RuleSet"s on the classpath. For this, the RuleSetProvider needs to be registered in file <code>resources/META-INF/services/com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3</code>, see <a href="https://github.com/pinterest/ktlint/blob/master/ktlint-ruleset-template/src/main/resources/META-INF/services/com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3">Registration for Java ServiceLoader</a>.</p>
+<h3 id="building-the-project">Building the project<a class="headerlink" href="#building-the-project" title="Permanent link">&para;</a></h3>
 <div class="highlight"><span class="filename">Building the ktlint-ruleset-template</span><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>ktlint-ruleset-template/
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>$<span class="w"> </span>../gradlew<span class="w"> </span>build
 </code></pre></div>
+<h3 id="running-ktlint-cli-with-the-custom-ruleset">Running Ktlint CLI with the custom ruleset<a class="headerlink" href="#running-ktlint-cli-with-the-custom-ruleset" title="Permanent link">&para;</a></h3>
 <div class="highlight"><span class="filename">Provide code sample that violates rule `custom:no-var</span><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>$<span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;var v = 0&#39;</span><span class="w"> </span>&gt;<span class="w"> </span>test.kt
 </code></pre></div>
 <div class="highlight"><span class="filename">Running the ktlint-ruleset-template</span><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="hll">$<span class="w"> </span>ktlint<span class="w"> </span>-R<span class="w"> </span>build/libs/ktlint-ruleset-template.jar<span class="w"> </span>--log-level<span class="o">=</span>debug<span class="w"> </span>--relative<span class="w"> </span>test.kt
@@ -1314,8 +1420,8 @@ You're not viewing the latest version.
 <a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a><span class="w">           </span>-<span class="w"> </span>standard:no-unit-return,<span class="w"> </span>
 <a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a><span class="w">           </span>-<span class="w"> </span>standard:no-unused-imports,<span class="w"> </span>
 <a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a><span class="w">           </span>-<span class="w"> </span>standard:no-wildcard-imports,<span class="w"> </span>
-<a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a><span class="w">           </span>-<span class="w"> </span>standard:op-spacing,<span class="w"> </span>
-<a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a><span class="w">           </span>-<span class="w"> </span>standard:parameter-list-wrapping,<span class="w"> </span>
+<a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a><span class="w">           </span>-<span class="w"> </span>standard:op-spacing,<span class="w"> </span>¡
+<a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a><span class="w">           </span>-<span class="w"> </span>standard:pa¡rameter-list-wrapping,<span class="w"> </span>
 <a id="__codelineno-2-37" name="__codelineno-2-37" href="#__codelineno-2-37"></a><span class="w">           </span>-<span class="w"> </span>standard:paren-spacing,<span class="w"> </span>
 <a id="__codelineno-2-38" name="__codelineno-2-38" href="#__codelineno-2-38"></a><span class="w">           </span>-<span class="w"> </span>standard:range-spacing,<span class="w"> </span>
 <a id="__codelineno-2-39" name="__codelineno-2-39" href="#__codelineno-2-39"></a><span class="w">           </span>-<span class="w"> </span>standard:string-template,<span class="w"> </span>
@@ -1327,11 +1433,8 @@ You're not viewing the latest version.
 </code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Multiple custom rule sets can be loaded at the same time.</p>
 </div>
-<h2 id="abstract-syntax-tree-ast">Abstract Syntax Tree (AST)<a class="headerlink" href="#abstract-syntax-tree-ast" title="Permanent link">&para;</a></h2>
-<p>While writing/debugging <a href="https://github.com/pinterest/ktlint/blob/master/ktlint-rule-engine-core/src/main/kotlin/com/pinterest/ktlint/rule/engine/core/api/Rule.kt">Rule</a>s it's often helpful to inspect the Abstract Syntax Tree (AST) of the code snippet that is to be linted / formatted. The <a href="https://github.com/JetBrains/psiviewer">Jetbrain PsiViewer plugin for IntelliJ IDEA</a> is a convenient tool to inspect code as shown below:</p>
-<p><img alt="Image" src="../../assets/images/psi-viewer.png" /></p>
+<p>Multiple custom rule sets can be loaded at the same time.</p>
 
 
 
