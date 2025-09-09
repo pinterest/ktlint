@@ -1,7 +1,6 @@
 name: Publish release documentation
 permissions:
-  contents: read
-  pages: write
+  contents: write
 
 on:
   push:
