@@ -3,7 +3,7 @@
 
 ## Download and verification
 
-### Download manually from github
+### Download manually from GitHub
 
 All releases of `ktlint` can be downloaded from the [releases](https://github.com/pinterest/ktlint/releases) page.
 
@@ -52,7 +52,7 @@ port install ktlint
 
 ### Rule set(s)
 
-When no arguments are specified, the style of all Kotlin files (ending with '.kt' or '.kts') inside the current dir (recursively) are validated with the rules from the [standard ruleset](../../rules/standard/). Hidden folders will be skipped.
+When no arguments are specified, the style of all Kotlin files (ending with '.kt' or '.kts') inside the current dir (recursively) are validated with the rules from the [standard ruleset](../rules/standard.md). Hidden folders will be skipped.
 
 ```shell title="Default validation with standard ruleset"
 ktlint
@@ -61,7 +61,7 @@ ktlint
 !!! note
     The experimental rules in the standard rule set will only be run when `.editorconfig` property `ktlint_experimental = enabled` is set.
 
-To validate with a [custom ruleset](../../api/custom-rule-set/) run command below:  
+To validate with a [custom ruleset](../api/custom-rule-set.md#running-ktlint-cli-with-the-custom-ruleset) run command below:  
 
 ```shell title="Validation with standard and a custom ruleset"
 ktlint --ruleset=/path/to/custom-ruleset.jar
@@ -129,7 +129,7 @@ By default, the `info` log level is used meaning that all log lines at level `in
 
 ### Rule configuration (`.editorconfig`)
 
-Some rules can be tweaked via the [`editorconfig file`](../../rules/configuration-ktlint/).
+Some rules can be tweaked via the [`editorconfig file`](../rules/configuration-ktlint.md).
 
 A scaffold of the `.editorconfig` file can be generated with command below. Note: that the generated file only contains configuration settings which are actively used by the [rules which are loaded](#rule-sets):
 

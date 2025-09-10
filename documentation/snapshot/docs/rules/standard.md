@@ -615,9 +615,9 @@ Enum entry names should be uppercase underscore-separated or upper camel-case se
     }
     ```
 
-| Configuration setting                                                                                                                                                                                                                                                                                                                                                                                                         | ktlint_official | intellij_idea | android_studio |
-|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
-| `ktlint_enum_entry_name_casing`</br><i>Choose any of `upper_cases` (an enum entry may only contain uppercases, and underscores, and digits, and dicritics on letters and strokes), `camel_cases` (an enum entry may only contain CamelCase values, including digits, and dicritics on letters and strokes), or `upper_or_camel_case` (allows mixing of uppercase and CamelCase entries as per Kotlin Coding Conventions).</i> |     `upper_or_camel_cases`      |       `upper_or_camel_cases`        |       `upper_or_camel_cases`        |
+| Configuration setting                                                                                                                                                                                                                                                                                                                                                                                                           |    ktlint_official     |     intellij_idea      |     android_studio     |
+|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:----------------------:|:----------------------:|:----------------------:|
+| `ktlint_enum_entry_name_casing`</br><i>Choose any of `upper_cases` (an enum entry may only contain uppercases, and underscores, and digits, and diacritics on letters and strokes), `camel_cases` (an enum entry may only contain CamelCase values, including digits, and diacritics on letters and strokes), or `upper_or_camel_case` (allows mixing of uppercase and CamelCase entries as per Kotlin Coding Conventions).</i> | `upper_or_camel_cases` | `upper_or_camel_cases` | `upper_or_camel_cases` |
 
 Rule id: `standard:enum-entry-name-case`
 
@@ -663,9 +663,9 @@ Suppress or disable rule (1)
 
 Ensures consistent usage of a newline at the end of each file.
 
-| Configuration setting                                                             | ktlint_official | intellij_idea | android_studio |
-|:----------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
-| `insert_final_newline` |     `true`      |       `true`        |       `true`        |
+| Configuration setting  | ktlint_official | intellij_idea | android_studio |
+|:-----------------------|:---------------:|:-------------:|:--------------:|
+| `insert_final_newline` |     `true`      |    `true`     |     `true`     |
 
 Rule id: `standard:final-newline`
 
@@ -1150,9 +1150,9 @@ Ensures that imports are ordered consistently.
     import com.foo.Foo
     ```
 
-| Configuration setting                                                                                                |          ktlint_official           |            intellij_idea            | android_studio |
-|:---------------------------------------------------------------------------------------------------------------------|:----------------------------------:|:-----------------------------------:|:--------------:|
-| `ij_kotlin_imports_layout`</br><i>Defines imports order layout for Kotlin files</i>. For more details see below table. | *,java.**,javax.**,kotlin.**,^ <1> | *,java.**,javax.**,kotlin.**,^ <1>  |     * <2>      |
+| Configuration setting                                                                                                  |          ktlint_official           |           intellij_idea            | android_studio |
+|:-----------------------------------------------------------------------------------------------------------------------|:----------------------------------:|:----------------------------------:|:--------------:|
+| `ij_kotlin_imports_layout`</br><i>Defines imports order layout for Kotlin files</i>. For more details see below table. | *,java.**,javax.**,kotlin.**,^ <1> | *,java.**,javax.**,kotlin.**,^ <1> |     * <2>      |
 
 ### ij_kotlin_packages_to_use_import_on_demand
 
@@ -1195,7 +1195,7 @@ Suppress or disable rule (1)
 
 ## Indentation
 
-Indentation formatting - respects `.editorconfig` `indent_size` with no continuation indent (see [EditorConfig](../configuration-ktlint/) section for more).
+Indentation formatting - respects `.editorconfig` `indent_size` with no continuation indent (see [EditorConfig](configuration-ktlint.md) section for more).
 
 === "[:material-heart:](#) Ktlint"
 
@@ -1223,10 +1223,10 @@ Indentation formatting - respects `.editorconfig` `indent_size` with no continua
 !!! note
     This rule handles indentation for many different language constructs which can not be summarized with a few examples. See the [unit tests](https://github.com/pinterest/ktlint/blob/master/ktlint-ruleset-standard/src/test/kotlin/com/pinterest/ktlint/ruleset/standard/rules/IndentationRuleTest.kt) for more details.
 
-| Configuration setting                                                                                                                                                                                                                                                                                                                                     | ktlint_official | intellij_idea | android_studio |
-|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
-| `indent_size`</br><i>The size of an indentation level when `indent_style` is set to `space`. Use value `unset` to ignore indentation.</i>                                                                                                                                                                                                                 |        4        |       4       |       4        |
-| `indent_style`</br><i>Style of indentation. Set this value to `space` or `tab`.</i>                                                                                                                                                                                                                                                                       |     `space`     |    `space`    |    `space`     |
+| Configuration setting                                                                                                                                                                                                                                                                             | ktlint_official | intellij_idea | android_studio |
+|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `indent_size`</br><i>The size of an indentation level when `indent_style` is set to `space`. Use value `unset` to ignore indentation.</i>                                                                                                                                                         |        4        |       4       |       4        |
+| `indent_style`</br><i>Style of indentation. Set this value to `space` or `tab`.</i>                                                                                                                                                                                                               |     `space`     |    `space`    |    `space`     |
 | `ij_kotlin_indent_before_arrow_on_new_line`</br><i>Indent the arrow in a when-entry if the arrow starts on a new line. Set this value to `true` or `false`. Starting from IDEA version `2024.2` or above this value needs to be set to `true` to maintain compatibility with IDEA formatting.</i> |     `false`     |    `false`    |    `false`     |
 
 Rule id: `standard:indent`
@@ -1517,8 +1517,8 @@ Enforce naming of property.
 
 This rule is suppressed whenever the IntelliJ IDEA inspection suppression `PropertyName`, `ConstPropertyName`, `ObjectPropertyName` or `PrivatePropertyName` is used.
 
-| Configuration setting                                                                                                                          |    ktlint_official     |     intellij_idea      |     android_studio     |
-|:-----------------------------------------------------------------------------------------------------------------------------------------------|:----------------------:|:----------------------:|:----------------------:|
+| Configuration setting                                                                                                                                 |    ktlint_official     |     intellij_idea      |     android_studio     |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------|:----------------------:|:----------------------:|:----------------------:|
 | `ktlint_property_naming_constant_naming`<br/><i>The naming style ('screaming_snake_case', or 'pascal_case') to be applied on constant properties.</i> | `screaming_snake_case` | `screaming_snake_case` | `screaming_snake_case` |
 
 !!! note
@@ -2600,8 +2600,8 @@ No wildcard imports except whitelisted imports.
     import foobar.*
     ```
 
-| Configuration setting                                                                    | ktlint_official |              intellij_idea               |              android_studio              |
-|:--------------------------------------------------------------------------------------------------------------------|:---------------:|:------------------------------------------:|:-----------------------------------------------:|
+| Configuration setting                                                                                               | ktlint_official |                   intellij_idea                   |                  android_studio                   |
+|:--------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------------------------------------------:|:-------------------------------------------------:|
 | `ij_kotlin_packages_to_use_import_on_demand`<br/><i>Defines allowed wildcard imports as a comma separated list.</i> |        -        | `java.util.*,`<br/>`kotlinx.android.synthetic.**` | `java.util.*,`<br/>`kotlinx.android.synthetic.**` |
 
 !!! warning
@@ -4674,7 +4674,7 @@ When class/function signature doesn't fit on a single line, each parameter must 
 
     fun foo(@Bar fooBar: FooBar)
     ```
-=== "[:material-heart-off-outline:](#) Disallowed (non ktlint_official)""
+=== "[:material-heart-off-outline:](#) Disallowed (non ktlint_official)"
 
     ```kotlin
     class ClassA(

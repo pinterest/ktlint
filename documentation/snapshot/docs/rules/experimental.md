@@ -6,7 +6,7 @@ All experimental rules described below are part of the `standard` rule set of Kt
 [*.{kt,kts}]
 ktlint_experimental=enabled
 ```
-Also see [enable/disable specific rules](../configuration-ktlint/#disabled-rules).
+Also see [enable/disable specific rules](configuration-ktlint.md#disable-rules).
 
 ## Blank line between when-conditions
 
@@ -103,9 +103,9 @@ Consistently add or remove a blank line between when-conditions in a when-statem
         }
     ```
 
-| Configuration setting                                                                                                                                                                                                     | ktlint_official | intellij_idea | android_studio |
-|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
-| `ij_kotlin_line_break_after_multiline_when_entry`<br/><i>Despite its name, forces a blank line between single line and multiline when-entries when at least one multiline when-entry is found in the when-statement.</i> |      `true`       |    `true`     |     `true`     |
+| Configuration setting                                                                                                                                                                                                    | ktlint_official | intellij_idea | android_studio |
+|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
+| `ij_kotlin_line_break_after_multiline_when_entry`<br/><i>Despite its name, forces a blank line between single line and multiline when-entries when at least one multiline when-entry is found in the when-statement.</i> |     `true`      |    `true`     |     `true`     |
 
 Rule id: `standard:blank-line-between-when-conditions`
 
