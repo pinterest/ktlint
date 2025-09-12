@@ -3,10 +3,6 @@ plugins {
     id("ktlint-publication")
 }
 
-publishing.publications.named<MavenPublication>("maven") {
-    from(components["javaPlatform"])
-}
-
 dependencies {
     logger.info("Creating dependencies for ktlint-bom")
     constraints {
