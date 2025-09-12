@@ -1321,17 +1321,20 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 <h2 id="disable-rules">Disable rule(s)<a class="headerlink" href="#disable-rules" title="Permanent link">&para;</a></h2>
 <p>Rule sets and individual rules can be disabled / enabled with a separate property per rule (set).</p>
 <p>All rules in a rule set can be enabled or disabled with a rule set property. The name of the rule set property consists of the <code>ktlint_</code> prefix followed by the rule set id. Examples:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>ktlint_standard = disabled # Disable all rules from the `standard` rule set provided by KtLint
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>ktlint_experimental = enabled # Enable all `experimental` rules from all rule sets provided by KtLint or other rule providers
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>ktlint_custom-rule-set = enabled # Enable all rules in the `custom-rule-set` rule set (not provided by KtLint)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>[*.{kt,kts}]
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>ktlint_standard = disabled # Disable all rules from the `standard` rule set provided by KtLint
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>ktlint_experimental = enabled # Enable all `experimental` rules from all rule sets provided by KtLint or other rule providers
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>ktlint_custom-rule-set = enabled # Enable all rules in the `custom-rule-set` rule set (not provided by KtLint)
 </code></pre></div></p>
 <p>Rules that are marked as experimental will not run unless explicitly enabled:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>ktlint_experimental = enabled # Enable rules marked as experimental for all rule sets that are enabled
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>[*.{kt,kts}]
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>ktlint_experimental = enabled # Enable rules marked as experimental for all rule sets that are enabled
 </code></pre></div></p>
 <p>An individual rule can be enabled or disabled with a rule property. The name of the rule property consists of the <code>ktlint_</code> prefix followed by the rule set id followed by a <code>_</code> and the rule id. Examples:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>ktlint_standard_final-newline = disabled # Disables the `final-newline` rule provided by KtLint
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>ktlint_standard_some-experimental-rule = enabled # Enables the (experimental) `some-experimental-rule` in the `standard` rule set provided by KtLint
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>ktlint_custom-rule-set_custom-rule = disabled # Disables the `custom-rule` rule in the `custom-rule-set` rule set (not provided by KtLint)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>[*.{kt,kts}]
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>ktlint_standard_final-newline = disabled # Disables the `final-newline` rule provided by KtLint
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>ktlint_standard_some-experimental-rule = enabled # Enables the (experimental) `some-experimental-rule` in the `standard` rule set provided by KtLint
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>ktlint_custom-rule-set_custom-rule = disabled # Disables the `custom-rule` rule in the `custom-rule-set` rule set (not provided by KtLint)
 </code></pre></div></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1381,11 +1384,11 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 </tr>
 <tr>
 <td style="text-align: left;">ktlint_chain_method_rule_force_multiline_when_chain_operator_count_greater_or_equal_than</td>
-<td style="text-align: left;"><a href="../experimental/#chain-method-continuation">chain-method-continuation</a></td>
+<td style="text-align: left;"><a href="../standard/#chain-method-continuation">chain-method-continuation</a></td>
 </tr>
 <tr>
 <td style="text-align: left;">ktlint_class_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than</td>
-<td style="text-align: left;"><a href="../experimental/#class-signature">class-signature</a></td>
+<td style="text-align: left;"><a href="../standard/#class-signature">class-signature</a></td>
 </tr>
 <tr>
 <td style="text-align: left;">ktlint_ignore_back_ticked_identifier</td>
