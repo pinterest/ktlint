@@ -4,7 +4,7 @@ By adding the plugin definition below to the `<plugins>` section in the `pom.xml
 
 * The `ktlint` task is bound to the *Maven compile* lifecycle and will be executed each time the `mvn compile` is executed. It can also be executed with command `mvn exec:exec@ktlint-format`.
 
-See [cli usage](../cli) for arguments that can be supplied to `ktlint`.
+See [cli usage](cli.md) for arguments that can be supplied to `ktlint`.
 
 ```xml title="Adding plugin to pom.xml"
 ...
