@@ -72,4 +72,5 @@ dependencies {
     implementation(gradleKotlinDsl())
     implementation(libs.dokka)
     implementation(libs.poko)
+    implementation(libs.gradle.maven.publish.plugin)
 }

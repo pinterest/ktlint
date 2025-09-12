@@ -1,61 +1,66 @@
+// This module serves as a sample project for development of a custom ruleset. To avoid any confusion, this build setup is not reusing the
+// build logic of other internal ktlint modules (https://github.com/pinterest/ktlint/issues/3048)..
+
 plugins {
-    id("ktlint-kotlin-common")
-    `java-library`
+    kotlin("jvm") version "2.2.10"
+    // Remove the line below when this custom ruleset is not to be published to maven. If you do want to publish your ruleset to Maven, you
+    // still might need to configure the Maven Central repository in file `settings.gradle.xml` which is not included in the sample project
+    // as it conflicts with the build of the Ktlint itself. Suggested content of that file:
+    //     dependencyResolutionManagement {
+    //          repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    //          repositories {
+    //               mavenCentral()
+    //          }
+    //     }
     `maven-publish`
 }
 
-group = "com.github.username"
+// Change the group name to your liking
+group = "com.github.username.ktlint.ruleset"
+version = "1.0-SNAPSHOT"
 
-val sourcesJar by tasks.registering(Jar::class) {
-    dependsOn(tasks.classes)
-    archiveClassifier = "sources"
-    from(sourceSets.main.map { it.allSource })
-}
+// repositories {
+//    mavenCentral()
+// }
 
-val javadocJar by tasks.registering(Jar::class) {
-    dependsOn(tasks.javadoc)
-    archiveClassifier = "javadoc"
-    from(tasks.javadoc.map { it.destinationDir!! })
-}
-
-artifacts {
-    archives(sourcesJar)
-    archives(javadocJar)
-}
-
+// Remove when the Gradle task 'ktlintCheck' is not to be added to the project
 val ktlint: Configuration by configurations.creating
 
+// Update the version numbers of dependencies below to the most recent stable versions
 dependencies {
-    ktlint(projects.ktlintCli)
+    // Remove when the Gradle task 'ktlintCheck' is not to be added to the project
+    ktlint("com.pinterest.ktlint:ktlint-cli:1.7.1")
 
-    implementation(projects.ktlintCliRulesetCore)
-    implementation(projects.ktlintRuleEngineCore)
+    implementation("com.pinterest.ktlint:ktlint-cli-ruleset-core:1.7.1")
+    implementation("com.pinterest.ktlint:ktlint-rule-engine-core:1.7.1")
 
-    testImplementation(projects.ktlintTest)
-    testRuntimeOnly(libs.slf4j)
-
-    testImplementation(libs.junit5.jupiter)
+    testImplementation("org.junit.jupiter:junit-jupiter:5.13.4")
     // Since Gradle 8 the platform launcher needs explicitly be defined as runtime dependency to avoid classpath problems
     // https://docs.gradle.org/8.12/userguide/upgrading_version_8.html#test_framework_implementation_dependencies
-    testRuntimeOnly(libs.junit5.platform.launcher)
+    testImplementation("org.junit.platform:junit-platform-launcher:1.13.4")
+    testImplementation("org.slf4j:slf4j-simple:2.0.17")
+    testImplementation("com.pinterest.ktlint:ktlint-test:1.7.1")
 }
 
-val ktlintCheck by tasks.registering(JavaExec::class) {
-    dependsOn(tasks.classes)
-    group = LifecycleBasePlugin.VERIFICATION_GROUP
-    mainClass = "com.pinterest.ktlint.Main"
-    // Adding compiled classes of this ruleset to the classpath so that ktlint validates the ruleset using its own ruleset
-    classpath(ktlint, sourceSets.main.map { it.output })
-    args("--log-level=debug", "src/**/*.kt")
+tasks.test {
+    useJUnitPlatform()
 }
 
-tasks.check {
-    dependsOn(ktlintCheck)
+kotlin {
+    jvmToolchain(21)
 }
 
+// Remove when this custom ruleset is not to be published to maven
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+// Remove when this custom ruleset is not to be published to maven
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
+            from(components["java"])
             pom {
                 licenses {
                     license {
@@ -67,4 +72,19 @@ publishing {
             }
         }
     }
+}
+
+// Remove when the Gradle task 'ktlintCheck' is not to be added to the project
+val ktlintCheck by tasks.registering(JavaExec::class) {
+    dependsOn(tasks.classes)
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    mainClass = "com.pinterest.ktlint.Main"
+    // Adding compiled classes of this ruleset to the classpath so that ktlint validates the ruleset using its own ruleset
+    classpath(ktlint, sourceSets.main.map { it.output })
+    args("--log-level=debug", "src/**/*.kt")
+}
+
+// Remove when the Gradle task 'ktlintCheck' is not to be added to the project
+tasks.check {
+    dependsOn(ktlintCheck)
 }
