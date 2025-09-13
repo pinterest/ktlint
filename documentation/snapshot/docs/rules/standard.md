@@ -3562,6 +3562,46 @@ Suppress or disable rule (1)
     ktlint_standard_spacing-between-function-name-and-opening-parenthesis = disabled
     ```
 
+### Then spacing
+
+Enforces consistent spacing around the `then` block in an `if`-statement.
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    fun foo() {
+        if (true) true
+        if (true) (0) else (1)
+        if (true) print(0) else (1)
+    }
+    ```
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    fun foo() {
+        if (true)true
+        if (true)(0)else (1)
+        if (true)print(0)else (1)
+    }
+    ```
+
+Rule id: `standard:then-spacing`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:then-spacing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_then-spacing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_then-spacing = disabled
+    ```
+
 ### Try catch finally spacing
 
 Enforces consistent spacing in `try { .. } catch { .. } finally { .. }`.
@@ -3613,7 +3653,7 @@ Suppress or disable rule (1)
     ```
 
 !!! Note
-    This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
+This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
 
 ### Type argument list spacing
 
