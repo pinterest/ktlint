@@ -91,6 +91,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.SpacingBetweenFunctionNameAnd
 import com.pinterest.ktlint.ruleset.standard.rules.StatementWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.StringTemplateIndentRule
 import com.pinterest.ktlint.ruleset.standard.rules.StringTemplateRule
+import com.pinterest.ktlint.ruleset.standard.rules.ThenSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.TrailingCommaOnCallSiteRule
 import com.pinterest.ktlint.ruleset.standard.rules.TrailingCommaOnDeclarationSiteRule
 import com.pinterest.ktlint.ruleset.standard.rules.TryCatchFinallySpacingRule
@@ -195,6 +196,7 @@ public class StandardRuleSetProvider : RuleSetProviderV3(RuleSetId.STANDARD) {
             RuleProvider { StatementWrappingRule() },
             RuleProvider { StringTemplateIndentRule() },
             RuleProvider { StringTemplateRule() },
+            RuleProvider { ThenSpacingRule() },
             RuleProvider { TrailingCommaOnCallSiteRule() },
             RuleProvider { TrailingCommaOnDeclarationSiteRule() },
             RuleProvider { TryCatchFinallySpacingRule() },
