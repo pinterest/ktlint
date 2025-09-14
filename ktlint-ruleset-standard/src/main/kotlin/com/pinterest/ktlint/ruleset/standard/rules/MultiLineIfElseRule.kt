@@ -102,6 +102,10 @@ public class MultiLineIfElseRule :
         }
 
         if (!node.prevSibling20!!.textContains('\n')) {
+            if (node.firstChildNode == null) {
+                // if block with an empty 'then' block
+                return
+            }
             if (node.firstChildNode.elementType == IF) {
                 // Allow single line for:
                 // else if (...)
