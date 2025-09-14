@@ -704,4 +704,17 @@ class MultiLineIfElseRuleTest {
                 LintViolation(4, 21, "Missing { ... }"),
             ).isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Issue 3088 - Given an if with an empty 'then' block then do not throw an exception`() {
+        val code =
+            """
+            fun foo() {
+                if (false) else {
+                    false
+                }
+            }
+            """.trimIndent()
+        multiLineIfElseRuleAssertThat(code).hasNoLintViolations()
+    }
 }
