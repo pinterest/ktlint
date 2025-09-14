@@ -5099,35 +5099,38 @@ internal class IndentationRuleTest {
                 .setMaxLineLength()
                 .isFormattedAs(formattedCode)
         }
+    }
 
-        @Test
-        fun `Issue 1217 - Given a function parameter with a multiline expression starting on a new line`() {
-            val code =
-                """
-                val foo = foo(
-                    parameterName =
+    @ParameterizedTest(name = "Description: {0}")
+    @ValueSource(strings = ["ktlint_official", "android_studio"])
+    fun `Issue 1217 & 3062 - Given a function parameter with a multiline expression starting on a new line`(
+        codeStyleValue: CodeStyleValue,
+    ) {
+        val code =
+            """
+            val foo = foo(
+                parameterName =
+                "The quick brown fox "
+                    .plus("jumps ")
+                    .plus("over the lazy dog"),
+            )
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo = foo(
+                parameterName =
                     "The quick brown fox "
                         .plus("jumps ")
                         .plus("over the lazy dog"),
-                )
-                """.trimIndent()
-            val formattedCode =
-                """
-                val foo = foo(
-                    parameterName =
-                        "The quick brown fox "
-                            .plus("jumps ")
-                            .plus("over the lazy dog"),
-                )
-                """.trimIndent()
-            indentationRuleAssertThat(code)
-                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
-                .hasLintViolations(
-                    LintViolation(3, 1, "Unexpected indentation (4) (should be 8)"),
-                    LintViolation(4, 1, "Unexpected indentation (8) (should be 12)"),
-                    LintViolation(5, 1, "Unexpected indentation (8) (should be 12)"),
-                ).isFormattedAs(formattedCode)
-        }
+            )
+            """.trimIndent()
+        indentationRuleAssertThat(code)
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyleValue)
+            .hasLintViolations(
+                LintViolation(3, 1, "Unexpected indentation (4) (should be 8)"),
+                LintViolation(4, 1, "Unexpected indentation (8) (should be 12)"),
+                LintViolation(5, 1, "Unexpected indentation (8) (should be 12)"),
+            ).isFormattedAs(formattedCode)
     }
 
     @Nested
