@@ -521,4 +521,24 @@ class SimpleCLITest {
                 )
             }
     }
+
+    @Test
+    fun `Issue 3096 - Given stdin input then write output of formatted file in UTF-8 `(
+        @TempDir
+        tempDir: Path,
+    ) {
+        val code =
+            """
+            // Preserve § symbol when formatting the file with ktlint
+            val sectionSign = { Char(167) }
+            """.trimIndent()
+        CommandLineTestRunner(tempDir)
+            .run(
+                testProjectName = "too-many-empty-lines",
+                arguments = listOf("--stdin", "--format"),
+                stdin = ByteArrayInputStream(code.toByteArray()),
+            ) {
+                assertThat(normalOutput.joinToString(separator = "\n")).contains(code)
+            }
+    }
 }
