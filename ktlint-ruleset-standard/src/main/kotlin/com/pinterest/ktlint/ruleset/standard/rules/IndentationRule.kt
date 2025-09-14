@@ -441,7 +441,7 @@ public class IndentationRule :
             ?.textContains('\n') == true
 
     private fun visitValueArgument(node: ASTNode) {
-        if (codeStyle == ktlint_official) {
+        if (codeStyle == ktlint_official || codeStyle == CodeStyleValue.android_studio) {
             // Deviate from standard IntelliJ IDEA formatting to allow formatting below:
             //     val foo = foo(
             //         parameterName =
