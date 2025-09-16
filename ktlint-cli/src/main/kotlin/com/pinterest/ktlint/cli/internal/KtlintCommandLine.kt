@@ -539,14 +539,14 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
                     }
                     when {
                         code.isStdIn -> {
-                            print(formattedFileContent)
+                            print(formattedFileContent.toByteArray(Charsets.UTF_8).decodeToString())
                         }
 
                         code.content != formattedFileContent -> {
                             code
                                 .filePath
                                 ?.toFile()
-                                ?.writeText(formattedFileContent, charset("UTF-8"))
+                                ?.writeText(formattedFileContent, Charsets.UTF_8)
                         }
                     }
                 }
