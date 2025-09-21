@@ -141,6 +141,10 @@ class CommandLineTestRunner(
                     // KtLint is not an executable command on Windows OS
                     add("java")
 
+                    // When writing formatted code to STDOUT, preserve unicode characters which on Windows OS as UTF-8 is not defaulted to
+                    // UTF-8 on all windows versions
+                    add("-Dstdout.encoding=UTF-8")
+
                     System
                         .getProperty("java.specification.version")
                         .javaVersionAsInt()
