@@ -4,6 +4,10 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.DisabledForJreRange
+import org.junit.jupiter.api.condition.EnabledOnOs
+import org.junit.jupiter.api.condition.JRE
+import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -523,7 +527,9 @@ class SimpleCLITest {
     }
 
     @Test
-    fun `Issue 3096 - Given stdin input then write output of formatted file in UTF-8 `(
+    @EnabledOnOs(OS.WINDOWS)
+    @DisabledForJreRange(max = JRE.JAVA_17)
+    fun `Issue 3096 - Given Windows OS with Java 18+, and code read from stdin input then write to stdout in UTF-8`(
         @TempDir
         tempDir: Path,
     ) {
