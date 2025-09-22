@@ -34,6 +34,6 @@ janino = "org.codehaus.janino:janino:3.1.12"
 # Testing libraries
 junit5-jupiter = "org.junit.jupiter:junit-jupiter:5.13.4"
 junit5-platform-launcher = "org.junit.platform:junit-platform-launcher:1.13.4"
-assertj = "org.assertj:assertj-core:3.27.5"
+assertj = "org.assertj:assertj-core:3.27.6"
 sarif4k = "io.github.detekt.sarif4k:sarif4k:0.6.0"
 jimfs = "com.google.jimfs:jimfs:1.3.1"
