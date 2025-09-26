@@ -4,6 +4,10 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.DisabledForJreRange
+import org.junit.jupiter.api.condition.EnabledOnOs
+import org.junit.jupiter.api.condition.JRE
+import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -519,6 +523,28 @@ class SimpleCLITest {
                     "Parameter '--code-style' is no longer valid. The code style should be defined as '.editorconfig' property " +
                         "'ktlint_code_style='",
                 )
+            }
+    }
+
+    @Test
+    @EnabledOnOs(OS.WINDOWS)
+    @DisabledForJreRange(max = JRE.JAVA_17)
+    fun `Issue 3096 - Given Windows OS with Java 18+, and code read from stdin input then write to stdout in UTF-8`(
+        @TempDir
+        tempDir: Path,
+    ) {
+        val code =
+            """
+            // Preserve § symbol when formatting the file with ktlint
+            val sectionSign = { Char(167) }
+            """.trimIndent()
+        CommandLineTestRunner(tempDir)
+            .run(
+                testProjectName = "too-many-empty-lines",
+                arguments = listOf("--stdin", "--format"),
+                stdin = ByteArrayInputStream(code.toByteArray()),
+            ) {
+                assertThat(normalOutput.joinToString(separator = "\n")).contains(code)
             }
     }
 }
