@@ -18,7 +18,7 @@ jobs:
           distribution: 'zulu'
           java-version: 24
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v5
 
       - name: Get last released version
         run: echo "version=$(git describe --abbrev=0 --tags)" >> $GITHUB_ENV
