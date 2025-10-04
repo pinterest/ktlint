@@ -229,4 +229,35 @@ class ContextReceiverWrappingRuleTest {
                 LintViolation(4, 38, "Expected a newline after the context receiver"),
             )
     }
+
+    @Test
+    fun `Issue 3120 - Given a value argument with a context receiver list then do not wrap context receivers to a newline`() {
+        val code =
+            """
+            class Foo(
+              foo: context(Int, Int) (Int) -> Unit,
+            ) {
+                constructor(
+                  bar: String,
+                  foo: context(Int, Int) (Int) -> Unit,
+                ) : this(foo)
+            }
+
+            fun foo(
+              foo: context(Int, Int) (Int) -> Unit,
+            )
+
+            val foo1: () -> Unit
+                set(value: context(MyContext) () -> Unit) {
+                    // some-code
+                }
+
+            val foo2 = { param: context(MyContext) () -> Unit ->
+                // some-code
+            }
+            """.trimIndent()
+        contextReceiverWrappingRuleAssertThat(code)
+            // Find violations on the context receivers, but skip the context parameters
+            .hasNoLintViolations()
+    }
 }
