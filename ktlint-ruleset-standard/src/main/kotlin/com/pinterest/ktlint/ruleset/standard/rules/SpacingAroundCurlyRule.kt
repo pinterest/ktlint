@@ -2,12 +2,12 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.AT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CLASS_BODY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLONCOLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.COMMA
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EXCLEXCL
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LAMBDA_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACKET
@@ -16,6 +16,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.RANGE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RANGE_UNTIL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACKET
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.RETURN_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SAFE_ACCESS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SEMICOLON
@@ -105,10 +106,12 @@ public class SpacingAroundCurlyRule :
                     if (prevLeaf.isWhiteSpaceWithNewline20 &&
                         prevLeaf != null &&
                         (
-                            prevLeaf.isPrecededBy { it.elementType == RPAR || KtTokens.KEYWORDS.contains(it.elementType) } ||
+                            prevLeaf.isPrecededBy {
+                                it.elementType == RPAR ||
+                                    (KtTokens.KEYWORDS.contains(it.elementType) && it.elementType != RETURN_KEYWORD)
+                            } ||
                                 node.parent?.elementType == CLASS_BODY ||
-                                // allow newline for lambda return type
-                                (prevLeaf.parent?.elementType == FUN && prevLeaf.nextSibling20?.elementType != LAMBDA_EXPRESSION)
+                                (node.parent?.elementType == BLOCK && prevLeaf.isPrecededBy { it.isPartOfComment20 })
                         )
                     ) {
                         prevLeaf
