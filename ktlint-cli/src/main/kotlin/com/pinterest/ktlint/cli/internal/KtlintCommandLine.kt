@@ -543,7 +543,7 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
                     when {
                         code.isStdIn -> {
                             // Avoid Unicode characters on Windows OS to be malformed as stdout does not default to UTF-8
-                            PrintWriter(OutputStreamWriter(System.out, UTF_8), true).print(formattedFileContent)
+                            PrintWriter(OutputStreamWriter(System.out, UTF_8), true).printf(formattedFileContent)
                         }
 
                         code.content != formattedFileContent -> {
