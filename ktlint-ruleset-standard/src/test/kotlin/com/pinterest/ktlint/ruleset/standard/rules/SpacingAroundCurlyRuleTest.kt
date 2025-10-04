@@ -603,4 +603,29 @@ class SpacingAroundCurlyRuleTest {
             """.trimIndent()
         spacingAroundCurlyRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Given a return followed by a lambda expression, then do not wrap the lambda expression`() {
+        val code =
+            """
+            fun foo(): () -> String {
+                return {
+                    "Test"
+                }
+            }
+            """.trimIndent()
+        spacingAroundCurlyRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 3125 - Given an early return followed by a lambda expression, then do not join lines `() {
+        val code =
+            """
+            fun foo(bar: String?) {
+                bar ?: return
+                { print(bar) }
+            }
+            """.trimIndent()
+        spacingAroundCurlyRuleAssertThat(code).hasNoLintViolations()
+    }
 }
