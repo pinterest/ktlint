@@ -53,6 +53,8 @@ import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 import java.io.File
+import java.io.OutputStreamWriter
+import java.io.PrintWriter
 import java.nio.file.FileSystems
 import java.nio.file.Paths
 import java.util.Locale
@@ -65,6 +67,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
+import kotlin.text.Charsets.UTF_8
 
 private lateinit var logger: KLogger
 
@@ -539,14 +542,15 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
                     }
                     when {
                         code.isStdIn -> {
-                            print(formattedFileContent)
+                            // Avoid Unicode characters on Windows OS to be malformed as stdout does not default to UTF-8
+                            PrintWriter(OutputStreamWriter(System.out, UTF_8), true).printf(formattedFileContent)
                         }
 
                         code.content != formattedFileContent -> {
                             code
                                 .filePath
                                 ?.toFile()
-                                ?.writeText(formattedFileContent, charset("UTF-8"))
+                                ?.writeText(formattedFileContent, UTF_8)
                         }
                     }
                 }

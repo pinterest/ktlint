@@ -521,4 +521,24 @@ class SimpleCLITest {
                 )
             }
     }
+
+    @Test
+    fun `Issue 3096 - Given some code containing unicode characters, the code is provided via stdin then write the formatted code to stdout in UTF-8 to preserve the unicode characters`(
+        @TempDir
+        tempDir: Path,
+    ) {
+        val code =
+            """
+            // Preserve § symbol when formatting the file with ktlint
+            val sectionSign = { Char(167) }
+            """.trimIndent()
+        CommandLineTestRunner(tempDir)
+            .run(
+                testProjectName = "too-many-empty-lines",
+                arguments = listOf("--stdin", "--format"),
+                stdin = ByteArrayInputStream(code.toByteArray()),
+            ) {
+                assertThat(normalOutput.joinToString(separator = "\n")).contains(code)
+            }
+    }
 }
