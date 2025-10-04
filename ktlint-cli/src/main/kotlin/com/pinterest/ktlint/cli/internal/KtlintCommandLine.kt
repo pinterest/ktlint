@@ -550,7 +550,7 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
                             code
                                 .filePath
                                 ?.toFile()
-                                ?.writeText(formattedFileContent, Charsets.UTF_8)
+                                ?.writeText(formattedFileContent, UTF_8)
                         }
                     }
                 }

@@ -4,10 +4,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.DisabledForJreRange
-import org.junit.jupiter.api.condition.EnabledOnOs
-import org.junit.jupiter.api.condition.JRE
-import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -526,10 +522,8 @@ class SimpleCLITest {
             }
     }
 
-    //    @EnabledOnOs(OS.WINDOWS)
-//    @DisabledForJreRange(max = JRE.JAVA_17)
     @Test
-    fun `Issue 3096 - Given Windows OS with Java 18+, and code read from stdin input then write to stdout in UTF-8`(
+    fun `Issue 3096 - Given some code containing unicode characters, the code is provided via stdin then write the formatted code to stdout in UTF-8 to preserve the unicode characters`(
         @TempDir
         tempDir: Path,
     ) {
@@ -537,10 +531,7 @@ class SimpleCLITest {
             """
             // Preserve § symbol when formatting the file with ktlint
             val sectionSign = { Char(167) }
-            """.trimIndent() +
-                // Prevent that rule 'final-newline' is finding a format violation which results in not printing the formatted code to
-                // stdout
-                "\n"
+            """.trimIndent()
         CommandLineTestRunner(tempDir)
             .run(
                 testProjectName = "too-many-empty-lines",
