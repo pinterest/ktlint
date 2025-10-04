@@ -16,7 +16,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.RANGE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RANGE_UNTIL
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACKET
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.RETURN_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SAFE_ACCESS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SEMICOLON
@@ -47,7 +46,6 @@ import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.lexer.KtTokens
 
 @SinceKtlint("0.1", STABLE)
 public class SpacingAroundCurlyRule :
@@ -103,17 +101,7 @@ public class SpacingAroundCurlyRule :
                         emit(node.startOffset, "Unexpected space before \"${node.text}\"", true)
                             .ifAutocorrectAllowed { prevLeaf.remove() }
                     }
-                    if (prevLeaf.isWhiteSpaceWithNewline20 &&
-                        prevLeaf != null &&
-                        (
-                            prevLeaf.isPrecededBy {
-                                it.elementType == RPAR ||
-                                    (KtTokens.KEYWORDS.contains(it.elementType) && it.elementType != RETURN_KEYWORD)
-                            } ||
-                                node.parent?.elementType == CLASS_BODY ||
-                                (node.parent?.elementType == BLOCK && prevLeaf.isPrecededBy { it.isPartOfComment20 })
-                        )
-                    ) {
+                    if (prevLeaf != null && node.hasUnexpectedNewlineBeforeLbrace()) {
                         prevLeaf
                             .run {
                                 emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
@@ -181,6 +169,12 @@ public class SpacingAroundCurlyRule :
             }
         }
     }
+
+    private fun ASTNode.hasUnexpectedNewlineBeforeLbrace(): Boolean =
+        also { require(it.elementType == LBRACE) }
+            .takeIf { prevLeaf.isWhiteSpaceWithNewline20 }
+            ?.let { parent?.elementType == CLASS_BODY || parent?.elementType == BLOCK }
+            ?: false
 
     private fun ASTNode.isPrecededBy(predicate: (ASTNode) -> Boolean) =
         prevLeaf
