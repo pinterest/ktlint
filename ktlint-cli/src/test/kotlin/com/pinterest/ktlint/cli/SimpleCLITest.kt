@@ -526,9 +526,9 @@ class SimpleCLITest {
             }
     }
 
+    //    @EnabledOnOs(OS.WINDOWS)
+//    @DisabledForJreRange(max = JRE.JAVA_17)
     @Test
-    @EnabledOnOs(OS.WINDOWS)
-    @DisabledForJreRange(max = JRE.JAVA_17)
     fun `Issue 3096 - Given Windows OS with Java 18+, and code read from stdin input then write to stdout in UTF-8`(
         @TempDir
         tempDir: Path,
@@ -537,7 +537,10 @@ class SimpleCLITest {
             """
             // Preserve § symbol when formatting the file with ktlint
             val sectionSign = { Char(167) }
-            """.trimIndent()
+            """.trimIndent() +
+                // Prevent that rule 'final-newline' is finding a format violation which results in not printing the formatted code to
+                // stdout
+                "\n"
         CommandLineTestRunner(tempDir)
             .run(
                 testProjectName = "too-many-empty-lines",
