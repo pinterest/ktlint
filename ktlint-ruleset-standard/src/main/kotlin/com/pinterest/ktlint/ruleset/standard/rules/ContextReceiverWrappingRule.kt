@@ -3,7 +3,6 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONTEXT_RECEIVER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONTEXT_RECEIVER_LIST
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FUNCTION_TYPE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.GT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
@@ -93,7 +92,7 @@ public class ContextReceiverWrappingRule :
     ) {
         // Context receiver must be followed by new line or comment unless it is a type reference of a parameter
         node
-            .takeUnless { it.isTypeReferenceParameterInFunction() }
+            .takeUnless { it.isFunctionTypeReferenceInValueParameterList() }
             ?.lastChildLeafOrSelf20
             ?.nextLeaf { !it.isWhiteSpaceWithoutNewline20 && !it.isPartOfComment20 }
             ?.takeIf { !it.isWhiteSpaceWithNewline20 }
@@ -138,7 +137,7 @@ public class ContextReceiverWrappingRule :
         }
     }
 
-    private fun ASTNode.isTypeReferenceParameterInFunction() =
+    private fun ASTNode.isFunctionTypeReferenceInValueParameterList() =
         takeIf { it.elementType == CONTEXT_RECEIVER_LIST }
             ?.parent
             ?.takeIf { it.elementType == FUNCTION_TYPE }
@@ -147,9 +146,7 @@ public class ContextReceiverWrappingRule :
             ?.parent
             ?.takeIf { it.elementType == VALUE_PARAMETER }
             ?.parent
-            ?.takeIf { it.elementType == VALUE_PARAMETER_LIST }
-            ?.parent
-            ?.let { it.elementType == FUN }
+            ?.let { it.elementType == VALUE_PARAMETER_LIST }
             ?: false
 
     private fun visitContextReceiverTypeArgumentList(
