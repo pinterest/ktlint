@@ -618,7 +618,7 @@ class SpacingAroundCurlyRuleTest {
     }
 
     @Test
-    fun `Issue 3125 - Given an early return followed by a lambda expression, then do not join lines `() {
+    fun `Issue 3125 - Given an early return followed by a lambda expression, then do not join lines`() {
         val code =
             """
             fun foo(bar: String?) {
