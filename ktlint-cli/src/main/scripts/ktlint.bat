@@ -7,8 +7,8 @@ REM and the jar file are located in different directories.
 if not defined JAR_PATH set JAR_PATH=%~dp0ktlint
 
 REM Up until Java version 23
-java --add-opens=java.base/java.lang=ALL-UNNAMED -Dstdout.encoding=UTF-8 -jar "%JAR_PATH%" %*
+java --add-opens=java.base/java.lang=ALL-UNNAMED -jar "%JAR_PATH%" %*
 
 REM With Java24+
 REM Suppress warning "sun.misc.Unsafe::objectFieldOffset" on Java24+ (https://github.com/pinterest/ktlint/issues/2973)
-REM java --sun-misc-unsafe-memory-access=allow -Dstdout.encoding=UTF-8 -jar "%JAR_PATH%" %*
+REM java --sun-misc-unsafe-memory-access=allow -jar "%JAR_PATH%" %*
