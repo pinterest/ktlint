@@ -7,6 +7,14 @@
     {
       "matchPackageNames": ["ch.qos.logback:logback-classic"],
       "allowedVersions": "<1.4.0"
+    },
+    {
+      "matchPackageNames": ["org.junit.platform:junit-platform-launcher"],
+      "allowedVersions": "<6.0.0"
+    },
+    {
+      "matchPackageNames": ["org.junit.jupiter:junit-jupiter"],
+      "allowedVersions": "<6.0.0"
     }
   ]
 }
