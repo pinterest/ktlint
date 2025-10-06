@@ -83,8 +83,8 @@ $ ktlint -R build/libs/ktlint-ruleset-template.jar --log-level=debug --relative 
            - standard:no-unit-return, 
            - standard:no-unused-imports, 
            - standard:no-wildcard-imports, 
-           - standard:op-spacing, ¡
-           - standard:pa¡rameter-list-wrapping, 
+           - standard:op-spacing, 
+           - standard:parameter-list-wrapping, 
            - standard:paren-spacing, 
            - standard:range-spacing, 
            - standard:string-template, 
