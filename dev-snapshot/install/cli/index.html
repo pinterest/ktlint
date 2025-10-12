@@ -1568,7 +1568,11 @@ If you are behind a proxy see - <a href="https://curl.haxx.se/docs/manpage.html#
 </div>
 <h3 id="verification-of-download">Verification of download<a class="headerlink" href="#verification-of-download" title="Permanent link">&para;</a></h3>
 <p><code>ktlint.asc</code> contains PGP signature which you can verify with:</p>
-<div class="highlight"><span class="filename">Verify releases 0.32.0 and above</span><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>curl<span class="w"> </span>-sS<span class="w"> </span>https://keybase.io/ktlint/pgp_keys.asc<span class="w"> </span><span class="p">|</span><span class="w"> </span>gpg<span class="w"> </span>--import<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>gpg<span class="w"> </span>--verify<span class="w"> </span>ktlint.asc
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As reported in <a href="https://github.com/pinterest/ktlint/issues/3130">this issue</a> the https://keybase.io/ktlint/pgp_keys.asc is no longer available. Our public signature can be downloaded from the Unbuntu Key Server.</p>
+</div>
+<div class="highlight"><span class="filename">Verify releases 0.32.0 and above</span><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>curl<span class="w"> </span>-sS<span class="w"> </span><span class="s2">&quot;https://keyserver.ubuntu.com/pks/lookup?op=get&amp;search=0xadbc987d1a7b91db6b0aaa81995efbf4a3d20beb&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>gpg<span class="w"> </span>--import<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>gpg<span class="w"> </span>--verify<span class="w"> </span>ktlint.asc
 </code></pre></div>
 <div class="highlight"><span class="filename">Verify releases up through 0.31.0</span><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>curl<span class="w"> </span>-sS<span class="w"> </span>https://keybase.io/shyiko/pgp_keys.asc<span class="w"> </span><span class="p">|</span><span class="w"> </span>gpg<span class="w"> </span>--import<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>gpg<span class="w"> </span>--verify<span class="w"> </span>ktlint.asc
 </code></pre></div>
