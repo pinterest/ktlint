@@ -26,8 +26,11 @@ curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.7.1/ktlint &&
 
 `ktlint.asc` contains PGP signature which you can verify with:
 
+!!! note
+    As reported in [this issue](https://github.com/pinterest/ktlint/issues/3130) the https://keybase.io/ktlint/pgp_keys.asc is no longer available. Our public signature can be downloaded from the Unbuntu Key Server.
+
 ```sh title="Verify releases 0.32.0 and above"
-curl -sS https://keybase.io/ktlint/pgp_keys.asc | gpg --import && gpg --verify ktlint.asc
+curl -sS "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xadbc987d1a7b91db6b0aaa81995efbf4a3d20beb" | gpg --import && gpg --verify ktlint.asc
 ```
 
 ```sh title="Verify releases up through 0.31.0"
