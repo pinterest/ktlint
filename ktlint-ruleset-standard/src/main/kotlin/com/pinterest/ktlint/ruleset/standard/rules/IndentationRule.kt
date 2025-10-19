@@ -1115,7 +1115,14 @@ public class IndentationRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        while (indentContextStack.peekLast()?.toASTNode == node) {
+        while (
+            // End visit of the node matches with the toAstNode on top of the stack
+            indentContextStack.peekLast()?.toASTNode == node ||
+            // When the ktlint indentation violations on child elements have been suppressed, those child elements are not visited, and the
+            // stack is therefore not cleaned up properly. So remove all elements from top of the stack until the start of an index context
+            // is found for the current node.
+            indentContextStack.peekLast()?.toASTNode?.parent { it == node } != null
+        ) {
             LOGGER.trace {
                 val indentContext = indentContextStack.peekLast()
                 val nodeIndentLevel = indentConfig.indentLevelFrom(indentContext.nodeIndent)

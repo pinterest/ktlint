@@ -5932,6 +5932,24 @@ internal class IndentationRuleTest {
         }
     }
 
+    @ParameterizedTest(name = "Suppression: {0}")
+    @ValueSource(
+        strings = [
+            "ktlint",
+            "ktlint:standard:indent",
+        ],
+    )
+    fun `Issue 3109 - Suppressing all ktlint violations may not result in failing to empty the stack`(suppression: String) {
+        val code =
+            """
+            fun foo() =
+                @Suppress("${suppression}")
+                listOf("foo")
+            """.trimIndent()
+
+        indentationRuleAssertThat(code).hasNoLintViolations()
+    }
+
     private companion object {
         val INDENT_STYLE_TAB =
             INDENT_STYLE_PROPERTY to PropertyType.IndentStyleValue.tab
