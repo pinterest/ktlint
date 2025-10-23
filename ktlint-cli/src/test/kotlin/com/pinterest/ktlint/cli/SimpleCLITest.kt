@@ -541,4 +541,45 @@ class SimpleCLITest {
                 assertThat(normalOutput.joinToString(separator = "\n")).contains(code)
             }
     }
+
+    @Nested
+    inner class `Autocorrect violations` {
+        @Test
+        fun `Issue 3150 - Report violations that cannot be auto-corrected`(
+            @TempDir
+            tempDir: Path,
+        ) {
+            CommandLineTestRunner(tempDir)
+                .run(
+                    "ignore-autocorrect-failures",
+                    arguments = listOf("--format"),
+                ) {
+                    SoftAssertions()
+                        .apply {
+                            assertErrorExitCode()
+                            assertThat(normalOutput)
+                                .containsLineMatching(Regex(".*\\(cannot be auto-corrected\\) \\(standard:filename\\).*"))
+                        }.assertAll()
+                }
+        }
+
+        @Test
+        fun `Issue 3150 - Ignore violations that cannot be auto-corrected`(
+            @TempDir
+            tempDir: Path,
+        ) {
+            CommandLineTestRunner(tempDir)
+                .run(
+                    "ignore-autocorrect-failures",
+                    arguments = listOf("--format", "--ignore-autocorrect-failures"),
+                ) {
+                    SoftAssertions()
+                        .apply {
+                            assertNormalExitCode()
+                            assertThat(normalOutput)
+                                .doesNotContainLineMatching(Regex(".*\\(cannot be auto-corrected\\) \\(standard:filename\\).*"))
+                        }.assertAll()
+                }
+        }
+    }
 }
