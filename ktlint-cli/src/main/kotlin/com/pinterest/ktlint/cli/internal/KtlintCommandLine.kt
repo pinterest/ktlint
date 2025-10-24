@@ -151,6 +151,10 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
         option("--format", "-F", help = "Fix deviations from the code style when possible")
             .flag(default = false)
 
+    private val ignoreAutocorrectFailures: Boolean by
+        option("--ignore-autocorrect-failures", help = "Ignore all violations for which no autocorrect is available")
+            .flag(default = false)
+
     private val limit: Int by
         option("--limit", help = "Maximum number of errors to show (default: show all)")
             .int()
@@ -468,6 +472,7 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
         reporter.before(relativeRoute)
         ktlintCliErrors
             .take(errListLimit)
+            .filterNot { ignoreAutocorrectFailures && it.status == LINT_CAN_NOT_BE_AUTOCORRECTED }
             .forEach { reporter.onLintError(relativeRoute, it) }
         reporter.after(relativeRoute)
     }
@@ -498,30 +503,34 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
         try {
             ktLintRuleEngine
                 .format(code) { lintError ->
-                    KtlintCliError(
-                        line = lintError.line,
-                        col = lintError.col,
-                        ruleId = lintError.ruleId.value,
-                        detail =
-                            lintError
-                                .detail
-                                .applyIf(!lintError.canBeAutoCorrected) { "$this (cannot be auto-corrected)" },
-                        status =
-                            if (lintError.canBeAutoCorrected) {
-                                FORMAT_IS_AUTOCORRECTED
-                            } else {
-                                LINT_CAN_NOT_BE_AUTOCORRECTED
-                            },
-                    ).takeIf { baselineLintErrors.doesNotContain(it) }
-                        ?.let { ktlintCliError ->
-                            ktlintCliErrors.add(ktlintCliError)
-                            if (lintError.canBeAutoCorrected) {
-                                ALLOW_AUTOCORRECT
-                            } else {
-                                containsUnfixedLintErrors.set(true)
-                                NO_AUTOCORRECT
-                            }
-                        } ?: NO_AUTOCORRECT
+                    if (ignoreAutocorrectFailures && !lintError.canBeAutoCorrected) {
+                        NO_AUTOCORRECT
+                    } else {
+                        KtlintCliError(
+                            line = lintError.line,
+                            col = lintError.col,
+                            ruleId = lintError.ruleId.value,
+                            detail =
+                                lintError
+                                    .detail
+                                    .applyIf(!lintError.canBeAutoCorrected) { "$this (cannot be auto-corrected)" },
+                            status =
+                                if (lintError.canBeAutoCorrected) {
+                                    FORMAT_IS_AUTOCORRECTED
+                                } else {
+                                    LINT_CAN_NOT_BE_AUTOCORRECTED
+                                },
+                        ).takeIf { baselineLintErrors.doesNotContain(it) }
+                            ?.let { ktlintCliError ->
+                                ktlintCliErrors.add(ktlintCliError)
+                                if (lintError.canBeAutoCorrected) {
+                                    ALLOW_AUTOCORRECT
+                                } else {
+                                    containsUnfixedLintErrors.set(true)
+                                    NO_AUTOCORRECT
+                                }
+                            } ?: NO_AUTOCORRECT
+                    }
                 }.also { formattedFileContent ->
                     if (ktlintCliErrors.isNotEmpty() && code.content == formattedFileContent) {
                         // In very rare cases it is possible that Lint violations are detected but that they have opposite effects and the
@@ -535,7 +544,7 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
                         } catch (e: KtLintParseException) {
                             logger.error(e) { "After formatting code in file '${code.filePath}' it cannot be successfully parsed anymore." }
                             // Intentionally stop formatting other files. The '--force-lint-after-format' is only supposed to be used during
-                            // release testing of Ktlint CLI. Immediate exist forces to fix the issue immediately as release test can
+                            // release testing of Ktlint CLI. An immediate exit forces to fix the issue immediately as release test can
                             // otherwise not be completed.
                             exitKtLintProcess(123)
                         }
@@ -583,8 +592,10 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
                     )
                 }
             } else {
-                ktlintCliErrors.add(e.toKtlintCliError(code))
-                containsUnfixedLintErrors.set(true)
+                if (!ignoreAutocorrectFailures) {
+                    ktlintCliErrors.add(e.toKtlintCliError(code))
+                    containsUnfixedLintErrors.set(true)
+                }
                 code.content // making sure `cat file | ktlint --stdin > file` is (relatively) safe
             }
         }
@@ -612,7 +623,7 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
                                 LINT_CAN_NOT_BE_AUTOCORRECTED
                             },
                     )
-                if (baselineLintErrors.doesNotContain(ktlintCliError)) {
+                if (baselineLintErrors.doesNotContain(ktlintCliError) && !ignoreAutocorrectFailures) {
                     ktlintCliErrors.add(ktlintCliError)
                     containsUnfixedLintErrors.set(true)
                 }
@@ -620,7 +631,7 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
         } catch (e: Exception) {
             if (code.isStdIn && e is KtLintParseException) {
                 if (code.script) {
-                    // When reading from stdin, code is only parsed as Kotlint script, if it could not be parsed as pure Kotlin. Now parsing
+                    // When reading from stdin, code is only parsed as Kotlin script, if it could not be parsed as pure Kotlin. Now parsing
                     // of the code has failed for both, the file has to be ignored.
                     logger.error {
                         """
@@ -645,7 +656,7 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
                         baselineLintErrors = baselineLintErrors,
                     )
                 }
-            } else {
+            } else if (!ignoreAutocorrectFailures) {
                 ktlintCliErrors.add(e.toKtlintCliError(code))
                 containsUnfixedLintErrors.set(true)
             }
