@@ -61,7 +61,7 @@ public class BackingPropertyNamingRule :
     ) {
         property
             .findChildByType(IDENTIFIER)
-            ?.takeIf { it.text.startsWith("_") }
+            ?.takeIf { it.text.startsWith("_") && it.text.length > 1 }
             ?.takeUnless {
                 // Do not report overridden properties as they can only be changed by changing the base property
                 it.parent!!.hasModifier(OVERRIDE_KEYWORD)

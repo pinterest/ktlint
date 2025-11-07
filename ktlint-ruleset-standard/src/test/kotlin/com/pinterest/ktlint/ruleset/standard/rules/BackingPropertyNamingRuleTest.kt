@@ -876,6 +876,10 @@ class BackingPropertyNamingRuleTest {
                 val elementList2: List<Element>
                     get() = _elementList2
 
+                fun underscore() {
+                    val _ = 1
+                }
+
                 companion object {
                     private val _elementList2 = mutableListOf<Element>()
                 }
