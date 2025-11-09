@@ -953,4 +953,16 @@ class BackingPropertyNamingRuleTest {
             """.trimIndent()
         backingPropertyNamingRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 3166 - Allow local properties with name '_'`() {
+        val code =
+            """
+            // https://github.com/Kotlin/KEEP/blob/main/proposals/KEEP-0412-underscores-for-local-variables.md
+            fun underscore() {
+                val _ = functionWhichReturnsValueWhichIsNotRelevantOnThisCallSite()
+            }
+            """.trimIndent()
+        backingPropertyNamingRuleAssertThat(code).hasNoLintViolations()
+    }
 }

@@ -63,6 +63,10 @@ public class BackingPropertyNamingRule :
             .findChildByType(IDENTIFIER)
             ?.takeIf { it.text.startsWith("_") }
             ?.takeUnless {
+                // Exclude local property with name equals to "_". This is used to express the intent that the return value of a function
+                // call is not used (https://github.com/Kotlin/KEEP/blob/main/proposals/KEEP-0412-underscores-for-local-variables.md)
+                it.textLength == 1
+            }?.takeUnless {
                 // Do not report overridden properties as they can only be changed by changing the base property
                 it.parent!!.hasModifier(OVERRIDE_KEYWORD)
             }?.let { identifier ->
