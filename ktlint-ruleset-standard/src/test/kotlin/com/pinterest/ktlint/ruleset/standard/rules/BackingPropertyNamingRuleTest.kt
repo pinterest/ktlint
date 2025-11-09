@@ -876,10 +876,6 @@ class BackingPropertyNamingRuleTest {
                 val elementList2: List<Element>
                     get() = _elementList2
 
-                fun underscore() {
-                    val _ = 1
-                }
-
                 companion object {
                     private val _elementList2 = mutableListOf<Element>()
                 }
@@ -953,6 +949,18 @@ class BackingPropertyNamingRuleTest {
             fun test() {
                 val _test = "test"
                 println(_test)
+            }
+            """.trimIndent()
+        backingPropertyNamingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 3166 - Allow local properties with name '_'`() {
+        val code =
+            """
+            // https://github.com/Kotlin/KEEP/blob/main/proposals/KEEP-0412-underscores-for-local-variables.md
+            fun underscore() {
+                val _ = functionWhichReturnsValueWhichIsNotRelevantOnThisCallSite()
             }
             """.trimIndent()
         backingPropertyNamingRuleAssertThat(code).hasNoLintViolations()
