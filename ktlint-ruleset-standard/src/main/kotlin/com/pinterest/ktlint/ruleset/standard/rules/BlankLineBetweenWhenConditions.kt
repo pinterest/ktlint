@@ -3,11 +3,11 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN_ENTRY
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
@@ -34,13 +34,13 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  * when-conditions in the when-statement depending on whether the statement contains at least one multiline when-condition.
  */
 @SinceKtlint("1.2", EXPERIMENTAL)
+@SinceKtlint("1.8", STABLE)
 public class BlankLineBetweenWhenConditions :
     StandardRule(
         id = "blank-line-between-when-conditions",
         usesEditorConfigProperties = setOf(LINE_BREAK_AFTER_WHEN_CONDITION_PROPERTY),
     ),
-    RuleAutocorrectApproveHandler,
-    Rule.Experimental {
+    RuleAutocorrectApproveHandler {
     private var lineBreakAfterWhenCondition = LINE_BREAK_AFTER_WHEN_CONDITION_PROPERTY.defaultValue
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
