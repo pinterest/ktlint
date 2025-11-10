@@ -79,7 +79,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/BlankLineBeforeDe
 	public static final fun getBLANK_LINE_BEFORE_DECLARATION_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
 }
 
-public final class com/pinterest/ktlint/ruleset/standard/rules/BlankLineBetweenWhenConditions : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$Experimental, com/pinterest/ktlint/rule/engine/core/api/RuleAutocorrectApproveHandler {
+public final class com/pinterest/ktlint/ruleset/standard/rules/BlankLineBetweenWhenConditions : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/RuleAutocorrectApproveHandler {
 	public static final field Companion Lcom/pinterest/ktlint/ruleset/standard/rules/BlankLineBetweenWhenConditions$Companion;
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
@@ -431,7 +431,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/IndentationRuleKt
 	public static final fun getINDENTATION_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
 }
 
-public final class com/pinterest/ktlint/ruleset/standard/rules/KdocRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$Experimental {
+public final class com/pinterest/ktlint/ruleset/standard/rules/KdocRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
 	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
@@ -465,7 +465,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/MaxLineLengthRule
 	public static final fun maxLineLength (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)I
 }
 
-public final class com/pinterest/ktlint/ruleset/standard/rules/MixedConditionOperatorsRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$Experimental {
+public final class com/pinterest/ktlint/ruleset/standard/rules/MixedConditionOperatorsRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
 	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
@@ -867,7 +867,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundRang
 	public static final fun getSPACING_AROUND_RANGE_OPERATOR_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
 }
 
-public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundSquareBracketsRule : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$Experimental {
+public final class com/pinterest/ktlint/ruleset/standard/rules/SpacingAroundSquareBracketsRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
 	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
@@ -1056,7 +1056,7 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/ValueParameterCom
 	public static final fun getVALUE_PARAMETER_COMMENT_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
 }
 
-public final class com/pinterest/ktlint/ruleset/standard/rules/WhenEntryBracing : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$Experimental, com/pinterest/ktlint/rule/engine/core/api/Rule$OfficialCodeStyle, com/pinterest/ktlint/rule/engine/core/api/RuleAutocorrectApproveHandler {
+public final class com/pinterest/ktlint/ruleset/standard/rules/WhenEntryBracing : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/Rule$OfficialCodeStyle, com/pinterest/ktlint/rule/engine/core/api/RuleAutocorrectApproveHandler {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
 	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
