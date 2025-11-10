@@ -167,8 +167,7 @@ internal class CodeFormatter(
     private fun Code.determineLineSeparator(eolEditorConfigProperty: PropertyType.EndOfLineValue): String =
         when {
             eolEditorConfigProperty == PropertyType.EndOfLineValue.crlf ||
-                eolEditorConfigProperty != PropertyType.EndOfLineValue.lf &&
-                doesNotContain('\r') -> {
+                (eolEditorConfigProperty != PropertyType.EndOfLineValue.lf && doesNotContain('\r')) -> {
                 "\r\n".also { LOGGER.trace { "line separator: ${eolEditorConfigProperty.name} --> CRLF" } }
             }
 
