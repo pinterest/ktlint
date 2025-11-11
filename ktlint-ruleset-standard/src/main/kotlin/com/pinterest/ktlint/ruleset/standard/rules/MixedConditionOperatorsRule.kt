@@ -20,7 +20,7 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
  */
 @SinceKtlint("1.1", EXPERIMENTAL)
 public class MixedConditionOperatorsRule :
-    StandardRule("condition-wrapping"),
+    StandardRule("mixed-condition-operators"),
     Rule.Experimental {
     override fun beforeVisitChildNodes(
         node: ASTNode,
@@ -67,12 +67,21 @@ public class MixedConditionOperatorsRule :
     }
 
     private fun ASTNode.isPartOfExpressionUsingDifferentLogicalOperators(): Boolean {
-        val operatorStartNode = findOperatorElementTypeOrNull() ?: return false
+        val firstLogicalOperator = findOperationElementTypeOrNull() ?: return false
 
-        return anyParentBinaryExpression { it.findOperatorElementTypeOrNull() != operatorStartNode }
+        return anyParentBinaryExpression { parent ->
+            parent
+                .findOperationElementTypeOrNull()
+                ?.let { it != firstLogicalOperator }
+                ?: false
+        }
     }
 
-    private fun ASTNode.findOperatorElementTypeOrNull() = findChildByType(OPERATION_REFERENCE)?.firstChildNode?.elementType
+    private fun ASTNode.findOperationElementTypeOrNull() =
+        findChildByType(OPERATION_REFERENCE)
+            ?.firstChildNode
+            ?.elementType
+            ?.takeIf { it in (logicalOperators) }
 
     private companion object {
         val logicalOperators = TokenSet.create(OROR, ANDAND)

@@ -49,4 +49,16 @@ class MixedConditionOperatorsRuleTest {
         mixedConditionOperatorsRuleAssertThat(code)
             .hasLintViolationWithoutAutoCorrect(1, 20, "A condition with mixed usage of '&&' and '||' is hard to read. Use parenthesis to clarify the (sub)condition.")
     }
+
+    @Test
+    fun `Given an assignment with a condition using only one type of operation reference than do not report a violation`() {
+        val code =
+            """
+            var foo = false
+            fun foo() {
+                foo = bar1 && bar2 && bar3
+            }
+            """.trimIndent()
+        mixedConditionOperatorsRuleAssertThat(code).hasNoLintViolations()
+    }
 }
