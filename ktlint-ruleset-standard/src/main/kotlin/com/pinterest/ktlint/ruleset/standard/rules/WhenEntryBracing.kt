@@ -12,6 +12,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
@@ -36,6 +37,7 @@ import org.jetbrains.kotlin.psi.psiUtil.siblings
  *   - Closing braces helps in separation the when-conditions
  */
 @SinceKtlint("1.4", EXPERIMENTAL)
+@SinceKtlint("1.8", STABLE)
 public class WhenEntryBracing :
     StandardRule(
         id = "when-entry-bracing",
@@ -46,8 +48,7 @@ public class WhenEntryBracing :
             ),
     ),
     RuleAutocorrectApproveHandler,
-    Rule.OfficialCodeStyle,
-    Rule.Experimental {
+    Rule.OfficialCodeStyle {
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {

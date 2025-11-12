@@ -11,10 +11,10 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SECONDARY_CONSTRUCTOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPEALIAS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.parent
@@ -26,6 +26,7 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
  * Disallow KDoc except of classes, functions and xxx
  */
 @SinceKtlint("1.2", EXPERIMENTAL)
+@SinceKtlint("1.8", STABLE)
 public class KdocRule :
     StandardRule(
         id = "kdoc",
@@ -34,8 +35,7 @@ public class KdocRule :
                 INDENT_SIZE_PROPERTY,
                 INDENT_STYLE_PROPERTY,
             ),
-    ),
-    Rule.Experimental {
+    ) {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,

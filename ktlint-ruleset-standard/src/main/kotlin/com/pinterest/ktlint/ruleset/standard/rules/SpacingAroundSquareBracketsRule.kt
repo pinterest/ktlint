@@ -5,10 +5,10 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.COLLECTION_LITERAL_
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC_MARKDOWN_LINK
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.LBRACKET
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACKET
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
@@ -24,9 +24,8 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  * See https://kotlinlang.org/docs/reference/coding-conventions.html#horizontal-whitespace
  */
 @SinceKtlint("1.2", EXPERIMENTAL)
-public class SpacingAroundSquareBracketsRule :
-    StandardRule("square-brackets-spacing"),
-    Rule.Experimental {
+@SinceKtlint("1.8", STABLE)
+public class SpacingAroundSquareBracketsRule : StandardRule("square-brackets-spacing") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
