@@ -2,6 +2,66 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.8.0] - 2025-11-12
+
+### 🆕 Features
+
+* Set languageVersion to KOTLIN_2_0 to ensure metadata compatibility with Kotlin 2.0 - [#3110](https://github.com/pinterest/ktlint/pull/3110), by @hugoncosta
+
+* Simplify creation of a custom ruleset - [#3118](https://github.com/pinterest/ktlint/pull/3118), by @paul-dingemans
+
+* Add rule `then-spacing` - [#3129](https://github.com/pinterest/ktlint/pull/3129), by @paul-dingemans
+
+* Add CLI option '--ignore-autocorrect-failures' - [#3157](https://github.com/pinterest/ktlint/pull/3157), by @paul-dingemans
+
+* Allow `_` as backing property name (needed for KEEP-412) - [#3166](https://github.com/pinterest/ktlint/pull/3166), by @serras
+
+* Promote experimental rules to standard rules - [#3171](https://github.com/pinterest/ktlint/pull/3171), by @paul-dingemans:  
+  * blank-line-between-when-conditions  
+  * kdoc  
+  * "mixed-condition-operators"  
+  * square-brackets-spacing  
+  * when-entry-bracing
+
+### 🔧 Fixes
+
+* Fix link to maven wrapper - [#3112](https://github.com/pinterest/ktlint/pull/3112), by @paul-dingemans
+
+* Fix links in documentation, and fix some typo's/formatting - [#3127](https://github.com/pinterest/ktlint/pull/3127), by @paul-dingemans
+
+* Fix indent of function parameter with multiline expression in `android_studio` - [#3131](https://github.com/pinterest/ktlint/pull/3131), by @paul-dingemans
+
+
+* fix(deps): update dependency com.vanniktech:gradle-maven-publish-plugin to v0.35.0 - [#3169](https://github.com/pinterest/ktlint/pull/3169), by @renovate[bot]
+
+### 💬 Other
+
+* Validate @SinceKtlint annotations with test and uniformize existing rules - [#3101](https://github.com/pinterest/ktlint/pull/3101), by @hugoncosta
+
+* Fix snapshot repository location - [#3106](https://github.com/pinterest/ktlint/pull/3106), by @paul-dingemans
+
+* Add code vulnerability scanning with CodeQL - [#3113](https://github.com/pinterest/ktlint/pull/3113), by @paul-dingemans
+
+* Disable gradle build cache in code scanning workflow - [#3116](https://github.com/pinterest/ktlint/pull/3116), by @paul-dingemans
+
+* Restrict access to GitHub token to "contents: read" - [#3115](https://github.com/pinterest/ktlint/pull/3115), by @paul-dingemans
+
+* Change language for code-scanning workflow to 'kotlin' - [#3117](https://github.com/pinterest/ktlint/pull/3117), by @paul-dingemans
+
+* Allow publication documents workflow to write to Github pages - [#3121](https://github.com/pinterest/ktlint/pull/3121), by @paul-dingemans
+
+* Allow manual dispatch of workflow for publishing documentation - [#3122](https://github.com/pinterest/ktlint/pull/3122), by @paul-dingemans
+
+* Set contents write permission on workflows for publishing documentation - [#3123](https://github.com/pinterest/ktlint/pull/3123), by @paul-dingemans
+
+* Switch publication config to vanniktech's maven-publish plugin - [#3068](https://github.com/pinterest/ktlint/pull/3068), by @mateuszkwiecinski
+
+* Add SECURITY.md file - [#3114](https://github.com/pinterest/ktlint/pull/3114), by @paul-dingemans
+
+* Add public key to GitHub - [#3139](https://github.com/pinterest/ktlint/pull/3139), by @shashachu
+
+* Ignore renovate updates for JUnit v6 as it requires Java17+ - [#3146](https://github.com/pinterest/ktlint/pull/3146), by @paul-dingemans
+
 ## [1.7.1] - 2025-07-21
 
 ### 🔧 Fixes
@@ -2815,6 +2875,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[1.8.0]: https://github.com/pinterest/ktlint/compare/1.8.0...1.7.1
 [1.7.1]: https://github.com/pinterest/ktlint/compare/1.7.1...1.7.0
 [1.7.0]: https://github.com/pinterest/ktlint/compare/1.7.0...1.6.0
 [1.6.0]: https://github.com/pinterest/ktlint/compare/1.6.0...1.5.0
