@@ -5,10 +5,10 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANDAND
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BINARY_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OROR
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -19,9 +19,8 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
  * be clarified.
  */
 @SinceKtlint("1.1", EXPERIMENTAL)
-public class MixedConditionOperatorsRule :
-    StandardRule("mixed-condition-operators"),
-    Rule.Experimental {
+@SinceKtlint("1.8", STABLE)
+public class MixedConditionOperatorsRule : StandardRule("mixed-condition-operators") {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
