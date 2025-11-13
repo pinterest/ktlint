@@ -31,9 +31,9 @@ abstract class PublicationPlugin : Plugin<Project> {
                 // Pass `-PuseGpgCmd` to sign artifacts using local gpg agent
                 val useGpgCmd = localGradleProperty("useGpgCmd").orNull
 
-                val signingKeyId = localGradleProperty("signingKeyId").orNull?.takeIf { it.isNotEmpty() }
-                val signingKey = localGradleProperty("signingKey").orNull?.takeIf { it.isNotEmpty() }
-                val signingPassword = localGradleProperty("signingKeyPassword").orNull?.takeIf { it.isNotEmpty() }
+                val signingKeyId = localGradleProperty("signingInMemoryKeyId").orNull?.takeIf { it.isNotEmpty() }
+                val signingKey = localGradleProperty("signingInMemoryKey").orNull?.takeIf { it.isNotEmpty() }
+                val signingPassword = localGradleProperty("signingInMemoryKeyPassword").orNull?.takeIf { it.isNotEmpty() }
                 val signingConfigPresent = signingKeyId != null && signingKey != null && signingPassword != null
 
                 // Avoid setting empty strings as signing keys. This avoids breaking the build when PR is opened from a fork.
