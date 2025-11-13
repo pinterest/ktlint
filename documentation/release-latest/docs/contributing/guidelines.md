@@ -12,7 +12,7 @@ If you've found a security issue in one of our open source projects, please repo
 
 ## Code of Conduct
 
-Please be sure to read and understand our [code of conduct](../code-of-conduct/). We work hard to ensure that our projects are welcoming and inclusive to as many people as possible.
+Please be sure to read and understand our [code of conduct](code-of-conduct.md). We work hard to ensure that our projects are welcoming and inclusive to as many people as possible.
 
 ## Reporting Issues
 
@@ -56,4 +56,4 @@ Add following flag - `-PkotlinDev` to enable kotlin development version.
 
 ## License
 
-By contributing to this project, you agree that your contributions will be licensed under its [license](/#legal).
+By contributing to this project, you agree that your contributions will be licensed under its [license](../index.md#legal).

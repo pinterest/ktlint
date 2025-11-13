@@ -29,17 +29,17 @@ val ktlint: Configuration by configurations.creating
 // Update the version numbers of dependencies below to the most recent stable versions
 dependencies {
     // Remove when the Gradle task 'ktlintCheck' is not to be added to the project
-    ktlint("com.pinterest.ktlint:ktlint-cli:1.7.1")
+    ktlint("com.pinterest.ktlint:ktlint-cli:1.8.0")
 
-    implementation("com.pinterest.ktlint:ktlint-cli-ruleset-core:1.7.1")
-    implementation("com.pinterest.ktlint:ktlint-rule-engine-core:1.7.1")
+    implementation("com.pinterest.ktlint:ktlint-cli-ruleset-core:1.8.0")
+    implementation("com.pinterest.ktlint:ktlint-rule-engine-core:1.8.0")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.14.1")
     // Since Gradle 8 the platform launcher needs explicitly be defined as runtime dependency to avoid classpath problems
     // https://docs.gradle.org/8.12/userguide/upgrading_version_8.html#test_framework_implementation_dependencies
     testImplementation("org.junit.platform:junit-platform-launcher:1.14.1")
     testImplementation("org.slf4j:slf4j-simple:2.0.17")
-    testImplementation("com.pinterest.ktlint:ktlint-test:1.7.1")
+    testImplementation("com.pinterest.ktlint:ktlint-test:1.8.0")
 }
 
 tasks.test {

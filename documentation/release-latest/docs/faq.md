@@ -74,7 +74,7 @@ val foo = """
 
 Kotlin has three different type of comments. Although the KDoc and the block comment look similar in code, their internal PSI structure is different. The EOL comment is yet very different.
 
-In Kotlin it is possible to insert a comment everywhere. It is very challenging, and time-consuming, to make each rule fully resilient for each possible comment location, even in case such locations will (almost) never by used.
+In Kotlin, it is possible to insert a comment everywhere. It is very challenging, and time-consuming, to make each rule fully resilient for each possible comment location, even in case such locations will (almost) never by used.
 
 For example, in sample below it is unclear whether the comment applies to the `if` block, or to the `else` block without interpreting the comment itself.
 
@@ -126,14 +126,14 @@ By forbidding certain comment locations, the logic in the rules becomes a bit ea
 
 ## Can I have my own rules on top of ktlint?
 
-Absolutely, "no configuration" doesn't mean "no extensibility". You can add your own ruleset(s) to discover potential bugs, check for anti-patterns, etc.
+Absolutely, "no configuration" doesn't mean "no extensibility". You can add your own ruleset(s) to discover potential bugs, check for antipatterns, etc.
 
-See [adding a custom rule set](../api/custom-rule-set/) for more information.
+See [adding a custom rule set](api/custom-rule-set.md) for more information.
 
 ## How do I suppress errors for a line/block/file?
 
 !!! tip
-    Suppressing a `ktlint` violation is meant primarily as an escape latch for the rare cases when **ktlint** is not able to produce the correct result. Please report any such instances using [GitHub Issues](https://github.com/pinterest/ktlint/issues)).
+    Suppressing a `ktlint` violation is meant primarily as an escape latch for the rare cases when **ktlint** is not able to produce the correct result. Please report any such instances using [GitHub Issues](https://github.com/pinterest/ktlint/issues).
 
 To disable a specific rule you'll need the fully qualified rule identifier. This identifier is displayed at the end of the lint error. In case your code was autocorrected, you need to revert the code and run the `lint` task instead of the `format` to find the rule identifier.
 
