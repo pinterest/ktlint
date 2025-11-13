@@ -45,7 +45,7 @@ abstract class PublicationPlugin : Plugin<Project> {
                     configure<SigningExtension> {
                         isRequired = signingConfigPresent // for more reproducible builds, fail if SNAPSHOT builds are misconfigured too
 
-                        if (useGpgCmd != "false") {
+                        if (useGpgCmd != null && useGpgCmd != "false") {
                             useGpgCmd()
                         }
                     }
