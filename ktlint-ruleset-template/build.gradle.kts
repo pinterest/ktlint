@@ -29,7 +29,7 @@ val ktlint: Configuration by configurations.creating
 // Update the version numbers of dependencies below to the most recent stable versions
 dependencies {
     // Remove when the Gradle task 'ktlintCheck' is not to be added to the project
-    ktlint("com.pinterest.ktlint:ktlint-cli:1.7.1")
+    ktlint("com.pinterest.ktlint:ktlint-cli:1.8.0")
 
     implementation("com.pinterest.ktlint:ktlint-cli-ruleset-core:1.7.1")
     implementation("com.pinterest.ktlint:ktlint-rule-engine-core:1.7.1")
