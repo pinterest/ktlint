@@ -31,7 +31,7 @@ dependencies {
     // Remove when the Gradle task 'ktlintCheck' is not to be added to the project
     ktlint("com.pinterest.ktlint:ktlint-cli:1.7.1")
 
-    implementation("com.pinterest.ktlint:ktlint-cli-ruleset-core:1.7.1")
+    implementation("com.pinterest.ktlint:ktlint-cli-ruleset-core:1.8.0")
     implementation("com.pinterest.ktlint:ktlint-rule-engine-core:1.7.1")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.14.1")
