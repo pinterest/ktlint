@@ -27,3 +27,64 @@ jobs:
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEY }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
+
+      - name: Validate changelog.md
+        id: validate_changelog
+        if: ${{ success() }}
+        run: |
+          FIRST_HEADING2=$(grep "^## " CHANGELOG.md | head -n 1)
+          echo "First heading2 found: $FIRST_HEADING2"
+          if [[ ! "$FIRST_HEADING2" =~ ^##[[:space:]]\[[0-9]+\.[0-9]+\.[0-9]+\][[:space:]]-[[:space:]][0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+            echo "First heading at level 2 should match '## [X.Y.Z] - [YYYY-MM-DD]'"
+            exit 1
+          fi
+
+      - name: Extract release notes
+        id: release_notes
+        if: ${{ success() }}
+        uses: ffurrer2/extract-release-notes@v2
+
+      - name: Get version
+        id: get_version
+        if: ${{ success() }}
+        run: echo "version=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+
+      - name: Create zip for dependency manager(s)
+        if: ${{ success() }}
+        run: |
+          cd ktlint-cli/build/run
+          mkdir -p ktlint-${{ env.version }}/bin
+          cp ktlint ktlint-${{ env.version }}/bin
+          zip -rm ktlint-${{ env.version }}.zip ktlint-${{ env.version }}
+
+      - name: Create release
+        id: github_release
+        if: ${{ success() }}
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          prerelease: false
+          body: ${{ steps.release_notes.outputs.release_notes }}
+          files: |
+            ktlint-cli/build/run/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bump Homebrew Formula
+        if: ${{ success() }}
+        uses: mislav/bump-homebrew-formula-action@v2
+        env:
+          COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TOKEN }}
+        with:
+          formula-name: ktlint
+          formula-path: Formula/k/ktlint.rb
+          download-url: https://github.com/pinterest/ktlint/releases/download/${{ env.version }}/ktlint-${{ env.version }}.zip
+
+      - name: Update Release documentation
+        if: ${{ success() }}
+        run: |
+          git config user.email "ktlint@github.com"
+          git config user.name "Ktlint Release Workflow" |
+          ./.announce -y
+        env:
+          VERSION: ${{ env.version }}
