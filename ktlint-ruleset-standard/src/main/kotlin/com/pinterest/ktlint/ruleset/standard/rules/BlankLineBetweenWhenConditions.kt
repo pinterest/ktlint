@@ -99,7 +99,15 @@ public class BlankLineBetweenWhenConditions :
         children20
             .any { it.elementType == WHEN_ENTRY && (it.textContains('\n') || it.isPrecededByComment()) }
 
-    private fun ASTNode.isPrecededByComment() = prevSibling { !it.isWhiteSpace20 }?.isPartOfComment20 ?: false
+    private fun ASTNode.isPrecededByComment(): Boolean {
+        // Check if this when-entry is preceded by a comment on its own line - not a trailing comment on the previous when-entry
+        val prevNonWhitespace = prevSibling { !it.isWhiteSpace20 }
+        if (prevNonWhitespace?.isPartOfComment20 != true) return false
+
+        // Found a comment before this when-entry, so check whether it's on its own line
+        val whitespaceBeforeComment = prevNonWhitespace.prevSibling { it.isWhiteSpace20 }
+        return whitespaceBeforeComment?.text?.contains('\n') == true
+    }
 
     private fun ASTNode.findWhitespaceAfterPreviousCodeSibling() =
         prevCodeSibling20
