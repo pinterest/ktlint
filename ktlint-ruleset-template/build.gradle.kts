@@ -39,7 +39,7 @@ dependencies {
     // https://docs.gradle.org/8.12/userguide/upgrading_version_8.html#test_framework_implementation_dependencies
     testImplementation("org.junit.platform:junit-platform-launcher:1.14.1")
     testImplementation("org.slf4j:slf4j-simple:2.0.17")
-    testImplementation("com.pinterest.ktlint:ktlint-test:1.7.1")
+    testImplementation("com.pinterest.ktlint:ktlint-test:1.8.0")
 }
 
 tasks.test {
