@@ -32,7 +32,7 @@ dependencies {
     ktlint("com.pinterest.ktlint:ktlint-cli:1.7.1")
 
     implementation("com.pinterest.ktlint:ktlint-cli-ruleset-core:1.7.1")
-    implementation("com.pinterest.ktlint:ktlint-rule-engine-core:1.7.1")
+    implementation("com.pinterest.ktlint:ktlint-rule-engine-core:1.8.0")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.14.1")
     // Since Gradle 8 the platform launcher needs explicitly be defined as runtime dependency to avoid classpath problems
