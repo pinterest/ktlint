@@ -20,11 +20,11 @@
 - **No configuration required**  
  `ktlint` aims to capture the [Kotlin coding conventions](https://kotlinlang.org/docs/reference/coding-conventions.html) and [Android Kotlin Style Guide](https://android.github.io/kotlin-guides/style.html). In some aspects `ktlint` is a bit more strict[*](https://github.com/pinterest/ktlint/issues/284#issuecomment-425177186).
 - **Rule sets**  
-  `ktlint` offers a `standard` rule set. Next to this, it is easy to provide [custom rule sets](api/custom-rule-set/).
+  `ktlint` offers a `standard` rule set. Next to this, it is easy to provide [custom rule sets](api/custom-rule-set.md).
 - **.editorconfig**  
-  Some rules do allow further configuration, but in all cases a reasonable default is set when not provided. `ktlint` primarily uses the [.editorconfig file](rules/configuration-ktlint/) to read default `.editorconfig`, IntelliJ IDEA specific and Ktlint specific properties.
+  Some rules do allow further configuration, but in all cases a reasonable default is set when not provided. `ktlint` primarily uses the [.editorconfig file](rules/configuration-ktlint.md) to read default `.editorconfig`, IntelliJ IDEA specific and Ktlint specific properties.
 - **Disable rules**  
-  If need be, rules can be disabled easily[*](faq/#how-do-i-globally-disable-a-rule).
+  If need be, rules can be disabled easily[*](faq.md#how-do-i-enable-or-disable-a-rule).
 - **Built-in formatter**  
   Most lint violations don't need to be fixed manually. `ktlint` has a built-in formatter which fixes violations when possible. Some violations can not be fixed in a deterministic way, and need manual action.
 - **Customizable output**

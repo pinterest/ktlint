@@ -4,7 +4,7 @@ By adding the plugin definition below to the `<plugins>` section in the `pom.xml
 
 * The `ktlint` task is bound to the *Maven compile* lifecycle and will be executed each time the `mvn compile` is executed. It can also be executed with command `mvn exec:exec@ktlint-format`.
 
-See [cli usage](../cli) for arguments that can be supplied to `ktlint`.
+See [cli usage](cli.md) for arguments that can be supplied to `ktlint`.
 
 ```xml title="Adding plugin to pom.xml"
 ...
@@ -42,7 +42,7 @@ See [cli usage](../cli) for arguments that can be supplied to `ktlint`.
     <dependency>
       <groupId>com.pinterest.ktlint</groupId>
       <artifactId>ktlint-cli</artifactId>
-      <version>1.7.1</version>
+      <version>1.8.0</version>
       <!-- Use fat jar of ktlint-cli -->
       <classifier>all</classifier>
       <type>jar</type>
@@ -103,7 +103,7 @@ configurations {
 }
 
 dependencies {
-    ktlint("com.pinterest.ktlint:ktlint-cli:1.7.1") {
+    ktlint("com.pinterest.ktlint:ktlint-cli:1.8.0") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, getObjects().named(Bundling, Bundling.EXTERNAL))
         }
@@ -154,7 +154,7 @@ The configuration below, defines following task:
 val ktlint by configurations.creating
 
 dependencies {
-    ktlint("com.pinterest.ktlint:ktlint-cli:1.7.1") {
+    ktlint("com.pinterest.ktlint:ktlint-cli:1.8.0") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
         }

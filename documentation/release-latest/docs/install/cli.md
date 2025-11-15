@@ -3,7 +3,7 @@
 
 ## Download and verification
 
-### Download manually from github
+### Download manually from GitHub
 
 All releases of `ktlint` can be downloaded from the [releases](https://github.com/pinterest/ktlint/releases) page.
 
@@ -12,7 +12,7 @@ All releases of `ktlint` can be downloaded from the [releases](https://github.co
 A particular version of `ktlint` can be downloaded with next command which also changes the file to an executable in directory `/usr/local/bin`:
 
 ```sh title="Download"
-curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.7.1/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
+curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.8.0/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
 ```
 
 !!! tip "Curl not installed or behind proxy"
@@ -55,7 +55,7 @@ port install ktlint
 
 ### Rule set(s)
 
-When no arguments are specified, the style of all Kotlin files (ending with '.kt' or '.kts') inside the current dir (recursively) are validated with the rules from the [standard ruleset](../../rules/standard/). Hidden folders will be skipped.
+When no arguments are specified, the style of all Kotlin files (ending with '.kt' or '.kts') inside the current dir (recursively) are validated with the rules from the [standard ruleset](../rules/standard.md). Hidden folders will be skipped.
 
 ```shell title="Default validation with standard ruleset"
 ktlint
@@ -64,7 +64,7 @@ ktlint
 !!! note
     The experimental rules in the standard rule set will only be run when `.editorconfig` property `ktlint_experimental = enabled` is set.
 
-To validate with a [custom ruleset](../../api/custom-rule-set/) run command below:  
+To validate with a [custom ruleset](../api/custom-rule-set.md#running-ktlint-cli-with-the-custom-ruleset) run command below:  
 
 ```shell title="Validation with standard and a custom ruleset"
 ktlint --ruleset=/path/to/custom-ruleset.jar
@@ -132,7 +132,7 @@ By default, the `info` log level is used meaning that all log lines at level `in
 
 ### Rule configuration (`.editorconfig`)
 
-Some rules can be tweaked via the [`editorconfig file`](../../rules/configuration-ktlint/).
+Some rules can be tweaked via the [`editorconfig file`](../rules/configuration-ktlint.md).
 
 A scaffold of the `.editorconfig` file can be generated with command below. Note: that the generated file only contains configuration settings which are actively used by the [rules which are loaded](#rule-sets):
 
@@ -210,6 +210,6 @@ Options `--stdin` and `--patterns-from-stdin` are mutually exclusive, only one o
 
 Microsoft Windows is not able to run the `ktlint` command directly. Ktlint can be run in following ways on Microsoft Windows:
 
-1. Use the `ktlint.bat` batch file provided as part of the [release](https://github.com/pinterest/ktlint/releases/tag/1.7.1). Add the batch file to your `%PATH%` environment variable for easy access
+1. Use the `ktlint.bat` batch file provided as part of the [release](https://github.com/pinterest/ktlint/releases/tag/1.8.0). Add the batch file to your `%PATH%` environment variable for easy access
 2. Run `ktlint` using Git Bash
 3. Run as `java -jar ktlint`

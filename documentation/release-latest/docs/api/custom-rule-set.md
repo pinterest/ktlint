@@ -1,6 +1,6 @@
-You can provide custom rules via a separate ruleset to Ktlint. A ruleset is a JAR containing one or more [Rule](https://github.com/pinterest/ktlint/blob/master/ktlint-rule-engine-core/src/main/kotlin/com/pinterest/ktlint/rule/engine/core/api/Rule.kt)s.
+You can provide custom rules via a separate ruleset to Ktlint. A ruleset is a JAR containing one or more [Rule](https://github.com/pinterest/ktlint/blob/master/ktlint-rule-engine-core/src/main/kotlin/com/pinterest/ktlint/rule/engine/core/api/Rule.kt)s. 
 
-A complete sample project is included in this repo under the [ktlint-ruleset-template](https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-template) directory. This directory can be cloned, and used as a starting point for a new project containing your custom ruleset.
+ A complete sample project is included in this repo under the [ktlint-ruleset-template](https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-template) directory. This directory can be cloned, and used as a starting point for a new project containing your custom ruleset.
 
 ## ktlint-ruleset-template
 
@@ -13,7 +13,7 @@ The [Gradle build file](https://github.com/pinterest/ktlint/blob/master/ktlint-r
 
 ### Rule
 
-The Rule contains the logic for linting and formatting the code. For example, see [NoVarRuleTest](https://github.com/pinterest/ktlint/blob/master/ktlint-ruleset-template/src/main/kotlin/yourpkgname/NoVarRule.kt).
+The Rule contains the logic for linting and formatting the code. For example, see [NoVarRuleTest](https://github.com/pinterest/ktlint/blob/master/ktlint-ruleset-template/src/main/kotlin/yourpkgname/NoVarRule.kt). 
 
 A rule has to implement one or more of hooks below:
 
@@ -23,7 +23,7 @@ A rule has to implement one or more of hooks below:
 * `Rule.afterLastNode`
 
 !!! Tip
-See `ktlint-ruleset-standard` for examples of rules that implement the hooks above.
+    See `ktlint-ruleset-standard` for examples of rules that implement the hooks above.
 
 Upon traversal of the Abstract Syntax Tree (AST), the hooks of the Rule are visited as indicated by their names. The [Jetbrains PsiViewer plugin for IntelliJ IDEA](https://plugins.jetbrains.com/plugin/227-psiviewer) is a convenient tool to inspect the AST for any piece of code.
 
@@ -96,4 +96,4 @@ $ ktlint -R build/libs/ktlint-ruleset-template.jar --log-level=debug --relative 
 ```
 
 !!! tip
-Multiple custom rule sets can be loaded at the same time.
+    Multiple custom rule sets can be loaded at the same time.

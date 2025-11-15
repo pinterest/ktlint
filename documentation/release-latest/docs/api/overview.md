@@ -2,7 +2,7 @@ Ktlint has an open API with which you can integrate.
 
 The diagram below show the internal module structure of KtLint.
 
-![Image](../../assets/images/module-dependencies.png)
+![Image](../assets/images/module-dependencies.png)
 
 The `Ktlint Rule Engine` is by far the most important module. It is responsible for executing the linting and formatting of the source code. The Rule Engine itself does not contain any rules. Rules are provided by API Consumers.
 
