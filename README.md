@@ -7,7 +7,7 @@
 <p align="center">
 <a href="https://kotlinlang.slack.com/messages/CKS3XG0LS"><img src="https://img.shields.io/badge/slack-@kotlinlang/ktlint-yellow.svg?logo=slack" alt="Join the chat at https://kotlinlang.slack.com"/></a>
 <a href="https://github.com/pinterest/ktlint/actions/workflows/publish-snapshot-build.yml"><img src="https://github.com/pinterest/ktlint/actions/workflows/publish-snapshot-build.yml/badge.svg" alt="Build status"></a>
-<a href="https://search.maven.org/artifact/com.pinterest.ktlint/ktlint-cli"><img src="https://img.shields.io/maven-central/v/com.pinterest.ktlint/ktlint-cli.svg" alt="Maven Central"></a>
+<a href="https://central.sonatype.com/artifact/com.pinterest.ktlint/ktlint-cli?smo=true"><img src="https://img.shields.io/maven-central/v/com.pinterest.ktlint/ktlint-cli.svg" alt="Maven Central"></a>
 <a href="https://jitpack.io/#pinterest/ktlint"><img src="https://jitpack.io/v/pinterest/ktlint.svg" alt="JitPack"></a>
 <a href="https://formulae.brew.sh/formula/ktlint"><img src="https://img.shields.io/homebrew/v/ktlint.svg" alt="HomeBrew"></a>
 <a href="LICENSE"><img src="https://img.shields.io/github/license/pinterest/ktlint.svg" alt="License"></a>
