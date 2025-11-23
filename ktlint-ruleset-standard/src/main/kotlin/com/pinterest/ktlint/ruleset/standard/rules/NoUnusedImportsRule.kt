@@ -37,11 +37,11 @@ import org.jetbrains.kotlin.psi.KtPackageDirective
 import org.jetbrains.kotlin.resolve.ImportPath
 
 @SinceKtlint("0.2", STABLE)
-@Deprecated(
-    "Marked for removal in Ktlint 2.0.0. When the rule marks an import falsely as unused, it results in code that can not be compiled.",
-)
 public class NoUnusedImportsRule :
     StandardRule("no-unused-imports"),
+    // This rule is an opt-in rule as occasionally an import is falsely marked as unused, and after removal results in code that cannot be
+    // compiled. Upon request of the community (https://github.com/pinterest/ktlint/issues/3038) the rule will not be removed, but kept as
+    // an opt-in rule.
     OnlyWhenEnabledInEditorconfig,
     // Prevent that imports which are only used inside code that is suppressed are (falsely) reported as unused.
     IgnoreKtlintSuppressions {
