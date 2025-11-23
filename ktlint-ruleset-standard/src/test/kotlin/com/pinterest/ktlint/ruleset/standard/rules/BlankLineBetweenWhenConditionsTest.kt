@@ -24,6 +24,20 @@ class BlankLineBetweenWhenConditionsTest {
     }
 
     @Test
+    fun `Given a when-statement with single line when-conditions and trailing comment then do no reformat`() {
+        val code =
+            """
+            val foo =
+                when (bar) {
+                    BAR1 -> "bar1" // Some comment
+                    BAR2 -> "bar2"
+                    else -> null
+                }
+            """.trimIndent()
+        blankLineAfterWhenConditionRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
     fun `Given a when-statement with single line when-conditions only which are separated by a blank line then remove the blank lines`() {
         val code =
             """
