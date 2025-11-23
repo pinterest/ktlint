@@ -7,7 +7,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
-public class NoVarRule :
+class NoVarRule :
     Rule(
         ruleId = RuleId("$CUSTOM_RULE_SET_ID:no-var"),
         about =
