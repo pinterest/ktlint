@@ -6,6 +6,7 @@ on:
   push:
     branches: [master]
     paths: ['**/*.kt', '**/*.kts', '**/*.properties', '**/*.toml']
+  workflow_dispatch:
 
 env:
   ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.CENTRAL_PORTAL_USERNAME }}
@@ -18,13 +19,54 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     if: github.repository == 'pinterest/ktlint'
+    concurrency:
+      group: publish-snapshot
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - uses: ./.github/actions/setup-gradle-build
 
-      - name: Publish snapshot to Maven
-        run: ./gradlew clean publishMavenPublicationToMavenCentralRepository
+      - name: Publish snapshot to Maven (with retries, no parallel uploads)
+        run: |
+          set -euo pipefail
 
-      - name: Publish Kotlin-dev snapshot to Maven
-        run: ./gradlew -PkotlinDev clean publishMavenPublicationToMavenCentralRepository
+          retry() {
+            max_attempts=6
+            base_delay=5
+            for i in $(seq 1 $max_attempts); do
+              echo "Publish attempt $i/$max_attempts"
+              ./gradlew clean publishMavenPublicationToMavenCentralRepository --no-parallel -Dorg.gradle.workers.max=1 && return 0
+              if [ "$i" -eq "$max_attempts" ]; then
+                echo "Publish failed after $i attempts"
+                return 1
+              fi
+              sleep_time=$(( base_delay * 2 ** (i - 1) + (RANDOM % 5) ))
+              echo "Sleeping $sleep_time seconds before next attempt"
+              sleep $sleep_time
+            done
+          }
+
+          retry
+
+      - name: Publish Kotlin-dev snapshot to Maven (with retries, no parallel uploads)
+        run: |
+          set -euo pipefail
+
+          retry() {
+            max_attempts=6
+            base_delay=5
+            for i in $(seq 1 $max_attempts); do
+              echo "Publish (kotlin-dev) attempt $i/$max_attempts"
+              ./gradlew -PkotlinDev clean publishMavenPublicationToMavenCentralRepository --no-parallel -Dorg.gradle.workers.max=1 && return 0
+              if [ "$i" -eq "$max_attempts" ]; then
+                echo "Publish (kotlin-dev) failed after $i attempts"
+                return 1
+              fi
+              sleep_time=$(( base_delay * 2 ** (i - 1) + (RANDOM % 5) ))
+              echo "Sleeping $sleep_time seconds before next attempt"
+              sleep $sleep_time
+            done
+          }
+
+          retry
