@@ -6451,10 +6451,11 @@ Access modifiers are ignored. Strictly speaking, one could argue that private de
 <h2 id="no-unused-imports">No unused imports<a class="headerlink" href="#no-unused-imports" title="Permanent link">&para;</a></h2>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>Starting from KtLint <code>1.7.0</code> this rule no longer runs by default. In some cases the rule marks imports as unused, while after removal of the import the code no longer compiles. This rule will be removed in KtLint <code>2.0</code>. See <a href="https://github.com/pinterest/ktlint/issues/3038">issue</a> for more background. 
-If you insist on running the rule despite its shortcomings, you need to enable the rule in the <code>.editorconfig</code> by adding:
+<p>Starting from KtLint <code>1.7.0</code> this rule no longer runs by default. In some cases the rule marks imports as unused, while after removal of the import the code no longer compiles.
+If you insist on running the rule despite its <a href="https://github.com/pinterest/ktlint/issues/3038">shortcomings</a>, you need to enable the rule in the <code>.editorconfig</code> by adding:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-233-1" name="__codelineno-233-1" href="#__codelineno-233-1"></a>ktlint_standard_no-unused-imports = enabled
-</code></pre></div></p>
+</code></pre></div>
+Newly reported shortcomings to this rule are not guaranteed to be fixed by maintainers of KtLint.</p>
 </div>
 <p>Rule id: <code>standard:no-unused-imports</code></p>
 <p class="annotate">Suppress or disable rule (1)</p>
