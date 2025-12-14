@@ -1,6 +1,6 @@
 You can provide custom rules via a separate ruleset to Ktlint. A ruleset is a JAR containing one or more [Rule](https://github.com/pinterest/ktlint/blob/master/ktlint-rule-engine-core/src/main/kotlin/com/pinterest/ktlint/rule/engine/core/api/Rule.kt)s. 
 
-See presentation [How to build a custom ruleset](../assets/Ktlint%20-%20building%20a%20custom%20ruleset%20.pdf) as starting point to build your custom ruleset. Or, directly clone the sample project is included in this repo under the [ktlint-ruleset-template](https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-template) directory.
+ See presentation [How to build a custom ruleset](../assets/Ktlint%20-%20building%20a%20custom%20ruleset%20.pdf) as starting point to build your custom ruleset. Or, directly clone the sample project is included in this repo under the [ktlint-ruleset-template](https://github.com/pinterest/ktlint/tree/master/ktlint-ruleset-template) directory.
 
 ## ktlint-ruleset-template
 
