@@ -5,7 +5,7 @@ permissions:
 on:
   push:
     tags:
-      - '*.*.*'
+      - '1.7.2'
 
 jobs:
   publish:
@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
-          ref: 'master'
+          ref: 'master-1.7.2'
 
       - uses: ./.github/actions/setup-gradle-build
 
@@ -70,21 +70,21 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Bump Homebrew Formula
-        if: ${{ success() }}
-        uses: mislav/bump-homebrew-formula-action@v2
-        env:
-          COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TOKEN }}
-        with:
-          formula-name: ktlint
-          formula-path: Formula/k/ktlint.rb
-          download-url: https://github.com/pinterest/ktlint/releases/download/${{ env.version }}/ktlint-${{ env.version }}.zip
+#      - name: Bump Homebrew Formula
+#        if: ${{ success() }}
+#        uses: mislav/bump-homebrew-formula-action@v2
+#        env:
+#          COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TOKEN }}
+#        with:
+#          formula-name: ktlint
+#          formula-path: Formula/k/ktlint.rb
+#          download-url: https://github.com/pinterest/ktlint/releases/download/${{ env.version }}/ktlint-${{ env.version }}.zip
 
-      - name: Update Release documentation
-        if: ${{ success() }}
-        run: |
-          git config user.email "ktlint@github.com"
-          git config user.name "Ktlint Release Workflow" |
-          ./.announce -y
-        env:
-          VERSION: ${{ env.version }}
+#      - name: Update Release documentation
+#        if: ${{ success() }}
+#        run: |
+#          git config user.email "ktlint@github.com"
+#          git config user.name "Ktlint Release Workflow" |
+#          ./.announce -y
+#        env:
+#          VERSION: ${{ env.version }}
