@@ -2,6 +2,18 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.7.2] - 2025-12-14
+
+### 🆕 Features
+
+* Set languageVersion to KOTLIN_2_0 to ensure metadata compatibility with Kotlin 2.0 - [#3110](https://github.com/pinterest/ktlint/pull/3110), by @hugoncosta
+
+### 💬 Other
+
+* Validate @SinceKtlint annotations with test and uniformize existing rules - [#3101](https://github.com/pinterest/ktlint/pull/3101), by @hugoncosta
+
+* Fix snapshot repository location - [#3106](https://github.com/pinterest/ktlint/pull/3106), by @paul-dingemans
+
 ## [1.7.1] - 2025-07-21
 
 ### 🔧 Fixes
@@ -2815,6 +2827,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[1.7.2]: https://github.com/pinterest/ktlint/compare/1.7.2...1.7.1
 [1.7.1]: https://github.com/pinterest/ktlint/compare/1.7.1...1.7.0
 [1.7.0]: https://github.com/pinterest/ktlint/compare/1.7.0...1.6.0
 [1.6.0]: https://github.com/pinterest/ktlint/compare/1.6.0...1.5.0
