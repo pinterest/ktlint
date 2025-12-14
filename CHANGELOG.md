@@ -4,11 +4,11 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [1.7.2] - 2025-12-14
 
-### 🆕 Features
+This is a special release of ktlint to fix a [backward compatibility issue in the Ktlint Intellij Plugin](https://github.com/nbadal/ktlint-intellij-plugin/issues/767) version `0.30.0` and above. If you have already upgraded to ktlint `1.8.0` then please ignore this release. If you are using `1.7.0` or `1.7.0` then please upgrade if you also use the [Ktlint Intellij Plugin](https://plugins.jetbrains.com/plugin/15057-ktlint/edit).
+
+### 🔧 Fixes
 
 * Set languageVersion to KOTLIN_2_0 to ensure metadata compatibility with Kotlin 2.0 - [#3110](https://github.com/pinterest/ktlint/pull/3110), by @hugoncosta
-
-### 💬 Other
 
 * Validate @SinceKtlint annotations with test and uniformize existing rules - [#3101](https://github.com/pinterest/ktlint/pull/3101), by @hugoncosta
 
