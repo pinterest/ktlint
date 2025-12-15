@@ -15,11 +15,11 @@ jobs:
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
-          ref: 'master-1.7.2'
+          ref: 'master-1.7.x'
 
       - uses: ./.github/actions/setup-gradle-build
 
-      - name: Build executable and publish to Maven
+      - name: Build executable and publish to Maven - from master workflow on master-1.7.x branch
         run: ./gradlew clean ktlintCliFiles publishMavenPublicationToMavenCentralRepository
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.CENTRAL_PORTAL_USERNAME }}
