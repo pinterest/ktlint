@@ -19,7 +19,7 @@ jobs:
 
       - uses: ./.github/actions/setup-gradle-build
 
-      - name: Build executable and publish to Maven
+      - name: Build executable and publish to Maven from master-1.7.x branch
         run: ./gradlew clean ktlintCliFiles publishMavenPublicationToMavenCentralRepository
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.CENTRAL_PORTAL_USERNAME }}
