@@ -22,3 +22,32 @@ Note: These steps should be done directly in the pinterest/ktlint repository, no
 13. Verify that the published documentation does not contain broken links with [Broken Link Checker Tool](https://www.deadlinkchecker.com/website-dead-link-checker.asp).
 14. Announce release on Ktlint Slack channel but wait with doing so until sonatype release is closed by Pinterest.
 15. Update `gradle.properties` with the new `SNAPSHOT` version
+
+## Creating a patch release for an older minor version
+
+Sometimes it can happen that after a minor release, it is required to release a patch version on an older minor version as well. For example after releasing ktlint `1.8.0` and Ktlint IntelliJ Plugin `0.30.x` it turned out that starting from that version the `1.7.0` and `1.7.1` are no longer compatible with the plugin version `0.30` and above. This is blocking issue for users who can not upgrade from ktlint `1.7.x` to `1.8.x` or higher.
+
+For problem above, the following steps resulted in a new `1.7.2` release being published on Maven after `1.8.0` was released:
+* Create branch `master-1.7.x` from tag `1.7.1`
+  * Via cherry-picking add commits to the branch that need to be published in the `1.7.2` release.
+  * Push the branch. Do not create a merge request as this branch is not going to be merged into master.
+* On normal `master` branch change the `publish-release-build.yml` file as follows:
+  * Restrict the tag that is accepted for this release:
+    ```yaml
+    on:
+      push:
+        tags:
+          - '1.7.2'
+    ```
+  * Change the reference in the `actions/checkout`:
+    ```yaml
+      - uses: actions/checkout
+        with:
+          ref: 'master-1.7.x'
+    ```
+  * Comment out all steps (except publication to Maven Central).
+  * Push the branch, and merge to master.
+  * Like normal, add a tag with the new release version, and push it directly to remote (e.g. `git tag 1.7.2 && git push origin 1.7.2`). This will kick off the [Release workflow](https://github.com/pinterest/ktlint/actions/workflows/publish-release-build.yml). Important: when you get an error like `HttpError: refusing to allow a Personal Access Token to create or update workflow '.github/workflows/automerge-triggers.yml' without 'workflow' scope`, the GitHub personal access token is most likely expired. When this happens on the bump of the Homebrew formula, the personal access token of @shashachu needs to be updated.
+  * Close and release the repo on Sonatype. Only Pinterest employees can do this. Wait with steps below until artifacts are published on https://central.sonatype.com/search?q=com.pinterest.ktlint&sort=published
+  * Revert the changes in `publish-release-build.yml`. Push the branch, and merge to master.
+
