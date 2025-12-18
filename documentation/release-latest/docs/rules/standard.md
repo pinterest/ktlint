@@ -3930,7 +3930,7 @@ Suppress or disable rule (1)
     ```
 
 !!! Note
-This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
+    This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
 
 ### Type argument list spacing
 
