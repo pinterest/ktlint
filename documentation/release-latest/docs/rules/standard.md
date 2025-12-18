@@ -1749,7 +1749,7 @@ This rule is suppressed whenever the IntelliJ IDEA inspection suppression `Prope
 | `ktlint_property_naming_constant_naming`<br/><i>The naming style ('screaming_snake_case', or 'pascal_case') to be applied on constant properties.</i> | `screaming_snake_case` | `screaming_snake_case` | `screaming_snake_case` |
 
 !!! note
-    When using Compose, you might want to configure the `ktlint_property_naming_constant_naming-naming` rule with `.editorconfig` property `ktlint_property_naming_constant_naming = pascal_case`.
+    When using Compose, you might want to configure the `property-naming` rule with `.editorconfig` property `ktlint_property_naming_constant_naming = pascal_case`.
 
 Rule id: `standard:property-naming`
 
