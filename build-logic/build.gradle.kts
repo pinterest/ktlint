@@ -27,8 +27,7 @@ kotlin {
 
     compilerOptions {
         // Match language version enforced by current Gradle version https://docs.gradle.org/current/userguide/compatibility.html#kotlin
-        @Suppress("DEPRECATION")
-        apiVersion.set(KotlinVersion.KOTLIN_1_8)
+        apiVersion.set(KotlinVersion.KOTLIN_2_2)
     }
 }
 
