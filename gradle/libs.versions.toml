@@ -18,7 +18,7 @@ kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.
 kotlin-plugin-dev = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlinDev" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 gradle-maven-publish-plugin = "com.vanniktech:gradle-maven-publish-plugin:0.35.0"
-clikt = "com.github.ajalt.clikt:clikt:5.0.3"
+clikt = "com.github.ajalt.clikt:clikt:5.1.0"
 dokka = "org.jetbrains.dokka:dokka-gradle-plugin:2.1.0"
 ec4j = "org.ec4j.core:ec4j-core:1.2.0"
 logging = "io.github.oshai:kotlin-logging-jvm:7.0.14"
