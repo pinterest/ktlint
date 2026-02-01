@@ -1,5 +1,7 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     `java-gradle-plugin`
@@ -36,6 +38,23 @@ tasks.withType<KotlinCompile>().configureEach {
     compilerOptions {
         freeCompilerArgs.add("-Xsuppress-version-warnings") // ignores deprecated kotlin language version
     }
+}
+
+// Override java target for build-logic, to the latest version supported by gradle-kotlin-dsl (https://plugins.gradle.org/plugin/org.gradle.kotlin.kotlin-dsl)
+// plugin. Note that this plugin usually lags behind with the latest Java versions.
+val buildLogicJavaTarget =
+    JvmTarget
+        .entries
+        .filterNot { it == JvmTarget.JVM_1_8 }
+        .maxBy { it.target.toInt() }
+        .also {
+            logger.lifecycle("Set build logic Java Target: $it")
+        }
+tasks.withType<KotlinJvmCompile>().configureEach {
+    compilerOptions.jvmTarget.set(buildLogicJavaTarget)
+}
+tasks.withType<JavaCompile>().configureEach {
+    options.release.set(buildLogicJavaTarget.target.toInt())
 }
 
 gradlePlugin {
