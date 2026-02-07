@@ -358,4 +358,39 @@ class SpacingAroundParensRuleTest {
                 LintViolation(12, 15, "Unexpected spacing after \"(\""),
             ).isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Issue 3227 - Given an EOL comment before RPAR then do not remove the newline`() {
+        val code =
+            """
+            fun main() {
+                1.plus(1 // test
+                ).plus(2 // test2
+                ).plus(42)
+            }
+            """.trimIndent()
+        spacingAroundParensRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a function call with multiple arguments and an EOL comment on the last one then do not remove the newline before RPAR`() {
+        val code =
+            """
+            val foo = fn(
+                1, 2 // comment
+            )
+            """.trimIndent()
+        spacingAroundParensRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a function call with an EOL comment immediately after LPAR then do not remove the newline after it`() {
+        val code =
+            """
+            val foo = fn( // comment
+                1
+            )
+            """.trimIndent()
+        spacingAroundParensRuleAssertThat(code).hasNoLintViolations()
+    }
 }
