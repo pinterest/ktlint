@@ -47,7 +47,7 @@ tasks.test {
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(25)
 }
 
 // Remove when this custom ruleset is not to be published to maven
