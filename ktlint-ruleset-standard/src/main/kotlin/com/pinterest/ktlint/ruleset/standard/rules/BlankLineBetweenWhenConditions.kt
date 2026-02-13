@@ -3,7 +3,6 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN_ENTRY
-import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
@@ -39,8 +38,7 @@ public class BlankLineBetweenWhenConditions :
     StandardRule(
         id = "blank-line-between-when-conditions",
         usesEditorConfigProperties = setOf(LINE_BREAK_AFTER_WHEN_CONDITION_PROPERTY),
-    ),
-    RuleAutocorrectApproveHandler {
+    ) {
     private var lineBreakAfterWhenCondition = LINE_BREAK_AFTER_WHEN_CONDITION_PROPERTY.defaultValue
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {

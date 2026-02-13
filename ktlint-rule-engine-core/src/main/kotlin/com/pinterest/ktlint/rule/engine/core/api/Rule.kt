@@ -98,48 +98,31 @@ public open class Rule(
      */
     public open fun beforeFirstNode(editorConfig: EditorConfig) {}
 
-    /**
-     * This method is called on a node in AST before visiting the child nodes. This is repeated recursively for the
-     * child nodes resulting in a depth first traversal of the AST.
-     *
-     * When a rule overrides this method, it only supports linting and formatting of an entire file. All violations which are found are
-     * being emitted. The rule can not support manual autocorrect of a specific single violation in the intellij-ktlint-plugin in case that
-     * files contains multiple violations caused by the same, or by different rules.
-     *
-     * IMPORTANT: This method will *not* be called in case the rule implements the [RuleAutocorrectApproveHandler] interface!
-     *
-     * @param node AST node
-     * @param autoCorrect indicates whether rule should attempt autocorrection
-     * @param emit a way for rule to notify about a violation (lint error)
-     */
-    @Deprecated(message = "Marked for removal in Ktlint 2.0. Please implement interface RuleAutocorrectApproveHandler.")
+    @Deprecated(
+        message = "Rules implementing this method are not supported by Ktlint 2.x. Implement the RuleAutocorrectApproveHandler instead",
+        level = DeprecationLevel.ERROR,
+    )
     public open fun beforeVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-    ) {
-    }
+    ): Unit =
+        throw UnsupportedOperationException(
+            "Ktlint 2.x does not support rules that have not correctly implemented the RuleAutocorrectApproveHandler",
+        )
 
-    /**
-     * This method is called on a node in AST after all its child nodes have been visited.
-     *
-     * When a rule overrides this method, it only supports linting and formatting of an entire file. All violations which are found are
-     * being emitted. The rule can not support manual autocorrect of a specific single violation in the intellij-ktlint-plugin in case that
-     * files contains multiple violations caused by the same, or by different rules.
-     *
-     * IMPORTANT: This method will *not* be called in case the rule implements the [RuleAutocorrectApproveHandler] interface!
-     *
-     * @param node AST node
-     * @param autoCorrect indicates whether rule should attempt autocorrection
-     * @param emit a way for rule to notify about a violation (lint error)
-     */
-    @Deprecated(message = "Marked for removal in Ktlint 2.0. Please implement interface RuleAutocorrectApproveHandler.")
+    @Deprecated(
+        message = "Rules implementing this method are not supported by Ktlint 2.x. Implement the RuleAutocorrectApproveHandler instead",
+        level = DeprecationLevel.ERROR,
+    )
     public open fun afterVisitChildNodes(
         node: ASTNode,
         autoCorrect: Boolean,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-    ) {
-    }
+    ): Unit =
+        throw UnsupportedOperationException(
+            "Ktlint 2.x does not support rules that have not correctly implemented the RuleAutocorrectApproveHandler",
+        )
 
     /**
      * This method is called once after the last node in the AST is visited. It can be used for teardown of the state

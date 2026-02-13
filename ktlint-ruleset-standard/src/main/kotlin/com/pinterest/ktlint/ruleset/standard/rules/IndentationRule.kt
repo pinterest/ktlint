@@ -85,7 +85,6 @@ import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.IndentStyle.SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.IndentStyle.TAB
 import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
-import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
@@ -166,8 +165,7 @@ public class IndentationRule :
                 INDENT_STYLE_PROPERTY,
                 INDENT_WHEN_ARROW_ON_NEW_LINE,
             ),
-    ),
-    RuleAutocorrectApproveHandler {
+    ) {
     private var codeStyle = CODE_STYLE_PROPERTY.defaultValue
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
     private var indentWhenArrowOnNewLine = INDENT_WHEN_ARROW_ON_NEW_LINE.defaultValue

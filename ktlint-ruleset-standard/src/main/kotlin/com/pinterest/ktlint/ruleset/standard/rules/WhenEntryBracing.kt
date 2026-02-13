@@ -8,7 +8,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.KtlintKotlinCompiler
 import com.pinterest.ktlint.rule.engine.core.api.Rule
-import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
@@ -47,7 +46,6 @@ public class WhenEntryBracing :
                 INDENT_STYLE_PROPERTY,
             ),
     ),
-    RuleAutocorrectApproveHandler,
     Rule.OfficialCodeStyle {
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 

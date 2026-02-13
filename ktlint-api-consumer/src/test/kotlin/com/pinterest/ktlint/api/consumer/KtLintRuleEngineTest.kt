@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.api.consumer
 
 import com.pinterest.ktlint.api.consumer.KtLintRuleEngineTest.RuleWithAutocorrectApproveHandler.Companion.RULE_WITH_AUTOCORRECT_APPROVE_HANDLER
-import com.pinterest.ktlint.api.consumer.KtLintRuleEngineTest.RuleWithoutAutocorrectApproveHandler.Companion.RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER
 import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
@@ -24,6 +23,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.INDENTATION_RULE_ID
 import com.pinterest.ktlint.ruleset.standard.rules.IndentationRule
 import com.pinterest.ktlint.test.KtlintTestFileSystem
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
@@ -46,11 +46,9 @@ class KtLintRuleEngineTest {
                 setOf(
                     RuleProvider { IndentationRule() },
                     RuleProvider { RuleWithAutocorrectApproveHandler() },
-                    RuleProvider { RuleWithoutAutocorrectApproveHandler() },
                 ),
             editorConfigOverride =
                 EditorConfigOverride.from(
-                    RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled,
                     RULE_WITH_AUTOCORRECT_APPROVE_HANDLER.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled,
                 ),
             fileSystem = ktlintTestFileSystem.fileSystem,
@@ -86,7 +84,6 @@ class KtLintRuleEngineTest {
             ) { lintErrors.add(it) }
 
             assertThat(lintErrors).containsExactlyInAnyOrder(
-                LintError(2, 5, RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER, "Foo comment without autocorrect approve handler", true),
                 LintError(3, 5, RULE_WITH_AUTOCORRECT_APPROVE_HANDLER, "Bar comment with autocorrect approve handler", true),
                 LintError(4, 1, INDENTATION_RULE_ID, "Unexpected indentation (4) (should be 0)", true),
             )
@@ -108,7 +105,6 @@ class KtLintRuleEngineTest {
             ) { lintErrors.add(it) }
 
             assertThat(lintErrors).containsExactlyInAnyOrder(
-                LintError(2, 5, RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER, "Foo comment without autocorrect approve handler", true),
                 LintError(3, 5, RULE_WITH_AUTOCORRECT_APPROVE_HANDLER, "Bar comment with autocorrect approve handler", true),
                 LintError(4, 1, INDENTATION_RULE_ID, "Unexpected indentation (4) (should be 0)", true),
             )
@@ -131,7 +127,6 @@ class KtLintRuleEngineTest {
             ) { lintErrors.add(it) }
 
             assertThat(lintErrors).containsExactlyInAnyOrder(
-                LintError(2, 5, RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER, "Foo comment without autocorrect approve handler", true),
                 LintError(3, 5, RULE_WITH_AUTOCORRECT_APPROVE_HANDLER, "Bar comment with autocorrect approve handler", true),
                 LintError(4, 1, INDENTATION_RULE_ID, "Unexpected indentation (4) (should be 0)", true),
             )
@@ -173,7 +168,6 @@ class KtLintRuleEngineTest {
                 it.write(
                     """
                     fun bar() {
-                        // foo
                         // bar
                         }
                     """.trimIndent(),
@@ -188,14 +182,12 @@ class KtLintRuleEngineTest {
                 ) { lintError, _ -> lintErrors.add(lintError) }
 
             assertThat(lintErrors).containsExactlyInAnyOrder(
-                LintError(2, 5, RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER, "Foo comment without autocorrect approve handler", true),
-                LintError(3, 5, RULE_WITH_AUTOCORRECT_APPROVE_HANDLER, "Bar comment with autocorrect approve handler", true),
-                LintError(4, 1, INDENTATION_RULE_ID, "Unexpected indentation (4) (should be 0)", true),
+                LintError(2, 5, RULE_WITH_AUTOCORRECT_APPROVE_HANDLER, "Bar comment with autocorrect approve handler", true),
+                LintError(3, 1, INDENTATION_RULE_ID, "Unexpected indentation (4) (should be 0)", true),
             )
             assertThat(actual).isEqualTo(
                 """
                 fun bar() {
-                    // FOO
                     // BAR
                 }
                 """.trimIndent(),
@@ -212,7 +204,6 @@ class KtLintRuleEngineTest {
                         Code.fromSnippet(
                             """
                             fun bar() {
-                                // foo
                                 // bar
                                 }
                             """.trimIndent(),
@@ -220,14 +211,12 @@ class KtLintRuleEngineTest {
                 ) { lintError, _ -> lintErrors.add(lintError) }
 
             assertThat(lintErrors).containsExactlyInAnyOrder(
-                LintError(2, 5, RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER, "Foo comment without autocorrect approve handler", true),
-                LintError(3, 5, RULE_WITH_AUTOCORRECT_APPROVE_HANDLER, "Bar comment with autocorrect approve handler", true),
-                LintError(4, 1, INDENTATION_RULE_ID, "Unexpected indentation (4) (should be 0)", true),
+                LintError(2, 5, RULE_WITH_AUTOCORRECT_APPROVE_HANDLER, "Bar comment with autocorrect approve handler", true),
+                LintError(3, 1, INDENTATION_RULE_ID, "Unexpected indentation (4) (should be 0)", true),
             )
             assertThat(actual).isEqualTo(
                 """
                 fun bar() {
-                    // FOO
                     // BAR
                 }
                 """.trimIndent(),
@@ -244,7 +233,6 @@ class KtLintRuleEngineTest {
                         Code.fromSnippet(
                             """
                             plugins {
-                                // foo
                                 // bar
                                 }
                             """.trimIndent(),
@@ -253,14 +241,12 @@ class KtLintRuleEngineTest {
                 ) { lintError, _ -> lintErrors.add(lintError) }
 
             assertThat(lintErrors).containsExactlyInAnyOrder(
-                LintError(2, 5, RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER, "Foo comment without autocorrect approve handler", true),
-                LintError(3, 5, RULE_WITH_AUTOCORRECT_APPROVE_HANDLER, "Bar comment with autocorrect approve handler", true),
-                LintError(4, 1, INDENTATION_RULE_ID, "Unexpected indentation (4) (should be 0)", true),
+                LintError(2, 5, RULE_WITH_AUTOCORRECT_APPROVE_HANDLER, "Bar comment with autocorrect approve handler", true),
+                LintError(3, 1, INDENTATION_RULE_ID, "Unexpected indentation (4) (should be 0)", true),
             )
             assertThat(actual).isEqualTo(
                 """
                 plugins {
-                    // FOO
                     // BAR
                 }
                 """.trimIndent(),
@@ -282,7 +268,6 @@ class KtLintRuleEngineTest {
                     it.write(
                         """
                         fun bar() {
-                            // foo
                             // bar
                             }
                         """.trimIndent(),
@@ -299,14 +284,12 @@ class KtLintRuleEngineTest {
                     }
 
                 assertThat(lintErrors).containsExactlyInAnyOrder(
-                    LintError(2, 5, RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER, "Foo comment without autocorrect approve handler", true),
-                    LintError(3, 5, RULE_WITH_AUTOCORRECT_APPROVE_HANDLER, "Bar comment with autocorrect approve handler", true),
-                    LintError(4, 1, INDENTATION_RULE_ID, "Unexpected indentation (4) (should be 0)", true),
+                    LintError(2, 5, RULE_WITH_AUTOCORRECT_APPROVE_HANDLER, "Bar comment with autocorrect approve handler", true),
+                    LintError(3, 1, INDENTATION_RULE_ID, "Unexpected indentation (4) (should be 0)", true),
                 )
                 assertThat(actual).isEqualTo(
                     """
                     fun bar() {
-                        // FOO
                         // BAR
                     }
                     """.trimIndent(),
@@ -323,7 +306,6 @@ class KtLintRuleEngineTest {
                     it.write(
                         """
                         fun bar() {
-                            // foo
                             // bar
                             }
                         """.trimIndent(),
@@ -341,14 +323,12 @@ class KtLintRuleEngineTest {
                     }
 
                 assertThat(lintErrors).containsExactlyInAnyOrder(
-                    LintError(2, 5, RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER, "Foo comment without autocorrect approve handler", true),
-                    LintError(3, 5, RULE_WITH_AUTOCORRECT_APPROVE_HANDLER, "Bar comment with autocorrect approve handler", true),
-                    LintError(4, 1, INDENTATION_RULE_ID, "Unexpected indentation (4) (should be 0)", true),
+                    LintError(2, 5, RULE_WITH_AUTOCORRECT_APPROVE_HANDLER, "Bar comment with autocorrect approve handler", true),
+                    LintError(3, 1, INDENTATION_RULE_ID, "Unexpected indentation (4) (should be 0)", true),
                 )
                 assertThat(actual).isEqualTo(
                     """
                     fun bar() {
-                        // FOO
                         // BAR
                     }
                     """.trimIndent(),
@@ -383,7 +363,6 @@ class KtLintRuleEngineTest {
                     }
 
                 assertThat(lintErrors).containsExactlyInAnyOrder(
-                    LintError(2, 5, RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER, "Foo comment without autocorrect approve handler", true),
                     LintError(3, 5, RULE_WITH_AUTOCORRECT_APPROVE_HANDLER, "Bar comment with autocorrect approve handler", true),
                     LintError(4, 1, INDENTATION_RULE_ID, "Unexpected indentation (4) (should be 0)", true),
                 )
@@ -411,7 +390,6 @@ class KtLintRuleEngineTest {
                             Code.fromSnippet(
                                 """
                                 fun bar() {
-                                    // foo
                                     // bar
                                     }
                                 """.trimIndent(),
@@ -422,14 +400,12 @@ class KtLintRuleEngineTest {
                     }
 
                 assertThat(lintErrors).containsExactlyInAnyOrder(
-                    LintError(2, 5, RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER, "Foo comment without autocorrect approve handler", true),
-                    LintError(3, 5, RULE_WITH_AUTOCORRECT_APPROVE_HANDLER, "Bar comment with autocorrect approve handler", true),
-                    LintError(4, 1, INDENTATION_RULE_ID, "Unexpected indentation (4) (should be 0)", true),
+                    LintError(2, 5, RULE_WITH_AUTOCORRECT_APPROVE_HANDLER, "Bar comment with autocorrect approve handler", true),
+                    LintError(3, 1, INDENTATION_RULE_ID, "Unexpected indentation (4) (should be 0)", true),
                 )
                 assertThat(actual).isEqualTo(
                     """
                     fun bar() {
-                        // FOO
                         // BAR
                     }
                     """.trimIndent(),
@@ -445,7 +421,6 @@ class KtLintRuleEngineTest {
                             Code.fromSnippet(
                                 """
                                 fun bar() {
-                                    // foo
                                     // bar
                                     }
                                 """.trimIndent(),
@@ -457,14 +432,12 @@ class KtLintRuleEngineTest {
                     }
 
                 assertThat(lintErrors).containsExactlyInAnyOrder(
-                    LintError(2, 5, RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER, "Foo comment without autocorrect approve handler", true),
-                    LintError(3, 5, RULE_WITH_AUTOCORRECT_APPROVE_HANDLER, "Bar comment with autocorrect approve handler", true),
-                    LintError(4, 1, INDENTATION_RULE_ID, "Unexpected indentation (4) (should be 0)", true),
+                    LintError(2, 5, RULE_WITH_AUTOCORRECT_APPROVE_HANDLER, "Bar comment with autocorrect approve handler", true),
+                    LintError(3, 1, INDENTATION_RULE_ID, "Unexpected indentation (4) (should be 0)", true),
                 )
                 assertThat(actual).isEqualTo(
                     """
                     fun bar() {
-                        // FOO
                         // BAR
                     }
                     """.trimIndent(),
@@ -492,7 +465,6 @@ class KtLintRuleEngineTest {
                     }
 
                 assertThat(lintErrors).containsExactlyInAnyOrder(
-                    LintError(2, 5, RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER, "Foo comment without autocorrect approve handler", true),
                     LintError(3, 5, RULE_WITH_AUTOCORRECT_APPROVE_HANDLER, "Bar comment with autocorrect approve handler", true),
                     LintError(4, 1, INDENTATION_RULE_ID, "Unexpected indentation (4) (should be 0)", true),
                 )
@@ -520,7 +492,6 @@ class KtLintRuleEngineTest {
                             Code.fromSnippet(
                                 """
                                 plugins {
-                                    // foo
                                     // bar
                                     }
                                 """.trimIndent(),
@@ -532,14 +503,12 @@ class KtLintRuleEngineTest {
                     }
 
                 assertThat(lintErrors).containsExactlyInAnyOrder(
-                    LintError(2, 5, RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER, "Foo comment without autocorrect approve handler", true),
-                    LintError(3, 5, RULE_WITH_AUTOCORRECT_APPROVE_HANDLER, "Bar comment with autocorrect approve handler", true),
-                    LintError(4, 1, INDENTATION_RULE_ID, "Unexpected indentation (4) (should be 0)", true),
+                    LintError(2, 5, RULE_WITH_AUTOCORRECT_APPROVE_HANDLER, "Bar comment with autocorrect approve handler", true),
+                    LintError(3, 1, INDENTATION_RULE_ID, "Unexpected indentation (4) (should be 0)", true),
                 )
                 assertThat(actual).isEqualTo(
                     """
                     plugins {
-                        // FOO
                         // BAR
                     }
                     """.trimIndent(),
@@ -555,7 +524,6 @@ class KtLintRuleEngineTest {
                             Code.fromSnippet(
                                 """
                                 plugins {
-                                    // foo
                                     // bar
                                     }
                                 """.trimIndent(),
@@ -568,14 +536,12 @@ class KtLintRuleEngineTest {
                     }
 
                 assertThat(lintErrors).containsExactlyInAnyOrder(
-                    LintError(2, 5, RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER, "Foo comment without autocorrect approve handler", true),
-                    LintError(3, 5, RULE_WITH_AUTOCORRECT_APPROVE_HANDLER, "Bar comment with autocorrect approve handler", true),
-                    LintError(4, 1, INDENTATION_RULE_ID, "Unexpected indentation (4) (should be 0)", true),
+                    LintError(2, 5, RULE_WITH_AUTOCORRECT_APPROVE_HANDLER, "Bar comment with autocorrect approve handler", true),
+                    LintError(3, 1, INDENTATION_RULE_ID, "Unexpected indentation (4) (should be 0)", true),
                 )
                 assertThat(actual).isEqualTo(
                     """
                     plugins {
-                        // FOO
                         // BAR
                     }
                     """.trimIndent(),
@@ -604,7 +570,6 @@ class KtLintRuleEngineTest {
                     }
 
                 assertThat(lintErrors).containsExactlyInAnyOrder(
-                    LintError(2, 5, RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER, "Foo comment without autocorrect approve handler", true),
                     LintError(3, 5, RULE_WITH_AUTOCORRECT_APPROVE_HANDLER, "Bar comment with autocorrect approve handler", true),
                     LintError(4, 1, INDENTATION_RULE_ID, "Unexpected indentation (4) (should be 0)", true),
                 )
@@ -670,7 +635,6 @@ class KtLintRuleEngineTest {
             val codeWithCrlfSeparators =
                 """
                 fun bar() {
-                    // FOO
                     // BAR
                 }
                 """.trimIndent().replace("\n", "\r\n")
@@ -686,12 +650,10 @@ class KtLintRuleEngineTest {
                         setOf(
                             RuleProvider { IndentationRule() },
                             RuleProvider { RuleWithAutocorrectApproveHandler() },
-                            RuleProvider { RuleWithoutAutocorrectApproveHandler() },
                         ),
                     editorConfigOverride =
                         EditorConfigOverride.from(
                             // Do not set END_OF_LINE_PROPERTY explicitly!
-                            RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled,
                             RULE_WITH_AUTOCORRECT_APPROVE_HANDLER.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled,
                         ),
                     fileSystem = ktlintTestFileSystem.fileSystem,
@@ -716,7 +678,6 @@ class KtLintRuleEngineTest {
                     setOf(
                         RuleProvider { IndentationRule() },
                         RuleProvider { RuleWithAutocorrectApproveHandler() },
-                        RuleProvider { RuleWithoutAutocorrectApproveHandler() },
                     ),
                 editorConfigOverride =
                     EditorConfigOverride.from(
@@ -740,36 +701,42 @@ class KtLintRuleEngineTest {
         )
 
         assertThat(lintErrors).containsExactlyInAnyOrder(
-            LintError(2, 5, RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER, "Foo comment without autocorrect approve handler", true),
             LintError(3, 5, RULE_WITH_AUTOCORRECT_APPROVE_HANDLER, "Bar comment with autocorrect approve handler", true),
             LintError(4, 1, INDENTATION_RULE_ID, "Unexpected indentation (4) (should be 0)", true),
         )
     }
 
+    @Test
+    fun `Given a rule that has not implemented the RuleAutocorrectApproveHandler then throw exception`() {
+        val ktLintRuleEngine =
+            KtLintRuleEngine(
+                ruleProviders = setOf(RuleProvider { RuleWithoutAutocorrectApproveHandler() }),
+                fileSystem = ktlintTestFileSystem.fileSystem,
+            )
+
+        assertThatExceptionOfType(UnsupportedOperationException::class.java)
+            .isThrownBy {
+                ktLintRuleEngine.lint(
+                    code =
+                        Code.fromSnippet(
+                            """
+                            fun bar() {
+                                // foo
+                                // bar
+                                }
+                            """.trimIndent(),
+                        ),
+                )
+            }.withMessage(
+                "Ktlint 2.x does not support rules that have not correctly implemented the RuleAutocorrectApproveHandler. Use a new version of the ruleset. or contact the maintainer of this ruleset to upgrade it.",
+            )
+    }
+
     private class RuleWithoutAutocorrectApproveHandler :
         Rule(
-            ruleId = RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER,
+            ruleId = RuleId("custom:rule-without-autocorrect-approval-handler"),
             about = About(),
-        ),
-        Rule.Experimental {
-        @Deprecated("Marked for removal in Ktlint 2.0. Please implement interface RuleAutocorrectApproveHandler.")
-        override fun beforeVisitChildNodes(
-            node: ASTNode,
-            autoCorrect: Boolean,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-        ) {
-            if (node.elementType == EOL_COMMENT && node.text == "// foo") {
-                emit(node.startOffset, "Foo comment without autocorrect approve handler", true)
-                if (autoCorrect) {
-                    node.replaceTextWith("// FOO")
-                }
-            }
-        }
-
-        companion object {
-            val RULE_WITHOUT_AUTOCORRECT_APPROVE_HANDLER = RuleId("custom:rule-without-autocorrect-approval-handler")
-        }
-    }
+        )
 
     private class RuleWithAutocorrectApproveHandler :
         Rule(
