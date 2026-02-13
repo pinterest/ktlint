@@ -3,7 +3,7 @@ package com.pinterest.ktlint.rule.engine.api
 import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
-import com.pinterest.ktlint.ruleset.standard.rules.CONDITION_WRAPPING_RULE_ID
+import com.pinterest.ktlint.ruleset.standard.rules.EXPRESSION_OPERAND_WRAPPING_RULE_ID
 import com.pinterest.ktlint.ruleset.standard.rules.NO_CONSECUTIVE_BLANK_LINES_RULE_ID
 import com.pinterest.ktlint.ruleset.standard.rules.NO_LINE_BREAK_BEFORE_ASSIGNMENT_RULE_ID
 import org.assertj.core.api.Assertions.assertThat
@@ -205,7 +205,7 @@ class KtlintRuleEngineSuppressionKtTest {
             val formattedCode =
                 """
                 fun foo() {
-                    @Suppress("ktlint:standard:condition-wrapping")
+                    @Suppress("ktlint:standard:expression-operand-wrapping")
                     require(
                         true && false ||
                             true,
@@ -216,7 +216,7 @@ class KtlintRuleEngineSuppressionKtTest {
                 ktLintRuleEngine
                     .insertSuppression(
                         Code.fromSnippet(code, false),
-                        KtlintSuppressionAtOffset(3, 17, CONDITION_WRAPPING_RULE_ID),
+                        KtlintSuppressionAtOffset(3, 17, EXPRESSION_OPERAND_WRAPPING_RULE_ID),
                     )
 
             assertThat(actual).isEqualTo(formattedCode)
@@ -232,7 +232,7 @@ class KtlintRuleEngineSuppressionKtTest {
                 """.trimIndent()
             val formattedCode =
                 """
-                @Suppress("ktlint:standard:condition-wrapping")
+                @Suppress("ktlint:standard:expression-operand-wrapping")
                 val bar =
                     true && false ||
                         true
@@ -241,7 +241,7 @@ class KtlintRuleEngineSuppressionKtTest {
                 ktLintRuleEngine
                     .insertSuppression(
                         Code.fromSnippet(code, false),
-                        KtlintSuppressionAtOffset(2, 17, CONDITION_WRAPPING_RULE_ID),
+                        KtlintSuppressionAtOffset(2, 17, EXPRESSION_OPERAND_WRAPPING_RULE_ID),
                     )
 
             assertThat(actual).isEqualTo(formattedCode)
@@ -260,7 +260,7 @@ class KtlintRuleEngineSuppressionKtTest {
             val formattedCode =
                 """
                 fun foo() {
-                    @Suppress("ktlint:standard:condition-wrapping")
+                    @Suppress("ktlint:standard:expression-operand-wrapping")
                     if (true && false ||
                         true
                     ) {}
@@ -270,7 +270,7 @@ class KtlintRuleEngineSuppressionKtTest {
                 ktLintRuleEngine
                     .insertSuppression(
                         Code.fromSnippet(code, false),
-                        KtlintSuppressionAtOffset(2, 17, CONDITION_WRAPPING_RULE_ID),
+                        KtlintSuppressionAtOffset(2, 17, EXPRESSION_OPERAND_WRAPPING_RULE_ID),
                     )
 
             assertThat(actual).isEqualTo(formattedCode)

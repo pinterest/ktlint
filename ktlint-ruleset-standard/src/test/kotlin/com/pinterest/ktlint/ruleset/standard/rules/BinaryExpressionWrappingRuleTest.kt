@@ -148,7 +148,6 @@ class BinaryExpressionWrappingRuleTest {
             """.trimIndent()
         binaryExpressionWrappingRuleAssertThat(code)
             .setMaxLineLength()
-            .addAdditionalRuleProvider { ConditionWrappingRule() }
             .hasLintViolation(3, 34, "Line is exceeding max line length. Break line after '&&' in binary expression")
             .isFormattedAs(formattedCode)
     }

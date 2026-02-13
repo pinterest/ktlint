@@ -170,16 +170,6 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/CommentWrappingRu
 	public static final fun getCOMMENT_WRAPPING_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
 }
 
-public final class com/pinterest/ktlint/ruleset/standard/rules/ConditionWrappingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
-	public fun <init> ()V
-	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
-}
-
-public final class com/pinterest/ktlint/ruleset/standard/rules/ConditionWrappingRuleKt {
-	public static final fun getCONDITION_WRAPPING_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
-}
-
 public final class com/pinterest/ktlint/ruleset/standard/rules/ContextReceiverListWrappingRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public fun <init> ()V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
@@ -198,15 +188,6 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/ContextReceiverWr
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/ContextReceiverWrappingRuleKt {
 	public static final fun getCONTEXT_RECEIVER_WRAPPING_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
-}
-
-public final class com/pinterest/ktlint/ruleset/standard/rules/DiscouragedCommentLocationRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
-	public fun <init> ()V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
-}
-
-public final class com/pinterest/ktlint/ruleset/standard/rules/DiscouragedCommentLocationRuleKt {
-	public static final fun getDISCOURAGED_COMMENT_LOCATION_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/rules/EnumEntryNameCaseRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
