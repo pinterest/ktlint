@@ -2,7 +2,7 @@ public final class com/pinterest/ktlint/test/KtLintAssertThat {
 	public static final field Companion Lcom/pinterest/ktlint/test/KtLintAssertThat$Companion;
 	public static final field EOL_CHAR C
 	public static final field MAX_LINE_LENGTH_MARKER Ljava/lang/String;
-	public fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2Provider;Ljava/lang/String;Ljava/util/Set;Ljava/util/Set;)V
+	public fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2InstanceProvider;Ljava/lang/String;Ljava/util/Set;Ljava/util/Set;)V
 	public final fun addAdditionalRuleProvider (Lkotlin/jvm/functions/Function0;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
 	public final fun addAdditionalRuleProviders ([Lkotlin/jvm/functions/Function0;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
 	public final fun addRequiredRuleProviderDependenciesFrom (Lcom/pinterest/ktlint/cli/ruleset/core/api/RuleSetV2Provider;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
