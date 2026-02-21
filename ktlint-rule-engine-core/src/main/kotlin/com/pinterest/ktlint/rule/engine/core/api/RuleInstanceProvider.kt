@@ -3,24 +3,12 @@ package com.pinterest.ktlint.rule.engine.core.api
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import org.ec4j.core.model.PropertyType
 
-// TODO: Replace with sealed class? Merge RuleProvider with RuleV1InstanceProvider (or is this not possible due to backwards compatibility?
-//  Merge RuleV2Provider with RuleV2InstanceProvider
-public sealed interface RuleInstanceProvider {
-    public interface RuleV1InstanceProvider : RuleInstanceProvider {
-        public override fun createNewRuleInstance(): RuleV1
-    }
-
-    public interface RuleV2InstanceProvider : RuleInstanceProvider {
-        public override fun createNewRuleInstance(): RuleV2
-    }
-
-    public fun createNewRuleInstance(): RuleBase
-
-    public val ruleId: RuleId
-
-    public val runAsLateAsPossible: Boolean
-
-    public val runAfterRules: List<RuleBase.VisitorModifier.RunAfterRule>
+public sealed class RuleInstanceProvider(
+    public open val ruleId: RuleId,
+    public open val runAsLateAsPossible: Boolean,
+    public open val runAfterRules: List<RuleBase.VisitorModifier.RunAfterRule>,
+) {
+    public abstract fun createNewRuleInstance(): RuleBase
 }
 
 /**

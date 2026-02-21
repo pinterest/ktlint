@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.cli.ruleset.core.api
 
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
-import com.pinterest.ktlint.rule.engine.core.api.RuleV1Provider
+import com.pinterest.ktlint.rule.engine.core.api.RuleV1InstanceProvider
 import java.io.Serializable
 
 /**
@@ -14,7 +14,7 @@ public abstract class RuleSetV1Provider(
     public val id: RuleSetId,
 ) : Serializable {
     /**
-     * Gets a group of related [RuleV1Provider]s. A provided rule is not guaranteed to be run as rules can be disabled,
+     * Gets a group of related [RuleV1InstanceProvider]s. A provided rule is not guaranteed to be run as rules can be disabled,
      * for example via ".editorconfig" properties.
      *
      * Intended usage:
@@ -29,5 +29,5 @@ public abstract class RuleSetV1Provider(
      *     }
      * ```
      */
-    public abstract fun getRuleProviders(): Set<RuleV1Provider>
+    public abstract fun getRuleProviders(): Set<RuleV1InstanceProvider>
 }

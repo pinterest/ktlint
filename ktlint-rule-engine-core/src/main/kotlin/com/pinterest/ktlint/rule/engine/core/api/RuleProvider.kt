@@ -1,12 +1,14 @@
 package com.pinterest.ktlint.rule.engine.core.api
 
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
-import org.ec4j.core.model.PropertyType
-
 /**
- * Provides a [RuleV2] instance. Important: to ensure that a [RuleV2] can keep internal state and that processing of files is thread-safe, a
- * *new* instance should be provided on each call of the [provider] function.
+ * Provides either a [RuleV1], or a [RuleV2] instance. Important: to ensure that a [RuleV2] can keep internal state and that processing of
+ * files is thread-safe, a *new* instance should be provided on each call of the [provider] function.
  */
+@Deprecated(
+    message = "Provides backwards compatibility of custom ruleset JARs created for Ktlint 1.x.",
+    replaceWith = ReplaceWith("RuleV2InstanceProvider", "com.pinterest.ktlint.core.RuleV2InstanceProvider"),
+    level = DeprecationLevel.WARNING,
+)
 public class RuleProvider private constructor(
     /**
      * Lambda which creates a new instance of the rule.
@@ -24,7 +26,7 @@ public class RuleProvider private constructor(
      * The list of rules which have to run before the [RuleV2] created by the provider can be run.
      */
     public override val runAfterRules: List<RuleBase.VisitorModifier.RunAfterRule>,
-) : RuleInstanceProvider {
+) : RuleInstanceProvider(ruleId, runAsLateAsPossible, runAfterRules) {
     /**
      * Creates a new [RuleV1] or [RuleV2] instance.
      */

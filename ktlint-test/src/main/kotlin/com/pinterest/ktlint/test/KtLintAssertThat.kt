@@ -14,7 +14,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleBase.VisitorModifier.RunAft
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleInstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2
-import com.pinterest.ktlint.rule.engine.core.api.RuleV2Provider
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2InstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
@@ -76,7 +76,7 @@ public class KtLintAssertThat(
     /**
      * Provider of a rule which is the subject of the test, e.g. the rule for which the AssertThat is created.
      */
-    private val ruleProvider: RuleV2Provider,
+    private val ruleProvider: RuleV2InstanceProvider,
     /**
      * The code which is to be linted and formatted.
      */
@@ -85,7 +85,7 @@ public class KtLintAssertThat(
      * Providers of rules which have to be executed in addition to the main rule when linting/formatting the code. Note that lint errors for
      * those rules are suppressed.
      */
-    private val additionalRuleProviders: MutableSet<RuleV2Provider>,
+    private val additionalRuleProviders: MutableSet<RuleV2InstanceProvider>,
     /**
      * EditorConfig properties to be applied by default when linting/formatting the code.
      */
@@ -163,7 +163,7 @@ public class KtLintAssertThat(
      * Prefer to use [addAdditionalRuleProviders] when adding multiple providers of rules.
      */
     public fun addAdditionalRuleProvider(provider: () -> RuleV2): KtLintAssertThat {
-        additionalRuleProviders.add(RuleV2Provider(provider))
+        additionalRuleProviders.add(RuleV2InstanceProvider(provider))
 
         return this
     }
@@ -185,7 +185,7 @@ public class KtLintAssertThat(
      */
     public fun addAdditionalRuleProviders(vararg providers: (() -> RuleV2)): KtLintAssertThat {
         additionalRuleProviders.addAll(
-            providers.map { RuleV2Provider(it) },
+            providers.map { RuleV2InstanceProvider(it) },
         )
 
         return this
@@ -357,7 +357,7 @@ public class KtLintAssertThat(
          */
         public fun assertThatRuleBuilder(provider: () -> RuleV2): KtLintAssertThat =
             KtLintAssertThat(
-                ruleProvider = RuleV2Provider { provider() },
+                ruleProvider = RuleV2InstanceProvider { provider() },
                 code = "",
                 additionalRuleProviders = mutableSetOf(),
                 editorConfigProperties = mutableSetOf(),
@@ -376,12 +376,12 @@ public class KtLintAssertThat(
         @Deprecated(message = "Marked for removal in Ktlint 2.0. See KDOC for alternative")
         public fun assertThatRule(
             provider: () -> RuleV2,
-            additionalRuleProviders: Set<RuleV2Provider> = emptySet(),
+            additionalRuleProviders: Set<RuleV2InstanceProvider> = emptySet(),
             editorConfigProperties: Set<Pair<EditorConfigProperty<*>, *>> = emptySet(),
         ): (String) -> KtLintAssertThat =
             { code ->
                 KtLintAssertThat(
-                    ruleProvider = RuleV2Provider { provider() },
+                    ruleProvider = RuleV2InstanceProvider { provider() },
                     code = code,
                     additionalRuleProviders = additionalRuleProviders.toMutableSet(),
                     editorConfigProperties = editorConfigProperties.toMutableSet(),
@@ -795,10 +795,10 @@ private fun EditorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProvider
 private fun EditorConfigOverride.enableExperimentalRules(): EditorConfigOverride =
     plus(EXPERIMENTAL_RULES_EXECUTION_PROPERTY to RuleExecution.enabled)
 
-private fun RuleSetV2Provider.findRequiredRuleProviders(ruleProvider: RuleV2Provider): Set<RuleV2Provider> {
-    val resultRuleProviders = mutableSetOf<RuleV2Provider>()
+private fun RuleSetV2Provider.findRequiredRuleProviders(ruleProvider: RuleV2InstanceProvider): Set<RuleV2InstanceProvider> {
+    val resultRuleProviders = mutableSetOf<RuleV2InstanceProvider>()
 
-    val ruleProviders = ArrayDeque<RuleV2Provider>()
+    val ruleProviders = ArrayDeque<RuleV2InstanceProvider>()
     ruleProviders.add(ruleProvider)
     // Recursively add all rule providers which are required to run the given rule
     while (ruleProviders.firstOrNull() != null) {
@@ -818,7 +818,7 @@ private fun RuleSetV2Provider.findRequiredRuleProviders(ruleProvider: RuleV2Prov
     return resultRuleProviders
 }
 
-private fun RuleSetV2Provider.findRuleProvider(ruleId: RuleId): RuleV2Provider =
+private fun RuleSetV2Provider.findRuleProvider(ruleId: RuleId): RuleV2InstanceProvider =
     getRuleProviders()
         .find { it.ruleId == ruleId }
         ?: throw IllegalArgumentException("Can not find rule '${ruleId.value}' in given rule set '${this.id.value}'")
