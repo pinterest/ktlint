@@ -43,7 +43,7 @@ class RuleKtTest {
     }
 
     private fun creatRule(ruleId: String) =
-        object : Rule(
+        object : RuleV2(
             ruleId = RuleId(ruleId),
             about = About(),
         ) {}

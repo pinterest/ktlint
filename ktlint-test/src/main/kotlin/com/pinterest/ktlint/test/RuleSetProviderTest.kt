@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.test
 
-import com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3
+import com.pinterest.ktlint.cli.ruleset.core.api.RuleSetV2Provider
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -10,7 +10,7 @@ import java.io.File
  * actually defined in the RuleSetProvider.
  */
 public open class RuleSetProviderTest(
-    private val rulesetClass: Class<out RuleSetProviderV3>,
+    private val rulesetClass: Class<out RuleSetV2Provider>,
     private val packageName: String,
 ) {
     private val ruleSetProvider =

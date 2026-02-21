@@ -2,7 +2,8 @@ package com.pinterest.ktlint.rule.engine.internal.rulefilter
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
-import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.RuleInstanceProvider
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2Provider
 import com.pinterest.ktlint.rule.engine.internal.rules.KtlintSuppressionRule
 import io.github.oshai.kotlinlogging.KotlinLogging
 
@@ -17,14 +18,14 @@ internal class InternalRuleProvidersFilter(
 ) : RuleFilter {
     private val internalRuleProviders =
         setOf(
-            RuleProvider {
+            RuleV2Provider {
                 KtlintSuppressionRule(
                     ktLintRuleEngine.ruleProviders.map { it.ruleId },
                 )
             },
         )
 
-    override fun filter(ruleProviders: Set<RuleProvider>): Set<RuleProvider> {
+    override fun filter(ruleProviders: Set<RuleInstanceProvider>): Set<RuleInstanceProvider> {
         val internalRuleIds = internalRuleProviders.map { it.ruleId }
         return ruleProviders
             .mapNotNullTo(mutableSetOf()) {

@@ -1,8 +1,7 @@
 package com.pinterest.ktlint.rule.engine.internal.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.Rule
-import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
 import com.pinterest.ktlint.ruleset.standard.rules.ArgumentListWrappingRule
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
@@ -1393,5 +1392,4 @@ class KtlintSuppressionRuleTest {
 
 private class DummyRule(
     id: String,
-) : Rule(RuleId(id), About()),
-    RuleAutocorrectApproveHandler
+) : RuleV2(RuleId(id), About())

@@ -42,7 +42,7 @@ import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.ALLOW_AUTOCORRECT
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.NO_AUTOCORRECT
-import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.RuleInstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
@@ -348,7 +348,7 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
         }
     }
 
-    private fun editorConfigDefaults(ruleProviders: Set<RuleProvider>): EditorConfigDefaults {
+    private fun editorConfigDefaults(ruleProviders: Set<RuleInstanceProvider>): EditorConfigDefaults {
         val fullyExpandedEditorConfigPath =
             editorConfigPath
                 ?.expandTildeToFullPath()
@@ -388,7 +388,7 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
         }
 
     // Do not convert to "val" as the function depends on PicoCli options which are not fully instantiated until the "run" method is started
-    internal val ruleProviders: Set<RuleProvider>
+    internal val ruleProviders: Set<RuleInstanceProvider>
         get() = loadRuleProviders(rulesetJarPaths.toFilesURIList())
 
     private fun configureLogger() =

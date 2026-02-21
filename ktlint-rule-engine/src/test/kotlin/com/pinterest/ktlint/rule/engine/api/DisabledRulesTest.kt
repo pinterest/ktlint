@@ -1,10 +1,9 @@
 package com.pinterest.ktlint.rule.engine.api
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.Rule
-import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import org.assertj.core.api.Assertions.assertThat
@@ -60,11 +59,10 @@ class DisabledRulesTest {
 
     class NoVarRule(
         ruleId: RuleId,
-    ) : Rule(
+    ) : RuleV2(
             ruleId = ruleId,
             about = About(),
-        ),
-        RuleAutocorrectApproveHandler {
+        ) {
         override fun beforeVisitChildNodes(
             node: ASTNode,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,

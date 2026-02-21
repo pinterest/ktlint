@@ -9,10 +9,11 @@ import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.ALLOW_AUTOCORRECT
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.NO_AUTOCORRECT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
-import com.pinterest.ktlint.rule.engine.core.api.Rule
-import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
+import com.pinterest.ktlint.rule.engine.core.api.RuleBase
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.RuleV1
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
@@ -733,18 +734,17 @@ class KtLintRuleEngineTest {
     }
 
     private class RuleWithoutAutocorrectApproveHandler :
-        Rule(
+        RuleV1(
             ruleId = RuleId("custom:rule-without-autocorrect-approval-handler"),
             about = About(),
         )
 
     private class RuleWithAutocorrectApproveHandler :
-        Rule(
+        RuleV2(
             ruleId = RULE_WITH_AUTOCORRECT_APPROVE_HANDLER,
             about = About(),
         ),
-        RuleAutocorrectApproveHandler,
-        Rule.Experimental {
+        RuleBase.Experimental {
         override fun beforeVisitChildNodes(
             node: ASTNode,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,

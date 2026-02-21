@@ -2,10 +2,10 @@ public final class com/pinterest/ktlint/test/KtLintAssertThat {
 	public static final field Companion Lcom/pinterest/ktlint/test/KtLintAssertThat$Companion;
 	public static final field EOL_CHAR C
 	public static final field MAX_LINE_LENGTH_MARKER Ljava/lang/String;
-	public fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleProvider;Ljava/lang/String;Ljava/util/Set;Ljava/util/Set;)V
+	public fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2Provider;Ljava/lang/String;Ljava/util/Set;Ljava/util/Set;)V
 	public final fun addAdditionalRuleProvider (Lkotlin/jvm/functions/Function0;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
 	public final fun addAdditionalRuleProviders ([Lkotlin/jvm/functions/Function0;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
-	public final fun addRequiredRuleProviderDependenciesFrom (Lcom/pinterest/ktlint/cli/ruleset/core/api/RuleSetProviderV3;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
+	public final fun addRequiredRuleProviderDependenciesFrom (Lcom/pinterest/ktlint/cli/ruleset/core/api/RuleSetV2Provider;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
 	public final fun asFileWithPath (Ljava/lang/String;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
 	public final fun asKotlinScript (Z)Lcom/pinterest/ktlint/test/KtLintAssertThat;
 	public static synthetic fun asKotlinScript$default (Lcom/pinterest/ktlint/test/KtLintAssertThat;ZILjava/lang/Object;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
@@ -34,8 +34,8 @@ public final class com/pinterest/ktlint/test/KtLintAssertThat$Companion {
 }
 
 public final class com/pinterest/ktlint/test/KtLintAssertThatAssertable : org/assertj/core/api/AbstractAssert {
-	public fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleProvider;Lcom/pinterest/ktlint/rule/engine/api/Code;Lcom/pinterest/ktlint/rule/engine/api/EditorConfigOverride;Ljava/util/Set;)V
-	public synthetic fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleProvider;Lcom/pinterest/ktlint/rule/engine/api/Code;Lcom/pinterest/ktlint/rule/engine/api/EditorConfigOverride;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleInstanceProvider;Lcom/pinterest/ktlint/rule/engine/api/Code;Lcom/pinterest/ktlint/rule/engine/api/EditorConfigOverride;Ljava/util/Set;)V
+	public synthetic fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleInstanceProvider;Lcom/pinterest/ktlint/rule/engine/api/Code;Lcom/pinterest/ktlint/rule/engine/api/EditorConfigOverride;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun hasLintViolation (IILjava/lang/String;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
 	public final fun hasLintViolationForAdditionalRule (IILjava/lang/String;)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;
 	public final fun hasLintViolationForAdditionalRule (IILjava/lang/String;Z)Lcom/pinterest/ktlint/test/KtLintAssertThatAssertable;

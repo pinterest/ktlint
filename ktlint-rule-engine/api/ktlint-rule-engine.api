@@ -141,9 +141,7 @@ public final class com/pinterest/ktlint/rule/engine/api/LintError {
 	public fun toString ()Ljava/lang/String;
 }
 
-public class com/pinterest/ktlint/rule/engine/internal/rules/InternalRule : com/pinterest/ktlint/rule/engine/core/api/Rule, com/pinterest/ktlint/rule/engine/core/api/RuleAutocorrectApproveHandler {
-	public fun afterVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
+public class com/pinterest/ktlint/rule/engine/internal/rules/InternalRule : com/pinterest/ktlint/rule/engine/core/api/RuleV2 {
 	public fun getUsesEditorConfigProperties ()Ljava/util/Set;
 	public fun getVisitorModifiers ()Ljava/util/Set;
 }

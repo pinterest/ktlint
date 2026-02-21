@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.rule.engine.core.api.editorconfig
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
-import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.RuleBase
 import dev.drewhamilton.poko.Poko
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.ec4j.core.model.Property
@@ -52,8 +52,8 @@ public class EditorConfig(
             properties.getOrElse(editorConfigProperty.name) {
                 throw IllegalStateException(
                     "Property '${editorConfigProperty.name}' can not be retrieved from this EditorConfig. Note that the EditorConfig " +
-                        "which is provided to class '${Rule::class.qualifiedName}' only contains the properties which are defined in the " +
-                        "property '${Rule::usesEditorConfigProperties.name}'.",
+                        "which is provided to class '${RuleBase::class.qualifiedName}' only contains the properties which are defined in " +
+                        "the property '${RuleBase::usesEditorConfigProperties.name}'.",
                 )
             }
 

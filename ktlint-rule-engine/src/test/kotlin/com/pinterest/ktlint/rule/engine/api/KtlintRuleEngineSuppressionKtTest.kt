@@ -1,8 +1,8 @@
 package com.pinterest.ktlint.rule.engine.api
 
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.ruleset.standard.rules.EXPRESSION_OPERAND_WRAPPING_RULE_ID
 import com.pinterest.ktlint.ruleset.standard.rules.NO_CONSECUTIVE_BLANK_LINES_RULE_ID
 import com.pinterest.ktlint.ruleset.standard.rules.NO_LINE_BREAK_BEFORE_ASSIGNMENT_RULE_ID
@@ -366,5 +366,5 @@ class KtlintRuleEngineSuppressionKtTest {
         val SOME_RULE_ID = RuleId("standard:some-rule-id")
     }
 
-    private class SomeRule : Rule(ruleId = SOME_RULE_ID, about = About())
+    private class SomeRule : RuleV2(ruleId = SOME_RULE_ID, about = About())
 }

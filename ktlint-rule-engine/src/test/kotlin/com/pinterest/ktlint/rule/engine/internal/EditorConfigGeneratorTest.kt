@@ -1,8 +1,8 @@
 package com.pinterest.ktlint.rule.engine.internal
 
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
@@ -83,7 +83,7 @@ internal class EditorConfigGeneratorTest {
             editorConfigGenerator.generateEditorconfig(
                 rules =
                     setOf(
-                        object : Rule(
+                        object : RuleV2(
                             ruleId = RuleId("test:rule-one"),
                             about = About(),
                             usesEditorConfigProperties =
@@ -92,7 +92,7 @@ internal class EditorConfigGeneratorTest {
                                     EDITOR_CONFIG_PROPERTY_1,
                                 ),
                         ) {},
-                        object : Rule(
+                        object : RuleV2(
                             ruleId = RuleId("test:rule-two"),
                             about = About(),
                             usesEditorConfigProperties = setOf(EDITOR_CONFIG_PROPERTY_1),
@@ -170,7 +170,7 @@ internal class EditorConfigGeneratorTest {
     }
 
     private class TestRule :
-        Rule(
+        RuleV2(
             ruleId = RuleId("test:test-rule"),
             about = About(),
             usesEditorConfigProperties =

@@ -2,11 +2,11 @@ package com.pinterest.ktlint.rule.engine.internal.rulefilter
 
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.internal.rules.KTLINT_SUPPRESSION_RULE_ID
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -27,7 +27,7 @@ class InternalRuleProvidersFilterTest {
         val actual =
             InternalRuleProvidersFilter(ktLintRuleEngine)
                 .filter(ktLintRuleEngine.ruleProviders)
-                .toRuleId()
+                .map { it.ruleId }
 
         assertThat(actual).containsExactly(
             STANDARD_RULE_A,
@@ -44,7 +44,7 @@ class InternalRuleProvidersFilterTest {
     private open class R(
         ruleId: RuleId,
         visitorModifiers: Set<VisitorModifier> = emptySet(),
-    ) : Rule(
+    ) : RuleV2(
             ruleId = ruleId,
             about = About(),
             visitorModifiers,
@@ -58,6 +58,4 @@ class InternalRuleProvidersFilterTest {
                 "Rule should never be really invoked because that is not the aim of this unit test.",
             )
     }
-
-    private fun Set<RuleProvider>.toRuleId() = map { it.ruleId }
 }

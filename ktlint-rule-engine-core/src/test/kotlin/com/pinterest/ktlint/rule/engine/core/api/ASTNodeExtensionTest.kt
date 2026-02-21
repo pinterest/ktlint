@@ -1183,11 +1183,10 @@ class ASTNodeExtensionTest {
      */
     private open class DummyRule(
         val block: (node: ASTNode) -> Unit = {},
-    ) : Rule(
+    ) : RuleV2(
             ruleId = RuleId("test:dummy-rule"),
             about = About(),
-        ),
-        RuleAutocorrectApproveHandler {
+        ) {
         override fun beforeVisitChildNodes(
             node: ASTNode,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,

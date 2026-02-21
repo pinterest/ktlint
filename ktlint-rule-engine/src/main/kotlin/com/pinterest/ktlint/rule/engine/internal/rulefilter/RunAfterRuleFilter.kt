@@ -1,11 +1,11 @@
 package com.pinterest.ktlint.rule.engine.internal.rulefilter
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
-import com.pinterest.ktlint.rule.engine.core.api.Rule
-import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
-import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
+import com.pinterest.ktlint.rule.engine.core.api.RuleBase
+import com.pinterest.ktlint.rule.engine.core.api.RuleBase.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
+import com.pinterest.ktlint.rule.engine.core.api.RuleBase.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.RuleInstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import com.pinterest.ktlint.rule.engine.internal.rulefilter.RunAfterRuleFilter.RunAfterRuleOrderModifier.ADD
 import com.pinterest.ktlint.rule.engine.internal.rulefilter.RunAfterRuleFilter.RunAfterRuleOrderModifier.BLOCK_UNTIL_RUN_AFTER_RULE_IS_LOADED
@@ -16,33 +16,33 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
- * Creates a filter that exclude rules that have a [Rule.VisitorModifier.RunAfterRule] declared with mode
+ * Creates a filter that exclude rules that have a [RuleBase.VisitorModifier.RunAfterRule] declared with mode
  * [ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED] for a rule id which is not loaded or not enabled. This filter also removes
- * [Rule.VisitorModifier.RunAfterRule] for rules that are not loaded or are loaded but not enabled.
+ * [RuleBase.VisitorModifier.RunAfterRule] for rules that are not loaded or are loaded but not enabled.
  */
 internal class RunAfterRuleFilter : RuleFilter {
     // List of rule ids that are to be filtered
     private val ruleIdsToBeFiltered = mutableSetOf<RuleId>()
 
     // The list of rule Providers that still need to be processed
-    private val unprocessedRuleProviders = mutableSetOf<RuleProvider>()
+    private val unprocessedRuleProviders = mutableSetOf<RuleInstanceProvider>()
 
     // The list of rule Providers for which it has been determined that one of following is true:
     //  - The rule is not depending on another rule to be run first
     //  - The rule is depending on another rule to be run first, but for which it is not required that that rule is actually enabled
     //  - The rule is depending on another rule to be run first, and it has been determined that that rule is actually enabled
-    private val loadableRuleProviders = mutableSetOf<RuleProvider>()
+    private val loadableRuleProviders = mutableSetOf<RuleInstanceProvider>()
 
     // Blocked rule Providers can not be processed because the rule should run after another rule which is not yet added to the new list of
     // rule Providers. As long a no cycle of rule Providers exists which refer to each other, this list will be empty at completion of this
     // function.
-    private val blockedRuleProviders = mutableSetOf<RuleProvider>()
+    private val blockedRuleProviders = mutableSetOf<RuleInstanceProvider>()
 
     // The list of rule ids which are required to be loaded but are missing. Such rules are referenced in a RunAfterRule visitor modifier
     // and are marked as required to be loaded.
     private val requiredButMissingRuleIds = mutableSetOf<RunAfterRuleRequiredButNotLoaded>()
 
-    override fun filter(ruleProviders: Set<RuleProvider>): Set<RuleProvider> {
+    override fun filter(ruleProviders: Set<RuleInstanceProvider>): Set<RuleInstanceProvider> {
         ruleIdsToBeFiltered.addAll(ruleProviders.map { it.ruleId })
         unprocessedRuleProviders.addAll(ruleProviders)
 
@@ -56,7 +56,7 @@ internal class RunAfterRuleFilter : RuleFilter {
             }
 
         var newRuleProvidersAdded: Boolean
-        var ruleProvidersIterator: Iterator<RuleProvider> =
+        var ruleProvidersIterator: Iterator<RuleInstanceProvider> =
             ruleProviders
                 .sortedBy {
                     // Ensure that results in logging and unit tests is stable
@@ -80,7 +80,7 @@ internal class RunAfterRuleFilter : RuleFilter {
         return loadableRuleProviders
     }
 
-    private fun Iterator<RuleProvider>.filter(): Boolean {
+    private fun Iterator<RuleInstanceProvider>.filter(): Boolean {
         var newRuleProvidersAdded = false
         while (hasNext()) {
             val currentRuleProvider = next()
@@ -109,7 +109,7 @@ internal class RunAfterRuleFilter : RuleFilter {
         return newRuleProvidersAdded
     }
 
-    private fun maxRunAfterRuleOrderModifiers(ruleProvider: RuleProvider) =
+    private fun maxRunAfterRuleOrderModifiers(ruleProvider: RuleInstanceProvider) =
         ruleProvider
             .runAfterRules
             .associateWith { runAfterRule ->
@@ -145,12 +145,12 @@ internal class RunAfterRuleFilter : RuleFilter {
             .maxByOrNull { it.severity }
             ?: ADD
 
-    private fun RuleProvider.hasNoRunAfterRules() = runAfterRules.isEmpty()
+    private fun RuleInstanceProvider.hasNoRunAfterRules() = runAfterRules.isEmpty()
 
-    private fun Set<RuleProvider>.canRunWith(loadedRuleProviders: Set<RuleProvider>): Set<RuleProvider> =
+    private fun Set<RuleInstanceProvider>.canRunWith(loadedRuleProviders: Set<RuleInstanceProvider>): Set<RuleInstanceProvider> =
         canRunWithRuleIds(loadedRuleProviders.map { it.ruleId }.toSet())
 
-    private fun Set<RuleProvider>.canRunWithRuleIds(loadedRuleIds: Set<RuleId>): Set<RuleProvider> =
+    private fun Set<RuleInstanceProvider>.canRunWithRuleIds(loadedRuleIds: Set<RuleId>): Set<RuleInstanceProvider> =
         this
             .filter { it.canRunWith(loadedRuleIds) }
             .let { unblockedRuleProviders ->
@@ -166,7 +166,7 @@ internal class RunAfterRuleFilter : RuleFilter {
                 }
             }.toSet()
 
-    private fun RuleProvider.canRunWith(loadedRuleIds: Set<RuleId>): Boolean =
+    private fun RuleInstanceProvider.canRunWith(loadedRuleIds: Set<RuleId>): Boolean =
         this
             .runAfterRules
             .all { it.ruleId in loadedRuleIds || it.mode == REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED }

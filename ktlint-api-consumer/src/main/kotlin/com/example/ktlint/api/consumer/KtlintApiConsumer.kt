@@ -1,7 +1,7 @@
 package com.example.ktlint.api.consumer
 
 import com.example.ktlint.api.consumer.rules.KTLINT_API_CONSUMER_RULE_PROVIDERS
-import com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3
+import com.pinterest.ktlint.cli.ruleset.core.api.RuleSetV1Provider
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
@@ -132,7 +132,8 @@ private val runtimeLoadedRuleProviders =
     try {
         ServiceLoader
             .load(
-                RuleSetProviderV3::class.java,
+                // TODO: With release of Ktlint 2.0, use RuleSetV2Provider instead!
+                RuleSetV1Provider::class.java,
                 URLClassLoader(emptyArray<URL?>()),
             ).flatMap { it.getRuleProviders() }
             .toSet()

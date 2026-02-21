@@ -1,9 +1,11 @@
 package com.pinterest.ktlint.rule.engine.internal.rulefilter
 
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
-import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.RuleBase.About
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.RuleInstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -55,7 +57,7 @@ class RuleFilterKtTest {
     private class RuleIdRuleFilter(
         private val string: String,
     ) : RuleFilter {
-        override fun filter(ruleProviders: Set<RuleProvider>): Set<RuleProvider> =
+        override fun filter(ruleProviders: Set<RuleInstanceProvider>): Set<RuleInstanceProvider> =
             ruleProviders
                 .filter { it.ruleId.value.contains(string) }
                 .toSet()
@@ -65,9 +67,9 @@ class RuleFilterKtTest {
         ruleIds
             .map {
                 RuleProvider {
-                    Rule(
+                    RuleV2(
                         ruleId = it,
-                        about = Rule.About(),
+                        about = About(),
                     )
                 }
             }.toSet()

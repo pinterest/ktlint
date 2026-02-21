@@ -1,12 +1,12 @@
 package com.pinterest.ktlint.rule.engine.internal.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.Rule
-import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
+import com.pinterest.ktlint.rule.engine.core.api.RuleBase
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 
 internal val INTERNAL_RULE_ABOUT =
-    Rule.About(
+    RuleBase.About(
         maintainer = "KtLint",
         repositoryUrl = "https://github.com/pinterest/ktlint",
         issueTrackerUrl = "https://github.com/pinterest/ktlint/issues",
@@ -19,10 +19,9 @@ public open class InternalRule internal constructor(
     id: String,
     override val visitorModifiers: Set<VisitorModifier> = emptySet(),
     override val usesEditorConfigProperties: Set<EditorConfigProperty<*>> = emptySet(),
-) : Rule(
+) : RuleV2(
         ruleId = RuleId("internal:$id"),
         visitorModifiers = visitorModifiers,
         usesEditorConfigProperties = usesEditorConfigProperties,
         about = INTERNAL_RULE_ABOUT,
-    ),
-    RuleAutocorrectApproveHandler
+    )

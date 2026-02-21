@@ -1,9 +1,11 @@
 package com.pinterest.ktlint.rule.engine.internal.rulefilter
 
-import com.pinterest.ktlint.rule.engine.core.api.Rule
+import com.pinterest.ktlint.rule.engine.core.api.RuleBase
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.RuleInstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.ALL_RULES_EXECUTION_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
@@ -223,14 +225,14 @@ class RuleExecutionRuleFilterTest {
     private fun runWithRuleExecutionRuleFilter(
         vararg ruleProviders: RuleProvider,
         editorConfig: EditorConfig,
-    ): Set<RuleProvider> =
+    ): Set<RuleInstanceProvider> =
         RuleExecutionRuleFilter(
             editorConfig = editorConfig.addPropertiesWithDefaultValueIfMissing(CODE_STYLE_PROPERTY),
         ).filter(
             ruleProviders.toSet(),
         )
 
-    private fun Set<RuleProvider>.toRuleIds() = map { it.ruleId }
+    private fun Set<RuleInstanceProvider>.toRuleIds() = map { it.ruleId }
 
     private fun ktLintDisableAllRuleExecutionEditorConfigProperty() =
         Property
@@ -268,24 +270,24 @@ class RuleExecutionRuleFilterTest {
 
     private open class NormalRule(
         ruleId: RuleId,
-    ) : Rule(
+    ) : RuleV2(
             ruleId = ruleId,
             about = About(),
         )
 
     private open class ExperimentalRule(
         ruleId: RuleId,
-    ) : Rule(
+    ) : RuleV2(
             ruleId = ruleId,
             about = About(),
         ),
-        Rule.Experimental
+        RuleBase.Experimental
 
     private open class OnlyWhenEnabledInEditorconfigRule(
         ruleId: RuleId,
-    ) : Rule(
+    ) : RuleV2(
             ruleId = ruleId,
             about = About(),
         ),
-        Rule.OnlyWhenEnabledInEditorconfig
+        RuleBase.OnlyWhenEnabledInEditorconfig
 }

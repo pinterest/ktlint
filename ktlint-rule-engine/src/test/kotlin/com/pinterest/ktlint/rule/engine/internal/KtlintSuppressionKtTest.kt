@@ -2,9 +2,9 @@ package com.pinterest.ktlint.rule.engine.internal
 
 import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -704,7 +704,7 @@ class KtlintSuppressionKtTest {
         fun charAtOffset(): Char = code[offset]
 
         private companion object {
-            class SomeRule : Rule(ruleId = SOME_RULE_ID, about = About())
+            class SomeRule : RuleV2(ruleId = SOME_RULE_ID, about = About())
 
             val ktLintRuleEngine =
                 KtLintRuleEngine(

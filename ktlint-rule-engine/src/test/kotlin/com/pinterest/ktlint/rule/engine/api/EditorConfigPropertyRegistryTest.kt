@@ -1,9 +1,9 @@
 package com.pinterest.ktlint.rule.engine.api
 
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
@@ -70,7 +70,7 @@ class EditorConfigPropertyRegistryTest {
 }
 
 private class SomeTestRule :
-    Rule(
+    RuleV2(
         ruleId = RuleId("test:some-test-rule"),
         about = About(),
         usesEditorConfigProperties = setOf(SOME_PROPERTY),

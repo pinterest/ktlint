@@ -2,8 +2,8 @@ package com.pinterest.ktlint.rule.engine.internal.rulefilter
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
-import com.pinterest.ktlint.rule.engine.core.api.Rule
-import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.RuleBase
+import com.pinterest.ktlint.rule.engine.core.api.RuleInstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.ALL_RULES_EXECUTION_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
@@ -20,12 +20,12 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
- * Filters the [RuleProvider]s defined in the [KtLintRuleEngine] for [Rule]s which are enabled for the given [EditorConfig].
+ * Filters the [RuleProvider]s defined in the [KtLintRuleEngine] for [RuleBase]s which are enabled for the given [EditorConfig].
  */
 internal class RuleExecutionRuleFilter(
     private val editorConfig: EditorConfig,
 ) : RuleFilter {
-    override fun filter(ruleProviders: Set<RuleProvider>): Set<RuleProvider> =
+    override fun filter(ruleProviders: Set<RuleInstanceProvider>): Set<RuleInstanceProvider> =
         if (disableKtlintEntirely()) {
             emptySet()
         } else {
@@ -42,7 +42,7 @@ internal class RuleExecutionRuleFilter(
     private fun disableKtlintEntirely() =
         editorConfig.getEditorConfigValueOrNull(RULE_EXECUTION_PROPERTY_TYPE, ALL_RULES_EXECUTION_PROPERTY.name) == RuleExecution.disabled
 
-    private fun EditorConfig.ruleExecutionProperties(ruleProviders: Set<RuleProvider>): Map<String, RuleExecution> {
+    private fun EditorConfig.ruleExecutionProperties(ruleProviders: Set<RuleInstanceProvider>): Map<String, RuleExecution> {
         val ruleExecutionPropertyNames =
             ruleExecutionPropertyNames(ruleProviders)
                 .plus(ruleSetExecutionPropertyNames(ruleProviders))
@@ -53,12 +53,12 @@ internal class RuleExecutionRuleFilter(
             .mapValues { RULE_EXECUTION_PROPERTY_TYPE.parse(it.value).parsed }
     }
 
-    private fun ruleExecutionPropertyNames(ruleProviders: Set<RuleProvider>) =
+    private fun ruleExecutionPropertyNames(ruleProviders: Set<RuleInstanceProvider>) =
         ruleProviders
             .map { it.ruleId.ktLintRuleExecutionPropertyName() }
             .distinct()
 
-    private fun ruleSetExecutionPropertyNames(ruleProviders: Set<RuleProvider>) =
+    private fun ruleSetExecutionPropertyNames(ruleProviders: Set<RuleInstanceProvider>) =
         ruleProviders
             .map { it.ruleId.ruleSetId.ktLintRuleSetExecutionPropertyName() }
             .distinct()
@@ -73,9 +73,9 @@ private class RuleExecutionFilter(
     val ruleExecutionProperties: Map<String, RuleExecution>,
     val codeStyleValue: CodeStyleValue,
 ) {
-    fun isEnabled(ruleProvider: RuleProvider) = isRuleEnabled(ruleProvider.createNewRuleInstance())
+    fun isEnabled(ruleProvider: RuleInstanceProvider) = isRuleEnabled(ruleProvider.createNewRuleInstance())
 
-    private fun isRuleEnabled(rule: Rule) =
+    private fun isRuleEnabled(rule: RuleBase) =
         /*
          * If set for the rule, the rule execution property takes precedence above other checks. This allows for execution of a specific
          * experimental or ktlint_official code style rule without enabling them all. Also, this allows to disable a specific rule in case
@@ -92,21 +92,21 @@ private class RuleExecutionFilter(
             }
             ?: isRuleConditionallyEnabled(rule)
 
-    private fun isRuleConditionallyEnabled(rule: Rule) =
+    private fun isRuleConditionallyEnabled(rule: RuleBase) =
         when {
-            rule is Rule.Experimental && rule is Rule.OfficialCodeStyle -> {
+            rule is RuleBase.Experimental && rule is RuleBase.OfficialCodeStyle -> {
                 isExperimentalEnabled(rule) && isOfficialCodeStyleEnabled(rule)
             }
 
-            rule is Rule.Experimental -> {
+            rule is RuleBase.Experimental -> {
                 isExperimentalEnabled(rule)
             }
 
-            rule is Rule.OfficialCodeStyle -> {
+            rule is RuleBase.OfficialCodeStyle -> {
                 isOfficialCodeStyleEnabled(rule)
             }
 
-            rule is Rule.OnlyWhenEnabledInEditorconfig -> {
+            rule is RuleBase.OnlyWhenEnabledInEditorconfig -> {
                 ruleExecution(rule.ruleId.ktLintRuleExecutionPropertyName()) == RuleExecution.disabled
             }
 
@@ -115,17 +115,17 @@ private class RuleExecutionFilter(
             }
         }
 
-    private fun isExperimentalEnabled(rule: Rule) =
+    private fun isExperimentalEnabled(rule: RuleBase) =
         ruleExecution(EXPERIMENTAL_RULES_EXECUTION_PROPERTY.name) == RuleExecution.enabled &&
             ruleExecution(rule.ruleId.ruleSetId.ktLintRuleSetExecutionPropertyName()) != RuleExecution.disabled &&
             ruleExecution(rule.ruleId.ktLintRuleExecutionPropertyName()) != RuleExecution.disabled
 
-    private fun isOfficialCodeStyleEnabled(rule: Rule) =
+    private fun isOfficialCodeStyleEnabled(rule: RuleBase) =
         codeStyleValue == CodeStyleValue.ktlint_official &&
             ruleExecution(rule.ruleId.ruleSetId.ktLintRuleSetExecutionPropertyName()) != RuleExecution.disabled &&
             ruleExecution(rule.ruleId.ktLintRuleExecutionPropertyName()) != RuleExecution.disabled
 
-    private fun isRuleSetEnabled(rule: Rule) =
+    private fun isRuleSetEnabled(rule: RuleBase) =
         ruleExecution(rule.ruleId.ruleSetId.ktLintRuleSetExecutionPropertyName())
             .let { ruleSetExecution ->
                 if (ruleSetExecution?.name == EXPERIMENTAL_RULES_EXECUTION_PROPERTY.name) {

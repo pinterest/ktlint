@@ -8,10 +8,10 @@ import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine.Companion.UTF8_BOM
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.KtlintKotlinCompiler
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
+import com.pinterest.ktlint.rule.engine.core.api.RuleBase
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.RuleInstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
@@ -32,14 +32,14 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 internal class RuleExecutionContext private constructor(
     val code: Code,
     val rootNode: FileASTNode,
-    val ruleProviders: Set<RuleProvider>,
+    val ruleProviders: Set<RuleInstanceProvider>,
     val editorConfig: EditorConfig,
     val positionInTextLocator: (offset: Int) -> LineAndColumn,
 ) {
     private var suppressionLocator = SuppressionLocator(editorConfig)
 
     fun executeRule(
-        rule: Rule,
+        rule: RuleBase,
         autocorrectHandler: AutocorrectHandler,
         emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
@@ -89,7 +89,7 @@ internal class RuleExecutionContext private constructor(
 
     private fun executeRuleOnNodeRecursively(
         node: ASTNode,
-        rule: Rule,
+        rule: RuleBase,
         autocorrectHandler: AutocorrectHandler,
         emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
@@ -234,7 +234,7 @@ private fun EditorConfig.warnIfPropertyIsObsolete(
 }
 
 private class RuleExecutionException(
-    val rule: Rule,
+    val rule: RuleBase,
     val line: Int,
     val col: Int,
     override val cause: Throwable,

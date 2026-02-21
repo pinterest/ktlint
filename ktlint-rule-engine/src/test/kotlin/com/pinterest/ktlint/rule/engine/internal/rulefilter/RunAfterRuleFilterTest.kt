@@ -1,13 +1,15 @@
 package com.pinterest.ktlint.rule.engine.internal.rulefilter
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.Rule
-import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
-import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
-import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
+import com.pinterest.ktlint.rule.engine.core.api.RuleBase
+import com.pinterest.ktlint.rule.engine.core.api.RuleBase.VisitorModifier
+import com.pinterest.ktlint.rule.engine.core.api.RuleBase.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
+import com.pinterest.ktlint.rule.engine.core.api.RuleBase.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.RuleInstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalStateException
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -69,7 +71,7 @@ class RunAfterRuleFilterTest {
                                                 ),
                                             ),
                                     ),
-                                    Rule.Experimental {},
+                                    RuleBase.Experimental {},
                             ),
                         )
                 }.withMessage(
@@ -170,7 +172,7 @@ class RunAfterRuleFilterTest {
                                             mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
                                         ),
                                 ),
-                                Rule.Experimental {},
+                                RuleBase.Experimental {},
                         ),
                     )
                 }.withMessage(
@@ -226,7 +228,7 @@ class RunAfterRuleFilterTest {
                                             mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
                                         ),
                                 ),
-                                Rule.Experimental {},
+                                RuleBase.Experimental {},
                         ),
                     )
                 }.withMessage(
@@ -357,9 +359,9 @@ class RunAfterRuleFilterTest {
 
     private fun createRule(
         beforeRule: RuleId,
-        mode: Rule.VisitorModifier.RunAfterRule.Mode,
+        mode: VisitorModifier.RunAfterRule.Mode,
         afterRule: RuleId,
-    ): Rule =
+    ): RuleV2 =
         object : R(
             ruleId = beforeRule,
             visitorModifier =
@@ -372,12 +374,11 @@ class RunAfterRuleFilterTest {
     private open class R(
         ruleId: RuleId,
         visitorModifiers: Set<VisitorModifier> = emptySet(),
-    ) : Rule(
+    ) : RuleV2(
             ruleId = ruleId,
             about = About(),
             visitorModifiers,
-        ),
-        RuleAutocorrectApproveHandler {
+        ) {
         constructor(ruleId: RuleId, visitorModifier: VisitorModifier) : this(ruleId, setOf(visitorModifier))
 
         override fun beforeVisitChildNodes(
@@ -389,11 +390,11 @@ class RunAfterRuleFilterTest {
             )
     }
 
-    private fun createRuleProviders(vararg rules: Rule) =
+    private fun createRuleProviders(vararg rules: RuleV2) =
         rules
             .map {
                 RuleProvider { it }
             }.toSet()
 
-    private fun Set<RuleProvider>.toRuleId() = map { it.ruleId }
+    private fun Set<RuleInstanceProvider>.toRuleId() = map { it.ruleId }
 }

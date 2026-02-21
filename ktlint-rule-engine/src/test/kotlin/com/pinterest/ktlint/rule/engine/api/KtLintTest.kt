@@ -19,11 +19,10 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IMPORT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PACKAGE_DIRECTIVE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REGULAR_STRING_PART
-import com.pinterest.ktlint.rule.engine.core.api.Rule
-import com.pinterest.ktlint.rule.engine.core.api.Rule.VisitorModifier.RunAsLateAsPossible
-import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
+import com.pinterest.ktlint.rule.engine.core.api.RuleBase.VisitorModifier.RunAsLateAsPossible
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.END_OF_LINE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
@@ -492,11 +491,10 @@ class KtLintTest {
  */
 private open class DummyRule(
     val block: (node: ASTNode) -> Unit = {},
-) : Rule(
+) : RuleV2(
         ruleId = RuleId("test:dummy"),
         about = About(),
-    ),
-    RuleAutocorrectApproveHandler {
+    ) {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
@@ -509,11 +507,10 @@ private open class DummyRule(
  * A dummy rule for testing
  */
 private class AutoCorrectErrorRule :
-    Rule(
+    RuleV2(
         ruleId = AUTOCORRECT_ERROR_RULE_ID,
         about = About(),
-    ),
-    RuleAutocorrectApproveHandler {
+    ) {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
@@ -556,12 +553,11 @@ private class SimpleTestRule(
     private val stopTraversalInBeforeVisitChildNodes: (ASTNode) -> Boolean = { false },
     private val stopTraversalInAfterVisitChildNodes: (ASTNode) -> Boolean = { false },
     private val stopTraversalInAfterLastNode: Boolean = false,
-) : Rule(
+) : RuleV2(
         ruleId = ruleId,
         about = About(),
         visitorModifiers,
-    ),
-    RuleAutocorrectApproveHandler {
+    ) {
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         ruleExecutionCalls.add(RuleExecutionCall(ruleId, BEFORE_FIRST))
         if (stopTraversalInBeforeFirstNode) {
@@ -658,11 +654,10 @@ private data class CallbackResult(
  * This rule throws an exception when it is visited more than once.
  */
 private class WithStateRule :
-    Rule(
+    RuleV2(
         ruleId = RuleId("test:with-state"),
         about = About(),
-    ),
-    RuleAutocorrectApproveHandler {
+    ) {
     private var hasNotBeenVisitedYet = true
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {

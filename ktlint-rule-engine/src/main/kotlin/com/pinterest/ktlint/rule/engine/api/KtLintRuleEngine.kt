@@ -5,9 +5,10 @@ package com.pinterest.ktlint.rule.engine.api
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
+import com.pinterest.ktlint.rule.engine.core.api.RuleInstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
@@ -31,10 +32,10 @@ import java.nio.file.Path
 
 public class KtLintRuleEngine(
     /**
-     * The set of [RuleProvider]s to be invoked by the [KtLintRuleEngine]. A [RuleProvider] is able to create a new instance of a [Rule] so
-     * that it can keep internal state and be called thread-safe manner
+     * The set of [RuleProvider]s to be invoked by the [KtLintRuleEngine]. A [RuleProvider] is able to create a new instance of a [RuleV2]
+     * so that it can keep internal state and be called thread-safe manner
      */
-    public val ruleProviders: Set<RuleProvider> = emptySet(),
+    public val ruleProviders: Set<RuleInstanceProvider> = emptySet(),
     /**
      * The default values for `.editorconfig` properties which are not set explicitly in any '.editorconfig' file located on the path of the
      * file which is processed with the [KtLintRuleEngine]. If a property is set in [editorConfigDefaults] this takes precedence above the

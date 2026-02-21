@@ -1,6 +1,7 @@
 package com.pinterest.ktlint.rule.engine.api
 
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.RuleInstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
@@ -25,10 +26,10 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleSetExecu
  * [EditorConfigPropertyRegistry].
  */
 public class EditorConfigPropertyRegistry(
-    ruleProviders: Set<RuleProvider>,
+    ruleInstanceProviders: Set<RuleInstanceProvider>,
 ) {
     private val properties =
-        ruleProviders
+        ruleInstanceProviders
             .map { it.createNewRuleInstance() }
             .flatMap { it.usesEditorConfigProperties }
             .plus(KTLINT_RULE_ENGINE_CORE_PROPERTIES)
