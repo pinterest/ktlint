@@ -6,7 +6,7 @@ import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.LintError
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.ALLOW_AUTOCORRECT
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.NO_AUTOCORRECT
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.END_OF_LINE_PROPERTY
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.ec4j.core.model.PropertyType
@@ -130,7 +130,7 @@ internal class CodeFormatter(
     }
 
     private fun RuleExecutionContext.executeRule(
-        rule: RuleBase,
+        rule: RuleV2,
         autocorrectHandler: AutocorrectHandler,
         code: Code,
     ): Set<Pair<LintError, Boolean>> {

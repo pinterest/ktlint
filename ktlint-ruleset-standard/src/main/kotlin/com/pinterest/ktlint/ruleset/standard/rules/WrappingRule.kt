@@ -44,9 +44,9 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.Companion.DEFAULT_INDENT_CONFIG
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase.VisitorModifier.RunAfterRule
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAfterRule
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.TokenSets

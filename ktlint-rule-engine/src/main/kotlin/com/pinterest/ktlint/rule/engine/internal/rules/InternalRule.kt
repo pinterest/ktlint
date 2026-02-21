@@ -1,12 +1,11 @@
 package com.pinterest.ktlint.rule.engine.internal.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 
 internal val INTERNAL_RULE_ABOUT =
-    RuleBase.About(
+    RuleV2.About(
         maintainer = "KtLint",
         repositoryUrl = "https://github.com/pinterest/ktlint",
         issueTrackerUrl = "https://github.com/pinterest/ktlint/issues",

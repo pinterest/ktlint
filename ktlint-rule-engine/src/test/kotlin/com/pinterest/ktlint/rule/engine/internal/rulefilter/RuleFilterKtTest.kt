@@ -1,10 +1,10 @@
 package com.pinterest.ktlint.rule.engine.internal.rulefilter
 
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase.About
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleInstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2.About
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2InstanceProvider
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

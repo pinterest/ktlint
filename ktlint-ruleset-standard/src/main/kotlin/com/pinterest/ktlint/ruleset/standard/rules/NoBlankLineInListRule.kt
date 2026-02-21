@@ -8,8 +8,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_CONSTRAINT_LIS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
@@ -27,7 +27,7 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 @SinceKtlint("1.0", STABLE)
 public class NoBlankLineInListRule :
     StandardRule("no-blank-line-in-list"),
-    RuleBase.OfficialCodeStyle {
+    RuleV2.OfficialCodeStyle {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,

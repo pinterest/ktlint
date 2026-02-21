@@ -11,8 +11,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PACKAGE_DIRECTIVE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REFERENCE_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.IgnoreKtlintSuppressions
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase.OnlyWhenEnabledInEditorconfig
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2.OnlyWhenEnabledInEditorconfig
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed

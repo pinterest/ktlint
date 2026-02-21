@@ -1,12 +1,12 @@
 package com.pinterest.ktlint.rule.engine.internal.rulefilter
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleInstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.internal.rulefilter.RunAfterRuleFilter.RunAfterRuleOrderModifier.ADD
 import com.pinterest.ktlint.rule.engine.internal.rulefilter.RunAfterRuleFilter.RunAfterRuleOrderModifier.BLOCK_UNTIL_RUN_AFTER_RULE_IS_LOADED
 import com.pinterest.ktlint.rule.engine.internal.rulefilter.RunAfterRuleFilter.RunAfterRuleOrderModifier.IGNORE
@@ -16,9 +16,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
- * Creates a filter that exclude rules that have a [RuleBase.VisitorModifier.RunAfterRule] declared with mode
+ * Creates a filter that exclude rules that have a [RuleV2.VisitorModifier.RunAfterRule] declared with mode
  * [ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED] for a rule id which is not loaded or not enabled. This filter also removes
- * [RuleBase.VisitorModifier.RunAfterRule] for rules that are not loaded or are loaded but not enabled.
+ * [RuleV2.VisitorModifier.RunAfterRule] for rules that are not loaded or are loaded but not enabled.
  */
 internal class RunAfterRuleFilter : RuleFilter {
     // List of rule ids that are to be filtered

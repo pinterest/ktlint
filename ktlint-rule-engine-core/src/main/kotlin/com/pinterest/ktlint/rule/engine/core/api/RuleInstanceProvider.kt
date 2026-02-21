@@ -6,9 +6,9 @@ import org.ec4j.core.model.PropertyType
 public sealed class RuleInstanceProvider(
     public open val ruleId: RuleId,
     public open val runAsLateAsPossible: Boolean,
-    public open val runAfterRules: List<RuleBase.VisitorModifier.RunAfterRule>,
+    public open val runAfterRules: List<RuleV2.VisitorModifier.RunAfterRule>,
 ) {
-    public abstract fun createNewRuleInstance(): RuleBase
+    public abstract fun createNewRuleInstance(): RuleV2
 }
 
 /**

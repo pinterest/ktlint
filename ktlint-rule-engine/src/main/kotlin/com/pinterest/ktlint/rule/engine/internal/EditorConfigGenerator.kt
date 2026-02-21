@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.rule.engine.internal
 
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
@@ -11,14 +11,14 @@ import java.nio.file.Path
 
 /**
  * Generates a Kotlin section content for the `.editorconfig` file. The set of properties is based on the properties used by the given set
- * of [RuleBase]s. The default values for missing properties are based on the given [CodeStyleValue].
+ * of [RuleV2]s. The default values for missing properties are based on the given [CodeStyleValue].
  */
 internal class EditorConfigGenerator(
     private val fileSystem: FileSystem = FileSystems.getDefault(),
     private val editorConfigLoaderEc4j: EditorConfigLoaderEc4j,
 ) {
     /**
-     * Method loads merged `.editorconfig` content using [filePath], and then, by querying the set of [RuleBase]s generates Kotlin section
+     * Method loads merged `.editorconfig` content using [filePath], and then, by querying the set of [RuleV2]s generates Kotlin section
      * (default is `[*.{kt,kts}]`) content including expected default values.
      *
      * @return Kotlin section editorconfig content. For example:
@@ -28,7 +28,7 @@ internal class EditorConfigGenerator(
      * ```
      */
     fun generateEditorconfig(
-        rules: Set<RuleBase>,
+        rules: Set<RuleV2>,
         codeStyle: CodeStyleValue,
         filePath: Path,
     ): String =
@@ -39,7 +39,7 @@ internal class EditorConfigGenerator(
             .joinToString(separator = System.lineSeparator())
 
     private fun editorConfig(
-        rules: Set<RuleBase>,
+        rules: Set<RuleV2>,
         codeStyle: CodeStyleValue,
         filePath: Path,
     ): EditorConfig {

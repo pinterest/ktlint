@@ -9,9 +9,9 @@ import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.KtlintKotlinCompiler
 import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleInstanceProvider
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
@@ -39,7 +39,7 @@ internal class RuleExecutionContext private constructor(
     private var suppressionLocator = SuppressionLocator(editorConfig)
 
     fun executeRule(
-        rule: RuleBase,
+        rule: RuleV2,
         autocorrectHandler: AutocorrectHandler,
         emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
@@ -89,7 +89,7 @@ internal class RuleExecutionContext private constructor(
 
     private fun executeRuleOnNodeRecursively(
         node: ASTNode,
-        rule: RuleBase,
+        rule: RuleV2,
         autocorrectHandler: AutocorrectHandler,
         emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
@@ -234,7 +234,7 @@ private fun EditorConfig.warnIfPropertyIsObsolete(
 }
 
 private class RuleExecutionException(
-    val rule: RuleBase,
+    val rule: RuleV2,
     val line: Int,
     val col: Int,
     override val cause: Throwable,

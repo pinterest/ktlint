@@ -4,12 +4,12 @@ import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.ALLOW_AUTOC
 
 public enum class AutocorrectDecision {
     /**
-     * Autocorrect lint violation if supported by the [RuleBase].
+     * Autocorrect lint violation if supported by the [RuleV2].
      */
     ALLOW_AUTOCORRECT,
 
     /**
-     * Do not autocorrect lint violation even when this is supported by the [RuleBase].
+     * Do not autocorrect lint violation even when this is supported by the [RuleV2].
      */
     NO_AUTOCORRECT,
 }

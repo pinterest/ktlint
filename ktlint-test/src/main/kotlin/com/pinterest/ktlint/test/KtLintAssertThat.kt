@@ -10,10 +10,10 @@ import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.plus
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.api.LintError
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleInstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2InstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty

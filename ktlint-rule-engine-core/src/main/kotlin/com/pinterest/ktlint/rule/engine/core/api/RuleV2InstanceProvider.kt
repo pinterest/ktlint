@@ -20,7 +20,7 @@ public class RuleV2InstanceProvider private constructor(
     /**
      * The list of rules which have to run before the [RuleV2] created by the provider can be run.
      */
-    public override val runAfterRules: List<RuleBase.VisitorModifier.RunAfterRule>,
+    public override val runAfterRules: List<RuleV2.VisitorModifier.RunAfterRule>,
 ) : RuleInstanceProvider(ruleId, runAsLateAsPossible, runAfterRules) {
     /**
      * Creates a new [RuleV2] instance.
@@ -43,12 +43,12 @@ public class RuleV2InstanceProvider private constructor(
                         runAsLateAsPossible =
                             rule
                                 .visitorModifiers
-                                .filterIsInstance<RuleBase.VisitorModifier.RunAsLateAsPossible>()
+                                .filterIsInstance<RuleV2.VisitorModifier.RunAsLateAsPossible>()
                                 .any(),
                         runAfterRules =
                             rule
                                 .visitorModifiers
-                                .filterIsInstance<RuleBase.VisitorModifier.RunAfterRule>(),
+                                .filterIsInstance<RuleV2.VisitorModifier.RunAfterRule>(),
                     )
                 }
     }

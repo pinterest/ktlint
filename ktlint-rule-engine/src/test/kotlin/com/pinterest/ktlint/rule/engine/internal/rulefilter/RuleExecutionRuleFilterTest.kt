@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.rule.engine.internal.rulefilter
 
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleInstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
@@ -281,7 +280,7 @@ class RuleExecutionRuleFilterTest {
             ruleId = ruleId,
             about = About(),
         ),
-        RuleBase.Experimental
+        RuleV2.Experimental
 
     private open class OnlyWhenEnabledInEditorconfigRule(
         ruleId: RuleId,
@@ -289,5 +288,5 @@ class RuleExecutionRuleFilterTest {
             ruleId = ruleId,
             about = About(),
         ),
-        RuleBase.OnlyWhenEnabledInEditorconfig
+        RuleV2.OnlyWhenEnabledInEditorconfig
 }

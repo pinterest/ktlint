@@ -3,13 +3,13 @@ package com.pinterest.ktlint.rule.engine.core.api
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 /**
- * In Ktlint 2.0 the methods from this interface will be merged into the [RuleBase] class. Consider to implement this interface on your
+ * In Ktlint 2.0 the methods from this interface will be merged into the [RuleV2] class. Consider to implement this interface on your
  * Ktlint 1.x compatible rules in order to make your rules suitable for API Consumers, like the ktlint-intellij-plugin, that allow their
  * users to fix violations that can be autocorrected on an interactive 1-by-1 basis.
  *
  * Whenever a rule implements this interface, the [beforeVisitChildNodes] and [afterVisitChildNodes] methods of this interface take
- * precedence above the methods with same name in the [RuleBase] class. As of that the rule should not only implement the interface, but
- * also change the implementation by replacing the implementation of [RuleBase.beforeVisitChildNodes] and/or [RuleBase.afterVisitChildNodes]
+ * precedence above the methods with same name in the [RuleV2] class. As of that the rule should not only implement the interface, but
+ * also change the implementation by replacing the implementation of [RuleV2.beforeVisitChildNodes] and/or [RuleV2.afterVisitChildNodes]
  * in the rule class with the methods of this class.
  */
 public interface RuleAutocorrectApproveHandler {

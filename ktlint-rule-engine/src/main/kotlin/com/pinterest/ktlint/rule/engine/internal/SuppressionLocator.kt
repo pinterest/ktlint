@@ -6,8 +6,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.IgnoreKtlintSuppressions
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.TokenSets
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.isKtAnnotated20
@@ -34,7 +34,7 @@ internal class SuppressionLocator(
     fun suppress(
         rootNode: ASTNode,
         offset: Int,
-        rule: RuleBase,
+        rule: RuleV2,
     ): Boolean {
         // (Re)build the list of suppressions for given [rootNode] of AST tree in case content of AST has changed. When linting, the
         // rootNode is never changed. During format, the rootNode is changed whenever a LintError is corrected.

@@ -1,8 +1,8 @@
 package com.pinterest.ktlint.rule.engine.internal
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase
 import com.pinterest.ktlint.rule.engine.core.api.RuleInstanceProvider
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import io.github.oshai.kotlinlogging.KotlinLogging
 
@@ -23,12 +23,12 @@ internal class VisitorProvider(
     ruleProviders: Set<RuleInstanceProvider>,
     /**
      * Creates a new [RuleProviderSorter]. Only to be used in unit tests where the same set of rules are used with distinct
-     * [RuleBase.VisitorModifier]s.
+     * [RuleV2.VisitorModifier]s.
      */
     recreateRuleSorter: Boolean = false,
 ) {
     /**
-     * The list of [ruleProvidersSorted] is sorted based on the [RuleBase.VisitorModifier] of the rules.
+     * The list of [ruleProvidersSorted] is sorted based on the [RuleV2.VisitorModifier] of the rules.
      */
     private val ruleProvidersSorted: List<RuleInstanceProvider> =
         if (recreateRuleSorter) {
@@ -37,7 +37,7 @@ internal class VisitorProvider(
             RULE_PROVIDER_SORTER
         }.getSortedRuleProviders(ruleProviders)
 
-    internal val rules: List<RuleBase>
+    internal val rules: List<RuleV2>
         get() {
             if (ruleProvidersSorted.isEmpty()) {
                 LOGGER.debug { "Skipping file as no enabled rules are found to be executed" }

@@ -5,8 +5,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC_END
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC_START
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
@@ -27,7 +27,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 @SinceKtlint("1.0", STABLE)
 public class NoConsecutiveCommentsRule :
     StandardRule("no-consecutive-comments"),
-    RuleBase.OfficialCodeStyle {
+    RuleV2.OfficialCodeStyle {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,

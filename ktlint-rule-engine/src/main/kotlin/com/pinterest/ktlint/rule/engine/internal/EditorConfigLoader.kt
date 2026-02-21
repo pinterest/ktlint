@@ -5,7 +5,7 @@ import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
 import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
 import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.END_OF_LINE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
@@ -43,7 +43,7 @@ internal class EditorConfigLoader(
     private val editorConfigOverride: EditorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
 ) {
     /**
-     * Loads properties used by [RuleBase]s from the `.editorconfig` file on given [filePath]. When [filePath] is null, the properties for
+     * Loads properties used by [RuleV2]s from the `.editorconfig` file on given [filePath]. When [filePath] is null, the properties for
      * the ".kt" pattern in the current directory are loaded. The '.editorconfig' files on the [filePath] are read starting from the
      * [filePath] upwards until an '.editorconfig' file is found in which the property "root" is found with value "true" or until the root
      * of the filesystem is reached.

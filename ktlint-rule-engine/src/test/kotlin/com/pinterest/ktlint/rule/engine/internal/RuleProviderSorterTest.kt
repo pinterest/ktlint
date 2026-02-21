@@ -1,12 +1,11 @@
 package com.pinterest.ktlint.rule.engine.internal
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2InstanceProvider
 import com.pinterest.ktlint.ruleset.standard.rules.FUNCTION_SIGNATURE_RULE_ID
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule
@@ -230,7 +229,7 @@ class RuleProviderSorterTest {
                                             mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
                                         ),
                                 ),
-                                RuleBase.Experimental {},
+                                RuleV2.Experimental {},
                         ),
                 ).map { it.ruleId }
 
@@ -430,7 +429,7 @@ class RuleProviderSorterTest {
     private open class ExperimentalRule(
         ruleId: RuleId,
     ) : R(ruleId),
-        RuleBase.Experimental
+        RuleV2.Experimental
 
     private class RunAsLateAsPossibleRule(
         ruleId: RuleId,
@@ -451,7 +450,7 @@ class RuleProviderSorterTest {
                     VisitorModifier.RunAsLateAsPossible,
                 ),
         ),
-        RuleBase.Experimental
+        RuleV2.Experimental
 
     private open class R(
         ruleId: RuleId,

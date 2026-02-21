@@ -9,8 +9,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TRY
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.Companion.DEFAULT_INDENT_CONFIG
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
@@ -43,7 +43,7 @@ public class TryCatchFinallySpacingRule :
                 INDENT_STYLE_PROPERTY,
             ),
     ),
-    RuleBase.OfficialCodeStyle {
+    RuleV2.OfficialCodeStyle {
     private var indentConfig = DEFAULT_INDENT_CONFIG
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {

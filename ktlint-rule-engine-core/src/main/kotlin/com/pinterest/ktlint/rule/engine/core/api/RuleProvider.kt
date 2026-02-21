@@ -15,7 +15,7 @@ public class RuleProvider private constructor(
      */
     private val provider: () -> Rule,
     /**
-     * The rule id of the [RuleBase] created by the provider.
+     * The rule id of the [RuleV2] created by the provider.
      */
     public override val ruleId: RuleId,
     /**
@@ -25,12 +25,12 @@ public class RuleProvider private constructor(
     /**
      * The list of rules which have to run before the [Rule] created by the provider can be run.
      */
-    public override val runAfterRules: List<RuleBase.VisitorModifier.RunAfterRule>,
+    public override val runAfterRules: List<RuleV2.VisitorModifier.RunAfterRule>,
 ) : RuleInstanceProvider(ruleId, runAsLateAsPossible, runAfterRules) {
     /**
      * Creates a new [RuleV2] instance.
      */
-    public override fun createNewRuleInstance(): RuleBase =
+    public override fun createNewRuleInstance(): RuleV2 =
         provider()
             .also {
                 require(it is RuleAutocorrectApproveHandler) {
@@ -103,17 +103,17 @@ public class RuleProvider private constructor(
                                 .visitorModifiers
                                 .filterIsInstance<Rule.VisitorModifier.RunAfterRule>()
                                 .map {
-                                    RuleBase.VisitorModifier.RunAfterRule(
+                                    RuleV2.VisitorModifier.RunAfterRule(
                                         it.ruleId,
                                         when (it.mode) {
                                             Rule.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED -> {
-                                                RuleBase.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
+                                                RuleV2.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
                                             }
 
                                             Rule.VisitorModifier.RunAfterRule.Mode
                                                 .REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
                                             -> {
-                                                RuleBase.VisitorModifier.RunAfterRule.Mode
+                                                RuleV2.VisitorModifier.RunAfterRule.Mode
                                                     .REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
                                             }
                                         },

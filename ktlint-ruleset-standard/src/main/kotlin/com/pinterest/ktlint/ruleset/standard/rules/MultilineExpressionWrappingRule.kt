@@ -32,8 +32,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.Companion.DEFAULT_INDENT_CONFIG
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
@@ -73,7 +73,7 @@ public class MultilineExpressionWrappingRule :
                 FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY,
             ),
     ),
-    RuleBase.OfficialCodeStyle {
+    RuleV2.OfficialCodeStyle {
     private var indentConfig = DEFAULT_INDENT_CONFIG
     private lateinit var functionBodyExpressionWrapping: FunctionSignatureRule.FunctionBodyExpressionWrapping
 

@@ -1,21 +1,21 @@
 package com.pinterest.ktlint.rule.engine.internal
 
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleInstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.internal.rules.KTLINT_SUPPRESSION_RULE_ID
 import io.github.oshai.kotlinlogging.KotlinLogging
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
- * Sorts the [RuleInstanceProvider]s based on [RuleBase.VisitorModifier]s.
+ * Sorts the [RuleInstanceProvider]s based on [RuleV2.VisitorModifier]s.
  */
 internal class RuleProviderSorter {
     /**
-     * Prevent duplicate debug logging whenever the same set of [RuleBase.ruleId]s (but not the same instance) are sorted. As the sorting of
+     * Prevent duplicate debug logging whenever the same set of [RuleV2.ruleId]s (but not the same instance) are sorted. As the sorting of
      * the [RuleInstanceProvider] has to be executed for each file.
      */
     private val debugLogCache = mutableMapOf<Int, Boolean>()
@@ -96,7 +96,7 @@ internal class RuleProviderSorter {
         runAfterRules.forEach { runAfterRuleVisitorModifier ->
             check(ruleId != runAfterRuleVisitorModifier.ruleId) {
                 "Rule with id '${ruleId.value}' has a visitor modifier of type " +
-                    "'${RuleBase.VisitorModifier.RunAfterRule::class.simpleName}' which may not refer to the rule itself."
+                    "'${RuleV2.VisitorModifier.RunAfterRule::class.simpleName}' which may not refer to the rule itself."
             }
         }
     }

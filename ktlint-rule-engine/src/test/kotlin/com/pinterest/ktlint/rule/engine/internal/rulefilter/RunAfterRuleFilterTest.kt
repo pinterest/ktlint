@@ -1,14 +1,13 @@
 package com.pinterest.ktlint.rule.engine.internal.rulefilter
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase.VisitorModifier
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleInstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2InstanceProvider
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalStateException
@@ -71,7 +70,7 @@ class RunAfterRuleFilterTest {
                                                 ),
                                             ),
                                     ),
-                                    RuleBase.Experimental {},
+                                    RuleV2.Experimental {},
                             ),
                         )
                 }.withMessage(
@@ -172,7 +171,7 @@ class RunAfterRuleFilterTest {
                                             mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
                                         ),
                                 ),
-                                RuleBase.Experimental {},
+                                RuleV2.Experimental {},
                         ),
                     )
                 }.withMessage(
@@ -228,7 +227,7 @@ class RunAfterRuleFilterTest {
                                             mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
                                         ),
                                 ),
-                                RuleBase.Experimental {},
+                                RuleV2.Experimental {},
                         ),
                     )
                 }.withMessage(

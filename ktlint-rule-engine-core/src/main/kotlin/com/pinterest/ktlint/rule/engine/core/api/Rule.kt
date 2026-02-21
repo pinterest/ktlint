@@ -52,46 +52,17 @@ public class RuleSetId(
     }
 }
 
-public open class RuleV2(
-    /**
-     * Identification of the rule. A [ruleId] has a value that must adhere the convention "<rule-set-id>:<rule-id>". The rule set id
-     * 'standard' is reserved for rules which are maintained by the KtLint project. Rules created by custom rule set providers and API
-     * Consumers should use a prefix other than 'standard' to mark the origin of rules which are not maintained by the KtLint project.
-     */
-    public override val ruleId: RuleId,
-    /**
-     * About the rule. Background information about the rule and its maintainer. About information is meant to be used in stack traces or
-     * API consumers to provide more detailed information about the rule.
-     */
-    public override val about: About,
-    /**
-     * Set of modifiers of the visitor. Preferably a rule has no modifiers at all, meaning that it is completely
-     * independent of all other rules.
-     */
-    public override val visitorModifiers: Set<VisitorModifier> = emptySet(),
-    /**
-     * Set of [EditorConfigProperty]'s that are to provided to the rule. Only specify the properties that are actually used by the rule.
-     */
-    public override val usesEditorConfigProperties: Set<EditorConfigProperty<*>> = emptySet(),
-) : RuleBase(ruleId, about, visitorModifiers, usesEditorConfigProperties),
-    RuleAutocorrectApproveHandler
-
 /**
- * The [RuleBase] contains the life cycle hooks which are called by the KtLint rule engine to execute the rule.
+ * The [RuleV2] contains the life cycle hooks which are called by the KtLint rule engine to execute the rule.
  *
- * The implementation of a [RuleBase] **doesn't** have to be thread-safe or stateless provided that the [RuleProvider] creates a new
- * instance of [RuleBase] on each call to [RuleProvider.provider].
+ * The implementation of a [RuleV2] **doesn't** have to be thread-safe or stateless provided that the [RuleProvider] creates a new
+ * instance of [RuleV2] on each call to [RuleProvider.provider].
  *
  * When wrapping a rule from the ktlint project and modifying its behavior, please change the [ruleId] and [about] fields, so that it is
  * clear to users whenever they used the original rule provided by KtLint versus a modified version which is not maintained by the KtLint
  * project.
- *
- * Note:
- * In Ktlint 2.0 the methods from interface [RuleAutocorrectApproveHandler] interface will be merged into the [RuleBase] class. Consider to
- * implement this interface on your Ktlint 1.x compatible rules in order to make your rules suitable for API Consumers, like the
- * ktlint-intellij-plugin, that allow their users to fix violations that can be autocorrected on an interactive 1-by-1 basis.
  */
-public open class RuleBase(
+public open class RuleV2(
     /**
      * Identification of the rule. A [ruleId] has a value that must adhere the convention "<rule-set-id>:<rule-id>". The rule set id
      * 'standard' is reserved for rules which are maintained by the KtLint project. Rules created by custom rule set providers and API
@@ -112,7 +83,7 @@ public open class RuleBase(
      * Set of [EditorConfigProperty]'s that are to provided to the rule. Only specify the properties that are actually used by the rule.
      */
     public open val usesEditorConfigProperties: Set<EditorConfigProperty<*>> = emptySet(),
-) {
+) : RuleAutocorrectApproveHandler {
     private var traversalState = TraversalState.NOT_STARTED
 
     /**
@@ -121,32 +92,6 @@ public open class RuleBase(
      */
     public open fun beforeFirstNode(editorConfig: EditorConfig) {}
 
-    @Deprecated(
-        message = "Rules implementing this method are not supported by Ktlint 2.x. Implement the RuleAutocorrectApproveHandler instead",
-        level = DeprecationLevel.ERROR,
-    )
-    public open fun beforeVisitChildNodes(
-        node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-    ): Unit =
-        throw UnsupportedOperationException(
-            "Ktlint 2.x does not support rules that have not correctly implemented the RuleAutocorrectApproveHandler",
-        )
-
-    @Deprecated(
-        message = "Rules implementing this method are not supported by Ktlint 2.x. Implement the RuleAutocorrectApproveHandler instead",
-        level = DeprecationLevel.ERROR,
-    )
-    public open fun afterVisitChildNodes(
-        node: ASTNode,
-        autoCorrect: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit,
-    ): Unit =
-        throw UnsupportedOperationException(
-            "Ktlint 2.x does not support rules that have not correctly implemented the RuleAutocorrectApproveHandler",
-        )
-
     /**
      * This method is called once after the last node in the AST is visited. It can be used for teardown of the state
      * of the rule.
@@ -154,14 +99,14 @@ public open class RuleBase(
     public open fun afterLastNode() {}
 
     /**
-     * Checks whether the [RuleBase] instance is used for traversal of the AST and as of that potentially has changed the state of the
-     * [RuleBase] provided that it has state.
+     * Checks whether the [RuleV2] instance is used for traversal of the AST and as of that potentially has changed the state of the
+     * [RuleV2] provided that it has state.
      */
     public fun isUsedForTraversalOfAST(): Boolean = traversalState != TraversalState.NOT_STARTED
 
     /**
-     * Marks the [RuleBase] instance as being used for traversal of an AST. From this moment on, this instance of the [RuleBase] can not be
-     * used to start a new traversal of the same or another AST as the instance might contain state.
+     * Marks the [RuleV2] instance as being used for traversal of an AST. From this moment on, this instance of the [RuleV2] can not be used
+     * to start a new traversal of the same or another AST as the instance might contain state.
      */
     public fun startTraversalOfAST() {
         require(traversalState == TraversalState.NOT_STARTED)
@@ -196,7 +141,7 @@ public open class RuleBase(
 
     private enum class TraversalState {
         /**
-         * Traversal of the AST is not started. As no life cycle hooks of the [RuleBase] have been executed, the [RuleBase] instance can not
+         * Traversal of the AST is not started. As no life cycle hooks of the [RuleV2] have been executed, the [RuleV2] instance can not
          * contain state specific for the AST.
          */
         NOT_STARTED,
@@ -235,32 +180,32 @@ public open class RuleBase(
 
     public sealed class VisitorModifier {
         /**
-         * Defines that the [RuleBase] that declares this [VisitorModifier] will be run after the [RuleBase] with rule id
+         * Defines that the [RuleV2] that declares this [VisitorModifier] will be run after the [RuleV2] with rule id
          * [VisitorModifier.RunAfterRule.ruleId].
          */
         @Poko
         public class RunAfterRule(
             /**
-             * The [RuleId] of the [RuleBase] which should run before the [RuleBase] that declares the [VisitorModifier.RunAfterRule].
+             * The [RuleId] of the [RuleV2] which should run before the [RuleV2] that declares the [VisitorModifier.RunAfterRule].
              */
             public val ruleId: RuleId,
             /**
-             * The [Mode] determines whether the [RuleBase] that declares this [VisitorModifier] can be run in case the [RuleBase] with rule
-             * id [VisitorModifier.RunAfterRule.ruleId] is not loaded or enabled.
+             * The [Mode] determines whether the [RuleV2] that declares this [VisitorModifier] can be run in case the [RuleV2] with rule id
+             * [VisitorModifier.RunAfterRule.ruleId] is not loaded or enabled.
              */
             public val mode: Mode,
         ) : VisitorModifier() {
             public enum class Mode {
                 /**
-                 * Run the [RuleBase] that declares the [VisitorModifier.RunAfterRule] regardless whether the [RuleBase] with ruleId
+                 * Run the [RuleV2] that declares the [VisitorModifier.RunAfterRule] regardless whether the [RuleV2] with ruleId
                  * [VisitorModifier.RunAfterRule.ruleId] is loaded or disabled. However, if that other rule is loaded and enabled, it runs
-                 * before the [RuleBase] that declares the [VisitorModifier.RunAfterRule].
+                 * before the [RuleV2] that declares the [VisitorModifier.RunAfterRule].
                  */
                 REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
 
                 /**
-                 * Run the [RuleBase] that declares the [VisitorModifier.RunAfterRule] only in case the [RuleBase] with ruleId
-                 * [VisitorModifier.RunAfterRule.ruleId] is loaded *and* enabled. That other rule runs before the [RuleBase] that declares
+                 * Run the [RuleV2] that declares the [VisitorModifier.RunAfterRule] only in case the [RuleV2] with ruleId
+                 * [VisitorModifier.RunAfterRule.ruleId] is loaded *and* enabled. That other rule runs before the [RuleV2] that declares
                  * the [VisitorModifier.RunAfterRule].
                  */
                 ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED,

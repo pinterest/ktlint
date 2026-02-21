@@ -10,7 +10,6 @@ import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.ALLOW_AUTOC
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.NO_AUTOCORRECT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.Rule
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2
@@ -732,7 +731,7 @@ class KtLintRuleEngineTest {
             ruleId = RULE_WITH_AUTOCORRECT_APPROVE_HANDLER,
             about = About(),
         ),
-        RuleBase.Experimental {
+        RuleV2.Experimental {
         override fun beforeVisitChildNodes(
             node: ASTNode,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,

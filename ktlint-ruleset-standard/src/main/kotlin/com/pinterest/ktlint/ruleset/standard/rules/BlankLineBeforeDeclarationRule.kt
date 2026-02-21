@@ -16,8 +16,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.PROPERTY_ACCESSOR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RETURN_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
@@ -42,7 +42,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 @SinceKtlint("1.0", STABLE)
 public class BlankLineBeforeDeclarationRule :
     StandardRule("blank-line-before-declaration"),
-    RuleBase.OfficialCodeStyle {
+    RuleV2.OfficialCodeStyle {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,

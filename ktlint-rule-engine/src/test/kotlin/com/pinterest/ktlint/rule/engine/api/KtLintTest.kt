@@ -19,10 +19,9 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IMPORT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PACKAGE_DIRECTIVE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REGULAR_STRING_PART
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase.VisitorModifier.RunAsLateAsPossible
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAsLateAsPossible
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2InstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.END_OF_LINE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
@@ -542,8 +541,8 @@ private class AutoCorrectErrorRule :
 }
 
 /**
- * Rule in style starting from ktlint 0.47.x in which a rule can can override method [RuleBase.beforeFirstNode],
- * [RuleBase.beforeVisitChildNodes], [RuleBase.afterVisitChildNodes] and [RuleBase.afterLastNode]. For each invocation to this method a
+ * Rule in style starting from ktlint 0.47.x in which a rule can can override method [RuleV2.beforeFirstNode],
+ * [RuleV2.beforeVisitChildNodes], [RuleV2.afterVisitChildNodes] and [RuleV2.afterLastNode]. For each invocation to this method a
  * [RuleExecutionCall] is added to the list of previously calls made.
  */
 private class SimpleTestRule(

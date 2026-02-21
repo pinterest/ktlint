@@ -25,10 +25,10 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.SAFE_ACCESS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SAFE_ACCESS_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase.VisitorModifier.RunAfterRule
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAfterRule
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
@@ -89,7 +89,7 @@ public class ChainMethodContinuationRule :
                 MAX_LINE_LENGTH_PROPERTY,
             ),
     ),
-    RuleBase.OfficialCodeStyle {
+    RuleV2.OfficialCodeStyle {
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
     private var maxLineLength: Int = MAX_LINE_LENGTH_PROPERTY.defaultValue
     private var forceMultilineWhenChainOperatorCountGreaterOrEqualThanProperty =

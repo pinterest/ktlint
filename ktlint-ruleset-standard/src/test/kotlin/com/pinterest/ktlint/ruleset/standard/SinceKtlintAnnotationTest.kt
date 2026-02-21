@@ -1,6 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard
 
-import com.pinterest.ktlint.rule.engine.core.api.RuleBase
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
@@ -19,7 +19,7 @@ class SinceKtlintAnnotationTest {
     @Nested
     inner class `Given a STABLE or EXPERIMENTAL rule` {
         @Parameter
-        lateinit var rule: RuleBase
+        lateinit var rule: RuleV2
 
         @Test
         fun `The rule has a valid version number not containing the patch level`() {
@@ -45,7 +45,7 @@ class SinceKtlintAnnotationTest {
     @Nested
     inner class `Given a STABLE rule, eg not implementing interface Experimental` {
         @Parameter
-        lateinit var stableRule: RuleBase
+        lateinit var stableRule: RuleV2
 
         @Test
         fun `The rule has exactly 1 @SinceKtlint annotation with status STABLE`() {
@@ -67,7 +67,7 @@ class SinceKtlintAnnotationTest {
             assertThat(actual).isLessThanOrEqualTo(1)
         }
 
-        fun stableRules(): Stream<Arguments> = rules { it !is RuleBase.Experimental }
+        fun stableRules(): Stream<Arguments> = rules { it !is RuleV2.Experimental }
     }
 
     @ParameterizedClass(name = "{argumentSetName}")
@@ -76,7 +76,7 @@ class SinceKtlintAnnotationTest {
     @Nested
     inner class `Given an EXPERIMENTAL rule, eg implementing interface Experimental` {
         @Parameter
-        lateinit var experimentalRule: RuleBase
+        lateinit var experimentalRule: RuleV2
 
         @Test
         fun `The rule has exactly 1 @SinceKtlint annotation with status EXPERIMENTAL`() {
@@ -95,12 +95,12 @@ class SinceKtlintAnnotationTest {
             assertThat(actual).isTrue
         }
 
-        fun experimentalRules(): Stream<Arguments> = rules { it is RuleBase.Experimental }
+        fun experimentalRules(): Stream<Arguments> = rules { it is RuleV2.Experimental }
     }
 
-    private fun RuleBase.sinceKtlintAnnotations(): List<SinceKtlint> = this::class.annotations.filterIsInstance<SinceKtlint>()
+    private fun RuleV2.sinceKtlintAnnotations(): List<SinceKtlint> = this::class.annotations.filterIsInstance<SinceKtlint>()
 
-    private fun rules(predicate2: (RuleBase) -> Boolean): Stream<Arguments> =
+    private fun rules(predicate2: (RuleV2) -> Boolean): Stream<Arguments> =
         StandardRuleSetProvider()
             .getRuleProviders()
             .map { it.createNewRuleInstance() }
