@@ -2,7 +2,6 @@ package com.pinterest.ktlint.rule.engine.internal.rulefilter
 
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2
@@ -48,8 +47,7 @@ class InternalRuleProvidersFilterTest {
             ruleId = ruleId,
             about = About(),
             visitorModifiers,
-        ),
-        RuleAutocorrectApproveHandler {
+        ) {
         override fun beforeVisitChildNodes(
             node: ASTNode,
             emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,

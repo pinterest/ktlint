@@ -83,7 +83,7 @@ public open class RuleV2(
      * Set of [EditorConfigProperty]'s that are to provided to the rule. Only specify the properties that are actually used by the rule.
      */
     public open val usesEditorConfigProperties: Set<EditorConfigProperty<*>> = emptySet(),
-) : RuleAutocorrectApproveHandler {
+) {
     private var traversalState = TraversalState.NOT_STARTED
 
     /**
@@ -91,6 +91,42 @@ public open class RuleV2(
      * before processing of nodes starts.
      */
     public open fun beforeFirstNode(editorConfig: EditorConfig) {}
+
+    /**
+     * This method is called on a node in AST before visiting the child nodes. This is repeated recursively for the
+     * child nodes resulting in a depth first traversal of the AST.
+     *
+     * When a rule overrides this method, the API Consumer can decide per violation whether the violation needs to be autocorrected. For
+     * this the [emit] function is called, and its result can be used to determine whether the violation is to be corrected. In
+     * lint mode the [emit] should always return false.
+     *
+     * @param node AST node
+     * @param emit a way for rule to notify about a violation (lint error) and get approval to actually autocorrect the violation
+     * if that is supported by the rule
+     */
+    public open fun beforeVisitChildNodes(
+        node: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+    ) {
+    }
+
+    /**
+     * This method is called on a node in AST after all its child nodes have been visited.
+     *
+     * When a rule overrides this method, the API Consumer can decide per violation whether the violation needs to be autocorrected. For
+     * this the [emit] function is called, and its result can be used to determine whether the violation is to be corrected. In
+     * lint mode the [emit] should always return false.
+     *
+     * @param node AST node
+     * @param emit a way for rule to notify about a violation (lint error) and get approval to actually autocorrect the violation
+     * if that is supported by the rule
+     */
+    @Suppress("unused")
+    public open fun afterVisitChildNodes(
+        node: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+    ) {
+    }
 
     /**
      * This method is called once after the last node in the AST is visited. It can be used for teardown of the state

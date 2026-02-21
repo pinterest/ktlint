@@ -4,6 +4,7 @@ package com.pinterest.ktlint.rule.engine.core.api
  * Provides a [Rule] instance. Important: to ensure that a [Rule] can keep internal state and that processing of files is thread-safe,
  * a *new* instance should be provided on each call of the [provider] function.
  */
+@Suppress("DEPRECATION")
 @Deprecated(
     message = "Provides backwards compatibility of custom ruleset JARs created for Ktlint 1.x.",
     replaceWith = ReplaceWith("RuleV2InstanceProvider", "com.pinterest.ktlint.core.RuleV2InstanceProvider"),

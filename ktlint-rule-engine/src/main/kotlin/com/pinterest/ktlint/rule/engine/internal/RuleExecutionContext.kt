@@ -8,7 +8,6 @@ import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine.Companion.UTF8_BOM
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.KtlintKotlinCompiler
-import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleInstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2
@@ -93,15 +92,6 @@ internal class RuleExecutionContext private constructor(
         autocorrectHandler: AutocorrectHandler,
         emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        require(rule is RuleAutocorrectApproveHandler) {
-            // At this moment in time, the RuleAutocorrectApproveHandler could not be simply merged into the Rule class. For backwards
-            // compatibility in the Ktlint IntelliJ Plugin, and other API consumers, it is required that at least for some time, the 1.x
-            // rulesets which have implemented the RuleAutocorrectApproveHandler are supported by the 2.0 RuleEngine.
-            throw UnsupportedOperationException(
-                "Ktlint 2.x does not support rules that have not correctly implemented the RuleAutocorrectApproveHandler. " +
-                    "Use a new version of the ruleset. or contact the maintainer of this ruleset to upgrade it.",
-            )
-        }
         try {
             if (rule.shouldContinueTraversalOfAST()) {
                 val suppress = suppressionLocator.suppress(rootNode, node.startOffset, rule)
