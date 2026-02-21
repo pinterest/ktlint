@@ -10,7 +10,10 @@ import java.io.Serializable
  * `META-INF/services/com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3` (see `ktlint-ruleset-standard/src/main/resources`
  * for an example).
  */
-@Deprecated("Obsolete since Ktlint 2.x")
+@Deprecated(
+    message = "Only use for backward compatibility of custom ruleset JARs with Ktlint 2.x",
+    ReplaceWith("RuleV2InstanceProvider", "com.pinterest.ktlint.ruleV2InstanceProvider"),
+)
 public abstract class RuleSetProviderV3(
     public val id: RuleSetId,
 ) : Serializable {

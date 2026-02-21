@@ -20,11 +20,11 @@ public abstract class RuleSetV2Provider(
      * Intended usage:
      * ```
      * public class CustomRuleSetProvider :
-     *     RuleSetV1Provider(RuleSetId("custom")) {
-     *     override fun getRuleProviders(): Set<RuleProvider> =
+     *     RuleSetV2Provider(RuleSetId("custom")) {
+     *     override fun getRuleProviders(): Set<RuleV2InstanceProvider> =
      *         setOf(
-     *             RuleProvider { CustomRule1() },
-     *             RuleProvider { CustomRule2() }
+     *             RuleV2InstanceProvider { CustomRule1() },
+     *             RuleV2InstanceProvider { CustomRule2() }
      *         )
      *     }
      * ```
