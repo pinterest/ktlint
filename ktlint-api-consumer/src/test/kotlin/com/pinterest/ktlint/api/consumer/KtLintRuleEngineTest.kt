@@ -9,10 +9,10 @@ import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.ALLOW_AUTOCORRECT
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.NO_AUTOCORRECT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
+import com.pinterest.ktlint.rule.engine.core.api.Rule
 import com.pinterest.ktlint.rule.engine.core.api.RuleBase
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
-import com.pinterest.ktlint.rule.engine.core.api.RuleV1
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2InstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
@@ -710,24 +710,11 @@ class KtLintRuleEngineTest {
 
     @Test
     fun `Given a rule that has not implemented the RuleAutocorrectApproveHandler then throw exception`() {
-        val ktLintRuleEngine =
-            KtLintRuleEngine(
-                ruleProviders = setOf(RuleProvider { RuleWithoutAutocorrectApproveHandler() }),
-                fileSystem = ktlintTestFileSystem.fileSystem,
-            )
-
-        assertThatExceptionOfType(UnsupportedOperationException::class.java)
+        assertThatExceptionOfType(IllegalArgumentException::class.java)
             .isThrownBy {
-                ktLintRuleEngine.lint(
-                    code =
-                        Code.fromSnippet(
-                            """
-                            fun bar() {
-                                // foo
-                                // bar
-                                }
-                            """.trimIndent(),
-                        ),
+                KtLintRuleEngine(
+                    ruleProviders = setOf(RuleProvider { RuleWithoutAutocorrectApproveHandler() }),
+                    fileSystem = ktlintTestFileSystem.fileSystem,
                 )
             }.withMessage(
                 "Ktlint 2.x does not support rules that have not correctly implemented the RuleAutocorrectApproveHandler. Use a new version of the ruleset. or contact the maintainer of this ruleset to upgrade it.",
@@ -735,7 +722,7 @@ class KtLintRuleEngineTest {
     }
 
     private class RuleWithoutAutocorrectApproveHandler :
-        RuleV1(
+        Rule(
             ruleId = RuleId("custom:rule-without-autocorrect-approval-handler"),
             about = About(),
         )

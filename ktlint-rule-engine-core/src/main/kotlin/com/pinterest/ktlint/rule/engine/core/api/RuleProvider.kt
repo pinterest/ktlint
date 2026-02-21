@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.rule.engine.core.api
 
 /**
- * Provides a [RuleV1] instance. Important: to ensure that a [RuleV1] can keep internal state and that processing of files is thread-safe,
+ * Provides a [Rule] instance. Important: to ensure that a [Rule] can keep internal state and that processing of files is thread-safe,
  * a *new* instance should be provided on each call of the [provider] function.
  */
 @Deprecated(
@@ -13,33 +13,81 @@ public class RuleProvider private constructor(
     /**
      * Lambda which creates a new instance of the rule.
      */
-    private val provider: () -> RuleBase,
+    private val provider: () -> Rule,
     /**
      * The rule id of the [RuleBase] created by the provider.
      */
     public override val ruleId: RuleId,
     /**
-     * Flag whether the [RuleV1] created by the provider has to run as late as possible.
+     * Flag whether the [Rule] created by the provider has to run as late as possible.
      */
     public override val runAsLateAsPossible: Boolean,
     /**
-     * The list of rules which have to run before the [RuleV1] created by the provider can be run.
+     * The list of rules which have to run before the [Rule] created by the provider can be run.
      */
     public override val runAfterRules: List<RuleBase.VisitorModifier.RunAfterRule>,
 ) : RuleInstanceProvider(ruleId, runAsLateAsPossible, runAfterRules) {
     /**
-     * Creates a new [RuleV1] instance.
+     * Creates a new [RuleV2] instance.
      */
-    public override fun createNewRuleInstance(): RuleBase = provider().also { require(it is RuleV1) }
+    public override fun createNewRuleInstance(): RuleBase =
+        provider()
+            .also {
+                require(it is RuleAutocorrectApproveHandler) {
+                    "Ktlint 2.x does not support rules that have not correctly implemented the RuleAutocorrectApproveHandler. Use a new " +
+                        "version of the ruleset. or contact the maintainer of this ruleset to upgrade it."
+                }
+            }.let { rule ->
+                object :
+                    RuleV2(
+                        ruleId = ruleId,
+                        about =
+                            About(
+                                maintainer = rule.about.maintainer,
+                                repositoryUrl = rule.about.repositoryUrl,
+                                issueTrackerUrl = rule.about.issueTrackerUrl,
+                            ),
+                        visitorModifiers =
+                            rule.visitorModifiers
+                                .map {
+                                    when (it) {
+                                        is Rule.VisitorModifier.RunAfterRule -> {
+                                            VisitorModifier.RunAfterRule(
+                                                it.ruleId,
+                                                when (it.mode) {
+                                                    Rule.VisitorModifier.RunAfterRule.Mode
+                                                        .ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED,
+                                                    -> {
+                                                        VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
+                                                    }
+
+                                                    Rule.VisitorModifier.RunAfterRule.Mode
+                                                        .REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                                    -> {
+                                                        VisitorModifier.RunAfterRule.Mode
+                                                            .REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
+                                                    }
+                                                },
+                                            )
+                                        }
+
+                                        is Rule.VisitorModifier.RunAsLateAsPossible -> {
+                                            VisitorModifier.RunAsLateAsPossible
+                                        }
+                                    }
+                                }.toSet(),
+                        usesEditorConfigProperties = rule.usesEditorConfigProperties,
+                    ) {}
+            }
 
     /**
-     * Lambda which creates a new instance of the [RuleV1]. Important: to ensure that a [RuleV1] can keep internal state and that processing
-     * of files is thread-safe, a *new* instance should be provided on each call of the [provider] function.
+     * Lambda which creates a new instance of the [Rule]. Important: to ensure that a [Rule] can keep internal state and that processing of
+     * files is thread-safe, a *new* instance should be provided on each call of the [provider] function.
      */
     public companion object {
         // Note that the KDOC is placed on the companion object to make it actually visually when the RuleProvider identifier is being
         // hovered in IntelliJ IDEA
-        public operator fun invoke(provider: () -> RuleBase): RuleProvider =
+        public operator fun invoke(provider: () -> Rule): RuleProvider =
             provider()
                 .let { rule ->
                     RuleProvider(
@@ -48,12 +96,29 @@ public class RuleProvider private constructor(
                         runAsLateAsPossible =
                             rule
                                 .visitorModifiers
-                                .filterIsInstance<RuleBase.VisitorModifier.RunAsLateAsPossible>()
+                                .filterIsInstance<Rule.VisitorModifier.RunAsLateAsPossible>()
                                 .any(),
                         runAfterRules =
                             rule
                                 .visitorModifiers
-                                .filterIsInstance<RuleBase.VisitorModifier.RunAfterRule>(),
+                                .filterIsInstance<Rule.VisitorModifier.RunAfterRule>()
+                                .map {
+                                    RuleBase.VisitorModifier.RunAfterRule(
+                                        it.ruleId,
+                                        when (it.mode) {
+                                            Rule.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED -> {
+                                                RuleBase.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
+                                            }
+
+                                            Rule.VisitorModifier.RunAfterRule.Mode
+                                                .REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
+                                            -> {
+                                                RuleBase.VisitorModifier.RunAfterRule.Mode
+                                                    .REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
+                                            }
+                                        },
+                                    )
+                                },
                     )
                 }
     }

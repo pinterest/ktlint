@@ -1,5 +1,6 @@
 package com.pinterest.ktlint.cli.ruleset.core.api
 
+import com.pinterest.ktlint.rule.engine.core.api.RuleInstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import java.io.Serializable
@@ -33,5 +34,5 @@ public abstract class RuleSetProviderV3(
      *     }
      * ```
      */
-    public abstract fun getRuleProviders(): Set<RuleProvider>
+    public abstract fun getRuleProviders(): Set<RuleInstanceProvider>
 }
