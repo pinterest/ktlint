@@ -2,11 +2,10 @@ package com.pinterest.ktlint.rule.engine.internal.rulefilter
 
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.core.api.RuleInstanceProvider
-import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 
 /**
- * Gets the rule provider for the [KtLintRuleEngine] by applying the [ruleFilters] in the given order on the set of [RuleProvider]s provided
- * by the previous (or the initial list of [RuleProvider]s).
+ * Gets the rule providers for the [KtLintRuleEngine] by applying the [ruleFilters] in the given order on the set of [RuleInstanceProvider]s
+ * provided by the previous (or the initial list of [RuleInstanceProvider]s).
  */
 internal fun KtLintRuleEngine.applyRuleFilters(vararg ruleFilters: RuleFilter): Set<RuleInstanceProvider> {
     var ruleProviders = initialRuleProviders()

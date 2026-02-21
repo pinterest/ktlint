@@ -14,6 +14,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleV1
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2InstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
@@ -45,8 +46,8 @@ class KtLintRuleEngineTest {
         KtLintRuleEngine(
             ruleProviders =
                 setOf(
-                    RuleProvider { IndentationRule() },
-                    RuleProvider { RuleWithAutocorrectApproveHandler() },
+                    RuleV2InstanceProvider { IndentationRule() },
+                    RuleV2InstanceProvider { RuleWithAutocorrectApproveHandler() },
                 ),
             editorConfigOverride =
                 EditorConfigOverride.from(
@@ -139,7 +140,7 @@ class KtLintRuleEngineTest {
                 KtLintRuleEngine(
                     ruleProviders =
                         setOf(
-                            RuleProvider { FilenameRule() },
+                            RuleV2InstanceProvider { FilenameRule() },
                         ),
                     fileSystem = ktlintTestFileSystem.fileSystem,
                 )
@@ -649,8 +650,8 @@ class KtLintRuleEngineTest {
                 KtLintRuleEngine(
                     ruleProviders =
                         setOf(
-                            RuleProvider { IndentationRule() },
-                            RuleProvider { RuleWithAutocorrectApproveHandler() },
+                            RuleV2InstanceProvider { IndentationRule() },
+                            RuleV2InstanceProvider { RuleWithAutocorrectApproveHandler() },
                         ),
                     editorConfigOverride =
                         EditorConfigOverride.from(
@@ -677,8 +678,8 @@ class KtLintRuleEngineTest {
             KtLintRuleEngine(
                 ruleProviders =
                     setOf(
-                        RuleProvider { IndentationRule() },
-                        RuleProvider { RuleWithAutocorrectApproveHandler() },
+                        RuleV2InstanceProvider { IndentationRule() },
+                        RuleV2InstanceProvider { RuleWithAutocorrectApproveHandler() },
                     ),
                 editorConfigOverride =
                     EditorConfigOverride.from(

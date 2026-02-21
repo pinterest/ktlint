@@ -11,12 +11,12 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
- * Sorts the [RuleProvider]s based on [RuleBase.VisitorModifier]s.
+ * Sorts the [RuleInstanceProvider]s based on [RuleBase.VisitorModifier]s.
  */
 internal class RuleProviderSorter {
     /**
-     * Prevent duplicate debug logging whenever the same set of [RuleBase.id]s (but not the same instance) are sorted. As the sorting of the
-     * [RuleProvider] has to be executed for each file.
+     * Prevent duplicate debug logging whenever the same set of [RuleBase.ruleId]s (but not the same instance) are sorted. As the sorting of
+     * the [RuleInstanceProvider] has to be executed for each file.
      */
     private val debugLogCache = mutableMapOf<Int, Boolean>()
 

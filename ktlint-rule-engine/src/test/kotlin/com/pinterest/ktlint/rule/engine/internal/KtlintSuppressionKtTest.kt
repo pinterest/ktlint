@@ -3,8 +3,8 @@ package com.pinterest.ktlint.rule.engine.internal
 import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2InstanceProvider
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -708,7 +708,7 @@ class KtlintSuppressionKtTest {
 
             val ktLintRuleEngine =
                 KtLintRuleEngine(
-                    ruleProviders = setOf(RuleProvider { SomeRule() }),
+                    ruleProviders = setOf(RuleV2InstanceProvider { SomeRule() }),
                 )
         }
     }

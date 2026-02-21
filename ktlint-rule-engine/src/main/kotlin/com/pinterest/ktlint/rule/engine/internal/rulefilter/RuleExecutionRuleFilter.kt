@@ -20,7 +20,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
- * Filters the [RuleProvider]s defined in the [KtLintRuleEngine] for [RuleBase]s which are enabled for the given [EditorConfig].
+ * Filters the [RuleInstanceProvider]s defined in the [KtLintRuleEngine] for [RuleBase]s which are enabled for the given [EditorConfig].
  */
 internal class RuleExecutionRuleFilter(
     private val editorConfig: EditorConfig,

@@ -5,9 +5,9 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleBase
 import com.pinterest.ktlint.rule.engine.core.api.RuleBase.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleBase.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2InstanceProvider
 import com.pinterest.ktlint.ruleset.standard.rules.FUNCTION_SIGNATURE_RULE_ID
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule
 import com.pinterest.ktlint.ruleset.standard.rules.INDENTATION_RULE_ID
@@ -403,11 +403,10 @@ class RuleProviderSorterTest {
         }
     }
 
-    private fun createRuleProviders(vararg rules: RuleV2): Set<RuleProvider> =
+    private fun createRuleProviders(vararg rules: RuleV2): Set<RuleV2InstanceProvider> =
         rules
-            .map {
-                RuleProvider { it }
-            }.toSet()
+            .map { RuleV2InstanceProvider { it } }
+            .toSet()
 
     private companion object {
         const val RULE_A = "rule-a"

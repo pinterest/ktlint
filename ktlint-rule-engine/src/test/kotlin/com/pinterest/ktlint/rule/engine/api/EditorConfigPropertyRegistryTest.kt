@@ -1,9 +1,9 @@
 package com.pinterest.ktlint.rule.engine.api
 
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2InstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
@@ -54,7 +54,7 @@ class EditorConfigPropertyRegistryTest {
         val editorConfigPropertyRegistry =
             EditorConfigPropertyRegistry(
                 setOf(
-                    RuleProvider { SomeTestRule() },
+                    RuleV2InstanceProvider { SomeTestRule() },
                 ),
             )
 

@@ -7,7 +7,6 @@ import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride.Companion.EMPTY
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleInstanceProvider
-import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
@@ -32,8 +31,8 @@ import java.nio.file.Path
 
 public class KtLintRuleEngine(
     /**
-     * The set of [RuleProvider]s to be invoked by the [KtLintRuleEngine]. A [RuleProvider] is able to create a new instance of a [RuleV2]
-     * so that it can keep internal state and be called thread-safe manner
+     * The set of [RuleInstanceProvider]s to be invoked by the [KtLintRuleEngine]. A [RuleInstanceProvider] is able to create a new instance
+     * of a [RuleV2] so that it can keep internal state and be called thread-safe manner
      */
     public val ruleProviders: Set<RuleInstanceProvider> = emptySet(),
     /**

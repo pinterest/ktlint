@@ -21,12 +21,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
-import com.pinterest.ktlint.rule.engine.core.api.isKtAnnotated20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
-import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.test.SPACE
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatNoException
@@ -1159,7 +1153,7 @@ class ASTNodeExtensionTest {
         KtLintRuleEngine(
             ruleProviders =
                 setOf(
-                    RuleProvider { DummyRule() },
+                    RuleV2InstanceProvider { DummyRule() },
                 ),
         ).transformToAst(
             Code.fromSnippet(code),

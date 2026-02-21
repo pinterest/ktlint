@@ -2,8 +2,8 @@ package com.pinterest.ktlint.rule.engine.api
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2InstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import org.assertj.core.api.Assertions.assertThat
@@ -20,7 +20,7 @@ class DisabledRulesTest {
                 KtLintRuleEngine(
                     ruleProviders =
                         setOf(
-                            RuleProvider { NoVarRule(SOME_RULE_ID) },
+                            RuleV2InstanceProvider { NoVarRule(SOME_RULE_ID) },
                         ),
                 ).lint(Code.fromSnippet("var foo")) { e -> add(e) }
             },
@@ -46,7 +46,7 @@ class DisabledRulesTest {
                 KtLintRuleEngine(
                     ruleProviders =
                         setOf(
-                            RuleProvider { NoVarRule(someRuleId) },
+                            RuleV2InstanceProvider { NoVarRule(someRuleId) },
                         ),
                     editorConfigOverride =
                         EditorConfigOverride.from(

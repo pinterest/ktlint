@@ -1,8 +1,8 @@
 package com.pinterest.ktlint.rule.engine.api
 
+import com.pinterest.ktlint.rule.engine.core.api.RuleBase
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleInstanceProvider
-import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.END_OF_LINE_PROPERTY
@@ -19,11 +19,11 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleSetExecu
  * possible, it is strongly advised to instantiate the [EditorConfigOverride] with compile versions of the [EditorConfigProperty] as that
  * ensures that value is of the correct type.
  *
- * In case that [Rule]s and their [EditorConfigProperty]'s are loaded at runtime, the [EditorConfigPropertyRegistry] has to be instantiated
- * with the same set of [RuleProvider]s that will be passed to the [KtLintRuleEngine]. Using the [EditorConfigPropertyRegistry], the
- * [EditorConfigProperty]'s can than be retrieved with the name as is stored in the `.editorconfig` file. Note: only properties defined in
- * the `ktlint-rule-engine-core` module, and properties defined in [Rule]s provided by the [RuleProvider]s can be found via the
- * [EditorConfigPropertyRegistry].
+ * In case that [RuleBase]s and their [EditorConfigProperty]'s are loaded at runtime, the [EditorConfigPropertyRegistry] has to be
+ * instantiated with the same set of [RuleInstanceProvider]s that will be passed to the [KtLintRuleEngine]. Using the
+ * [EditorConfigPropertyRegistry], the [EditorConfigProperty]'s can then be retrieved with the name as is stored in the `.editorconfig`
+ * file. Note: only properties defined in the `ktlint-rule-engine-core` module, and properties defined in [RuleBase]s provided by the
+ * [RuleInstanceProvider]s can be found via the [EditorConfigPropertyRegistry].
  */
 public class EditorConfigPropertyRegistry(
     ruleInstanceProviders: Set<RuleInstanceProvider>,
@@ -37,7 +37,7 @@ public class EditorConfigPropertyRegistry(
 
     /**
      * Finds the first [EditorConfigProperty] with name [propertyName]. Only properties defined in the `ktlint-rule-engine-core` module,
-     * and properties defined in [Rule]s provided by the [RuleProvider]s to the [EditorConfigPropertyRegistry] will be found. An
+     * and properties defined in [RuleBase]s provided by the [RuleInstanceProvider]s to the [EditorConfigPropertyRegistry] will be found. An
      * [EditorConfigPropertyNotFoundException] is thrown when no property with name [propertyName] is found
      */
     public fun find(propertyName: String): EditorConfigProperty<*> =

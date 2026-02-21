@@ -4,8 +4,8 @@ import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.core.api.RuleBase.About
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleInstanceProvider
-import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2InstanceProvider
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -66,7 +66,7 @@ class RuleFilterKtTest {
     private fun createKtLintRuleEngine(ruleIds: Array<RuleId>): KtLintRuleEngine =
         ruleIds
             .map {
-                RuleProvider {
+                RuleV2InstanceProvider {
                     RuleV2(
                         ruleId = it,
                         about = About(),

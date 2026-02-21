@@ -1,8 +1,8 @@
 package com.pinterest.ktlint.rule.engine.internal
 
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2InstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 internal class EditorConfigGeneratorTest {
     private val ruleProviders =
         setOf(
-            RuleProvider { TestRule() },
+            RuleV2InstanceProvider { TestRule() },
         )
     private val rules =
         ruleProviders

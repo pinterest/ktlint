@@ -1,8 +1,8 @@
 package com.pinterest.ktlint.rule.engine.api
 
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2
+import com.pinterest.ktlint.rule.engine.core.api.RuleV2InstanceProvider
 import com.pinterest.ktlint.ruleset.standard.rules.EXPRESSION_OPERAND_WRAPPING_RULE_ID
 import com.pinterest.ktlint.ruleset.standard.rules.NO_CONSECUTIVE_BLANK_LINES_RULE_ID
 import com.pinterest.ktlint.ruleset.standard.rules.NO_LINE_BREAK_BEFORE_ASSIGNMENT_RULE_ID
@@ -15,7 +15,7 @@ import org.junit.jupiter.params.provider.ValueSource
 class KtlintRuleEngineSuppressionKtTest {
     private val ktLintRuleEngine =
         KtLintRuleEngine(
-            ruleProviders = setOf(RuleProvider { SomeRule() }),
+            ruleProviders = setOf(RuleV2InstanceProvider { SomeRule() }),
         )
 
     @Test
