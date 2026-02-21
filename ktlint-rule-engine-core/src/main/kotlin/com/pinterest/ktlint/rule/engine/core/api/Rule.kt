@@ -58,21 +58,21 @@ public open class RuleV2(
      * 'standard' is reserved for rules which are maintained by the KtLint project. Rules created by custom rule set providers and API
      * Consumers should use a prefix other than 'standard' to mark the origin of rules which are not maintained by the KtLint project.
      */
-    public open override val ruleId: RuleId,
+    public override val ruleId: RuleId,
     /**
      * About the rule. Background information about the rule and its maintainer. About information is meant to be used in stack traces or
      * API consumers to provide more detailed information about the rule.
      */
-    public open override val about: About,
+    public override val about: About,
     /**
      * Set of modifiers of the visitor. Preferably a rule has no modifiers at all, meaning that it is completely
      * independent of all other rules.
      */
-    public open override val visitorModifiers: Set<VisitorModifier> = emptySet(),
+    public override val visitorModifiers: Set<VisitorModifier> = emptySet(),
     /**
      * Set of [EditorConfigProperty]'s that are to provided to the rule. Only specify the properties that are actually used by the rule.
      */
-    public open override val usesEditorConfigProperties: Set<EditorConfigProperty<*>> = emptySet(),
+    public override val usesEditorConfigProperties: Set<EditorConfigProperty<*>> = emptySet(),
 ) : RuleBase(ruleId, about, visitorModifiers, usesEditorConfigProperties),
     RuleAutocorrectApproveHandler
 
@@ -82,21 +82,21 @@ public open class RuleV1(
      * 'standard' is reserved for rules which are maintained by the KtLint project. Rules created by custom rule set providers and API
      * Consumers should use a prefix other than 'standard' to mark the origin of rules which are not maintained by the KtLint project.
      */
-    public open override val ruleId: RuleId,
+    public override val ruleId: RuleId,
     /**
      * About the rule. Background information about the rule and its maintainer. About information is meant to be used in stack traces or
      * API consumers to provide more detailed information about the rule.
      */
-    public open override val about: About,
+    public override val about: About,
     /**
      * Set of modifiers of the visitor. Preferably a rule has no modifiers at all, meaning that it is completely
      * independent of all other rules.
      */
-    public open override val visitorModifiers: Set<VisitorModifier> = emptySet(),
+    public override val visitorModifiers: Set<VisitorModifier> = emptySet(),
     /**
      * Set of [EditorConfigProperty]'s that are to provided to the rule. Only specify the properties that are actually used by the rule.
      */
-    public open override val usesEditorConfigProperties: Set<EditorConfigProperty<*>> = emptySet(),
+    public override val usesEditorConfigProperties: Set<EditorConfigProperty<*>> = emptySet(),
 ) : RuleBase(ruleId, about, visitorModifiers, usesEditorConfigProperties)
 
 /**
