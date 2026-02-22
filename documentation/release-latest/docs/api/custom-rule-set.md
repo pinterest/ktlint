@@ -33,7 +33,7 @@ Upon traversal of the Abstract Syntax Tree (AST), the hooks of the Rule are visi
 
 The RuleSetProvider provides new instances of the rule, see [CustomRuleSetProvider](https://github.com/pinterest/ktlint/blob/master/ktlint-ruleset-template/src/main/kotlin/yourpkgname/CustomRuleSetProvider.kt) for an example.
 
-`ktlint` is relying on the [ServiceLoader](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html) to discover all available "RuleSet"s on the classpath. For this, the RuleSetProvider needs to be registered in file `resources/META-INF/services/com.pinterest.ktlint.cli.ruleset.core.api.RuleSetV2Provider`, see [Registration for Java ServiceLoader](https://github.com/pinterest/ktlint/blob/master/ktlint-ruleset-template/src/main/resources/META-INF/services/com.pinterest.ktlint.cli.ruleset.core.api.RuleSetV2Provider).
+`ktlint` is relying on the [ServiceLoader](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html) to discover all available "RuleSet"s on the classpath. For this, the RuleSetProvider needs to be registered in file `resources/META-INF/services/com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3`, see [Registration for Java ServiceLoader](https://github.com/pinterest/ktlint/blob/master/ktlint-ruleset-template/src/main/resources/META-INF/services/com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3).
 
 ### Building the project
 
