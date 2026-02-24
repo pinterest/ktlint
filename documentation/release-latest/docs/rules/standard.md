@@ -3789,7 +3789,7 @@ Suppress or disable rule (1)
     ktlint_standard_spacing-between-function-name-and-opening-parenthesis = disabled
     ```
 
-## Square brackets spacing
+### Square brackets spacing
 
 Checks for spacing around square brackets.
 
