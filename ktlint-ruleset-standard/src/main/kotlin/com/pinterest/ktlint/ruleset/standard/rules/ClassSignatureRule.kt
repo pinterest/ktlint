@@ -24,9 +24,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.Companion.DEFAULT_INDENT_CONFIG
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAfterRule
-import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
-import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAsLateAsPossible
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
@@ -74,19 +71,6 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 public class ClassSignatureRule :
     StandardRule(
         id = "class-signature",
-        visitorModifiers =
-            setOf(
-                // Disallow comments at unexpected locations in the type parameter list
-                //     class Foo<in /** some comment */ Bar>
-                RunAfterRule(TYPE_PARAMETER_COMMENT_RULE_ID, REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED),
-                // Disallow comments at unexpected locations in the value parameter list
-                //     class Foo(
-                //        bar /* some comment */: Bar
-                //     )
-                RunAfterRule(VALUE_PARAMETER_COMMENT_RULE_ID, REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED),
-                // Run after wrapping and spacing rules
-                RunAsLateAsPossible,
-            ),
         usesEditorConfigProperties =
             setOf(
                 INDENT_SIZE_PROPERTY,

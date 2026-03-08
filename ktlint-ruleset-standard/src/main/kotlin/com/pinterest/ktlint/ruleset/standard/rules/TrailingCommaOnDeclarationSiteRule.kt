@@ -24,7 +24,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
@@ -69,14 +68,6 @@ import org.jetbrains.kotlin.psi.psiUtil.children
 public class TrailingCommaOnDeclarationSiteRule :
     StandardRule(
         id = "trailing-comma-on-declaration-site",
-        visitorModifiers =
-            setOf(
-                VisitorModifier.RunAfterRule(
-                    ruleId = WRAPPING_RULE_ID,
-                    mode = ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED,
-                ),
-                VisitorModifier.RunAsLateAsPossible,
-            ),
         usesEditorConfigProperties = setOf(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY),
     ) {
     private var allowTrailingComma = TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY.defaultValue

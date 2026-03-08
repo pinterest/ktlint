@@ -409,10 +409,7 @@ class SuppressionLocatorTest {
 
         val actual =
             KtLintRuleEngine(
-                ruleProviders =
-                    setOf(
-                        RuleV2InstanceProvider { IndentationRule() },
-                    ),
+                ruleProviders = setOf(RuleV2InstanceProvider { IndentationRule() }),
                 editorConfigOverride =
                     EMPTY_EDITOR_CONFIG_OVERRIDE
                         .plus(

@@ -2,7 +2,6 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
@@ -15,7 +14,6 @@ import org.junit.jupiter.api.Test
 class StringTemplateIndentRuleTest {
     private val stringTemplateIndentRuleAssertThat =
         assertThatRuleBuilder { StringTemplateIndentRule() }
-            .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
             .assertThat()
 
     @Test
@@ -208,6 +206,7 @@ class StringTemplateIndentRuleTest {
             }
             """.trimIndent()
         stringTemplateIndentRuleAssertThat(code)
+            .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolations(
                 LintViolation(2, 13, "Expected newline before multiline string template"),
                 LintViolation(3, 13, "Unexpected indent of raw string literal"),
@@ -241,6 +240,7 @@ class StringTemplateIndentRuleTest {
             }
             """.trimIndent()
         stringTemplateIndentRuleAssertThat(code)
+            .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolationsForAdditionalRule(
                 LintViolation(6, 1, "Unexpected indent of multiline string closing quotes"),
             ).hasLintViolations(

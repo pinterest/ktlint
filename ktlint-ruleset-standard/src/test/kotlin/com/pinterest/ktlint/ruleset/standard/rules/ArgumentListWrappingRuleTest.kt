@@ -1,7 +1,6 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
-import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
 import com.pinterest.ktlint.ruleset.standard.rules.ArgumentListWrappingRule.Companion.IGNORE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.Companion.FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.FunctionBodyExpressionWrapping
@@ -21,7 +20,6 @@ class ArgumentListWrappingRuleTest {
     private val argumentListWrappingRuleAssertThat =
         assertThatRuleBuilder { ArgumentListWrappingRule() }
             .addAdditionalRuleProvider { MaxLineLengthRule() }
-            .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
             .assertThat()
 
     @Test
@@ -941,7 +939,6 @@ class ArgumentListWrappingRuleTest {
         argumentListWrappingRuleAssertThat(code)
             .setMaxLineLength()
             .addAdditionalRuleProvider { ClassSignatureRule() }
-            .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
             .withEditorConfigOverride(CLASS_SIGNATURE_FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to 4)
             .hasLintViolationsForAdditionalRule(
                 LintViolation(5, 37, "Super type should start on a newline"),

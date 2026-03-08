@@ -148,15 +148,16 @@ internal class WrappingRuleTest {
             fun foo() {
                 println(
                     $MULTILINE_STRING_QUOTE
-                text
-
                     text
+
+                        text
                     $MULTILINE_STRING_QUOTE.trimIndent().toByteArray()
                 )
             }
             """.trimIndent()
         wrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
+            .addAdditionalRuleProvider { StringTemplateIndentRule() }
             .hasLintViolations(
                 LintViolation(2, 9, "Missing newline after \"(\""),
                 LintViolation(6, 30, "Missing newline before \")\""),

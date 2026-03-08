@@ -19,7 +19,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2
-import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
@@ -49,13 +48,6 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 public class StringTemplateIndentRule :
     StandardRule(
         id = "string-template-indent",
-        visitorModifiers =
-            setOf(
-                // The IndentationRule first needs to fix the indentation of the opening quotes of the string template. The indentation inside
-                // the string template is relative to the opening quotes. Running this rule before the IndentationRule results in a wrong
-                // indentation whenever the indent level of the root of the string template is changed.
-                VisitorModifier.RunAfterRule(INDENTATION_RULE_ID, ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED),
-            ),
         usesEditorConfigProperties =
             setOf(
                 INDENT_SIZE_PROPERTY,

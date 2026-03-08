@@ -5,7 +5,6 @@ public final class com/pinterest/ktlint/test/KtLintAssertThat {
 	public fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2InstanceProvider;Ljava/lang/String;Ljava/util/Set;Ljava/util/Set;)V
 	public final fun addAdditionalRuleProvider (Lkotlin/jvm/functions/Function0;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
 	public final fun addAdditionalRuleProviders ([Lkotlin/jvm/functions/Function0;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
-	public final fun addRequiredRuleProviderDependenciesFrom (Lcom/pinterest/ktlint/cli/ruleset/core/api/RuleSetV2Provider;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
 	public final fun asFileWithPath (Ljava/lang/String;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
 	public final fun asKotlinScript (Z)Lcom/pinterest/ktlint/test/KtLintAssertThat;
 	public static synthetic fun asKotlinScript$default (Lcom/pinterest/ktlint/test/KtLintAssertThat;ZILjava/lang/Object;)Lcom/pinterest/ktlint/test/KtLintAssertThat;

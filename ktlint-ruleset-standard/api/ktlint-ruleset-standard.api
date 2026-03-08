@@ -1,6 +1,5 @@
 public class com/pinterest/ktlint/ruleset/standard/StandardRule : com/pinterest/ktlint/rule/engine/core/api/RuleV2 {
 	public fun getUsesEditorConfigProperties ()Ljava/util/Set;
-	public fun getVisitorModifiers ()Ljava/util/Set;
 }
 
 public final class com/pinterest/ktlint/ruleset/standard/StandardRuleSetProvider : com/pinterest/ktlint/cli/ruleset/core/api/RuleSetV2Provider {

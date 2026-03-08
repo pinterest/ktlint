@@ -103,41 +103,31 @@ internal class CodeFormatter(
         code: Code,
     ): Set<Pair<LintError, Boolean>> {
         val errors: MutableSet<Pair<LintError, Boolean>> = mutableSetOf()
-        VisitorProvider(ruleProviders)
-            .rules
-            .forEach { rule ->
-                executeRule(rule, autocorrectHandler, code).let { ruleErrors -> errors.addAll(ruleErrors) }
-            }
+        executeRules(VisitorProvider(ruleProviders).rules, autocorrectHandler, code).let { ruleErrors -> errors.addAll(ruleErrors) }
         return errors
     }
 
     private fun RuleExecutionContext.lintAfterFormat(): Boolean {
         var hasErrorsWhichCanBeAutocorrected = false
-        VisitorProvider(ruleProviders)
-            .rules
-            .forEach { rule ->
-                if (!hasErrorsWhichCanBeAutocorrected) {
-                    executeRule(rule, NoneAutocorrectHandler) { _, _, canBeAutoCorrected ->
-                        if (canBeAutoCorrected) {
-                            hasErrorsWhichCanBeAutocorrected = true
-                        }
-                        // No need to ask for approval in lint mode
-                        NO_AUTOCORRECT
-                    }
-                }
+        executeRules(VisitorProvider(ruleProviders).rules, NoneAutocorrectHandler) { _, _, _, canBeAutoCorrected ->
+            if (canBeAutoCorrected) {
+                hasErrorsWhichCanBeAutocorrected = true
             }
+            // No need to ask for approval in lint mode
+            NO_AUTOCORRECT
+        }
         return hasErrorsWhichCanBeAutocorrected
     }
 
-    private fun RuleExecutionContext.executeRule(
-        rule: RuleV2,
+    private fun RuleExecutionContext.executeRules(
+        rules: List<RuleV2>,
         autocorrectHandler: AutocorrectHandler,
         code: Code,
     ): Set<Pair<LintError, Boolean>> {
         val errors = mutableSetOf<Pair<LintError, Boolean>>()
-        executeRule(rule, autocorrectHandler) { offset, errorMessage, canBeAutoCorrected ->
+        executeRules(rules, autocorrectHandler) { offset, ruleId, errorMessage, canBeAutoCorrected ->
             val (line, col) = positionInTextLocator(offset)
-            val lintError = LintError(line, col, rule.ruleId, errorMessage, canBeAutoCorrected)
+            val lintError = LintError(line, col, ruleId, errorMessage, canBeAutoCorrected)
 
             // Always request the autocorrectDecision, even in case it is already known that the LintError can not be autocorrected. In
             // this way the API Consumer can still use data from the LintError for other purposes.

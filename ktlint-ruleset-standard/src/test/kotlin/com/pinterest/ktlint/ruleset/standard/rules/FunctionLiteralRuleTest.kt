@@ -3,7 +3,6 @@ package com.pinterest.ktlint.ruleset.standard.rules
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution.disabled
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution.enabled
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
-import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
@@ -449,7 +448,7 @@ class FunctionLiteralRuleTest {
         val code =
             """
             // $MAX_LINE_LENGTH_MARKER    $EOL_CHAR
-            val foobar = { it.foo().bar().foobar() }
+            val foobar = { it.foo().foobar().foobar2() }
             val foo = bar.filter { it > 2 }!!.takeIf { it.count() > 100 }.map { it * it }
                 ?.sum()!!
             """.trimIndent()
@@ -457,10 +456,7 @@ class FunctionLiteralRuleTest {
             """
             // $MAX_LINE_LENGTH_MARKER    $EOL_CHAR
             val foobar = {
-                it
-                    .foo()
-                    .bar()
-                    .foobar()
+                it.foo().foobar().foobar2()
             }
             val foo =
                 bar
@@ -475,11 +471,10 @@ class FunctionLiteralRuleTest {
             .addAdditionalRuleProvider { ChainMethodContinuationRule() }
             .addAdditionalRuleProvider { IndentationRule() }
             .addAdditionalRuleProvider { ArgumentListWrappingRule() }
-            .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
             .setMaxLineLength()
             .hasLintViolations(
                 LintViolation(2, 14, "Newline expected after opening brace"),
-                LintViolation(2, 40, "Newline expected before closing brace"),
+                LintViolation(2, 44, "Newline expected before closing brace"),
                 LintViolation(3, 22, "Newline expected after opening brace"),
                 LintViolation(3, 31, "Newline expected before closing brace"),
                 LintViolation(3, 42, "Newline expected after opening brace"),

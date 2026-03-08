@@ -143,7 +143,6 @@ public final class com/pinterest/ktlint/rule/engine/api/LintError {
 
 public class com/pinterest/ktlint/rule/engine/internal/rules/InternalRule : com/pinterest/ktlint/rule/engine/core/api/RuleV2 {
 	public fun getUsesEditorConfigProperties ()Ljava/util/Set;
-	public fun getVisitorModifiers ()Ljava/util/Set;
 }
 
 public final class com/pinterest/ktlint/rule/engine/internal/rules/KtlintSuppressionRule : com/pinterest/ktlint/rule/engine/internal/rules/InternalRule, com/pinterest/ktlint/rule/engine/core/api/IgnoreKtlintSuppressions {

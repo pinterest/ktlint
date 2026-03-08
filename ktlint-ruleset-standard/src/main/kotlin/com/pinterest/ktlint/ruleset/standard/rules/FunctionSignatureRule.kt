@@ -22,7 +22,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.Companion.DEFAULT_INDENT_CONFIG
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
@@ -69,25 +68,6 @@ import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 public class FunctionSignatureRule :
     StandardRule(
         id = "function-signature",
-        visitorModifiers =
-            setOf(
-                // Disallow comments at unexpected locations in the type parameter list
-                //     fun </* some comment */ T> Foo<T>.foo() {}
-                VisitorModifier.RunAfterRule(TYPE_PARAMETER_COMMENT_RULE_ID, REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED),
-                // Disallow comments at unexpected locations in the type argument list
-                //     fun Foo<out /* some comment */ Any>.foo() {}
-                VisitorModifier.RunAfterRule(TYPE_ARGUMENT_COMMENT_RULE_ID, REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED),
-                // Disallow comments at unexpected locations in the value parameter list
-                //     fun foo(
-                //        bar /* some comment */: Bar
-                //     )
-                VisitorModifier.RunAfterRule(VALUE_PARAMETER_COMMENT_RULE_ID, REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED),
-                // Disallow context receiver on same line a fun keyword
-                //     context(Foo) fun bar(string: String) {}
-                VisitorModifier.RunAfterRule(CONTEXT_RECEIVER_WRAPPING_RULE_ID, REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED),
-                // Run after wrapping and spacing rules
-                VisitorModifier.RunAsLateAsPossible,
-            ),
         usesEditorConfigProperties =
             setOf(
                 INDENT_SIZE_PROPERTY,

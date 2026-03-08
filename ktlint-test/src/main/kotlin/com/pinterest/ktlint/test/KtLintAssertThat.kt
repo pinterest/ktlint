@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.test
 
-import com.pinterest.ktlint.cli.ruleset.core.api.RuleSetV2Provider
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import com.pinterest.ktlint.logger.api.setDefaultLoggerModifier
 import com.pinterest.ktlint.rule.engine.api.Code
@@ -13,7 +12,6 @@ import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleInstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2
-import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAfterRule.Mode.ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2InstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
@@ -187,28 +185,6 @@ public class KtLintAssertThat(
         additionalRuleProviders.addAll(
             providers.map { RuleV2InstanceProvider(it) },
         )
-
-        return this
-    }
-
-    /**
-     * Adds additional rule providers for the [ruleProvider] and each [additionalRuleProviders] that itself is depending on another required
-     * rule. This method only has to be called once after all [additionalRuleProviders] have been added. Also, it only needs to be called in
-     * case at least one the [additionalRuleProviders] has a dependency on another required rule.
-     */
-    public fun addRequiredRuleProviderDependenciesFrom(ruleSetV2Provider: RuleSetV2Provider): KtLintAssertThat {
-        val size = additionalRuleProviders.size
-        ruleSetV2Provider
-            .findRequiredRuleProviders(ruleProvider)
-            .let { additionalRuleProviders.addAll(it) }
-        additionalRuleProviders
-            .map { ruleSetV2Provider.findRequiredRuleProviders(it) }
-            .flatten()
-            .filter { it !in additionalRuleProviders }
-            .let { additionalRuleProviders.addAll(it) }
-        if (additionalRuleProviders.size == size) {
-            LOGGER.warn { "Call to 'addRequiredRuleProviderDependenciesFrom' is useless as no rule providers have to be added" }
-        }
 
         return this
     }
@@ -794,31 +770,3 @@ private fun EditorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProvider
 
 private fun EditorConfigOverride.enableExperimentalRules(): EditorConfigOverride =
     plus(EXPERIMENTAL_RULES_EXECUTION_PROPERTY to RuleExecution.enabled)
-
-private fun RuleSetV2Provider.findRequiredRuleProviders(ruleProvider: RuleV2InstanceProvider): Set<RuleV2InstanceProvider> {
-    val resultRuleProviders = mutableSetOf<RuleV2InstanceProvider>()
-
-    val ruleProviders = ArrayDeque<RuleV2InstanceProvider>()
-    ruleProviders.add(ruleProvider)
-    // Recursively add all rule providers which are required to run the given rule
-    while (ruleProviders.firstOrNull() != null) {
-        with(ruleProviders.removeFirst()) {
-            if (this != ruleProvider) {
-                resultRuleProviders.add(this)
-            }
-
-            runAfterRules
-                .filter { it.mode == ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED }
-                .forEach { runAfterRule ->
-                    findRuleProvider(runAfterRule.ruleId).let { ruleProviders.add(it) }
-                }
-        }
-    }
-
-    return resultRuleProviders
-}
-
-private fun RuleSetV2Provider.findRuleProvider(ruleId: RuleId): RuleV2InstanceProvider =
-    getRuleProviders()
-        .find { it.ruleId == ruleId }
-        ?: throw IllegalArgumentException("Can not find rule '${ruleId.value}' in given rule set '${this.id.value}'")

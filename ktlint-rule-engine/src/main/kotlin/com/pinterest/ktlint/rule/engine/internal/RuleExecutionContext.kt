@@ -17,8 +17,8 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import com.pinterest.ktlint.rule.engine.internal.rulefilter.InternalRuleProvidersFilter
 import com.pinterest.ktlint.rule.engine.internal.rulefilter.RuleExecutionRuleFilter
-import com.pinterest.ktlint.rule.engine.internal.rulefilter.RunAfterRuleFilter
 import com.pinterest.ktlint.rule.engine.internal.rulefilter.applyRuleFilters
+import com.pinterest.ktlint.rule.engine.internal.rules.KTLINT_SUPPRESSION_RULE_ID
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
@@ -37,39 +37,62 @@ internal class RuleExecutionContext private constructor(
 ) {
     private var suppressionLocator = SuppressionLocator(editorConfig)
 
-    fun executeRule(
-        rule: RuleV2,
+    fun executeRules(
+        rules: List<RuleV2>,
         autocorrectHandler: AutocorrectHandler,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+        emitAndApprove: (offset: Int, ruleId: RuleId, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+    ) {
+        // Whenever the KtlintSuppressionRule finds a "ktlint-disable" directive, it will traverse up in the AST Node Tree to add a Suppress
+        // annotation. Therefore, this rule needs to run on the entire AST Node before processing other rules.
+        executeRulesOnAST(rules.filter { it.ruleId == KTLINT_SUPPRESSION_RULE_ID }, autocorrectHandler, emitAndApprove)
+
+        // Process all other rules on the same AST Node before proceeding to the next AST Node.
+        executeRulesOnAST(rules.filterNot { it.ruleId == KTLINT_SUPPRESSION_RULE_ID }, autocorrectHandler, emitAndApprove)
+    }
+
+    /**
+     * While traversing the AST, execute all rules on an AST Node before proceeding to the next AST Node.
+     */
+    fun executeRulesOnAST(
+        rules: List<RuleV2>,
+        autocorrectHandler: AutocorrectHandler,
+        emitAndApprove: (offset: Int, ruleId: RuleId, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         try {
-            rule.startTraversalOfAST()
-            rule.beforeFirstNode(
-                // The rule gets access to an EditConfig which is filtered by the properties which are actually registered as being used by
-                // the rule. In this way it can be forced that the rule actually registers the properties that it uses and the field becomes
-                // reliable to be used by for example the ".editorconfig" file generator.
-                editorConfig.filterBy(
-                    rule.usesEditorConfigProperties
-                        // Provide the CODE_STYLE_PROPERTY as this property is needed to determine the default value of an
-                        // EditorConfigProperty that is not explicitly defined.
-                        .plus(CODE_STYLE_PROPERTY)
-                        // Provide the rule execution property for the "standard:max-line-length" property based on whether a rule provider
-                        // for this rule exists. This property is required to determine whether the property `max_line_length` needs to be
-                        // taken into account.
-                        .plus(
-                            RuleId("standard:max-line-length")
-                                .createRuleExecutionEditorConfigProperty(
-                                    if (ruleProviders.any { it.ruleId.value == "standard:max-line-length" }) {
-                                        RuleExecution.enabled
-                                    } else {
-                                        RuleExecution.disabled
-                                    },
-                                ),
-                        ),
-                ),
+            rules.forEach { rule ->
+                rule.startTraversalOfAST()
+                rule.beforeFirstNode(
+                    // The rule gets access to an EditConfig which is filtered by the properties which are actually registered as being used by
+                    // the rule. In this way it can be forced that the rule actually registers the properties that it uses and the field becomes
+                    // reliable to be used by for example the ".editorconfig" file generator.
+                    editorConfig.filterBy(
+                        rule.usesEditorConfigProperties
+                            // Provide the CODE_STYLE_PROPERTY as this property is needed to determine the default value of an
+                            // EditorConfigProperty that is not explicitly defined.
+                            .plus(CODE_STYLE_PROPERTY)
+                            // Provide the rule execution property for the "standard:max-line-length" property based on whether a rule provider
+                            // for this rule exists. This property is required to determine whether the property `max_line_length` needs to be
+                            // taken into account.
+                            .plus(
+                                RuleId("standard:max-line-length")
+                                    .createRuleExecutionEditorConfigProperty(
+                                        if (ruleProviders.any { it.ruleId.value == "standard:max-line-length" }) {
+                                            RuleExecution.enabled
+                                        } else {
+                                            RuleExecution.disabled
+                                        },
+                                    ),
+                            ),
+                    ),
+                )
+            }
+            this.executeRulesOnNodeRecursively(
+                rootNode,
+                rules.filter { it.shouldContinueTraversalOfAST() },
+                autocorrectHandler,
+                emitAndApprove,
             )
-            this.executeRuleOnNodeRecursively(rootNode, rule, autocorrectHandler, emitAndApprove)
-            rule.afterLastNode()
+            rules.forEach { rule -> rule.afterLastNode() }
         } catch (e: RuleExecutionException) {
             throw KtLintRuleException(
                 e.line,
@@ -86,51 +109,95 @@ internal class RuleExecutionContext private constructor(
         }
     }
 
-    private fun executeRuleOnNodeRecursively(
+    private fun executeRulesOnNodeRecursively(
         node: ASTNode,
-        rule: RuleV2,
+        rules: List<RuleV2>,
         autocorrectHandler: AutocorrectHandler,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+        emitAndApprove: (offset: Int, ruleId: RuleId, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        try {
-            if (rule.shouldContinueTraversalOfAST()) {
-                val suppress = suppressionLocator.suppress(rootNode, node.startOffset, rule)
-                if (!suppress) {
-                    rule.beforeVisitChildNodes(node, emitAndApprove)
+        rules.forEach { rule ->
+            try {
+                if (!suppressionLocator.suppress(rootNode, node.startOffset, rule)) {
+                    rule.beforeVisitChildNodes(node) { offset, errorMessage, canBeAutoCorrected ->
+                        emitAndApprove(offset, rule.ruleId, errorMessage, canBeAutoCorrected)
+                    }
                 }
-                if (rule.shouldContinueTraversalOfAST()) {
-                    node
-                        .getChildren(null)
-                        .forEach { childNode ->
-                            executeRuleOnNodeRecursively(
-                                childNode,
-                                rule,
-                                autocorrectHandler,
-                                emitAndApprove,
-                            )
-                        }
-                }
-                if (!suppress) {
-                    // Also call afterVisitChildNodes when shouldContinueTraversalOfAST has become false. In this way, cleanup in the rule is
-                    // still possible.
-                    rule.afterVisitChildNodes(node, emitAndApprove)
+            } catch (e: Throwable) {
+                if (autocorrectHandler is NoneAutocorrectHandler) {
+                    val (line, col) = positionInTextLocator(node.startOffset)
+                    throw RuleExecutionException(
+                        rule,
+                        line,
+                        col,
+                        // Prevent extreme long stack trace caused by recursive call and only pass root cause
+                        e.cause ?: e,
+                    )
+                } else {
+                    // line/col cannot be reliably mapped as exception might originate from a node not present in the
+                    // original AST
+                    throw RuleExecutionException(
+                        rule,
+                        0,
+                        0,
+                        // Prevent extreme long stack trace caused by recursive call and only pass root cause
+                        e.cause ?: e,
+                    )
                 }
             }
-        } catch (e: Throwable) {
-            if (autocorrectHandler is NoneAutocorrectHandler) {
-                val (line, col) = positionInTextLocator(node.startOffset)
-                // Prevent extreme long stack trace caused by recursive call and only pass root cause
-                val cause = e.cause ?: e
-                throw RuleExecutionException(rule, line, col, cause)
-            } else {
-                // Prevent extreme long stack trace caused by recursive call and only pass root cause
-                val cause = e.cause ?: e
-                // line/col cannot be reliably mapped as exception might originate from a node not present in the
-                // original AST
-                throw RuleExecutionException(rule, 0, 0, cause)
+        }
+        node
+            .getChildren(null)
+            .forEach { childNode ->
+                executeRulesOnNodeRecursively(
+                    childNode,
+                    rules.filter { it.shouldContinueTraversalOfAST() },
+                    autocorrectHandler,
+                    emitAndApprove,
+                )
+            }
+        rules.forEach { rule ->
+            try {
+                if (!suppressionLocator.suppress(rootNode, node.startOffset, rule)) {
+                    rule.afterVisitChildNodes(node) { offset, errorMessage, canBeAutoCorrected ->
+                        emitAndApprove(offset, rule.ruleId, errorMessage, canBeAutoCorrected)
+                    }
+                }
+            } catch (e: Throwable) {
+                if (autocorrectHandler is NoneAutocorrectHandler) {
+                    val (line, col) = positionInTextLocator(node.startOffset)
+                    throw RuleExecutionException(
+                        rule,
+                        line,
+                        col,
+                        // Prevent extreme long stack trace caused by recursive call and only pass root cause
+                        e.cause ?: e,
+                    )
+                } else {
+                    // line/col cannot be reliably mapped as exception might originate from a node not present in the
+                    // original AST
+                    throw RuleExecutionException(
+                        rule,
+                        0,
+                        0,
+                        // Prevent extreme long stack trace caused by recursive call and only pass root cause
+                        e.cause ?: e,
+                    )
+                }
             }
         }
     }
+
+    // Simplify the emitAndApprove to an emit only lambda which can be used in the legacy (deprecated) functions
+    @Deprecated(message = "Remove in Ktlint 2.0")
+    private fun ((offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision).onlyEmit() =
+        {
+            offset: Int,
+            errorMessage: String,
+            canBeAutoCorrected: Boolean,
+            ->
+            this(offset, errorMessage, canBeAutoCorrected)
+            Unit
+        }
 
     companion object {
         internal fun createRuleExecutionContext(
@@ -178,7 +245,6 @@ internal class RuleExecutionContext private constructor(
                     .applyRuleFilters(
                         InternalRuleProvidersFilter(ktLintRuleEngine),
                         RuleExecutionRuleFilter(editorConfig),
-                        RunAfterRuleFilter(),
                     )
 
             return RuleExecutionContext(

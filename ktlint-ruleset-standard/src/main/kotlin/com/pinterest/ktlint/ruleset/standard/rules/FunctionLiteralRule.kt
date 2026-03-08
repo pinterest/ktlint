@@ -16,7 +16,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIS
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHEN_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
@@ -84,10 +83,6 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 public class FunctionLiteralRule :
     StandardRule(
         id = "function-literal",
-        visitorModifiers =
-            setOf(
-                VisitorModifier.RunAfterRule(CHAIN_METHOD_CONTINUATION_RULE_ID, REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED),
-            ),
         usesEditorConfigProperties =
             setOf(
                 CODE_STYLE_PROPERTY,
@@ -154,7 +149,6 @@ public class FunctionLiteralRule :
                 //        ->
                 //        bar()
                 //    }
-                Unit
             } else {
                 // Disallow:
                 //    val foo = {
@@ -262,17 +256,14 @@ public class FunctionLiteralRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         require(valueParameter.elementType == VALUE_PARAMETER)
-        valueParameter
-            .prevLeaf
-            .takeIf { it.isWhiteSpaceWithoutNewline20 }
-            ?.let { whitespaceBeforeValueParameter ->
-                emit(valueParameter.startOffset, "Newline expected before parameter", true)
-                    .ifAutocorrectAllowed {
-                        valueParameter.upsertWhitespaceBeforeMe(
-                            indentConfig.childIndentOf(valueParameter.findParentByType(FUNCTION_LITERAL)!!),
-                        )
-                    }
-            }
+        if (valueParameter.prevLeaf.isWhiteSpaceWithoutNewline20) {
+            emit(valueParameter.startOffset, "Newline expected before parameter", true)
+                .ifAutocorrectAllowed {
+                    valueParameter.upsertWhitespaceBeforeMe(
+                        indentConfig.childIndentOf(valueParameter.findParentByType(FUNCTION_LITERAL)!!),
+                    )
+                }
+        }
     }
 
     private fun wrapArrow(

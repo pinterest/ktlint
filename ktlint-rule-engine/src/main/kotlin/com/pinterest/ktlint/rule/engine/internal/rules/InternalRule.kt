@@ -16,11 +16,9 @@ internal val INTERNAL_RULE_ABOUT =
  */
 public open class InternalRule internal constructor(
     id: String,
-    override val visitorModifiers: Set<VisitorModifier> = emptySet(),
     override val usesEditorConfigProperties: Set<EditorConfigProperty<*>> = emptySet(),
 ) : RuleV2(
         ruleId = RuleId("internal:$id"),
-        visitorModifiers = visitorModifiers,
         usesEditorConfigProperties = usesEditorConfigProperties,
         about = INTERNAL_RULE_ABOUT,
     )

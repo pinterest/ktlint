@@ -75,11 +75,6 @@ public open class RuleV2(
      */
     public open val about: About,
     /**
-     * Set of modifiers of the visitor. Preferably a rule has no modifiers at all, meaning that it is completely
-     * independent of all other rules.
-     */
-    public open val visitorModifiers: Set<VisitorModifier> = emptySet(),
-    /**
      * Set of [EditorConfigProperty]'s that are to provided to the rule. Only specify the properties that are actually used by the rule.
      */
     public open val usesEditorConfigProperties: Set<EditorConfigProperty<*>> = emptySet(),
@@ -213,43 +208,6 @@ public open class RuleV2(
          */
         public val issueTrackerUrl: String = "Not specified",
     )
-
-    public sealed class VisitorModifier {
-        /**
-         * Defines that the [RuleV2] that declares this [VisitorModifier] will be run after the [RuleV2] with rule id
-         * [VisitorModifier.RunAfterRule.ruleId].
-         */
-        @Poko
-        public class RunAfterRule(
-            /**
-             * The [RuleId] of the [RuleV2] which should run before the [RuleV2] that declares the [VisitorModifier.RunAfterRule].
-             */
-            public val ruleId: RuleId,
-            /**
-             * The [Mode] determines whether the [RuleV2] that declares this [VisitorModifier] can be run in case the [RuleV2] with rule id
-             * [VisitorModifier.RunAfterRule.ruleId] is not loaded or enabled.
-             */
-            public val mode: Mode,
-        ) : VisitorModifier() {
-            public enum class Mode {
-                /**
-                 * Run the [RuleV2] that declares the [VisitorModifier.RunAfterRule] regardless whether the [RuleV2] with ruleId
-                 * [VisitorModifier.RunAfterRule.ruleId] is loaded or disabled. However, if that other rule is loaded and enabled, it runs
-                 * before the [RuleV2] that declares the [VisitorModifier.RunAfterRule].
-                 */
-                REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
-
-                /**
-                 * Run the [RuleV2] that declares the [VisitorModifier.RunAfterRule] only in case the [RuleV2] with ruleId
-                 * [VisitorModifier.RunAfterRule.ruleId] is loaded *and* enabled. That other rule runs before the [RuleV2] that declares
-                 * the [VisitorModifier.RunAfterRule].
-                 */
-                ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED,
-            }
-        }
-
-        public object RunAsLateAsPossible : VisitorModifier()
-    }
 
     /**
      * This interface marks a rule as an 'experimental' rule. A rule marked with this interface will only be executed by ktlint in case the
@@ -424,8 +382,9 @@ public open class Rule(
     )
 
     @Deprecated(
-        message = "Only use for backward compatibility of custom ruleset JARs with Ktlint 2.x",
-        replaceWith = ReplaceWith("RuleV2.VisitorModifier"),
+        message =
+            "Only used for backward compatibility of custom ruleset JARs with Ktlint 2.x. VisitorModifier is not used in Ktlint 2.x as " +
+                "due to the way that rules are executed, modifying the order in which rules are visited is not needed anymore.",
     )
     public sealed class VisitorModifier {
         /**
@@ -434,8 +393,9 @@ public open class Rule(
          */
         @Poko
         @Deprecated(
-            message = "Only use for backward compatibility of custom ruleset JARs with Ktlint 2.x",
-            replaceWith = ReplaceWith("RuleV2.VisitorModifier"),
+            message =
+                "Only used for backward compatibility of custom ruleset JARs with Ktlint 2.x. VisitorModifier is not used in Ktlint 2.x " +
+                    "as due to the way that rules are executed, modifying the order in which rules are visited is not needed anymore.",
         )
         public class RunAfterRule(
             /**
@@ -466,8 +426,9 @@ public open class Rule(
         }
 
         @Deprecated(
-            message = "Only use for backward compatibility of custom ruleset JARs with Ktlint 2.x",
-            replaceWith = ReplaceWith("RuleV2.VisitorModifier"),
+            message =
+                "Only used for backward compatibility of custom ruleset JARs with Ktlint 2.x. VisitorModifier is not used in Ktlint 2.x " +
+                    "as due to the way that rules are executed, modifying the order in which rules are visited is not needed anymore.",
         )
         public object RunAsLateAsPossible : VisitorModifier()
     }

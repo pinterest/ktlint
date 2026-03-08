@@ -528,11 +528,9 @@ public final class com/pinterest/ktlint/rule/engine/core/api/RuleId$Companion {
 }
 
 public abstract class com/pinterest/ktlint/rule/engine/core/api/RuleInstanceProvider {
-	public synthetic fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;ZLjava/util/List;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public abstract fun createNewRuleInstance ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2;
 	public fun getRuleId ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
-	public fun getRunAfterRules ()Ljava/util/List;
-	public fun getRunAsLateAsPossible ()Z
 }
 
 public final class com/pinterest/ktlint/rule/engine/core/api/RuleInstanceProviderKt {
@@ -541,11 +539,9 @@ public final class com/pinterest/ktlint/rule/engine/core/api/RuleInstanceProvide
 
 public final class com/pinterest/ktlint/rule/engine/core/api/RuleProvider : com/pinterest/ktlint/rule/engine/core/api/RuleInstanceProvider {
 	public static final field Companion Lcom/pinterest/ktlint/rule/engine/core/api/RuleProvider$Companion;
-	public synthetic fun <init> (Lkotlin/jvm/functions/Function0;Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;ZLjava/util/List;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lkotlin/jvm/functions/Function0;Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun createNewRuleInstance ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2;
 	public fun getRuleId ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
-	public fun getRunAfterRules ()Ljava/util/List;
-	public fun getRunAsLateAsPossible ()Z
 }
 
 public final class com/pinterest/ktlint/rule/engine/core/api/RuleProvider$Companion {
@@ -567,8 +563,8 @@ public final class com/pinterest/ktlint/rule/engine/core/api/RuleSetId$Companion
 }
 
 public class com/pinterest/ktlint/rule/engine/core/api/RuleV2 {
-	public fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2$About;Ljava/util/Set;Ljava/util/Set;)V
-	public synthetic fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2$About;Ljava/util/Set;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2$About;Ljava/util/Set;)V
+	public synthetic fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2$About;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun afterLastNode ()V
 	public fun afterVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
@@ -576,7 +572,6 @@ public class com/pinterest/ktlint/rule/engine/core/api/RuleV2 {
 	public fun getAbout ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2$About;
 	public fun getRuleId ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
 	public fun getUsesEditorConfigProperties ()Ljava/util/Set;
-	public fun getVisitorModifiers ()Ljava/util/Set;
 	public final fun isUsedForTraversalOfAST ()Z
 	public final fun shouldContinueTraversalOfAST ()Z
 	public final fun startTraversalOfAST ()V
@@ -604,37 +599,11 @@ public abstract interface class com/pinterest/ktlint/rule/engine/core/api/RuleV2
 public abstract interface class com/pinterest/ktlint/rule/engine/core/api/RuleV2$OnlyWhenEnabledInEditorconfig {
 }
 
-public abstract class com/pinterest/ktlint/rule/engine/core/api/RuleV2$VisitorModifier {
-}
-
-public final class com/pinterest/ktlint/rule/engine/core/api/RuleV2$VisitorModifier$RunAfterRule : com/pinterest/ktlint/rule/engine/core/api/RuleV2$VisitorModifier {
-	public fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2$VisitorModifier$RunAfterRule$Mode;)V
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getMode ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2$VisitorModifier$RunAfterRule$Mode;
-	public final fun getRuleId ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final class com/pinterest/ktlint/rule/engine/core/api/RuleV2$VisitorModifier$RunAfterRule$Mode : java/lang/Enum {
-	public static final field ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2$VisitorModifier$RunAfterRule$Mode;
-	public static final field REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2$VisitorModifier$RunAfterRule$Mode;
-	public static fun getEntries ()Lkotlin/enums/EnumEntries;
-	public static fun valueOf (Ljava/lang/String;)Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2$VisitorModifier$RunAfterRule$Mode;
-	public static fun values ()[Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2$VisitorModifier$RunAfterRule$Mode;
-}
-
-public final class com/pinterest/ktlint/rule/engine/core/api/RuleV2$VisitorModifier$RunAsLateAsPossible : com/pinterest/ktlint/rule/engine/core/api/RuleV2$VisitorModifier {
-	public static final field INSTANCE Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2$VisitorModifier$RunAsLateAsPossible;
-}
-
 public final class com/pinterest/ktlint/rule/engine/core/api/RuleV2InstanceProvider : com/pinterest/ktlint/rule/engine/core/api/RuleInstanceProvider {
 	public static final field Companion Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2InstanceProvider$Companion;
-	public synthetic fun <init> (Lkotlin/jvm/functions/Function0;Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;ZLjava/util/List;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lkotlin/jvm/functions/Function0;Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun createNewRuleInstance ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2;
 	public fun getRuleId ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
-	public fun getRunAfterRules ()Ljava/util/List;
-	public fun getRunAsLateAsPossible ()Z
 }
 
 public final class com/pinterest/ktlint/rule/engine/core/api/RuleV2InstanceProvider$Companion {

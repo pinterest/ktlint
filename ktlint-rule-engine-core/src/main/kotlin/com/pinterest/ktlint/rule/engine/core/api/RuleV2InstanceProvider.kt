@@ -13,15 +13,7 @@ public class RuleV2InstanceProvider private constructor(
      * The rule id of the [RuleV2] created by the provider.
      */
     public override val ruleId: RuleId,
-    /**
-     * Flag whether the [RuleV2] created by the provider has to run as late as possible.
-     */
-    public override val runAsLateAsPossible: Boolean,
-    /**
-     * The list of rules which have to run before the [RuleV2] created by the provider can be run.
-     */
-    public override val runAfterRules: List<RuleV2.VisitorModifier.RunAfterRule>,
-) : RuleInstanceProvider(ruleId, runAsLateAsPossible, runAfterRules) {
+) : RuleInstanceProvider(ruleId) {
     /**
      * Creates a new [RuleV2] instance.
      */
@@ -35,21 +27,6 @@ public class RuleV2InstanceProvider private constructor(
         // Note that the KDOC is placed on the companion object to make it actually visually when the RuleProvider identifier is being
         // hovered in IntelliJ IDEA
         public operator fun invoke(provider: () -> RuleV2): RuleV2InstanceProvider =
-            provider()
-                .let { rule ->
-                    RuleV2InstanceProvider(
-                        provider = provider,
-                        ruleId = rule.ruleId,
-                        runAsLateAsPossible =
-                            rule
-                                .visitorModifiers
-                                .filterIsInstance<RuleV2.VisitorModifier.RunAsLateAsPossible>()
-                                .any(),
-                        runAfterRules =
-                            rule
-                                .visitorModifiers
-                                .filterIsInstance<RuleV2.VisitorModifier.RunAfterRule>(),
-                    )
-                }
+            RuleV2InstanceProvider(provider = provider, ruleId = provider().ruleId)
     }
 }

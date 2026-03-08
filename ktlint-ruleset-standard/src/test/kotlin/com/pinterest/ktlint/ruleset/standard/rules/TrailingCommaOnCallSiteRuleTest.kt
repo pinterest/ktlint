@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
 import com.pinterest.ktlint.ruleset.standard.rules.TrailingCommaOnCallSiteRule.Companion.TRAILING_COMMA_ON_CALL_SITE_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import com.pinterest.ktlint.test.LintViolation
@@ -12,7 +11,6 @@ class TrailingCommaOnCallSiteRuleTest {
         assertThatRuleBuilder { TrailingCommaOnCallSiteRule() }
             // Keep formatted code readable
             .addAdditionalRuleProvider { IndentationRule() }
-            .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
             .assertThat()
 
     @Test
@@ -297,6 +295,7 @@ class TrailingCommaOnCallSiteRuleTest {
             val foo3: Int = 0
             """.trimIndent()
         trailingCommaOnCallSiteRuleAssertThat(code)
+            .addAdditionalRuleProvider { WrappingRule() }
             .withEditorConfigOverride(TRAILING_COMMA_ON_CALL_SITE_PROPERTY to false)
             .hasLintViolations(
                 LintViolation(3, 18, "Unnecessary trailing comma before \"]\""),
@@ -374,6 +373,7 @@ class TrailingCommaOnCallSiteRuleTest {
             val foo4: Int = 0
             """.trimIndent()
         trailingCommaOnCallSiteRuleAssertThat(code)
+            .addAdditionalRuleProvider { WrappingRule() }
             .withEditorConfigOverride(TRAILING_COMMA_ON_CALL_SITE_PROPERTY to true)
             .hasLintViolations(
                 LintViolation(8, 6, "Missing trailing comma before \"]\""),

@@ -1,6 +1,5 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
 import com.pinterest.ktlint.ruleset.standard.rules.TrailingCommaOnDeclarationSiteRule.Companion.TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import com.pinterest.ktlint.test.LintViolation
@@ -12,7 +11,6 @@ class TrailingCommaOnDeclarationSiteRuleTest {
         assertThatRuleBuilder { TrailingCommaOnDeclarationSiteRule() }
             // Unit tests becomes more readable when properly indented
             .addAdditionalRuleProvider { IndentationRule() }
-            .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
             .assertThat()
 
     @Test
@@ -1021,7 +1019,6 @@ class TrailingCommaOnDeclarationSiteRuleTest {
                 .addAdditionalRuleProvider { IndentationRule() }
                 .addAdditionalRuleProvider { TrailingCommaOnDeclarationSiteRule() }
                 .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
-                .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
                 .assertThat()
 
         noSemicolonsRuleAssertThat(code)

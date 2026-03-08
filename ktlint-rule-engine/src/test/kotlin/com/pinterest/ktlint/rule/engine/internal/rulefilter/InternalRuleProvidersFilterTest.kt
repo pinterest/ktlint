@@ -42,11 +42,9 @@ class InternalRuleProvidersFilterTest {
 
     private open class R(
         ruleId: RuleId,
-        visitorModifiers: Set<VisitorModifier> = emptySet(),
     ) : RuleV2(
             ruleId = ruleId,
             about = About(),
-            visitorModifiers,
         ) {
         override fun beforeVisitChildNodes(
             node: ASTNode,

@@ -4,7 +4,6 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERT
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.ec4j.toPropertyWithValue
-import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.Companion.FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.Companion.FUNCTION_BODY_EXPRESSION_WRAPPING_PROPERTY
 import com.pinterest.ktlint.ruleset.standard.rules.FunctionSignatureRule.FunctionBodyExpressionWrapping
@@ -28,7 +27,6 @@ class FunctionSignatureRuleTest {
     private val functionSignatureWrappingRuleAssertThat =
         assertThatRuleBuilder { FunctionSignatureRule() }
             .addAdditionalRuleProvider { MaxLineLengthRule() }
-            .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
             .assertThat()
 
     @Test
