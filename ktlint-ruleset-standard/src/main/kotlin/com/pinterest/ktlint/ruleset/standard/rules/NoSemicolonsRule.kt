@@ -15,7 +15,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.SEMICOLON
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.THEN
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHILE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAfterRule
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.findParentByType
@@ -40,13 +39,6 @@ import org.jetbrains.kotlin.lexer.KtTokens
 public class NoSemicolonsRule :
     StandardRule(
         id = "no-semi",
-        visitorModifiers =
-            setOf(
-                RunAfterRule(
-                    ruleId = WRAPPING_RULE_ID,
-                    mode = RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
-                ),
-            ),
     ) {
     override fun beforeVisitChildNodes(
         node: ASTNode,

@@ -18,11 +18,9 @@ internal val STANDARD_RULE_ABOUT =
  */
 public open class StandardRule internal constructor(
     id: String,
-    override val visitorModifiers: Set<VisitorModifier> = emptySet(),
     override val usesEditorConfigProperties: Set<EditorConfigProperty<*>> = emptySet(),
 ) : RuleV2(
         ruleId = RuleId("${RuleSetId.STANDARD.value}:$id"),
-        visitorModifiers = visitorModifiers,
         usesEditorConfigProperties = usesEditorConfigProperties,
         about = STANDARD_RULE_ABOUT,
     )

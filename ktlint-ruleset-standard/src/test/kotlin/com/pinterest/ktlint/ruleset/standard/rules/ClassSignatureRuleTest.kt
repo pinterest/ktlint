@@ -6,7 +6,6 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.int
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.ec4j.toPropertyWithValue
-import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
 import com.pinterest.ktlint.ruleset.standard.rules.ClassSignatureRule.Companion.FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
@@ -26,7 +25,6 @@ class ClassSignatureRuleTest {
     private val classSignatureWrappingRuleAssertThat =
         assertThatRuleBuilder { ClassSignatureRule() }
             .addAdditionalRuleProvider { MaxLineLengthRule() }
-            .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
             .assertThat()
 
     @Nested

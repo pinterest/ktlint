@@ -3224,15 +3224,16 @@ internal class IndentationRuleTest {
                 fun foo() {
                     println(
                         $MULTILINE_STRING_QUOTE
-                    text
-
                         text
+
+                            text
                         $MULTILINE_STRING_QUOTE.trimIndent().toByteArray()
                     )
                 }
                 """.trimIndent()
             indentationRuleAssertThat(code)
                 .addAdditionalRuleProvider { WrappingRule() }
+                .addAdditionalRuleProvider { StringTemplateIndentRule() }
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(6, 1, "Unexpected indent of multiline string closing quotes"),

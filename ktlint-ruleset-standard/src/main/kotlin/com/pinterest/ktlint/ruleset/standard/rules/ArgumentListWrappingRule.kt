@@ -14,17 +14,15 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAfterRule
-import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.TokenSets
-import com.pinterest.ktlint.rule.engine.core.api.dropTrailingEolComment
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
@@ -55,21 +53,6 @@ import org.jetbrains.kotlin.psi.psiUtil.children
 public class ArgumentListWrappingRule :
     StandardRule(
         id = "argument-list-wrapping",
-        visitorModifiers =
-            setOf(
-                // Disallow comments at unexpected locations in the value parameter list
-                //     fun foo(
-                //        bar /* some comment */: Bar
-                //     )
-                // or
-                //     class Foo(
-                //        bar /* some comment */: Bar
-                //     )
-                RunAfterRule(VALUE_ARGUMENT_COMMENT_RULE_ID, REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED),
-                RunAfterRule(WRAPPING_RULE_ID, REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED),
-                RunAfterRule(CLASS_SIGNATURE_RULE_ID, REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED),
-                RunAfterRule(FUNCTION_SIGNATURE_RULE_ID, REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED),
-            ),
         usesEditorConfigProperties =
             setOf(
                 IGNORE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY,
@@ -127,7 +110,15 @@ public class ArgumentListWrappingRule :
             false
         }
 
-    private fun ASTNode.exceedsMaxLineLength() = leavesOnLine20.dropTrailingEolComment().lineLength > maxLineLength && !textContains('\n')
+    private fun ASTNode.exceedsMaxLineLength(): Boolean {
+        if (textContains('\n')) return false
+        require(this.elementType == VALUE_ARGUMENT_LIST)
+        val stopAtLeaf = findChildByType(RPAR)?.firstChildLeafOrSelf20
+        return maxLineLength <
+            leavesOnLine20
+                .takeWhile { it.prevLeaf != stopAtLeaf }
+                .lineLength
+    }
 
     private fun intendedIndent(child: ASTNode): String =
         when {

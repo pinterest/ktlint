@@ -27,8 +27,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2
-import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAfterRule
-import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
@@ -79,7 +77,6 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 public class ChainMethodContinuationRule :
     StandardRule(
         id = "chain-method-continuation",
-        visitorModifiers = setOf(RunAfterRule(ARGUMENT_LIST_WRAPPING_RULE_ID, REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED)),
         usesEditorConfigProperties =
             setOf(
                 CODE_STYLE_PROPERTY,
@@ -285,7 +282,6 @@ public class ChainMethodContinuationRule :
                             .ifAutocorrectAllowed {
                                 chainOperator.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(chainOperator.parent!!))
                             }
-                        Unit
                     }
 
                     whiteSpaceOrComment == null || whiteSpaceOrComment.isWhiteSpaceWithoutNewline20 -> {
@@ -297,7 +293,6 @@ public class ChainMethodContinuationRule :
                             .ifAutocorrectAllowed {
                                 chainOperator.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(chainOperator.parent!!))
                             }
-                        Unit
                     }
                 }
             }

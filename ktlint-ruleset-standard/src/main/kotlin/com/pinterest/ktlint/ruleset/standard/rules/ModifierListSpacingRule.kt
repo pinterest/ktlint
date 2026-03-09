@@ -8,7 +8,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.Companion.DEFAULT_INDENT_CONFIG
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
@@ -34,11 +33,6 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 public class ModifierListSpacingRule :
     StandardRule(
         id = "modifier-list-spacing",
-        visitorModifiers =
-            setOf(
-                VisitorModifier.RunAfterRule(ANNOTATION_RULE_ID, REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED),
-                VisitorModifier.RunAfterRule(MODIFIER_ORDER_RULE_ID, REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED),
-            ),
         usesEditorConfigProperties =
             setOf(
                 INDENT_SIZE_PROPERTY,
@@ -92,7 +86,6 @@ public class ModifierListSpacingRule :
                             emit(whitespace.startOffset, "Single whitespace or newline expected after annotation", true)
                                 .ifAutocorrectAllowed { whitespace.replaceTextWith(" ") }
                         }
-                        Unit
                     }
 
                     node.isContextReceiverList() -> {

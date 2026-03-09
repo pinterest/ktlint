@@ -2,7 +2,6 @@ package com.pinterest.ktlint.rule.engine.internal.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2
-import com.pinterest.ktlint.ruleset.standard.StandardRuleSetProvider
 import com.pinterest.ktlint.ruleset.standard.rules.ArgumentListWrappingRule
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.EOL_CHAR
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
@@ -868,7 +867,6 @@ class KtlintSuppressionRuleTest {
             """.trimIndent()
         ktlintSuppressionRuleAssertThat(code)
             .addAdditionalRuleProvider { ArgumentListWrappingRule() }
-            .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
             .hasLintViolations(
                 LintViolation(1, 4, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
                 LintViolation(4, 54, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
@@ -1382,7 +1380,6 @@ class KtlintSuppressionRuleTest {
         ktlintSuppressionRuleAssertThat(code)
             .setMaxLineLength()
             .addAdditionalRuleProvider { ArgumentListWrappingRule() }
-            .addRequiredRuleProviderDependenciesFrom(StandardRuleSetProvider())
             .hasLintViolations(
                 LintViolation(8, 12, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation"),
                 LintViolation(10, 12, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations"),

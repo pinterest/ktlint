@@ -21,7 +21,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.PACKAGE_DIRECTIVE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REGULAR_STRING_PART
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2
-import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAsLateAsPossible
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2InstanceProvider
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.END_OF_LINE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
@@ -196,96 +195,33 @@ class KtLintTest {
                         SimpleTestRule(
                             ruleExecutionCalls = ruleExecutionCalls,
                             ruleId = SimpleTestRule.RULE_ID_A,
-                            visitorModifiers = setOf(),
                         )
                     },
                     RuleV2InstanceProvider {
                         SimpleTestRule(
                             ruleExecutionCalls = ruleExecutionCalls,
                             ruleId = SimpleTestRule.RULE_ID_B,
-                            visitorModifiers = setOf(RunAsLateAsPossible),
                         )
                     },
                 ),
         ).lint(EMPTY_CODE_SNIPPET)
         assertThat(ruleExecutionCalls).containsExactly(
-            // File a
             RuleExecutionCall(SimpleTestRule.RULE_ID_A, BEFORE_FIRST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_FIRST),
             RuleExecutionCall(SimpleTestRule.RULE_ID_A, BEFORE_CHILDREN, ROOT, FILE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_CHILDREN, ROOT, FILE),
             RuleExecutionCall(SimpleTestRule.RULE_ID_A, BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
             RuleExecutionCall(SimpleTestRule.RULE_ID_A, AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
             RuleExecutionCall(SimpleTestRule.RULE_ID_A, BEFORE_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_CHILDREN, CHILD, IMPORT_LIST),
             RuleExecutionCall(SimpleTestRule.RULE_ID_A, AFTER_CHILDREN, CHILD, IMPORT_LIST),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_CHILDREN, CHILD, IMPORT_LIST),
             RuleExecutionCall(SimpleTestRule.RULE_ID_A, AFTER_CHILDREN, ROOT, FILE),
+            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_CHILDREN, ROOT, FILE),
             RuleExecutionCall(SimpleTestRule.RULE_ID_A, AFTER_LAST),
-            // File b
-            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_FIRST),
-            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_CHILDREN, ROOT, FILE),
-            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_CHILDREN, ROOT, FILE),
             RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_LAST),
-        )
-    }
-
-    @Test
-    fun `Given multiple rules which have to run in a certain order`() {
-        val ruleExecutionCalls = mutableListOf<RuleExecutionCall>()
-        KtLintRuleEngine(
-            ruleProviders =
-                setOf(
-                    RuleV2InstanceProvider {
-                        SimpleTestRule(
-                            ruleExecutionCalls = ruleExecutionCalls,
-                            ruleId = SimpleTestRule.RULE_ID_D,
-                            visitorModifiers = setOf(RunAsLateAsPossible),
-                        )
-                    },
-                    RuleV2InstanceProvider {
-                        SimpleTestRule(
-                            ruleExecutionCalls = ruleExecutionCalls,
-                            ruleId = SimpleTestRule.RULE_ID_B,
-                        )
-                    },
-                    RuleV2InstanceProvider {
-                        SimpleTestRule(
-                            ruleExecutionCalls = ruleExecutionCalls,
-                            ruleId = SimpleTestRule.RULE_ID_C,
-                        )
-                    },
-                ),
-        ).lint(EMPTY_CODE_SNIPPET)
-
-        assertThat(ruleExecutionCalls).containsExactly(
-            // File b
-            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_FIRST),
-            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_CHILDREN, ROOT, FILE),
-            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall(SimpleTestRule.RULE_ID_B, BEFORE_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_CHILDREN, ROOT, FILE),
-            RuleExecutionCall(SimpleTestRule.RULE_ID_B, AFTER_LAST),
-            // File c
-            RuleExecutionCall(SimpleTestRule.RULE_ID_C, BEFORE_FIRST),
-            RuleExecutionCall(SimpleTestRule.RULE_ID_C, BEFORE_CHILDREN, ROOT, FILE),
-            RuleExecutionCall(SimpleTestRule.RULE_ID_C, BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall(SimpleTestRule.RULE_ID_C, AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall(SimpleTestRule.RULE_ID_C, BEFORE_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall(SimpleTestRule.RULE_ID_C, AFTER_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall(SimpleTestRule.RULE_ID_C, AFTER_CHILDREN, ROOT, FILE),
-            RuleExecutionCall(SimpleTestRule.RULE_ID_C, AFTER_LAST),
-            // File d
-            RuleExecutionCall(SimpleTestRule.RULE_ID_D, BEFORE_FIRST),
-            RuleExecutionCall(SimpleTestRule.RULE_ID_D, BEFORE_CHILDREN, ROOT, FILE),
-            RuleExecutionCall(SimpleTestRule.RULE_ID_D, BEFORE_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall(SimpleTestRule.RULE_ID_D, AFTER_CHILDREN, CHILD, PACKAGE_DIRECTIVE),
-            RuleExecutionCall(SimpleTestRule.RULE_ID_D, BEFORE_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall(SimpleTestRule.RULE_ID_D, AFTER_CHILDREN, CHILD, IMPORT_LIST),
-            RuleExecutionCall(SimpleTestRule.RULE_ID_D, AFTER_CHILDREN, ROOT, FILE),
-            RuleExecutionCall(SimpleTestRule.RULE_ID_D, AFTER_LAST),
         )
     }
 
@@ -548,7 +484,6 @@ private class AutoCorrectErrorRule :
 private class SimpleTestRule(
     private val ruleExecutionCalls: MutableList<RuleExecutionCall>,
     ruleId: RuleId,
-    visitorModifiers: Set<VisitorModifier> = emptySet(),
     private val stopTraversalInBeforeFirstNode: Boolean = false,
     private val stopTraversalInBeforeVisitChildNodes: (ASTNode) -> Boolean = { false },
     private val stopTraversalInAfterVisitChildNodes: (ASTNode) -> Boolean = { false },
@@ -556,7 +491,6 @@ private class SimpleTestRule(
 ) : RuleV2(
         ruleId = ruleId,
         about = About(),
-        visitorModifiers,
     ) {
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         ruleExecutionCalls.add(RuleExecutionCall(ruleId, BEFORE_FIRST))
@@ -610,8 +544,6 @@ private class SimpleTestRule(
     companion object {
         val RULE_ID_A = RuleId("simple-test:a")
         val RULE_ID_B = RuleId("simple-test:b")
-        val RULE_ID_C = RuleId("simple-test:c")
-        val RULE_ID_D = RuleId("simple-test:d")
         val RULE_ID_STOP_TRAVERSAL = RuleId("simple-test:stop-traversal")
     }
 }

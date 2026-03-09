@@ -85,7 +85,6 @@ import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.IndentStyle.SPACE
 import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.IndentStyle.TAB
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.RuleV2.VisitorModifier.RunAfterRule.Mode.REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.TokenSets
@@ -138,26 +137,6 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 public class IndentationRule :
     StandardRule(
         id = "indent",
-        visitorModifiers =
-            setOf(
-                VisitorModifier.RunAsLateAsPossible,
-                VisitorModifier.RunAfterRule(
-                    ruleId = CLASS_SIGNATURE_RULE_ID,
-                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
-                ),
-                VisitorModifier.RunAfterRule(
-                    ruleId = FUNCTION_SIGNATURE_RULE_ID,
-                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
-                ),
-                VisitorModifier.RunAfterRule(
-                    ruleId = TRAILING_COMMA_ON_CALL_SITE_RULE_ID,
-                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
-                ),
-                VisitorModifier.RunAfterRule(
-                    ruleId = TRAILING_COMMA_ON_DECLARATION_SITE_RULE_ID,
-                    mode = REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED,
-                ),
-            ),
         usesEditorConfigProperties =
             setOf(
                 CODE_STYLE_PROPERTY,
