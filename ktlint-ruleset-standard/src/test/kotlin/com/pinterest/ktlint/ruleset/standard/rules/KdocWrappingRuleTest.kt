@@ -64,7 +64,7 @@ class KdocWrappingRuleTest {
                              * with a newline
                              */
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
         kdocWrappingRuleAssertThat(code)
             .hasLintViolationWithoutAutoCorrect(1, 17, "A KDoc comment after any other element on the same line must be separated by a new line")
     }

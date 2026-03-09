@@ -219,7 +219,7 @@ class FunctionSignatureRuleTest {
             private fun f9(a: Any, b: Any): /* some comment */ String = "some-result"
             private fun f10(a: Any, b: Any): String /* some comment */ = "some-result"
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
         functionSignatureWrappingRuleAssertThat(code)
             .setMaxLineLength()
             .addAdditionalRuleProvider { ValueParameterCommentRule() }
@@ -247,7 +247,7 @@ class FunctionSignatureRuleTest {
             private fun f6(a: /* some comment */ Any, b: Any): String = "some-result"
             private fun f7(a: Any /* some comment */, b: Any): String = "some-result"
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
         functionSignatureWrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { ValueParameterCommentRule() }
             .hasLintViolationsForAdditionalRule(
@@ -657,7 +657,7 @@ class FunctionSignatureRuleTest {
                 fun f28(block: (T) -> String) = "some-result"
                 fun f29(block: (T) -> String) = "some-result"
                 """.trimIndent()
-            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
             functionSignatureWrappingRuleAssertThat(code)
                 .addAdditionalRuleProviders(
                     { NoMultipleSpacesRule() },

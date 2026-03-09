@@ -39,7 +39,7 @@ class ArgumentListWrappingRuleTest {
                 c
             )
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
         argumentListWrappingRuleAssertThat(code)
             .hasLintViolation(3, 8, "Argument should be on a separate line (unless all arguments can fit a single line)")
             .isFormattedAs(formattedCode)
@@ -326,7 +326,7 @@ class ArgumentListWrappingRuleTest {
                     "some message"
                 }
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
         argumentListWrappingRuleAssertThat(code)
             .setMaxLineLength()
             .addAdditionalRuleProvider { CallExpressionWrappingRule() }

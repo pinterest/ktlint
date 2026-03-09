@@ -635,7 +635,7 @@ class FunctionLiteralRuleTest {
                     "some message"
                 }
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
         functionLiteralRuleAssertThat(code)
             .setMaxLineLength()
             .addAdditionalRuleProvider { IndentationRule() }
