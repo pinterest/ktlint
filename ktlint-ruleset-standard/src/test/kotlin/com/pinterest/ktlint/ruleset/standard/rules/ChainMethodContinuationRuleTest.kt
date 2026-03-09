@@ -613,6 +613,7 @@ class ChainMethodContinuationRuleTest {
                 .addAdditionalRuleProvider { ArgumentListWrappingRule() }
                 .addAdditionalRuleProvider { FunctionLiteralRule() }
                 .addAdditionalRuleProvider { MaxLineLengthRule() }
+                .addAdditionalRuleProvider { IndentationRule() }
                 .hasLintViolations(
                     // Lint violation below will not be triggered during format as argument-list-wrapping rule prevents this error from occurring
                     LintViolation(2, 30, "Expected newline before '.'"),

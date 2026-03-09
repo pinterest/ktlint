@@ -298,6 +298,53 @@ class ArgumentListWrappingRuleTest {
             ).isFormattedAs(formattedCode)
     }
 
+    @Test
+    fun `Issue 2451 - Should not wrap the argument list when wrapping AST Nodes before the argument list prevent exceeding the max line length`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER                                 $EOL_CHAR
+            val foo = Bar.buildernnnnnnnnnnnnnnnnnnnnnnnnnnnnnn().baz(1).build()
+
+            val foo1 = requireNotNull(bar.filter { it == "bar" }) { "some message" }
+            val foo2 = requireNotNull(bar?.filter { it == "bar" }) { "some message" }
+            """.trimIndent()
+        val formattedCode =
+            """
+            // $MAX_LINE_LENGTH_MARKER                                 $EOL_CHAR
+            val foo =
+                Bar
+                    .buildernnnnnnnnnnnnnnnnnnnnnnnnnnnnnn()
+                    .baz(1)
+                    .build()
+
+            val foo1 =
+                requireNotNull(bar.filter { it == "bar" }) {
+                    "some message"
+                }
+            val foo2 =
+                requireNotNull(bar?.filter { it == "bar" }) {
+                    "some message"
+                }
+            """.trimIndent()
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+        argumentListWrappingRuleAssertThat(code)
+            .setMaxLineLength()
+            .addAdditionalRuleProvider { CallExpressionWrappingRule() }
+            .addAdditionalRuleProvider { ChainMethodContinuationRule() }
+            .addAdditionalRuleProvider { IndentationRule() }
+            .addAdditionalRuleProvider { MultilineExpressionWrappingRule() }
+            .hasNoLintViolationsExceptInAdditionalRules()
+//            .hasLintViolations(
+//                LintViolation(line = 2, col = 59, detail = "Argument should be on a separate line (unless all arguments can fit a single line)"),
+//                LintViolation(line = 2, col = 60, detail = "Missing newline before \")\""),
+//                LintViolation(line = 4, col = 27, detail = "Argument should be on a separate line (unless all arguments can fit a single line)"),
+//                LintViolation(line = 4, col = 53, detail = "Missing newline before \")\""),
+//                LintViolation(line = 5, col = 27, detail = "Argument should be on a separate line (unless all arguments can fit a single line)"),
+//                LintViolation(line = 5, col = 54, detail = "Missing newline before \")\""),
+//            )
+            .isFormattedAs(formattedCode)
+    }
+
     @Nested
     inner class `Given a function call with too many (eg more than 8) arguments` {
         @Test
