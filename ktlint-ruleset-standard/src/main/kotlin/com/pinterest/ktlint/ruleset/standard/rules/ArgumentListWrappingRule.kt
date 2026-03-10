@@ -23,6 +23,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.hasNoMaxLineLengthSuppression
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
@@ -114,10 +115,8 @@ public class ArgumentListWrappingRule :
         if (textContains('\n')) return false
         require(this.elementType == VALUE_ARGUMENT_LIST)
         val stopAtLeaf = findChildByType(RPAR)?.firstChildLeafOrSelf20
-        return maxLineLength <
-            leavesOnLine20
-                .takeWhile { it.prevLeaf != stopAtLeaf }
-                .lineLength
+        return hasNoMaxLineLengthSuppression() &&
+            maxLineLength < leavesOnLine20.takeWhile { it.prevLeaf != stopAtLeaf }.lineLength
     }
 
     private fun intendedIndent(child: ASTNode): String =

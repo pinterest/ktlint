@@ -35,6 +35,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY_OFF
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.hasNoMaxLineLengthSuppression
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
@@ -383,7 +384,7 @@ public class FunctionSignatureRule :
                     if (whiteSpaceBeforeIdentifier == null ||
                         whiteSpaceBeforeIdentifier.text != expectedParameterIndent
                     ) {
-                        if (!dryRun) {
+                        if (!dryRun && node.hasNoMaxLineLengthSuppression()) {
                             emit(
                                 firstParameterInList.startOffset,
                                 "Newline expected after opening parenthesis",
@@ -442,7 +443,7 @@ public class FunctionSignatureRule :
                             if (whiteSpaceBeforeIdentifier == null ||
                                 whiteSpaceBeforeIdentifier.text != expectedParameterIndent
                             ) {
-                                if (!dryRun) {
+                                if (!dryRun && valueParameterList.hasNoMaxLineLengthSuppression()) {
                                     emit(
                                         valueParameter.startOffset,
                                         "Parameter should start on a newline",
@@ -495,7 +496,7 @@ public class FunctionSignatureRule :
                     if (whiteSpaceBeforeClosingParenthesis == null ||
                         whiteSpaceBeforeClosingParenthesis.text != newlineAndIndent
                     ) {
-                        if (!dryRun) {
+                        if (!dryRun && valueParameterList.hasNoMaxLineLengthSuppression()) {
                             emit(
                                 closingParenthesis!!.startOffset,
                                 "Newline expected before closing parenthesis",
@@ -598,7 +599,11 @@ public class FunctionSignatureRule :
                                     .upsertWhitespaceBeforeMe(" ")
                             }
                         }
-                    } else if (firstLineOfBodyExpression.length + 1 > maxLengthRemainingForFirstLineOfBodyExpression ||
+                    } else if (
+                        (
+                            node.hasNoMaxLineLengthSuppression() &&
+                                firstLineOfBodyExpression.length + 1 > maxLengthRemainingForFirstLineOfBodyExpression
+                        ) ||
                         (functionBodyExpressionWrapping == multiline && functionBodyExpressionLines.size > 1) ||
                         functionBodyExpressionWrapping == always
                     ) {

@@ -1,9 +1,12 @@
 package com.pinterest.ktlint.rule.engine.core.api
 
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VAL_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VARARG_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VAR_KEYWORD
@@ -24,6 +27,7 @@ import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtLoopExpression
 import org.jetbrains.kotlin.psi.psiUtil.leaves
+import org.jetbrains.kotlin.psi.psiUtil.parents
 import org.jetbrains.kotlin.psi.stubs.elements.KtFileElementType
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementType
 import org.jetbrains.kotlin.psi.stubs.elements.KtTokenSets
@@ -1136,3 +1140,18 @@ public fun ASTNode?.isDeclaration(): Boolean = isDeclaration20
  */
 public val ASTNode?.isDeclaration20: Boolean
     get(): Boolean = this != null && elementType in KtTokenSets.DECLARATION_TYPES
+
+/**
+ * Verified that the [ASTNode], nor any of its parents, is annotated with a suppression of the ktlint rule `max-line-length`.
+ */
+public fun ASTNode.hasNoMaxLineLengthSuppression(): Boolean =
+    parents()
+        .filter { it.elementType == MODIFIER_LIST }
+        .none { modifierList ->
+            modifierList
+                .findChildByType(ANNOTATION_ENTRY)
+                ?.findChildByType(VALUE_ARGUMENT_LIST)
+                ?.children20
+                ?.any { it.elementType == VALUE_ARGUMENT && it.text == "ktlint:standard:max-line-length" }
+                ?: false
+        }

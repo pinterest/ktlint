@@ -39,6 +39,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.hasNoMaxLineLengthSuppression
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
@@ -245,10 +246,11 @@ public class ChainMethodContinuationRule :
                         .last()
                         .startOfLambdaArgumentInCallExpressionOrNull()
                         ?: lastChildLeafOrSelf20.nextLeaf
-                leavesOnLine20
-                    .dropTrailingEolComment()
-                    .takeWhile { it.prevLeaf != stopAtLeaf }
-                    .lineLength > maxLineLength
+                hasNoMaxLineLengthSuppression() &&
+                    leavesOnLine20
+                        .dropTrailingEolComment()
+                        .takeWhile { it.prevLeaf != stopAtLeaf }
+                        .lineLength > maxLineLength
             }
         }
 

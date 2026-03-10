@@ -28,6 +28,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.hasNoMaxLineLengthSuppression
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.isLeaf20
@@ -247,12 +248,14 @@ public class BinaryExpressionWrappingRule :
     private fun ASTNode.isOnLineExceedingMaxLineLength() = maxLineLength < leavesOnLine20.dropTrailingEolComment().lineLength
 
     private fun ASTNode.causesMaxLineLengthToBeExceeded() =
-        lastChildLeafOrSelf20.let { lastChildLeaf ->
-            leavesOnLine20
-                .dropTrailingEolComment()
-                .takeWhile { it.prevLeaf != lastChildLeaf }
-                .lineLength
-        } > maxLineLength
+        hasNoMaxLineLengthSuppression() &&
+            lastChildLeafOrSelf20
+                .let { lastChildLeaf ->
+                    leavesOnLine20
+                        .dropTrailingEolComment()
+                        .takeWhile { it.prevLeaf != lastChildLeaf }
+                        .lineLength
+                } > maxLineLength
 }
 
 private fun IElementType.anyOf(vararg elementType: IElementType): Boolean = elementType.contains(this)

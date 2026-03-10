@@ -27,6 +27,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.hasNoMaxLineLengthSuppression
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
@@ -93,6 +94,7 @@ public class ParameterListWrappingRule :
     ) {
         require(node.elementType == NULLABLE_TYPE)
         node
+            .takeIf { it.hasNoMaxLineLengthSuppression() }
             .takeUnless {
                 // skip when max line length is not exceeded
                 (node.column - 1 + node.textLength) <= maxLineLength

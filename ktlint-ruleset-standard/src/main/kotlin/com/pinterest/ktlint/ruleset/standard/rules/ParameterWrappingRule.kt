@@ -20,6 +20,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.hasNoMaxLineLengthSuppression
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
@@ -100,7 +101,7 @@ public class ParameterWrappingRule :
         node
             .findChildByType(COLON)
             ?.let { colon ->
-                if (baseIndentLength + fromNode.sumOfTextLengthUntil(colon) > maxLineLength) {
+                if (colon.hasNoMaxLineLengthSuppression() && baseIndentLength + fromNode.sumOfTextLengthUntil(colon) > maxLineLength) {
                     fromNode.sumOfTextLengthUntil(colon)
                     requireNewlineAfterLeaf(colon, emit)
                     return
@@ -110,7 +111,9 @@ public class ParameterWrappingRule :
         node
             .findChildByType(TYPE_REFERENCE)
             ?.let { typeReference ->
-                if (baseIndentLength + fromNode.sumOfTextLengthUntil(typeReference.orTrailingComma()) > maxLineLength) {
+                if (typeReference.hasNoMaxLineLengthSuppression() &&
+                    baseIndentLength + fromNode.sumOfTextLengthUntil(typeReference.orTrailingComma()) > maxLineLength
+                ) {
                     requireNewlineBeforeLeaf(typeReference, emit)
                     return
                 }
@@ -119,7 +122,9 @@ public class ParameterWrappingRule :
         node
             .findChildByType(EQ)
             ?.let { equal ->
-                if (baseIndentLength + fromNode.sumOfTextLengthUntil(equal.orTrailingComma()) > maxLineLength) {
+                if (equal.hasNoMaxLineLengthSuppression() &&
+                    baseIndentLength + fromNode.sumOfTextLengthUntil(equal.orTrailingComma()) > maxLineLength
+                ) {
                     requireNewlineAfterLeaf(equal, emit)
                     return
                 }
@@ -128,7 +133,9 @@ public class ParameterWrappingRule :
         node
             .findChildByType(CALL_EXPRESSION)
             ?.let { callExpression ->
-                if (baseIndentLength + fromNode.sumOfTextLengthUntil(callExpression.orTrailingComma()) > maxLineLength) {
+                if (callExpression.hasNoMaxLineLengthSuppression() &&
+                    baseIndentLength + fromNode.sumOfTextLengthUntil(callExpression.orTrailingComma()) > maxLineLength
+                ) {
                     requireNewlineBeforeLeaf(callExpression, emit)
                     return
                 }
