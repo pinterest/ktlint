@@ -160,26 +160,6 @@ class CallExpressionWrappingRuleTest {
             ).isFormattedAs(formattedCode)
     }
 
-    @Test
-    fun `xxx`() {
-        val code =
-            """
-            public fun writeFile(
-                filePath: String,
-                content: String,
-            ) {
-                operatingSystemPath(filePath)
-                    .let { path ->
-                        Files.createDirectories(path.parent)
-                        Files.write(path, content.toByteArray())
-                    }
-            }
-            """.trimIndent()
-        callExpressionWrappingRuleAssertThat(code)
-//            .setMaxLineLength()
-            .hasNoLintViolations()
-    }
-
     @KtlintDocumentationTest
     fun `Given some examples for documentation`() {
         val code =
