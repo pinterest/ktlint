@@ -72,10 +72,14 @@ class FilenameRuleTest {
         ],
     )
     fun `Given a file containing a single declaration of a class type then the filename should match the class name`(code: String) {
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:max-line-length")
         fileNameRuleAssertThat(code)
             .asFileWithPath("/some/path/$UNEXPECTED_FILE_NAME")
-            .hasLintViolationWithoutAutoCorrect(1, 1, "File '$UNEXPECTED_FILE_NAME' contains a single class, and possibly related top level declarations for that class. The file should be named after the class, 'Foo.kt'")
+            .hasLintViolationWithoutAutoCorrect(
+                1,
+                1,
+                "File '$UNEXPECTED_FILE_NAME' contains a single class, and possibly related top level declarations for that class. The file should be named after the class, 'Foo.kt'",
+            )
     }
 
     @ParameterizedTest(name = "Top level declaration: {0}")
@@ -86,10 +90,14 @@ class FilenameRuleTest {
         ],
     )
     fun `Given a file containing one top level declaration then the file should be named after the identifier`(code: String) {
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:max-line-length")
         fileNameRuleAssertThat(code)
             .asFileWithPath(UNEXPECTED_FILE_NAME)
-            .hasLintViolationWithoutAutoCorrect(1, 1, "File '$UNEXPECTED_FILE_NAME' contains a single top level declaration and should be named 'Foo.kt'")
+            .hasLintViolationWithoutAutoCorrect(
+                1,
+                1,
+                "File '$UNEXPECTED_FILE_NAME' contains a single top level declaration and should be named 'Foo.kt'",
+            )
     }
 
     @ParameterizedTest(name = "Top level declaration: {0}")
@@ -167,10 +175,14 @@ class FilenameRuleTest {
             class Foo
             $otherTopLevelDeclaration
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:max-line-length")
         fileNameRuleAssertThat(code)
             .asFileWithPath(UNEXPECTED_FILE_NAME)
-            .hasLintViolationWithoutAutoCorrect(1, 1, "File '$UNEXPECTED_FILE_NAME' contains a single class, and possibly related top level declarations for that class. The file should be named after the class, 'Foo.kt'")
+            .hasLintViolationWithoutAutoCorrect(
+                1,
+                1,
+                "File '$UNEXPECTED_FILE_NAME' contains a single class, and possibly related top level declarations for that class. The file should be named after the class, 'Foo.kt'",
+            )
     }
 
     @Test

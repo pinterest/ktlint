@@ -61,14 +61,22 @@ class WhenEntryBracingTest {
                     }
                 }
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:max-line-length")
         whenEntryBracingRuleAssertThat(code)
             .addAdditionalRuleProvider {
                 // Ensures that the first when entry is also wrapped to a multiline body
                 StatementWrappingRule()
             }.hasLintViolations(
-                LintViolation(4, 17, "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body"),
-                LintViolation(5, 17, "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body"),
+                LintViolation(
+                    4,
+                    17,
+                    "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body",
+                ),
+                LintViolation(
+                    5,
+                    17,
+                    "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body",
+                ),
             ).isFormattedAs(formattedCode)
     }
 
@@ -102,7 +110,7 @@ class WhenEntryBracingTest {
                     }
                 }
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:max-line-length")
         whenEntryBracingRuleAssertThat(code)
             .addAdditionalRuleProvider {
                 // Ensures that the first when entry is also wrapped to a multiline body
@@ -111,8 +119,16 @@ class WhenEntryBracingTest {
                 // Fix indent of the wrapped multiline statement
                 IndentationRule()
             }.hasLintViolations(
-                LintViolation(4, 17, "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body"),
-                LintViolation(7, 17, "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body"),
+                LintViolation(
+                    4,
+                    17,
+                    "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body",
+                ),
+                LintViolation(
+                    7,
+                    17,
+                    "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body",
+                ),
             ).isFormattedAs(formattedCode)
     }
 
@@ -146,14 +162,22 @@ class WhenEntryBracingTest {
                     }
                 }
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:max-line-length")
         whenEntryBracingRuleAssertThat(code)
             .addAdditionalRuleProvider {
                 // Ensures that the first when entry is also wrapped to a multiline body
                 StatementWrappingRule()
             }.hasLintViolations(
-                LintViolation(4, 17, "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body"),
-                LintViolation(7, 17, "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body"),
+                LintViolation(
+                    4,
+                    17,
+                    "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body",
+                ),
+                LintViolation(
+                    7,
+                    17,
+                    "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body",
+                ),
             ).isFormattedAs(formattedCode)
     }
 
@@ -184,15 +208,27 @@ class WhenEntryBracingTest {
                     }
                 }
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:max-line-length")
         whenEntryBracingRuleAssertThat(code)
             .addAdditionalRuleProvider {
                 // Ensures that the first when entry is also wrapped to a multiline body
                 StatementWrappingRule()
             }.hasLintViolations(
-                LintViolation(3, 17, "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body"),
-                LintViolation(5, 13, "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body"),
-                LintViolation(6, 17, "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body"),
+                LintViolation(
+                    3,
+                    17,
+                    "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body",
+                ),
+                LintViolation(
+                    5,
+                    13,
+                    "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body",
+                ),
+                LintViolation(
+                    6,
+                    17,
+                    "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body",
+                ),
             ).isFormattedAs(formattedCode)
     }
 }

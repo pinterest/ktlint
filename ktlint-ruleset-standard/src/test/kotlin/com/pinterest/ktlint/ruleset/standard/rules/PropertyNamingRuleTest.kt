@@ -98,7 +98,7 @@ class PropertyNamingRuleTest {
             val foo = Foo()
             val FOO_BAR = FooBar()
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:max-line-length")
         propertyNamingRuleAssertThat(code).hasNoLintViolations()
     }
 
@@ -113,7 +113,7 @@ class PropertyNamingRuleTest {
                 }
             }
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:max-line-length")
         propertyNamingRuleAssertThat(code).hasNoLintViolations()
     }
 
@@ -275,10 +275,15 @@ class PropertyNamingRuleTest {
                 val FOO_BAR = "FOO-BAR" // Class properties always start with lowercase, const is not allowed
             }
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:max-line-length")
         propertyNamingRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(1, 11, "Property name should use the screaming snake case notation when the value can not be changed", canBeAutoCorrected = false),
+                LintViolation(
+                    1,
+                    11,
+                    "Property name should use the screaming snake case notation when the value can not be changed",
+                    canBeAutoCorrected = false,
+                ),
                 LintViolation(3, 5, "Property name should start with a lowercase letter and use camel case", canBeAutoCorrected = false),
                 LintViolation(6, 9, "Property name should start with a lowercase letter and use camel case", canBeAutoCorrected = false),
             )

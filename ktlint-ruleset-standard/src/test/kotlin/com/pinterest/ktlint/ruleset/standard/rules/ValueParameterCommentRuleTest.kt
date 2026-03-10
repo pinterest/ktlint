@@ -79,12 +79,24 @@ class ValueParameterCommentRuleTest {
                 val bar: /** some comment */ Bar
             )
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:max-line-length")
         valueParameterCommentRuleAssertThat(code)
             .hasLintViolationsWithoutAutoCorrect(
-                LintViolation(3, 9, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
-                LintViolation(7, 14, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
-                LintViolation(10, 14, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
+                LintViolation(
+                    3,
+                    9,
+                    "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.",
+                ),
+                LintViolation(
+                    7,
+                    14,
+                    "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.",
+                ),
+                LintViolation(
+                    10,
+                    14,
+                    "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.",
+                ),
             )
     }
 
@@ -102,12 +114,24 @@ class ValueParameterCommentRuleTest {
                 val bar: Bar /* some comment */
             )
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:max-line-length")
         valueParameterCommentRuleAssertThat(code)
             .hasLintViolationsWithoutAutoCorrect(
-                LintViolation(2, 18, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
-                LintViolation(5, 18, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
-                LintViolation(8, 18, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
+                LintViolation(
+                    2,
+                    18,
+                    "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.",
+                ),
+                LintViolation(
+                    5,
+                    18,
+                    "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.",
+                ),
+                LintViolation(
+                    8,
+                    18,
+                    "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.",
+                ),
             )
     }
 

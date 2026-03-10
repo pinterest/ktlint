@@ -121,10 +121,14 @@ class ImportOrderingRuleAsciiTest {
             import android.app.Activity
             import android.view.ViewGroup
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:max-line-length")
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(ASCII_IMPORT_ORDERING)
-            .hasLintViolationWithoutAutoCorrect(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between -- no autocorrection due to comments in the import list")
+            .hasLintViolationWithoutAutoCorrect(
+                1,
+                1,
+                "Imports must be ordered in lexicographic order without any empty lines in-between -- no autocorrection due to comments in the import list",
+            )
     }
 
     @Test
@@ -136,10 +140,14 @@ class ImportOrderingRuleAsciiTest {
             import android.app.Activity
             import android.view.ViewGroup
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:max-line-length")
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(ASCII_IMPORT_ORDERING)
-            .hasLintViolationWithoutAutoCorrect(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between -- no autocorrection due to comments in the import list")
+            .hasLintViolationWithoutAutoCorrect(
+                1,
+                1,
+                "Imports must be ordered in lexicographic order without any empty lines in-between -- no autocorrection due to comments in the import list",
+            )
     }
 
     @Test

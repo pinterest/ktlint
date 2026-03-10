@@ -219,7 +219,7 @@ class FunctionSignatureRuleTest {
             private fun f9(a: Any, b: Any): /* some comment */ String = "some-result"
             private fun f10(a: Any, b: Any): String /* some comment */ = "some-result"
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:max-line-length")
         functionSignatureWrappingRuleAssertThat(code)
             .setMaxLineLength()
             .addAdditionalRuleProvider { ValueParameterCommentRule() }
@@ -227,11 +227,26 @@ class FunctionSignatureRuleTest {
                 LintViolation(2, 49, "Exceeded max line length (48)", canBeAutoCorrected = false),
                 LintViolation(3, 49, "Exceeded max line length (48)", canBeAutoCorrected = false),
                 LintViolation(4, 49, "Exceeded max line length (48)", canBeAutoCorrected = false),
-                LintViolation(5, 18, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
+                LintViolation(
+                    5,
+                    18,
+                    "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.",
+                    false,
+                ),
                 LintViolation(5, 49, "Exceeded max line length (48)", canBeAutoCorrected = false),
-                LintViolation(6, 19, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
+                LintViolation(
+                    6,
+                    19,
+                    "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.",
+                    false,
+                ),
                 LintViolation(6, 49, "Exceeded max line length (48)", canBeAutoCorrected = false),
-                LintViolation(7, 23, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
+                LintViolation(
+                    7,
+                    23,
+                    "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.",
+                    false,
+                ),
                 LintViolation(7, 49, "Exceeded max line length (48)", canBeAutoCorrected = false),
                 LintViolation(8, 49, "Exceeded max line length (48)", canBeAutoCorrected = false),
                 LintViolation(9, 49, "Exceeded max line length (48)", canBeAutoCorrected = false),
@@ -247,13 +262,28 @@ class FunctionSignatureRuleTest {
             private fun f6(a: /* some comment */ Any, b: Any): String = "some-result"
             private fun f7(a: Any /* some comment */, b: Any): String = "some-result"
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:max-line-length")
         functionSignatureWrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { ValueParameterCommentRule() }
             .hasLintViolationsForAdditionalRule(
-                LintViolation(1, 18, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
-                LintViolation(2, 19, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
-                LintViolation(3, 23, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.", false),
+                LintViolation(
+                    1,
+                    18,
+                    "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.",
+                    false,
+                ),
+                LintViolation(
+                    2,
+                    19,
+                    "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.",
+                    false,
+                ),
+                LintViolation(
+                    3,
+                    23,
+                    "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.",
+                    false,
+                ),
             ).hasNoLintViolationsExceptInAdditionalRules()
         // When ValueParameterCommentRule is not loaded or disabled:
         functionSignatureWrappingRuleAssertThat(code).hasNoLintViolations()
@@ -657,7 +687,7 @@ class FunctionSignatureRuleTest {
                 fun f28(block: (T) -> String) = "some-result"
                 fun f29(block: (T) -> String) = "some-result"
                 """.trimIndent()
-            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+            @Suppress("ktlint:standard:max-line-length")
             functionSignatureWrappingRuleAssertThat(code)
                 .addAdditionalRuleProviders(
                     { NoMultipleSpacesRule() },

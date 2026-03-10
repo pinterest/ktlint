@@ -258,7 +258,7 @@ class AnnotationRuleTest {
                 val baz: Any
             }
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:max-line-length")
         annotationRuleAssertThat(code)
             .withEditorConfigOverride(ANNOTATIONS_WITH_PARAMETERS_NOT_TO_BE_WRAPPED_PROPERTY to "Baz")
             .hasLintViolations(
@@ -414,7 +414,7 @@ class AnnotationRuleTest {
 
                 package foo.bar
                 """.trimIndent()
-            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+            @Suppress("ktlint:standard:max-line-length")
             annotationRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(1, 26, "Expected newline after last annotation"),
@@ -772,7 +772,7 @@ class AnnotationRuleTest {
                     String
                 > = FooBar()
                 """.trimIndent()
-            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+            @Suppress("ktlint:standard:max-line-length")
             annotationRuleAssertThat(code)
                 .addAdditionalRuleProvider { IndentationRule() }
                 .addAdditionalRuleProvider { WrappingRule() }

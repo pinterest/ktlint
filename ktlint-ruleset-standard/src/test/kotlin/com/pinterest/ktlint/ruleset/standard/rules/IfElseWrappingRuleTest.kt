@@ -180,9 +180,13 @@ class IfElseWrappingRuleTest {
                     if (true) { if (false) foo() else bar() }
                 }
                 """.trimIndent()
-            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+            @Suppress("ktlint:standard:max-line-length")
             ifElseWrappingRuleAssertThat(code)
-                .hasLintViolationWithoutAutoCorrect(2, 15, "A single line if-statement should be kept simple. The 'THEN' may not be wrapped in a block.")
+                .hasLintViolationWithoutAutoCorrect(
+                    2,
+                    15,
+                    "A single line if-statement should be kept simple. The 'THEN' may not be wrapped in a block.",
+                )
         }
 
         @Test
@@ -193,9 +197,13 @@ class IfElseWrappingRuleTest {
                     if (true) bar() else { if (false) foo() else bar() }
                 }
                 """.trimIndent()
-            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+            @Suppress("ktlint:standard:max-line-length")
             ifElseWrappingRuleAssertThat(code)
-                .hasLintViolationWithoutAutoCorrect(2, 26, "A single line if-statement should be kept simple. The 'ELSE' may not be wrapped in a block.")
+                .hasLintViolationWithoutAutoCorrect(
+                    2,
+                    26,
+                    "A single line if-statement should be kept simple. The 'ELSE' may not be wrapped in a block.",
+                )
         }
     }
 
@@ -207,7 +215,7 @@ class IfElseWrappingRuleTest {
             } else {
             }
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:max-line-length")
         ifElseWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
@@ -225,7 +233,7 @@ class IfElseWrappingRuleTest {
                 )
             }
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:max-line-length")
         ifElseWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 

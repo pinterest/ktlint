@@ -86,10 +86,14 @@ class BackingPropertyNamingRuleTest {
                             get() = _elementList
                     }
                     """.trimIndent()
-                @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+                @Suppress("ktlint:standard:max-line-length")
                 backingPropertyNamingRuleAssertThat(code)
                     .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
-                    .hasLintViolationWithoutAutoCorrect(2, 17, "Backing property is only allowed when the matching property or function is public")
+                    .hasLintViolationWithoutAutoCorrect(
+                        2,
+                        17,
+                        "Backing property is only allowed when the matching property or function is public",
+                    )
             }
 
             @ParameterizedTest(name = "Modifier: {0}")
@@ -110,10 +114,14 @@ class BackingPropertyNamingRuleTest {
                             get() = _elementList
                     }
                     """.trimIndent()
-                @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+                @Suppress("ktlint:standard:max-line-length")
                 backingPropertyNamingRuleAssertThat(code)
                     .withEditorConfigOverride(CODE_STYLE_PROPERTY to intellij_idea)
-                    .hasLintViolationWithoutAutoCorrect(2, 17, "Backing property is only allowed when the matching property or function is public")
+                    .hasLintViolationWithoutAutoCorrect(
+                        2,
+                        17,
+                        "Backing property is only allowed when the matching property or function is public",
+                    )
             }
 
             @ParameterizedTest(name = "Modifier: {0}")
@@ -207,10 +215,14 @@ class BackingPropertyNamingRuleTest {
                         $modifier fun getElementList(): List<Element> = _elementList
                     }
                     """.trimIndent()
-                @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+                @Suppress("ktlint:standard:max-line-length")
                 backingPropertyNamingRuleAssertThat(code)
                     .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
-                    .hasLintViolationWithoutAutoCorrect(2, 17, "Backing property is only allowed when the matching property or function is public")
+                    .hasLintViolationWithoutAutoCorrect(
+                        2,
+                        17,
+                        "Backing property is only allowed when the matching property or function is public",
+                    )
             }
 
             @ParameterizedTest(name = "Modifier: {0}")
@@ -230,10 +242,14 @@ class BackingPropertyNamingRuleTest {
                         $modifier fun getElementList(): List<Element> = _elementList
                     }
                     """.trimIndent()
-                @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+                @Suppress("ktlint:standard:max-line-length")
                 backingPropertyNamingRuleAssertThat(code)
                     .withEditorConfigOverride(CODE_STYLE_PROPERTY to intellij_idea)
-                    .hasLintViolationWithoutAutoCorrect(2, 17, "Backing property is only allowed when the matching property or function is public")
+                    .hasLintViolationWithoutAutoCorrect(
+                        2,
+                        17,
+                        "Backing property is only allowed when the matching property or function is public",
+                    )
             }
 
             @ParameterizedTest(name = "Modifier: {0}")
@@ -268,9 +284,13 @@ class BackingPropertyNamingRuleTest {
                         fun getElementList(bar: String): List<Element> = _elementList + bar
                     }
                     """.trimIndent()
-                @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+                @Suppress("ktlint:standard:max-line-length")
                 backingPropertyNamingRuleAssertThat(code)
-                    .hasLintViolationWithoutAutoCorrect(2, 17, "Backing property is only allowed when a matching property or function exists")
+                    .hasLintViolationWithoutAutoCorrect(
+                        2,
+                        17,
+                        "Backing property is only allowed when a matching property or function exists",
+                    )
             }
         }
     }
@@ -353,10 +373,14 @@ class BackingPropertyNamingRuleTest {
                         }
                     }
                     """.trimIndent()
-                @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+                @Suppress("ktlint:standard:max-line-length")
                 backingPropertyNamingRuleAssertThat(code)
                     .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
-                    .hasLintViolationWithoutAutoCorrect(6, 21, "Backing property is only allowed when the matching property or function is public")
+                    .hasLintViolationWithoutAutoCorrect(
+                        6,
+                        21,
+                        "Backing property is only allowed when the matching property or function is public",
+                    )
             }
 
             @ParameterizedTest(name = "Modifier: {0}")
@@ -379,10 +403,14 @@ class BackingPropertyNamingRuleTest {
                         }
                     }
                     """.trimIndent()
-                @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+                @Suppress("ktlint:standard:max-line-length")
                 backingPropertyNamingRuleAssertThat(code)
                     .withEditorConfigOverride(CODE_STYLE_PROPERTY to intellij_idea)
-                    .hasLintViolationWithoutAutoCorrect(6, 21, "Backing property is only allowed when the matching property or function is public")
+                    .hasLintViolationWithoutAutoCorrect(
+                        6,
+                        21,
+                        "Backing property is only allowed when the matching property or function is public",
+                    )
             }
 
             @ParameterizedTest(name = "Modifier: {0}")
@@ -486,10 +514,14 @@ class BackingPropertyNamingRuleTest {
                         }
                     }
                     """.trimIndent()
-                @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+                @Suppress("ktlint:standard:max-line-length")
                 backingPropertyNamingRuleAssertThat(code)
                     .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
-                    .hasLintViolationWithoutAutoCorrect(5, 21, "Backing property is only allowed when the matching property or function is public")
+                    .hasLintViolationWithoutAutoCorrect(
+                        5,
+                        21,
+                        "Backing property is only allowed when the matching property or function is public",
+                    )
             }
 
             @ParameterizedTest(name = "Modifier: {0}")
@@ -511,10 +543,14 @@ class BackingPropertyNamingRuleTest {
                         }
                     }
                     """.trimIndent()
-                @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+                @Suppress("ktlint:standard:max-line-length")
                 backingPropertyNamingRuleAssertThat(code)
                     .withEditorConfigOverride(CODE_STYLE_PROPERTY to intellij_idea)
-                    .hasLintViolationWithoutAutoCorrect(5, 21, "Backing property is only allowed when the matching property or function is public")
+                    .hasLintViolationWithoutAutoCorrect(
+                        5,
+                        21,
+                        "Backing property is only allowed when the matching property or function is public",
+                    )
             }
 
             @ParameterizedTest(name = "Modifier: {0}")
@@ -553,9 +589,13 @@ class BackingPropertyNamingRuleTest {
                         }
                     }
                     """.trimIndent()
-                @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+                @Suppress("ktlint:standard:max-line-length")
                 backingPropertyNamingRuleAssertThat(code)
-                    .hasLintViolationWithoutAutoCorrect(5, 21, "Backing property is only allowed when a matching property or function exists")
+                    .hasLintViolationWithoutAutoCorrect(
+                        5,
+                        21,
+                        "Backing property is only allowed when a matching property or function exists",
+                    )
             }
         }
     }
@@ -638,10 +678,14 @@ class BackingPropertyNamingRuleTest {
                         }
                     }
                     """.trimIndent()
-                @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+                @Suppress("ktlint:standard:max-line-length")
                 backingPropertyNamingRuleAssertThat(code)
                     .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
-                    .hasLintViolationWithoutAutoCorrect(6, 13, "Backing property is only allowed when the matching property or function is public")
+                    .hasLintViolationWithoutAutoCorrect(
+                        6,
+                        13,
+                        "Backing property is only allowed when the matching property or function is public",
+                    )
             }
 
             @ParameterizedTest(name = "Modifier: {0}")
@@ -664,10 +708,14 @@ class BackingPropertyNamingRuleTest {
                         }
                     }
                     """.trimIndent()
-                @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+                @Suppress("ktlint:standard:max-line-length")
                 backingPropertyNamingRuleAssertThat(code)
                     .withEditorConfigOverride(CODE_STYLE_PROPERTY to intellij_idea)
-                    .hasLintViolationWithoutAutoCorrect(6, 13, "Backing property is only allowed when the matching property or function is public")
+                    .hasLintViolationWithoutAutoCorrect(
+                        6,
+                        13,
+                        "Backing property is only allowed when the matching property or function is public",
+                    )
             }
 
             @ParameterizedTest(name = "Modifier: {0}")
@@ -771,10 +819,14 @@ class BackingPropertyNamingRuleTest {
                         }
                     }
                     """.trimIndent()
-                @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+                @Suppress("ktlint:standard:max-line-length")
                 backingPropertyNamingRuleAssertThat(code)
                     .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
-                    .hasLintViolationWithoutAutoCorrect(5, 13, "Backing property is only allowed when the matching property or function is public")
+                    .hasLintViolationWithoutAutoCorrect(
+                        5,
+                        13,
+                        "Backing property is only allowed when the matching property or function is public",
+                    )
             }
 
             @ParameterizedTest(name = "Modifier: {0}")
@@ -796,10 +848,14 @@ class BackingPropertyNamingRuleTest {
                         }
                     }
                     """.trimIndent()
-                @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+                @Suppress("ktlint:standard:max-line-length")
                 backingPropertyNamingRuleAssertThat(code)
                     .withEditorConfigOverride(CODE_STYLE_PROPERTY to intellij_idea)
-                    .hasLintViolationWithoutAutoCorrect(5, 13, "Backing property is only allowed when the matching property or function is public")
+                    .hasLintViolationWithoutAutoCorrect(
+                        5,
+                        13,
+                        "Backing property is only allowed when the matching property or function is public",
+                    )
             }
 
             @ParameterizedTest(name = "Modifier: {0}")
@@ -838,9 +894,13 @@ class BackingPropertyNamingRuleTest {
                         }
                     }
                     """.trimIndent()
-                @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+                @Suppress("ktlint:standard:max-line-length")
                 backingPropertyNamingRuleAssertThat(code)
-                    .hasLintViolationWithoutAutoCorrect(5, 13, "Backing property is only allowed when a matching property or function exists")
+                    .hasLintViolationWithoutAutoCorrect(
+                        5,
+                        13,
+                        "Backing property is only allowed when a matching property or function exists",
+                    )
             }
         }
     }
@@ -906,12 +966,22 @@ class BackingPropertyNamingRuleTest {
                     get() = _elementList2
             }
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:max-line-length")
         backingPropertyNamingRuleAssertThat(code)
             .hasLintViolations(
-                LintViolation(3, 17, "Backing property is only allowed when a matching property or function exists", canBeAutoCorrected = false),
+                LintViolation(
+                    3,
+                    17,
+                    "Backing property is only allowed when a matching property or function exists",
+                    canBeAutoCorrected = false,
+                ),
                 LintViolation(7, 9, "Backing property not allowed when 'private' modifier is missing", canBeAutoCorrected = false),
-                LintViolation(14, 17, "Backing property is only allowed when the matching property or function is public", canBeAutoCorrected = false),
+                LintViolation(
+                    14,
+                    17,
+                    "Backing property is only allowed when the matching property or function is public",
+                    canBeAutoCorrected = false,
+                ),
             )
     }
 
