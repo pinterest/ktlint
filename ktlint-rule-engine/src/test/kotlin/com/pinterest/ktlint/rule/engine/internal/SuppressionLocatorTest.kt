@@ -47,7 +47,7 @@ class SuppressionLocatorTest {
             """
             val foo = "foo" // ktlint-disable
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
         assertThat(lint(code))
             .contains(
                 LintError(1, 5, STANDARD_NO_FOO_IDENTIFIER_RULE_ID, "Line should not contain a foo identifier", false),
@@ -342,7 +342,7 @@ class SuppressionLocatorTest {
                 @file:Suppress("ktlint:internal:ktlint-suppression")
                 """.trimIndent()
             val actual = lint(code = code, ignoreKtlintSuppressionRule = false)
-            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
             assertThat(actual).containsExactly(
                 LintError(1, 17, KTLINT_SUPPRESSION_RULE_ID, "Ktlint rule with id 'ktlint:internal:ktlint-suppression' is unknown or not loaded", false),
             )
@@ -355,7 +355,7 @@ class SuppressionLocatorTest {
                 /* ktlint-disable internal:ktlint-suppression */
                 """.trimIndent()
             val actual = lint(code = code, ignoreKtlintSuppressionRule = false)
-            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
             assertThat(actual).containsExactly(
                 LintError(1, 4, KTLINT_SUPPRESSION_RULE_ID, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation", true),
                 LintError(1, 19, KTLINT_SUPPRESSION_RULE_ID, "Ktlint rule with id 'internal:ktlint-suppression' is unknown or not loaded", false),
@@ -369,7 +369,7 @@ class SuppressionLocatorTest {
                 val foo = "foo" // ktlint-disable internal:ktlint-suppression
                 """.trimIndent()
             val actual = lint(code = code, ignoreKtlintSuppressionRule = false)
-            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
             assertThat(actual).containsExactly(
                 lintError(1, 5, "standard:no-foo-identifier-standard"),
                 lintError(1, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),

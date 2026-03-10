@@ -11,6 +11,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.BinaryExpressionWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.BlankLineBeforeDeclarationRule
 import com.pinterest.ktlint.ruleset.standard.rules.BlankLineBetweenWhenConditions
 import com.pinterest.ktlint.ruleset.standard.rules.BlockCommentInitialStarAlignmentRule
+import com.pinterest.ktlint.ruleset.standard.rules.CallExpressionWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ChainMethodContinuationRule
 import com.pinterest.ktlint.ruleset.standard.rules.ChainWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ClassNamingRule
@@ -114,6 +115,7 @@ public class StandardRuleSetProvider : RuleSetV2Provider(RuleSetId.STANDARD) {
             RuleV2InstanceProvider { BlankLineBeforeDeclarationRule() },
             RuleV2InstanceProvider { BlankLineBetweenWhenConditions() },
             RuleV2InstanceProvider { BlockCommentInitialStarAlignmentRule() },
+            RuleV2InstanceProvider { CallExpressionWrappingRule() },
             RuleV2InstanceProvider { ChainMethodContinuationRule() },
             RuleV2InstanceProvider { ChainWrappingRule() },
             RuleV2InstanceProvider { ClassNamingRule() },

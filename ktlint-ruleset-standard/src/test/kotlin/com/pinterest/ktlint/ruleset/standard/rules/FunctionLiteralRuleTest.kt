@@ -475,8 +475,6 @@ class FunctionLiteralRuleTest {
             .hasLintViolations(
                 LintViolation(2, 14, "Newline expected after opening brace"),
                 LintViolation(2, 44, "Newline expected before closing brace"),
-                LintViolation(3, 22, "Newline expected after opening brace"),
-                LintViolation(3, 31, "Newline expected before closing brace"),
                 LintViolation(3, 42, "Newline expected after opening brace"),
                 LintViolation(3, 61, "Newline expected before closing brace"),
                 LintViolation(3, 67, "Newline expected after opening brace"),
@@ -617,5 +615,36 @@ class FunctionLiteralRuleTest {
                 }
             """.trimIndent()
         functionLiteralRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 2451 - Given a function literal that does not fit the line then wrap after the opening brace`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER                                      $EOL_CHAR
+            val foo1 = requireNotNull(bar.filter { it == "bar" }) { "some message" }
+            val foo2 = requireNotNull(bar?.filter { it == "bar" }) { "some message" }
+            """.trimIndent()
+        val formattedCode =
+            """
+            // $MAX_LINE_LENGTH_MARKER                                      $EOL_CHAR
+            val foo1 =
+                requireNotNull(bar.filter { it == "bar" }) { "some message" }
+            val foo2 =
+                requireNotNull(bar?.filter { it == "bar" }) {
+                    "some message"
+                }
+            """.trimIndent()
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+        functionLiteralRuleAssertThat(code)
+            .setMaxLineLength()
+            .addAdditionalRuleProvider { IndentationRule() }
+            .addAdditionalRuleProvider { PropertyWrappingRule() }
+            .hasLintViolations(
+                LintViolation(line = 2, col = 55, detail = "Newline expected after opening brace"),
+                LintViolation(line = 2, col = 72, detail = "Newline expected before closing brace"),
+                LintViolation(line = 3, col = 56, detail = "Newline expected after opening brace"),
+                LintViolation(line = 3, col = 73, detail = "Newline expected before closing brace"),
+            ).isFormattedAs(formattedCode)
     }
 }

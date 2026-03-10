@@ -200,7 +200,15 @@ public class FunctionLiteralRule :
             }.length
     }
 
-    private fun ASTNode.exceedsMaxLineLength() = maxLineLength < leavesOnLine20.dropTrailingEolComment().lineLength
+    private fun ASTNode.exceedsMaxLineLength(): Boolean {
+        require(elementType == BLOCK)
+        val stopAtLeaf = nextSibling { it.elementType == RBRACE }
+        return maxLineLength <
+            leavesOnLine20
+                .dropTrailingEolComment()
+                .takeWhile { it.prevLeaf != stopAtLeaf }
+                .lineLength
+    }
 
     private fun ASTNode.wrapFirstParameterToNewline() =
         if (isFunctionLiteralLambdaWithNonEmptyValueParameterList()) {

@@ -13,7 +13,7 @@ class TypeArgumentCommentRuleTest {
             """
             fun Foo<out /* some comment */ Any>.foo() {}
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
         typeArgumentCommentRuleAssertThat(code)
             .hasLintViolationWithoutAutoCorrect(1, 13, "A (block or EOL) comment inside or on same line after a 'type_projection' is not allowed. It may be placed on a separate line above.")
     }
@@ -25,7 +25,7 @@ class TypeArgumentCommentRuleTest {
             fun Foo<out // some comment
             Any>.foo() {}
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
         typeArgumentCommentRuleAssertThat(code)
             .hasLintViolationWithoutAutoCorrect(1, 13, "A (block or EOL) comment inside or on same line after a 'type_projection' is not allowed. It may be placed on a separate line above.")
     }

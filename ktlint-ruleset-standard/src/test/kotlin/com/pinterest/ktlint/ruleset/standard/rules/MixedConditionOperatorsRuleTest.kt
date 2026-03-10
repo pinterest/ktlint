@@ -12,7 +12,7 @@ class MixedConditionOperatorsRuleTest {
             """
             val foo = bar1 && bar2 || bar3
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
         mixedConditionOperatorsRuleAssertThat(code)
             .hasLintViolationWithoutAutoCorrect(1, 11, "A condition with mixed usage of '&&' and '||' is hard to read. Use parenthesis to clarify the (sub)condition.")
     }
@@ -25,7 +25,7 @@ class MixedConditionOperatorsRuleTest {
                 bar2 ||
                 bar3
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
         mixedConditionOperatorsRuleAssertThat(code)
             .hasLintViolationWithoutAutoCorrect(1, 11, "A condition with mixed usage of '&&' and '||' is hard to read. Use parenthesis to clarify the (sub)condition.")
     }
@@ -45,7 +45,7 @@ class MixedConditionOperatorsRuleTest {
             """
             val foo = bar1 && (bar2 || bar3 && bar4) && bar5
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
         mixedConditionOperatorsRuleAssertThat(code)
             .hasLintViolationWithoutAutoCorrect(1, 20, "A condition with mixed usage of '&&' and '||' is hard to read. Use parenthesis to clarify the (sub)condition.")
     }

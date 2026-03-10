@@ -61,7 +61,7 @@ class WhenEntryBracingTest {
                     }
                 }
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
         whenEntryBracingRuleAssertThat(code)
             .addAdditionalRuleProvider {
                 // Ensures that the first when entry is also wrapped to a multiline body
@@ -102,7 +102,7 @@ class WhenEntryBracingTest {
                     }
                 }
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
         whenEntryBracingRuleAssertThat(code)
             .addAdditionalRuleProvider {
                 // Ensures that the first when entry is also wrapped to a multiline body
@@ -146,7 +146,7 @@ class WhenEntryBracingTest {
                     }
                 }
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
         whenEntryBracingRuleAssertThat(code)
             .addAdditionalRuleProvider {
                 // Ensures that the first when entry is also wrapped to a multiline body
@@ -184,7 +184,7 @@ class WhenEntryBracingTest {
                     }
                 }
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
         whenEntryBracingRuleAssertThat(code)
             .addAdditionalRuleProvider {
                 // Ensures that the first when entry is also wrapped to a multiline body

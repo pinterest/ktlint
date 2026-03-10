@@ -247,7 +247,7 @@ public class ChainMethodContinuationRule :
                         ?: lastChildLeafOrSelf20.nextLeaf
                 leavesOnLine20
                     .dropTrailingEolComment()
-                    .takeWhile { it != stopAtLeaf }
+                    .takeWhile { it.prevLeaf != stopAtLeaf }
                     .lineLength > maxLineLength
             }
         }

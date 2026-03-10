@@ -579,7 +579,7 @@ class ClassSignatureRuleTest {
                 class Foo23<M : Map<Any, Any>>(map: M)
                 class Foo24<M : Map<Any, Any>>(map: M)
                 """.trimIndent()
-            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:max-line-length")
+            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
             classSignatureWrappingRuleAssertThat(code)
                 .addAdditionalRuleProviders(
                     { NoMultipleSpacesRule() },
