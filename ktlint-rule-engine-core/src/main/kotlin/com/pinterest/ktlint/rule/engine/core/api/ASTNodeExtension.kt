@@ -1,8 +1,10 @@
 package com.pinterest.ktlint.rule.engine.core.api
 
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATED_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE_ANNOTATION_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.STRING_TEMPLATE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT
@@ -1041,8 +1043,6 @@ public fun ASTNode.findChildByTypeRecursively(
 
 /**
  * Searches the receiver [ASTNode] recursively, returning the first child with type [elementType]. If none are found, returns `null`.
- * If [includeSelf] is `true`, includes the receiver in the search. The receiver would then be the first element searched, so it is
- * guaranteed to be returned if it has type [elementType].
  */
 public fun ASTNode.findChildByTypeRecursively(elementType: IElementType): ASTNode? =
     recursiveChildren20.firstOrNull { it.elementType == elementType }
@@ -1145,13 +1145,18 @@ public val ASTNode?.isDeclaration20: Boolean
  * Verified that the [ASTNode], nor any of its parents, is annotated with a suppression of the ktlint rule `max-line-length`.
  */
 public fun ASTNode.hasNoMaxLineLengthSuppression(): Boolean =
-    parents()
-        .filter { it.elementType == MODIFIER_LIST }
-        .none { modifierList ->
-            modifierList
-                .findChildByType(ANNOTATION_ENTRY)
-                ?.findChildByType(VALUE_ARGUMENT_LIST)
-                ?.children20
-                ?.any { it.elementType == VALUE_ARGUMENT && it.text == "ktlint:standard:max-line-length" }
-                ?: false
-        }
+    !isAnnotatedWithMaxLineLengthSuppression() &&
+        parents().none { it.isAnnotatedWithMaxLineLengthSuppression() }
+
+private fun ASTNode.isAnnotatedWithMaxLineLengthSuppression(): Boolean =
+    (elementType == ANNOTATED_EXPRESSION && containsMaxLineLengthSuppression()) ||
+        findChildByType(MODIFIER_LIST).containsMaxLineLengthSuppression() ||
+        (isRoot20 && findChildByType(FILE_ANNOTATION_LIST)?.containsMaxLineLengthSuppression() == true)
+
+private fun ASTNode?.containsMaxLineLengthSuppression(): Boolean =
+    this
+        ?.findChildByType(ANNOTATION_ENTRY)
+        ?.findChildByType(VALUE_ARGUMENT_LIST)
+        ?.children20
+        ?.any { it.elementType == VALUE_ARGUMENT && it.text == "\"ktlint:standard:max-line-length\"" }
+        ?: false
