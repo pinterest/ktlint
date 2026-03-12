@@ -34,6 +34,7 @@ public final class com/pinterest/ktlint/rule/engine/core/api/ASTNodeExtensionKt 
 	public static final fun getRecursiveChildren20 (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Lkotlin/sequences/Sequence;
 	public static final fun hasModifier (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;)Z
 	public static final fun hasNewLineInClosedRange (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
+	public static final fun hasNoMaxLineLengthSuppression (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
 	public static final fun indent (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Z)Ljava/lang/String;
 	public static synthetic fun indent$default (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZILjava/lang/Object;)Ljava/lang/String;
 	public static final fun isCode (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Z
