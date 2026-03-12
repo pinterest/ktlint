@@ -1618,16 +1618,22 @@ internal class WrappingRuleTest {
                 """
                 // $MAX_LINE_LENGTH_MARKER                                                   $EOL_CHAR
                 class Bar {
-                    val barrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr by lazy { fooooooooooooo("fooooooooooooooooooooooooooooooooooooooooooooo", true) }
+                    val barrrrrrrrrrrrrrrrrrrrrrrrrrrrrr1 by lazy { fooooooooooooo("fooooooooooooooooooooooooooooooooooooooooooooo", true) }
+
+                    @Suppress("ktlint:standard:max-line-length")
+                    val barrrrrrrrrrrrrrrrrrrrrrrrrrrrrr2 by lazy { fooooooooooooo("fooooooooooooooooooooooooooooooooooooooooooooo", true) }
                 }
                 """.trimIndent()
             val formattedCode =
                 """
                 // $MAX_LINE_LENGTH_MARKER                                                   $EOL_CHAR
                 class Bar {
-                    val barrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr by lazy {
+                    val barrrrrrrrrrrrrrrrrrrrrrrrrrrrrr1 by lazy {
                         fooooooooooooo("fooooooooooooooooooooooooooooooooooooooooooooo", true)
                     }
+
+                    @Suppress("ktlint:standard:max-line-length")
+                    val barrrrrrrrrrrrrrrrrrrrrrrrrrrrrr2 by lazy { fooooooooooooo("fooooooooooooooooooooooooooooooooooooooooooooo", true) }
                 }
                 """.trimIndent()
             wrappingRuleAssertThat(code)
@@ -1744,7 +1750,7 @@ internal class WrappingRuleTest {
             val code =
                 """
                 // $MAX_LINE_LENGTH_MARKER                               $EOL_CHAR
-                fun getQueryString(query: QueryRequest): String {
+                fun getQueryString1(query: QueryRequest): String {
                     val q = $MULTILINE_STRING_QUOTE
                         SELECT *
                         FROM table

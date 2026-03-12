@@ -37,6 +37,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY_OFF
 import com.pinterest.ktlint.rule.engine.core.api.hasModifier
+import com.pinterest.ktlint.rule.engine.core.api.hasNoMaxLineLengthSuppression
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
@@ -162,7 +163,11 @@ public class ClassSignatureRule :
             node.hasTooManyParameters() ||
                 node.containsMultilineParameter() ||
                 (codeStyle == ktlint_official && node.containsAnnotatedParameter()) ||
-                (isMaxLineLengthSet() && classSignatureExcludingSuperTypesExceedsMaxLineLength(node, emit)) ||
+                (
+                    isMaxLineLengthSet() &&
+                        node.hasNoMaxLineLengthSuppression() &&
+                        classSignatureExcludingSuperTypesExceedsMaxLineLength(node, emit)
+                ) ||
                 (!isMaxLineLengthSet() && node.classSignatureExcludingSuperTypesIsMultiline()) ||
                 node.containsEolComment()
         fixWhiteSpacesInValueParameterList(node, emit, multiline = wrapPrimaryConstructorParameters, dryRun = false)
@@ -188,7 +193,7 @@ public class ClassSignatureRule :
             actualClassSignatureLength +
                 // Calculate the white space correction in case the signature would be rewritten to a single line
                 fixWhiteSpacesInValueParameterList(node, emit, multiline = false, dryRun = true)
-        return length > maxLineLength
+        return node.hasNoMaxLineLengthSuppression() && length > maxLineLength
     }
 
     private fun ASTNode.classSignatureExcludingSuperTypesIsMultiline() =
@@ -598,7 +603,7 @@ public class ClassSignatureRule :
             actualClassSignatureLength +
                 // Calculate the white space correction in case the signature would be rewritten to a single line
                 fixWhiteSpacesInValueParameterList(node, emit, multiline = false, dryRun = true)
-        return length > maxLineLength
+        return node.hasNoMaxLineLengthSuppression() && length > maxLineLength
     }
 
     private fun ASTNode.hasMultilinePrimaryConstructor() =

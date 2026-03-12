@@ -1058,10 +1058,15 @@ class KtlintSuppressionRuleTest {
                     doSomething()
                 }
                 """.trimIndent()
-            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+            @Suppress("ktlint:standard:max-line-length")
             ktlintSuppressionRuleAssertThat(code)
                 .hasLintViolations(
-                    LintViolation(2, 8, "Directive 'ktlint-disable' is deprecated. The matching 'ktlint-enable' directive is not found in same scope. Replace with @Suppress annotation", false),
+                    LintViolation(
+                        2,
+                        8,
+                        "Directive 'ktlint-disable' is deprecated. The matching 'ktlint-enable' directive is not found in same scope. Replace with @Suppress annotation",
+                        false,
+                    ),
                     LintViolation(6, 8, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations"),
                 ).isFormattedAs(formattedCode)
         }

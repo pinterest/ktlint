@@ -23,6 +23,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.hasNoMaxLineLengthSuppression
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
@@ -107,6 +108,7 @@ public class ContextReceiverWrappingRule :
 
         // Check line length assuming that the context receiver is indented correctly. Wrapping rule must however run before indenting.
         if (!node.textContains('\n') &&
+            node.hasNoMaxLineLengthSuppression() &&
             node.indentWithoutNewlinePrefix.length + node.textLength > maxLineLength
         ) {
             node
@@ -157,6 +159,7 @@ public class ContextReceiverWrappingRule :
         // Check line length assuming that the context receiver is indented correctly. Wrapping rule must however run
         // before indenting.
         if (!contextReceiverText.contains('\n') &&
+            node.hasNoMaxLineLengthSuppression() &&
             node.indentWithoutNewlinePrefix.length + contextReceiverText.length > maxLineLength
         ) {
             node

@@ -66,22 +66,26 @@ class ChainMethodContinuationRuleTest {
     fun `Given that maximum line length is set, and a single line method chain does exceed the maximum line length then wrap`() {
         val code =
             """
-            // $MAX_LINE_LENGTH_MARKER                           $EOL_CHAR
-            val foo = "foo".filter { it.isUpperCase() }.lowercase()
+            // $MAX_LINE_LENGTH_MARKER                            $EOL_CHAR
+            val foo1 = "foo".filter { it.isUpperCase() }.lowercase()
+            @Suppress("ktlint:standard:max-line-length")
+            val foo2 = "foo".filter { it.isUpperCase() }.lowercase()
             """.trimIndent()
         val formattedCode =
             """
-            // $MAX_LINE_LENGTH_MARKER                           $EOL_CHAR
-            val foo = "foo"
+            // $MAX_LINE_LENGTH_MARKER                            $EOL_CHAR
+            val foo1 = "foo"
                 .filter { it.isUpperCase() }
                 .lowercase()
+            @Suppress("ktlint:standard:max-line-length")
+            val foo2 = "foo".filter { it.isUpperCase() }.lowercase()
             """.trimIndent()
         chainMethodContinuationRuleAssertThat(code)
             .setMaxLineLength()
             .hasLintViolations(
-                LintViolation(2, 16, "Expected newline before '.'"),
+                LintViolation(2, 17, "Expected newline before '.'"),
                 // During formatting this violation will not occur due to wrapping of previous chain operators
-                LintViolation(2, 44, "Expected newline before '.'"),
+                LintViolation(2, 45, "Expected newline before '.'"),
             ).isFormattedAs(formattedCode)
     }
 

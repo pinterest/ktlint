@@ -27,6 +27,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.hasNoMaxLineLengthSuppression
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
@@ -93,6 +94,7 @@ public class ParameterListWrappingRule :
     ) {
         require(node.elementType == NULLABLE_TYPE)
         node
+            .takeIf { it.hasNoMaxLineLengthSuppression() }
             .takeUnless {
                 // skip when max line length is not exceeded
                 (node.column - 1 + node.textLength) <= maxLineLength
@@ -321,17 +323,20 @@ public class ParameterListWrappingRule :
                 ?.parent
                 ?.elementType
 
-    private fun ASTNode.isOnLineExceedingMaxLineLength(): Boolean {
-        val stopLeaf = nextLeaf { it.isWhiteSpaceWithNewline20 }?.nextLeaf
-        val lineContent =
-            leavesOnLine20
-                .dropTrailingEolComment()
-                .takeWhile { it.prevLeaf != stopLeaf }
-                .joinToString(separator = "") { it.text }
-                .substringAfter('\n')
-                .substringBefore('\n')
-        return lineContent.length > maxLineLength
-    }
+    private fun ASTNode.isOnLineExceedingMaxLineLength(): Boolean =
+        if (hasNoMaxLineLengthSuppression()) {
+            val stopLeaf = nextLeaf { it.isWhiteSpaceWithNewline20 }?.nextLeaf
+            val lineContent =
+                leavesOnLine20
+                    .dropTrailingEolComment()
+                    .takeWhile { it.prevLeaf != stopLeaf }
+                    .joinToString(separator = "") { it.text }
+                    .substringAfter('\n')
+                    .substringBefore('\n')
+            lineContent.length > maxLineLength
+        } else {
+            false
+        }
 
     private fun errorMessage(node: ASTNode) =
         when (node.elementType) {

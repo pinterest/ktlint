@@ -114,23 +114,27 @@ class CallExpressionWrappingRuleTest {
     fun `Given a single line call expression with argument in the reference expression which does not fits on the line then wrap after opening parenthesis of the reference expression`() {
         val code =
             """
-            // $MAX_LINE_LENGTH_MARKER      $EOL_CHAR
-            val foo = bar("foobarrrrrrrrrrrr") { "some message" }
+            // $MAX_LINE_LENGTH_MARKER       $EOL_CHAR
+            val foo1 = bar("foobarrrrrrrrrrrr") { "some message" }
+            @Suppress("ktlint:standard:max-line-length")
+            val foo2 = bar("foobarrrrrrrrrrrr") { "some message" }
             """.trimIndent()
         val formattedCode =
             """
-            // $MAX_LINE_LENGTH_MARKER      $EOL_CHAR
-            val foo = bar(
+            // $MAX_LINE_LENGTH_MARKER       $EOL_CHAR
+            val foo1 = bar(
                 "foobarrrrrrrrrrrr"
             ) { "some message" }
+            @Suppress("ktlint:standard:max-line-length")
+            val foo2 = bar("foobarrrrrrrrrrrr") { "some message" }
             """.trimIndent()
         callExpressionWrappingRuleAssertThat(code)
             .setMaxLineLength()
             .hasLintViolations(
-                LintViolation(2, 14, "Expected new line after '('"),
-                LintViolation(2, 34, "Expected new line before ')'"),
-                LintViolation(2, 36, "Expected new line after '{'"),
-                LintViolation(2, 53, "Expected new line before '}'"),
+                LintViolation(2, 15, "Expected new line after '('"),
+                LintViolation(2, 35, "Expected new line before ')'"),
+                LintViolation(2, 37, "Expected new line after '{'"),
+                LintViolation(2, 54, "Expected new line before '}'"),
             ).isFormattedAs(formattedCode)
     }
 

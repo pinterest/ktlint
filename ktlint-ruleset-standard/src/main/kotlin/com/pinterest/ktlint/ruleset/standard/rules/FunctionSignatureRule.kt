@@ -35,6 +35,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY_OFF
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.hasNoMaxLineLengthSuppression
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
@@ -202,7 +203,8 @@ public class FunctionSignatureRule :
             //     ): SomeVeryLongTypeName =
             //         SomeVeryLongTypeName(...)
             // Leave it up to the max-line-length rule to detect those violations so that the developer can handle it manually.
-            val rewriteFunctionSignatureWithParameters = node.countParameters() > 0 && singleLineFunctionSignatureLength > maxLineLength
+            val rewriteFunctionSignatureWithParameters =
+                node.countParameters() > 0 && (node.hasNoMaxLineLengthSuppression() && singleLineFunctionSignatureLength > maxLineLength)
             if (forceMultilineSignature || rewriteFunctionSignatureWithParameters) {
                 fixWhiteSpacesInValueParameterList(node, emit, multiline = true, dryRun = false)
                 if (node.findChildByType(EQ) == null) {
@@ -442,7 +444,7 @@ public class FunctionSignatureRule :
                             if (whiteSpaceBeforeIdentifier == null ||
                                 whiteSpaceBeforeIdentifier.text != expectedParameterIndent
                             ) {
-                                if (!dryRun) {
+                                if (!dryRun && valueParameterList.hasNoMaxLineLengthSuppression()) {
                                     emit(
                                         valueParameter.startOffset,
                                         "Parameter should start on a newline",
@@ -598,7 +600,11 @@ public class FunctionSignatureRule :
                                     .upsertWhitespaceBeforeMe(" ")
                             }
                         }
-                    } else if (firstLineOfBodyExpression.length + 1 > maxLengthRemainingForFirstLineOfBodyExpression ||
+                    } else if (
+                        (
+                            node.hasNoMaxLineLengthSuppression() &&
+                                firstLineOfBodyExpression.length + 1 > maxLengthRemainingForFirstLineOfBodyExpression
+                        ) ||
                         (functionBodyExpressionWrapping == multiline && functionBodyExpressionLines.size > 1) ||
                         functionBodyExpressionWrapping == always
                     ) {

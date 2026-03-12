@@ -17,23 +17,45 @@ internal class ParameterWrappingRuleTest {
         val code =
             """
             // $MAX_LINE_LENGTH_MARKER      $EOL_CHAR
-            class Bar(
+            class Bar1(
                 val foooooooooooooooooTooLong: Foo,
             )
-            fun bar(
+
+            @Suppress("ktlint:standard:max-line-length")
+            class Bar2(
+                val foooooooooooooooooTooLong: Foo
+            )
+
+            fun bar1(
                 foooooooooooooooooooooTooLong: Foo,
+            )
+
+            @Suppress("ktlint:standard:max-line-length")
+            fun bar2(
+                foooooooooooooooooooooTooLong: Foo
             )
             """.trimIndent()
         val formattedCode =
             """
             // $MAX_LINE_LENGTH_MARKER      $EOL_CHAR
-            class Bar(
+            class Bar1(
                 val foooooooooooooooooTooLong:
                     Foo,
             )
-            fun bar(
+
+            @Suppress("ktlint:standard:max-line-length")
+            class Bar2(
+                val foooooooooooooooooTooLong: Foo
+            )
+
+            fun bar1(
                 foooooooooooooooooooooTooLong:
                     Foo,
+            )
+
+            @Suppress("ktlint:standard:max-line-length")
+            fun bar2(
+                foooooooooooooooooooooTooLong: Foo
             )
             """.trimIndent()
         parameterWrappingRuleAssertThat(code)
@@ -41,7 +63,7 @@ internal class ParameterWrappingRuleTest {
             .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolations(
                 LintViolation(3, 35, "Missing newline after \":\""),
-                LintViolation(6, 35, "Missing newline after \":\""),
+                LintViolation(12, 35, "Missing newline after \":\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -87,11 +109,24 @@ internal class ParameterWrappingRuleTest {
         val code =
             """
             // $MAX_LINE_LENGTH_MARKER            $EOL_CHAR
-            class Bar(
+            class Bar1(
                 val foooooooooooooooooTooLong: Foo = Foo(),
                 val foooooooooooooNotTooLong: Foo = Foo(),
             )
-            fun bar(
+
+            @Suppress("ktlint:standard:max-line-length")
+            class Bar2(
+                val foooooooooooooooooTooLong: Foo = Foo(),
+                val foooooooooooooNotTooLong: Foo = Foo(),
+            )
+
+            fun bar1(
+                foooooooooooooooooooooTooLong: Foo = Foo(),
+                foooooooooooooooooNotTooLong: Foo = Foo(),
+            )
+
+            @Suppress("ktlint:standard:max-line-length")
+            fun bar2(
                 foooooooooooooooooooooTooLong: Foo = Foo(),
                 foooooooooooooooooNotTooLong: Foo = Foo(),
             )
@@ -99,17 +134,30 @@ internal class ParameterWrappingRuleTest {
         val formattedCode =
             """
             // $MAX_LINE_LENGTH_MARKER            $EOL_CHAR
-            class Bar(
+            class Bar1(
                 val foooooooooooooooooTooLong: Foo =
                     Foo(),
                 val foooooooooooooNotTooLong: Foo =
                     Foo(),
             )
-            fun bar(
+
+            @Suppress("ktlint:standard:max-line-length")
+            class Bar2(
+                val foooooooooooooooooTooLong: Foo = Foo(),
+                val foooooooooooooNotTooLong: Foo = Foo(),
+            )
+
+            fun bar1(
                 foooooooooooooooooooooTooLong: Foo =
                     Foo(),
                 foooooooooooooooooNotTooLong: Foo =
                     Foo(),
+            )
+
+            @Suppress("ktlint:standard:max-line-length")
+            fun bar2(
+                foooooooooooooooooooooTooLong: Foo = Foo(),
+                foooooooooooooooooNotTooLong: Foo = Foo(),
             )
             """.trimIndent()
         parameterWrappingRuleAssertThat(code)
@@ -118,8 +166,8 @@ internal class ParameterWrappingRuleTest {
             .hasLintViolations(
                 LintViolation(3, 41, "Missing newline after \"=\""),
                 LintViolation(4, 40, "Missing newline before \"Foo()\""),
-                LintViolation(7, 41, "Missing newline after \"=\""),
-                LintViolation(8, 40, "Missing newline before \"Foo()\""),
+                LintViolation(14, 41, "Missing newline after \"=\""),
+                LintViolation(15, 40, "Missing newline before \"Foo()\""),
             ).isFormattedAs(formattedCode)
     }
 

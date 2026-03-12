@@ -18,6 +18,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.hasNoMaxLineLengthSuppression
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
@@ -96,7 +97,9 @@ public class PropertyWrappingRule :
         node
             .findChildByType(COLON)
             ?.let { colon ->
-                if (baseIndentLength + fromNode.sumOfTextLengthUntil(colon) > maxLineLength) {
+                if (colon.hasNoMaxLineLengthSuppression() &&
+                    baseIndentLength + fromNode.sumOfTextLengthUntil(colon) > maxLineLength
+                ) {
                     fromNode.sumOfTextLengthUntil(colon)
                     requireNewlineAfterLeaf(colon, emit)
                     return
@@ -106,7 +109,9 @@ public class PropertyWrappingRule :
         node
             .findChildByType(TYPE_REFERENCE)
             ?.let { typeReference ->
-                if (baseIndentLength + fromNode.sumOfTextLengthUntil(typeReference) > maxLineLength) {
+                if (typeReference.hasNoMaxLineLengthSuppression() &&
+                    baseIndentLength + fromNode.sumOfTextLengthUntil(typeReference) > maxLineLength
+                ) {
                     requireNewlineBeforeLeaf(typeReference, emit)
                     return
                 }
@@ -115,7 +120,7 @@ public class PropertyWrappingRule :
         node
             .findChildByType(EQ)
             ?.let { equal ->
-                if (baseIndentLength + fromNode.sumOfTextLengthUntil(equal) > maxLineLength) {
+                if (equal.hasNoMaxLineLengthSuppression() && baseIndentLength + fromNode.sumOfTextLengthUntil(equal) > maxLineLength) {
                     requireNewlineAfterLeaf(equal, emit)
                     return
                 }
@@ -124,7 +129,9 @@ public class PropertyWrappingRule :
         node
             .findChildByType(CALL_EXPRESSION)
             ?.let { callExpression ->
-                if (baseIndentLength + fromNode.sumOfTextLengthUntil(callExpression) > maxLineLength) {
+                if (callExpression.hasNoMaxLineLengthSuppression() &&
+                    baseIndentLength + fromNode.sumOfTextLengthUntil(callExpression) > maxLineLength
+                ) {
                     requireNewlineBeforeLeaf(callExpression, emit)
                     return
                 }

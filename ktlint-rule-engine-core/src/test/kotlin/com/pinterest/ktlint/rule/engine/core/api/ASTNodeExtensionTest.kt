@@ -17,6 +17,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.LPAR
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PRIVATE_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.RPAR
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.THROW
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
@@ -1141,6 +1142,129 @@ class ASTNodeExtensionTest {
         assertThat(actual.isPsiType<KtAnnotated>()).isTrue()
         assertThat(actual.findChildByType(CLASS_KEYWORD)!!.isPsiType<KtAnnotated>()).isFalse()
         assertThat(actual.findChildByType(IDENTIFIER)!!.isPsiType<KtAnnotated>()).isFalse()
+    }
+
+    @Nested
+    inner class HasNoMaxLineLengthSuppression {
+        val ktlintRuleEngine =
+            KtLintRuleEngine(
+                ruleProviders =
+                    setOf(
+                        RuleV2InstanceProvider { DummyRule() },
+                    ),
+            )
+
+        @Test
+        fun `Given an ASTNode, and all of its parents are not annotated with suppression then return true`() {
+            val code =
+                """
+                class Foo {
+                    fun bar() =
+                         throw RuntimeException("some very long message")
+                }
+                """.trimIndent()
+
+            val actual = ktlintRuleEngine.transformToAst(Code.fromSnippet(code)).findChildByTypeRecursively(THROW)!!
+
+            assertThat(actual.hasNoMaxLineLengthSuppression()).isTrue()
+        }
+
+        @Test
+        fun `Given an ASTNode annotated with suppression for other rule than max-line-length, then return true`() {
+            val code =
+                """
+                class Foo {
+                    fun bar() =
+                         @Suppress("ktlint:standard:some-rule")
+                         throw RuntimeException("some very long message")
+                }
+                """.trimIndent()
+
+            val actual = ktlintRuleEngine.transformToAst(Code.fromSnippet(code)).findChildByTypeRecursively(THROW)!!
+
+            assertThat(actual.hasNoMaxLineLengthSuppression()).isTrue()
+        }
+
+        @Test
+        fun `Given an expression annotated with suppression for max-line-length rule, then return false`() {
+            val code =
+                """
+                class Foo {
+                    fun bar() =
+                         @Suppress("ktlint:standard:max-line-length")
+                         throw RuntimeException("some very long message")
+                }
+                """.trimIndent()
+
+            val actual = transformCodeToAST(code).findChildByTypeRecursively(THROW)!!
+
+            assertThat(actual.hasNoMaxLineLengthSuppression()).isFalse()
+        }
+
+        @Test
+        fun `Given an expression annotated with suppression for multiple rules including max-line-length rule, then return false`() {
+            val code =
+                """
+                class Foo {
+                    fun bar() =
+                         @Suppress("ktlint:standard:abc", "ktlint:standard:max-line-length", "ktlint:standard:xyz")
+                         throw RuntimeException("some very long message")
+                }
+                """.trimIndent()
+
+            val actual = transformCodeToAST(code).findChildByTypeRecursively(THROW)!!
+
+            assertThat(actual.hasNoMaxLineLengthSuppression()).isFalse()
+        }
+
+        @Test
+        fun `Given an expression, for which a parent is annotated with suppression for max-line-length rule, then return false`() {
+            val code =
+                """
+                class Foo {
+                     @Suppress("ktlint:standard:max-line-length")
+                    fun bar() =
+                         throw RuntimeException("some very long message")
+                }
+                """.trimIndent()
+
+            val actual = transformCodeToAST(code).findChildByTypeRecursively(THROW)!!
+
+            assertThat(actual.hasNoMaxLineLengthSuppression()).isFalse()
+        }
+
+        @Test
+        fun `Given an expression, for which a grandparent is annotated with suppression for max-line-length rule, then return false`() {
+            val code =
+                """
+                @Suppress("ktlint:standard:max-line-length")
+                class Foo {
+                    fun bar() =
+                         throw RuntimeException("some very long message")
+                }
+                """.trimIndent()
+
+            val actual = transformCodeToAST(code).findChildByTypeRecursively(THROW)!!
+
+            assertThat(actual.hasNoMaxLineLengthSuppression()).isFalse()
+        }
+
+        @Test
+        fun `Given a file annotated with suppression for max-line-length rule, then return false`() {
+            val code =
+                """
+                @file:Suppress("ktlint:standard:max-line-length")
+
+                class Foo {
+                    fun bar() =
+                         throw RuntimeException("some very long message")
+                }
+                """.trimIndent()
+
+            val actual = transformCodeToAST(code).findChildByTypeRecursively(THROW)!!
+
+            assertThat(actual.hasNoMaxLineLengthSuppression()).isFalse()
+        }
     }
 
     private inline fun String.transformAst(block: FileASTNode.() -> Unit): FileASTNode =

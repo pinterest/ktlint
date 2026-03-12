@@ -34,9 +34,13 @@ class EnumEntryNameCaseRuleTest {
                 _FOO
             }
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:max-line-length")
         enumEntryNameCaseRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(2, 5, "Enum entry name should be uppercase underscore-separated names like \"ENUM_ENTRY\" or upper camel-case like \"EnumEntry\"")
+            .hasLintViolationWithoutAutoCorrect(
+                2,
+                5,
+                "Enum entry name should be uppercase underscore-separated names like \"ENUM_ENTRY\" or upper camel-case like \"EnumEntry\"",
+            )
     }
 
     @Test
@@ -60,12 +64,24 @@ class EnumEntryNameCaseRuleTest {
                 Foo_Bar,
             }
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:max-line-length")
         enumEntryNameCaseRuleAssertThat(code)
             .hasLintViolationsWithoutAutoCorrect(
-                LintViolation(2, 5, "Enum entry name should be uppercase underscore-separated names like \"ENUM_ENTRY\" or upper camel-case like \"EnumEntry\""),
-                LintViolation(3, 5, "Enum entry name should be uppercase underscore-separated names like \"ENUM_ENTRY\" or upper camel-case like \"EnumEntry\""),
-                LintViolation(4, 5, "Enum entry name should be uppercase underscore-separated names like \"ENUM_ENTRY\" or upper camel-case like \"EnumEntry\""),
+                LintViolation(
+                    2,
+                    5,
+                    "Enum entry name should be uppercase underscore-separated names like \"ENUM_ENTRY\" or upper camel-case like \"EnumEntry\"",
+                ),
+                LintViolation(
+                    3,
+                    5,
+                    "Enum entry name should be uppercase underscore-separated names like \"ENUM_ENTRY\" or upper camel-case like \"EnumEntry\"",
+                ),
+                LintViolation(
+                    4,
+                    5,
+                    "Enum entry name should be uppercase underscore-separated names like \"ENUM_ENTRY\" or upper camel-case like \"EnumEntry\"",
+                ),
             )
     }
 
@@ -105,15 +121,19 @@ class EnumEntryNameCaseRuleTest {
 
         @Test
         fun `Given that 'ktlint_enum_entry_name_casing' is set to 'UPPER_CASES', then allow only upper cases`() {
-            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+            @Suppress("ktlint:standard:max-line-length")
             enumEntryNameCaseRuleAssertThat(code)
                 .withEditorConfigOverride(ENUM_ENTRY_NAME_CASING_PROPERTY to upper_cases)
-                .hasLintViolationWithoutAutoCorrect(3, 5, "Enum entry name should be uppercase underscore-separated names like \"ENUM_ENTRY\"")
+                .hasLintViolationWithoutAutoCorrect(
+                    3,
+                    5,
+                    "Enum entry name should be uppercase underscore-separated names like \"ENUM_ENTRY\"",
+                )
         }
 
         @Test
         fun `Given that 'ktlint_enum_entry_name_casing' is set to 'CAMEL_CASES', then allow only camel cases`() {
-            @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+            @Suppress("ktlint:standard:max-line-length")
             enumEntryNameCaseRuleAssertThat(code)
                 .withEditorConfigOverride(ENUM_ENTRY_NAME_CASING_PROPERTY to camel_cases)
                 .hasLintViolationWithoutAutoCorrect(2, 5, "Enum entry name should be upper camel-case like \"EnumEntry\"")

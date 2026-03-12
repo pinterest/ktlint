@@ -13,9 +13,13 @@ class TypeParameterCommentRuleTest {
             """
             class Foo<in /* some comment */ Bar>
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:max-line-length")
         typeParameterCommentRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(1, 14, "A (block or EOL) comment inside or on same line after a 'type_parameter' is not allowed. It may be placed on a separate line above.")
+            .hasLintViolationWithoutAutoCorrect(
+                1,
+                14,
+                "A (block or EOL) comment inside or on same line after a 'type_parameter' is not allowed. It may be placed on a separate line above.",
+            )
     }
 
     @Test
@@ -25,9 +29,13 @@ class TypeParameterCommentRuleTest {
             class Foo<in // some comment
             Bar>
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:max-line-length")
         typeParameterCommentRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(1, 14, "A (block or EOL) comment inside or on same line after a 'type_parameter' is not allowed. It may be placed on a separate line above.")
+            .hasLintViolationWithoutAutoCorrect(
+                1,
+                14,
+                "A (block or EOL) comment inside or on same line after a 'type_parameter' is not allowed. It may be placed on a separate line above.",
+            )
     }
 
     @Test
@@ -53,7 +61,7 @@ class TypeParameterCommentRuleTest {
                 >
             class Foo2<Bar /* some comment */ >
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:max-line-length")
         typeParameterCommentRuleAssertThat(code)
             .hasLintViolationsWithoutAutoCorrect(
                 LintViolation(2, 9, "A comment in a 'value_argument_list' is only allowed when placed on a separate line"),
@@ -70,7 +78,7 @@ class TypeParameterCommentRuleTest {
                 Bar>
             class FooBar2<Foo, /* some comment */ Bar>
             """.trimIndent()
-        @Suppress("ktlint:standard:argument-list-wrapping", "ktlint:standard:call-expression-wrapping", "ktlint:standard:max-line-length")
+        @Suppress("ktlint:standard:max-line-length")
         typeParameterCommentRuleAssertThat(code)
             .hasLintViolationsWithoutAutoCorrect(
                 LintViolation(2, 10, "A comment in a 'value_argument_list' is only allowed when placed on a separate line"),

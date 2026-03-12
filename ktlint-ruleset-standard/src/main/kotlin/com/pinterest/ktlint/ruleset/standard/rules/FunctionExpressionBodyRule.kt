@@ -22,7 +22,6 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERT
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
@@ -72,7 +71,6 @@ public class FunctionExpressionBodyRule :
                 CODE_STYLE_PROPERTY,
                 INDENT_SIZE_PROPERTY,
                 INDENT_STYLE_PROPERTY,
-                MAX_LINE_LENGTH_PROPERTY,
             ),
     ) {
     private var codeStyle = CODE_STYLE_PROPERTY.defaultValue

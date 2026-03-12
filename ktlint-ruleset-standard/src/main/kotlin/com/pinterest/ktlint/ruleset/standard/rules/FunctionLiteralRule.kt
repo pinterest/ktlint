@@ -28,6 +28,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.findParentByType
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.hasNoMaxLineLengthSuppression
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
@@ -171,7 +172,7 @@ public class FunctionLiteralRule :
                 .plus(1) // space before parameter list
                 .plus(lengthOfParameterListWhenOnSingleLine())
                 .plus(3) // space after parameter list followed by ->
-        return lineLength > maxLineLength
+        return hasNoMaxLineLengthSuppression() && lineLength > maxLineLength
     }
 
     private fun ASTNode.lineLengthIncludingLbrace(): Int {
@@ -203,7 +204,8 @@ public class FunctionLiteralRule :
     private fun ASTNode.exceedsMaxLineLength(): Boolean {
         require(elementType == BLOCK)
         val stopAtLeaf = nextSibling { it.elementType == RBRACE }
-        return maxLineLength <
+        return hasNoMaxLineLengthSuppression() &&
+            maxLineLength <
             leavesOnLine20
                 .dropTrailingEolComment()
                 .takeWhile { it.prevLeaf != stopAtLeaf }
@@ -211,7 +213,7 @@ public class FunctionLiteralRule :
     }
 
     private fun ASTNode.wrapFirstParameterToNewline() =
-        if (isFunctionLiteralLambdaWithNonEmptyValueParameterList()) {
+        if (isFunctionLiteralLambdaWithNonEmptyValueParameterList() && hasNoMaxLineLengthSuppression()) {
             // Disallow when max line is exceeded:
             //    val foo = someCallExpression { someLongParameterName ->
             //        bar()

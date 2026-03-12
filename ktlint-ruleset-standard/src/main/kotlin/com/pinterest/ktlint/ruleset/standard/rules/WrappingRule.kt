@@ -56,6 +56,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PR
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY_OFF
 import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
 import com.pinterest.ktlint.rule.engine.core.api.hasNewLineInClosedRange
+import com.pinterest.ktlint.rule.engine.core.api.hasNoMaxLineLengthSuppression
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
@@ -170,7 +171,7 @@ public class WrappingRule :
                 }
             }
 
-        if (maxLineLength != MAX_LINE_LENGTH_PROPERTY_OFF) {
+        if (maxLineLength != MAX_LINE_LENGTH_PROPERTY_OFF && node.hasNoMaxLineLengthSuppression()) {
             val lengthUntilBeginOfLine =
                 node
                     .leaves(false)
