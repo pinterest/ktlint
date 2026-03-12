@@ -245,7 +245,8 @@ public class BinaryExpressionWrappingRule :
             }
     }
 
-    private fun ASTNode.isOnLineExceedingMaxLineLength() = maxLineLength < leavesOnLine20.dropTrailingEolComment().lineLength
+    private fun ASTNode.isOnLineExceedingMaxLineLength() =
+        hasNoMaxLineLengthSuppression() && maxLineLength < leavesOnLine20.dropTrailingEolComment().lineLength
 
     private fun ASTNode.causesMaxLineLengthToBeExceeded() =
         hasNoMaxLineLengthSuppression() &&

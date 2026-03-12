@@ -5,6 +5,7 @@ import com.pinterest.ktlint.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARK
 import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import com.pinterest.ktlint.test.LintViolation
 import com.pinterest.ktlint.test.MULTILINE_STRING_QUOTE
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class BinaryExpressionWrappingRuleTest {
@@ -18,21 +19,25 @@ class BinaryExpressionWrappingRuleTest {
         val code =
             """
             // $MAX_LINE_LENGTH_MARKER                               $EOL_CHAR
-            val bar = leftHandSideExpression && rightHandSideExpression
+            val bar1 = leftHandSideExpression && rightHandSideExpression
+            @Suppress("ktlint:standard:max-line-length")
+            val bar2 = leftHandSideExpression && rightHandSideExpression
             """.trimIndent()
         val formattedCode =
             """
             // $MAX_LINE_LENGTH_MARKER                               $EOL_CHAR
-            val bar =
+            val bar1 =
                 leftHandSideExpression && rightHandSideExpression
+            @Suppress("ktlint:standard:max-line-length")
+            val bar2 = leftHandSideExpression && rightHandSideExpression
             """.trimIndent()
         binaryExpressionWrappingRuleAssertThat(code)
             .setMaxLineLength()
             .hasLintViolations(
-                LintViolation(2, 11, "Line is exceeding max line length. Break line between assignment and expression"),
+                LintViolation(2, 12, "Line is exceeding max line length. Break line between assignment and expression"),
                 // Next violation only happens during linting. When formatting the violation does not occur because fix of previous
                 // violation prevent that the remainder of the line exceeds the maximum
-                LintViolation(2, 36, "Line is exceeding max line length. Break line after '&&' in binary expression"),
+                LintViolation(2, 37, "Line is exceeding max line length. Break line after '&&' in binary expression"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -207,6 +212,9 @@ class BinaryExpressionWrappingRuleTest {
 
             val foo2 = foo() ?: "foooooooooooooooooo" +
                     "bar"
+            @Suppress("ktlint:standard:max-line-length")
+            val foo3 = foo() ?: "foooooooooooooooooo" +
+                    "bar"
             """.trimIndent()
         val formattedCode =
             """
@@ -220,6 +228,9 @@ class BinaryExpressionWrappingRuleTest {
             val foo2 =
                 foo()
                     ?: "foooooooooooooooooo" +
+                    "bar"
+            @Suppress("ktlint:standard:max-line-length")
+            val foo3 = foo() ?: "foooooooooooooooooo" +
                     "bar"
             """.trimIndent()
         binaryExpressionWrappingRuleAssertThat(code)
@@ -256,6 +267,8 @@ class BinaryExpressionWrappingRuleTest {
             val foobar2 = Foo(bar(1 * 2 * 3))
             val foobar3 = Foo(bar("bar" + "bazzzzzzzzzzz"))
             val foobar4 = Foo(bar("bar" + "bazzzzzzzzzzzz"))
+            @Suppress("ktlint:standard:max-line-length")
+            val foobar5 = Foo(bar("bar" + "bazzzzzzzzzzzz"))
             """.trimIndent()
         val formattedCode =
             """
@@ -277,6 +290,8 @@ class BinaryExpressionWrappingRuleTest {
                         "bazzzzzzzzzzzz"
                 )
             )
+            @Suppress("ktlint:standard:max-line-length")
+            val foobar5 = Foo(bar("bar" + "bazzzzzzzzzzzz"))
             """.trimIndent()
         binaryExpressionWrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { ArgumentListWrappingRule() }
@@ -320,6 +335,8 @@ class BinaryExpressionWrappingRuleTest {
             val foo1 = foobar(foo * bar) + "foo"
             val foo2 = foobar("foo", foo * bar) + "foo"
             val foo3 = foobar("fooo", foo * bar) + "foo"
+            @Suppress("ktlint:standard:max-line-length")
+            val foo4 = foobar("fooo", foo * bar) + "foo"
             """.trimIndent()
         val formattedCode =
             """
@@ -330,6 +347,8 @@ class BinaryExpressionWrappingRuleTest {
             val foo3 =
                 foobar("fooo", foo * bar) +
                     "foo"
+            @Suppress("ktlint:standard:max-line-length")
+            val foo4 = foobar("fooo", foo * bar) + "foo"
             """.trimIndent()
         binaryExpressionWrappingRuleAssertThat(code)
             .setMaxLineLength()
@@ -412,18 +431,22 @@ class BinaryExpressionWrappingRuleTest {
     fun `Issue 2462 - Given a call expression with value argument list inside a binary expression, then first wrap the binary expression`() {
         val code =
             """
-            // $MAX_LINE_LENGTH_MARKER                 $EOL_CHAR
+            // $MAX_LINE_LENGTH_MARKER                  $EOL_CHAR
             fun foo() {
-                every { foo.bar(bazbazbazbazbazbazbazbazbaz) } returns bar
+                every { foo1.bar(bazbazbazbazbazbazbazbazbaz) } returns bar
+                @Suppress("ktlint:standard:max-line-length")
+                every { foo2.bar(bazbazbazbazbazbazbazbazbaz) } returns bar
             }
             """.trimIndent()
         val formattedCode =
             """
-            // $MAX_LINE_LENGTH_MARKER                 $EOL_CHAR
+            // $MAX_LINE_LENGTH_MARKER                  $EOL_CHAR
             fun foo() {
                 every {
-                    foo.bar(bazbazbazbazbazbazbazbazbaz)
+                    foo1.bar(bazbazbazbazbazbazbazbazbaz)
                 } returns bar
+                @Suppress("ktlint:standard:max-line-length")
+                every { foo2.bar(bazbazbazbazbazbazbazbazbaz) } returns bar
             }
             """.trimIndent()
         binaryExpressionWrappingRuleAssertThat(code)
@@ -434,14 +457,14 @@ class BinaryExpressionWrappingRuleTest {
             // wrapping of the braces of the function literal by the BinaryExpressionWrapping prevents those violations from occurring.
             .hasLintViolationsForAdditionalRule(
                 LintViolation(3, 12, "Missing newline after \"{\""),
-                LintViolation(3, 21, "Argument should be on a separate line (unless all arguments can fit a single line)"),
-                LintViolation(3, 45, "Exceeded max line length (44)", canBeAutoCorrected = false),
-                LintViolation(3, 48, "Missing newline before \")\""),
+                LintViolation(3, 22, "Argument should be on a separate line (unless all arguments can fit a single line)"),
+                LintViolation(3, 46, "Exceeded max line length (45)", canBeAutoCorrected = false),
+                LintViolation(3, 49, "Missing newline before \")\""),
             ).hasLintViolations(
                 LintViolation(3, 12, "Newline expected after '{'"),
-                LintViolation(3, 50, "Newline expected before '}'"),
+                LintViolation(3, 51, "Newline expected before '}'"),
                 // Lint violation below only occurs during linting. Resolving violations above, prevents the next violation from occurring
-                LintViolation(3, 59, "Line is exceeding max line length. Break line after 'returns' in binary expression"),
+                LintViolation(3, 60, "Line is exceeding max line length. Break line after 'returns' in binary expression"),
             ).isFormattedAs(formattedCode)
     }
 

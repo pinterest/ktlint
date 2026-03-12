@@ -18,7 +18,6 @@ import com.pinterest.ktlint.rule.engine.core.api.children20
 import com.pinterest.ktlint.rule.engine.core.api.dropTrailingEolComment
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.hasNoMaxLineLengthSuppression
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
@@ -305,7 +304,7 @@ public class ParameterListSpacingRule :
                             .leavesOnLine20
                             .dropTrailingEolComment()
                             .lineLength
-                hasNoMaxLineLengthSuppression() && length > maxLineLength
+                length > maxLineLength
             }
             ?: false
 }

@@ -203,7 +203,8 @@ public class FunctionSignatureRule :
             //     ): SomeVeryLongTypeName =
             //         SomeVeryLongTypeName(...)
             // Leave it up to the max-line-length rule to detect those violations so that the developer can handle it manually.
-            val rewriteFunctionSignatureWithParameters = node.countParameters() > 0 && singleLineFunctionSignatureLength > maxLineLength
+            val rewriteFunctionSignatureWithParameters =
+                node.countParameters() > 0 && (node.hasNoMaxLineLengthSuppression() && singleLineFunctionSignatureLength > maxLineLength)
             if (forceMultilineSignature || rewriteFunctionSignatureWithParameters) {
                 fixWhiteSpacesInValueParameterList(node, emit, multiline = true, dryRun = false)
                 if (node.findChildByType(EQ) == null) {
@@ -384,7 +385,7 @@ public class FunctionSignatureRule :
                     if (whiteSpaceBeforeIdentifier == null ||
                         whiteSpaceBeforeIdentifier.text != expectedParameterIndent
                     ) {
-                        if (!dryRun && node.hasNoMaxLineLengthSuppression()) {
+                        if (!dryRun) {
                             emit(
                                 firstParameterInList.startOffset,
                                 "Newline expected after opening parenthesis",
@@ -496,7 +497,7 @@ public class FunctionSignatureRule :
                     if (whiteSpaceBeforeClosingParenthesis == null ||
                         whiteSpaceBeforeClosingParenthesis.text != newlineAndIndent
                     ) {
-                        if (!dryRun && valueParameterList.hasNoMaxLineLengthSuppression()) {
+                        if (!dryRun) {
                             emit(
                                 closingParenthesis!!.startOffset,
                                 "Newline expected before closing parenthesis",

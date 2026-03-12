@@ -50,31 +50,43 @@ class FunctionSignatureRuleTest {
         // the block expression.
         val code =
             """
-            // $MAX_LINE_LENGTH_MARKER           $EOL_CHAR
-            fun f(a: Any, b: Any, c: Any): String{
+            // $MAX_LINE_LENGTH_MARKER              $EOL_CHAR
+            fun foo1(a: Any, b: Any, c: Any): String{
+                // body
+            }
+
+            @Suppress("ktlint:standard:max-line-length")
+            fun foo2(a: Any, b: Any, c: Any): String{
                 // body
             }
             """.trimIndent()
         val formattedCode =
             """
-            // $MAX_LINE_LENGTH_MARKER           $EOL_CHAR
-            fun f(
+            // $MAX_LINE_LENGTH_MARKER              $EOL_CHAR
+            fun foo1(
                 a: Any,
                 b: Any,
                 c: Any
             ): String {
                 // body
             }
+
+            @Suppress("ktlint:standard:max-line-length")
+            fun foo2(a: Any, b: Any, c: Any): String {
+                // body
+            }
             """.trimIndent()
         functionSignatureWrappingRuleAssertThat(code)
             .setMaxLineLength()
             .addAdditionalRuleProvider { FunctionStartOfBodySpacingRule() }
+            .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "4")
             .hasLintViolations(
-                LintViolation(2, 7, "Newline expected after opening parenthesis"),
-                LintViolation(2, 15, "Parameter should start on a newline"),
-                LintViolation(2, 23, "Parameter should start on a newline"),
-                LintViolation(2, 29, "Newline expected before closing parenthesis"),
-                LintViolation(2, 38, "Expected a single space before body block"),
+                LintViolation(2, 10, "Newline expected after opening parenthesis"),
+                LintViolation(2, 18, "Parameter should start on a newline"),
+                LintViolation(2, 26, "Parameter should start on a newline"),
+                LintViolation(2, 32, "Newline expected before closing parenthesis"),
+                LintViolation(2, 41, "Expected a single space before body block"),
+                LintViolation(7, 41, "Expected a single space before body block"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -84,19 +96,29 @@ class FunctionSignatureRuleTest {
         // the block expression.
         val code =
             """
-            // $MAX_LINE_LENGTH_MARKER           $EOL_CHAR
-            fun f(a: Any, b: Any, c: Any): String {
+            // $MAX_LINE_LENGTH_MARKER              $EOL_CHAR
+            fun foo1(a: Any, b: Any, c: Any): String {
+                // body
+            }
+
+            @Suppress("ktlint:standard:max-line-length")
+            fun foo2(a: Any, b: Any, c: Any): String {
                 // body
             }
             """.trimIndent()
         val formattedCode =
             """
-            // $MAX_LINE_LENGTH_MARKER           $EOL_CHAR
-            fun f(
+            // $MAX_LINE_LENGTH_MARKER              $EOL_CHAR
+            fun foo1(
                 a: Any,
                 b: Any,
                 c: Any
             ): String {
+                // body
+            }
+
+            @Suppress("ktlint:standard:max-line-length")
+            fun foo2(a: Any, b: Any, c: Any): String {
                 // body
             }
             """.trimIndent()
@@ -104,10 +126,10 @@ class FunctionSignatureRuleTest {
             .setMaxLineLength()
             .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
             .hasLintViolations(
-                LintViolation(2, 7, "Newline expected after opening parenthesis"),
-                LintViolation(2, 15, "Parameter should start on a newline"),
-                LintViolation(2, 23, "Parameter should start on a newline"),
-                LintViolation(2, 29, "Newline expected before closing parenthesis"),
+                LintViolation(2, 10, "Newline expected after opening parenthesis"),
+                LintViolation(2, 18, "Parameter should start on a newline"),
+                LintViolation(2, 26, "Parameter should start on a newline"),
+                LintViolation(2, 32, "Newline expected before closing parenthesis"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -429,10 +451,18 @@ class FunctionSignatureRuleTest {
     fun `Given a multiline function signature which actually fits on a single line but for which the expression body does not fit at that same line then reformat the signature and wrap the body expression to the next line`() {
         val code =
             """
-            // $MAX_LINE_LENGTH_MARKER                 $EOL_CHAR
+            // $MAX_LINE_LENGTH_MARKER                    $EOL_CHAR
             // Entire signature is just one character too long to fit on a single line
-            // ...a: Any, b: Any, c: Any) = "some-result"
-            fun f(
+            // .foo1(a: Any, b: Any, c: Any) = "some-result"
+            fun foo1(
+                a: Any,
+                b: Any,
+                c: Any
+            ) = "some-result"
+
+            // But thanks to max-line-length suppression, the following signature can be written on a single line
+            @Suppress("ktlint:standard:max-line-length")
+            fun foo2(
                 a: Any,
                 b: Any,
                 c: Any
@@ -440,11 +470,15 @@ class FunctionSignatureRuleTest {
             """.trimIndent()
         val formattedCode =
             """
-            // $MAX_LINE_LENGTH_MARKER                 $EOL_CHAR
+            // $MAX_LINE_LENGTH_MARKER                    $EOL_CHAR
             // Entire signature is just one character too long to fit on a single line
-            // ...a: Any, b: Any, c: Any) = "some-result"
-            fun f(a: Any, b: Any, c: Any) =
+            // .foo1(a: Any, b: Any, c: Any) = "some-result"
+            fun foo1(a: Any, b: Any, c: Any) =
                 "some-result"
+
+            // But thanks to max-line-length suppression, the following signature can be written on a single line
+            @Suppress("ktlint:standard:max-line-length")
+            fun foo2(a: Any, b: Any, c: Any) = "some-result"
             """.trimIndent()
         functionSignatureWrappingRuleAssertThat(code)
             .setMaxLineLength()
@@ -455,6 +489,10 @@ class FunctionSignatureRuleTest {
                 LintViolation(7, 5, "Single whitespace expected before parameter"),
                 LintViolation(7, 11, "No whitespace expected between last parameter and closing parenthesis"),
                 LintViolation(8, 5, "Newline expected before expression body"),
+                LintViolation(13, 5, "No whitespace expected between opening parenthesis and first parameter name"),
+                LintViolation(14, 5, "Single whitespace expected before parameter"),
+                LintViolation(15, 5, "Single whitespace expected before parameter"),
+                LintViolation(15, 11, "No whitespace expected between last parameter and closing parenthesis"),
             ).isFormattedAs(formattedCode)
     }
 

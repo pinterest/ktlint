@@ -155,27 +155,35 @@ class ParameterListWrappingRuleTest {
     fun `Given a single line function which exceeds the maximum line length then start each parameter and the closing parenthesis on a separate line`() {
         val code =
             """
-            // $MAX_LINE_LENGTH_MARKER   $EOL_CHAR
-            fun f(a: Any, b: Any, c: Any) {
+            // $MAX_LINE_LENGTH_MARKER      $EOL_CHAR
+            fun foo1(a: Any, b: Any, c: Any) {
+            }
+
+            @Suppress("ktlint:standard:max-line-length")
+            fun foo2(a: Any, b: Any, c: Any) {
             }
             """.trimIndent()
         val formattedCode =
             """
-            // $MAX_LINE_LENGTH_MARKER   $EOL_CHAR
-            fun f(
+            // $MAX_LINE_LENGTH_MARKER      $EOL_CHAR
+            fun foo1(
                 a: Any,
                 b: Any,
                 c: Any
             ) {
             }
+
+            @Suppress("ktlint:standard:max-line-length")
+            fun foo2(a: Any, b: Any, c: Any) {
+            }
             """.trimIndent()
         parameterListWrappingRuleAssertThat(code)
             .setMaxLineLength()
             .hasLintViolations(
-                LintViolation(2, 7, "Parameter should start on a newline"),
-                LintViolation(2, 15, "Parameter should start on a newline"),
-                LintViolation(2, 23, "Parameter should start on a newline"),
-                LintViolation(2, 29, """Missing newline before ")""""),
+                LintViolation(2, 10, "Parameter should start on a newline"),
+                LintViolation(2, 18, "Parameter should start on a newline"),
+                LintViolation(2, 26, "Parameter should start on a newline"),
+                LintViolation(2, 32, """Missing newline before ")""""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -542,6 +550,9 @@ class ParameterListWrappingRuleTest {
                 var foo2: (
                     (bar1: Bar, bar2: Bar, bar3: Bar) -> Unit
                 )? = null
+
+                @Suppress("ktlint:standard:max-line-length")
+                var foo3: ((bar1: Bar, bar2: Bar, bar3: Bar) -> Unit)? = null
                 """.trimIndent()
             val formattedCode =
                 """
@@ -552,6 +563,9 @@ class ParameterListWrappingRuleTest {
                 var foo2: (
                     (bar1: Bar, bar2: Bar, bar3: Bar) -> Unit
                 )? = null
+
+                @Suppress("ktlint:standard:max-line-length")
+                var foo3: ((bar1: Bar, bar2: Bar, bar3: Bar) -> Unit)? = null
                 """.trimIndent()
             parameterListWrappingRuleAssertThat(code)
                 .setMaxLineLength()

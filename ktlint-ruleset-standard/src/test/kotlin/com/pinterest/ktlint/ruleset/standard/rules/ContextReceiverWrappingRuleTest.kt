@@ -97,11 +97,15 @@ class ContextReceiverWrappingRuleTest {
             """
             // $MAX_LINE_LENGTH_MARKER  $EOL_CHAR
             context(Foooooooooooooooooooo)
-            fun fooBar()
+            fun fooBar1()
+
+            @Suppress("ktlint:standard:max-line-length")
+            context(Foooooooooooooooooooo)
+            fun fooBar2()
 
             class Bar {
                 context(Foooooooooooooooo)
-                fun fooBar()
+                fun fooBar3()
             }
             """.trimIndent()
         val formattedCode =
@@ -110,13 +114,17 @@ class ContextReceiverWrappingRuleTest {
             context(
                 Foooooooooooooooooooo
             )
-            fun fooBar()
+            fun fooBar1()
+
+            @Suppress("ktlint:standard:max-line-length")
+            context(Foooooooooooooooooooo)
+            fun fooBar2()
 
             class Bar {
                 context(
                     Foooooooooooooooo
                 )
-                fun fooBar()
+                fun fooBar3()
             }
             """.trimIndent()
         contextReceiverWrappingRuleAssertThat(code)
@@ -124,8 +132,8 @@ class ContextReceiverWrappingRuleTest {
             .hasLintViolations(
                 LintViolation(2, 9, "Newline expected before context receiver as max line length is violated"),
                 LintViolation(2, 30, "Newline expected before closing parenthesis as max line length is violated"),
-                LintViolation(6, 13, "Newline expected before context receiver as max line length is violated"),
-                LintViolation(6, 30, "Newline expected before closing parenthesis as max line length is violated"),
+                LintViolation(10, 13, "Newline expected before context receiver as max line length is violated"),
+                LintViolation(10, 30, "Newline expected before closing parenthesis as max line length is violated"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -177,7 +185,11 @@ class ContextReceiverWrappingRuleTest {
             """
             // $MAX_LINE_LENGTH_MARKER  $EOL_CHAR
             context(Foooooooooooooooo<Foo, Bar>)
-            fun fooBar()
+            fun fooBar1()
+
+            @Suppress("ktlint:standard:max-line-length")
+            context(Foooooooooooooooo<Foo, Bar>)
+            fun fooBar2()
             """.trimIndent()
         // Actually, the closing ">" should be de-indented in same way as is done with ")", "]" and "}". It is
         // however indented to keep it in sync with other TYPE_ARGUMENT_LISTs which are formatted in this way.
@@ -190,7 +202,11 @@ class ContextReceiverWrappingRuleTest {
                     Bar
                     >
             )
-            fun fooBar()
+            fun fooBar1()
+
+            @Suppress("ktlint:standard:max-line-length")
+            context(Foooooooooooooooo<Foo, Bar>)
+            fun fooBar2()
             """.trimIndent()
         contextReceiverWrappingRuleAssertThat(code)
             .setMaxLineLength()

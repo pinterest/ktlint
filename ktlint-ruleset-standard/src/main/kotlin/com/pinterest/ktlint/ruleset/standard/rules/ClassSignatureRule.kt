@@ -163,7 +163,11 @@ public class ClassSignatureRule :
             node.hasTooManyParameters() ||
                 node.containsMultilineParameter() ||
                 (codeStyle == ktlint_official && node.containsAnnotatedParameter()) ||
-                (isMaxLineLengthSet() && classSignatureExcludingSuperTypesExceedsMaxLineLength(node, emit)) ||
+                (
+                    isMaxLineLengthSet() &&
+                        node.hasNoMaxLineLengthSuppression() &&
+                        classSignatureExcludingSuperTypesExceedsMaxLineLength(node, emit)
+                ) ||
                 (!isMaxLineLengthSet() && node.classSignatureExcludingSuperTypesIsMultiline()) ||
                 node.containsEolComment()
         fixWhiteSpacesInValueParameterList(node, emit, multiline = wrapPrimaryConstructorParameters, dryRun = false)

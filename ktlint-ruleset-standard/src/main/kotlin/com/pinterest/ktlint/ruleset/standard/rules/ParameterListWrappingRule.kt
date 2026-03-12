@@ -323,17 +323,20 @@ public class ParameterListWrappingRule :
                 ?.parent
                 ?.elementType
 
-    private fun ASTNode.isOnLineExceedingMaxLineLength(): Boolean {
-        val stopLeaf = nextLeaf { it.isWhiteSpaceWithNewline20 }?.nextLeaf
-        val lineContent =
-            leavesOnLine20
-                .dropTrailingEolComment()
-                .takeWhile { it.prevLeaf != stopLeaf }
-                .joinToString(separator = "") { it.text }
-                .substringAfter('\n')
-                .substringBefore('\n')
-        return lineContent.length > maxLineLength
-    }
+    private fun ASTNode.isOnLineExceedingMaxLineLength(): Boolean =
+        if (hasNoMaxLineLengthSuppression()) {
+            val stopLeaf = nextLeaf { it.isWhiteSpaceWithNewline20 }?.nextLeaf
+            val lineContent =
+                leavesOnLine20
+                    .dropTrailingEolComment()
+                    .takeWhile { it.prevLeaf != stopLeaf }
+                    .joinToString(separator = "") { it.text }
+                    .substringAfter('\n')
+                    .substringBefore('\n')
+            lineContent.length > maxLineLength
+        } else {
+            false
+        }
 
     private fun errorMessage(node: ASTNode) =
         when (node.elementType) {

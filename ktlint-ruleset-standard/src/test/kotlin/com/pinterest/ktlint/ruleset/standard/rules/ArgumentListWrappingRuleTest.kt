@@ -1268,4 +1268,34 @@ class ArgumentListWrappingRuleTest {
             }
         }
     }
+
+    @Test
+    fun `Given some argument lists that exceeds the max line length, but the max-line-length is suppressed then do not reformat the declaration on which it is suppressed`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER   $EOL_CHAR
+            @Suppress("ktlint:standard:max-line-length")
+            val foo1 = listOf("aaa", "bbb", "ccc")
+            val foo2 = listOf("aaa", "bbb", "ccc")
+            """.trimIndent()
+        val formattedCode =
+            """
+            // $MAX_LINE_LENGTH_MARKER   $EOL_CHAR
+            @Suppress("ktlint:standard:max-line-length")
+            val foo1 = listOf("aaa", "bbb", "ccc")
+            val foo2 = listOf(
+                "aaa",
+                "bbb",
+                "ccc"
+            )
+            """.trimIndent()
+        argumentListWrappingRuleAssertThat(code)
+            .setMaxLineLength()
+            .hasLintViolations(
+                LintViolation(4, 19, "Argument should be on a separate line (unless all arguments can fit a single line)"),
+                LintViolation(4, 26, "Argument should be on a separate line (unless all arguments can fit a single line)"),
+                LintViolation(4, 33, "Argument should be on a separate line (unless all arguments can fit a single line)"),
+                LintViolation(4, 38, "Missing newline before \")\""),
+            ).isFormattedAs(formattedCode)
+    }
 }

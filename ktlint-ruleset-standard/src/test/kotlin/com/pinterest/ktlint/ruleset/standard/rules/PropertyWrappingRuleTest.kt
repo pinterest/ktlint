@@ -17,13 +17,19 @@ internal class PropertyWrappingRuleTest {
         val code =
             """
             // $MAX_LINE_LENGTH_MARKER     $EOL_CHAR
-            val aVariableWithALooooooongName: String
+            val aVariableWithALoooooongName1: String
+
+            @Suppress("ktlint:standard:max-line-length")
+            val aVariableWithALoooooongName2: String
             """.trimIndent()
         val formattedCode =
             """
             // $MAX_LINE_LENGTH_MARKER     $EOL_CHAR
-            val aVariableWithALooooooongName:
+            val aVariableWithALoooooongName1:
                 String
+
+            @Suppress("ktlint:standard:max-line-length")
+            val aVariableWithALoooooongName2: String
             """.trimIndent()
         propertyWrappingRuleAssertThat(code)
             .setMaxLineLength()

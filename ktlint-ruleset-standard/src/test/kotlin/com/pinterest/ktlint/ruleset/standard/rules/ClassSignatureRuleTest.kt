@@ -121,25 +121,30 @@ class ClassSignatureRuleTest {
     fun `Given a single line class signature, without class body, which is greater then the max line length then reformat to a multiline signature`() {
         val code =
             """
-            // $MAX_LINE_LENGTH_MARKER     $EOL_CHAR
-            class Foo(a: Any, b: Any, c: Any)
+            // $MAX_LINE_LENGTH_MARKER      $EOL_CHAR
+            class Foo1(a: Any, b: Any, c: Any)
+            @Suppress("ktlint:standard:max-line-length")
+            class Foo2(a: Any, b: Any, c: Any)
             """.trimIndent()
         val formattedCode =
             """
-            // $MAX_LINE_LENGTH_MARKER     $EOL_CHAR
-            class Foo(
+            // $MAX_LINE_LENGTH_MARKER      $EOL_CHAR
+            class Foo1(
                 a: Any,
                 b: Any,
                 c: Any
             )
+            @Suppress("ktlint:standard:max-line-length")
+            class Foo2(a: Any, b: Any, c: Any)
             """.trimIndent()
         classSignatureWrappingRuleAssertThat(code)
             .setMaxLineLength()
+            .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to 4)
             .hasLintViolations(
-                LintViolation(2, 11, "Newline expected after opening parenthesis"),
-                LintViolation(2, 19, "Parameter should start on a newline"),
-                LintViolation(2, 27, "Parameter should start on a newline"),
-                LintViolation(2, 33, "Newline expected before closing parenthesis"),
+                LintViolation(2, 12, "Newline expected after opening parenthesis"),
+                LintViolation(2, 20, "Parameter should start on a newline"),
+                LintViolation(2, 28, "Parameter should start on a newline"),
+                LintViolation(2, 34, "Newline expected before closing parenthesis"),
             ).isFormattedAs(formattedCode)
     }
 
@@ -739,19 +744,23 @@ class ClassSignatureRuleTest {
     fun `Given a single line class signature extending another class, the primary constructor fitting on a single line but not together with the super type then wrap the super type`() {
         val code =
             """
-            // $MAX_LINE_LENGTH_MARKER                    $EOL_CHAR
-            class Foo(a: Any, b: Any, c: Any) : FooBar(a, c)
+            // $MAX_LINE_LENGTH_MARKER                     $EOL_CHAR
+            class Foo1(a: Any, b: Any, c: Any) : FooBar(a, c)
+            @Suppress("ktlint:standard:max-line-length")
+            class Foo2(a: Any, b: Any, c: Any) : FooBar(a, c)
             """.trimIndent()
         val formattedCode =
             """
-            // $MAX_LINE_LENGTH_MARKER                    $EOL_CHAR
-            class Foo(a: Any, b: Any, c: Any) :
+            // $MAX_LINE_LENGTH_MARKER                     $EOL_CHAR
+            class Foo1(a: Any, b: Any, c: Any) :
                 FooBar(a, c)
+            @Suppress("ktlint:standard:max-line-length")
+            class Foo2(a: Any, b: Any, c: Any) : FooBar(a, c)
             """.trimIndent()
         classSignatureWrappingRuleAssertThat(code)
             .setMaxLineLength()
             .withEditorConfigOverride(FORCE_MULTILINE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY to "unset")
-            .hasLintViolation(2, 37, "Super type should start on a newline")
+            .hasLintViolation(2, 38, "Super type should start on a newline")
             .isFormattedAs(formattedCode)
     }
 
