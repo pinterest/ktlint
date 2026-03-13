@@ -41,11 +41,8 @@ class ImportOrderingRuleIdeaTest {
         @Suppress("ktlint:standard:max-line-length")
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(IDEA_DEFAULT_IMPORT_ORDERING)
-            .hasLintViolation(
-                1,
-                1,
-                "Imports must be ordered in lexicographic order without any empty lines in-between with \"java\", \"javax\", \"kotlin\" and aliases in the end",
-            ).isFormattedAs(formattedCode)
+            .hasLintViolation(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between with \"java\", \"javax\", \"kotlin\" and aliases in the end")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -115,11 +112,8 @@ class ImportOrderingRuleIdeaTest {
         @Suppress("ktlint:standard:max-line-length")
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(IDEA_DEFAULT_IMPORT_ORDERING)
-            .hasLintViolation(
-                1,
-                1,
-                "Imports must be ordered in lexicographic order without any empty lines in-between with \"java\", \"javax\", \"kotlin\" and aliases in the end",
-            ).isFormattedAs(formattedCode)
+            .hasLintViolation(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between with \"java\", \"javax\", \"kotlin\" and aliases in the end")
+            .isFormattedAs(formattedCode)
     }
 
     @Test
@@ -155,11 +149,8 @@ class ImportOrderingRuleIdeaTest {
         @Suppress("ktlint:standard:max-line-length")
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(IDEA_DEFAULT_IMPORT_ORDERING)
-            .hasLintViolation(
-                1,
-                1,
-                "Imports must be ordered in lexicographic order without any empty lines in-between with \"java\", \"javax\", \"kotlin\" and aliases in the end",
-            ).isFormattedAs(formattedCode)
+            .hasLintViolation(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between with \"java\", \"javax\", \"kotlin\" and aliases in the end")
+            .isFormattedAs(formattedCode)
     }
 
     @Test

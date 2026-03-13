@@ -95,11 +95,7 @@ class CommentWrappingRuleTest {
             """.trimIndent()
         @Suppress("ktlint:standard:max-line-length")
         commentWrappingRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(
-                1,
-                17,
-                "A block comment after any other element on the same line must be separated by a new line",
-            )
+            .hasLintViolationWithoutAutoCorrect(1, 17, "A block comment after any other element on the same line must be separated by a new line")
     }
 
     @Test
@@ -108,7 +104,6 @@ class CommentWrappingRuleTest {
             """
             val foo /* some comment */ = "foo"
             """.trimIndent()
-        @Suppress("ktlint:standard:max-line-length")
         commentWrappingRuleAssertThat(code)
             .hasLintViolationWithoutAutoCorrect(1, 9, "A block comment in between other elements on the same line is disallowed")
     }
@@ -123,11 +118,7 @@ class CommentWrappingRuleTest {
             """.trimIndent()
         @Suppress("ktlint:standard:max-line-length")
         commentWrappingRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(
-                1,
-                9,
-                "A block comment starting on same line as another element and ending on another line before another element is disallowed",
-            )
+            .hasLintViolationWithoutAutoCorrect(1, 9, "A block comment starting on same line as another element and ending on another line before another element is disallowed")
     }
 
     @Test

@@ -15,11 +15,7 @@ class TypeArgumentCommentRuleTest {
             """.trimIndent()
         @Suppress("ktlint:standard:max-line-length")
         typeArgumentCommentRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(
-                1,
-                13,
-                "A (block or EOL) comment inside or on same line after a 'type_projection' is not allowed. It may be placed on a separate line above.",
-            )
+            .hasLintViolationWithoutAutoCorrect(1, 13, "A (block or EOL) comment inside or on same line after a 'type_projection' is not allowed. It may be placed on a separate line above.")
     }
 
     @Test
@@ -31,11 +27,7 @@ class TypeArgumentCommentRuleTest {
             """.trimIndent()
         @Suppress("ktlint:standard:max-line-length")
         typeArgumentCommentRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(
-                1,
-                13,
-                "A (block or EOL) comment inside or on same line after a 'type_projection' is not allowed. It may be placed on a separate line above.",
-            )
+            .hasLintViolationWithoutAutoCorrect(1, 13, "A (block or EOL) comment inside or on same line after a 'type_projection' is not allowed. It may be placed on a separate line above.")
     }
 
     @Test

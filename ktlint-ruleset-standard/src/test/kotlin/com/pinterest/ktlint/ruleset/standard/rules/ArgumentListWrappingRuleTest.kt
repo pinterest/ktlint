@@ -39,7 +39,6 @@ class ArgumentListWrappingRuleTest {
                 c
             )
             """.trimIndent()
-        @Suppress("ktlint:standard:max-line-length")
         argumentListWrappingRuleAssertThat(code)
             .hasLintViolation(3, 8, "Argument should be on a separate line (unless all arguments can fit a single line)")
             .isFormattedAs(formattedCode)
@@ -334,14 +333,6 @@ class ArgumentListWrappingRuleTest {
             .addAdditionalRuleProvider { IndentationRule() }
             .addAdditionalRuleProvider { MultilineExpressionWrappingRule() }
             .hasNoLintViolationsExceptInAdditionalRules()
-//            .hasLintViolations(
-//                LintViolation(line = 2, col = 59, detail = "Argument should be on a separate line (unless all arguments can fit a single line)"),
-//                LintViolation(line = 2, col = 60, detail = "Missing newline before \")\""),
-//                LintViolation(line = 4, col = 27, detail = "Argument should be on a separate line (unless all arguments can fit a single line)"),
-//                LintViolation(line = 4, col = 53, detail = "Missing newline before \")\""),
-//                LintViolation(line = 5, col = 27, detail = "Argument should be on a separate line (unless all arguments can fit a single line)"),
-//                LintViolation(line = 5, col = 54, detail = "Missing newline before \")\""),
-//            )
             .isFormattedAs(formattedCode)
     }
 
@@ -982,7 +973,6 @@ class ArgumentListWrappingRuleTest {
                 // body
             }
             """.trimIndent()
-        @Suppress("ktlint:standard:max-line-length")
         argumentListWrappingRuleAssertThat(code)
             .setMaxLineLength()
             .addAdditionalRuleProvider { ClassSignatureRule() }

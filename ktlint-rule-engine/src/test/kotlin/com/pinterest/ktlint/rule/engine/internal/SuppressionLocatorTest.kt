@@ -47,11 +47,8 @@ class SuppressionLocatorTest {
             """
             val foo = "foo" // ktlint-disable
             """.trimIndent()
-        @Suppress("ktlint:standard:max-line-length")
         assertThat(lint(code))
-            .contains(
-                LintError(1, 5, STANDARD_NO_FOO_IDENTIFIER_RULE_ID, "Line should not contain a foo identifier", false),
-            )
+            .contains(LintError(1, 5, STANDARD_NO_FOO_IDENTIFIER_RULE_ID, "Line should not contain a foo identifier", false))
     }
 
     @Test
@@ -343,15 +340,8 @@ class SuppressionLocatorTest {
                 """.trimIndent()
             val actual = lint(code = code, ignoreKtlintSuppressionRule = false)
             @Suppress("ktlint:standard:max-line-length")
-            assertThat(actual).containsExactly(
-                LintError(
-                    1,
-                    17,
-                    KTLINT_SUPPRESSION_RULE_ID,
-                    "Ktlint rule with id 'ktlint:internal:ktlint-suppression' is unknown or not loaded",
-                    false,
-                ),
-            )
+            assertThat(actual)
+                .containsExactly(LintError(1, 17, KTLINT_SUPPRESSION_RULE_ID, "Ktlint rule with id 'ktlint:internal:ktlint-suppression' is unknown or not loaded", false))
         }
 
         @Test
@@ -363,20 +353,8 @@ class SuppressionLocatorTest {
             val actual = lint(code = code, ignoreKtlintSuppressionRule = false)
             @Suppress("ktlint:standard:max-line-length")
             assertThat(actual).containsExactly(
-                LintError(
-                    1,
-                    4,
-                    KTLINT_SUPPRESSION_RULE_ID,
-                    "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation",
-                    true,
-                ),
-                LintError(
-                    1,
-                    19,
-                    KTLINT_SUPPRESSION_RULE_ID,
-                    "Ktlint rule with id 'internal:ktlint-suppression' is unknown or not loaded",
-                    false,
-                ),
+                LintError(1, 4, KTLINT_SUPPRESSION_RULE_ID, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation", true),
+                LintError(1, 19, KTLINT_SUPPRESSION_RULE_ID, "Ktlint rule with id 'internal:ktlint-suppression' is unknown or not loaded", false),
             )
         }
 
@@ -388,24 +366,13 @@ class SuppressionLocatorTest {
                 """.trimIndent()
             val actual = lint(code = code, ignoreKtlintSuppressionRule = false)
             @Suppress("ktlint:standard:max-line-length")
-            assertThat(actual).containsExactly(
-                lintError(1, 5, "standard:no-foo-identifier-standard"),
-                lintError(1, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
-                LintError(
-                    1,
-                    20,
-                    KTLINT_SUPPRESSION_RULE_ID,
-                    "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation",
-                    true,
-                ),
-                LintError(
-                    1,
-                    35,
-                    KTLINT_SUPPRESSION_RULE_ID,
-                    "Ktlint rule with id 'internal:ktlint-suppression' is unknown or not loaded",
-                    false,
-                ),
-            )
+            assertThat(actual)
+                .containsExactly(
+                    lintError(1, 5, "standard:no-foo-identifier-standard"),
+                    lintError(1, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
+                    LintError(1, 20, KTLINT_SUPPRESSION_RULE_ID, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation", true),
+                    LintError(1, 35, KTLINT_SUPPRESSION_RULE_ID, "Ktlint rule with id 'internal:ktlint-suppression' is unknown or not loaded", false),
+                )
         }
     }
 

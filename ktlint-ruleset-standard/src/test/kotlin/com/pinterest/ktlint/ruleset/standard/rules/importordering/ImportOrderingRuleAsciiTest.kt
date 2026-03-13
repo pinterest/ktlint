@@ -124,11 +124,7 @@ class ImportOrderingRuleAsciiTest {
         @Suppress("ktlint:standard:max-line-length")
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(ASCII_IMPORT_ORDERING)
-            .hasLintViolationWithoutAutoCorrect(
-                1,
-                1,
-                "Imports must be ordered in lexicographic order without any empty lines in-between -- no autocorrection due to comments in the import list",
-            )
+            .hasLintViolationWithoutAutoCorrect(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between -- no autocorrection due to comments in the import list")
     }
 
     @Test
@@ -143,11 +139,7 @@ class ImportOrderingRuleAsciiTest {
         @Suppress("ktlint:standard:max-line-length")
         importOrderingRuleAssertThat(code)
             .withEditorConfigOverride(ASCII_IMPORT_ORDERING)
-            .hasLintViolationWithoutAutoCorrect(
-                1,
-                1,
-                "Imports must be ordered in lexicographic order without any empty lines in-between -- no autocorrection due to comments in the import list",
-            )
+            .hasLintViolationWithoutAutoCorrect(1, 1, "Imports must be ordered in lexicographic order without any empty lines in-between -- no autocorrection due to comments in the import list")
     }
 
     @Test
