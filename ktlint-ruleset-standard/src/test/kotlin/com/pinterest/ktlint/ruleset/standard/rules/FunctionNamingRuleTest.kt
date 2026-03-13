@@ -44,11 +44,7 @@ class FunctionNamingRuleTest {
                 """.trimIndent()
             @Suppress("ktlint:standard:max-line-length")
             functionNamingRuleAssertThat(code)
-                .hasLintViolationWithoutAutoCorrect(
-                    1,
-                    5,
-                    "Function name should start with a lowercase letter (except factory methods) and use camel case",
-                )
+                .hasLintViolationWithoutAutoCorrect(1, 5, "Function name should start with a lowercase letter (except factory methods) and use camel case")
         }
 
         @ParameterizedTest(name = "Junit import: {0}")
@@ -84,11 +80,7 @@ class FunctionNamingRuleTest {
                 """.trimIndent()
             @Suppress("ktlint:standard:max-line-length")
             functionNamingRuleAssertThat(code)
-                .hasLintViolationWithoutAutoCorrect(
-                    1,
-                    5,
-                    "Function name should start with a lowercase letter (except factory methods) and use camel case",
-                )
+                .hasLintViolationWithoutAutoCorrect(1, 5, "Function name should start with a lowercase letter (except factory methods) and use camel case")
         }
 
         @ParameterizedTest(name = "Junit import: {0}")
@@ -131,11 +123,7 @@ class FunctionNamingRuleTest {
             """.trimIndent()
         @Suppress("ktlint:standard:max-line-length")
         functionNamingRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(
-                1,
-                5,
-                "Function name should start with a lowercase letter (except factory methods) and use camel case",
-            )
+            .hasLintViolationWithoutAutoCorrect(1, 5, "Function name should start with a lowercase letter (except factory methods) and use camel case")
     }
 
     @ParameterizedTest(name = "Suppression annotation: {0}")

@@ -82,21 +82,9 @@ class ValueParameterCommentRuleTest {
         @Suppress("ktlint:standard:max-line-length")
         valueParameterCommentRuleAssertThat(code)
             .hasLintViolationsWithoutAutoCorrect(
-                LintViolation(
-                    3,
-                    9,
-                    "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.",
-                ),
-                LintViolation(
-                    7,
-                    14,
-                    "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.",
-                ),
-                LintViolation(
-                    10,
-                    14,
-                    "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.",
-                ),
+                LintViolation(3, 9, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
+                LintViolation(7, 14, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
+                LintViolation(10, 14, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
             )
     }
 
@@ -117,21 +105,9 @@ class ValueParameterCommentRuleTest {
         @Suppress("ktlint:standard:max-line-length")
         valueParameterCommentRuleAssertThat(code)
             .hasLintViolationsWithoutAutoCorrect(
-                LintViolation(
-                    2,
-                    18,
-                    "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.",
-                ),
-                LintViolation(
-                    5,
-                    18,
-                    "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.",
-                ),
-                LintViolation(
-                    8,
-                    18,
-                    "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above.",
-                ),
+                LintViolation(2, 18, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
+                LintViolation(5, 18, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
+                LintViolation(8, 18, "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line above."),
             )
     }
 

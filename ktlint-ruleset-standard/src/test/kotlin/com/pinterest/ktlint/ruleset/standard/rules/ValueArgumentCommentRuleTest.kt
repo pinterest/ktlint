@@ -16,11 +16,7 @@ class ValueArgumentCommentRuleTest {
             """.trimIndent()
         @Suppress("ktlint:standard:max-line-length")
         valueArgumentCommentRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(
-                2,
-                9,
-                "A (block or EOL) comment inside or on same line after a 'value_argument' is not allowed. It may be placed on a separate line above.",
-            )
+            .hasLintViolationWithoutAutoCorrect(2, 9, "A (block or EOL) comment inside or on same line after a 'value_argument' is not allowed. It may be placed on a separate line above.")
     }
 
     @Test
@@ -34,11 +30,7 @@ class ValueArgumentCommentRuleTest {
             """.trimIndent()
         @Suppress("ktlint:standard:max-line-length")
         valueArgumentCommentRuleAssertThat(code)
-            .hasLintViolationWithoutAutoCorrect(
-                2,
-                9,
-                "A (block or EOL) comment inside or on same line after a 'value_argument' is not allowed. It may be placed on a separate line above.",
-            )
+            .hasLintViolationWithoutAutoCorrect(2, 9, "A (block or EOL) comment inside or on same line after a 'value_argument' is not allowed. It may be placed on a separate line above.")
     }
 
     @Test

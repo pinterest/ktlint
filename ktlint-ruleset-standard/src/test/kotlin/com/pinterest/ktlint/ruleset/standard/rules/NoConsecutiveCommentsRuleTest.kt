@@ -59,11 +59,7 @@ class NoConsecutiveCommentsRuleTest {
             .hasLintViolationsWithoutAutoCorrect(
                 LintViolation(2, 1, "a block comment may not be preceded by an EOL comment unless separated by a blank line"),
                 LintViolation(3, 1, "a KDoc may not be preceded by a block comment unless separated by a blank line"),
-                LintViolation(
-                    4,
-                    1,
-                    "a block comment may not be preceded by a KDoc. Reversed order is allowed though when separated by a newline.",
-                ),
+                LintViolation(4, 1, "a block comment may not be preceded by a KDoc. Reversed order is allowed though when separated by a newline."),
             )
     }
 
@@ -125,11 +121,7 @@ class NoConsecutiveCommentsRuleTest {
             @Suppress("ktlint:standard:max-line-length")
             noConsecutiveBlankLinesRuleAssertThat(code)
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
-                .hasLintViolationWithoutAutoCorrect(
-                    2,
-                    1,
-                    "a block comment may not be preceded by a KDoc. Reversed order is allowed though when separated by a newline.",
-                )
+                .hasLintViolationWithoutAutoCorrect(2, 1, "a block comment may not be preceded by a KDoc. Reversed order is allowed though when separated by a newline.")
         }
 
         @Test
@@ -170,11 +162,7 @@ class NoConsecutiveCommentsRuleTest {
             @Suppress("ktlint:standard:max-line-length")
             noConsecutiveBlankLinesRuleAssertThat(code)
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
-                .hasLintViolationWithoutAutoCorrect(
-                    2,
-                    1,
-                    "an EOL comment may not be preceded by a KDoc. Reversed order is allowed though when separated by a newline.",
-                )
+                .hasLintViolationWithoutAutoCorrect(2, 1, "an EOL comment may not be preceded by a KDoc. Reversed order is allowed though when separated by a newline.")
         }
 
         @Test
@@ -215,11 +203,7 @@ class NoConsecutiveCommentsRuleTest {
             @Suppress("ktlint:standard:max-line-length")
             noConsecutiveBlankLinesRuleAssertThat(code)
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
-                .hasLintViolationWithoutAutoCorrect(
-                    2,
-                    1,
-                    "a block comment may not be preceded by an EOL comment unless separated by a blank line",
-                )
+                .hasLintViolationWithoutAutoCorrect(2, 1, "a block comment may not be preceded by an EOL comment unless separated by a blank line")
         }
 
         @Test
@@ -245,11 +229,7 @@ class NoConsecutiveCommentsRuleTest {
             @Suppress("ktlint:standard:max-line-length")
             noConsecutiveBlankLinesRuleAssertThat(code)
                 .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
-                .hasLintViolationWithoutAutoCorrect(
-                    2,
-                    1,
-                    "an EOL comment may not be preceded by a block comment unless separated by a blank line",
-                )
+                .hasLintViolationWithoutAutoCorrect(2, 1, "an EOL comment may not be preceded by a block comment unless separated by a blank line")
         }
 
         @Test
