@@ -15,8 +15,11 @@ import com.pinterest.ktlint.rule.engine.core.api.indent20
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
 import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.leavesForwardsIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -77,7 +80,11 @@ public class BlankLineBetweenWhenConditions :
             .drop(1)
             .forEach { whenEntry ->
                 whenEntry
-                    .findWhitespaceAfterPreviousCodeSibling()
+                    .prevCodeLeaf
+                    ?.leavesForwardsIncludingSelf
+                    ?.takeWhile { !it.isWhiteSpaceWithNewline20 }
+                    ?.last()
+                    ?.nextLeaf
                     ?.takeUnless { it.containsBlankLine() }
                     ?.let { whitespaceBeforeWhenEntry ->
                         emitAndApprove(
