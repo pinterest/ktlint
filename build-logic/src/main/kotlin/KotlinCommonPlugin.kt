@@ -18,6 +18,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+@Suppress("unused") // See build.gradle.kts in build-logic
 abstract class KotlinCommonPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit =
         with(target) {
@@ -50,7 +51,7 @@ abstract class KotlinCommonPlugin : Plugin<Project> {
 
             val requestedJdkVersion = project.findProperty("testJdkVersion")?.toString()?.toInt()
             // list of Java versions (usually only LTS versions) the developers may want to run via IDE click.
-            setOfNotNull(8, 11, 17, 21, requestedJdkVersion).forEach { version ->
+            setOfNotNull(17, 21, requestedJdkVersion).forEach { version ->
                 tasks.register<Test>("testOnJdk$version") {
                     javaLauncher.set(
                         target

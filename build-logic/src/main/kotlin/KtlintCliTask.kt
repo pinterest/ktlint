@@ -46,23 +46,22 @@ abstract class KtlintCliTask
                 // writeText effective replaces the entire content if the file already exists. If appendText is used, the file keeps on growing
                 // with each build if the clean target is not used.
                 writeText(
-                    """
+                    $$"""
                     #!/bin/sh
 
                     # From this SO answer: https://stackoverflow.com/a/56243046
 
-                    # First we get the major Java version as an integer, e.g. 8, 11, 16. It has special handling for the leading 1 of older java
-                    # versions, e.g. 1.8 = Java 8
+                    # First we get the major Java version as an integer, e.g. 17, 21, 25
                     JV=$(java -version 2>&1 | sed -E -n 's/.* version "([^.-]*).*".*/\1/p')
 
                     # Suppress warning "sun.misc.Unsafe::objectFieldOffset" on Java24+ (https://github.com/pinterest/ktlint/issues/2973)
-                    X=$( [ "${"$"}JV" -ge "24" ] && echo "${"$"}X --sun-misc-unsafe-memory-access=allow" || echo "")
+                    X=$( [ "$JV" -ge "24" ] && echo "$X --sun-misc-unsafe-memory-access=allow" || echo "")
 
                     # Suppress warning "A restricted method in java.lang.System has been called" on Java 24
                     # Error is only printed when running command "ktlint --help"
-                    X=$( [ "${"$"}JV" -ge "24" ] && echo "${"$"}X --enable-native-access=ALL-UNNAMED" || echo "")
+                    X=$( [ "$JV" -ge "24" ] && echo "$X --enable-native-access=ALL-UNNAMED" || echo "")
 
-                    exec java ${"$"}X -Xmx512m -jar "$0" "$@"
+                    exec java $X -Xmx512m -jar "$0" "$@"
 
                     """.trimIndent(),
                 )
