@@ -260,7 +260,13 @@ internal class RuleExecutionContext private constructor(
             text
                 .replace("\r\n", "\n")
                 .replace("\r", "\n")
-                .replaceFirst(UTF8_BOM, "")
+                .let {
+                    if (it.startsWith(UTF8_BOM)) {
+                        it.replaceFirst(UTF8_BOM, "")
+                    } else {
+                        it
+                    }
+                }
 
         private fun PsiElement.findErrorElement(): PsiErrorElement? {
             if (this is PsiErrorElement) {
