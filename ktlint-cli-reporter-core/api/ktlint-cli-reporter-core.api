@@ -32,10 +32,10 @@ public abstract interface class com/pinterest/ktlint/cli/reporter/core/api/Repor
 }
 
 public abstract interface class com/pinterest/ktlint/cli/reporter/core/api/ReporterV2 {
-	public abstract fun after (Ljava/lang/String;)V
-	public abstract fun afterAll ()V
-	public abstract fun before (Ljava/lang/String;)V
-	public abstract fun beforeAll ()V
+	public fun after (Ljava/lang/String;)V
+	public fun afterAll ()V
+	public fun before (Ljava/lang/String;)V
+	public fun beforeAll ()V
 	public abstract fun onLintError (Ljava/lang/String;Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError;)V
 }
 
