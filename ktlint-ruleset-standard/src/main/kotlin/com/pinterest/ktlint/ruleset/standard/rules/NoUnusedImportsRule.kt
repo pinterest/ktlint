@@ -17,14 +17,14 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
-import com.pinterest.ktlint.rule.engine.core.api.isRoot20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.isRoot
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -59,7 +59,7 @@ public class NoUnusedImportsRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.isRoot20) {
+        if (node.isRoot) {
             rootNode = node
         }
         when (node.elementType) {
@@ -169,13 +169,13 @@ public class NoUnusedImportsRule :
                 ) {
                     emit(node.startOffset, "Unused import", true)
                         .ifAutocorrectAllowed {
-                            val nextSibling = node.nextSibling20
+                            val nextSibling = node.nextSibling
                             if (nextSibling == null) {
                                 // Last import
                                 node
-                                    .lastChildLeafOrSelf20
+                                    .lastChildLeafOrSelf
                                     .nextLeaf
-                                    ?.takeIf { it.isWhiteSpaceWithNewline20 }
+                                    ?.takeIf { it.isWhiteSpaceWithNewline }
                                     ?.let { whitespace ->
                                         if (node.prevLeaf == null) {
                                             // Also it was the first import, and it is not preceded by any other node containing some text. So
@@ -193,7 +193,7 @@ public class NoUnusedImportsRule :
                                     }
                             } else {
                                 nextSibling
-                                    .takeIf { it.isWhiteSpaceWithNewline20 }
+                                    .takeIf { it.isWhiteSpaceWithNewline }
                                     ?.remove()
                             }
                             importDirective.delete()
@@ -215,20 +215,20 @@ public class NoUnusedImportsRule :
         require(this.elementType == IMPORT_DIRECTIVE)
         when {
             parent?.firstChildNode == this -> {
-                nextSibling20
-                    ?.takeIf { it.isWhiteSpaceWithNewline20 }
+                nextSibling
+                    ?.takeIf { it.isWhiteSpaceWithNewline }
                     ?.remove()
             }
 
             parent?.lastChildNode == this -> {
-                prevSibling20
-                    ?.takeIf { it.isWhiteSpaceWithNewline20 }
+                prevSibling
+                    ?.takeIf { it.isWhiteSpaceWithNewline }
                     ?.remove()
             }
 
             else -> {
                 nextLeaf
-                    ?.takeIf { it.isWhiteSpaceWithNewline20 }
+                    ?.takeIf { it.isWhiteSpaceWithNewline }
                     ?.remove()
             }
         }

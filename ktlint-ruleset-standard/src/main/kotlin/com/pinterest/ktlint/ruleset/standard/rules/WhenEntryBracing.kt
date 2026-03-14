@@ -12,19 +12,18 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children20
+import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.parent
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.psi.psiUtil.leaves
@@ -77,7 +76,7 @@ public class WhenEntryBracing :
         }
     }
 
-    private fun ASTNode.hasAnyWhenEntryWithBlockAfterArrow() = children20.any { it.elementType == WHEN_ENTRY && it.hasBlockAfterArrow() }
+    private fun ASTNode.hasAnyWhenEntryWithBlockAfterArrow() = children.any { it.elementType == WHEN_ENTRY && it.hasBlockAfterArrow() }
 
     private fun ASTNode.hasBlockAfterArrow(): Boolean {
         require(elementType == WHEN_ENTRY)
@@ -87,14 +86,14 @@ public class WhenEntryBracing :
             .any { it.elementType == BLOCK }
     }
 
-    private fun ASTNode.hasAnyWhenEntryWithMultilineBody() = children20.any { it.elementType == WHEN_ENTRY && it.hasMultilineBody() }
+    private fun ASTNode.hasAnyWhenEntryWithMultilineBody() = children.any { it.elementType == WHEN_ENTRY && it.hasMultilineBody() }
 
     private fun ASTNode.hasMultilineBody(): Boolean {
         require(elementType == WHEN_ENTRY)
         return findChildByType(ARROW)
             ?.siblings()
             .orEmpty()
-            .any { it.isWhiteSpaceWithNewline20 }
+            .any { it.isWhiteSpaceWithNewline }
     }
 
     private fun addBracesToWhenEntry(
@@ -102,14 +101,14 @@ public class WhenEntryBracing :
         emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .children20
+            .children
             .filter { it.elementType == WHEN_ENTRY }
             .filter { !it.hasBlockAfterArrow() }
             .forEach { whenEntry ->
                 whenEntry
                     .findChildByType(ARROW)
                     ?.let { arrow ->
-                        val nonWhiteSpaceSibling = arrow.nextSibling { !it.isWhiteSpace20 } ?: arrow
+                        val nonWhiteSpaceSibling = arrow.nextSibling { !it.isWhiteSpace } ?: arrow
                         emitAndApprove(
                             nonWhiteSpaceSibling.startOffset,
                             "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces " +
@@ -129,23 +128,23 @@ public class WhenEntryBracing :
         val whenEntryIndent = indentConfig.parentIndentOf(this).removePrefix("\n")
         val whenEntry = parent!!
         // Find the anchor node, e.g. the last node before the current when-entry which is not altered
-        val siblingBeforeWhenEntry = whenEntry.prevSibling20!!
+        val siblingBeforeWhenEntry = whenEntry.prevSibling!!
         // Find the first leaf after the when-entry (including the EOL comment after it) that not has to be enclosed within the braces
         val stopLeaf =
             siblingBeforeWhenEntry
                 .siblings()
-                .takeWhile { !it.isWhiteSpaceWithNewline20 }
+                .takeWhile { !it.isWhiteSpaceWithNewline }
                 .last()
-                .nextSibling20!!
-                .firstChildLeafOrSelf20
+                .nextSibling!!
+                .firstChildLeafOrSelf
         val whenEntryNode =
             createWhenEntryNode(
-                "${whenEntryIndent}${prevCodeSibling20!!.text} -> {" +
+                "${whenEntryIndent}${prevCodeSibling!!.text} -> {" +
                     // Replace the whitespaces (possibly this could be a proper indent) at the beginning of the body with an indent. In case
                     // the body was already a multiline statement, then the second and following lines should already be properly indented.
                     indentConfig.childIndentOf(this) +
                     leaves()
-                        .dropWhile { it.isWhiteSpace20 }
+                        .dropWhile { it.isWhiteSpace }
                         .takeWhile { it != stopLeaf }
                         .joinToString(separator = "") { it.text } +
                     "\n$whenEntryIndent}",

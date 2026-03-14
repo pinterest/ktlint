@@ -30,7 +30,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children20
+import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.dropTrailingEolComment
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
@@ -38,22 +38,22 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProper
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.hasNoMaxLineLengthSuppression
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isCode
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
-import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
 import com.pinterest.ktlint.rule.engine.core.api.lineLength
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
@@ -160,18 +160,18 @@ public class ChainMethodContinuationRule :
 
     private fun ASTNode.isJavaClassReferenceExpression() =
         parent?.elementType == DOT_QUALIFIED_EXPRESSION &&
-            prevCodeSibling20?.elementType == CLASS_LITERAL_EXPRESSION &&
-            nextCodeSibling20?.elementType == REFERENCE_EXPRESSION &&
-            nextCodeSibling20?.firstChildLeafOrSelf20?.text == "java"
+            prevCodeSibling?.elementType == CLASS_LITERAL_EXPRESSION &&
+            nextCodeSibling?.elementType == REFERENCE_EXPRESSION &&
+            nextCodeSibling?.firstChildLeafOrSelf?.text == "java"
 
     private fun ASTNode.isReferenceExpression(): Boolean = parent?.isNestedReferenceExpression() ?: false
 
     private fun ASTNode.isNestedReferenceExpression(): Boolean =
         elementType == DOT_QUALIFIED_EXPRESSION &&
-            children20.first().let { it.elementType == REFERENCE_EXPRESSION || it.hasRightHandSideReferenceExpression() } &&
+            children.first().let { it.elementType == REFERENCE_EXPRESSION || it.hasRightHandSideReferenceExpression() } &&
             hasRightHandSideReferenceExpression()
 
-    private fun ASTNode.hasRightHandSideReferenceExpression() = children20.last().elementType == REFERENCE_EXPRESSION
+    private fun ASTNode.hasRightHandSideReferenceExpression() = children.last().elementType == REFERENCE_EXPRESSION
 
     private fun ChainedExpression.wrapBeforeChainOperator() =
         when {
@@ -219,7 +219,7 @@ public class ChainMethodContinuationRule :
         STRING_TEMPLATE ==
             chainOperators
                 .first()
-                .prevCodeSibling20
+                .prevCodeSibling
                 ?.elementType
 
     private fun ChainedExpression.exceedsMaxLineLength() =
@@ -245,9 +245,9 @@ public class ChainMethodContinuationRule :
                     chainOperators
                         .last()
                         .startOfLambdaArgumentInCallExpressionOrNull()
-                        ?: lastChildLeafOrSelf20.nextLeaf
+                        ?: lastChildLeafOrSelf.nextLeaf
                 hasNoMaxLineLengthSuppression() &&
-                    leavesOnLine20
+                    leavesOnLine
                         .dropTrailingEolComment()
                         .takeWhile { it.prevLeaf != stopAtLeaf }
                         .lineLength > maxLineLength
@@ -256,7 +256,7 @@ public class ChainMethodContinuationRule :
 
     private fun ASTNode.startOfLambdaArgumentInCallExpressionOrNull(): ASTNode? {
         require(elementType in chainOperatorTokenSet)
-        return nextCodeSibling20
+        return nextCodeSibling
             ?.takeIf { it.elementType == CALL_EXPRESSION }
             ?.findChildByType(LAMBDA_ARGUMENT)
             ?.findChildByType(LAMBDA_EXPRESSION)
@@ -264,7 +264,7 @@ public class ChainMethodContinuationRule :
             ?.findChildByType(LBRACE)
     }
 
-    private fun ASTNode.isPrecededByComment() = parent?.children20?.any { it.isPartOfComment20 } ?: false
+    private fun ASTNode.isPrecededByComment() = parent?.children?.any { it.isPartOfComment } ?: false
 
     private fun insertWhiteSpaceBeforeChainOperator(
         chainOperator: ASTNode,
@@ -275,7 +275,7 @@ public class ChainMethodContinuationRule :
             .takeUnless { it?.isCode == true }
             .let { whiteSpaceOrComment ->
                 when {
-                    whiteSpaceOrComment?.isPartOfComment20 == true -> {
+                    whiteSpaceOrComment?.isPartOfComment == true -> {
                         // In a chained method containing comments before each method in the chain starts on a newline
                         // Disallow:
                         //     fooBar
@@ -286,7 +286,7 @@ public class ChainMethodContinuationRule :
                             }
                     }
 
-                    whiteSpaceOrComment == null || whiteSpaceOrComment.isWhiteSpaceWithoutNewline20 -> {
+                    whiteSpaceOrComment == null || whiteSpaceOrComment.isWhiteSpaceWithoutNewline -> {
                         // In a multiline chained method each method in the chain starts on a newline
                         // Disallow:
                         //     fooBar
@@ -301,7 +301,7 @@ public class ChainMethodContinuationRule :
     }
 
     private fun ASTNode.shouldBeOnSameLineAsClosingElementOfPreviousExpressionInMethodChain() =
-        prevLeaf { !it.isWhiteSpace20 }
+        prevLeaf { !it.isWhiteSpace }
             ?.takeIf { it.elementType in groupClosingElementType }
             ?.let { closingElement ->
                 closingElement.isPrecededByNewline() ||
@@ -311,13 +311,13 @@ public class ChainMethodContinuationRule :
 
     private fun ASTNode.isPrecededByNewline() =
         prevLeaf
-            ?.isWhiteSpaceWithNewline20
+            ?.isWhiteSpaceWithNewline
             ?: false
 
     private fun ASTNode.isPartOfMultilineStringTemplate() =
         parent
             ?.takeIf { it.elementType == STRING_TEMPLATE }
-            ?.children20
+            ?.children
             ?.any { it.text == "\n" }
             ?: false
 
@@ -327,7 +327,7 @@ public class ChainMethodContinuationRule :
     ) {
         chainOperator
             .prevLeaf
-            .takeIf { it.isWhiteSpace20 }
+            .takeIf { it.isWhiteSpace }
             .let { whiteSpaceOrComment ->
                 // Disallow:
                 //     bar {
@@ -339,7 +339,7 @@ public class ChainMethodContinuationRule :
                 //     some text
                 //     """
                 //         .trimIndent()
-                if (whiteSpaceOrComment.isWhiteSpaceWithNewline20) {
+                if (whiteSpaceOrComment.isWhiteSpaceWithNewline) {
                     emit(chainOperator.startOffset, "Unexpected newline before '${chainOperator.text}'", true)
                         .ifAutocorrectAllowed { whiteSpaceOrComment?.remove() }
                 }
@@ -354,8 +354,8 @@ public class ChainMethodContinuationRule :
             .chainOperators
             .forEach { chainOperator ->
                 chainOperator
-                    .nextSibling { !it.isWhiteSpace20 }
-                    ?.takeIf { it.isPartOfComment20 }
+                    .nextSibling { !it.isWhiteSpace }
+                    ?.takeIf { it.isPartOfComment }
                     ?.let { emit(it.startOffset, "No comment expected at this location in method chain", false) }
             }
     }
@@ -369,7 +369,7 @@ public class ChainMethodContinuationRule :
             .forEach { chainOperator ->
                 chainOperator
                     .nextLeaf
-                    .takeIf { it.isWhiteSpaceWithNewline20 }
+                    .takeIf { it.isWhiteSpaceWithNewline }
                     ?.let { whiteSpace ->
                         emit(whiteSpace.startOffset - 1, "Unexpected newline after '${chainOperator.text}'", true)
                             .ifAutocorrectAllowed { whiteSpace.remove() }
@@ -409,7 +409,7 @@ public class ChainMethodContinuationRule :
             private fun ASTNode.toChainedExpression(): ChainedExpression? =
                 when (elementType) {
                     DOT_QUALIFIED_EXPRESSION, SAFE_ACCESS_EXPRESSION -> {
-                        children20
+                        children
                             .find { it.elementType in chainOperatorTokenSet }
                             ?.let { chainOperator ->
                                 createBaseChainedExpression(chainOperator).let { chainedExpression ->
@@ -423,7 +423,7 @@ public class ChainMethodContinuationRule :
                     }
 
                     CALL_EXPRESSION, ARRAY_ACCESS_EXPRESSION, PREFIX_EXPRESSION, POSTFIX_EXPRESSION -> {
-                        children20
+                        children
                             .mapNotNull { it.toChainedExpression() }
                             .singleOrNull()
                     }
@@ -434,12 +434,12 @@ public class ChainMethodContinuationRule :
                 }
 
             private fun ASTNode.createBaseChainedExpression(chainOperator: ASTNode): ChainedExpression {
-                val chainBefore = chainOperator.prevCodeSibling20?.toChainedExpression()
-                val chainAfter = chainOperator.nextCodeSibling20?.toChainedExpression()
+                val chainBefore = chainOperator.prevCodeSibling?.toChainedExpression()
+                val chainAfter = chainOperator.nextCodeSibling?.toChainedExpression()
                 val newlineAfter =
                     chainAfter.containsNewline() ||
-                        chainOperator.nextCodeSibling20!!.textContains('\n') ||
-                        chainOperator.nextSibling { it.isWhiteSpaceWithNewline20 } != null
+                        chainOperator.nextCodeSibling!!.textContains('\n') ||
+                        chainOperator.nextSibling { it.isWhiteSpaceWithNewline } != null
                 val chainOperators =
                     mutableListOf<ASTNode>()
                         .plus(chainBefore?.chainOperators.orEmpty())
@@ -461,7 +461,7 @@ public class ChainMethodContinuationRule :
             private fun ChainedExpression.modifyForFirstOperator(chainOperator: ASTNode): ChainedExpression =
                 copy(
                     hasNewlineBeforeFirstChainOperator =
-                        chainOperator.prevCodeSibling20!!.textContains('\n') || chainOperator.isPrecededByNewlineSibling(),
+                        chainOperator.prevCodeSibling!!.textContains('\n') || chainOperator.isPrecededByNewlineSibling(),
                     hasNewlineBetweenFirstAndLastChainOperator = false,
                 )
 
@@ -478,7 +478,7 @@ public class ChainMethodContinuationRule :
                     copy(hasNewlineBetweenFirstAndLastChainOperator = chainOperators.first().isPrecededByNewlineSibling())
                 }
 
-            private fun ASTNode.isPrecededByNewlineSibling() = prevSibling { it.isWhiteSpaceWithNewline20 } != null
+            private fun ASTNode.isPrecededByNewlineSibling() = prevSibling { it.isWhiteSpaceWithNewline } != null
 
             private fun ChainedExpression?.containsNewline() =
                 if (this == null) {

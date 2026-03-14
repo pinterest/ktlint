@@ -71,16 +71,6 @@ public enum class BaselineErrorHandling {
 }
 
 /**
- * Loads the [Baseline] from the file located on [path]. Exceptions are swallowed and log message is written. On error, the baseline file is
- * deleted.
- */
-@Deprecated(
-    message = "Marked for removal in Ktlint 2.0",
-    replaceWith = ReplaceWith("loadBaseline(path, BaselineErrorHandling.LOG)"),
-)
-public fun loadBaseline(path: String): Baseline = loadBaseline(path, BaselineErrorHandling.LOG)
-
-/**
  * Loads the [Baseline] from the file located on [path]. In case the baseline file can not be loaded successfully, it will be deleted.
  */
 public fun loadBaseline(
@@ -121,8 +111,6 @@ private class BaselineLoader(
             .toFile()
             .takeIf { it.exists() }
 
-    var ruleReferenceWithoutRuleSetIdPrefix = 0
-
     fun load(): Baseline {
         require(path.isNotBlank()) { "Path for loading baseline may not be blank or empty" }
 
@@ -133,15 +121,7 @@ private class BaselineLoader(
                         path = path,
                         lintErrorsPerFile = baselineFile.inputStream().parseBaseline(),
                         status = VALID,
-                    ).also {
-                        if (ruleReferenceWithoutRuleSetIdPrefix > 0) {
-                            LOGGER.warn {
-                                "Baseline file '$path' contains $ruleReferenceWithoutRuleSetIdPrefix reference(s) to rule ids without " +
-                                    "a rule set id. For those references the rule set id 'standard' is assumed. It is advised to " +
-                                    "regenerate this baseline file."
-                            }
-                        }
-                    }
+                    )
                 } catch (e: IOException) {
                     throw BaselineLoaderException("Unable to parse baseline file: $path", e)
                 } catch (e: ParserConfigurationException) {
@@ -200,18 +180,7 @@ private class BaselineLoader(
         KtlintCliError(
             line = getAttribute("line").toInt(),
             col = getAttribute("column").toInt(),
-            ruleId =
-                getAttribute("source")
-                    .let { ruleId ->
-                        // Ensure backwards compatibility with baseline files in which the rule set id for standard rules is not saved
-                        RuleId
-                            .prefixWithStandardRuleSetIdWhenMissing(ruleId)
-                            .also { prefixedRuleId ->
-                                if (prefixedRuleId != ruleId) {
-                                    ruleReferenceWithoutRuleSetIdPrefix++
-                                }
-                            }
-                    },
+            ruleId = getAttribute("source"),
             // Detail is not available in the baseline
             detail = "",
             status = BASELINE_IGNORED,
@@ -238,9 +207,7 @@ public class BaselineLoaderException(
 public fun List<KtlintCliError>.containsLintError(ktlintCliError: KtlintCliError): Boolean = any { it.isSameAs(ktlintCliError) }
 
 private fun KtlintCliError.isSameAs(lintError: KtlintCliError) =
-    col == lintError.col &&
-        line == lintError.line &&
-        RuleId.prefixWithStandardRuleSetIdWhenMissing(ruleId) == RuleId.prefixWithStandardRuleSetIdWhenMissing(lintError.ruleId)
+    col == lintError.col && line == lintError.line && ruleId == lintError.ruleId
 
 /**
  * Checks if the list does not contain the given [KtlintCliError]. The [List.contains] function can not be used as [KtlintCliError.detail]

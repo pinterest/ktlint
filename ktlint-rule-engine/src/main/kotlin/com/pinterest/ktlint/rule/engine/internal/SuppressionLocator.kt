@@ -10,10 +10,10 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.TokenSets
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
-import com.pinterest.ktlint.rule.engine.core.api.isKtAnnotated20
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.isKtAnnotated
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
-import com.pinterest.ktlint.rule.engine.core.api.recursiveChildren20
+import com.pinterest.ktlint.rule.engine.core.api.recursiveChildren
 import com.pinterest.ktlint.rule.engine.internal.SuppressionLocator.CommentSuppressionHint.Type.BLOCK_END
 import com.pinterest.ktlint.rule.engine.internal.SuppressionLocator.CommentSuppressionHint.Type.BLOCK_START
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -59,7 +59,7 @@ internal class SuppressionLocator(
     private fun findSuppressionHints(rootNode: ASTNode): List<SuppressionHint> {
         val suppressionHints = ArrayList<SuppressionHint>()
         val commentSuppressionsHints = mutableListOf<CommentSuppressionHint>()
-        rootNode.recursiveChildren20.forEach { node ->
+        rootNode.recursiveChildren.forEach { node ->
             when (node.elementType) {
                 in TokenSets.COMMENTS -> {
                     node
@@ -142,7 +142,7 @@ internal class SuppressionLocator(
                 if (rbraceOfContainingBlock == null) {
                     // Apply suppression on next sibling only, when the outer element does not end with a RBRACE
                     it.node
-                        .nextSibling20
+                        .nextSibling
                         .let { nextSibling ->
                             SuppressionHint(
                                 IntRange(
@@ -178,7 +178,7 @@ internal class SuppressionLocator(
 
     private fun ASTNode.createSuppressionHintFromAnnotations(): SuppressionHint? {
         val suppressedRuleIds =
-            recursiveChildren20
+            recursiveChildren
                 .filter { it.elementType == VALUE_ARGUMENT }
                 .flatMapTo(mutableListOf()) {
                     it.text.removeSurrounding("\"").findRuleSuppressionIds()
@@ -186,7 +186,7 @@ internal class SuppressionLocator(
 
         if (suppressedRuleIds.isEmpty()) return null
 
-        val owner = parent { it.isKtAnnotated20 } ?: return null
+        val owner = parent { it.isKtAnnotated } ?: return null
 
         val textRange = owner.textRange
 
@@ -211,8 +211,7 @@ internal class SuppressionLocator(
                 // Disable specific rule. For backwards compatibility prefix rules without rule set id with the "standard" rule set
                 // id. Note that the KtlintSuppressionRule will emit a lint violation on the id. So this fix is only applicable for
                 // code bases in which the rule and suppression id's have not yet been fixed.
-                removePrefix("ktlint:")
-                    .let { listOf(RuleId.prefixWithStandardRuleSetIdWhenMissing(it)) }
+                listOf(removePrefix("ktlint:"))
             }
 
             else -> {

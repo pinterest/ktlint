@@ -176,7 +176,7 @@ class ASTNodeExtensionTest {
 
             val actual =
                 hasNewLineInClosedRange(
-                    enumClass.first { it.isWhiteSpaceWithNewline20 },
+                    enumClass.first { it.isWhiteSpaceWithNewline },
                     enumClass.last(),
                 )
 
@@ -212,7 +212,7 @@ class ASTNodeExtensionTest {
             val actual =
                 hasNewLineInClosedRange(
                     enumBodyClass.first(),
-                    enumBodyClass.last { it.isWhiteSpaceWithNewline20 },
+                    enumBodyClass.last { it.isWhiteSpaceWithNewline },
                 )
 
             assertThat(actual).isTrue
@@ -456,7 +456,7 @@ class ASTNodeExtensionTest {
                             ?.findChildByType(VALUE_PARAMETER)
                             ?.findChildByType(MODIFIER_LIST)
                             ?.findChildByType(ANNOTATION_ENTRY)
-                            ?.nextSibling20
+                            ?.nextSibling
                             ?.upsertWhitespaceBeforeMe(" ")
                     }.text
 
@@ -481,8 +481,8 @@ class ASTNodeExtensionTest {
                             ?.upsertWhitespaceBeforeMe(" ")
                     }.findChildByType(CLASS)
                     ?.findChildByType(CLASS_BODY)
-                    ?.prevSibling20
-                    ?.let { it.isWhiteSpace20 && it.text == " " }
+                    ?.prevSibling
+                    ?.let { it.isWhiteSpace && it.text == " " }
                     ?: false
 
             assertThat(actual).isTrue()
@@ -653,8 +653,8 @@ class ASTNodeExtensionTest {
                             ?.upsertWhitespaceAfterMe(" ")
                     }.findChildByType(FUN)
                     ?.findChildByType(VALUE_PARAMETER_LIST)
-                    ?.nextSibling20
-                    ?.let { it.isWhiteSpace20 && it.text == " " }
+                    ?.nextSibling
+                    ?.let { it.isWhiteSpace && it.text == " " }
                     ?: false
 
             assertThat(actual).isTrue()
@@ -676,11 +676,10 @@ class ASTNodeExtensionTest {
 
         val actual =
             transformCodeToAST(code)
-                .firstChildLeafOrSelf20
+                .firstChildLeafOrSelf
                 .leaves()
                 .filter { it.elementType == IDENTIFIER }
-                .map { it.text to it.indent20 }
-                .toMap()
+                .associate { it.text to it.indent }
 
         assertThat(actual).contains(
             entry("Foo1", "\n"),
@@ -706,12 +705,12 @@ class ASTNodeExtensionTest {
 
         val actual =
             transformCodeToAST(code)
-                .firstChildLeafOrSelf20
+                .firstChildLeafOrSelf
                 .leaves()
                 .filter { it.elementType == IDENTIFIER }
                 .map { identifier ->
                     identifier
-                        .leavesOnLine20
+                        .leavesOnLine
                         .joinToString(separator = "") { it.text }
                 }.toList()
 
@@ -741,10 +740,10 @@ class ASTNodeExtensionTest {
 
             val actual =
                 transformCodeToAST(code)
-                    .firstChildLeafOrSelf20
+                    .firstChildLeafOrSelf
                     .leaves()
                     .filter { it.elementType == IDENTIFIER }
-                    .map { identifier -> identifier.leavesOnLine20.lineLength }
+                    .map { identifier -> identifier.leavesOnLine.lineLength }
                     .toList()
 
             assertThat(actual).contains(
@@ -771,10 +770,10 @@ class ASTNodeExtensionTest {
 
             val actual =
                 transformCodeToAST(code)
-                    .firstChildLeafOrSelf20
+                    .firstChildLeafOrSelf
                     .leaves()
                     .filter { it.elementType == IDENTIFIER }
-                    .map { identifier -> identifier.leavesOnLine20.lineLength }
+                    .map { identifier -> identifier.leavesOnLine.lineLength }
                     .toList()
 
             assertThat(actual).contains(
@@ -801,12 +800,12 @@ class ASTNodeExtensionTest {
 
             val actual =
                 transformCodeToAST(code)
-                    .firstChildLeafOrSelf20
+                    .firstChildLeafOrSelf
                     .leaves()
                     .filter { it.elementType == IDENTIFIER }
                     .map { identifier ->
                         identifier
-                            .leavesOnLine20
+                            .leavesOnLine
                             .takeWhile { it.prevLeaf != identifier }
                             .lineLength
                     }.toList()
@@ -831,12 +830,12 @@ class ASTNodeExtensionTest {
             assertThatNoException()
                 .isThrownBy {
                     transformCodeToAST(code)
-                        .firstChildLeafOrSelf20
+                        .firstChildLeafOrSelf
                         .leaves()
                         .filter { it.elementType == IDENTIFIER }
                         .map { identifier ->
                             identifier
-                                .leavesOnLine20
+                                .leavesOnLine
                                 .takeWhile { it.prevLeaf != identifier }
                                 .lineLength
                         }.toList()
@@ -861,10 +860,10 @@ class ASTNodeExtensionTest {
 
             val actual =
                 transformCodeToAST(code)
-                    .firstChildLeafOrSelf20
+                    .firstChildLeafOrSelf
                     .leaves()
                     .filter { it.elementType == IDENTIFIER }
-                    .map { identifier -> identifier.leavesOnLine20.lineLength }
+                    .map { identifier -> identifier.leavesOnLine.lineLength }
                     .toList()
 
             assertThat(actual).contains(
@@ -890,10 +889,10 @@ class ASTNodeExtensionTest {
 
             val actual =
                 transformCodeToAST(code)
-                    .firstChildLeafOrSelf20
+                    .firstChildLeafOrSelf
                     .leaves()
                     .filter { it.elementType == IDENTIFIER }
-                    .map { identifier -> identifier.leavesOnLine20.lineLength }
+                    .map { identifier -> identifier.leavesOnLine.lineLength }
                     .toList()
 
             assertThat(actual).contains(
@@ -919,10 +918,10 @@ class ASTNodeExtensionTest {
 
             val actual =
                 transformCodeToAST(code)
-                    .firstChildLeafOrSelf20
+                    .firstChildLeafOrSelf
                     .leaves()
                     .filter { it.elementType == IDENTIFIER }
-                    .map { identifier -> identifier.leavesOnLine20.dropTrailingEolComment().lineLength }
+                    .map { identifier -> identifier.leavesOnLine.dropTrailingEolComment().lineLength }
                     .toList()
 
             assertThat(actual).contains(
@@ -943,10 +942,10 @@ class ASTNodeExtensionTest {
                 """.trimIndent()
             val actual =
                 transformCodeToAST(code)
-                    .firstChildLeafOrSelf20
+                    .firstChildLeafOrSelf
                     .leavesForwardsIncludingSelf
                     .first { it.elementType == EOL_COMMENT }
-                    .leavesOnLine20
+                    .leavesOnLine
                     .dropTrailingEolComment()
                     .lineLength
 
@@ -1041,7 +1040,7 @@ class ASTNodeExtensionTest {
 
         val actual =
             transformCodeToAST(code)
-                .lastChildLeafOrSelf20
+                .lastChildLeafOrSelf
                 .firstLeafOnLineOrSelf
                 .text
 
@@ -1107,7 +1106,7 @@ class ASTNodeExtensionTest {
                 """.trimIndent()
             val result =
                 transformCodeToAST(code)
-                    .findChildByTypeRecursively(FUN, includeSelf = false)
+                    .findChildByTypeRecursively(FUN)
             assertThat(result).isNotNull()
         }
 
@@ -1121,7 +1120,7 @@ class ASTNodeExtensionTest {
                 """.trimIndent()
             val result =
                 transformCodeToAST(code)
-                    .findChildByTypeRecursively(FUN, includeSelf = false)
+                    .findChildByTypeRecursively(FUN)
             assertThat(result).isNull()
         }
     }
@@ -1135,9 +1134,9 @@ class ASTNodeExtensionTest {
 
         val actual = transformCodeToAST(code).findChildByType(CLASS)!!
 
-        assertThat(actual.isKtAnnotated20).isTrue()
-        assertThat(actual.findChildByType(CLASS_KEYWORD)!!.isKtAnnotated20).isFalse()
-        assertThat(actual.findChildByType(IDENTIFIER)!!.isKtAnnotated20).isFalse()
+        assertThat(actual.isKtAnnotated).isTrue()
+        assertThat(actual.findChildByType(CLASS_KEYWORD)!!.isKtAnnotated).isFalse()
+        assertThat(actual.findChildByType(IDENTIFIER)!!.isKtAnnotated).isFalse()
 
         assertThat(actual.isPsiType<KtAnnotated>()).isTrue()
         assertThat(actual.findChildByType(CLASS_KEYWORD)!!.isPsiType<KtAnnotated>()).isFalse()
@@ -1287,13 +1286,13 @@ class ASTNodeExtensionTest {
         fileASTNode
             .findChildByType(CLASS)
             ?.findChildByType(CLASS_BODY)
-            ?.children20
+            ?.children
             .orEmpty()
 
     private fun toEnumClassSequence(fileASTNode: FileASTNode) =
         fileASTNode
             .findChildByType(CLASS)
-            ?.children20
+            ?.children
             .orEmpty()
 
     /**

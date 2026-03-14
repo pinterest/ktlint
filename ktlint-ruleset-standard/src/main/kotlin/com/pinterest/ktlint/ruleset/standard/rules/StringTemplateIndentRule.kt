@@ -22,18 +22,17 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children20
+import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -104,10 +103,10 @@ public class StringTemplateIndentRule :
                         }
                     stringTemplate
                         .getFirstLeafAfterTrimIndent()
-                        ?.takeUnless { it.isWhiteSpaceWithNewline20 }
+                        ?.takeUnless { it.isWhiteSpaceWithNewline }
                         ?.takeUnless { it.elementType == COMMA }
                         ?.takeUnless { it.parent?.elementType == DOT_QUALIFIED_EXPRESSION }
-                        ?.takeUnless { it.parent?.elementType == BINARY_EXPRESSION && it.nextSibling20?.elementType == OPERATION_REFERENCE }
+                        ?.takeUnless { it.parent?.elementType == BINARY_EXPRESSION && it.nextSibling?.elementType == OPERATION_REFERENCE }
                         ?.let { nextLeaf ->
                             emit(nextLeaf.startOffset, "Expected newline after multiline string template", true)
                                 .ifAutocorrectAllowed {
@@ -137,10 +136,10 @@ public class StringTemplateIndentRule :
         takeIf { it.elementType == STRING_TEMPLATE }
             ?.takeIf { it.isFollowedByTrimIndent() }
             ?.parent
-            ?.lastChildLeafOrSelf20
+            ?.lastChildLeafOrSelf
             ?.nextLeaf
 
-    private fun ASTNode.isPrecededByWhitespaceWithNewline() = prevLeaf.isWhiteSpaceWithNewline20
+    private fun ASTNode.isPrecededByWhitespaceWithNewline() = prevLeaf.isWhiteSpaceWithNewline
 
     private fun ASTNode.isPrecededByReturnKeyword() =
         // Allow below as otherwise it results in compilation failure:
@@ -154,7 +153,7 @@ public class StringTemplateIndentRule :
             ?.takeIf { it.elementType == EQ }
             ?.closingParenthesisOfFunctionOrNull()
             ?.prevLeaf
-            ?.isWhiteSpaceWithNewline20
+            ?.isWhiteSpaceWithNewline
             ?: false
 
     private fun ASTNode.closingParenthesisOfFunctionOrNull() =
@@ -167,7 +166,7 @@ public class StringTemplateIndentRule :
         // is out of scope of this rule as it is owned by the indentation rule. Therefore, the indentation of the line at which the
         // string template is found, is assumed to be correct and is used to indent all lines of the string template. The indent will be
         // fixed once the indent rule is run as well.
-        val firstWhiteSpaceLeafOnSameLine = this.prevLeaf { it.isWhiteSpaceWithNewline20 }
+        val firstWhiteSpaceLeafOnSameLine = this.prevLeaf { it.isWhiteSpaceWithNewline }
         return if (prevLeaf == firstWhiteSpaceLeafOnSameLine) {
             // The string template already is on a separate new line. Keep the current indent.
             firstWhiteSpaceLeafOnSameLine.getTextAfterLastNewline()
@@ -238,7 +237,7 @@ public class StringTemplateIndentRule :
         checkAndFixNewLineAfterOpeningQuotes(node, newIndent, emit)
 
         node
-            .children20
+            .children
             .filterNot { it.elementType == OPEN_QUOTE }
             .filterNot {
                 // Blank lines inside the string template should not be indented
@@ -335,7 +334,7 @@ public class StringTemplateIndentRule :
                         LeafPsiElement(REGULAR_STRING_PART, newIndent),
                     )
                 } else {
-                    node.firstChildLeafOrSelf20.replaceTextWith(newIndent + newContent)
+                    node.firstChildLeafOrSelf.replaceTextWith(newIndent + newContent)
                 }
             }
     }
@@ -361,7 +360,7 @@ public class StringTemplateIndentRule :
 
     private fun ASTNode.containsLiteralStringTemplateEntryWithNewline(): Boolean {
         require(elementType == STRING_TEMPLATE)
-        return children20
+        return children
             .any { it.elementType == LITERAL_STRING_TEMPLATE_ENTRY && it.text == "\n" }
     }
 
@@ -399,7 +398,7 @@ public class StringTemplateIndentRule :
         )
     }
 
-    private fun ASTNode.isIndentBeforeClosingQuote() = text.isBlank() && nextCodeSibling20?.elementType == CLOSING_QUOTE
+    private fun ASTNode.isIndentBeforeClosingQuote() = text.isBlank() && nextCodeSibling?.elementType == CLOSING_QUOTE
 
     private companion object {
         const val RAW_STRING_LITERAL_QUOTES = "\"\"\""

@@ -20,16 +20,16 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children20
+import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.noNewLineInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.parent
@@ -158,7 +158,7 @@ public class StatementWrappingRule :
             takeIf { elementType == FUNCTION_LITERAL }
                 ?.takeUnless { it.textContains('\n') }
                 ?.findChildByType(BLOCK)
-                ?.children20
+                ?.children
                 ?.count { it.elementType != VALUE_PARAMETER_LIST && it.elementType != ARROW }
                 ?.let { count -> count <= 1 }
                 ?: false
@@ -166,7 +166,7 @@ public class StatementWrappingRule :
     private inline val ASTNode.isEnumClassOnSingleLine: Boolean
         get() =
             if (isEnumClass) {
-                val lastChildLeaf = lastChildLeafOrSelf20
+                val lastChildLeaf = lastChildLeafOrSelf
                 // Ignore the leading comment
                 noNewLineInClosedRange(firstCodeLeafOrNull!!, lastChildLeaf)
             } else {
@@ -177,31 +177,31 @@ public class StatementWrappingRule :
         get() =
             // Skip the comment on top of the node by getting modifier list
             findChildByType(MODIFIER_LIST)
-                ?.children20
+                ?.children
                 ?.dropWhile {
                     // Ignore annotations placed on separate lines above the node
-                    it.elementType == ANNOTATION_ENTRY || it.isWhiteSpace20
+                    it.elementType == ANNOTATION_ENTRY || it.isWhiteSpace
                 }?.firstOrNull()
-                ?.firstChildLeafOrSelf20
+                ?.firstChildLeafOrSelf
 
     private inline val ASTNode.isEnumClass: Boolean
         get() = elementType == CLASS && hasModifier(ENUM_KEYWORD)
 
     private inline val ASTNode.indentAsChild: String
-        get() = indent20.plus(indentConfig.indent)
+        get() = indent.plus(indentConfig.indent)
 
     private inline val ASTNode.indentAsSibling: String
-        get() = parent!!.indent20.plus(indentConfig.indent)
+        get() = parent!!.indent.plus(indentConfig.indent)
 
     private inline val ASTNode.indentAsParent: String
-        get() = parent!!.indent20
+        get() = parent!!.indent
 
     private fun visitSemiColon(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val previousCodeLeaf = node.prevCodeLeaf?.lastChildLeafOrSelf20 ?: return
-        val nextCodeLeaf = node.nextCodeLeaf?.firstChildLeafOrSelf20 ?: return
+        val previousCodeLeaf = node.prevCodeLeaf?.lastChildLeafOrSelf ?: return
+        val nextCodeLeaf = node.nextCodeLeaf?.firstChildLeafOrSelf ?: return
         if (previousCodeLeaf.parent?.elementType == ENUM_ENTRY && nextCodeLeaf.elementType == RBRACE) {
             // Allow
             // enum class INDEX2 { ONE, TWO, THREE; }
@@ -210,7 +210,7 @@ public class StatementWrappingRule :
         if (noNewLineInClosedRange(previousCodeLeaf, nextCodeLeaf)) {
             emit(node.startOffset + 1, """Missing newline after '${node.text}'""", true)
                 .ifAutocorrectAllowed {
-                    node.upsertWhitespaceAfterMe(previousCodeLeaf.indent20)
+                    node.upsertWhitespaceAfterMe(previousCodeLeaf.indent)
                 }
         }
     }

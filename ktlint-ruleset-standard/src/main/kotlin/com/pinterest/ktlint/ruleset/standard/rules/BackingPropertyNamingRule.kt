@@ -18,7 +18,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children20
+import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.android_studio
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
@@ -130,7 +130,7 @@ public class BackingPropertyNamingRule :
     }
 
     private fun ASTNode.findPropertyWithName(name: String) =
-        children20
+        children
             .filter { it.elementType == PROPERTY }
             .mapNotNull { it.findChildByType(IDENTIFIER) }
             .firstOrNull { it.text == name }
@@ -140,7 +140,7 @@ public class BackingPropertyNamingRule :
         parent
             ?.takeIf { it.elementType == OBJECT_DECLARATION }
             ?.findChildByType(MODIFIER_LIST)
-            ?.children20
+            ?.children
             ?.firstOrNull { it.elementType == COMPANION_KEYWORD }
 
     private fun ASTNode.findCorrelatedFunction(): ASTNode? {
@@ -158,7 +158,7 @@ public class BackingPropertyNamingRule :
     }
 
     private fun ASTNode.findFunctionWithName(name: String) =
-        children20
+        children
             .filter { it.elementType == FUN }
             .filter { it.hasNonEmptyParameterList() }
             .mapNotNull { it.findChildByType(IDENTIFIER) }
@@ -167,7 +167,7 @@ public class BackingPropertyNamingRule :
 
     private fun ASTNode.hasNonEmptyParameterList() =
         findChildByType(VALUE_PARAMETER_LIST)
-            ?.children20
+            ?.children
             ?.none { it.elementType == VALUE_PARAMETER }
             ?: false
 

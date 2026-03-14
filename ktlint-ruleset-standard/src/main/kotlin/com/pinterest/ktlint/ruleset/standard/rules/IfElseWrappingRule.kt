@@ -17,18 +17,18 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.betweenCodeSiblings
-import com.pinterest.ktlint.rule.engine.core.api.children20
+import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent20
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
+import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -70,7 +70,7 @@ public class IfElseWrappingRule :
     ) {
         when {
             node.elementType == IF -> visitIf(node, emit)
-            node.isPartOfComment20 && node.parent?.elementType == IF -> visitComment(node, emit)
+            node.isPartOfComment && node.parent?.elementType == IF -> visitComment(node, emit)
         }
     }
 
@@ -146,14 +146,14 @@ public class IfElseWrappingRule :
 
         with(node.findFirstNodeInBlockToBeIndented() ?: node) {
             val expectedIndent =
-                if (nextSibling20?.elementType == RBRACE) {
-                    node.indent20
+                if (nextSibling?.elementType == RBRACE) {
+                    node.indent
                 } else {
                     indentConfig.siblingIndentOf(node)
                 }
 
             applyIf(elementType == THEN || elementType == ELSE || elementType == ELSE_KEYWORD) { prevLeaf!! }
-                .takeUnless { it.isWhiteSpaceWithNewline20 }
+                .takeUnless { it.isWhiteSpaceWithNewline }
                 ?.let {
                     // Expected a newline with indent. Leave it up to the IndentationRule to determine exact indent
                     emit(startOffset, "Expected a newline", true)
@@ -173,14 +173,14 @@ public class IfElseWrappingRule :
 
     private fun ASTNode.findFirstNodeInBlockToBeIndented(): ASTNode? =
         findChildByType(BLOCK)
-            ?.children20
+            ?.children
             ?.first {
                 it.elementType != LBRACE &&
                     !it.isWhitespaceBeforeComment() &&
-                    !it.isPartOfComment20
+                    !it.isPartOfComment
             }
 
-    private fun ASTNode.isWhitespaceBeforeComment() = isWhiteSpaceWithoutNewline20 && nextLeaf?.isPartOfComment20 == true
+    private fun ASTNode.isWhitespaceBeforeComment() = isWhiteSpaceWithoutNewline && nextLeaf?.isPartOfComment == true
 
     private fun ASTNode.outerIf(): ASTNode {
         require(this.elementType == IF)
@@ -200,7 +200,7 @@ public class IfElseWrappingRule :
         comment: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        require(comment.isPartOfComment20)
+        require(comment.isPartOfComment)
         if (comment.betweenCodeSiblings(RPAR, THEN) ||
             comment.betweenCodeSiblings(THEN, ELSE_KEYWORD) ||
             comment.betweenCodeSiblings(ELSE_KEYWORD, ELSE)

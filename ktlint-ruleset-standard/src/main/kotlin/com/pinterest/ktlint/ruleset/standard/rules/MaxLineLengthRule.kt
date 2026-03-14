@@ -19,10 +19,10 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.ktLintRuleExecutionPropertyName
 import com.pinterest.ktlint.rule.engine.core.api.findParentByType
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
 import com.pinterest.ktlint.rule.engine.core.api.lineLength
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.parent
@@ -57,12 +57,12 @@ public class MaxLineLengthRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.isWhiteSpace20) {
+        if (node.isWhiteSpace) {
             return
         }
         node
             .takeIf { it is LeafPsiElement }
-            ?.takeIf { it.nextLeaf == null || it.nextLeaf.isWhiteSpaceWithNewline20 }
+            ?.takeIf { it.nextLeaf == null || it.nextLeaf.isWhiteSpaceWithNewline }
             ?.takeIf { it.lineLength() > maxLineLength }
             ?.takeUnless { it.isPartOf(PACKAGE_DIRECTIVE) }
             ?.takeUnless { it.isPartOf(IMPORT_DIRECTIVE) }
@@ -75,7 +75,7 @@ public class MaxLineLengthRule :
                 // Calculate the offset at the last possible position at which the newline should be inserted on the line
                 val offset =
                     node
-                        .leavesOnLine20
+                        .leavesOnLine
                         .first()
                         .startOffset
                         .plus(maxLineLength + 1)
@@ -88,7 +88,7 @@ public class MaxLineLengthRule :
     }
 
     private fun ASTNode.lineLength() =
-        leavesOnLine20
+        leavesOnLine
             .filterNot {
                 ignoreBackTickedIdentifier &&
                     it.elementType == IDENTIFIER &&
@@ -107,14 +107,14 @@ public class MaxLineLengthRule :
                 stringTemplate
                     .prevLeaf
                     .let { leafBeforeStringTemplate ->
-                        leafBeforeStringTemplate == null || leafBeforeStringTemplate.isWhiteSpaceWithNewline20
+                        leafBeforeStringTemplate == null || leafBeforeStringTemplate.isWhiteSpaceWithNewline
                     }
             }
             ?: false
 
     private fun ASTNode.isLineOnlyContainingComment() =
-        isPartOfComment20 &&
-            (prevLeaf == null || prevLeaf.isWhiteSpaceWithNewline20)
+        isPartOfComment &&
+            (prevLeaf == null || prevLeaf.isWhiteSpaceWithNewline)
 
     public companion object {
         public val IGNORE_BACKTICKED_IDENTIFIER_PROPERTY: EditorConfigProperty<Boolean> =

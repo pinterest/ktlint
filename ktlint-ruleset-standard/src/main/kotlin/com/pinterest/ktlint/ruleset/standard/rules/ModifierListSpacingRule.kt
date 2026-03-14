@@ -11,13 +11,13 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children20
+import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -55,7 +55,7 @@ public class ModifierListSpacingRule :
     ) {
         if (node.elementType == MODIFIER_LIST) {
             node
-                .children20
+                .children
                 .forEach { visitModifierChild(it, emit) }
             // The whitespace of the last entry of the modifier list is actually placed outside the modifier list
             visitModifierChild(node, emit)
@@ -66,14 +66,14 @@ public class ModifierListSpacingRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.isWhiteSpace20) {
+        if (node.isWhiteSpace) {
             return
         }
         node
-            .nextSibling { it.isWhiteSpace20 && it.nextLeaf?.isPartOfComment20 != true }
+            .nextSibling { it.isWhiteSpace && it.nextLeaf?.isPartOfComment != true }
             ?.takeUnless {
                 // A single newline after a comment is always ok and does not need further checking.
-                it.text.trim(' ', '\t').contains('\n') && it.prevLeaf?.isPartOfComment20 == true
+                it.text.trim(' ', '\t').contains('\n') && it.prevLeaf?.isPartOfComment == true
             }?.let { whitespace ->
                 when {
                     node.isAnnotation() -> {

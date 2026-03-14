@@ -26,13 +26,13 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.KtlintKotlinCompiler
 import com.pinterest.ktlint.rule.engine.core.api.findChildByTypeRecursively
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
-import com.pinterest.ktlint.rule.engine.core.api.indent20
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
-import com.pinterest.ktlint.rule.engine.core.api.isRoot20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isRoot
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.replaceWith
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -159,8 +159,8 @@ private fun ASTNode.findParentDeclarationOrExpression(forceFileAnnotation: Boole
                     // moved to the next list element. When no such element is found, it will be moved to the parent of the list type
                     targetPsiElement
                         .node
-                        .nextCodeSibling20
-                        ?.firstChildLeafOrSelf20
+                        .nextCodeSibling
+                        ?.firstChildLeafOrSelf
                         ?.psi
                 }
 
@@ -178,7 +178,7 @@ private val listElementTypeTokenSet = TokenSet.create(TYPE_PROJECTION, TYPE_PARA
 private fun PsiElement.isIgnorableListElement() =
     node
         .takeIf { it.parent?.elementType in listTypeTokenSet }
-        ?.let { it.elementType == COMMA || it.isWhiteSpace20 || it.isPartOfComment20 }
+        ?.let { it.elementType == COMMA || it.isWhiteSpace || it.isPartOfComment }
         ?: false
 
 /**
@@ -220,7 +220,7 @@ private fun ASTNode.existingSuppressionsFromNamedArgumentOrNull(): Set<String>? 
         }
 
 private fun ASTNode.findSuppressionAnnotations(): Map<SuppressAnnotationType, ASTNode> =
-    if (isRoot20) {
+    if (isRoot) {
         findChildByType(FILE_ANNOTATION_LIST)
             ?.toMapOfSuppressionAnnotations()
             .orEmpty()
@@ -288,7 +288,7 @@ private fun ASTNode.createSuppressAnnotation(
         }
 
         is KtClass, is KtFunction, is KtProperty, is KtPropertyAccessor -> {
-            this.addChild(PsiWhiteSpaceImpl(indent20), this.firstChildNode)
+            this.addChild(PsiWhiteSpaceImpl(indent), this.firstChildNode)
             val modifierListWithAnnotation = createModifierListWithAnnotationEntry(suppressType, suppressions)
             this.addChild(modifierListWithAnnotation, this.firstChildNode)
         }
@@ -303,7 +303,7 @@ private fun ASTNode.createSuppressAnnotation(
             } else {
                 val modifierListWithAnnotation = createModifierListWithAnnotationEntry(suppressType, suppressions)
                 parent!!.addChild(modifierListWithAnnotation.findChildByType(ANNOTATION_ENTRY)!!, this)
-                parent!!.addChild(PsiWhiteSpaceImpl(indent20), this)
+                parent!!.addChild(PsiWhiteSpaceImpl(indent), this)
             }
         }
     }
@@ -326,7 +326,7 @@ private fun ASTNode.createFileAnnotation(
         }
 
 private fun ASTNode.createFileAnnotationList(annotation: ASTNode) {
-    require(isRoot20) { "File annotation list can only be created for root node" }
+    require(isRoot) { "File annotation list can only be created for root node" }
     // Should always be inserted into the first (root) code child regardless in which root node the ktlint directive
     // was actually found
     findChildByType(PACKAGE_DIRECTIVE)
@@ -336,7 +336,7 @@ private fun ASTNode.createFileAnnotationList(annotation: ASTNode) {
                 ?.addChild(annotation, packageDirective)
             packageDirective
                 .parent
-                ?.addChild(PsiWhiteSpaceImpl("\n" + indent20), packageDirective)
+                ?.addChild(PsiWhiteSpaceImpl("\n" + indent), packageDirective)
         }
 }
 

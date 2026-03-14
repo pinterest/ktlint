@@ -61,12 +61,6 @@ class BaselineCLITest {
                                 .doesNotContainLineMatching(Regex(".*/$projectName/TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
                                 .doesNotContainLineMatching(
                                     Regex(".*/$projectName/some/path/to/TestBaselineFile.kt.test:1:24: Unnecessary block.*"),
-                                ).containsLineMatching(
-                                    Regex(
-                                        ".*Baseline file '$baselinePath' contains 4 reference\\(s\\) to rule ids without a rule set id. " +
-                                            "For those references the rule set id 'standard' is assumed. It is advised to regenerate " +
-                                            "this baseline file.*",
-                                    ),
                                 ).doesNotContainLineMatching(
                                     Regex(
                                         ".*Format was not able to resolve all violations which \\(theoretically\\) can be autocorrected in file.*",
@@ -100,12 +94,6 @@ class BaselineCLITest {
                                 .doesNotContainLineMatching(Regex(".*/$projectName/TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
                                 .doesNotContainLineMatching(
                                     Regex(".*/$projectName/some/path/to/TestBaselineFile.kt.test:1:24: Unnecessary block.*"),
-                                ).containsLineMatching(
-                                    Regex(
-                                        ".*Baseline file '$baselinePath' contains 4 reference\\(s\\) to rule ids without a rule set id. " +
-                                            "For those references the rule set id 'standard' is assumed. It is advised to regenerate " +
-                                            "this baseline file.*",
-                                    ),
                                 )
                         }.assertAll()
                 }
@@ -133,14 +121,6 @@ class BaselineCLITest {
                             assertThat(normalOutput)
                                 .doesNotContainLineMatching(Regex("^TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
                                 .doesNotContainLineMatching(Regex("^some/path/to/TestBaselineFile.kt.test:1:24: Unnecessary block.*"))
-                                .containsLineMatching(
-                                    Regex(
-                                        // Escape "\" in baseline path for Windows
-                                        ".*Baseline file '${baselinePath.replace("\\", "\\\\")}' contains 4 " +
-                                            "reference\\(s\\) to rule ids without a rule set id. For those references the rule set id " +
-                                            "'standard' is assumed. It is advised to regenerate this baseline file.*",
-                                    ),
-                                )
                         }.assertAll()
                 }
         }
@@ -176,12 +156,6 @@ class BaselineCLITest {
                                 Regex(
                                     ".*/$projectName/some/path/to/TestBaselineExtraErrorFile.kt.test:1:1: Replace the block comment with " +
                                         "an EOL comment.*",
-                                ),
-                            ).containsLineMatching(
-                                Regex(
-                                    ".*Baseline file '$baselinePath' contains 4 reference\\(s\\) to rule ids without a rule set id. For " +
-                                        "those references the rule set id 'standard' is assumed. It is advised to regenerate this " +
-                                        "baseline file.*",
                                 ),
                             )
                     }.assertAll()

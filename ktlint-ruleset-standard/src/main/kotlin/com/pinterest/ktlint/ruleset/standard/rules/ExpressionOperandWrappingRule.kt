@@ -10,19 +10,19 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
-import com.pinterest.ktlint.rule.engine.core.api.children20
+import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isCode
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesInClosedRange
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -91,17 +91,17 @@ public class ExpressionOperandWrappingRule :
     ) {
         node
             .findChildByType(OPERATION_REFERENCE)
-            ?.takeUnless { it.nextSibling20.isWhiteSpaceWithNewline20 }
+            ?.takeUnless { it.nextSibling.isWhiteSpaceWithNewline }
             ?.takeUnless {
-                it.nextSibling20.isWhiteSpaceWithoutNewline20 &&
-                    it.nextSibling20?.nextSibling20?.elementType == EOL_COMMENT
+                it.nextSibling.isWhiteSpaceWithoutNewline &&
+                    it.nextSibling?.nextSibling?.elementType == EOL_COMMENT
             }?.let { operationReference ->
                 val startOffset =
                     with(operationReference) { startOffset + textLength }
                         .plus(
                             operationReference
-                                .nextSibling20
-                                ?.takeIf { it.isWhiteSpace20 }
+                                .nextSibling
+                                ?.takeIf { it.isWhiteSpace }
                                 ?.textLength
                                 ?: 0,
                         )
@@ -120,13 +120,13 @@ public class ExpressionOperandWrappingRule :
         }
 
         return anyParentBinaryExpression { parent ->
-            parent.children20.any { it.isWhiteSpaceWithNewline20 }
+            parent.children.any { it.isWhiteSpaceWithNewline }
         }
     }
 
-    private fun ASTNode.leftHandSide() = children20.firstOrNull { it.isCode }
+    private fun ASTNode.leftHandSide() = children.firstOrNull { it.isCode }
 
-    private fun ASTNode.rightHandSide() = children20.lastOrNull { it.isCode }
+    private fun ASTNode.rightHandSide() = children.lastOrNull { it.isCode }
 
     private fun ASTNode?.isMultilineOperand() =
         when {
@@ -135,8 +135,8 @@ public class ExpressionOperandWrappingRule :
             }
 
             else -> {
-                leavesInClosedRange(this.firstChildLeafOrSelf20, this.lastChildLeafOrSelf20)
-                    .any { it.isWhiteSpaceWithNewline20 }
+                leavesInClosedRange(this.firstChildLeafOrSelf, this.lastChildLeafOrSelf)
+                    .any { it.isWhiteSpaceWithNewline }
             }
         }
 

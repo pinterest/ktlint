@@ -121,21 +121,7 @@ class BaselineTest {
     @Nested
     inner class `Baseline has invalid xml structure` {
         @Test
-        fun `Given that the baseline is loaded with classic loader then the log contains an error message`(
-            @TempDir
-            tempDir: Path,
-        ) {
-            val path = "baseline-invalid.xml".copyResourceToFileIn(tempDir)
-
-            val logCaptor = LogCaptor.forClass(Baseline::class.java)
-
-            loadBaseline(path)
-
-            assertThat(logCaptor.errorLogs).contains("Unable to parse baseline file: $path")
-        }
-
-        @Test
-        fun `Given that the baseline is loaded with new loader then an exception is thrown on error`(
+        fun `Given that the baseline is loaded with BaselineErrorHandling EXCEPTION then on error an exception is thrown`(
             @TempDir
             tempDir: Path,
         ) {
@@ -150,7 +136,7 @@ class BaselineTest {
         }
 
         @Test
-        fun `Given that the baseline is loaded with new loader then the log message is printed and no exception is thrown`(
+        fun `Given that the baseline is loaded with BaselineErrorHandling LOG then on error a the log message is printed and no exception is thrown`(
             @TempDir
             tempDir: Path,
         ) {
@@ -158,7 +144,7 @@ class BaselineTest {
 
             val logCaptor = LogCaptor.forClass(Baseline::class.java)
 
-            loadBaseline(path)
+            loadBaseline(path, BaselineErrorHandling.LOG)
 
             assertThat(logCaptor.errorLogs).contains("Unable to parse baseline file: $path")
         }

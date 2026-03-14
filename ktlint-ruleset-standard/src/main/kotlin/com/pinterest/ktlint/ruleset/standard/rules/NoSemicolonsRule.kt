@@ -21,10 +21,10 @@ import com.pinterest.ktlint.rule.engine.core.api.findParentByType
 import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isCode
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
@@ -53,14 +53,14 @@ public class NoSemicolonsRule :
                 .ifAutocorrectAllowed {
                     val prevLeaf = node.prevLeaf
                     node.remove()
-                    if ((prevLeaf != null && prevLeaf.isWhiteSpace20) &&
-                        (nextLeaf == null || nextLeaf.isWhiteSpace20)
+                    if ((prevLeaf != null && prevLeaf.isWhiteSpace) &&
+                        (nextLeaf == null || nextLeaf.isWhiteSpace)
                     ) {
                         prevLeaf.remove()
                     }
                 }
-        } else if (!nextLeaf.isWhiteSpace20) {
-            if (node.prevLeaf.isWhiteSpaceWithNewline20) {
+        } else if (!nextLeaf.isWhiteSpace) {
+            if (node.prevLeaf.isWhiteSpaceWithNewline) {
                 return
             }
             // todo: move to a separate rule
@@ -77,7 +77,7 @@ public class NoSemicolonsRule :
                 true
             }
 
-            this.isWhiteSpace20 -> {
+            this.isWhiteSpace -> {
                 nextLeaf {
                     it.isCode &&
                         it.findParentByType(KDOC) == null &&
@@ -135,14 +135,14 @@ public class NoSemicolonsRule :
     private fun ASTNode?.getLastCodeLeafBeforeClosingOfClassBody() =
         this
             ?.findParentByType(CLASS_BODY)
-            ?.lastChildLeafOrSelf20
+            ?.lastChildLeafOrSelf
             ?.prevCodeLeaf
 
     private fun ASTNode?.isEnumClassWithoutValues() =
         this
             ?.takeIf { !it.isLastCodeLeafBeforeClosingOfClassBody() }
             ?.findParentByType(CLASS_BODY)
-            ?.takeIf { this == it.firstChildNode.nextCodeSibling20 }
+            ?.takeIf { this == it.firstChildNode.nextCodeSibling }
             ?.findParentByType(CLASS)
             ?.hasModifier(ENUM_KEYWORD)
             ?: false

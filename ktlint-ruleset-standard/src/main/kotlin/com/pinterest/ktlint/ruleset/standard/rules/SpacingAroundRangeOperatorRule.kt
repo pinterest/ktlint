@@ -7,7 +7,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.remove
@@ -25,7 +25,7 @@ public class SpacingAroundRangeOperatorRule : StandardRule("range-spacing") {
             val prevLeaf = node.prevLeaf
             val nextLeaf = node.nextLeaf
             when {
-                prevLeaf.isWhiteSpace20 && nextLeaf.isWhiteSpace20 -> {
+                prevLeaf.isWhiteSpace && nextLeaf.isWhiteSpace -> {
                     emit(node.startOffset, "Unexpected spacing around \"${node.elementTypeDescription()}\"", true)
                         .ifAutocorrectAllowed {
                             prevLeaf?.remove()
@@ -33,12 +33,12 @@ public class SpacingAroundRangeOperatorRule : StandardRule("range-spacing") {
                         }
                 }
 
-                prevLeaf != null && prevLeaf.isWhiteSpace20 -> {
+                prevLeaf != null && prevLeaf.isWhiteSpace -> {
                     emit(prevLeaf.startOffset, "Unexpected spacing before \"${node.elementTypeDescription()}\"", true)
                         .ifAutocorrectAllowed { prevLeaf.remove() }
                 }
 
-                nextLeaf != null && nextLeaf.isWhiteSpace20 -> {
+                nextLeaf != null && nextLeaf.isWhiteSpace -> {
                     emit(nextLeaf.startOffset, "Unexpected spacing after \"${node.elementTypeDescription()}\"", true)
                         .ifAutocorrectAllowed { nextLeaf.remove() }
                 }

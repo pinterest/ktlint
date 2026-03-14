@@ -187,18 +187,6 @@ internal class RuleExecutionContext private constructor(
         }
     }
 
-    // Simplify the emitAndApprove to an emit only lambda which can be used in the legacy (deprecated) functions
-    @Deprecated(message = "Remove in Ktlint 2.0")
-    private fun ((offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision).onlyEmit() =
-        {
-            offset: Int,
-            errorMessage: String,
-            canBeAutoCorrected: Boolean,
-            ->
-            this(offset, errorMessage, canBeAutoCorrected)
-            Unit
-        }
-
     companion object {
         internal fun createRuleExecutionContext(
             ktLintRuleEngine: KtLintRuleEngine,
@@ -233,12 +221,6 @@ internal class RuleExecutionContext private constructor(
                 ktLintRuleEngine
                     .editorConfigLoader
                     .load(code.filePath)
-                    .also {
-                        // TODO: Remove warning below in KtLint 0.52 or later as some users skips multiple versions
-                        it.warnIfPropertyIsObsolete("disabled_rules", "0.49")
-                        // TODO: Remove warning below in KtLint 0.52 or later as some users skips multiple versions
-                        it.warnIfPropertyIsObsolete("ktlint_disabled_rules", "0.49")
-                    }
 
             val ruleProviders =
                 ktLintRuleEngine
@@ -273,18 +255,6 @@ internal class RuleExecutionContext private constructor(
                 }
             }
             return null
-        }
-    }
-}
-
-private fun EditorConfig.warnIfPropertyIsObsolete(
-    propertyName: String,
-    ktlintVersion: String,
-) {
-    if (this.contains(propertyName)) {
-        LOGGER.warn {
-            "Editorconfig property '$propertyName' is obsolete and is not used by KtLint starting from version $ktlintVersion. Remove " +
-                "the property from all '.editorconfig' files."
         }
     }
 }

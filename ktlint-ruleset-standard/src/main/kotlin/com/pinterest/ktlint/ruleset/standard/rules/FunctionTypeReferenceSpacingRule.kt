@@ -10,8 +10,8 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -48,7 +48,7 @@ public class FunctionTypeReferenceSpacingRule : StandardRule("function-type-refe
             if (currentNode.elementType == TYPE_REFERENCE) {
                 return currentNode
             }
-            currentNode = currentNode.nextSibling20
+            currentNode = currentNode.nextSibling
         }
         return null
     }
@@ -59,7 +59,7 @@ public class FunctionTypeReferenceSpacingRule : StandardRule("function-type-refe
     ) {
         var currentNode: ASTNode? = node
         while (currentNode != null && currentNode.elementType != VALUE_PARAMETER_LIST) {
-            val nextNode = currentNode.nextSibling20
+            val nextNode = currentNode.nextSibling
             removeIfNonEmptyWhiteSpace(currentNode, emit)
             currentNode = nextNode
         }
@@ -69,7 +69,7 @@ public class FunctionTypeReferenceSpacingRule : StandardRule("function-type-refe
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.isWhiteSpace20 && node.text.isNotEmpty()) {
+        if (node.isWhiteSpace && node.text.isNotEmpty()) {
             emit(node.startOffset, "Unexpected whitespace", true)
                 .ifAutocorrectAllowed { node.remove() }
         }

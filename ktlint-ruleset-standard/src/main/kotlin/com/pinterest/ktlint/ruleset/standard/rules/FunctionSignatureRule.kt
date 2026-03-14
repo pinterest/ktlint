@@ -25,7 +25,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children20
+import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
@@ -34,23 +34,23 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY_OFF
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.hasNoMaxLineLengthSuppression
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent20
+import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.isCode
-import com.pinterest.ktlint.rule.engine.core.api.isLeaf20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isLeaf
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewlineOrNull
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
@@ -123,7 +123,7 @@ public class FunctionSignatureRule :
         //     fun foo(bar: String) {
         // or
         //     fun foo(bar: String) =
-        val firstCodeChild = getFirstCodeChild()?.firstChildLeafOrSelf20
+        val firstCodeChild = getFirstCodeChild()?.firstChildLeafOrSelf
         val startOfBodyBlock =
             this
                 .findChildByType(BLOCK)
@@ -146,16 +146,16 @@ public class FunctionSignatureRule :
         funNode
             ?.findChildByType(MODIFIER_LIST)
             ?.let { modifierList ->
-                val iterator = modifierList.children20.iterator()
+                val iterator = modifierList.children.iterator()
                 var currentNode: ASTNode
                 while (iterator.hasNext()) {
                     currentNode = iterator.next()
                     if (currentNode.elementType == CONTEXT_RECEIVER_LIST) {
                         return currentNode
-                            .lastChildLeafOrSelf20
+                            .lastChildLeafOrSelf
                             .nextLeaf
                             .let { leafAfterCompositeContextReceiverList ->
-                                if (leafAfterCompositeContextReceiverList.isWhiteSpaceWithNewline20) {
+                                if (leafAfterCompositeContextReceiverList.isWhiteSpaceWithNewline) {
                                     // Ignore context receiver when followed by newline or EOL comment. Also, ignore that newline or EOL
                                     // comment.
                                     //     context(Foo)
@@ -176,7 +176,7 @@ public class FunctionSignatureRule :
                         return currentNode
                     }
                 }
-                return modifierList.nextCodeSibling20
+                return modifierList.nextCodeSibling
             }
 
         return funNode?.nextCodeLeaf
@@ -259,21 +259,21 @@ public class FunctionSignatureRule :
 
     private fun ASTNode.containsMultilineParameter(): Boolean =
         findChildByType(VALUE_PARAMETER_LIST)
-            ?.children20
+            ?.children
             .orEmpty()
             .filter { it.elementType == VALUE_PARAMETER }
             .any { it.textContains('\n') }
 
     private fun ASTNode.containsAnnotatedParameter(): Boolean =
         findChildByType(VALUE_PARAMETER_LIST)
-            ?.children20
+            ?.children
             .orEmpty()
             .filter { it.elementType == VALUE_PARAMETER }
             .any { it.isAnnotated() }
 
     private fun ASTNode.isAnnotated() =
         findChildByType(MODIFIER_LIST)
-            ?.children20
+            ?.children
             .orEmpty()
             .any { it.elementType == ANNOTATION_ENTRY }
 
@@ -313,7 +313,7 @@ public class FunctionSignatureRule :
         val valueParameterList = requireNotNull(node.findChildByType(VALUE_PARAMETER_LIST))
         val firstParameterInList =
             valueParameterList
-                .children20
+                .children
                 .firstOrNull { it.elementType == VALUE_PARAMETER }
 
         whiteSpaceCorrection +=
@@ -339,7 +339,7 @@ public class FunctionSignatureRule :
         val valueParameterList = requireNotNull(node.findChildByType(VALUE_PARAMETER_LIST))
 
         valueParameterList
-            .children20
+            .children
             .filter { it.elementType != LPAR && it.elementType != RPAR }
             .also { elementsInValueParameterList ->
                 // Functions with comments in the value parameter list are excluded from processing before. So an "empty" value
@@ -372,13 +372,13 @@ public class FunctionSignatureRule :
         val valueParameterList = requireNotNull(node.findChildByType(VALUE_PARAMETER_LIST))
         val firstParameterInList =
             valueParameterList
-                .children20
+                .children
                 .first { it.elementType == VALUE_PARAMETER }
 
         val firstParameter = firstParameterInList.firstChildNode
         firstParameter
             ?.prevLeaf
-            ?.takeIf { it.isWhiteSpace20 }
+            ?.takeIf { it.isWhiteSpace }
             .let { whiteSpaceBeforeIdentifier ->
                 if (multiline) {
                     val expectedParameterIndent = indentConfig.childIndentOf(node)
@@ -426,18 +426,18 @@ public class FunctionSignatureRule :
         val valueParameterList = requireNotNull(node.findChildByType(VALUE_PARAMETER_LIST))
         val firstParameterInList =
             valueParameterList
-                .children20
+                .children
                 .first { it.elementType == VALUE_PARAMETER }
 
         valueParameterList
-            .children20
+            .children
             .filter { it.elementType == VALUE_PARAMETER }
             .filter { it != firstParameterInList }
             .forEach { valueParameter ->
                 val firstChildNodeInValueParameter = valueParameter.firstChildNode
                 firstChildNodeInValueParameter
                     ?.prevLeaf
-                    ?.takeIf { it.isWhiteSpace20 }
+                    ?.takeIf { it.isWhiteSpace }
                     .let { whiteSpaceBeforeIdentifier ->
                         if (multiline) {
                             val expectedParameterIndent = indentConfig.childIndentOf(node)
@@ -485,13 +485,13 @@ public class FunctionSignatureRule :
     ): Int {
         var whiteSpaceCorrection = 0
 
-        val newlineAndIndent = node.indent20
+        val newlineAndIndent = node.indent
         val valueParameterList = requireNotNull(node.findChildByType(VALUE_PARAMETER_LIST))
 
         val closingParenthesis = valueParameterList.findChildByType(RPAR)
         closingParenthesis
-            ?.prevSibling20
-            ?.takeIf { it.isWhiteSpace20 }
+            ?.prevSibling
+            ?.takeIf { it.isWhiteSpace }
             .let { whiteSpaceBeforeClosingParenthesis ->
                 if (multiline) {
                     if (whiteSpaceBeforeClosingParenthesis == null ||
@@ -540,7 +540,7 @@ public class FunctionSignatureRule :
                 ?: return
         val bodyNodes = node.getFunctionBody(lastNodeOfFunctionSignatureWithBodyExpression)
         val whiteSpaceBeforeFunctionBodyExpression = bodyNodes.getStartingWhitespaceOrNull()
-        val functionBodyExpressionNodes = bodyNodes.dropWhile { it.isWhiteSpace20 }
+        val functionBodyExpressionNodes = bodyNodes.dropWhile { it.isWhiteSpace }
 
         val functionBodyExpressionLines =
             functionBodyExpressionNodes
@@ -549,9 +549,9 @@ public class FunctionSignatureRule :
         functionBodyExpressionLines
             .firstOrNull()
             ?.also { firstLineOfBodyExpression ->
-                if (whiteSpaceBeforeFunctionBodyExpression.isWhiteSpaceWithNewline20) {
+                if (whiteSpaceBeforeFunctionBodyExpression.isWhiteSpaceWithNewline) {
                     lastNodeOfFunctionSignatureWithBodyExpression
-                        .nextCodeSibling20
+                        .nextCodeSibling
                         .takeIf { it?.elementType == ANNOTATED_EXPRESSION }
                         ?.let {
                             // Never merge an annotated expression body with function signature as this conflicts with the Annotation rule
@@ -657,7 +657,7 @@ public class FunctionSignatureRule :
             ?.let { block ->
                 block
                     .prevLeaf
-                    .takeIf { it.isWhiteSpace20 }
+                    .takeIf { it.isWhiteSpace }
                     .let { whiteSpaceBeforeBlock ->
                         if (whiteSpaceBeforeBlock == null || whiteSpaceBeforeBlock.text != " ") {
                             if (!dryRun) {
@@ -689,17 +689,17 @@ public class FunctionSignatureRule :
     private fun List<ASTNode>.getStartingWhitespaceOrNull() =
         this
             .firstOrNull()
-            ?.takeIf { first -> first.isWhiteSpace20 }
+            ?.takeIf { first -> first.isWhiteSpace }
 
     private fun isMaxLineLengthSet() = maxLineLength != MAX_LINE_LENGTH_PROPERTY_OFF
 
     private fun List<ASTNode>.collectLeavesRecursively(): List<ASTNode> = flatMap { it.collectLeavesRecursively() }
 
     private fun ASTNode.collectLeavesRecursively(): List<ASTNode> =
-        if (isLeaf20) {
+        if (isLeaf) {
             listOf(this)
         } else {
-            children20
+            children
                 .flatMap { it.collectLeavesRecursively() }
                 .toList()
         }
@@ -739,7 +739,7 @@ public class FunctionSignatureRule :
     private fun ASTNode.countParameters(): Int {
         val valueParameterList = requireNotNull(findChildByType(VALUE_PARAMETER_LIST))
         return valueParameterList
-            .children20
+            .children
             .count { it.elementType == VALUE_PARAMETER }
     }
 

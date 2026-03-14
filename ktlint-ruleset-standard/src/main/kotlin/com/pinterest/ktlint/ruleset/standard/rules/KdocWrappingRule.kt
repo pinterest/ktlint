@@ -11,8 +11,8 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
@@ -41,7 +41,7 @@ public class KdocWrappingRule :
             node
                 .findChildByType(KDOC_START)
                 ?.prevLeaf
-                ?.takeIf { !it.isWhiteSpaceWithNewline20 }
+                ?.takeIf { !it.isWhiteSpaceWithNewline }
                 ?.let {
                     // It cannot be autocorrected as it might depend on the situation and code style what is
                     // preferred.
@@ -55,11 +55,11 @@ public class KdocWrappingRule :
             node
                 .findChildByType(KDOC_END)
                 ?.nextLeaf
-                ?.takeIf { !it.isWhiteSpaceWithNewline20 }
+                ?.takeIf { !it.isWhiteSpaceWithNewline }
                 ?.let { nextLeaf ->
                     emit(nextLeaf.startOffset, "A KDoc comment may not be followed by any other element on that same line", true)
                         .ifAutocorrectAllowed {
-                            node.upsertWhitespaceAfterMe(node.indent20)
+                            node.upsertWhitespaceAfterMe(node.indent)
                         }
                 }
         }

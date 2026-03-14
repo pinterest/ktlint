@@ -1,22 +1,19 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC_END
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC_LEADING_ASTERISK
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.KDOC_TEXT
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.WHITE_SPACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
 import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -28,7 +25,7 @@ public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         if (node.isPartOfKDoc()) {
-            if (node.isWhiteSpace20 && node.hasTrailingSpacesBeforeNewline()) {
+            if (node.isWhiteSpace && node.hasTrailingSpacesBeforeNewline()) {
                 val offsetOfSpaceBeforeNewlineInText = node.text.indexOf(" \n")
                 val offsetOfFirstSpaceBeforeNewlineInText =
                     node

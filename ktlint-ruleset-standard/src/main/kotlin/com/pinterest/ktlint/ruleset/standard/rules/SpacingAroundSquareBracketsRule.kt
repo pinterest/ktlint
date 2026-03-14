@@ -10,7 +10,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -53,11 +53,11 @@ public class SpacingAroundSquareBracketsRule : StandardRule("square-brackets-spa
                         //        ]
                         // Disallow:
                         //     @Foo(fooBar = ["foo", "bar" ])
-                        node.elementType == RBRACKET && prevLeaf.isWhiteSpaceWithoutNewline20
+                        node.elementType == RBRACKET && prevLeaf.isWhiteSpaceWithoutNewline
                     }
 
                     else -> {
-                        prevLeaf.isWhiteSpaceWithoutNewline20
+                        prevLeaf.isWhiteSpaceWithoutNewline
                     }
                 }
             val spacingAfter =
@@ -74,7 +74,7 @@ public class SpacingAroundSquareBracketsRule : StandardRule("square-brackets-spa
                 //        ]
                 // Disallow:
                 //     @Foo(fooBar = [ "foo", "bar"])
-                node.elementType == LBRACKET && nextLeaf.isWhiteSpaceWithoutNewline20
+                node.elementType == LBRACKET && nextLeaf.isWhiteSpaceWithoutNewline
             when {
                 spacingBefore && spacingAfter -> {
                     emit(node.startOffset, "Unexpected spacing around '${node.text}'", true)

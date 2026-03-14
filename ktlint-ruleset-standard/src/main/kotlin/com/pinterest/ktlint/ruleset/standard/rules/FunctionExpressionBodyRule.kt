@@ -17,19 +17,19 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children20
+import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -107,7 +107,7 @@ public class FunctionExpressionBodyRule :
             ?.takeUnless { it.countReturnKeywords() > 1 }
             ?.findChildByType(RETURN)
             ?.findChildByType(RETURN_KEYWORD)
-            ?.nextSibling { !it.isWhiteSpace20 }
+            ?.nextSibling { !it.isWhiteSpace }
             ?.let { codeSibling ->
                 emit(block.startOffset, "Function body should be replaced with body expression", true)
                     .ifAutocorrectAllowed {
@@ -129,8 +129,8 @@ public class FunctionExpressionBodyRule :
                         with(block.parent!!) {
                             // Remove whitespace before block
                             block
-                                .prevSibling20
-                                .takeIf { it.isWhiteSpace20 }
+                                .prevSibling
+                                .takeIf { it.isWhiteSpace }
                                 ?.remove()
                             if (findChildByType(TYPE_REFERENCE) == null) {
                                 // Insert Unit as return type as otherwise a compilation error results
@@ -150,13 +150,13 @@ public class FunctionExpressionBodyRule :
 
     private fun ASTNode.containingOnly(iElementType: IElementType) =
         iElementType ==
-            children20
-                .filterNot { it.elementType == LBRACE || it.elementType == RBRACE || it.isWhiteSpace20 }
+            children
+                .filterNot { it.elementType == LBRACE || it.elementType == RBRACE || it.isWhiteSpace }
                 .singleOrNull()
                 ?.elementType
 
     private fun ASTNode.countReturnKeywords() =
-        leavesInClosedRange(firstChildLeafOrSelf20, lastChildLeafOrSelf20)
+        leavesInClosedRange(firstChildLeafOrSelf, lastChildLeafOrSelf)
             .count { it.elementType == RETURN_KEYWORD }
 
     private fun createUnitTypeReference() =

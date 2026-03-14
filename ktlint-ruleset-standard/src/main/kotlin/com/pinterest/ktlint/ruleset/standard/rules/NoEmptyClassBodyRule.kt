@@ -8,13 +8,13 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.RBRACE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children20
+import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.parent
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -33,7 +33,7 @@ public class NoEmptyClassBodyRule : StandardRule("no-empty-class-body") {
             emit(node.startOffset, "Unnecessary block (\"{}\")", true)
                 .ifAutocorrectAllowed {
                     // remove space between declaration and block
-                    node.prevSibling20.takeIf { it.isWhiteSpace20 }?.remove()
+                    node.prevSibling.takeIf { it.isWhiteSpace }?.remove()
                     // remove block
                     node.remove()
                 }
@@ -43,13 +43,13 @@ public class NoEmptyClassBodyRule : StandardRule("no-empty-class-body") {
     private fun ASTNode.isEmptyBlockBody(): Boolean =
         firstChildNode != null &&
             firstChildNode.elementType == LBRACE &&
-            firstChildNode.nextLeaf { !it.isWhiteSpace20 }?.elementType == RBRACE
+            firstChildNode.nextLeaf { !it.isWhiteSpace }?.elementType == RBRACE
 
     private fun isNotCompanion(node: ASTNode): Boolean =
         node
             .parent
             ?.firstChildNode
-            ?.children20
+            ?.children
             .orEmpty()
             .none { it.text == "companion" }
 }

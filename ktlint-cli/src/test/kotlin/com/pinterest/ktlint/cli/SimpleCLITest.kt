@@ -505,24 +505,6 @@ class SimpleCLITest {
     }
 
     @Test
-    fun `Given that the deprecated parameter --code-style is specified, then return an error`(
-        @TempDir
-        tempDir: Path,
-    ) {
-        CommandLineTestRunner(tempDir)
-            .run(
-                testProjectName = "too-many-empty-lines",
-                arguments = listOf("--code-style=android_studio"),
-                expectExitCodeLoggedWhenKtlintIsFinished = false,
-            ) {
-                assertThat(errorOutput).containsLineMatching(
-                    "Parameter '--code-style' is no longer valid. The code style should be defined as '.editorconfig' property " +
-                        "'ktlint_code_style='",
-                )
-            }
-    }
-
-    @Test
     fun `Issue 3096 - Given some code containing unicode characters, the code is provided via stdin then write the formatted code to stdout in UTF-8 to preserve the unicode characters`(
         @TempDir
         tempDir: Path,

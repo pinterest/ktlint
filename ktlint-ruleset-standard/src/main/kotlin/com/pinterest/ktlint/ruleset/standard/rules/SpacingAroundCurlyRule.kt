@@ -29,15 +29,15 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPER
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isCode
-import com.pinterest.ktlint.rule.engine.core.api.isLeaf20
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfString20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isLeaf
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfString
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.leavesBackwardsIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.remove
@@ -77,7 +77,7 @@ public class SpacingAroundCurlyRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.isLeaf20 && !node.isPartOfString20) {
+        if (node.isLeaf && !node.isPartOfString) {
             val prevLeaf = node.prevLeaf
             val nextLeaf = node.nextLeaf
             val spacingBefore: Boolean
@@ -85,7 +85,7 @@ public class SpacingAroundCurlyRule :
             when (node.elementType) {
                 LBRACE -> {
                     spacingBefore =
-                        prevLeaf.isWhiteSpace20 ||
+                        prevLeaf.isWhiteSpace ||
                         prevLeaf?.elementType == AT ||
                         (
                             (prevLeaf?.elementType == LPAR || prevLeaf?.elementType == LBRACKET) &&
@@ -94,8 +94,8 @@ public class SpacingAroundCurlyRule :
                                         node.parent?.parent?.elementType == LAMBDA_EXPRESSION
                                 )
                         )
-                    spacingAfter = nextLeaf.isWhiteSpace20 || nextLeaf?.elementType == RBRACE
-                    if (prevLeaf.isWhiteSpaceWithoutNewline20 &&
+                    spacingAfter = nextLeaf.isWhiteSpace || nextLeaf?.elementType == RBRACE
+                    if (prevLeaf.isWhiteSpaceWithoutNewline &&
                         prevLeaf!!.isPrecededBy { it.elementType == LPAR || it.elementType == AT }
                     ) {
                         emit(node.startOffset, "Unexpected space before \"${node.text}\"", true)
@@ -118,7 +118,7 @@ public class SpacingAroundCurlyRule :
                                                     node.parent?.addChildren(
                                                         leavesToMoveAfterCurly.first(),
                                                         leavesToMoveAfterCurly.last(),
-                                                        node.nextSibling20,
+                                                        node.nextSibling,
                                                     )
                                                 }
                                         }
@@ -129,10 +129,10 @@ public class SpacingAroundCurlyRule :
                 }
 
                 RBRACE -> {
-                    spacingBefore = prevLeaf.isWhiteSpace20 || prevLeaf?.elementType == LBRACE
-                    spacingAfter = nextLeaf == null || nextLeaf.isWhiteSpace20 || shouldNotToBeSeparatedBySpace(nextLeaf)
+                    spacingBefore = prevLeaf.isWhiteSpace || prevLeaf?.elementType == LBRACE
+                    spacingAfter = nextLeaf == null || nextLeaf.isWhiteSpace || shouldNotToBeSeparatedBySpace(nextLeaf)
                     nextLeaf
-                        .takeIf { it.isWhiteSpaceWithoutNewline20 }
+                        .takeIf { it.isWhiteSpaceWithoutNewline }
                         ?.takeIf { shouldNotToBeSeparatedBySpace(it.nextLeaf) }
                         ?.let { leaf ->
                             emit(node.startOffset, "Unexpected space after \"${node.text}\"", true)
@@ -172,7 +172,7 @@ public class SpacingAroundCurlyRule :
 
     private fun ASTNode.hasUnexpectedNewlineBeforeLbrace(): Boolean =
         also { require(it.elementType == LBRACE) }
-            .takeIf { prevLeaf.isWhiteSpaceWithNewline20 }
+            .takeIf { prevLeaf.isWhiteSpaceWithNewline }
             ?.let { parent?.elementType == CLASS_BODY || parent?.elementType == BLOCK }
             ?: false
 
@@ -183,7 +183,7 @@ public class SpacingAroundCurlyRule :
 
     private fun ASTNode.isPrecededByEolComment() =
         prevLeaf
-            ?.isPartOfComment20
+            ?.isPartOfComment
             ?: false
 
     private fun shouldNotToBeSeparatedBySpace(leaf: ASTNode?): Boolean {

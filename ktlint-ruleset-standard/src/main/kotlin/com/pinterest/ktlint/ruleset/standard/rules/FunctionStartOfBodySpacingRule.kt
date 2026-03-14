@@ -10,7 +10,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
@@ -88,7 +88,7 @@ public class FunctionStartOfBodySpacingRule : StandardRule("function-start-of-bo
                     .nextLeaf
                     ?.takeIf { it.elementType == WHITE_SPACE }
                     .let { whiteSpaceAfterAssignment ->
-                        if (whiteSpaceAfterAssignment?.text != " " && !whiteSpaceAfterAssignment.isWhiteSpaceWithNewline20) {
+                        if (whiteSpaceAfterAssignment?.text != " " && !whiteSpaceAfterAssignment.isWhiteSpaceWithNewline) {
                             emit(
                                 assignmentExpression.startOffset,
                                 "Expected a single white space between assignment and expression body on same line",

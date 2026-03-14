@@ -6,7 +6,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -18,7 +18,7 @@ public class NoBlankLineBeforeRbraceRule : StandardRule("no-blank-line-before-rb
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.isWhiteSpaceWithNewline20 &&
+        if (node.isWhiteSpaceWithNewline &&
             node.nextLeaf?.elementType == RBRACE
         ) {
             val split = node.getText().split("\n")

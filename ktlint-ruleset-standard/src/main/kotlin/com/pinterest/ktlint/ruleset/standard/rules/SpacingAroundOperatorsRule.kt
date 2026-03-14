@@ -34,7 +34,7 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -81,8 +81,8 @@ public class SpacingAroundOperatorsRule : StandardRule("op-spacing") {
         if (node.elementType in OPERATORS ||
             (node.elementType == IDENTIFIER && node.parent?.elementType == OPERATION_REFERENCE)
         ) {
-            val spacingBefore = node.prevLeaf.isWhiteSpace20
-            val spacingAfter = node.nextLeaf.isWhiteSpace20
+            val spacingBefore = node.prevLeaf.isWhiteSpace
+            val spacingAfter = node.nextLeaf.isWhiteSpace
             when {
                 !spacingBefore && !spacingAfter -> {
                     emit(node.startOffset, "Missing spacing around \"${node.text}\"", true)

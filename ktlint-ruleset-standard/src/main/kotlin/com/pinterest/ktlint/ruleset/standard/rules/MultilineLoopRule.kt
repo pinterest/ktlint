@@ -16,10 +16,10 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent20
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
+import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
@@ -89,13 +89,13 @@ public class MultilineLoopRule :
         val nextLeaves =
             node
                 .leaves(forward = true)
-                .takeWhile { it.isWhiteSpaceWithoutNewline20 || it.isPartOfComment20 }
+                .takeWhile { it.isWhiteSpaceWithoutNewline || it.isPartOfComment }
                 .toList()
-                .dropLastWhile { it.isWhiteSpaceWithoutNewline20 }
+                .dropLastWhile { it.isWhiteSpaceWithoutNewline }
 
         prevLeaves
             .firstOrNull()
-            .takeIf { it.isWhiteSpace20 }
+            .takeIf { it.isWhiteSpace }
             ?.replaceTextWith(" ")
         KtBlockExpression(null).apply {
             val previousChild = node.firstChildNode
@@ -103,16 +103,16 @@ public class MultilineLoopRule :
             addChild(LeafPsiElement(LBRACE, "{"))
             addChild(PsiWhiteSpaceImpl(indentConfig.childIndentOf(node)))
             prevLeaves
-                .dropWhile { it.isWhiteSpace20 }
+                .dropWhile { it.isWhiteSpace }
                 .forEach(::addChild)
             addChild(previousChild)
             nextLeaves.forEach(::addChild)
-            addChild(PsiWhiteSpaceImpl(node.indent20))
+            addChild(PsiWhiteSpaceImpl(node.indent))
             addChild(LeafPsiElement(RBRACE, "}"))
         }
 
         node
-            .nextSibling { !it.isPartOfComment20 }
+            .nextSibling { !it.isPartOfComment }
             ?.upsertWhitespaceBeforeMe(" ")
     }
 }

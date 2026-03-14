@@ -18,12 +18,12 @@ import com.pinterest.ktlint.rule.engine.core.api.KtlintKotlinCompiler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children20
+import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isCode
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -78,7 +78,7 @@ public class StringTemplateRule : StandardRule("string-template") {
 
     private fun ASTNode.splitCodeChildren(): Triple<ASTNode, ASTNode, ASTNode> {
         require(elementType == DOT_QUALIFIED_EXPRESSION)
-        return children20
+        return children
             .filter { it.isCode }
             .toList()
             .also { require(it.size == 3) }
@@ -89,11 +89,11 @@ public class StringTemplateRule : StandardRule("string-template") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         takeIf { it.isStringTemplate() }
-            ?.children20
+            ?.children
             ?.firstOrNull { it.elementType != LONG_TEMPLATE_ENTRY_START }
             ?.takeIf { it.elementType == REFERENCE_EXPRESSION || it.elementType == THIS_EXPRESSION }
             ?.let {
-                nextSibling20
+                nextSibling
                     ?.takeIf { nextSibling ->
                         nextSibling.elementType == CLOSING_QUOTE ||
                             (
@@ -101,7 +101,7 @@ public class StringTemplateRule : StandardRule("string-template") {
                                     !nextSibling.text.substring(0, 1).isPartOfIdentifier()
                             )
                     }?.let {
-                        emit(prevSibling20!!.startOffset + 2, "Redundant curly braces", true)
+                        emit(prevSibling!!.startOffset + 2, "Redundant curly braces", true)
                             .ifAutocorrectAllowed { removeCurlyBracesIfRedundant() }
                     }
             }

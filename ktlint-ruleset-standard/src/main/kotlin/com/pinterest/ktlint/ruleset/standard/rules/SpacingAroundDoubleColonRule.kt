@@ -9,11 +9,11 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -32,21 +32,21 @@ public class SpacingAroundDoubleColonRule : StandardRule("double-colon-spacing")
             var removeSingleWhiteSpace = false
             val spacingBefore =
                 when {
-                    node.isPartOf(CLASS_LITERAL_EXPRESSION) && prevLeaf.isWhiteSpace20 -> {
+                    node.isPartOf(CLASS_LITERAL_EXPRESSION) && prevLeaf.isWhiteSpace -> {
                         true
                     }
 
                     // Clazz::class
-                    node.isPartOf(CALLABLE_REFERENCE_EXPRESSION) && prevLeaf.isWhiteSpace20 -> {
+                    node.isPartOf(CALLABLE_REFERENCE_EXPRESSION) && prevLeaf.isWhiteSpace -> {
                         // String::length, ::isOdd
-                        if (node.prevSibling20 == null) { // compose(length, ::isOdd), val predicate = ::isOdd
+                        if (node.prevSibling == null) { // compose(length, ::isOdd), val predicate = ::isOdd
                             removeSingleWhiteSpace = true
                             prevLeaf
-                                .takeIf { it.isWhiteSpaceWithoutNewline20 }
+                                .takeIf { it.isWhiteSpaceWithoutNewline }
                                 ?.let { it.textLength > 1 }
                                 ?: false
                         } else { // String::length, List<String>::isEmpty
-                            prevLeaf.isWhiteSpaceWithoutNewline20
+                            prevLeaf.isWhiteSpaceWithoutNewline
                         }
                     }
 
@@ -54,7 +54,7 @@ public class SpacingAroundDoubleColonRule : StandardRule("double-colon-spacing")
                         false
                     }
                 }
-            val spacingAfter = nextLeaf.isWhiteSpace20
+            val spacingAfter = nextLeaf.isWhiteSpace
             when {
                 spacingBefore && spacingAfter -> {
                     emit(node.startOffset, "Unexpected spacing around \"${node.text}\"", true)

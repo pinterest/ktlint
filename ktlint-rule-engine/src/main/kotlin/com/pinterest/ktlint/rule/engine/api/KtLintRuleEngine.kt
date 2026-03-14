@@ -11,7 +11,6 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERT
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
 import com.pinterest.ktlint.rule.engine.core.util.safeAs
-import com.pinterest.ktlint.rule.engine.internal.AllAutocorrectHandler
 import com.pinterest.ktlint.rule.engine.internal.CodeFormatter
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigFinder
 import com.pinterest.ktlint.rule.engine.internal.EditorConfigGenerator
@@ -96,25 +95,6 @@ public class KtLintRuleEngine(
     }
 
     /**
-     * Fix all style violations in [code] for lint errors when possible. If [code] is passed as file reference then the '.editorconfig'
-     * files on the path are taken into account. For each lint violation found, the [callback] is invoked.
-     *
-     * If [code] contains lint errors which have been autocorrected, then the resulting code is formatted again (up until
-     * [MAX_FORMAT_RUNS_PER_FILE] times) in order to fix lint errors that might result from the previous formatting run.
-     *
-     * [callback] is invoked once for each [LintError] found during any runs. As of that the [callback] might be invoked multiple times for
-     * the same [LintError].
-     *
-     * @throws KtLintParseException if text is not a valid Kotlin code
-     * @throws KtLintRuleException in case of internal failure caused by a bug in rule implementation
-     */
-    @Deprecated(message = "Marked for removal in Ktlint 2.0")
-    public fun format(
-        code: Code,
-        callback: (LintError, Boolean) -> Unit = { _, _ -> },
-    ): String = codeFormatter.format(code, AllAutocorrectHandler, callback, MAX_FORMAT_RUNS_PER_FILE)
-
-    /**
      * Formats style violations in [code]. Whenever a [LintError] is found the [callback] is invoked. If the [LintError] can be
      * autocorrected, the API Consumer determines whether that [LintError] is to autocorrected, or not.
      *
@@ -138,7 +118,7 @@ public class KtLintRuleEngine(
     ): String =
         codeFormatter.format(
             code = code,
-            autocorrectHandler = LintErrorAutocorrectHandler(defaultAutocorrect, callback),
+            autocorrectHandler = LintErrorAutocorrectHandler(callback),
             maxFormatRunsPerFile =
                 if (rerunAfterAutocorrect) {
                     MAX_FORMAT_RUNS_PER_FILE
