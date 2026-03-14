@@ -5,12 +5,11 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.kdoc.lexer.KDocTokens
 import org.jetbrains.kotlin.kdoc.parser.KDocElementTypes
 import org.jetbrains.kotlin.lexer.KtTokens
-import org.jetbrains.kotlin.psi.stubs.elements.KtFileElementType
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
 @Suppress("unused")
 public object ElementType {
-    public val FILE: IElementType = KtFileElementType.INSTANCE
+    public val FILE: IElementType = KtNodeTypes.FILE
 
     // KtNodeTypes
     public val CLASS: IElementType = KtNodeTypes.CLASS
