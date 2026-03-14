@@ -195,4 +195,45 @@ class WhenEntryBracingTest {
                 LintViolation(6, 17, "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body"),
             ).isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Given a when-statement with a when entry condition followed by an EOL comment on same line then keep that comment inside the block`() {
+        val code =
+            """
+            val foo =
+                when (bar) {
+                    BAR1 -> "bar1" // bar 1 comment
+                    // comment before BAR2
+                    BAR2 ->
+                        "bar2" // bar 2 comment
+                    else -> null // else comment
+                }
+            """.trimIndent()
+        val formattedCode =
+            """
+            val foo =
+                when (bar) {
+                    BAR1 -> {
+                        "bar1" // bar 1 comment
+                    }
+                    // comment before BAR2
+                    BAR2 -> {
+                        "bar2" // bar 2 comment
+                    }
+                    else -> {
+                        null // else comment
+                    }
+                }
+            """.trimIndent()
+        @Suppress("ktlint:standard:max-line-length")
+        whenEntryBracingRuleAssertThat(code)
+            .addAdditionalRuleProvider {
+                // Ensures that the first when entry is also wrapped to a multiline body
+                StatementWrappingRule()
+            }.hasLintViolations(
+                LintViolation(3, 17, "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body"),
+                LintViolation(6, 13, "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body"),
+                LintViolation(7, 17, "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body"),
+            ).isFormattedAs(formattedCode)
+    }
 }

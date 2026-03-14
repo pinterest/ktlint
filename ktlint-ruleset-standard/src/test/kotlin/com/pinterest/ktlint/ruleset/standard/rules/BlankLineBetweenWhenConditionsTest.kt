@@ -283,16 +283,36 @@ class BlankLineBetweenWhenConditionsTest {
     }
 
     @Test
-    fun `Issue 3209 - Given a when-statement with single line when-conditions followed by comments then`() {
+    fun `Issue 3209 - Given a when-statement with single line when-conditions followed by EOL comments, and one multiline when-entry then add blank lines but keep EOL comments on same line`() {
         val code =
             """
             val foo =
                 when (bar) {
                     BAR1 -> "bar1" // bar 1
                     BAR2 -> "bar2" // bar 2
-                    else -> null
+                    else -> {
+                        null
+                    }
                 }
             """.trimIndent()
-        blankLineAfterWhenConditionRuleAssertThat(code).hasNoLintViolations()
+        val formattedCode =
+            """
+            val foo =
+                when (bar) {
+                    BAR1 -> "bar1" // bar 1
+
+                    BAR2 -> "bar2" // bar 2
+
+                    else -> {
+                        null
+                    }
+                }
+            """.trimIndent()
+        @Suppress("ktlint:standard:max-line-length")
+        blankLineAfterWhenConditionRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(4, 1, "Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement"),
+                LintViolation(5, 1, "Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement"),
+            ).isFormattedAs(formattedCode)
     }
 }
