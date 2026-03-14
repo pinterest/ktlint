@@ -27,7 +27,6 @@ public final class com/pinterest/ktlint/cli/reporter/baseline/BaselineErrorHandl
 public final class com/pinterest/ktlint/cli/reporter/baseline/BaselineKt {
 	public static final fun containsLintError (Ljava/util/List;Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError;)Z
 	public static final fun doesNotContain (Ljava/util/List;Lcom/pinterest/ktlint/cli/reporter/core/api/KtlintCliError;)Z
-	public static final fun loadBaseline (Ljava/lang/String;)Lcom/pinterest/ktlint/cli/reporter/baseline/Baseline;
 	public static final fun loadBaseline (Ljava/lang/String;Lcom/pinterest/ktlint/cli/reporter/baseline/BaselineErrorHandling;)Lcom/pinterest/ktlint/cli/reporter/baseline/Baseline;
 	public static synthetic fun loadBaseline$default (Ljava/lang/String;Lcom/pinterest/ktlint/cli/reporter/baseline/BaselineErrorHandling;ILjava/lang/Object;)Lcom/pinterest/ktlint/cli/reporter/baseline/Baseline;
 }
