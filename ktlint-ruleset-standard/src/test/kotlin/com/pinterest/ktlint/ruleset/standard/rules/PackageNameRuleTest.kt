@@ -88,4 +88,47 @@ class PackageNameRuleTest {
             """.trimIndent()
         packageNameRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `passes when blank line exists between package and import`() {
+        val code = 
+            """
+            package com.example
+
+            import foo.bar
+            """.trimIndent()
+        packageNameRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `reports violation when no blank line between package and import`() {
+        val code = 
+            """
+            package com.example
+            import foo.bar
+            """.trimIndent()
+        packageNameRuleAssertThat(code)
+            .hasLintViolation(
+                line = 2,
+                col = 1,
+                detail = "Missing blank line between package statement and import statements",
+            )
+    }
+
+    @Test
+    fun `autocorrects missing blank line between package and import`() {
+        val code = 
+            """
+            package com.example
+            import foo.bar
+            """.trimIndent()
+        val formattedCode = """
+            package com.example
+
+            import foo.bar
+            """.trimIndent()
+            packageNameRuleAssertThat(code)
+                 .hasLintViolation(2, 1, "Missing blank line between package statement and import statements")
+                 .isFixedTo(formattedCode)
+    }
 }
