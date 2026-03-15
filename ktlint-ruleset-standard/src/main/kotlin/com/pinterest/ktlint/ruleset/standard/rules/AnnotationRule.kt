@@ -12,6 +12,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.CONSTRUCTOR_KEYWORD
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.FILE_ANNOTATION_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.GT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.IDENTIFIER
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.LAMBDA_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.MODIFIER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.OPERATION_REFERENCE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REFERENCE_EXPRESSION
@@ -239,9 +240,19 @@ public class AnnotationRule :
     }
 
     private fun ASTNode.shouldWrapAnnotations() =
-        hasAnnotationWithParameter() ||
-            hasMultipleAnnotationsOnSameLine() ||
-            hasAnnotationBeforeConstructor()
+        if (isAnnotatedExpressionBeforeLambdaExpression()) {
+            false
+        } else {
+            hasAnnotationWithParameter() ||
+                hasMultipleAnnotationsOnSameLine() ||
+                hasAnnotationBeforeConstructor()
+        }
+
+    private fun ASTNode.isAnnotatedExpressionBeforeLambdaExpression() =
+        null !=
+            takeIf { it.elementType == ANNOTATED_EXPRESSION }
+                ?.findChildByType(ANNOTATION_ENTRY)
+                ?.takeIf { it.nextCodeSibling?.elementType == LAMBDA_EXPRESSION }
 
     private fun ASTNode.hasAnnotationWithParameter(): Boolean {
         require(elementType in ANNOTATION_CONTAINER)
