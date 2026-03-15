@@ -1,7 +1,7 @@
 package com.pinterest.ktlint.cli.internal
 
-import com.pinterest.ktlint.cli.internal.CustomJarProviderCheck.ERROR_WHEN_DEPRECATED_PROVIDER_IS_FOUND
 import com.pinterest.ktlint.cli.internal.CustomJarProviderCheck.ERROR_WHEN_REQUIRED_PROVIDER_IS_MISSING
+import com.pinterest.ktlint.cli.internal.CustomJarProviderCheck.WARN_WHEN_DEPRECATED_PROVIDER_IS_FOUND
 import com.pinterest.ktlint.logger.api.initKtLintKLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.net.URL
@@ -13,103 +13,86 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 private const val KTLINT_JAR = "ktlint"
 
-internal fun <T> Class<T>.loadFromJarFiles(
-    urls: List<URL>,
+internal fun <T> Class<T>.loadFromKtlintCliJar(providerId: (T) -> String): Set<T> =
+    loadProvidersFromJars(null)
+        .also { providers ->
+            providers
+                .mapNotNull { it }
+                .forEach {
+                    LOGGER.debug { "Discovered $simpleName with id '${providerId(it)}' in ktlint JAR" }
+                }
+        }
+
+internal fun <T> Class<T>.loadFromJarFile(
+    url: URL,
+    excludeProviderIds: List<String>,
     providerId: (T) -> String,
     customJarProviderCheck: CustomJarProviderCheck,
-): Set<T> {
-    val providersFromKtlintJars =
-        this
-            .loadProvidersFromJars(null)
-            .also { providers ->
-                providers
-                    .mapNotNull { it }
-                    .forEach {
-                        LOGGER.debug { "Discovered $simpleName with id '${providerId(it)}' in ktlint JAR" }
-                    }
-            }
-    val providerIdsFromKtlintJars =
-        providersFromKtlintJars
-            .map { providerId(it) }
-    val providersFromCustomJars =
-        urls
-            // Remove JAR files which were provided multiple times
-            .distinct()
-            .map { url ->
-                val providers =
-                    this
-                        .loadProvidersFromJars(url)
-                        .filterNot { providerIdsFromKtlintJars.contains(providerId(it)) }
-                if (providers.isEmpty()) {
-                    if (customJarProviderCheck == ERROR_WHEN_REQUIRED_PROVIDER_IS_MISSING) {
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.error {
-                                """
-                                JAR file '${url.path}' is missing a class implementing interface '$canonicalName'
-                                    KtLint uses a ServiceLoader to dynamically load classes from JAR files specified at the command line of KtLint.
-                                    The JAR file below does not contain an implementation of the interface.
-                                        Interface: $canonicalName
-                                        JAR file : ${url.path}
-                                    Check following:
-                                      - Does the jar contain an implementation of the interface above?
-                                      - Does the jar contain a resource file with name '$canonicalName'?
-                                      - Is the resource file located in directory "src/main/resources/META-INF/services"?
-                                      - Does the resource file contain the fully qualified class name of the class implementing the interface above?
-                                """.trimIndent()
-                            }
-                        } else {
-                            LOGGER.error {
-                                "JAR file '${url.path}' is missing a class implementing interface '$canonicalName' (run in debug mode " +
-                                    "for more information)"
-                            }
-                        }
-                        exitKtLintProcess(1)
-                    }
-                    providers
-                } else {
-                    providers
-                        .mapNotNull {
-                            if (customJarProviderCheck == ERROR_WHEN_DEPRECATED_PROVIDER_IS_FOUND) {
-                                if (LOGGER.isDebugEnabled()) {
-                                    LOGGER.error {
-                                        """
-                                        JAR file '${url.path}' contains a class implementing an unsupported interface '$canonicalName'
-                                            KtLint uses a ServiceLoader to dynamically load classes from JAR files specified at the command line of KtLint.
-                                            The JAR file below contains an implementation of an interface which is no longer supported by this version of
-                                            KtLint. Please contact the maintainer of this JAR file (not maintained by KtLint) to upgrade the JAR file so
-                                            that you can use it again.
-                                                Interface: $canonicalName
-                                                JAR file : ${url.path}
-                                        """.trimIndent()
-                                    }
-                                } else {
-                                    LOGGER.error {
-                                        "JAR file '${url.path}' contains a class implementing an unsupported interface '$canonicalName' " +
-                                            "(run in debug mode for more information)"
-                                    }
-                                }
-                                exitKtLintProcess(1)
-                            } else {
-                                LOGGER.debug {
-                                    """
-                                    Discovered $simpleName with id '${providerId(it)}' in JAR file '${url.path}'
-                                        KtLint uses a ServiceLoader to dynamically load classes from JAR files specified at the command line of KtLint.
-                                        The JAR file below contains an implementation of an interface which is supported by this version of ktlint:
-                                            Interface: $canonicalName
-                                            Id       : ${providerId(it)}
-                                            JAR file : ${url.path}
-                                    """.trimIndent()
-                                }
-                                it
-                            }
-                        }
+): List<T> {
+    val providers = loadProvidersFromJars(url).filterNot { excludeProviderIds.contains(providerId(it)) }
+    return if (providers.isEmpty()) {
+        if (customJarProviderCheck == ERROR_WHEN_REQUIRED_PROVIDER_IS_MISSING) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.error {
+                    """
+                    JAR file '${url.path}' is missing a class implementing interface '$canonicalName'
+                        KtLint uses a ServiceLoader to dynamically load classes from JAR files specified at the command line of KtLint.
+                        The JAR file below does not contain an implementation of the interface.
+                            Interface: $canonicalName
+                            JAR file : ${url.path}
+                        Check following:
+                          - Does the jar contain an implementation of the interface above?
+                          - Does the jar contain a resource file with name '$canonicalName'?
+                          - Is the resource file located in directory "src/main/resources/META-INF/services"?
+                          - Does the resource file contain the fully qualified class name of the class implementing the interface above?
+                    """.trimIndent()
                 }
-            }.flatten()
-            .toSet()
-    return providersFromKtlintJars
-        .plus(providersFromCustomJars)
-        .mapNotNull { it }
-        .toSet()
+            } else {
+                LOGGER.error {
+                    "JAR file '${url.path}' is missing a class implementing interface '$canonicalName' (run with '--log-level=debug' " +
+                        "for more information)"
+                }
+            }
+            exitKtLintProcess(1)
+        }
+        providers
+    } else {
+        providers.mapNotNull {
+            if (customJarProviderCheck == WARN_WHEN_DEPRECATED_PROVIDER_IS_FOUND) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.warn {
+                        """
+                        JAR file '${url.path}' contains a class implementing a deprecated interface '$canonicalName'
+                            KtLint uses a ServiceLoader to dynamically load classes from JAR files specified at the command line of KtLint.
+                            The JAR file below contains an implementation of a deprecated interface which is no longer fully supported by
+                            this version of KtLint. Verify the logging for errors.
+                            Use a newer version of the JAR file, or when not available contact the maintainer of this JAR file (not
+                            maintained by KtLint) to upgrade the JAR file.
+                                Interface: $canonicalName
+                                JAR file : ${url.path}
+                        """.trimIndent()
+                    }
+                } else {
+                    LOGGER.warn {
+                        "JAR file '${url.path}' contains a class implementing a deprecated interface '$canonicalName' " +
+                            "(run with '--log-level=debug' for more information)"
+                    }
+                }
+            } else {
+                LOGGER.debug {
+                    """
+                    Discovered $simpleName with id '${providerId(it)}' in JAR file '${url.path}'
+                        KtLint uses a ServiceLoader to dynamically load classes from JAR files specified at the command line of KtLint.
+                        The JAR file below contains an implementation of an interface which is supported by this version of ktlint:
+                            Interface: $canonicalName
+                            Id       : ${providerId(it)}
+                            JAR file : ${url.path}
+                    """.trimIndent()
+                }
+            }
+            it
+        }
+    }
 }
 
 private fun <T> Class<T>.loadProvidersFromJars(url: URL?): Set<T> =
@@ -141,7 +124,7 @@ internal enum class CustomJarProviderCheck {
     ERROR_WHEN_REQUIRED_PROVIDER_IS_MISSING,
 
     /**
-     * Log an error and exit when the JAR file contains a deprecated provider class
+     * Log a warning when the JAR file contains a deprecated provider class
      */
-    ERROR_WHEN_DEPRECATED_PROVIDER_IS_FOUND,
+    WARN_WHEN_DEPRECATED_PROVIDER_IS_FOUND,
 }

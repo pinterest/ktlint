@@ -6,7 +6,7 @@ import com.pinterest.ktlint.core.RuleSetProviderV2
 // This class deliberately extends a deprecated RuleSetProvider as for testing purposes a custom ruleset jar is required that only contains
 // a deprecated ruleset provider.
 public class SomeRuleSetProvider :
-    RuleSetProviderV2(
+    RuleSetProviderV3(
         id = "test",
         about = NO_ABOUT,
     ) {
