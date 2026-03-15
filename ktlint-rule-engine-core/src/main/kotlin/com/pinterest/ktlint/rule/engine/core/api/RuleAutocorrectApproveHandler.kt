@@ -1,4 +1,20 @@
 package com.pinterest.ktlint.rule.engine.core.api
 
-@Deprecated(message = "Only use for backward compatibility of custom ruleset JARs with Ktlint 2.x")
-public interface RuleAutocorrectApproveHandler
+import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+
+@Deprecated(message = "Provides backwards compatibility of custom ruleset JARs created for Ktlint 1.x. Don't use for RuleV2")
+public interface RuleAutocorrectApproveHandler {
+    @Deprecated(message = "Provides backwards compatibility of custom ruleset JARs created for Ktlint 1.x. Don't use for RuleV2")
+    public fun beforeVisitChildNodes(
+        node: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+    ) {
+    }
+
+    @Deprecated(message = "Provides backwards compatibility of custom ruleset JARs created for Ktlint 1.x. Don't use for RuleV2")
+    public fun afterVisitChildNodes(
+        node: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+    ) {
+    }
+}

@@ -1,5 +1,8 @@
 package com.pinterest.ktlint.rule.engine.core.api
 
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
+import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+
 /**
  * Provides a [Rule] instance. Important: to ensure that a [Rule] can keep internal state and that processing of files is thread-safe,
  * a *new* instance should be provided on each call of the [provider] function.
@@ -41,7 +44,29 @@ public class RuleProvider private constructor(
                                 issueTrackerUrl = rule.about.issueTrackerUrl,
                             ),
                         usesEditorConfigProperties = rule.usesEditorConfigProperties,
-                    ) {}
+                    ) {
+                    override fun beforeFirstNode(editorConfig: EditorConfig) {
+                        rule.beforeFirstNode(editorConfig)
+                    }
+
+                    override fun beforeVisitChildNodes(
+                        node: ASTNode,
+                        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+                    ) {
+                        (rule as RuleAutocorrectApproveHandler).beforeVisitChildNodes(node, emit)
+                    }
+
+                    override fun afterVisitChildNodes(
+                        node: ASTNode,
+                        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+                    ) {
+                        (rule as RuleAutocorrectApproveHandler).afterVisitChildNodes(node, emit)
+                    }
+
+                    override fun afterLastNode() {
+                        rule.afterLastNode()
+                    }
+                }
             }
 
     /**

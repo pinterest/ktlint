@@ -355,9 +355,9 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
             }
         }
 
-    // Do not convert to "val" as the function depends on PicoCli options which are not fully instantiated until the "run" method is started
-    internal val ruleProviders: Set<RuleInstanceProvider>
-        get() = loadRuleProviders(rulesetJarPaths.toFilesURIList())
+    internal val ruleProviders: Set<RuleInstanceProvider> by lazy {
+        loadRuleProviders(rulesetJarPaths.toFilesURIList())
+    }
 
     private fun configureLogger() =
         KotlinLogging

@@ -1,5 +1,0 @@
-var helloWorld = "Hello World!"
-
-fun main() {
-    println(helloWorld)
-}
