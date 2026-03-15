@@ -2,17 +2,18 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.IMPORT_DIRECTIVE 
+import com.pinterest.ktlint.rule.engine.core.api.ElementType.IMPORT_DIRECTIVE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PACKAGE_DIRECTIVE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REFERENCE_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
+import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.internal.regExIgnoringDiacriticsAndStrokesOnLetters
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement 
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 
 /**
  * https://kotlinlang.org/docs/coding-conventions.html#naming-rules
@@ -24,7 +25,7 @@ public class PackageNameRule : StandardRule("package-name") {
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .takeIf { node.elementType == PACKAGE_DIRECTIVE }
+            .takeIf { it.elementType == PACKAGE_DIRECTIVE }
             ?.firstChildNode
             ?.nextCodeSibling20
             ?.takeIf { it.elementType == DOT_QUALIFIED_EXPRESSION || it.elementType == REFERENCE_EXPRESSION }
@@ -39,26 +40,33 @@ public class PackageNameRule : StandardRule("package-name") {
                     emit(expression.startOffset, "Package name contains a disallowed character", false)
                 }
             }
-            // https://developer.android.com/kotlin/style-guide#structure
-             if (node.elementType == IMPORT_DIRECTIVE) {
-                val prevSibling = node.treePrev ?: return
-                val newlineCount = prevSibling.text.count { it == '\n'}
-                if (newlineCount < 2) {
-                   val decision = emit(
-                     node.startOffset,
-                      "Missing blank line between package statement and import statements",
-                      true,
-                    ) 
-                    if(decision == AutocorrectDecision.ALLOW_AUTOCORRECT) {
-                         val corrected = "\n\n" + prevSibling.text.trimStart('\n')
-                         (prevSibling as? LeafElement)?.rawReplaceWithText(corrected)
+
+        // https://developer.android.com/kotlin/style-guide#structure
+        node
+            .takeIf { it.elementType == PACKAGE_DIRECTIVE }
+            ?.let { packageNode ->
+                val nextSibling = packageNode.treeNext ?: return
+                val nextCodeSibling = packageNode.nextCodeSibling20
+                if (nextCodeSibling?.elementType == IMPORT_DIRECTIVE) {
+                    val newlineCount = nextSibling.text.count { it == '\n' }
+                    if (newlineCount < 2) {
+                        emit(
+                            nextSibling.startOffset,
+                            "Missing blank line between package statement and import statements",
+                            true,
+                        ).ifAutocorrectAllowed {
+                            val corrected = "\n\n" + nextSibling.text.trimStart('\n')
+                            (nextSibling as? LeafElement)?.rawReplaceWithText(corrected)
+                        }
                     }
-             }
-        }     
+                }
+            }
     }
 
     private companion object {
-        val VALID_PACKAGE_NAME_REGEXP = "[a-z_][a-zA-Z\\d_]*(\\.[a-z_][a-zA-Z\\d_]*)*".regExIgnoringDiacriticsAndStrokesOnLetters()
+        val VALID_PACKAGE_NAME_REGEXP =
+            "[a-z_][a-zA-Z\\d_]*(\\.[a-z_][a-zA-Z\\d_]*)*"
+                .regExIgnoringDiacriticsAndStrokesOnLetters()
     }
 }
 
