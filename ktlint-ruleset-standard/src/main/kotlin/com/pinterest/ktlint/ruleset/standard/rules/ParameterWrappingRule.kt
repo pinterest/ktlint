@@ -19,13 +19,13 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.hasNoMaxLineLengthSuppression
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent20
+import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesBackwardsIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesForwardsIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
@@ -90,12 +90,12 @@ public class ParameterWrappingRule :
         val baseIndentLength = node.indentWithoutNewlinePrefix.length
 
         // Find the first node after the indenting whitespace on the same line as the identifier
-        val nodeFirstChildLeafOrSelf = node.firstChildLeafOrSelf20
+        val nodeFirstChildLeafOrSelf = node.firstChildLeafOrSelf
         val fromNode =
             node
                 .findChildByType(IDENTIFIER)
                 ?.leavesBackwardsIncludingSelf
-                ?.firstOrNull { it.prevLeaf.isWhiteSpaceWithNewline20 || it == nodeFirstChildLeafOrSelf }
+                ?.firstOrNull { it.prevLeaf.isWhiteSpaceWithNewline || it == nodeFirstChildLeafOrSelf }
                 ?: node
 
         node
@@ -143,15 +143,15 @@ public class ParameterWrappingRule :
     }
 
     private fun ASTNode.orTrailingComma() =
-        lastChildLeafOrSelf20
+        lastChildLeafOrSelf
             .nextCodeLeaf
             ?.takeIf { it.elementType == COMMA }
             ?: this
 
     private fun ASTNode.sumOfTextLengthUntil(astNode: ASTNode): Int {
-        val stopAtLeaf = astNode.lastChildLeafOrSelf20
+        val stopAtLeaf = astNode.lastChildLeafOrSelf
         return leavesForwardsIncludingSelf
-            .takeWhile { !it.isWhiteSpaceWithNewline20 && it.prevLeaf != stopAtLeaf }
+            .takeWhile { !it.isWhiteSpaceWithNewline && it.prevLeaf != stopAtLeaf }
             .sumOf { it.textLength }
     }
 
@@ -168,7 +168,7 @@ public class ParameterWrappingRule :
                 "$line: ${if (autocorrectDecision == NO_AUTOCORRECT) "would have" else ""} inserted newline before ${node.text}"
             }
         }.ifAutocorrectAllowed {
-            node.upsertWhitespaceBeforeMe(node.indent20)
+            node.upsertWhitespaceBeforeMe(node.indent)
         }
     }
 

@@ -13,18 +13,18 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children20
+import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.leavesForwardsIncludingSelf
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
@@ -87,13 +87,13 @@ public class EnumWrappingRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ): Boolean {
-        val firstEnumEntry = node.findChildByType(ENUM_ENTRY)?.firstChildLeafOrSelf20
+        val firstEnumEntry = node.findChildByType(ENUM_ENTRY)?.firstChildLeafOrSelf
         if (firstEnumEntry != null) {
             node
-                .firstChildLeafOrSelf20
+                .firstChildLeafOrSelf
                 .leavesForwardsIncludingSelf
                 .takeWhile { it != firstEnumEntry }
-                .firstOrNull { it.isPartOfComment20 }
+                .firstOrNull { it.isPartOfComment }
                 ?.let { commentBeforeFirstEnumEntry ->
                     val expectedIndent = indentConfig.childIndentOf(node)
                     if (commentBeforeFirstEnumEntry.prevLeaf?.text != expectedIndent) {
@@ -111,26 +111,26 @@ public class EnumWrappingRule :
     private fun ASTNode.isMultiline() = text.contains('\n')
 
     private fun ASTNode.hasAnnotatedEnumEntry() =
-        children20
+        children
             .filter { it.elementType == ENUM_ENTRY }
             .any { it.isAnnotated() }
 
     private fun ASTNode.isAnnotated(): Boolean =
         findChildByType(MODIFIER_LIST)
-            ?.children20
+            ?.children
             .orEmpty()
             .any { it.elementType == ANNOTATION_ENTRY }
 
-    private fun ASTNode.hasCommentedEnumEntry() = children20.any { it.containsCommentInEnumEntry() }
+    private fun ASTNode.hasCommentedEnumEntry() = children.any { it.containsCommentInEnumEntry() }
 
-    private fun ASTNode.containsCommentInEnumEntry() = children20.any { it.isPartOfComment20 }
+    private fun ASTNode.containsCommentInEnumEntry() = children.any { it.isPartOfComment }
 
     private fun wrapEnumEntries(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .children20
+            .children
             .filter { it.elementType == ENUM_ENTRY }
             .forEach { enumEntry ->
                 wrapEnumEntry(enumEntry, emit)
@@ -142,8 +142,8 @@ public class EnumWrappingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .prevLeaf { !it.isPartOfComment20 && !it.isWhiteSpaceWithoutNewline20 }
-            ?.takeUnless { it.isWhiteSpaceWithNewline20 }
+            .prevLeaf { !it.isPartOfComment && !it.isWhiteSpaceWithoutNewline }
+            ?.takeUnless { it.isWhiteSpaceWithNewline }
             ?.let { prevLeaf ->
                 emit(node.startOffset, "Enum entry should start on a separate line", true)
                     .ifAutocorrectAllowed {
@@ -175,10 +175,10 @@ public class EnumWrappingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .children20
+            .children
             .lastOrNull { it.elementType == ENUM_ENTRY }
-            ?.nextSibling { !it.isPartOfComment20 }
-            ?.takeUnless { it.nextCodeSibling20?.elementType == RBRACE }
+            ?.nextSibling { !it.isPartOfComment }
+            ?.takeUnless { it.nextCodeSibling?.elementType == RBRACE }
             ?.let { nextSibling ->
                 val expectedIndent = "\n".plus(indentConfig.siblingIndentOf(node))
                 if (nextSibling.text != expectedIndent) {

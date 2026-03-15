@@ -21,24 +21,24 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children20
+import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.dropTrailingEolComment
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.hasNoMaxLineLengthSuppression
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isCode
-import com.pinterest.ktlint.rule.engine.core.api.isLeaf20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
-import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
+import com.pinterest.ktlint.rule.engine.core.api.isLeaf
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
 import com.pinterest.ktlint.rule.engine.core.api.lineLength
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.noNewLineInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -98,7 +98,7 @@ public class BinaryExpressionWrappingRule :
             ?.takeIf { binaryExpression ->
                 binaryExpression
                     .prevSibling { it.elementType == EQ }
-                    ?.let { noNewLineInClosedRange(it, binaryExpression.firstChildLeafOrSelf20) }
+                    ?.let { noNewLineInClosedRange(it, binaryExpression.firstChildLeafOrSelf) }
                     ?: false
             }?.takeIf { it.isOnLineExceedingMaxLineLength() }
             ?.let { expression ->
@@ -127,7 +127,7 @@ public class BinaryExpressionWrappingRule :
                 //         "tooLongToFitOnSingleLine" +
                 //             "bar",
                 //     )
-                node.prevLeaf.isWhiteSpaceWithNewline20
+                node.prevLeaf.isWhiteSpaceWithNewline
             }?.takeIf { it.causesMaxLineLengthToBeExceeded() }
             ?.let { expression ->
                 emit(
@@ -141,8 +141,8 @@ public class BinaryExpressionWrappingRule :
 
         // When left hand side is a call expression which causes the max line length to be exceeded then first wrap that expression
         node
-            .children20
-            .firstOrNull { !it.isLeaf20 || !it.isCode }
+            .children
+            .firstOrNull { !it.isLeaf || !it.isCode }
             ?.takeIf { it.elementType == CALL_EXPRESSION }
             ?.takeIf { it.causesMaxLineLengthToBeExceeded() }
             ?.let { callExpression -> visitCallExpression(callExpression, emit) }
@@ -161,8 +161,8 @@ public class BinaryExpressionWrappingRule :
         //   if (leftHandSideExpression && rightHandSideExpression) {
         parent
             ?.takeIf { it.elementType == CONDITION }
-            ?.lastChildLeafOrSelf20
-            ?.nextLeaf { it.isWhiteSpaceWithNewline20 }
+            ?.lastChildLeafOrSelf
+            ?.nextLeaf { it.isWhiteSpaceWithNewline }
             ?.prevLeaf
             ?.causesMaxLineLengthToBeExceeded()
             ?: false
@@ -211,7 +211,7 @@ public class BinaryExpressionWrappingRule :
                 // Allow:
                 //   val foo = "string too long to fit on the line" +
                 //       "more text"
-                it.nextSibling20.isWhiteSpaceWithNewline20
+                it.nextSibling.isWhiteSpaceWithNewline
             }?.takeIf { it.parent?.elementType == BINARY_EXPRESSION }
             ?.takeIf { binaryExpression ->
                 // Ignore binary expression inside raw string literals. Raw string literals are allowed to exceed max-line-length. Wrapping
@@ -220,8 +220,8 @@ public class BinaryExpressionWrappingRule :
             }?.let { operationReference ->
                 if (operationReference.firstChildNode.elementType == ELVIS) {
                     operationReference
-                        .prevLeaf { it.isWhiteSpace20 }
-                        .takeUnless { it.isWhiteSpaceWithNewline20 }
+                        .prevLeaf { it.isWhiteSpace }
+                        .takeUnless { it.isWhiteSpaceWithNewline }
                         ?.let {
                             // Wrapping after the elvis operator leads to violating the 'chain-wrapping' rule, so it must wrapped itself
                             emit(operationReference.startOffset, "Line is exceeding max line length. Break line before '?:'", true)
@@ -231,7 +231,7 @@ public class BinaryExpressionWrappingRule :
                         }
                 } else {
                     operationReference
-                        .nextSibling20
+                        .nextSibling
                         ?.let { nextSibling ->
                             emit(
                                 nextSibling.startOffset,
@@ -246,13 +246,13 @@ public class BinaryExpressionWrappingRule :
     }
 
     private fun ASTNode.isOnLineExceedingMaxLineLength() =
-        hasNoMaxLineLengthSuppression() && maxLineLength < leavesOnLine20.dropTrailingEolComment().lineLength
+        hasNoMaxLineLengthSuppression() && maxLineLength < leavesOnLine.dropTrailingEolComment().lineLength
 
     private fun ASTNode.causesMaxLineLengthToBeExceeded() =
         hasNoMaxLineLengthSuppression() &&
-            lastChildLeafOrSelf20
+            lastChildLeafOrSelf
                 .let { lastChildLeaf ->
-                    leavesOnLine20
+                    leavesOnLine
                         .dropTrailingEolComment()
                         .takeWhile { it.prevLeaf != lastChildLeaf }
                         .lineLength

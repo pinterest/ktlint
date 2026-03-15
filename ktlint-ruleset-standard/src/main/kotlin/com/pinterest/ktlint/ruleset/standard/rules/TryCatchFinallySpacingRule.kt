@@ -18,7 +18,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -58,7 +58,7 @@ public class TryCatchFinallySpacingRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.isPartOfComment20 && node.parent?.elementType in TRY_CATCH_FINALLY_TOKEN_SET) {
+        if (node.isPartOfComment && node.parent?.elementType in TRY_CATCH_FINALLY_TOKEN_SET) {
             emit(node.startOffset, "No comment expected at this location", false)
             return
         }
@@ -84,7 +84,7 @@ public class TryCatchFinallySpacingRule :
         node
             .findChildByType(LBRACE)!!
             .let { lbrace ->
-                val nextSibling = lbrace.nextSibling { !it.isPartOfComment20 }!!
+                val nextSibling = lbrace.nextSibling { !it.isPartOfComment }!!
                 if (!nextSibling.text.startsWith("\n")) {
                     emit(lbrace.startOffset + 1, "Expected a newline after '{'", true)
                         .ifAutocorrectAllowed {
@@ -96,7 +96,7 @@ public class TryCatchFinallySpacingRule :
         node
             .findChildByType(RBRACE)!!
             .let { rbrace ->
-                val prevSibling = rbrace.prevSibling { !it.isPartOfComment20 }!!
+                val prevSibling = rbrace.prevSibling { !it.isPartOfComment }!!
                 if (!prevSibling.text.startsWith("\n")) {
                     emit(rbrace.startOffset, "Expected a newline before '}'", true)
                         .ifAutocorrectAllowed {
@@ -110,7 +110,7 @@ public class TryCatchFinallySpacingRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val prevLeaf = node.prevLeaf { !it.isPartOfComment20 }!!
+        val prevLeaf = node.prevLeaf { !it.isPartOfComment }!!
         if (prevLeaf.text != " ") {
             emit(node.startOffset, "A single space is required before '${node.elementTypeName()}'", true)
                 .ifAutocorrectAllowed {

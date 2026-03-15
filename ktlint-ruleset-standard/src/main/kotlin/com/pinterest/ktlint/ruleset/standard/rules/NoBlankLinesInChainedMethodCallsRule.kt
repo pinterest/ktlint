@@ -5,7 +5,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRE
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -17,7 +17,7 @@ public class NoBlankLinesInChainedMethodCallsRule : StandardRule("no-blank-lines
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val isBlankLine = node.isWhiteSpace20 && node.text.contains("\n\n")
+        val isBlankLine = node.isWhiteSpace && node.text.contains("\n\n")
         if (isBlankLine && node.parent?.elementType == DOT_QUALIFIED_EXPRESSION) {
             emit(node.startOffset + 1, "Needless blank line(s)", true)
                 .ifAutocorrectAllowed {

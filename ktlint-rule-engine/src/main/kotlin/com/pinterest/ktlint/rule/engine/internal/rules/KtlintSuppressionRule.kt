@@ -25,8 +25,8 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.findChildByTypeRecursively
 import com.pinterest.ktlint.rule.engine.core.api.findParentByType
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
@@ -130,7 +130,7 @@ public class KtlintSuppressionRule(
 
     private fun ASTNode.removePrecedingWhitespace() {
         prevLeaf
-            .takeIf { it.isWhiteSpace20 }
+            .takeIf { it.isWhiteSpace }
             ?.remove()
     }
 
@@ -148,7 +148,7 @@ public class KtlintSuppressionRule(
     ) {
         when (ktlintDirectiveType) {
             KTLINT_DISABLE -> {
-                if (node.elementType == EOL_COMMENT && node.prevLeaf.isWhiteSpaceWithNewline20) {
+                if (node.elementType == EOL_COMMENT && node.prevLeaf.isWhiteSpaceWithNewline) {
                     removeDanglingEolCommentWithKtlintDisableDirective(emit)
                 } else {
                     visitKtlintDisableDirective(emit)
@@ -208,7 +208,7 @@ public class KtlintSuppressionRule(
             if (node.elementType == EOL_COMMENT) {
                 node.removePrecedingWhitespace()
             } else {
-                if (node.nextLeaf.isWhiteSpaceWithNewline20) {
+                if (node.nextLeaf.isWhiteSpaceWithNewline) {
                     node
                         .nextLeaf
                         ?.remove()
@@ -282,7 +282,7 @@ private class KtLintDirective(
                     matchingKtlintEnabledDirective !=
                         node
                             .parent
-                            ?.nextSibling { !it.isWhiteSpace20 }
+                            ?.nextSibling { !it.isWhiteSpace }
                 }
                 ?: false
         }

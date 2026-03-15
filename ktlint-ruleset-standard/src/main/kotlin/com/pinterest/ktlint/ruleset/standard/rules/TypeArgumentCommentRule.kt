@@ -8,8 +8,8 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.TYPE_PROJECTION
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -29,7 +29,7 @@ public class TypeArgumentCommentRule : StandardRule("type-argument-comment") {
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.isPartOfComment20 && node.parent?.elementType in typeArgumentTokenSet) {
+        if (node.isPartOfComment && node.parent?.elementType in typeArgumentTokenSet) {
             when (node.elementType) {
                 EOL_COMMENT, BLOCK_COMMENT -> {
                     if (node.parent?.elementType == TYPE_PROJECTION) {
@@ -44,7 +44,7 @@ public class TypeArgumentCommentRule : StandardRule("type-argument-comment") {
                             false,
                         )
                     } else if (node.parent?.elementType == TYPE_ARGUMENT_LIST) {
-                        if (node.prevLeaf.isWhiteSpaceWithNewline20) {
+                        if (node.prevLeaf.isWhiteSpaceWithNewline) {
                             // Allow:
                             //     fun Foo<
                             //         /* some comment */

@@ -12,9 +12,9 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.ImportOrderingRule.Companion.ASCII_PATTERN
 import com.pinterest.ktlint.ruleset.standard.rules.ImportOrderingRule.Companion.IDEA_PATTERN
@@ -124,10 +124,10 @@ public class ImportOrderingRule :
                         ).ifAutocorrectAllowed { autocorrect = true }
                     }
                     if (autocorrect) {
-                        node.removeRange(node.firstChildNode, node.lastChildNode.nextSibling20)
+                        node.removeRange(node.firstChildNode, node.lastChildNode.nextSibling)
                         sortedImportsWithSpaces.reduce { current, next ->
                             node.addChild(current, null)
-                            if (!current.isWhiteSpace20 && !next.isWhiteSpace20) {
+                            if (!current.isWhiteSpace && !next.isWhiteSpace) {
                                 node.addChild(PsiWhiteSpaceImpl("\n"), null)
                             }
                             return@reduce next
@@ -149,7 +149,7 @@ public class ImportOrderingRule :
 
         children.forEach { current ->
             when {
-                current.isWhiteSpace20 && current.text.count { it == '\n' } > 1 -> {
+                current.isWhiteSpace && current.text.count { it == '\n' } > 1 -> {
                     imports += current
                 }
 
@@ -175,7 +175,7 @@ public class ImportOrderingRule :
 
         val combined = actual.zip(expected)
         return combined.all { (first, second) ->
-            if (first.isWhiteSpace20 && second.isWhiteSpace20) {
+            if (first.isWhiteSpace && second.isWhiteSpace) {
                 return@all (first as PsiWhiteSpace).text == (second as PsiWhiteSpace).text
             }
             return@all first == second
@@ -184,7 +184,7 @@ public class ImportOrderingRule :
 
     private fun isCustomLayout() = importsLayout != IDEA_PATTERN && importsLayout != ASCII_PATTERN
 
-    private fun hasTooMuchWhitespace(nodes: Array<ASTNode>): Boolean = nodes.any { it.isWhiteSpaceWithoutNewline20 }
+    private fun hasTooMuchWhitespace(nodes: Array<ASTNode>): Boolean = nodes.any { it.isWhiteSpaceWithoutNewline }
 
     public companion object {
         /**

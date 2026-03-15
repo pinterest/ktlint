@@ -340,31 +340,6 @@ public class KtLintAssertThat(
             )
 
         /**
-         * Creates an assertThat assertion function for the rule provided by [provider]. This assertion function has extensions specifically
-         * for testing KtLint rules. The rules provided via [additionalRuleProviders] are only executed during the format phase of the test.
-         * This means that the unit test only has to check the lint violations thrown by the rule for which the assertThat is created. But
-         * the code is formatted by both the rule and the rules provided by [additionalRuleProviders] in the order as defined by the rule
-         * definitions.
-         *
-         * Use function [assertThatRule] to create a default assertThat assertion function. In case a more specialized assertion function is
-         * needed, then use [assertThatRuleBuilder].
-         */
-        @Deprecated(message = "Marked for removal in Ktlint 2.0. See KDOC for alternative")
-        public fun assertThatRule(
-            provider: () -> RuleV2,
-            additionalRuleProviders: Set<RuleV2InstanceProvider> = emptySet(),
-            editorConfigProperties: Set<Pair<EditorConfigProperty<*>, *>> = emptySet(),
-        ): (String) -> KtLintAssertThat =
-            { code ->
-                KtLintAssertThat(
-                    ruleProvider = RuleV2InstanceProvider { provider() },
-                    code = code,
-                    additionalRuleProviders = additionalRuleProviders.toMutableSet(),
-                    editorConfigProperties = editorConfigProperties.toMutableSet(),
-                )
-            }
-
-        /**
          * See [setMaxLineLength] for intended usage.
          */
         public const val MAX_LINE_LENGTH_MARKER: String = "Max line length marker:"

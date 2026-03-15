@@ -21,12 +21,12 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPE
 import com.pinterest.ktlint.rule.engine.core.api.findParentByType
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -116,11 +116,11 @@ public class TypeArgumentListSpacingRule :
 
         node
             .findChildByType(LT)
-            ?.nextSibling20
+            ?.nextSibling
             ?.let { nextSibling ->
                 if (multiline) {
                     if (nextSibling.text != expectedIndent) {
-                        if (nextSibling.isWhiteSpaceWithoutNewline20) {
+                        if (nextSibling.isWhiteSpaceWithoutNewline) {
                             emit(nextSibling.startOffset, "Expected newline", true)
                                 .ifAutocorrectAllowed {
                                     nextSibling.upsertWhitespaceAfterMe(expectedIndent)
@@ -130,7 +130,7 @@ public class TypeArgumentListSpacingRule :
                         }
                     }
                 } else {
-                    if (nextSibling.isWhiteSpace20) {
+                    if (nextSibling.isWhiteSpace) {
                         // Disallow
                         //    val list = listOf< String>()
                         noWhitespaceExpected(nextSibling, emit)
@@ -140,11 +140,11 @@ public class TypeArgumentListSpacingRule :
 
         node
             .findChildByType(GT)
-            ?.prevSibling20
+            ?.prevSibling
             ?.let { prevSibling ->
                 if (multiline) {
                     if (prevSibling.text != expectedIndent) {
-                        if (prevSibling.isWhiteSpaceWithoutNewline20) {
+                        if (prevSibling.isWhiteSpaceWithoutNewline) {
                             emit(prevSibling.startOffset, "Expected newline", true)
                                 .ifAutocorrectAllowed {
                                     prevSibling.upsertWhitespaceBeforeMe(expectedIndent)
@@ -154,7 +154,7 @@ public class TypeArgumentListSpacingRule :
                         }
                     }
                 } else {
-                    if (prevSibling.isWhiteSpace20) {
+                    if (prevSibling.isWhiteSpace) {
                         // Disallow
                         //    val list = listOf<String >()
                         noWhitespaceExpected(prevSibling, emit)

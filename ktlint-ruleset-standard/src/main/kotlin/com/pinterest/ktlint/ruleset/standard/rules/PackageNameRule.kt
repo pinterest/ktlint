@@ -7,7 +7,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.REFERENCE_EXPRESSIO
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.internal.regExIgnoringDiacriticsAndStrokesOnLetters
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -24,7 +24,7 @@ public class PackageNameRule : StandardRule("package-name") {
         node
             .takeIf { node.elementType == PACKAGE_DIRECTIVE }
             ?.firstChildNode
-            ?.nextCodeSibling20
+            ?.nextCodeSibling
             ?.takeIf { it.elementType == DOT_QUALIFIED_EXPRESSION || it.elementType == REFERENCE_EXPRESSION }
             ?.let { expression ->
                 if (expression.text.contains('_')) {

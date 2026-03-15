@@ -17,21 +17,21 @@ import com.pinterest.ktlint.rule.engine.core.api.IndentConfig.Companion.DEFAULT_
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children20
+import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.hasNoMaxLineLengthSuppression
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent20
+import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -93,14 +93,14 @@ public class ContextReceiverListWrappingRule :
         // Context receiver must be followed by new line or comment unless it is a type reference of a parameter
         node
             .takeUnless { it.isTypeReferenceParameterInFunction() }
-            ?.lastChildLeafOrSelf20
-            ?.nextLeaf { !it.isWhiteSpaceWithoutNewline20 && !it.isPartOfComment20 }
-            ?.takeIf { !it.isWhiteSpaceWithNewline20 }
+            ?.lastChildLeafOrSelf
+            ?.nextLeaf { !it.isWhiteSpaceWithoutNewline && !it.isPartOfComment }
+            ?.takeIf { !it.isWhiteSpaceWithNewline }
             ?.let { nodeAfterContextReceiver ->
                 emit(nodeAfterContextReceiver.startOffset, "Expected a newline after the context parameter", true)
                     .ifAutocorrectAllowed {
                         nodeAfterContextReceiver
-                            .firstChildLeafOrSelf20
+                            .firstChildLeafOrSelf
                             .upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(node))
                     }
             }
@@ -111,7 +111,7 @@ public class ContextReceiverListWrappingRule :
             node.indentWithoutNewlinePrefix.length + node.textLength > maxLineLength
         ) {
             node
-                .children20
+                .children
                 .filter { it.elementType == VALUE_PARAMETER }
                 .forEach {
                     emit(
@@ -132,7 +132,7 @@ public class ContextReceiverListWrappingRule :
                         "Newline expected before closing parenthesis as max line length is violated",
                         true,
                     ).ifAutocorrectAllowed {
-                        rpar.upsertWhitespaceBeforeMe(node.indent20)
+                        rpar.upsertWhitespaceBeforeMe(node.indent)
                     }
                 }
         }
@@ -164,7 +164,7 @@ public class ContextReceiverListWrappingRule :
             node.indentWithoutNewlinePrefix.length + contextReceiverText.length > maxLineLength
         ) {
             node
-                .children20
+                .children
                 .filter { it.elementType == TYPE_PROJECTION }
                 .forEach {
                     emit(

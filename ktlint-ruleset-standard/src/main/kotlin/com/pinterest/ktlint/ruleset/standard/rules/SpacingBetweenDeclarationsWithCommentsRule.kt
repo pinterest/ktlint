@@ -7,12 +7,12 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.TokenSets
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isDeclaration20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isDeclaration
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.parent
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -31,8 +31,8 @@ public class SpacingBetweenDeclarationsWithCommentsRule : StandardRule("spacing-
             .takeIf { it.elementType in TokenSets.COMMENTS }
             ?.takeUnless { it.isTailComment() }
             ?.parent
-            ?.takeIf { it.isDeclaration20 }
-            ?.takeIf { it.prevCodeSibling20.isDeclaration20 }
+            ?.takeIf { it.isDeclaration }
+            ?.takeIf { it.prevCodeSibling.isDeclaration }
             ?.let { visitCommentedDeclaration(it, emit) }
     }
 
@@ -43,7 +43,7 @@ public class SpacingBetweenDeclarationsWithCommentsRule : StandardRule("spacing-
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         node
-            .prevSibling20
+            .prevSibling
             ?.takeUnless { it.isBlankLine() }
             ?.let { prevSibling ->
                 emit(node.startOffset, "Declarations and declarations with comments should have an empty space between.", true)
@@ -59,7 +59,7 @@ public class SpacingBetweenDeclarationsWithCommentsRule : StandardRule("spacing-
             }
     }
 
-    private fun ASTNode.isBlankLine() = isWhiteSpace20 && text.startsWith("\n\n")
+    private fun ASTNode.isBlankLine() = isWhiteSpace && text.startsWith("\n\n")
 }
 
 public val SPACING_BETWEEN_DECLARATIONS_WITH_COMMENTS_RULE_ID: RuleId = SpacingBetweenDeclarationsWithCommentsRule().ruleId

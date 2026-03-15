@@ -10,14 +10,12 @@ import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.options.check
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.default
-import com.github.ajalt.clikt.parameters.options.deprecated
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.optionalValue
 import com.github.ajalt.clikt.parameters.options.split
 import com.github.ajalt.clikt.parameters.options.versionOption
-import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.int
 import com.pinterest.ktlint.cli.reporter.baseline.Baseline
 import com.pinterest.ktlint.cli.reporter.baseline.BaselineErrorHandling
@@ -43,7 +41,6 @@ import com.pinterest.ktlint.rule.engine.api.KtLintRuleException
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.ALLOW_AUTOCORRECT
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.NO_AUTOCORRECT
 import com.pinterest.ktlint.rule.engine.core.api.RuleInstanceProvider
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
@@ -119,17 +116,6 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
         versionOption(KtlintVersionProvider().version, names = setOf("-v", "--version"))
     }
 
-    @Deprecated("Remove in Ktlint 1.3 (or later) as some users will skip multiple versions.")
-    private val codeStyle by
-        option("--code-style")
-            .enum<CodeStyleValue>()
-            .deprecated(
-                message =
-                    "Parameter '--code-style' is no longer valid. The code style should be defined as '.editorconfig' property " +
-                        "'ktlint_code_style='",
-                error = true,
-            )
-
     private val color: Boolean by
         option("--color", help = "Make output colorful")
             .flag(default = false)
@@ -137,15 +123,6 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
     private val colorName: String by
         option("--color-name", help = "Customize the output color")
             .default(Color.DARK_GRAY.name)
-
-    @Deprecated("Remove in Ktlint 1.3 (or later) as some users will skip multiple versions.")
-    private var disabledRules =
-        option("--disabled_rules", hidden = true)
-            .deprecated(
-                "Parameter '--disabled-rules' is no longer valid. The disabled rules have to be defined as '.editorconfig' " +
-                    "properties. See https://pinterest.github.io/ktlint/1.0.0/faq/#how-do-i-enable-or-disable-a-rule",
-                error = true,
-            )
 
     private val format: Boolean by
         option("--format", "-F", help = "Fix deviations from the code style when possible")
@@ -211,15 +188,6 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
                     "path to the source file specifies that property. Note: up until ktlint 0.46 the property value in this file used to " +
                     "override values found in '.editorconfig' files on the path to the source file.",
         )
-
-    @Deprecated("Remove in Ktlint 1.3 (or later) as some users will skip multiple versions.")
-    private var experimental =
-        option("--experimental", hidden = true)
-            .flag()
-            .deprecated(
-                "Option '--experimental' is no longer supported. Set '.editorconfig' property 'ktlint_experimental' instead.",
-                error = true,
-            )
 
     private val forceLintAfterFormat: Boolean by
         option(

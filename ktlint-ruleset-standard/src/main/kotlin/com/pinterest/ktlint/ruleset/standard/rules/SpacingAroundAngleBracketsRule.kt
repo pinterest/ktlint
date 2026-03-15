@@ -10,8 +10,8 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.remove
@@ -34,7 +34,7 @@ public class SpacingAroundAngleBracketsRule : StandardRule("spacing-around-angle
             // Check for rogue spacing before an opening bracket, e.g. Map <String, Int>
             openingBracket
                 .prevLeaf
-                .takeIf { it.isWhiteSpace20 }
+                .takeIf { it.isWhiteSpace }
                 ?.let { beforeLeftAngle ->
                     // Ignore when the whitespace is preceded by certain keywords, e.g. fun <T> func(arg: T) {}
                     if (!ELEMENT_TYPES_ALLOWING_PRECEDING_WHITESPACE.contains(beforeLeftAngle.prevLeaf?.elementType)) {
@@ -46,9 +46,9 @@ public class SpacingAroundAngleBracketsRule : StandardRule("spacing-around-angle
             // Check for rogue spacing after an opening bracket
             openingBracket
                 .nextLeaf
-                .takeIf { it.isWhiteSpace20 }
+                .takeIf { it.isWhiteSpace }
                 ?.let { afterLeftAngle ->
-                    if (afterLeftAngle.isWhiteSpaceWithoutNewline20) {
+                    if (afterLeftAngle.isWhiteSpaceWithoutNewline) {
                         emit(afterLeftAngle.startOffset, "Unexpected spacing after \"<\"", true)
                             .ifAutocorrectAllowed {
                                 // when spacing does not include any new lines, e.g. Map< String, Int>
@@ -74,10 +74,10 @@ public class SpacingAroundAngleBracketsRule : StandardRule("spacing-around-angle
         val closingBracket = node.lastChildNode
         closingBracket
             ?.prevLeaf
-            ?.takeIf { it.isWhiteSpace20 }
+            ?.takeIf { it.isWhiteSpace }
             ?.let { beforeRightAngle ->
                 // Check for rogue spacing before a closing bracket
-                if (beforeRightAngle.isWhiteSpaceWithoutNewline20) {
+                if (beforeRightAngle.isWhiteSpaceWithoutNewline) {
                     emit(beforeRightAngle.startOffset, "Unexpected spacing before \">\"", true)
                         .ifAutocorrectAllowed {
                             // when spacing does not include any new lines, e.g. Map<String, Int >

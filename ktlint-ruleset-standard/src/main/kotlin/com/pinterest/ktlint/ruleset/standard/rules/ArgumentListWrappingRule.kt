@@ -22,16 +22,16 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProper
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.hasNoMaxLineLengthSuppression
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
 import com.pinterest.ktlint.rule.engine.core.api.lineLength
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
@@ -96,7 +96,7 @@ public class ArgumentListWrappingRule :
 
     private fun needToWrapArgumentList(node: ASTNode) =
         if ( // skip when there are no arguments
-            node.firstChildNode?.nextSibling20?.elementType != RPAR &&
+            node.firstChildNode?.nextSibling?.elementType != RPAR &&
             // skip lambda arguments
             node.parent?.elementType != FUNCTION_LITERAL &&
             // skip if number of arguments is big
@@ -114,9 +114,9 @@ public class ArgumentListWrappingRule :
     private fun ASTNode.exceedsMaxLineLength(): Boolean {
         if (textContains('\n')) return false
         require(this.elementType == VALUE_ARGUMENT_LIST)
-        val stopAtLeaf = findChildByType(RPAR)?.firstChildLeafOrSelf20
+        val stopAtLeaf = findChildByType(RPAR)?.firstChildLeafOrSelf
         return hasNoMaxLineLengthSuppression() &&
-            maxLineLength < leavesOnLine20.takeWhile { it.prevLeaf != stopAtLeaf }.lineLength
+            maxLineLength < leavesOnLine.takeWhile { it.prevLeaf != stopAtLeaf }.lineLength
     }
 
     private fun intendedIndent(child: ASTNode): String =
@@ -181,7 +181,7 @@ public class ArgumentListWrappingRule :
                 child
                     .prevLeaf
                     ?.let { prevLeaf ->
-                        if (prevLeaf.isWhiteSpaceWithNewline20) {
+                        if (prevLeaf.isWhiteSpaceWithNewline) {
                             emit(child.startOffset, errorMessage(child), true)
                                 .ifAutocorrectAllowed {
                                     prevLeaf.psi.delete()
@@ -200,13 +200,13 @@ public class ArgumentListWrappingRule :
                 val intendedIndent = intendedIndent(child)
                 val prevLeaf = child.prevWhiteSpaceWithNewLine() ?: child.prevLeaf
                 when {
-                    prevLeaf.isWhiteSpaceWithNewline20 -> {
+                    prevLeaf.isWhiteSpaceWithNewline -> {
                         // The current child is already wrapped to a new line. Checking and fixing the
                         // correct size of the indent is the responsibility of the IndentationRule.
                         return
                     }
 
-                    prevLeaf.isWhiteSpace20 -> {
+                    prevLeaf.isWhiteSpace -> {
                         // The current child needs to be wrapped to a newline.
                         emit(child.startOffset, errorMessage(child), true)
                             .ifAutocorrectAllowed {
@@ -246,7 +246,7 @@ public class ArgumentListWrappingRule :
                 child.isValueArgumentContaining(char)
         }
 
-    private fun ASTNode.isWhitespaceContaining(char: Char) = isWhiteSpace20 && textContains(char)
+    private fun ASTNode.isWhitespaceContaining(char: Char) = isWhiteSpace && textContains(char)
 
     private fun ASTNode.isCollectionLiteralContaining(char: Char) = elementType == COLLECTION_LITERAL_EXPRESSION && textContains(char)
 
@@ -257,7 +257,7 @@ public class ArgumentListWrappingRule :
         parent
             ?.findChildByType(TYPE_ARGUMENT_LIST)
             ?.children()
-            ?.any { it.isWhiteSpaceWithNewline20 } == true
+            ?.any { it.isWhiteSpaceWithNewline } == true
 
     private fun ASTNode.isPartOfDotQualifiedAssignmentExpression(): Boolean =
         parent
@@ -271,8 +271,8 @@ public class ArgumentListWrappingRule :
 
     private fun ASTNode.prevWhiteSpaceWithNewLine(): ASTNode? {
         var prev = prevLeaf
-        while (prev != null && (prev.isWhiteSpace20 || prev.isPartOfComment20)) {
-            if (prev.isWhiteSpaceWithNewline20) {
+        while (prev != null && (prev.isWhiteSpace || prev.isPartOfComment)) {
+            if (prev.isWhiteSpaceWithNewline) {
                 return prev
             }
             prev = prev.prevLeaf
@@ -283,7 +283,7 @@ public class ArgumentListWrappingRule :
     private fun ASTNode.isOnSameLineAsControlFlowKeyword(): Boolean {
         var prevLeaf = prevLeaf ?: return false
         while (prevLeaf.elementType !in TokenSets.CONTROL_FLOW_KEYWORDS) {
-            if (prevLeaf.isWhiteSpaceWithNewline20) return false
+            if (prevLeaf.isWhiteSpaceWithNewline) return false
             prevLeaf = prevLeaf.prevLeaf ?: return false
         }
         return true

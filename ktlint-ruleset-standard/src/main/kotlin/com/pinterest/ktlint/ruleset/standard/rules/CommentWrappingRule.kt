@@ -10,13 +10,13 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.hasNewLineInClosedRange
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.indent
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -46,15 +46,15 @@ public class CommentWrappingRule :
             val beforeBlockComment =
                 node
                     .leaves(false)
-                    .takeWhile { it.isWhiteSpaceWithoutNewline20 }
+                    .takeWhile { it.isWhiteSpaceWithoutNewline }
                     .firstOrNull()
-                    ?: node.firstChildLeafOrSelf20
+                    ?: node.firstChildLeafOrSelf
             val afterBlockComment =
                 node
                     .leaves()
-                    .takeWhile { it.isWhiteSpaceWithoutNewline20 }
+                    .takeWhile { it.isWhiteSpaceWithoutNewline }
                     .firstOrNull()
-                    ?: node.lastChildLeafOrSelf20
+                    ?: node.lastChildLeafOrSelf
 
             if (!beforeBlockComment.prevLeaf.isWhitespaceWithNewlineOrNull() &&
                 !afterBlockComment.nextLeaf.isWhitespaceWithNewlineOrNull()
@@ -107,13 +107,13 @@ public class CommentWrappingRule :
                         "A block comment may not be followed by any other element on that same line",
                         true,
                     ).ifAutocorrectAllowed {
-                        nextLeaf.upsertWhitespaceBeforeMe(node.indent20)
+                        nextLeaf.upsertWhitespaceBeforeMe(node.indent)
                     }
                 }
         }
     }
 
-    private fun ASTNode?.isWhitespaceWithNewlineOrNull() = this == null || this.isWhiteSpaceWithNewline20
+    private fun ASTNode?.isWhitespaceWithNewlineOrNull() = this == null || this.isWhiteSpaceWithNewline
 }
 
 public val COMMENT_WRAPPING_RULE_ID: RuleId = CommentWrappingRule().ruleId

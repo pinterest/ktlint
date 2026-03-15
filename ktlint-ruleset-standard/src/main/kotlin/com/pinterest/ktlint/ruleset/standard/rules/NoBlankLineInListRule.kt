@@ -14,10 +14,10 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -32,7 +32,7 @@ public class NoBlankLineInListRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (!node.isWhiteSpace20) {
+        if (!node.isWhiteSpace) {
             return
         }
 
@@ -50,7 +50,7 @@ public class NoBlankLineInListRule :
         // the SUPER_TYPE_LIST of a CLASS the whitespaces before the first super type is a child of the CLASS. The whitespace after the last
         // SUPER_TYPE is part of the class only when the class has a body.
         node
-            .nextSibling20
+            .nextSibling
             ?.elementType
             ?.takeIf { it in LIST_TYPES }
             ?.let { treeParentElementType ->
@@ -68,7 +68,7 @@ public class NoBlankLineInListRule :
         // the SUPER_TYPE_LIST of a CLASS the whitespaces before the first super type is a child of the CLASS. The whitespace after the last
         // SUPER_TYPE is part of the class only when the class has a body.
         node
-            .prevSibling20
+            .prevSibling
             ?.elementType
             ?.takeIf { it in LIST_TYPES }
             ?.let { treeParentElementType ->
@@ -76,7 +76,7 @@ public class NoBlankLineInListRule :
                     node = node,
                     emit = emit,
                     partOfElementType = treeParentElementType,
-                    replaceWithSingeSpace = node.nextSibling20?.elementType == CLASS_BODY,
+                    replaceWithSingeSpace = node.nextSibling?.elementType == CLASS_BODY,
                 )
             }
     }

@@ -5,7 +5,7 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -21,7 +21,7 @@ public class CommentSpacingRule : StandardRule("comment-spacing") {
     ) {
         if (node.elementType == EOL_COMMENT) {
             val prevLeaf = node.prevLeaf
-            if (!prevLeaf.isWhiteSpace20 && prevLeaf is LeafPsiElement) {
+            if (!prevLeaf.isWhiteSpace && prevLeaf is LeafPsiElement) {
                 emit(node.startOffset, "Missing space before //", true)
                     .ifAutocorrectAllowed {
                         node.upsertWhitespaceBeforeMe(" ")

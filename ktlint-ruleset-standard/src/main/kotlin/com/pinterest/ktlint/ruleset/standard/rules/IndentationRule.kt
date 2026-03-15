@@ -88,7 +88,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.TokenSets
-import com.pinterest.ktlint.rule.engine.core.api.children20
+import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.column
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
@@ -98,24 +98,24 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProper
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.findParentByType
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.isCode
 import com.pinterest.ktlint.rule.engine.core.api.isPartOf
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
-import com.pinterest.ktlint.rule.engine.core.api.isRoot20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isRoot
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
@@ -172,11 +172,11 @@ public class IndentationRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.isRoot20) {
+        if (node.isRoot) {
             // File should not start with a whitespace
             node
                 .nextLeaf
-                ?.takeIf { it.isWhiteSpaceWithoutNewline20 }
+                ?.takeIf { it.isWhiteSpaceWithoutNewline }
                 ?.let { whitespaceWithoutNewline ->
                     emit(node.startOffset, "Unexpected indentation", true)
                         .ifAutocorrectAllowed { whitespaceWithoutNewline.remove() }
@@ -185,7 +185,7 @@ public class IndentationRule :
         }
 
         when {
-            node.isWhiteSpaceWithNewline20 -> {
+            node.isWhiteSpaceWithNewline -> {
                 line++
                 if (indentContextStack.peekLast()?.activated == false) {
                     val lastIndentContext = indentContextStack.removeLast()
@@ -207,10 +207,10 @@ public class IndentationRule :
             }
 
             (node.elementType == SUPER_TYPE_LIST && !node.isPrecededByComment()) ||
-                (node.isPartOfComment20 && node.nextCodeSibling20?.elementType == SUPER_TYPE_LIST) -> {
+                (node.isPartOfComment && node.nextCodeSibling?.elementType == SUPER_TYPE_LIST) -> {
                 if (codeStyle == ktlint_official) {
                     val superTypeList =
-                        if (node.isPartOfComment20) {
+                        if (node.isPartOfComment) {
                             node.nextCodeLeaf!!
                         } else {
                             node
@@ -304,7 +304,7 @@ public class IndentationRule :
             }
 
             node.elementType == LPAR &&
-                node.nextCodeSibling20?.elementType == CONDITION -> {
+                node.nextCodeSibling?.elementType == CONDITION -> {
                 visitLparBeforeCondition(node)
             }
 
@@ -341,9 +341,9 @@ public class IndentationRule :
                     //    }
                     startIndentContext(
                         fromAstNode = node.parent!!,
-                        toAstNode = node.parent!!.parent!!.lastChildLeafOrSelf20,
+                        toAstNode = node.parent!!.parent!!.lastChildLeafOrSelf,
                     )
-                } else if (node.prevCodeSibling20.isElvisOperator()) {
+                } else if (node.prevCodeSibling.isElvisOperator()) {
                     startIndentContext(node)
                 } else if (node.parent?.elementType in CHAINABLE_EXPRESSION) {
                     // Multiple dot qualified expressions and/or safe expression on the same line should not increase the indent level
@@ -358,7 +358,7 @@ public class IndentationRule :
             }
 
             node.elementType == LITERAL_STRING_TEMPLATE_ENTRY &&
-                node.nextCodeSibling20?.elementType == CLOSING_QUOTE -> {
+                node.nextCodeSibling?.elementType == CLOSING_QUOTE -> {
                 visitWhiteSpaceBeforeClosingQuote(node, emit)
             }
 
@@ -371,7 +371,7 @@ public class IndentationRule :
             }
 
             node.elementType == WHERE_KEYWORD &&
-                node.nextCodeSibling20?.elementType == TYPE_CONSTRAINT_LIST -> {
+                node.nextCodeSibling?.elementType == TYPE_CONSTRAINT_LIST -> {
                 visitWhereKeywordBeforeTypeConstraintList(node)
             }
 
@@ -455,7 +455,7 @@ public class IndentationRule :
     }
 
     private fun visitIf(node: ASTNode) {
-        var nextToAstNode = node.lastChildLeafOrSelf20
+        var nextToAstNode = node.lastChildLeafOrSelf
         node
             .findChildByType(ELSE)
             ?.let { fromAstNode ->
@@ -468,7 +468,7 @@ public class IndentationRule :
 
         node
             .findChildByType(THEN)
-            ?.lastChildLeafOrSelf20
+            ?.lastChildLeafOrSelf
             ?.nextLeaf
             ?.let { nodeAfterThenBlock ->
                 nextToAstNode =
@@ -565,7 +565,7 @@ public class IndentationRule :
                 .takeIf { it.isPartOf(CALL_EXPRESSION) }
                 ?.parent
                 ?.leaves(false)
-                ?.takeWhile { !it.isWhiteSpaceWithNewline20 }
+                ?.takeWhile { !it.isWhiteSpaceWithNewline }
                 ?.sumOf { it.textLength }
                 ?.plus(2) // need to add spaces to compensate for "{ "
                 ?.let { length -> " ".repeat(length) }
@@ -582,7 +582,7 @@ public class IndentationRule :
             // Allow to pickup whitespace before condition
             fromAstNode = requireNotNull(node.nextLeaf),
             // Ignore whitespace after condition but before rpar
-            toAstNode = requireNotNull(node.nextCodeSibling20).lastChildLeafOrSelf20,
+            toAstNode = requireNotNull(node.nextCodeSibling).lastChildLeafOrSelf,
             nodeIndent = currentIndent() + indentConfig.indent,
             childIndent = "",
         )
@@ -590,7 +590,7 @@ public class IndentationRule :
 
     private fun visitValueParameter(node: ASTNode) {
         // Inner indent contexts in reversed order
-        var nextToAstNode: ASTNode = node.lastChildLeafOrSelf20
+        var nextToAstNode: ASTNode = node.lastChildLeafOrSelf
         node
             .findChildByType(EQ)
             ?.let { fromAstNode ->
@@ -621,13 +621,13 @@ public class IndentationRule :
         // Leading annotations and comments should be indented at same level as constructor itself
         val fromAstNode = node.skipLeadingWhitespaceCommentsAndAnnotations()
         if (fromAstNode != node.firstChildNode &&
-            node.prevSibling { it.isWhiteSpaceWithNewline20 } == null &&
+            node.prevSibling { it.isWhiteSpaceWithNewline } == null &&
             node == node.parent?.findChildByType(VALUE_PARAMETER)
         ) {
             startIndentContext(
                 fromAstNode = fromAstNode,
                 toAstNode = nextToAstNode,
-            ).fromASTNode.prevLeaf { !it.isWhiteSpace20 }!!
+            ).fromASTNode.prevLeaf { !it.isWhiteSpace }!!
         } else {
             startIndentContext(
                 fromAstNode = node,
@@ -639,7 +639,7 @@ public class IndentationRule :
 
     private fun visitFun(node: ASTNode) {
         // Inner indent contexts in reversed order
-        var nextToAstNode: ASTNode = node.lastChildLeafOrSelf20
+        var nextToAstNode: ASTNode = node.lastChildLeafOrSelf
         val eqOrBlock =
             node.findChildByType(EQ)
                 ?: node.findChildByType(BLOCK)
@@ -656,7 +656,7 @@ public class IndentationRule :
             ?.let { where ->
                 val typeConstraintList =
                     requireNotNull(
-                        where.nextCodeSibling20,
+                        where.nextCodeSibling,
                     ) { "Can not find code sibling after WHERE in FUN" }
                 require(typeConstraintList.elementType == TYPE_CONSTRAINT_LIST) {
                     "Code sibling after WHERE in CLASS is not a TYPE_CONSTRAINT_LIST"
@@ -664,7 +664,7 @@ public class IndentationRule :
                 nextToAstNode =
                     startIndentContext(
                         fromAstNode = where.getPrecedingLeadingCommentsAndWhitespaces(),
-                        toAstNode = typeConstraintList.lastChildLeafOrSelf20,
+                        toAstNode = typeConstraintList.lastChildLeafOrSelf,
                         childIndent =
                             " ".repeat(
                                 maxOf(0, where.column - 1 - node.indentWithoutNewlinePrefix.length),
@@ -692,13 +692,13 @@ public class IndentationRule :
 
     private fun visitClass(node: ASTNode) {
         // Inner indent contexts in reversed order
-        var nextToAstNode: ASTNode = node.lastChildLeafOrSelf20
+        var nextToAstNode: ASTNode = node.lastChildLeafOrSelf
         node
             .findChildByType(WHERE_KEYWORD)
             ?.let { where ->
                 val typeConstraintList =
                     requireNotNull(
-                        where.nextCodeSibling20,
+                        where.nextCodeSibling,
                     ) { "Can not find code sibling after WHERE in CLASS" }
                 require(typeConstraintList.elementType == TYPE_CONSTRAINT_LIST) {
                     "Code sibling after WHERE in CLASS is not a TYPE_CONSTRAINT_LIST"
@@ -706,7 +706,7 @@ public class IndentationRule :
                 nextToAstNode =
                     startIndentContext(
                         fromAstNode = where.getPrecedingLeadingCommentsAndWhitespaces(),
-                        toAstNode = typeConstraintList.lastChildLeafOrSelf20,
+                        toAstNode = typeConstraintList.lastChildLeafOrSelf,
                     ).prevCodeLeaf()
             }
 
@@ -726,7 +726,7 @@ public class IndentationRule :
                     nextToAstNode =
                         startIndentContext(
                             fromAstNode = superTypeList.getPrecedingLeadingCommentsAndWhitespaces(),
-                            toAstNode = superTypeList.lastChildLeafOrSelf20,
+                            toAstNode = superTypeList.lastChildLeafOrSelf,
                         ).prevCodeLeaf()
                 }
         }
@@ -741,14 +741,14 @@ public class IndentationRule :
 
     private fun visitObjectDeclaration(node: ASTNode) {
         // Inner indent contexts in reversed order
-        var nextToAstNode: ASTNode = node.lastChildLeafOrSelf20
+        var nextToAstNode: ASTNode = node.lastChildLeafOrSelf
         node
             .findChildByType(SUPER_TYPE_LIST)
             ?.let { superTypeList ->
                 nextToAstNode =
                     startIndentContext(
                         fromAstNode = superTypeList.getPrecedingLeadingCommentsAndWhitespaces(),
-                        toAstNode = superTypeList.lastChildLeafOrSelf20,
+                        toAstNode = superTypeList.lastChildLeafOrSelf,
                     ).prevCodeLeaf()
             }
 
@@ -769,7 +769,7 @@ public class IndentationRule :
             // Create new indent context for the remainder (operator and right-hand side) of the binary expression
             startIndentContext(
                 fromAstNode = node.findChildByType(OPERATION_REFERENCE)!!,
-                toAstNode = node.lastChildLeafOrSelf20,
+                toAstNode = node.lastChildLeafOrSelf,
                 nodeIndent = conditionIndentContext.nodeIndent,
                 childIndent = conditionIndentContext.childIndent,
             )
@@ -784,12 +784,12 @@ public class IndentationRule :
     private fun visitIdentifierInProperty(node: ASTNode) {
         startIndentContext(
             fromAstNode = node,
-            toAstNode = node.parent!!.lastChildLeafOrSelf20,
+            toAstNode = node.parent!!.lastChildLeafOrSelf,
         )
     }
 
     private fun visitWhen(node: ASTNode) {
-        var nextToASTNode = node.lastChildLeafOrSelf20
+        var nextToASTNode = node.lastChildLeafOrSelf
         node
             .findChildByType(LPAR)
             ?.let { lpar ->
@@ -811,10 +811,10 @@ public class IndentationRule :
             .findChildByType(ARROW)
             ?.let { arrow ->
                 arrow
-                    .prevSibling { !it.isPartOfComment20 }
+                    .prevSibling { !it.isPartOfComment }
                     .let { prevSibling ->
-                        if (indentWhenArrowOnNewLine && prevSibling != null && prevSibling.isWhiteSpaceWithNewline20) {
-                            if (arrow.nextCodeSibling20?.elementType == BLOCK && codeStyle != ktlint_official) {
+                        if (indentWhenArrowOnNewLine && prevSibling != null && prevSibling.isWhiteSpaceWithNewline) {
+                            if (arrow.nextCodeSibling?.elementType == BLOCK && codeStyle != ktlint_official) {
                                 // Uglify the indentation to below to keep compatible with default formatting Intellij IDEA
                                 //     val foo =
                                 //        when (bar()) {
@@ -825,7 +825,7 @@ public class IndentationRule :
                                 //        }
                                 startIndentContext(
                                     fromAstNode = prevSibling,
-                                    toAstNode = node.lastChildLeafOrSelf20,
+                                    toAstNode = node.lastChildLeafOrSelf,
                                     firstChildIndent = indentConfig.indent,
                                     childIndent = "",
                                 )
@@ -841,7 +841,7 @@ public class IndentationRule :
                                 //        }
                                 startIndentContext(
                                     fromAstNode = arrow.nextLeaf!!,
-                                    toAstNode = node.lastChildLeafOrSelf20,
+                                    toAstNode = node.lastChildLeafOrSelf,
                                 )
                                 startIndentContext(
                                     fromAstNode = node,
@@ -852,7 +852,7 @@ public class IndentationRule :
                         } else {
                             startIndentContext(
                                 fromAstNode = arrow.nextLeaf!!,
-                                toAstNode = node.lastChildLeafOrSelf20,
+                                toAstNode = node.lastChildLeafOrSelf,
                             )
                             startIndentContext(
                                 fromAstNode = node,
@@ -867,7 +867,7 @@ public class IndentationRule :
     private fun visitWhereKeywordBeforeTypeConstraintList(node: ASTNode) {
         node
             .prevLeaf
-            .takeUnless { it.isWhiteSpaceWithNewline20 }
+            .takeUnless { it.isWhiteSpaceWithNewline }
             ?.takeIf { !indentContextStack.peekLast().activated }
             ?.let {
                 val lastIndentContext = indentContextStack.removeLast()
@@ -878,7 +878,7 @@ public class IndentationRule :
 
         startIndentContext(
             fromAstNode = node,
-            toAstNode = node.nextCodeSibling20?.lastChildLeafOrSelf20!!,
+            toAstNode = node.nextCodeSibling?.lastChildLeafOrSelf!!,
             childIndent = TYPE_CONSTRAINT_CONTINUATION_INDENT,
         )
     }
@@ -890,21 +890,21 @@ public class IndentationRule :
             ?.let { fromAstNode ->
                 startIndentContext(
                     fromAstNode = fromAstNode,
-                    toAstNode = node.lastChildLeafOrSelf20,
+                    toAstNode = node.lastChildLeafOrSelf,
                     childIndent = KDOC_CONTINUATION_INDENT,
                 )
             }
     }
 
     private fun visitPropertyAccessor(node: ASTNode) {
-        var nextToASTNode = node.lastChildLeafOrSelf20
+        var nextToASTNode = node.lastChildLeafOrSelf
         node
             .findChildByType(EQ)
             ?.let { fromAstNode ->
                 nextToASTNode =
                     startIndentContext(
                         fromAstNode = fromAstNode,
-                        toAstNode = node.lastChildLeafOrSelf20,
+                        toAstNode = node.lastChildLeafOrSelf,
                     ).prevCodeLeaf()
             }
         // No indent on preceding annotations and comments
@@ -923,7 +923,7 @@ public class IndentationRule :
             ?.let { rpar ->
                 startIndentContext(
                     fromAstNode = rpar,
-                    toAstNode = node.lastChildLeafOrSelf20,
+                    toAstNode = node.lastChildLeafOrSelf,
                 )
             }
         node
@@ -953,7 +953,7 @@ public class IndentationRule :
 
     private fun visitNullableType(node: ASTNode) {
         // Inner indent contexts in reversed order
-        var nextToAstNode = node.lastChildLeafOrSelf20
+        var nextToAstNode = node.lastChildLeafOrSelf
         node
             .findChildByType(RPAR)
             ?.let { fromAstNode ->
@@ -972,7 +972,7 @@ public class IndentationRule :
 
     private fun visitDestructuringDeclaration(node: ASTNode) {
         // Inner indent contexts in reversed order
-        var nextToAstNode = node.lastChildLeafOrSelf20
+        var nextToAstNode = node.lastChildLeafOrSelf
         node
             .findChildByType(EQ)
             ?.let { eq ->
@@ -996,7 +996,7 @@ public class IndentationRule :
 
     private fun visitTryCatchFinally(node: ASTNode) {
         // Inner indent contexts in reversed order
-        var nextToAstNode = node.lastChildLeafOrSelf20
+        var nextToAstNode = node.lastChildLeafOrSelf
         node
             .findChildByType(FINALLY)
             ?.let { finally ->
@@ -1031,18 +1031,18 @@ public class IndentationRule :
         return findChildByType(MODIFIER_LIST)
             ?.let { modifierList ->
                 modifierList
-                    .children20
+                    .children
                     .firstOrNull { it.isCode && it.elementType != ANNOTATION_ENTRY }
-                    ?: modifierList.nextCodeSibling20
+                    ?: modifierList.nextCodeSibling
             }
-            ?: children20.firstOrNull { it.isCode }
+            ?: children.firstOrNull { it.isCode }
             ?: this
     }
 
     private fun ASTNode.getPrecedingLeadingCommentsAndWhitespaces(): ASTNode {
         var fromAstNode: ASTNode? = this
         while (fromAstNode?.prevLeaf != null &&
-            (fromAstNode.prevLeaf.isWhiteSpace20 || fromAstNode.prevLeaf?.isPartOfComment20 == true)
+            (fromAstNode.prevLeaf.isWhiteSpace || fromAstNode.prevLeaf?.isPartOfComment == true)
         ) {
             fromAstNode = fromAstNode.prevLeaf
         }
@@ -1063,7 +1063,7 @@ public class IndentationRule :
 
     private fun startIndentContext(
         fromAstNode: ASTNode,
-        toAstNode: ASTNode = fromAstNode.lastChildLeafOrSelf20,
+        toAstNode: ASTNode = fromAstNode.lastChildLeafOrSelf,
         nodeIndent: String = currentIndent(),
         childIndent: String = indentConfig.indent,
         firstChildIndent: String = childIndent,
@@ -1201,8 +1201,8 @@ public class IndentationRule :
         val nextLeaf = nextLeaf
         val adjustedChildIndent =
             when {
-                this == lastIndexContext.fromASTNode.firstChildLeafOrSelf20 ||
-                    nextLeaf == lastIndexContext.fromASTNode.firstChildLeafOrSelf20 -> {
+                this == lastIndexContext.fromASTNode.firstChildLeafOrSelf ||
+                    nextLeaf == lastIndexContext.fromASTNode.firstChildLeafOrSelf -> {
                     lastIndexContext.firstChildIndent
                 }
 
@@ -1274,7 +1274,7 @@ public class IndentationRule :
             firstChildNode?.elementType == ELVIS
 
     private fun ASTNode.acceptableTrailingSpaces(): String {
-        require(isWhiteSpace20)
+        require(isWhiteSpace)
         val acceptableTrailingSpaces =
             when (nextLeaf?.elementType) {
                 KDOC_LEADING_ASTERISK, KDOC_END -> {
@@ -1312,7 +1312,7 @@ public class IndentationRule :
             activated = true,
         )
 
-    private fun ASTNode.isPrecededByComment() = prevSibling { !it.isWhiteSpace20 }?.isPartOfComment20 == true
+    private fun ASTNode.isPrecededByComment() = prevSibling { !it.isWhiteSpace }?.isPartOfComment == true
 
     public companion object {
         private const val KDOC_CONTINUATION_INDENT = " "
@@ -1344,7 +1344,7 @@ public class IndentationRule :
          * The node at which the indent context ends. If null, then the context ends at the last child leaf of the node
          * on which the indent context starts.
          */
-        val toASTNode: ASTNode = fromASTNode.lastChildLeafOrSelf20,
+        val toASTNode: ASTNode = fromASTNode.lastChildLeafOrSelf,
         /**
          * Cumulative indentation for the node. Normally this should be equal to a multiple of the
          * 'indentConfig.indentStyle' to ensure a consistent indentation style.
@@ -1469,7 +1469,7 @@ private class StringTemplateIndenter(
                         expectedIndent
                     }
                 node
-                    .children20
+                    .children
                     .filter { it.isIndentBeforeClosingQuote() }
                     .forEach {
                         if (it.prevLeaf?.text == "\n") {
@@ -1495,7 +1495,7 @@ private class StringTemplateIndenter(
     }
 
     private fun ASTNode.isRawStringLiteralFunctionBodyExpression() =
-        (!prevLeaf.isWhiteSpace20 || prevLeaf?.text == " ") &&
+        (!prevLeaf.isWhiteSpace || prevLeaf?.text == " ") &&
             FUN ==
             prevCodeLeaf
                 .takeIf { it?.elementType == EQ }
@@ -1515,7 +1515,7 @@ private class StringTemplateIndenter(
             .let { it?.elementType == CALL_EXPRESSION && it.text == callExpressionName }
 
     private fun ASTNode.isMultiLine(): Boolean =
-        children20
+        children
             .filter { it.elementType == LITERAL_STRING_TEMPLATE_ENTRY }
             .any { it.text == "\n" }
 
@@ -1540,7 +1540,7 @@ private class StringTemplateIndenter(
     }
 
     private fun ASTNode.isIndentBeforeClosingQuote() =
-        elementType == CLOSING_QUOTE || (text.isBlank() && nextCodeSibling20?.elementType == CLOSING_QUOTE)
+        elementType == CLOSING_QUOTE || (text.isBlank() && nextCodeSibling?.elementType == CLOSING_QUOTE)
 
     private fun String.indentLength() = indexOfFirst { !it.isWhitespace() }.let { if (it == -1) length else it }
 

@@ -5,13 +5,13 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.THEN
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.endOffset20
+import com.pinterest.ktlint.rule.engine.core.api.endOffset
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -35,18 +35,18 @@ public class ThenSpacingRule : StandardRule(id = "then-spacing") {
         emit: (Int, String, Boolean) -> AutocorrectDecision,
     ) {
         node
-            .takeUnless { it.prevSibling20.isWhiteSpace20 }
+            .takeUnless { it.prevSibling.isWhiteSpace }
             ?.let {
                 emit(node.startOffset, "Expected a whitespace before 'then' block", true)
                     .ifAutocorrectAllowed { node.prevLeaf?.upsertWhitespaceAfterMe(" ") }
             }
         node
-            .takeUnless { it.nextSibling20 == null || it.nextSibling20.isWhiteSpace20 }
+            .takeUnless { it.nextSibling == null || it.nextSibling.isWhiteSpace }
             ?.let {
                 node
-                    .lastChildLeafOrSelf20
+                    .lastChildLeafOrSelf
                     .let { lastLeafInThen ->
-                        emit(lastLeafInThen.endOffset20, "Expected a whitespace after 'then' block", true)
+                        emit(lastLeafInThen.endOffset, "Expected a whitespace after 'then' block", true)
                             .ifAutocorrectAllowed { lastLeafInThen.upsertWhitespaceAfterMe(" ") }
                     }
             }

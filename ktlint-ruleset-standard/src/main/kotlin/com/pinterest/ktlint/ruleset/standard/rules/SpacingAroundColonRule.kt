@@ -18,15 +18,15 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isCode
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
@@ -54,7 +54,7 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
     ) {
         node
             .prevLeaf
-            ?.takeIf { it.isWhiteSpaceWithNewline20 }
+            ?.takeIf { it.isWhiteSpaceWithNewline }
             ?.let { prevLeaf ->
                 emit(prevLeaf.startOffset, "Unexpected newline before \":\"", true)
                     .ifAutocorrectAllowed {
@@ -70,12 +70,12 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                                 node
                                     .siblings(forward = true)
                                     .firstOrNull { it.elementType == EQ }
-                                    ?.nextSibling20
+                                    ?.nextSibling
                                     ?.let { nextSibling ->
                                         prevNonCodeElements.forEach {
                                             node.parent?.addChild(it, nextSibling)
                                         }
-                                        if (nextSibling.isWhiteSpace20) {
+                                        if (nextSibling.isWhiteSpace) {
                                             nextSibling.remove()
                                         }
                                         Unit
@@ -88,14 +88,14 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                                     val before =
                                         blockElement
                                             .firstChildNode
-                                            .nextSibling20
+                                            .nextSibling
                                     prevNonCodeElements
                                         .let {
-                                            if (it.first().isWhiteSpace20) {
+                                            if (it.first().isWhiteSpace) {
                                                 it.first().remove()
                                                 it.drop(1)
                                             }
-                                            if (it.last().isWhiteSpaceWithNewline20) {
+                                            if (it.last().isWhiteSpaceWithNewline) {
                                                 it.last().remove()
                                                 it.dropLast(1)
                                             } else {
@@ -107,12 +107,12 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                                 }
                             }
 
-                            prevLeaf.prevLeaf?.isPartOfComment20 == true -> {
+                            prevLeaf.prevLeaf?.isPartOfComment == true -> {
                                 val nextLeaf = node.nextLeaf
                                 prevNonCodeElements.forEach {
                                     node.parent?.addChild(it, nextLeaf)
                                 }
-                                if (nextLeaf != null && nextLeaf.isWhiteSpace20) {
+                                if (nextLeaf != null && nextLeaf.isWhiteSpace) {
                                     nextLeaf.remove()
                                 }
                             }
@@ -135,19 +135,19 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.prevSibling20.isWhiteSpaceWithoutNewline20 && node.noSpacingBefore) {
+        if (node.prevSibling.isWhiteSpaceWithoutNewline && node.noSpacingBefore) {
             emit(node.startOffset, "Unexpected spacing before \":\"", true)
                 .ifAutocorrectAllowed {
                     node
-                        .prevSibling20
+                        .prevSibling
                         ?.remove()
                 }
         }
-        if (node.nextSibling20.isWhiteSpaceWithoutNewline20 && node.spacingAfter) {
+        if (node.nextSibling.isWhiteSpaceWithoutNewline && node.spacingAfter) {
             emit(node.startOffset, "Unexpected spacing after \":\"", true)
                 .ifAutocorrectAllowed {
                     node
-                        .nextSibling20
+                        .nextSibling
                         ?.remove()
                 }
         }
@@ -157,8 +157,8 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val missingSpacingBefore = !node.prevSibling20.isWhiteSpace20 && node.spacingBefore
-        val missingSpacingAfter = !node.nextSibling20.isWhiteSpace20 && node.noSpacingAfter
+        val missingSpacingBefore = !node.prevSibling.isWhiteSpace && node.spacingBefore
+        val missingSpacingAfter = !node.nextSibling.isWhiteSpace && node.noSpacingAfter
         when {
             missingSpacingBefore && missingSpacingAfter -> {
                 emit(node.startOffset, "Missing spacing around \":\"", true)

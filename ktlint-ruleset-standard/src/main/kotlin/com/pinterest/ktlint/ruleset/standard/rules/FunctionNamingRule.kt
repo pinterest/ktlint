@@ -19,11 +19,11 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children20
+import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CommaSeparatedListValueParser
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.internal.regExIgnoringDiacriticsAndStrokesOnLetters
 import org.ec4j.core.model.PropertyType
@@ -129,7 +129,7 @@ public class FunctionNamingRule :
     private fun ASTNode.isAnonymousFunction() =
         VALUE_PARAMETER_LIST ==
             findChildByType(FUN_KEYWORD)
-                ?.nextCodeSibling20
+                ?.nextCodeSibling
                 ?.elementType
 
     /*
@@ -139,7 +139,7 @@ public class FunctionNamingRule :
      */
     private fun ASTNode.isOverrideFunction() =
         findChildByType(MODIFIER_LIST)
-            ?.children20
+            ?.children
             .orEmpty()
             .any { it.elementType == OVERRIDE_KEYWORD }
 
@@ -148,7 +148,7 @@ public class FunctionNamingRule :
 
     private fun ASTNode?.containsAnnotationEntryWithIdentifierIn(excludeWhenAnnotatedWith: Set<String>): Boolean =
         this
-            ?.children20
+            ?.children
             ?.any {
                 when (it.elementType) {
                     ANNOTATION -> {

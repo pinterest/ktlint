@@ -27,7 +27,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children20
+import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
@@ -39,21 +39,20 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PR
 import com.pinterest.ktlint.rule.engine.core.api.hasModifier
 import com.pinterest.ktlint.rule.engine.core.api.hasNoMaxLineLengthSuppression
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent20
+import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
 import com.pinterest.ktlint.rule.engine.core.api.isCode
-import com.pinterest.ktlint.rule.engine.core.api.isLeaf20
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isLeaf
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewlineOrNull
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevSibling
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceAfterMe
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -128,7 +127,7 @@ public class ClassSignatureRule :
 
     private fun ASTNode.superTypes() =
         findChildByType(SUPER_TYPE_LIST)
-            ?.children20
+            ?.children
             ?.filter { it.isCode && it.elementType != COMMA }
 
     private fun ASTNode.hasMultilineSuperTypeList() = findChildByType(SUPER_TYPE_LIST)?.textContains('\n') == true
@@ -136,7 +135,7 @@ public class ClassSignatureRule :
     private fun ASTNode.getFirstChildInSignature(): ASTNode? {
         findChildByType(MODIFIER_LIST)
             ?.let { modifierList ->
-                val iterator = modifierList.children20.iterator()
+                val iterator = modifierList.children.iterator()
                 var currentNode: ASTNode
                 while (iterator.hasNext()) {
                     currentNode = iterator.next()
@@ -148,7 +147,7 @@ public class ClassSignatureRule :
                         return currentNode
                     }
                 }
-                return modifierList.nextCodeSibling20
+                return modifierList.nextCodeSibling
             }
         return nextCodeLeaf
     }
@@ -177,7 +176,7 @@ public class ClassSignatureRule :
 
     private fun ASTNode.containsEolComment() =
         getPrimaryConstructorParameterListOrNull()
-            ?.children20
+            ?.children
             ?.any { it.elementType == EOL_COMMENT }
             ?: false
 
@@ -198,7 +197,7 @@ public class ClassSignatureRule :
 
     private fun ASTNode.classSignatureExcludingSuperTypesIsMultiline() =
         classSignatureNodes(excludeSuperTypes = true)
-            .any { it.isWhiteSpaceWithNewline20 }
+            .any { it.isWhiteSpaceWithNewline }
 
     private fun ASTNode.getClassSignatureLength(excludeSuperTypes: Boolean) =
         indentWithoutNewlinePrefix.length + getClassSignatureNodesLength(excludeSuperTypes)
@@ -210,21 +209,21 @@ public class ClassSignatureRule :
 
     private fun ASTNode.containsMultilineParameter(): Boolean =
         getPrimaryConstructorParameterListOrNull()
-            ?.children20
+            ?.children
             .orEmpty()
             .filter { it.elementType == VALUE_PARAMETER }
             .any { it.textContains('\n') }
 
     private fun ASTNode.containsAnnotatedParameter(): Boolean =
         getPrimaryConstructorParameterListOrNull()
-            ?.children20
+            ?.children
             .orEmpty()
             .filter { it.elementType == VALUE_PARAMETER }
             .any { it.isAnnotated() }
 
     private fun ASTNode.isAnnotated() =
         findChildByType(MODIFIER_LIST)
-            ?.children20
+            ?.children
             .orEmpty()
             .any { it.elementType == ANNOTATION_ENTRY }
 
@@ -239,7 +238,7 @@ public class ClassSignatureRule :
         val primaryConstructorParameterList = node.getPrimaryConstructorParameterListOrNull()
         val hasNoValueParameters =
             primaryConstructorParameterList
-                ?.children20
+                ?.children
                 .orEmpty()
                 .none { it.elementType == VALUE_PARAMETER }
 
@@ -271,7 +270,7 @@ public class ClassSignatureRule :
             ?.takeUnless {
                 // Allow:
                 //     class Foo constructor() { ... }
-                it.prevCodeSibling20?.elementType == CONSTRUCTOR_KEYWORD
+                it.prevCodeSibling?.elementType == CONSTRUCTOR_KEYWORD
             }?.takeUnless {
                 // Allow
                 //     class Foo() {
@@ -297,7 +296,7 @@ public class ClassSignatureRule :
         return whiteSpaceCorrection
     }
 
-    private fun ASTNode.containsComment() = children20.any { it.isPartOfComment20 }
+    private fun ASTNode.containsComment() = children.any { it.isPartOfComment }
 
     private fun fixWhiteSpacesBeforeFirstParameterInValueParameterList(
         node: ASTNode,
@@ -310,14 +309,14 @@ public class ClassSignatureRule :
         val valueParameterList = node.getPrimaryConstructorParameterListOrNull()
         val firstParameterInList =
             valueParameterList
-                ?.children20
+                ?.children
                 ?.first { it.elementType == VALUE_PARAMETER }
                 ?: return 0
 
         val firstParameter = firstParameterInList.firstChildNode
         firstParameter
             ?.prevLeaf
-            ?.takeIf { it.isWhiteSpace20 }
+            ?.takeIf { it.isWhiteSpace }
             .let { whiteSpaceBeforeIdentifier ->
                 if (multiline) {
                     if (whiteSpaceBeforeIdentifier.isWhiteSpaceWithoutNewlineOrNull) {
@@ -361,19 +360,19 @@ public class ClassSignatureRule :
         val valueParameterList = node.getPrimaryConstructorParameterListOrNull()
         val firstParameterInList =
             valueParameterList
-                ?.children20
+                ?.children
                 ?.first { it.elementType == VALUE_PARAMETER }
                 ?: return 0
 
         valueParameterList
-            .children20
+            .children
             .filter { it.elementType == VALUE_PARAMETER }
             .filter { it != firstParameterInList }
             .forEach { valueParameter ->
                 val firstChildNodeInValueParameter = valueParameter.firstChildNode
                 firstChildNodeInValueParameter
                     ?.prevLeaf
-                    ?.takeIf { it.isWhiteSpace20 }
+                    ?.takeIf { it.isWhiteSpace }
                     .let { whiteSpaceBeforeIdentifier ->
                         if (multiline) {
                             if (whiteSpaceBeforeIdentifier.isWhiteSpaceWithoutNewlineOrNull) {
@@ -419,13 +418,13 @@ public class ClassSignatureRule :
                 .getPrimaryConstructorParameterListOrNull()
                 ?.findChildByType(RPAR)
         closingParenthesisPrimaryConstructor
-            ?.prevSibling20
-            ?.takeIf { it.isWhiteSpace20 }
+            ?.prevSibling
+            ?.takeIf { it.isWhiteSpace }
             .let { whiteSpaceBeforeClosingParenthesis ->
                 if (multiline) {
                     if (whiteSpaceBeforeClosingParenthesis.isWhiteSpaceWithoutNewlineOrNull) {
                         // Let IndentationRule determine the exact indent
-                        val expectedParameterIndent = node.indent20
+                        val expectedParameterIndent = node.indent
                         if (!dryRun) {
                             emit(closingParenthesisPrimaryConstructor!!.startOffset, "Newline expected before closing parenthesis", true)
                                 .ifAutocorrectAllowed {
@@ -475,8 +474,8 @@ public class ClassSignatureRule :
 
                             // Remove the whitespace before the super type call and do not insert a new whitespace as it will be fixed later
                             superTypeCallEntry
-                                .prevSibling20
-                                ?.takeIf { it.isWhiteSpace20 }
+                                .prevSibling
+                                ?.takeIf { it.isWhiteSpace }
                                 ?.remove()
 
                             superTypeList.addChild(superTypeCallEntry, superTypes.first())
@@ -499,8 +498,8 @@ public class ClassSignatureRule :
                     .let { firstSuperType ->
                         firstSuperType
                             .prevLeaf
-                            .takeIf { it.isWhiteSpaceWithNewline20 }
-                            ?.takeUnless { it.prevSibling20?.elementType == EOL_COMMENT }
+                            .takeIf { it.isWhiteSpaceWithNewline }
+                            ?.takeUnless { it.prevSibling?.elementType == EOL_COMMENT }
                             ?.let { whiteSpaceBeforeSuperType ->
                                 val expectedWhitespace = " "
                                 if (whiteSpaceBeforeSuperType.text != expectedWhitespace) {
@@ -518,7 +517,7 @@ public class ClassSignatureRule :
                     ?.let { superTypeFirstChildNode ->
                         superTypeFirstChildNode
                             .prevLeaf
-                            ?.takeIf { it.isWhiteSpace20 }
+                            ?.takeIf { it.isWhiteSpace }
                             .let { whiteSpaceBeforeIdentifier ->
                                 if (node.hasMultilineSuperTypeList() ||
                                     classSignaturesIncludingFirstSuperTypeExceedsMaxLineLength(node, emit)
@@ -550,7 +549,7 @@ public class ClassSignatureRule :
                     val firstChildNodeInSuperType = superType.firstChildNode
                     firstChildNodeInSuperType
                         ?.prevLeaf
-                        ?.takeIf { it.isWhiteSpace20 }
+                        ?.takeIf { it.isWhiteSpace }
                         .let { whiteSpaceBeforeIdentifier ->
                             if (index == 0 && node.hasMultilinePrimaryConstructor()) {
                                 val expectedWhitespace = " "
@@ -610,8 +609,8 @@ public class ClassSignatureRule :
         findChildByType(PRIMARY_CONSTRUCTOR)
             ?.findChildByType(VALUE_PARAMETER_LIST)
             ?.findChildByType(RPAR)
-            ?.prevLeaf { !it.isPartOfComment20 }
-            .isWhiteSpaceWithNewline20
+            ?.prevLeaf { !it.isPartOfComment }
+            .isWhiteSpaceWithNewline
 
     private fun fixClassBody(
         node: ASTNode,
@@ -636,10 +635,10 @@ public class ClassSignatureRule :
     private fun List<ASTNode>.collectLeavesRecursively(): List<ASTNode> = flatMap { it.collectLeavesRecursively() }
 
     private fun ASTNode.collectLeavesRecursively(): List<ASTNode> =
-        if (isLeaf20) {
+        if (isLeaf) {
             listOf(this)
         } else {
-            children20
+            children
                 .flatMap { it.collectLeavesRecursively() }
                 .toList()
         }
@@ -677,7 +676,7 @@ public class ClassSignatureRule :
 
     private fun ASTNode.countParameters() =
         getPrimaryConstructorParameterListOrNull()
-            ?.children20
+            ?.children
             .orEmpty()
             .count { it.elementType == VALUE_PARAMETER }
 

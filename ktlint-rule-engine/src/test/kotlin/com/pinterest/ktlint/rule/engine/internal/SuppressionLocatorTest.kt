@@ -70,7 +70,7 @@ class SuppressionLocatorTest {
     fun `Given that a NoFooIdentifierRule violation is suppressed with @Suppress at statement level for a specific rule then do not find a violation for that rule`() {
         val code =
             """
-            @Suppress("ktlint:no-foo-identifier-standard", "ktlint:$NON_STANDARD_RULE_SET_ID:no-foo-identifier")
+            @Suppress("ktlint:standard:no-foo-identifier-standard", "ktlint:$NON_STANDARD_RULE_SET_ID:no-foo-identifier")
             val fooNotReported = "foo"
 
             val fooReported = "foo"
@@ -85,7 +85,7 @@ class SuppressionLocatorTest {
     fun `Given that a NoFooIdentifierRule violation is suppressed with @Suppress at function level then do not find a violation for that rule in that function`() {
         val code =
             """
-            @Suppress("ktlint:no-foo-identifier-standard", "ktlint:$NON_STANDARD_RULE_SET_ID:no-foo-identifier")
+            @Suppress("ktlint:standard:no-foo-identifier-standard", "ktlint:$NON_STANDARD_RULE_SET_ID:no-foo-identifier")
             fun foo() {
                 val fooNotReported = "foo"
             }
@@ -119,7 +119,7 @@ class SuppressionLocatorTest {
     fun `Given that a NoFooIdentifierRule violation is suppressed with @Suppress at class level then do not find a violation for that rule in that class`() {
         val code =
             """
-            @Suppress("ktlint:no-foo-identifier-standard", "ktlint:$NON_STANDARD_RULE_SET_ID:no-foo-identifier")
+            @Suppress("ktlint:standard:no-foo-identifier-standard", "ktlint:$NON_STANDARD_RULE_SET_ID:no-foo-identifier")
             class Foo {
                 fun foo() {
                     val fooNotReported = "foo"
@@ -151,7 +151,7 @@ class SuppressionLocatorTest {
     fun `Given that the NoFooIdentifierRule is suppressed in the entire file with @file-colon-Suppress then do not find any NoFooIdentifierRule violation`() {
         val code =
             """
-            @file:Suppress("ktlint:no-foo-identifier-standard", "ktlint:$NON_STANDARD_RULE_SET_ID:no-foo-identifier")
+            @file:Suppress("ktlint:standard:no-foo-identifier-standard", "ktlint:$NON_STANDARD_RULE_SET_ID:no-foo-identifier")
 
             class Foo {
                 fun foo() {
@@ -341,7 +341,15 @@ class SuppressionLocatorTest {
             val actual = lint(code = code, ignoreKtlintSuppressionRule = false)
             @Suppress("ktlint:standard:max-line-length")
             assertThat(actual)
-                .containsExactly(LintError(1, 17, KTLINT_SUPPRESSION_RULE_ID, "Ktlint rule with id 'ktlint:internal:ktlint-suppression' is unknown or not loaded", false))
+                .containsExactly(
+                    LintError(
+                        1,
+                        17,
+                        KTLINT_SUPPRESSION_RULE_ID,
+                        "Ktlint rule with id 'ktlint:internal:ktlint-suppression' is unknown or not loaded",
+                        false,
+                    ),
+                )
         }
 
         @Test
@@ -353,8 +361,20 @@ class SuppressionLocatorTest {
             val actual = lint(code = code, ignoreKtlintSuppressionRule = false)
             @Suppress("ktlint:standard:max-line-length")
             assertThat(actual).containsExactly(
-                LintError(1, 4, KTLINT_SUPPRESSION_RULE_ID, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation", true),
-                LintError(1, 19, KTLINT_SUPPRESSION_RULE_ID, "Ktlint rule with id 'internal:ktlint-suppression' is unknown or not loaded", false),
+                LintError(
+                    1,
+                    4,
+                    KTLINT_SUPPRESSION_RULE_ID,
+                    "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation",
+                    true,
+                ),
+                LintError(
+                    1,
+                    19,
+                    KTLINT_SUPPRESSION_RULE_ID,
+                    "Ktlint rule with id 'internal:ktlint-suppression' is unknown or not loaded",
+                    false,
+                ),
             )
         }
 
@@ -370,8 +390,20 @@ class SuppressionLocatorTest {
                 .containsExactly(
                     lintError(1, 5, "standard:no-foo-identifier-standard"),
                     lintError(1, 5, "$NON_STANDARD_RULE_SET_ID:no-foo-identifier"),
-                    LintError(1, 20, KTLINT_SUPPRESSION_RULE_ID, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation", true),
-                    LintError(1, 35, KTLINT_SUPPRESSION_RULE_ID, "Ktlint rule with id 'internal:ktlint-suppression' is unknown or not loaded", false),
+                    LintError(
+                        1,
+                        20,
+                        KTLINT_SUPPRESSION_RULE_ID,
+                        "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation",
+                        true,
+                    ),
+                    LintError(
+                        1,
+                        35,
+                        KTLINT_SUPPRESSION_RULE_ID,
+                        "Ktlint rule with id 'internal:ktlint-suppression' is unknown or not loaded",
+                        false,
+                    ),
                 )
         }
     }

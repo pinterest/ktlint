@@ -20,14 +20,6 @@ public class RuleId(
     public companion object {
         private const val DELIMITER = ":"
 
-        // TODO: Remove in 1.0 version when backward compatibility of rule id references can be dropped.
-        public fun prefixWithStandardRuleSetIdWhenMissing(id: String): String =
-            if (id.contains(DELIMITER)) {
-                id
-            } else {
-                "${RuleSetId.STANDARD.value}$DELIMITER$id"
-            }
-
         public fun isValid(value: String): Boolean = IdNamingPolicy.isValidRuleId(value)
     }
 }
@@ -232,7 +224,7 @@ public open class RuleV2(
 }
 
 @Deprecated(
-    message = "Only use for backward compatibility of custom ruleset JARs with Ktlint 2.x",
+    message = "Provides backwards compatibility of custom ruleset JARs created for Ktlint 1.x. Use RuleV2 when possible.",
     replaceWith = ReplaceWith("RuleV2"),
 )
 public open class Rule(
@@ -363,7 +355,7 @@ public open class Rule(
      */
     @Poko
     @Deprecated(
-        message = "Only use for backward compatibility of custom ruleset JARs with Ktlint 2.x",
+        message = "Provides backwards compatibility of custom ruleset JARs created for Ktlint 1.x. Use RuleV2.about when possible.",
         replaceWith = ReplaceWith("RuleV2.About"),
     )
     public class About(
@@ -383,8 +375,8 @@ public open class Rule(
 
     @Deprecated(
         message =
-            "Only used for backward compatibility of custom ruleset JARs with Ktlint 2.x. VisitorModifier is not used in Ktlint 2.x as " +
-                "due to the way that rules are executed, modifying the order in which rules are visited is not needed anymore.",
+            "Provides backwards compatibility of custom ruleset JARs created for Ktlint 1.x. VisitorModifiers are ignored by Ktlint 2.x " +
+                "as due to the way that rules are executed, modifying the order in which rules are visited is not needed anymore.",
     )
     public sealed class VisitorModifier {
         /**
@@ -394,8 +386,9 @@ public open class Rule(
         @Poko
         @Deprecated(
             message =
-                "Only used for backward compatibility of custom ruleset JARs with Ktlint 2.x. VisitorModifier is not used in Ktlint 2.x " +
-                    "as due to the way that rules are executed, modifying the order in which rules are visited is not needed anymore.",
+                "Provides backwards compatibility of custom ruleset JARs created for Ktlint 1.x. The RunAfterRule VisitorModifier is " +
+                    "ignored by Ktlint 2.x as due to the way that rules are executed, modifying the order in which rules are visited is " +
+                    "not needed anymore.",
         )
         public class RunAfterRule(
             /**
@@ -427,8 +420,9 @@ public open class Rule(
 
         @Deprecated(
             message =
-                "Only used for backward compatibility of custom ruleset JARs with Ktlint 2.x. VisitorModifier is not used in Ktlint 2.x " +
-                    "as due to the way that rules are executed, modifying the order in which rules are visited is not needed anymore.",
+                "Provides backwards compatibility of custom ruleset JARs created for Ktlint 1.x. The RunAsLateAsPossible VisitorModifier " +
+                    "is ignored by Ktlint 2.x as due to the way that rules are executed, modifying the order in which rules are visited " +
+                    "is not needed anymore.",
         )
         public object RunAsLateAsPossible : VisitorModifier()
     }
@@ -438,6 +432,9 @@ public open class Rule(
      * '.editorconfig' allows this rule specifically or all experimental rules. This interface is used by Ktlint internally but is also
      * explicitly meant to be used by custom rule providers.
      */
+    @Deprecated(
+        message = "Provides backwards compatibility of custom ruleset JARs created for Ktlint 1.x. Use RuleV2.Experimental when possible",
+    )
     public interface Experimental
 
     /**
@@ -445,6 +442,10 @@ public open class Rule(
      * '.editorconfig' contains property "code_style = ktlint_official" or when enabled explicitly. This interface is intended to be used
      * in Ktlint internally only. It may be subject to change at any time without providing any backward compatibility.
      */
+    @Deprecated(
+        message =
+            "Provides backwards compatibility of custom ruleset JARs created for Ktlint 1.x. Use RuleV2.OfficialCodeStyle when possible",
+    )
     public interface OfficialCodeStyle
 
     /**
@@ -452,5 +453,10 @@ public open class Rule(
      * deprecated, or when a rule is not applicable for general use.
      * This interface should not be used on a rule that is also marked with [Experimental], or [OfficialCodeStyle].
      */
+    @Deprecated(
+        message =
+            "Provides backwards compatibility of custom ruleset JARs created for Ktlint 1.x. Use RuleV2.OnlyWhenEnabledInEditorconfig " +
+                "when possible",
+    )
     public interface OnlyWhenEnabledInEditorconfig
 }

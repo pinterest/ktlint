@@ -27,8 +27,6 @@ public final class com/pinterest/ktlint/test/KtLintAssertThat {
 
 public final class com/pinterest/ktlint/test/KtLintAssertThat$Companion {
 	public final fun assertThatRule (Lkotlin/jvm/functions/Function0;)Lkotlin/jvm/functions/Function1;
-	public final fun assertThatRule (Lkotlin/jvm/functions/Function0;Ljava/util/Set;Ljava/util/Set;)Lkotlin/jvm/functions/Function1;
-	public static synthetic fun assertThatRule$default (Lcom/pinterest/ktlint/test/KtLintAssertThat$Companion;Lkotlin/jvm/functions/Function0;Ljava/util/Set;Ljava/util/Set;ILjava/lang/Object;)Lkotlin/jvm/functions/Function1;
 	public final fun assertThatRuleBuilder (Lkotlin/jvm/functions/Function0;)Lcom/pinterest/ktlint/test/KtLintAssertThat;
 }
 

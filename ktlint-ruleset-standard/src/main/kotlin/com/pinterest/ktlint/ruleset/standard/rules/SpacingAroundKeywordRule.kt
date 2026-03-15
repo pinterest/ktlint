@@ -22,8 +22,8 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -56,7 +56,7 @@ public class SpacingAroundKeywordRule : StandardRule("keyword-spacing") {
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.elementType in tokenSet && node.parent?.elementType != KDOC_NAME && !node.nextLeaf.isWhiteSpace20) {
+        if (node.elementType in tokenSet && node.parent?.elementType != KDOC_NAME && !node.nextLeaf.isWhiteSpace) {
             emit(node.startOffset + node.text.length, "Missing spacing after \"${node.text}\"", true)
                 .ifAutocorrectAllowed { node.upsertWhitespaceAfterMe(" ") }
         }
@@ -64,7 +64,7 @@ public class SpacingAroundKeywordRule : StandardRule("keyword-spacing") {
             .takeIf { keywordsWithoutSpaces.contains(it.elementType) }
             .takeIf { node.isPropertyAccessorWithValueParameterList() }
             ?.nextLeaf
-            ?.takeIf { it.isWhiteSpace20 }
+            ?.takeIf { it.isWhiteSpace }
             ?.also { nextLeaf ->
                 emit(node.startOffset, "Unexpected spacing after \"${node.text}\"", true)
                     .ifAutocorrectAllowed { nextLeaf.remove() }
@@ -72,7 +72,7 @@ public class SpacingAroundKeywordRule : StandardRule("keyword-spacing") {
         if (noLFBeforeSet.contains(node.elementType)) {
             val prevLeaf = node.prevLeaf
             val isElseKeyword = node.elementType == ELSE_KEYWORD
-            if (prevLeaf.isWhiteSpaceWithNewline20 &&
+            if (prevLeaf.isWhiteSpaceWithNewline &&
                 (!isElseKeyword || node.parent?.elementType != WHEN_ENTRY)
             ) {
                 val rBrace = prevLeaf?.prevLeaf?.takeIf { it.elementType == RBRACE }

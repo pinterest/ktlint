@@ -7,11 +7,11 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isCode
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -35,8 +35,8 @@ public class NoLineBreakBeforeAssignmentRule : StandardRule("no-line-break-befor
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         assignmentNode
-            .prevSibling20
-            .takeIf { it.isWhiteSpaceWithNewline20 }
+            .prevSibling
+            .takeIf { it.isWhiteSpaceWithNewline }
             ?.let { unexpectedNewlineBeforeAssignment ->
                 emit(unexpectedNewlineBeforeAssignment.startOffset, "Line break before assignment is not allowed", true)
                     .ifAutocorrectAllowed {
@@ -47,18 +47,18 @@ public class NoLineBreakBeforeAssignmentRule : StandardRule("no-line-break-befor
                             .takeWhile { !it.isCode }
                             .last()
                             .let { before ->
-                                if (!before.prevSibling20.isWhiteSpace20) {
+                                if (!before.prevSibling.isWhiteSpace) {
                                     parent.addChild(PsiWhiteSpaceImpl(" "), before)
                                 }
                                 parent.addChild(LeafPsiElement(EQ, "="), before)
-                                if (!before.isWhiteSpace20) {
+                                if (!before.isWhiteSpace) {
                                     parent.addChild(PsiWhiteSpaceImpl(" "), before)
                                 }
                             }
                         // Cleanup old assignment and whitespace after it. The indent before the old assignment is kept unchanged
                         assignmentNode
-                            .nextSibling20
-                            .takeIf { it.isWhiteSpace20 }
+                            .nextSibling
+                            .takeIf { it.isWhiteSpace }
                             ?.remove()
                         assignmentNode.remove()
                     }

@@ -26,16 +26,16 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.hasNoMaxLineLengthSuppression
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.indentWithoutNewlinePrefix
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine20
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.leavesOnLine
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
@@ -98,12 +98,12 @@ public class ParameterListWrappingRule :
             .takeUnless {
                 // skip when max line length is not exceeded
                 (node.column - 1 + node.textLength) <= maxLineLength
-            }?.takeUnless { it.isWhiteSpaceWithNewline20 }
+            }?.takeUnless { it.isWhiteSpaceWithNewline }
             ?.takeIf { it.isFunctionTypeWithNonEmptyValueParameterList() }
             ?.let { nullableType ->
                 nullableType
                     .findChildByType(LPAR)
-                    ?.takeUnless { it.nextLeaf?.isWhiteSpaceWithNewline20 == true }
+                    ?.takeUnless { it.nextLeaf?.isWhiteSpaceWithNewline == true }
                     ?.let { lpar ->
                         emit(
                             lpar.startOffset + 1,
@@ -115,7 +115,7 @@ public class ParameterListWrappingRule :
                     }
                 nullableType
                     .findChildByType(RPAR)
-                    ?.takeUnless { it.prevLeaf?.isWhiteSpaceWithNewline20 == true }
+                    ?.takeUnless { it.prevLeaf?.isWhiteSpaceWithNewline == true }
                     ?.let { rpar ->
                         emit(
                             rpar.startOffset,
@@ -168,7 +168,7 @@ public class ParameterListWrappingRule :
 
     private fun ASTNode.hasNoParameters(): Boolean {
         require(elementType == VALUE_PARAMETER_LIST)
-        return firstChildNode?.nextSibling20?.elementType == RPAR
+        return firstChildNode?.nextSibling?.elementType == RPAR
     }
 
     private fun ASTNode.isPartOfFunctionLiteralInNonKtlintOfficialCodeStyle(): Boolean {
@@ -178,7 +178,7 @@ public class ParameterListWrappingRule :
 
     private fun ASTNode.isPartOfFunctionLiteralStartingOnSameLineAsClosingParenthesisOfPrecedingReferenceExpression(): Boolean {
         require(elementType == VALUE_PARAMETER_LIST)
-        return firstChildLeafOrSelf20
+        return firstChildLeafOrSelf
             .let { startOfFunctionLiteral ->
                 parent
                     ?.takeIf { it.elementType == FUNCTION_LITERAL }
@@ -187,7 +187,7 @@ public class ParameterListWrappingRule :
                     ?.takeIf { it.parent?.parent?.elementType == CALL_EXPRESSION }
                     ?.leaves()
                     ?.takeWhile { it != startOfFunctionLiteral }
-                    ?.none { it.isWhiteSpaceWithNewline20 }
+                    ?.none { it.isWhiteSpaceWithNewline }
                     ?: false
             }
     }
@@ -221,9 +221,9 @@ public class ParameterListWrappingRule :
 
     private fun isPrecededByComment(node: ASTNode) =
         node
-            .prevLeaf { !it.isWhiteSpace20 }
+            .prevLeaf { !it.isWhiteSpace }
             ?.prevLeaf
-            ?.isPartOfComment20
+            ?.isPartOfComment
             ?: false
 
     private fun intendedIndent(child: ASTNode): String =
@@ -269,7 +269,7 @@ public class ParameterListWrappingRule :
                     .parent
                     ?.takeUnless { it.isValueParameterListInFunctionType() }
                     ?.prevLeaf
-                    ?.takeIf { it.isWhiteSpaceWithNewline20 }
+                    ?.takeIf { it.isWhiteSpaceWithNewline }
                     ?.let { whitespace ->
                         emit(child.startOffset, errorMessage(child), true)
                             .ifAutocorrectAllowed { whitespace.remove() }
@@ -286,13 +286,13 @@ public class ParameterListWrappingRule :
                 val intendedIndent = intendedIndent(child)
                 val prevLeaf = child.prevLeaf
                 when {
-                    prevLeaf.isWhiteSpaceWithNewline20 -> {
+                    prevLeaf.isWhiteSpaceWithNewline -> {
                         // The current child is already wrapped to a new line. Checking and fixing the
                         // correct size of the indent is the responsibility of the IndentationRule.
                         return
                     }
 
-                    prevLeaf.isWhiteSpace20 -> {
+                    prevLeaf.isWhiteSpace -> {
                         // The current child needs to be wrapped to a newline.
                         emit(child.startOffset, errorMessage(child), true)
                             .ifAutocorrectAllowed {
@@ -325,9 +325,9 @@ public class ParameterListWrappingRule :
 
     private fun ASTNode.isOnLineExceedingMaxLineLength(): Boolean =
         if (hasNoMaxLineLengthSuppression()) {
-            val stopLeaf = nextLeaf { it.isWhiteSpaceWithNewline20 }?.nextLeaf
+            val stopLeaf = nextLeaf { it.isWhiteSpaceWithNewline }?.nextLeaf
             val lineContent =
-                leavesOnLine20
+                leavesOnLine
                     .dropTrailingEolComment()
                     .takeWhile { it.prevLeaf != stopLeaf }
                     .joinToString(separator = "") { it.text }
@@ -351,7 +351,7 @@ public class ParameterListWrappingRule :
             ?.takeIf { elementType == FUN }
             ?.findChildByType(TYPE_PARAMETER_LIST)
             ?.children()
-            ?.any { it.isWhiteSpaceWithNewline20 }
+            ?.any { it.isWhiteSpaceWithNewline }
             ?: false
 }
 

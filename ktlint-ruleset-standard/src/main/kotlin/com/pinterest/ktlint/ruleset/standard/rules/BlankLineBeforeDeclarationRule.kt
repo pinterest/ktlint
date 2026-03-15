@@ -21,14 +21,14 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleV2
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.children20
+import com.pinterest.ktlint.rule.engine.core.api.children
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.indent20
+import com.pinterest.ktlint.rule.engine.core.api.indent
 import com.pinterest.ktlint.rule.engine.core.api.isCode
-import com.pinterest.ktlint.rule.engine.core.api.isDeclaration20
-import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
+import com.pinterest.ktlint.rule.engine.core.api.isDeclaration
+import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -122,7 +122,7 @@ public class BlankLineBeforeDeclarationRule :
         }
 
         if (node.elementType == FUN &&
-            (node.prevCodeSibling20?.elementType == EQ || node.prevCodeSibling20?.elementType == RETURN_KEYWORD)
+            (node.prevCodeSibling?.elementType == EQ || node.prevCodeSibling?.elementType == RETURN_KEYWORD)
         ) {
             // Allow:
             //   val foo =
@@ -148,12 +148,12 @@ public class BlankLineBeforeDeclarationRule :
         }
 
         node
-            .takeIf { it.isDeclaration20 }
+            .takeIf { it.isDeclaration }
             ?.takeUnless { it.prevLeaf.isBlankLine() }
             ?.let { insertBeforeNode ->
                 emit(insertBeforeNode.startOffset, "Expected a blank line for this declaration", true)
                     .ifAutocorrectAllowed {
-                        insertBeforeNode.upsertWhitespaceBeforeMe("\n".plus(node.indent20))
+                        insertBeforeNode.upsertWhitespaceBeforeMe("\n".plus(node.indent))
                     }
             }
     }
@@ -165,14 +165,14 @@ public class BlankLineBeforeDeclarationRule :
             parent
                 ?.takeIf { it.elementType == CLASS_BODY }
                 ?.findChildByType(LBRACE)
-                ?.nextCodeSibling20
+                ?.nextCodeSibling
 
     private fun ASTNode.isFirstCodeSiblingInBlock() =
         this ==
             parent
                 ?.takeIf { it.elementType == BLOCK }
                 ?.findChildByType(LBRACE)
-                ?.nextCodeSibling20
+                ?.nextCodeSibling
 
     private fun ASTNode.isFirstCodeSiblingInBodyOfFunctionLiteral() =
         this ==
@@ -181,12 +181,12 @@ public class BlankLineBeforeDeclarationRule :
                 ?.parent
                 ?.takeIf { it.elementType == FUNCTION_LITERAL }
                 ?.findChildByType(BLOCK)
-                ?.children20
+                ?.children
                 ?.firstOrNull { isCode }
 
     private fun ASTNode.isConsecutiveProperty() =
         takeIf { it.propertyRelated() }
-            ?.prevCodeSibling20
+            ?.prevCodeSibling
             ?.let { it.propertyRelated() || it.parent!!.propertyRelated() }
             ?: false
 

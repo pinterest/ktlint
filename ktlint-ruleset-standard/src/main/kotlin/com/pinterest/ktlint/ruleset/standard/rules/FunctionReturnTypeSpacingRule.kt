@@ -10,8 +10,8 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.remove
@@ -54,7 +54,7 @@ public class FunctionReturnTypeSpacingRule :
         require(node.elementType == COLON)
         node
             .prevLeaf
-            ?.takeIf { it.isWhiteSpace20 }
+            ?.takeIf { it.isWhiteSpace }
             ?.let { whitespaceBeforeColonNode ->
                 emit(whitespaceBeforeColonNode.startOffset, "Unexpected whitespace", true)
                     .ifAutocorrectAllowed { whitespaceBeforeColonNode.remove() }
@@ -68,7 +68,7 @@ public class FunctionReturnTypeSpacingRule :
         require(node.elementType == COLON)
         node
             .nextLeaf
-            ?.takeIf { it.isWhiteSpace20 }
+            ?.takeIf { it.isWhiteSpace }
             .let { whiteSpaceAfterColon ->
                 if (whiteSpaceAfterColon?.text != " ") {
                     // In case the whitespace contains a newline than replacing it with a single space results in merging the lines to a
@@ -100,7 +100,7 @@ public class FunctionReturnTypeSpacingRule :
             0
         } else {
             leaves(forward = forward)
-                .takeWhile { !it.isWhiteSpaceWithNewline20 }
+                .takeWhile { !it.isWhiteSpaceWithNewline }
                 .sumOf { it.textLength }
         }
 }

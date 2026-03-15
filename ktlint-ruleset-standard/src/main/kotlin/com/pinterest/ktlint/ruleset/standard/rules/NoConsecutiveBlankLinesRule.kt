@@ -8,12 +8,12 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace20
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
-import com.pinterest.ktlint.rule.engine.core.api.nextSibling20
+import com.pinterest.ktlint.rule.engine.core.api.nextSibling
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevSibling20
+import com.pinterest.ktlint.rule.engine.core.api.prevSibling
 import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -24,7 +24,7 @@ public class NoConsecutiveBlankLinesRule : StandardRule("no-consecutive-blank-li
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.isWhiteSpace20 && node.prevSibling20 != null) {
+        if (node.isWhiteSpace && node.prevSibling != null) {
             val text = node.getText()
             val newLineCount = text.count { it == '\n' }
             if (newLineCount < 2) {
@@ -67,7 +67,7 @@ public class NoConsecutiveBlankLinesRule : StandardRule("no-consecutive-blank-li
             ?.let { prevNode ->
                 prevNode.elementType == IDENTIFIER &&
                     prevNode.parent?.elementType == CLASS &&
-                    this.nextSibling20?.elementType == PRIMARY_CONSTRUCTOR
+                    this.nextSibling?.elementType == PRIMARY_CONSTRUCTOR
             }
             ?: false
 }

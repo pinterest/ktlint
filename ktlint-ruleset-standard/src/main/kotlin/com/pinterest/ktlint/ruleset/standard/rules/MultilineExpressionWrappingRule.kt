@@ -40,17 +40,17 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.firstChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
-import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline20
-import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline20
-import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf20
+import com.pinterest.ktlint.rule.engine.core.api.isPartOfComment
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
+import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import com.pinterest.ktlint.rule.engine.core.api.lastChildLeafOrSelf
 import com.pinterest.ktlint.rule.engine.core.api.leavesForwardsIncludingSelf
 import com.pinterest.ktlint.rule.engine.core.api.nextLeaf
 import com.pinterest.ktlint.rule.engine.core.api.parent
 import com.pinterest.ktlint.rule.engine.core.api.prevCodeLeaf
-import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling20
+import com.pinterest.ktlint.rule.engine.core.api.prevCodeSibling
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
@@ -113,17 +113,17 @@ public class MultilineExpressionWrappingRule :
     ) {
         if (node.containsWhitespaceWithNewline() && node.needToWrapMultilineExpression()) {
             node
-                .prevLeaf { !it.isPartOfComment20 }
-                .takeUnless { it.isWhiteSpaceWithNewline20 }
+                .prevLeaf { !it.isPartOfComment }
+                .takeUnless { it.isWhiteSpaceWithNewline }
                 ?.let { prevLeaf ->
                     emit(node.startOffset, "A multiline expression should start on a new line", true)
                         .ifAutocorrectAllowed {
                             node.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
                             val leafOnSameLineAfterMultilineExpression =
                                 node
-                                    .lastChildLeafOrSelf20
-                                    .nextLeaf { !it.isWhiteSpaceWithoutNewline20 && !it.isPartOfComment20 }
-                                    ?.takeIf { !it.isWhiteSpaceWithNewline20 }
+                                    .lastChildLeafOrSelf
+                                    .nextLeaf { !it.isWhiteSpaceWithoutNewline && !it.isPartOfComment }
+                                    ?.takeIf { !it.isWhiteSpaceWithNewline }
                             when {
                                 leafOnSameLineAfterMultilineExpression == null -> {
                                     Unit
@@ -161,11 +161,11 @@ public class MultilineExpressionWrappingRule :
     }
 
     private fun ASTNode.containsWhitespaceWithNewline(): Boolean {
-        val lastLeaf = lastChildLeafOrSelf20
-        return firstChildLeafOrSelf20
+        val lastLeaf = lastChildLeafOrSelf
+        return firstChildLeafOrSelf
             .leavesForwardsIncludingSelf
             .takeWhile { it != lastLeaf }
-            .any { it.isWhiteSpaceWithNewline20 || it.isRegularStringPartWithNewline() }
+            .any { it.isWhiteSpaceWithNewline || it.isRegularStringPartWithNewline() }
     }
 
     private fun ASTNode.isRegularStringPartWithNewline() =
@@ -180,7 +180,7 @@ public class MultilineExpressionWrappingRule :
 
     private fun ASTNode.isValueInAnAssignment() =
         null !=
-            prevCodeSibling20
+            prevCodeSibling
                 ?.takeIf { it.elementType == EQ || it.elementType == OPERATION_REFERENCE }
                 ?.takeUnless { functionBodyExpressionWrapping == default && it.parent?.elementType == FUN }
                 ?.takeUnless { it.isElvisOperator() }
@@ -188,7 +188,7 @@ public class MultilineExpressionWrappingRule :
                     it
                         .closingParenthesisOfFunctionOrNull()
                         ?.prevLeaf
-                        .isWhiteSpaceWithNewline20
+                        .isWhiteSpaceWithNewline
                 }
 
     private fun ASTNode?.isElvisOperator() =
@@ -220,7 +220,7 @@ public class MultilineExpressionWrappingRule :
     private fun ASTNode.isRightHandSideOfBinaryExpression() =
         null !=
             takeIf { it.parent?.elementType == BINARY_EXPRESSION }
-                .takeIf { it?.prevCodeSibling20?.elementType == OPERATION_REFERENCE }
+                .takeIf { it?.prevCodeSibling?.elementType == OPERATION_REFERENCE }
 
     private companion object {
         // Based  on https://kotlinlang.org/spec/expressions.html#expressions
