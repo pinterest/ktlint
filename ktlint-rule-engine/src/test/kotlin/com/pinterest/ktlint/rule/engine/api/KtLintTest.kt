@@ -27,6 +27,7 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isRoot
 import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
+import com.pinterest.ktlint.ruleset.standard.rules.IndentationRule
 import org.assertj.core.api.Assertions.assertThat
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -226,19 +227,22 @@ class KtLintTest {
     }
 
     @Test
-    fun testFormatUnicodeBom() {
+    fun `Given a file that starts with the UTF8 BOM character then ensure that the formatted file starts with that character as well`() {
         val code =
-            getResourceAsText("spec/format-unicode-bom.kt.spec")
+            getResourceAsText("spec/format-unicode-bom-at-start-of-file--before-ktlint-format.kt")
+                // Standardize code to use LF as line separator regardless of OS
+                .replace("\r\n", "\n")
+                .replace("\r", "\n")
+        val formattedCode =
+            getResourceAsText("spec/format-unicode-bom-at-start-of-file--after-ktlint-format.kt")
                 // Standardize code to use LF as line separator regardless of OS
                 .replace("\r\n", "\n")
                 .replace("\r", "\n")
 
         val actual =
             KtLintRuleEngine(
-                ruleProviders =
-                    setOf(
-                        RuleV2InstanceProvider { DummyRule() },
-                    ),
+                // We need a rule that actually modifies the file to test whether UTF BOM character is handled correctly
+                ruleProviders = setOf(RuleV2InstanceProvider { IndentationRule() }),
                 editorConfigOverride =
                     EditorConfigOverride.from(
                         // The code sample use LF as line separator, so ensure that formatted code uses that as well, as otherwise the test
@@ -247,7 +251,35 @@ class KtLintTest {
                     ),
             ).format(Code.fromSnippet(code)) { _ -> AutocorrectDecision.ALLOW_AUTOCORRECT }
 
-        assertThat(actual).isEqualTo(code)
+        assertThat(actual).isEqualTo(formattedCode)
+    }
+
+    @Test
+    fun `Issue 3220 - Given some code that contains the UTF8 BOM character somewhere but not a the start then ensure this character is not removed`() {
+        val code =
+            getResourceAsText("spec/do-not-format-unicode-bom-when-not-at-start-of-file--before-ktlint-format.kt")
+                // Standardize code to use LF as line separator regardless of OS
+                .replace("\r\n", "\n")
+                .replace("\r", "\n")
+        val formattedCode =
+            getResourceAsText("spec/do-not-format-unicode-bom-when-not-at-start-of-file--after-ktlint-format.kt")
+                // Standardize code to use LF as line separator regardless of OS
+                .replace("\r\n", "\n")
+                .replace("\r", "\n")
+
+        val actual =
+            KtLintRuleEngine(
+                // We need a rule that actually modifies the file to test whether UTF BOM character is handled correctly
+                ruleProviders = setOf(RuleV2InstanceProvider { IndentationRule() }),
+                editorConfigOverride =
+                    EditorConfigOverride.from(
+                        // The code sample use LF as line separator, so ensure that formatted code uses that as well, as otherwise the test
+                        // breaks on Windows OS
+                        END_OF_LINE_PROPERTY to PropertyType.EndOfLineValue.lf,
+                    ),
+            ).format(Code.fromSnippet(code)) { _ -> AutocorrectDecision.ALLOW_AUTOCORRECT }
+
+        assertThat(actual).isEqualTo(formattedCode)
     }
 
     @Nested
