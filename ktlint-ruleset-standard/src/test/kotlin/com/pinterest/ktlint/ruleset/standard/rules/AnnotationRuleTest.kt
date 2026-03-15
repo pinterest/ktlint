@@ -1112,4 +1112,14 @@ class AnnotationRuleTest {
             """.trimIndent()
         annotationRuleAssertThat(code).hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 3213 - Given an annotated before a lambda expression then do no wrap the annotation to a new line as it results in a compilation error`() {
+        val code =
+            """
+            val foo1 = bar @FooBar() { baz }
+            val foo2 = @FooBar() { baz }
+            """.trimIndent()
+        annotationRuleAssertThat(code).hasNoLintViolations()
+    }
 }
