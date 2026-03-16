@@ -2,18 +2,15 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.IMPORT_DIRECTIVE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.PACKAGE_DIRECTIVE
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.REFERENCE_EXPRESSION
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.STABLE
-import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.nextCodeSibling20
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import com.pinterest.ktlint.ruleset.standard.rules.internal.regExIgnoringDiacriticsAndStrokesOnLetters
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
 
 /**
  * https://kotlinlang.org/docs/coding-conventions.html#naming-rules
@@ -31,34 +28,10 @@ public class PackageNameRule : StandardRule("package-name") {
             ?.takeIf { it.elementType == DOT_QUALIFIED_EXPRESSION || it.elementType == REFERENCE_EXPRESSION }
             ?.let { expression ->
                 if (expression.text.contains('_')) {
-                    // The Kotlin inspections (preference > Editor > Inspections) for 'Package naming convention' allows
-                    // underscores as well. But as this has been forbidden by KtLint since early versions, this is still
-                    // prohibited.
                     emit(expression.startOffset, "Package name must not contain underscore", false)
                     Unit
                 } else if (!expression.text.matches(VALID_PACKAGE_NAME_REGEXP)) {
                     emit(expression.startOffset, "Package name contains a disallowed character", false)
-                }
-            }
-
-        // https://developer.android.com/kotlin/style-guide#structure
-        node
-            .takeIf { it.elementType == PACKAGE_DIRECTIVE }
-            ?.let { packageNode ->
-                val nextSibling = packageNode.treeNext ?: return
-                val nextCodeSibling = packageNode.nextCodeSibling20
-                if (nextCodeSibling?.elementType == IMPORT_DIRECTIVE) {
-                    val newlineCount = nextSibling.text.count { it == '\n' }
-                    if (newlineCount < 2) {
-                        emit(
-                            nextSibling.startOffset,
-                            "Missing blank line between package statement and import statements",
-                            true,
-                        ).ifAutocorrectAllowed {
-                            val corrected = "\n\n" + nextSibling.text.trimStart('\n')
-                            (nextSibling as? LeafElement)?.rawReplaceWithText(corrected)
-                        }
-                    }
                 }
             }
     }
