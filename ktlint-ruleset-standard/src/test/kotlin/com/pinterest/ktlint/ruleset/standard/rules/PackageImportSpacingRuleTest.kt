@@ -74,4 +74,22 @@ class PackageImportSpacingRuleTest {
             .hasLintViolation(2, 1, "Expected exactly one blank line between package statement and import statements")
             .isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Given no package statement then do not emit`() {
+        val code =
+            """
+            import bar.*
+            """.trimIndent()
+        packageImportSpacingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given no imports then do not emit`() {
+        val code =
+            """
+            package foo
+            """.trimIndent()
+        packageImportSpacingRuleAssertThat(code).hasNoLintViolations()
+    }
 }
