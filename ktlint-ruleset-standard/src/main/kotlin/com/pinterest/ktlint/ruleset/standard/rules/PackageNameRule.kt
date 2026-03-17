@@ -36,7 +36,6 @@ public class PackageNameRule : StandardRule("package-name") {
     }
 
     private companion object {
-        
         val VALID_PACKAGE_NAME_REGEXP =
             "[a-z][a-zA-Z\\d]*(\\.[a-z][a-zA-Z\\d]*)*"
                 .regExIgnoringDiacriticsAndStrokesOnLetters()
