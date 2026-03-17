@@ -33,7 +33,7 @@ public class PackageImportSpacingRule :
             ?.takeIf { whitespace -> whitespace.text.count { it == '\n' } != 2 }
             ?.let { whitespace ->
                 emit(
-                    whitespace.startOffset,
+                    whitespace.startOffset + 1,
                     "Expected exactly one blank line between package statement and import statements",
                     true,
                 ).ifAutocorrectAllowed { whitespace.replaceTextWith("\n\n") }

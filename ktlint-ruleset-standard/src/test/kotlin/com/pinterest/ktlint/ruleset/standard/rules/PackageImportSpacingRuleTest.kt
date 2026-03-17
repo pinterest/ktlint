@@ -31,7 +31,7 @@ class PackageImportSpacingRuleTest {
             import bar.*
             """.trimIndent()
         packageImportSpacingRuleAssertThat(code)
-            .hasLintViolation(2, 1, "Missing blank line between package statement and import statements")
+            .hasLintViolation(2, 1, "Expected exactly one blank line between package statement and import statements")
             .isFormattedAs(formattedCode)
     }
 
@@ -51,7 +51,7 @@ class PackageImportSpacingRuleTest {
             import bar.*
             """.trimIndent()
         packageImportSpacingRuleAssertThat(code)
-            .hasLintViolation(2, 1, "Missing blank line between package statement and import statements")
+            .hasLintViolation(2, 1, "Expected exactly one blank line between package statement and import statements")
             .isFormattedAs(formattedCode)
     }
 
@@ -71,7 +71,7 @@ class PackageImportSpacingRuleTest {
             import bar.*
             """.trimIndent()
         packageImportSpacingRuleAssertThat(code)
-            .hasLintViolation(2, 1, "Missing blank line between package statement and import statements")
+            .hasLintViolation(2, 1, "Expected exactly one blank line between package statement and import statements")
             .isFormattedAs(formattedCode)
     }
 }
