@@ -9,17 +9,18 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpaceWithNewline
-import com.pinterest.ktlint.rule.engine.core.api.siblings
+import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.psi.psiUtil.siblings
 
 /**
  * https://developer.android.com/kotlin/style-guide#structure
  */
 @SinceKtlint("2.0", EXPERIMENTAL)
-public class PackageImportSpacingRule : StandardRule(
-    "package-import-spacing",
-), RuleV2.Experimental {
+public class PackageImportSpacingRule :
+    StandardRule("package-import-spacing"),
+    RuleV2.Experimental {
     override fun beforeVisitChildNodes(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
