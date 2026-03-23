@@ -40,6 +40,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.ImportOrderingRule
 import com.pinterest.ktlint.ruleset.standard.rules.IndentationRule
 import com.pinterest.ktlint.ruleset.standard.rules.KdocRule
 import com.pinterest.ktlint.ruleset.standard.rules.KdocWrappingRule
+import com.pinterest.ktlint.ruleset.standard.rules.LambdaReturnRule
 import com.pinterest.ktlint.ruleset.standard.rules.MaxLineLengthRule
 import com.pinterest.ktlint.ruleset.standard.rules.MixedConditionOperatorsRule
 import com.pinterest.ktlint.ruleset.standard.rules.ModifierListSpacingRule
@@ -145,6 +146,7 @@ public class StandardRuleSetProvider : RuleSetV2Provider(RuleSetId.STANDARD) {
             RuleV2InstanceProvider { IndentationRule() },
             RuleV2InstanceProvider { KdocRule() },
             RuleV2InstanceProvider { KdocWrappingRule() },
+            RuleV2InstanceProvider { LambdaReturnRule() },
             RuleV2InstanceProvider { MaxLineLengthRule() },
             RuleV2InstanceProvider { MixedConditionOperatorsRule() },
             RuleV2InstanceProvider { ModifierListSpacingRule() },
