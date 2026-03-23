@@ -156,3 +156,40 @@ Suppress or disable rule (1)
     ```editorconfig
     ktlint_standard_lambda-return = disabled
     ```
+
+## Package Import Spacing
+
+Enforce one single blank line between package statement and imports
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    package foo
+
+    import bar.*
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    package foo
+    import bar.*
+    ```
+
+Rule id: `standard:package-import-spacing`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:package-import-spacing")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_package-import-spacing = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_package-import-spacing = disabled
+    ```
