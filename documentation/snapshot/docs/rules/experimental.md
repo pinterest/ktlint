@@ -49,7 +49,7 @@ Suppress or disable rule (1)
 
 1. Suppress rule in code with annotation below:
     ```kotlin
-    @Suppress("ktlint:call-expression-wrapping")
+    @Suppress("ktlint:standard:call-expression-wrapping")
     ```
    Enable rule via `.editorconfig`
     ```editorconfig
@@ -102,7 +102,7 @@ Suppress or disable rule (1)
 
 1. Suppress rule in code with annotation below:
     ```kotlin
-    @Suppress("ktlint:expression-operand-wrapping")
+    @Suppress("ktlint:standard:expression-operand-wrapping")
     ```
    Enable rule via `.editorconfig`
     ```editorconfig
@@ -111,6 +111,50 @@ Suppress or disable rule (1)
    Disable rule via `.editorconfig`
     ```editorconfig
     ktlint_standard_expression-operand-wrapping = disabled
+    ```
+
+## Lambda return
+
+Do not use a labeled return for the last statement in a lambda.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    val foo1 = bar { "value" }
+    val foo2 = bar {
+        if (baz()) return@bar "value"
+
+        "value"
+    }
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    val foo1 = bar { return@foo "value" }
+    val foo2 = bar {
+        if (baz()) return@bar "value" // This is OK
+
+        return@bar "value" // This is disallowed
+    }
+    ```
+
+Rule id: `standard:lambda-return`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:lambda-return")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_lambda-return = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_lambda-return = disabled
     ```
 
 ## Package Import Spacing

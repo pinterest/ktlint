@@ -102,7 +102,7 @@ public class ImportOrderingRule :
                     }
                     sortedImportsWithSpaces += current
 
-                    return@fold current
+                    current
                 }
 
                 if (hasComments) {
@@ -130,7 +130,7 @@ public class ImportOrderingRule :
                             if (!current.isWhiteSpace && !next.isWhiteSpace) {
                                 node.addChild(PsiWhiteSpaceImpl("\n"), null)
                             }
-                            return@reduce next
+                            next
                         }
                         node.addChild(sortedImportsWithSpaces.last(), null)
                     }
@@ -178,7 +178,7 @@ public class ImportOrderingRule :
             if (first.isWhiteSpace && second.isWhiteSpace) {
                 return@all (first as PsiWhiteSpace).text == (second as PsiWhiteSpace).text
             }
-            return@all first == second
+            first == second
         }
     }
 
@@ -255,7 +255,7 @@ public class ImportOrderingRule :
                                 value,
                                 parseImportsLayout(value),
                             )
-                        } catch (e: IllegalArgumentException) {
+                        } catch (_: IllegalArgumentException) {
                             PropertyType.PropertyValue.invalid(
                                 value,
                                 "Unexpected imports layout: $value",
