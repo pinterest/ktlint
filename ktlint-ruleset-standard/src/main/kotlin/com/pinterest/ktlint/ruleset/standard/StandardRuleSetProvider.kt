@@ -66,6 +66,7 @@ import com.pinterest.ktlint.ruleset.standard.rules.NoUnitReturnRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoUnusedImportsRule
 import com.pinterest.ktlint.ruleset.standard.rules.NoWildcardImportsRule
 import com.pinterest.ktlint.ruleset.standard.rules.NullableTypeSpacingRule
+import com.pinterest.ktlint.ruleset.standard.rules.PackageImportSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.PackageNameRule
 import com.pinterest.ktlint.ruleset.standard.rules.ParameterListSpacingRule
 import com.pinterest.ktlint.ruleset.standard.rules.ParameterListWrappingRule
@@ -170,6 +171,7 @@ public class StandardRuleSetProvider : RuleSetV2Provider(RuleSetId.STANDARD) {
             RuleV2InstanceProvider { NoUnusedImportsRule() },
             RuleV2InstanceProvider { NoWildcardImportsRule() },
             RuleV2InstanceProvider { NullableTypeSpacingRule() },
+            RuleV2InstanceProvider { PackageImportSpacingRule() },
             RuleV2InstanceProvider { PackageNameRule() },
             RuleV2InstanceProvider { ParameterListSpacingRule() },
             RuleV2InstanceProvider { ParameterListWrappingRule() },
