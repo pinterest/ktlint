@@ -437,6 +437,16 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/KdocWrappingRuleK
 	public static final fun getKDOC_WRAPPING_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
 }
 
+public final class com/pinterest/ktlint/ruleset/standard/rules/LambdaReturnRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
+	public fun <init> ()V
+	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
+}
+
+public final class com/pinterest/ktlint/ruleset/standard/rules/LambdaReturnRuleKt {
+	public static final fun getLAMBDA_RETURN_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+}
+
 public final class com/pinterest/ktlint/ruleset/standard/rules/MaxLineLengthRule : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public static final field Companion Lcom/pinterest/ktlint/ruleset/standard/rules/MaxLineLengthRule$Companion;
 	public fun <init> ()V
