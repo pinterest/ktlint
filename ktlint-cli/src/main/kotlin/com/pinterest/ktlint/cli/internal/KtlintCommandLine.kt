@@ -519,8 +519,14 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
                     }
                     when {
                         code.isStdIn -> {
-                            // Avoid Unicode characters on Windows OS to be malformed as stdout does not default to UTF-8
-                            PrintWriter(OutputStreamWriter(System.out, UTF_8), true).printf(formattedFileContent)
+                            // Avoid Unicode characters on Windows OS to be malformed as stdout does not default to UTF-8 (#3133).
+                            with(PrintWriter(OutputStreamWriter(System.out, UTF_8), true)) {
+                                // Do not use print, print which invoke the format functions which will malfunction when the input file
+                                // contains a '%' character (#3278).
+                                write(formattedFileContent)
+                                // The write method does not autoflush.
+                                flush()
+                            }
                         }
 
                         code.content != formattedFileContent -> {
