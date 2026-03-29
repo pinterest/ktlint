@@ -524,6 +524,31 @@ class SimpleCLITest {
             }
     }
 
+    @Test
+    fun `Issue 3278 - Given some code containing a string with a percent character, the code is provided via stdin then write the formatted code without interpreting the percent character as format instruction`(
+        @TempDir
+        tempDir: Path,
+    ) {
+        val code =
+            """
+            class Foo { val foo = "%"; }
+            """.trimIndent()
+        val formattedCode =
+            """
+            class Foo {
+                val foo = "%"
+            }
+            """.trimIndent()
+        CommandLineTestRunner(tempDir)
+            .run(
+                testProjectName = "too-many-empty-lines",
+                arguments = listOf("--stdin", "--format"),
+                stdin = ByteArrayInputStream(code.toByteArray()),
+            ) {
+                assertThat(normalOutput.joinToString(separator = "\n")).contains(formattedCode)
+            }
+    }
+
     @Nested
     inner class `Autocorrect violations` {
         @Test
