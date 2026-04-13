@@ -88,3 +88,70 @@ jobs:
           ./.announce -y
         env:
           VERSION: ${{ env.version }}
+
+  build-native-image:
+    name: "Build GraalVM native-image (${{ matrix.os }})"
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+    needs: publish
+    if: github.repository == 'pinterest/ktlint'
+    strategy:
+      matrix:
+        # ubuntu-22.04 is used instead of ubuntu-latest to produce a binary compatible with a wider range
+        # of Linux distributions (glibc version constraint). See https://github.com/google/google-java-format/issues/1072.
+        os: [ubuntu-22.04, macos-latest, windows-latest]
+    env:
+      SUFFIX: ${{ fromJson('{"ubuntu-22.04":"linux-x86-64","macos-latest":"darwin-arm64","windows-latest":"windows-x86-64"}')[matrix.os] }}
+      EXTENSION: ${{ matrix.os == 'windows-latest' && '.exe' || '' }}
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: 'master'
+
+      - name: "Set up GraalVM"
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: "21"
+          distribution: "graalvm-community"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          native-image-job-reports: "true"
+
+      - name: Get version
+        run: echo "version=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Build shadow JAR
+        run: ./gradlew :ktlint-cli:shadowJar
+        env:
+          # Signing is not needed for the shadow JAR — skip it to avoid missing-key failures
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ""
+
+      - name: Find shadow JAR (Unix)
+        if: matrix.os != 'windows-latest'
+        run: echo "SHADOW_JAR=$(ls ktlint-cli/build/libs/ktlint-cli-*-all.jar)" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Find shadow JAR (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          $jar = Get-ChildItem -Path "ktlint-cli/build/libs" -Filter "ktlint-cli-*-all.jar" | Select-Object -First 1
+          echo "SHADOW_JAR=$($jar.FullName)" >> $env:GITHUB_ENV
+        shell: pwsh
+
+      - name: Build native image
+        run: >-
+          native-image
+          --no-fallback
+          -H:+ReportExceptionStackTraces
+          -march=compatibility
+          -jar "${{ env.SHADOW_JAR }}"
+          -o "ktlint_${{ env.SUFFIX }}"
+
+      - name: Upload native binary to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release upload "${{ github.ref_name }}" "ktlint_${{ env.SUFFIX }}${{ env.EXTENSION }}"
+        shell: bash
