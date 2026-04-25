@@ -14,6 +14,7 @@ on:
       - '!**/*.gradle.kts'
       - '!**/*.properties'
       - '!**/*.toml'
+      - '!.github/actions/**'
       - '!.github/workflows/**'
       - '!ktlint-cli/**'
   pull_request:
@@ -25,6 +26,7 @@ on:
       - '!**/*.gradle.kts'
       - '!**/*.properties'
       - '!**/*.toml'
+      - '!.github/actions/**'
       - '!.github/workflows/**'
       - '!ktlint-cli/**'
 
