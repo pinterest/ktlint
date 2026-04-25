@@ -9,14 +9,22 @@ on:
     paths:
       - '**/*.kt'
       - '**/*.kts'
+      - '**/*.gradle'
+      - '**/*.gradle.kts'
       - '**/*.properties'
       - '**/*.toml'
+      - '.github/workflows/**'
+      - 'ktlint-cli/**'
   pull_request:
     paths:
       - '**/*.kt'
       - '**/*.kts'
+      - '**/*.gradle'
+      - '**/*.gradle.kts'
       - '**/*.properties'
       - '**/*.toml'
+      - '.github/workflows/**'
+      - 'ktlint-cli/**'
   workflow_dispatch:
 
 concurrency:
@@ -96,3 +104,50 @@ jobs:
           additional-java-versions: ${{ matrix.jdk }}
 
       - run: ./gradlew testOnJdk${{ matrix.jdk }} -PtestJdkVersion=${{ matrix.jdk }}
+
+  native-image:
+    strategy:
+      fail-fast: false
+      matrix:
+        # ubuntu-22.04 is used instead of ubuntu-latest to produce a binary compatible with a wider range
+        # of Linux distributions (glibc version constraint). See https://github.com/google/google-java-format/issues/1072.
+        os: [ubuntu-22.04, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    name: "[native-image] OS=${{ matrix.os }}"
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: "Set up GraalVM"
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: "21"
+          distribution: "graalvm-community"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          native-image-job-reports: "true"
+
+      - name: Build shadow JAR
+        run: ./gradlew :ktlint-cli:shadowJar
+        env:
+          # Signing is not needed for the shadow JAR — skip it to avoid missing-key failures
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ""
+
+      - name: Find shadow JAR (Unix)
+        if: matrix.os != 'windows-latest'
+        run: echo "SHADOW_JAR=$(ls ktlint-cli/build/libs/ktlint-cli-*-all.jar)" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Find shadow JAR (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          $jar = Get-ChildItem -Path "ktlint-cli/build/libs" -Filter "ktlint-cli-*-all.jar" | Select-Object -First 1
+          echo "SHADOW_JAR=$($jar.FullName)" >> $env:GITHUB_ENV
+        shell: pwsh
+
+      - name: Build native image
+        run: >-
+          native-image
+          --no-fallback
+          -H:+ReportExceptionStackTraces
+          -march=compatibility
+          -jar "${{ env.SHADOW_JAR }}"
+          -o "ktlint"
