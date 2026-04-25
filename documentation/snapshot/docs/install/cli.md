@@ -7,12 +7,20 @@
 
 All releases of `ktlint` can be downloaded from the [releases](https://github.com/pinterest/ktlint/releases) page.
 
+Each release contains multiple ways to run `ktlint`:
+
+- `ktlint` is the executable JAR and requires a JVM.
+- `ktlint_linux-x86-64` is a native executable for Linux x86-64.
+- `ktlint_darwin-arm64` is a native executable for macOS Apple Silicon.
+- `ktlint_windows-x86-64.exe` is a native executable for Windows x86-64.
+- `ktlint.bat` starts the executable JAR on Windows.
+
 ### Download using curl
 
-A particular version of `ktlint` can be downloaded with next command which also changes the file to an executable in directory `/usr/local/bin`:
+A particular native Linux binary of `ktlint` can be downloaded with next command which also changes the file to an executable in directory `/usr/local/bin`:
 
-```sh title="Download"
-curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.8.0/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
+```sh title="Download native Linux binary"
+curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.8.0/ktlint_linux-x86-64 && chmod a+x ktlint_linux-x86-64 && sudo mv ktlint_linux-x86-64 /usr/local/bin/ktlint
 ```
 
 !!! tip "Curl not installed or behind proxy"
@@ -21,6 +29,8 @@ curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.8.0/ktlint &&
     ```shell
     http_proxy=http://proxy-server:port https_proxy=http://proxy-server:port curl -sL ...
     ```
+
+If you prefer the executable JAR, download `ktlint` from the same release page and run it with a JVM.
 
 ### Verification of download
 
@@ -210,6 +220,7 @@ Options `--stdin` and `--patterns-from-stdin` are mutually exclusive, only one o
 
 Microsoft Windows is not able to run the `ktlint` command directly. Ktlint can be run in following ways on Microsoft Windows:
 
-1. Use the `ktlint.bat` batch file provided as part of the [release](https://github.com/pinterest/ktlint/releases/tag/1.8.0). Add the batch file to your `%PATH%` environment variable for easy access
-2. Run `ktlint` using Git Bash
-3. Run as `java -jar ktlint`
+1. Use the native executable `ktlint_windows-x86-64.exe` provided as part of the [release](https://github.com/pinterest/ktlint/releases/tag/1.8.0)
+2. Use the `ktlint.bat` batch file provided as part of the release. Add the batch file to your `%PATH%` environment variable for easy access
+3. Run `ktlint` using Git Bash
+4. Run the executable JAR as `java -jar ktlint`
