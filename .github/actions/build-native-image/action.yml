@@ -16,6 +16,7 @@ runs:
       with:
         java-version: "25"
         distribution: "graalvm-community"
+        components: "native-image"
         github-token: ${{ github.token }}
         native-image-job-reports: "true"
 
