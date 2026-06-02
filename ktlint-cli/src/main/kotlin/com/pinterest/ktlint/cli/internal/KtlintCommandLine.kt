@@ -72,7 +72,7 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
     override fun help(context: Context) =
         """
         An anti-bikeshedding Kotlin linter with built-in formatter.
-        (https://pinterest.github.io/ktlint/latest/).
+        (https://ktlint.github.io/ktlint/latest/).
 
         Usage on Windows:
           java -jar ktlint.jar  [<options>] [<arguments>]... <command> [<args>]...
