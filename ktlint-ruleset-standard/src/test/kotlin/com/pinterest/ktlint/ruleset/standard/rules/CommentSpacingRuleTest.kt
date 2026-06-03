@@ -64,4 +64,26 @@ class CommentSpacingRuleTest {
                 LintViolation(10, 5, "Missing space after //"),
             ).isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Issue 3291 - Given an EOL comment not followed by space then don't throw nullPointerException in later rule running`() {
+        val code =
+            """
+            kotlin {
+                //comment
+                jvmToolchain(21)
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            kotlin {
+                // comment
+                jvmToolchain(21)
+            }
+            """.trimIndent()
+        commentSpacingRuleAssertThat(code)
+            .asKotlinScript(true)
+            .addAdditionalRuleProvider { SpacingBetweenDeclarationsWithCommentsRule() }
+            .isFormattedAs(formattedCode)
+    }
 }
