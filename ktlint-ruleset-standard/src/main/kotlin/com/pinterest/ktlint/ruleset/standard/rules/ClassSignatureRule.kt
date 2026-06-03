@@ -529,7 +529,7 @@ public class ClassSignatureRule :
                                                 superTypeFirstChildNode.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
                                             }
                                     }
-                                } else {
+                                } else if (superTypeFirstChildNode.prevLeaf?.prevSibling?.elementType != EOL_COMMENT) {
                                     val expectedWhitespace = " "
                                     if (whiteSpaceBeforeIdentifier == null ||
                                         whiteSpaceBeforeIdentifier.text != expectedWhitespace

@@ -1869,6 +1869,22 @@ class ClassSignatureRuleTest {
             .hasNoLintViolations()
     }
 
+    @Test
+    fun `Issue 3293 - Given an EOL comment between class name and super class then do not join comment and super class as this leads to a compilation error`() {
+        val code =
+            """
+            class Foo : // comment
+                Bar {
+                override fun fooBar() = "foobar"
+            }
+
+            interface Bar {
+                fun fooBar(): String
+            }
+            """.trimIndent()
+        classSignatureWrappingRuleAssertThat(code).hasNoLintViolations()
+    }
+
     private companion object {
         const val UNEXPECTED_SPACES = "  "
         const val NO_SPACE = ""
