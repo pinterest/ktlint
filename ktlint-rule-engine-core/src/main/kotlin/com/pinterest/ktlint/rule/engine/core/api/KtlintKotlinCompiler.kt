@@ -3,13 +3,12 @@ package com.pinterest.ktlint.rule.engine.core.api
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.BLOCK
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SCRIPT
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.SCRIPT_INITIALIZER
-import com.pinterest.ktlint.rule.engine.core.util.cast
 import org.jetbrains.kotlin.cli.jvm.compiler.IdeaStandaloneExecutionSetup
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreApplicationEnvironment
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreApplicationEnvironmentMode
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreProjectEnvironment
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.mock.MockProject
+import org.jetbrains.kotlin.com.intellij.mock.MockComponentManager
 import org.jetbrains.kotlin.com.intellij.openapi.Disposable
 import org.jetbrains.kotlin.com.intellij.openapi.diagnostic.DefaultLogger
 import org.jetbrains.kotlin.com.intellij.openapi.util.Disposer
@@ -106,10 +105,7 @@ private fun createKotlinProjectEnvironment(disposable: Disposable): KotlinCorePr
                 it.registerFileType(KotlinFileType.INSTANCE, "kt")
             }
     return KotlinCoreProjectEnvironment(disposable, kotlinCoreApplicationEnvironment).also {
-        it
-            .project
-            .cast<MockProject>()
-            .apply { registerFormatPomModel() }
+        it.project.apply { registerFormatPomModel() }
     }
 }
 
@@ -131,7 +127,7 @@ private class LoggerFactory : DiagnosticLogger.Factory {
         }
 }
 
-private fun MockProject.registerFormatPomModel() {
+private fun MockComponentManager.registerFormatPomModel() {
     registerService(PomModel::class.java, FormatPomModel())
 }
 
