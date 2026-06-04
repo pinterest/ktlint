@@ -77,6 +77,36 @@ public final class com/pinterest/ktlint/ruleset/standard/rules/BlankLineBeforeDe
 	public static final fun getBLANK_LINE_BEFORE_DECLARATION_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
 }
 
+public final class com/pinterest/ktlint/ruleset/standard/rules/BlankLineBeforeFileAnnotation : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/RuleV2$Experimental {
+	public fun <init> ()V
+	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
+}
+
+public final class com/pinterest/ktlint/ruleset/standard/rules/BlankLineBeforeFileAnnotationKt {
+	public static final fun getBLANK_LINE_BEFORE_FILE_ANNOTATION_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+}
+
+public final class com/pinterest/ktlint/ruleset/standard/rules/BlankLineBeforeImports : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/RuleV2$Experimental {
+	public fun <init> ()V
+	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
+}
+
+public final class com/pinterest/ktlint/ruleset/standard/rules/BlankLineBeforeImportsKt {
+	public static final fun getBLANK_LINE_BEFORE_IMPORTS_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+}
+
+public final class com/pinterest/ktlint/ruleset/standard/rules/BlankLineBeforePackage : com/pinterest/ktlint/ruleset/standard/StandardRule, com/pinterest/ktlint/rule/engine/core/api/RuleV2$Experimental {
+	public fun <init> ()V
+	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
+}
+
+public final class com/pinterest/ktlint/ruleset/standard/rules/BlankLineBeforePackageKt {
+	public static final fun getBLANK_LINE_BEFORE_PACKAGE_RULE_ID ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+}
+
 public final class com/pinterest/ktlint/ruleset/standard/rules/BlankLineBetweenWhenConditions : com/pinterest/ktlint/ruleset/standard/StandardRule {
 	public static final field Companion Lcom/pinterest/ktlint/ruleset/standard/rules/BlankLineBetweenWhenConditions$Companion;
 	public fun <init> ()V

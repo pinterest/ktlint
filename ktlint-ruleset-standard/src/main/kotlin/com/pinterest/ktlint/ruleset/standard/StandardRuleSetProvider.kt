@@ -9,6 +9,9 @@ import com.pinterest.ktlint.ruleset.standard.rules.ArgumentListWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.BackingPropertyNamingRule
 import com.pinterest.ktlint.ruleset.standard.rules.BinaryExpressionWrappingRule
 import com.pinterest.ktlint.ruleset.standard.rules.BlankLineBeforeDeclarationRule
+import com.pinterest.ktlint.ruleset.standard.rules.BlankLineBeforeFileAnnotation
+import com.pinterest.ktlint.ruleset.standard.rules.BlankLineBeforeImports
+import com.pinterest.ktlint.ruleset.standard.rules.BlankLineBeforePackage
 import com.pinterest.ktlint.ruleset.standard.rules.BlankLineBetweenWhenConditions
 import com.pinterest.ktlint.ruleset.standard.rules.BlockCommentInitialStarAlignmentRule
 import com.pinterest.ktlint.ruleset.standard.rules.CallExpressionWrappingRule
@@ -115,6 +118,9 @@ public class StandardRuleSetProvider : RuleSetV2Provider(RuleSetId.STANDARD) {
             RuleV2InstanceProvider { BackingPropertyNamingRule() },
             RuleV2InstanceProvider { BinaryExpressionWrappingRule() },
             RuleV2InstanceProvider { BlankLineBeforeDeclarationRule() },
+            RuleV2InstanceProvider { BlankLineBeforeFileAnnotation() },
+            RuleV2InstanceProvider { BlankLineBeforeImports() },
+            RuleV2InstanceProvider { BlankLineBeforePackage() },
             RuleV2InstanceProvider { BlankLineBetweenWhenConditions() },
             RuleV2InstanceProvider { BlockCommentInitialStarAlignmentRule() },
             RuleV2InstanceProvider { CallExpressionWrappingRule() },

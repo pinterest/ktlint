@@ -8,6 +8,130 @@ ktlint_experimental=enabled
 ```
 Also see [enable/disable specific rules](configuration-ktlint.md#disable-rules).
 
+## Blank line before file annotation
+
+Requires a blank line before the file annotation unless that file annotation is on the first line of the file.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    /*
+     * Copyright comment
+     */
+
+    @file:Foo
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    /*
+     * Copyright comment
+     */
+    @file:Foo
+    ```
+
+Rule id: `standard:blank-line-before-file-annotation`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:blank-line-before-file-annotation")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_blank-line-before-file-annotation = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_blank-line-before-file-annotation = disabled
+    ```
+
+!!! Note
+    This rule is only run when `ktlint_code_style` is set to `ktlint_official` or `android_studion` or when the rule is enabled explicitly.
+
+## Blank line before imports
+
+Requires a blank line before the imports unless the imports starts at the first line of the file.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    package bar
+
+    import foo
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    package bar
+    import foo
+    ```
+
+Rule id: `standard:blank-line-before-imports`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:blank-line-before-imports")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_blank-line-before-imports = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_blank-line-before-imports = disabled
+    ```
+
+!!! Note
+    This rule is only run when `ktlint_code_style` is set to `ktlint_official` or `android_studion` or when the rule is enabled explicitly.
+
+## Blank line before package
+
+Requires a blank line before the package statement unless the package statement is the first line of the file.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin
+    @file:Bar
+
+    package foo
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    @file:Bar
+    package foo
+    ```
+
+Rule id: `standard:blank-line-before-package`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:blank-line-before-package")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_blank-line-before-package = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_blank-line-before-package = disabled
+    ```
+
+!!! Note
+    This rule is only run when `ktlint_code_style` is set to `ktlint_official` or `android_studion` or when the rule is enabled explicitly.
+
 ## Call expression wrapping
 
 In case a call expression does not fit on the line, the lambda expression, and/or the value argument list after a reference expression are wrapped. 
