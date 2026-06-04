@@ -2,7 +2,7 @@ package com.pinterest.ktlint.ruleset.standard.rules
 
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import com.pinterest.ktlint.test.KtlintDocumentationTest
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Nested
@@ -13,7 +13,10 @@ import org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE
 import org.junit.jupiter.params.provider.EnumSource.Mode.INCLUDE
 
 class BlankLineBeforeDeclarationRuleTest {
-    private val blankLineBeforeDeclarationRuleAssertThat = assertThatRule { BlankLineBeforeDeclarationRule() }
+    private val blankLineBeforeDeclarationRuleAssertThat =
+        assertThatRuleBuilder { BlankLineBeforeDeclarationRule() }
+            .addAdditionalRuleProvider { NoConsecutiveBlankLinesRule() }
+            .assertThat()
 
     // Just for one single test evaluates that the rule is working for `ktlint_official` and `android_studio` code styles, but not for
     // `intellij_idea`. It is assumed that all other tests (do not) work similarly.
@@ -52,6 +55,39 @@ class BlankLineBeforeDeclarationRuleTest {
         blankLineBeforeDeclarationRuleAssertThat(code)
             .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyleValue.name)
             .hasNoLintViolations()
+    }
+
+    // Similar tests could be written for other combinations of declarations, but it would not increase the test coverage
+    @Test
+    fun `Given some consecutive classes separated by exactly one blank line then do not insert another blank line in between`() {
+        val code =
+            """
+            class Foo
+
+            class Bar
+            """.trimIndent()
+        blankLineBeforeDeclarationRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    // Similar tests could be written for other combinations of declarations, but it would not increase the test coverage
+    @Test
+    fun `Given some consecutive classes separated by too many blank line then remove the redundant blank lines`() {
+        val code =
+            """
+            class Foo
+
+
+            class Bar
+            """.trimIndent()
+        val formattedCode =
+            """
+            class Foo
+
+            class Bar
+            """.trimIndent()
+        blankLineBeforeDeclarationRuleAssertThat(code)
+            .hasNoLintViolationsExceptInAdditionalRules()
+            .isFormattedAs(formattedCode)
     }
 
     @Test
