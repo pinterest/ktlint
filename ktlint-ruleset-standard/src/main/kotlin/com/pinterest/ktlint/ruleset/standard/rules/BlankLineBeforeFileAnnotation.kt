@@ -24,7 +24,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  */
 @SinceKtlint("2.0", EXPERIMENTAL)
 public class BlankLineBeforeFileAnnotation :
-    StandardRule("blank-line-before-file-annotation",),
+    StandardRule("blank-line-before-file-annotation"),
     RuleV2.Experimental {
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         if (editorConfig[CODE_STYLE_PROPERTY] == CodeStyleValue.intellij_idea) {
@@ -48,6 +48,7 @@ public class BlankLineBeforeFileAnnotation :
                     }
                 stopTraversalOfAST()
             }
+
             PACKAGE_DIRECTIVE, IMPORT_LIST -> {
                 stopTraversalOfAST()
             }

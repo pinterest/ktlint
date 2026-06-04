@@ -141,4 +141,15 @@ class BlankLineBeforeImportsTest {
             .hasLintViolation(2, 1, "Expected a blank line before the import(s)")
             .isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Given a file not containing any import statement`() {
+        val code =
+            """
+            package bar
+
+            val foo = "foo"
+            """.trimIndent()
+        blankLineBeforeImportsRuleAssertThat(code).hasNoLintViolations()
+    }
 }

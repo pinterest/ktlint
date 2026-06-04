@@ -105,5 +105,4 @@ class BlankLineBeforeFileAnnotationTest {
             .hasNoLintViolationsExceptInAdditionalRules()
             .isFormattedAs(formattedCode)
     }
-
 }

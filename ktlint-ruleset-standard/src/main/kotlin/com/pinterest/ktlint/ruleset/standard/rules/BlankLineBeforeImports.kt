@@ -17,13 +17,14 @@ import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.psi.psiUtil.children
 
 /**
  * Insert a blank line before the imports list
  */
 @SinceKtlint("2.0", EXPERIMENTAL)
 public class BlankLineBeforeImports :
-    StandardRule("blank-line-before-imports",),
+    StandardRule("blank-line-before-imports"),
     RuleV2.Experimental {
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         if (editorConfig[CODE_STYLE_PROPERTY] == CodeStyleValue.intellij_idea) {
@@ -35,7 +36,7 @@ public class BlankLineBeforeImports :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.elementType == IMPORT_LIST) {
+        if (node.elementType == IMPORT_LIST && node.children().firstOrNull() != null) {
             node
                 .takeUnless { it.prevLeaf.isBlankLine() }
                 ?.let { insertBeforeNode ->

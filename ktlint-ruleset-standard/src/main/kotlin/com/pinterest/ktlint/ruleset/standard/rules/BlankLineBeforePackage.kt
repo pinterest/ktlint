@@ -23,7 +23,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  */
 @SinceKtlint("2.0", EXPERIMENTAL)
 public class BlankLineBeforePackage :
-    StandardRule("blank-line-before-package",),
+    StandardRule("blank-line-before-package"),
     RuleV2.Experimental {
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         if (editorConfig[CODE_STYLE_PROPERTY] == CodeStyleValue.intellij_idea) {
@@ -47,6 +47,7 @@ public class BlankLineBeforePackage :
                     }
                 stopTraversalOfAST()
             }
+
             IMPORT_LIST -> {
                 stopTraversalOfAST()
             }
