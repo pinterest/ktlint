@@ -1369,7 +1369,7 @@ Suppress or disable rule (1)
 KDoc's should only be used on elements for which KDoc is to be transformed to documentation. Normal block comments should be used in other cases.
 
 !!! note:
-Access modifiers are ignored. Strictly speaking, one could argue that private declarations should not have a KDoc as no documentation will be generated for it. However, for internal use of developers, the KDoc still serves documentation purposes.
+    Access modifiers are ignored. Strictly speaking, one could argue that private declarations should not have a KDoc as no documentation will be generated for it. However, for internal use of developers, the KDoc still serves documentation purposes.
 
 === "[:material-heart:](#) Ktlint"
 
