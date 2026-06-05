@@ -55,7 +55,7 @@ internal class EditorConfigLoader(
      * Properties specified in [editorConfigOverride] take precedence above any other '.editorconfig' file on [filePath] or default value.
      */
     internal fun load(filePath: Path?): EditorConfig {
-        val editorConfigPath = filePath ?: defaultFilePath()
+        val editorConfigPath = filePath?.toAbsolutePath() ?: defaultFilePath()
         val editorConfigProperties: MutableMap<String, Property> =
             createResourcePropertiesService(editorConfigLoaderEc4j.editorConfigLoader, editorConfigDefaults)
                 .queryProperties(editorConfigPath.resource())

@@ -1,0 +1,3 @@
+[*.{kt,kts}]
+indent_size = 6
+ktlint_code_style = intellij_idea
