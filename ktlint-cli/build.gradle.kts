@@ -18,6 +18,10 @@ tasks.shadowJar {
     filesNotMatching("META-INF/services/**") {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
+    // kotlin-compiler-embeddable ships jline native-image properties that reference
+    // reflection-config.json / resource-config.json files that aren't bundled — drop them
+    // so GraalVM native-image doesn't fail on missing resources.
+    exclude("META-INF/native-image/org.jline/**")
 }
 
 dependencies {
