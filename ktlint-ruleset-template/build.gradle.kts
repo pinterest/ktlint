@@ -2,7 +2,7 @@
 // build logic of other internal ktlint modules (https://github.com/pinterest/ktlint/issues/3048)..
 
 plugins {
-    kotlin("jvm") version "2.3.20"
+    kotlin("jvm") version "2.4.0"
     // Remove the line below when this custom ruleset is not to be published to maven. If you do want to publish your ruleset to Maven, you
     // still might need to configure the Maven Central repository in file `settings.gradle.xml` which is not included in the sample project
     // as it conflicts with the build of the Ktlint itself. Suggested content of that file:
@@ -34,11 +34,11 @@ dependencies {
     implementation("com.pinterest.ktlint:ktlint-cli-ruleset-core:1.8.0")
     implementation("com.pinterest.ktlint:ktlint-rule-engine-core:1.8.0")
 
-    testImplementation("org.junit.jupiter:junit-jupiter:6.0.3")
+    testImplementation("org.junit.jupiter:junit-jupiter:6.1.0")
     // Since Gradle 8 the platform launcher needs explicitly be defined as runtime dependency to avoid classpath problems
     // https://docs.gradle.org/8.12/userguide/upgrading_version_8.html#test_framework_implementation_dependencies
-    testImplementation("org.junit.platform:junit-platform-launcher:6.0.3")
-    testImplementation("org.slf4j:slf4j-simple:2.0.17")
+    testImplementation("org.junit.platform:junit-platform-launcher:6.1.0")
+    testImplementation("org.slf4j:slf4j-simple:2.0.18")
     testImplementation("com.pinterest.ktlint:ktlint-test:1.8.0")
 }
 

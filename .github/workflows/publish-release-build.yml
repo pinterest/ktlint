@@ -13,7 +13,7 @@ jobs:
     if: github.repository == 'ktlint/ktlint'
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           ref: 'master'
 
@@ -60,7 +60,7 @@ jobs:
       - name: Create release
         id: github_release
         if: ${{ success() }}
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           draft: false
           prerelease: false
@@ -72,7 +72,7 @@ jobs:
 
       - name: Bump Homebrew Formula
         if: ${{ success() }}
-        uses: mislav/bump-homebrew-formula-action@v2
+        uses: mislav/bump-homebrew-formula-action@v4.1
         env:
           COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TOKEN }}
         with:

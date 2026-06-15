@@ -1,16 +1,30 @@
 package com.pinterest.ktlint.ruleset.standard.rules
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
+import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue
+import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import com.pinterest.ktlint.test.KtlintDocumentationTest
 import com.pinterest.ktlint.test.LintViolation
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
+import org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE
+import org.junit.jupiter.params.provider.EnumSource.Mode.INCLUDE
 
 class BlankLineBeforeDeclarationRuleTest {
-    private val blankLineBeforeDeclarationRuleAssertThat = assertThatRule { BlankLineBeforeDeclarationRule() }
+    private val blankLineBeforeDeclarationRuleAssertThat =
+        assertThatRuleBuilder { BlankLineBeforeDeclarationRule() }
+            .addAdditionalRuleProvider { NoConsecutiveBlankLinesRule() }
+            .assertThat()
 
-    @Test
-    fun `Given some consecutive classes not separated by a blank line then insert a blank line in between`() {
+    // Just for one single test evaluates that the rule is working for `ktlint_official` and `android_studio` code styles, but not for
+    // `intellij_idea`. It is assumed that all other tests (do not) work similarly.
+    @ParameterizedTest(name = "Code style: {0}")
+    @EnumSource(CodeStyleValue::class, mode = INCLUDE, names = ["ktlint_official", "android_studio"])
+    fun `Given some consecutive classes not separated by a blank line then insert a blank line in between`(
+        codeStyleValue: CodeStyleValue,
+    ) {
         val code =
             """
             class Foo
@@ -23,7 +37,56 @@ class BlankLineBeforeDeclarationRuleTest {
             class Bar
             """.trimIndent()
         blankLineBeforeDeclarationRuleAssertThat(code)
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyleValue.name)
             .hasLintViolation(2, 1, "Expected a blank line for this declaration")
+            .isFormattedAs(formattedCode)
+    }
+
+    @ParameterizedTest(name = "Code style: {0}")
+    @EnumSource(CodeStyleValue::class, mode = EXCLUDE, names = ["ktlint_official", "android_studio"])
+    fun `Given some consecutive classes not separated by a blank line then do not insert a blank line in between`(
+        codeStyleValue: CodeStyleValue,
+    ) {
+        val code =
+            """
+            class Foo
+            class Bar
+            """.trimIndent()
+        blankLineBeforeDeclarationRuleAssertThat(code)
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyleValue.name)
+            .hasNoLintViolations()
+    }
+
+    // Similar tests could be written for other combinations of declarations, but it would not increase the test coverage
+    @Test
+    fun `Given some consecutive classes separated by exactly one blank line then do not insert another blank line in between`() {
+        val code =
+            """
+            class Foo
+
+            class Bar
+            """.trimIndent()
+        blankLineBeforeDeclarationRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    // Similar tests could be written for other combinations of declarations, but it would not increase the test coverage
+    @Test
+    fun `Given some consecutive classes separated by too many blank line then remove the redundant blank lines`() {
+        val code =
+            """
+            class Foo
+
+
+            class Bar
+            """.trimIndent()
+        val formattedCode =
+            """
+            class Foo
+
+            class Bar
+            """.trimIndent()
+        blankLineBeforeDeclarationRuleAssertThat(code)
+            .hasNoLintViolationsExceptInAdditionalRules()
             .isFormattedAs(formattedCode)
     }
 
@@ -519,5 +582,29 @@ class BlankLineBeforeDeclarationRuleTest {
             val foo2 = foo(fun() = 42)
             """.trimIndent()
         blankLineBeforeDeclarationRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 3282 - Given an import statement followed by a top level declaration not separated by a blank line`() {
+        val code =
+            """
+            import bar
+            val foo1 =
+                bar(
+                    fun() = 42,
+                )
+            """.trimIndent()
+        val formattedCode =
+            """
+            import bar
+
+            val foo1 =
+                bar(
+                    fun() = 42,
+                )
+            """.trimIndent()
+        blankLineBeforeDeclarationRuleAssertThat(code)
+            .hasLintViolation(2, 1, "Expected a blank line for this declaration")
+            .isFormattedAs(formattedCode)
     }
 }

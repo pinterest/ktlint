@@ -2,18 +2,18 @@
 # The java-compilation version is the latest supported (not necessarily LTS) version of Java. It should be identical to Java-version used in
 # `actions/setup-java`. Value is used in KotlinCommonPlugin
 #noinspection UnusedVersionCatalogEntry
-java-compilation = "25"
+java-compilation = "26"
 # The java-target version is the lowest supported LTS version of Java. Jar's produced are bytecode compatible with this version. Value is
 # used in KotlinCommonPlugin
 #noinspection UnusedVersionCatalogEntry
 java-target = "17"
-kotlin = "2.3.20"
-kotlinDev = "2.3.20"
+kotlin = "2.4.0"
+kotlinDev = "2.4.0"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-sam-with-receiver = { id = "org.jetbrains.kotlin.plugin.sam.with.receiver", version.ref = "kotlin" }
-shadow = "com.gradleup.shadow:9.4.1"
+shadow = "com.gradleup.shadow:9.4.2"
 # kotlinx-binary-compatibiltiy-validator is used in build.gradle.kts in ktlint-root
 #noinspection UnusedVersionCatalogEntry
 kotlinx-binary-compatibiltiy-validator = "org.jetbrains.kotlinx.binary-compatibility-validator:0.18.1"
@@ -27,18 +27,18 @@ gradle-maven-publish-plugin = "com.vanniktech:gradle-maven-publish-plugin:0.36.0
 clikt = "com.github.ajalt.clikt:clikt:5.1.0"
 dokka = "org.jetbrains.dokka:dokka-gradle-plugin:2.2.0"
 ec4j = "org.ec4j.core:ec4j-core:1.2.0"
-logging = "io.github.oshai:kotlin-logging-jvm:8.0.01"
-slf4j = "org.slf4j:slf4j-simple:2.0.17"
-poko = "dev.drewhamilton.poko:poko-gradle-plugin:0.22.1"
+logging = "io.github.oshai:kotlin-logging-jvm:8.0.4"
+slf4j = "org.slf4j:slf4j-simple:2.0.18"
+poko = "dev.drewhamilton.poko:poko-gradle-plugin:0.23.1"
 # Use logback-classic as the logger for kotlin-logging / slf4j as it allow changing the log level at runtime.
-logback = "ch.qos.logback:logback-classic:1.5.32"
+logback = "ch.qos.logback:logback-classic:1.5.34"
 logcaptor = "io.github.hakky54:logcaptor:2.12.6"
 # Required for logback-test.xml conditional configuration so that trace-logging in unit test can be automatically enabled using an
 # environment variable
 janino = "org.codehaus.janino:janino:3.1.12"
 # Testing libraries
-junit5-jupiter = "org.junit.jupiter:junit-jupiter:6.0.3"
-junit5-platform-launcher = "org.junit.platform:junit-platform-launcher:6.0.3"
+junit5-jupiter = "org.junit.jupiter:junit-jupiter:6.1.0"
+junit5-platform-launcher = "org.junit.platform:junit-platform-launcher:6.1.0"
 assertj = "org.assertj:assertj-core:3.27.7"
 sarif4k = "io.github.detekt.sarif4k:sarif4k:0.7.0"
 jimfs = "com.google.jimfs:jimfs:1.3.1"

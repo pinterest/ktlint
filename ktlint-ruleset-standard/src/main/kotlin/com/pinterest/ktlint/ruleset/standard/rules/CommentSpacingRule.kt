@@ -7,11 +7,13 @@ import com.pinterest.ktlint.rule.engine.core.api.SinceKtlint
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
 import com.pinterest.ktlint.rule.engine.core.api.isWhiteSpace
 import com.pinterest.ktlint.rule.engine.core.api.prevLeaf
+import com.pinterest.ktlint.rule.engine.core.api.remove
 import com.pinterest.ktlint.rule.engine.core.api.replaceTextWith
 import com.pinterest.ktlint.rule.engine.core.api.upsertWhitespaceBeforeMe
 import com.pinterest.ktlint.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiCommentImpl
 
 @SinceKtlint("0.23", SinceKtlint.Status.STABLE)
 public class CommentSpacingRule : StandardRule("comment-spacing") {
@@ -37,7 +39,11 @@ public class CommentSpacingRule : StandardRule("comment-spacing") {
             ) {
                 emit(node.startOffset, "Missing space after //", true)
                     .ifAutocorrectAllowed {
-                        node.replaceTextWith("// " + text.removePrefix("//"))
+                        // Simply replacing the text of node can result in a nullpointer exception in a rule that run after this rule as the
+                        // reference to the prev leaf, and the parent node are lost
+                        val newEolComment = PsiCommentImpl(EOL_COMMENT, "// ${text.removePrefix("//")}")
+                        (node as LeafPsiElement).rawInsertBeforeMe(newEolComment)
+                        node.remove()
                     }
             }
         }

@@ -419,6 +419,28 @@ class SimpleCLITest {
     }
 
     @Test
+    fun `Issue 3296 - Merge editorconfig properties from subdirectory with root directory when relative stdin-path is used`(
+        @TempDir
+        tempDir: Path,
+    ) {
+        CommandLineTestRunner(tempDir)
+            .run(
+                testProjectName = "nested-editorconfig",
+                arguments = listOf("--stdin", "--stdin-path", "foo/Foo.kt"),
+                stdin = ByteArrayInputStream("fun foo() = 42".toByteArray()),
+            ) {
+                SoftAssertions()
+                    .apply {
+                        // Check properties overridden in "foo/.editorconfig"
+                        assertThat(normalOutput).containsLineMatching(Regex(".*indent_size: 6.*"))
+                        assertThat(normalOutput).containsLineMatching(Regex(".*ktlint_code_style: intellij_idea.*"))
+                        // Check properties not overridden in "foo/.editorconfig" but defined in root ".editorconfig"
+                        assertThat(normalOutput).containsLineMatching(Regex(".*end_of_line: crlf.*"))
+                    }.assertAll()
+            }
+    }
+
+    @Test
     fun `Issue 1832 - Given stdin input containing Kotlin Script resulting in a KtLintParseException when linted as Kotlin code then process the input as Kotlin Script`(
         @TempDir
         tempDir: Path,
