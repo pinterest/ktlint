@@ -14,7 +14,7 @@ runs:
     - name: Set up GraalVM
       uses: graalvm/setup-graalvm@v1
       with:
-        java-version: "26"
+        java-version: "25"
         distribution: "graalvm-community"
         components: "native-image"
         github-token: ${{ github.token }}
