@@ -14,11 +14,16 @@ runs:
     - name: Set up GraalVM
       uses: graalvm/setup-graalvm@v1
       with:
-        java-version: "26"
+        # GraalVM CE for Java 26 not yet available (Java 26 GA is Sep 2026). The shadow JAR is
+        # built to Java 17 bytecode (see `java-target` in libs.versions.toml), so GraalVM 25 can
+        # process it. `set-java-home: false` preserves the Java 26 JDK that setup-gradle-build
+        # installed — Gradle's build-logic requires it to configure the project.
+        java-version: "25"
         distribution: "graalvm-community"
         components: "native-image"
         github-token: ${{ github.token }}
         native-image-job-reports: "true"
+        set-java-home: "false"
 
     - name: Build shadow JAR
       run: ./gradlew :ktlint-cli:shadowJar
