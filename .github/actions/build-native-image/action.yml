@@ -43,17 +43,24 @@ runs:
         echo "SHADOW_JAR=$($jar.FullName)" >> $env:GITHUB_ENV
       shell: pwsh
 
-    - name: Add GraalVM bin to PATH
-      # set-java-home: false also suppresses PATH setup, so native-image isn't found on PATH otherwise
-      run: echo "$GRAALVM_HOME/bin" >> "$GITHUB_PATH"
-      shell: bash
-
-    - name: Build native image
+    - name: Build native image (Unix)
+      if: runner.os != 'Windows'
       run: >-
-        native-image
+        "$GRAALVM_HOME/bin/native-image"
         --no-fallback
         -H:+ReportExceptionStackTraces
         -march=compatibility
         -jar "${{ env.SHADOW_JAR }}"
         -o "${{ inputs.output-name }}"
       shell: bash
+
+    - name: Build native image (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        & "$env:GRAALVM_HOME\bin\native-image.cmd" `
+          --no-fallback `
+          -H:+ReportExceptionStackTraces `
+          -march=compatibility `
+          -jar "${{ env.SHADOW_JAR }}" `
+          -o "${{ inputs.output-name }}"
+      shell: pwsh
