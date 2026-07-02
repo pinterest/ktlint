@@ -20,7 +20,6 @@ runs:
         # installed — Gradle's build-logic requires it to configure the project.
         java-version: "25"
         distribution: "graalvm-community"
-        components: "native-image"
         github-token: ${{ github.token }}
         native-image-job-reports: "true"
         set-java-home: "false"
@@ -43,6 +42,11 @@ runs:
         $jar = Get-ChildItem -Path "ktlint-cli/build/libs" -Filter "ktlint-cli-*-all.jar" | Select-Object -First 1
         echo "SHADOW_JAR=$($jar.FullName)" >> $env:GITHUB_ENV
       shell: pwsh
+
+    - name: Add GraalVM bin to PATH
+      # set-java-home: false also suppresses PATH setup, so native-image isn't found on PATH otherwise
+      run: echo "$GRAALVM_HOME/bin" >> "$GITHUB_PATH"
+      shell: bash
 
     - name: Build native image
       run: >-
