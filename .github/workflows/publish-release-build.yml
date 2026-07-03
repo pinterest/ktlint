@@ -100,6 +100,7 @@ jobs:
       matrix:
         # ubuntu-22.04 is used instead of ubuntu-latest to produce a binary compatible with a wider range
         # of Linux distributions (glibc version constraint). See https://github.com/google/google-java-format/issues/1072.
+        # Revisit this once ktlint intentionally raises its minimum glibc compatibility baseline.
         os: [ubuntu-22.04, macos-latest, windows-latest]
     env:
       SUFFIX: ${{ fromJson('{"ubuntu-22.04":"linux-x86-64","macos-latest":"darwin-arm64","windows-latest":"windows-x86-64"}')[matrix.os] }}

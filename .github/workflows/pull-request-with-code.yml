@@ -9,23 +9,23 @@ on:
     paths:
       - '**/*.kt'
       - '**/*.kts'
-      - '**/*.gradle'
-      - '**/*.gradle.kts'
       - '**/*.properties'
       - '**/*.toml'
-      - '.github/actions/**'
-      - '.github/workflows/**'
+      - '.github/actions/build-native-image/**'
+      - '.github/workflows/pull-request-with-code.yml'
+      - '.github/workflows/pull-request-without-code.yml'
+      - '.github/workflows/publish-release-build.yml'
       - 'ktlint-cli/**'
   pull_request:
     paths:
       - '**/*.kt'
       - '**/*.kts'
-      - '**/*.gradle'
-      - '**/*.gradle.kts'
       - '**/*.properties'
       - '**/*.toml'
-      - '.github/actions/**'
-      - '.github/workflows/**'
+      - '.github/actions/build-native-image/**'
+      - '.github/workflows/pull-request-with-code.yml'
+      - '.github/workflows/pull-request-without-code.yml'
+      - '.github/workflows/publish-release-build.yml'
       - 'ktlint-cli/**'
   workflow_dispatch:
 
@@ -113,6 +113,7 @@ jobs:
       matrix:
         # ubuntu-22.04 is used instead of ubuntu-latest to produce a binary compatible with a wider range
         # of Linux distributions (glibc version constraint). See https://github.com/google/google-java-format/issues/1072.
+        # Revisit this once ktlint intentionally raises its minimum glibc compatibility baseline.
         os: [ubuntu-22.04, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     name: "[native-image] OS=${{ matrix.os }}"
