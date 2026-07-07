@@ -15,6 +15,9 @@ Each release contains multiple ways to run `ktlint`:
 - `ktlint_windows-x86-64.exe` is a native executable for Windows x86-64.
 - `ktlint.bat` starts the executable JAR on Windows.
 
+!!! warning "Native executables and custom rulesets/reporters"
+    The native executables (`ktlint_linux-x86-64`, `ktlint_darwin-arm64`, `ktlint_windows-x86-64.exe`) are ahead-of-time compiled with GraalVM `native-image` and cannot load ruleset or reporter JARs supplied at runtime via the command line. Only the built-in rulesets and reporters are available. If you need custom or third-party rulesets/reporters, use the executable JAR (`ktlint`) instead.
+
 ### Download using curl (Linux or macOS)
 
 A particular version of `ktlint` can be downloaded with the commands below. Each command uses `curl` for downloading. The downloaded file will be renamed to `/usr/local/bin/ktlint` and changed to an executable file.
