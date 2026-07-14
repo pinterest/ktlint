@@ -14,7 +14,6 @@ on:
       - '!**/*.toml'
       - '!.github/actions/build-native-image/**'
       - '!.github/workflows/pull-request-with-code.yml'
-      - '!.github/workflows/pull-request-without-code.yml'
       - '!.github/workflows/publish-release-build.yml'
       - '!ktlint-cli/**'
   pull_request:
@@ -26,7 +25,6 @@ on:
       - '!**/*.toml'
       - '!.github/actions/build-native-image/**'
       - '!.github/workflows/pull-request-with-code.yml'
-      - '!.github/workflows/pull-request-without-code.yml'
       - '!.github/workflows/publish-release-build.yml'
       - '!ktlint-cli/**'
 
