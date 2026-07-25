@@ -1,14 +1,13 @@
 package yourpkgname
 
-import com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3
+import io.github.ktlint.core.cli.ruleset.core.api.RuleSetV2Provider
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class MetaInfServicesTest {
     @Test
-    fun `Check if RuleSetProviderV3 is registered in META-INF services`() {
-        // TODO: Replace RuleSetProviderV3 with RuleSetV2Provider after release 2.0
-        val classNameRuleSetProviderBaseClass = RuleSetProviderV3::class.java.name
+    fun `Check if RuleSetV2Provider is registered in META-INF services`() {
+        val classNameRuleSetProviderBaseClass = RuleSetV2Provider::class.java.name
         val classNameRuleSetProviderImplementationClass = CustomRuleSetProvider::class.java.name
 
         val actual = getResourceWithPath("META-INF/services/$classNameRuleSetProviderBaseClass")

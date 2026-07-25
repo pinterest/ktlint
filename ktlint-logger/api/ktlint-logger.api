@@ -1,4 +1,4 @@
-public final class com/pinterest/ktlint/logger/api/KtLintKLoggerInitializerKt {
+public final class io/github/ktlint/core/logger/api/KtLintKLoggerInitializerKt {
 	public static final fun initKtLintKLogger (Lio/github/oshai/kotlinlogging/KLogger;)Lio/github/oshai/kotlinlogging/KLogger;
 	public static final fun setDefaultLoggerModifier (Lio/github/oshai/kotlinlogging/KLogger;Lkotlin/jvm/functions/Function1;)Lio/github/oshai/kotlinlogging/KLogger;
 }

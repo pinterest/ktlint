@@ -1,20 +1,21 @@
 package com.example.ktlint.api.consumer
 
 import com.example.ktlint.api.consumer.rules.KTLINT_API_CONSUMER_RULE_PROVIDERS
-import com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3
-import com.pinterest.ktlint.logger.api.initKtLintKLogger
-import com.pinterest.ktlint.rule.engine.api.Code
-import com.pinterest.ktlint.rule.engine.api.EditorConfigDefaults
-import com.pinterest.ktlint.rule.engine.api.EditorConfigOverride
-import com.pinterest.ktlint.rule.engine.api.EditorConfigPropertyRegistry
-import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
-import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.IndentConfig
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution
-import com.pinterest.ktlint.rule.engine.core.api.propertyTypes
+// TODO: Repackage - Use new provider
+import io.github.ktlint.core.cli.ruleset.core.api.RuleSetProviderV3
+import io.github.ktlint.core.logger.api.initKtLintKLogger
+import io.github.ktlint.core.rule.engine.api.Code
+import io.github.ktlint.core.rule.engine.api.EditorConfigDefaults
+import io.github.ktlint.core.rule.engine.api.EditorConfigOverride
+import io.github.ktlint.core.rule.engine.api.EditorConfigPropertyRegistry
+import io.github.ktlint.core.rule.engine.api.KtLintRuleEngine
+import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
+import io.github.ktlint.core.rule.engine.core.api.IndentConfig
+import io.github.ktlint.core.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
+import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import io.github.ktlint.core.rule.engine.core.api.editorconfig.RuleExecution
+import io.github.ktlint.core.rule.engine.core.api.propertyTypes
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.io.File
 import java.net.URL

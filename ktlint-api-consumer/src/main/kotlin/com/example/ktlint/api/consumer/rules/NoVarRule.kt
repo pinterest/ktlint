@@ -1,9 +1,9 @@
 package com.example.ktlint.api.consumer.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
-import com.pinterest.ktlint.rule.engine.core.api.ElementType.VAR_KEYWORD
-import com.pinterest.ktlint.rule.engine.core.api.RuleId
-import com.pinterest.ktlint.rule.engine.core.api.RuleV2
+import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
+import io.github.ktlint.core.rule.engine.core.api.ElementType.VAR_KEYWORD
+import io.github.ktlint.core.rule.engine.core.api.RuleId
+import io.github.ktlint.core.rule.engine.core.api.RuleV2
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 public class NoVarRule :

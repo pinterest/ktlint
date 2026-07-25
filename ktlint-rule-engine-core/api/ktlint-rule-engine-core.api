@@ -1,4 +1,4 @@
-public final class com/pinterest/ktlint/rule/engine/core/api/ASTNodeExtensionKt {
+public final class io/github/ktlint/core/rule/engine/core/api/ASTNodeExtensionKt {
 	public static final fun afterCodeSibling (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;)Z
 	public static final fun beforeCodeSibling (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;)Z
 	public static final fun betweenCodeSiblings (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;)Z
@@ -60,20 +60,20 @@ public final class com/pinterest/ktlint/rule/engine/core/api/ASTNodeExtensionKt 
 	public static final fun upsertWhitespaceBeforeMe (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Ljava/lang/String;)V
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/AutocorrectDecision : java/lang/Enum {
-	public static final field ALLOW_AUTOCORRECT Lcom/pinterest/ktlint/rule/engine/core/api/AutocorrectDecision;
-	public static final field NO_AUTOCORRECT Lcom/pinterest/ktlint/rule/engine/core/api/AutocorrectDecision;
+public final class io/github/ktlint/core/rule/engine/core/api/AutocorrectDecision : java/lang/Enum {
+	public static final field ALLOW_AUTOCORRECT Lio/github/ktlint/core/rule/engine/core/api/AutocorrectDecision;
+	public static final field NO_AUTOCORRECT Lio/github/ktlint/core/rule/engine/core/api/AutocorrectDecision;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
-	public static fun valueOf (Ljava/lang/String;)Lcom/pinterest/ktlint/rule/engine/core/api/AutocorrectDecision;
-	public static fun values ()[Lcom/pinterest/ktlint/rule/engine/core/api/AutocorrectDecision;
+	public static fun valueOf (Ljava/lang/String;)Lio/github/ktlint/core/rule/engine/core/api/AutocorrectDecision;
+	public static fun values ()[Lio/github/ktlint/core/rule/engine/core/api/AutocorrectDecision;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/AutocorrectDecisionKt {
-	public static final fun ifAutocorrectAllowed (Lcom/pinterest/ktlint/rule/engine/core/api/AutocorrectDecision;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+public final class io/github/ktlint/core/rule/engine/core/api/AutocorrectDecisionKt {
+	public static final fun ifAutocorrectAllowed (Lio/github/ktlint/core/rule/engine/core/api/AutocorrectDecision;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/ElementType {
-	public static final field INSTANCE Lcom/pinterest/ktlint/rule/engine/core/api/ElementType;
+public final class io/github/ktlint/core/rule/engine/core/api/ElementType {
+	public static final field INSTANCE Lio/github/ktlint/core/rule/engine/core/api/ElementType;
 	public final fun getABSTRACT_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
 	public final fun getACTUAL_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
 	public final fun getANDAND ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
@@ -348,25 +348,25 @@ public final class com/pinterest/ktlint/rule/engine/core/api/ElementType {
 	public final fun getWHITE_SPACE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
 }
 
-public abstract interface annotation class com/pinterest/ktlint/rule/engine/core/api/FeatureInAlphaState : java/lang/annotation/Annotation {
+public abstract interface annotation class io/github/ktlint/core/rule/engine/core/api/FeatureInAlphaState : java/lang/annotation/Annotation {
 }
 
-public abstract interface annotation class com/pinterest/ktlint/rule/engine/core/api/FeatureInBetaState : java/lang/annotation/Annotation {
+public abstract interface annotation class io/github/ktlint/core/rule/engine/core/api/FeatureInBetaState : java/lang/annotation/Annotation {
 }
 
-public abstract interface class com/pinterest/ktlint/rule/engine/core/api/IgnoreKtlintSuppressions {
+public abstract interface class io/github/ktlint/core/rule/engine/core/api/IgnoreKtlintSuppressions {
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/IndentConfig {
-	public static final field Companion Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$Companion;
-	public fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle;I)V
+public final class io/github/ktlint/core/rule/engine/core/api/IndentConfig {
+	public static final field Companion Lio/github/ktlint/core/rule/engine/core/api/IndentConfig$Companion;
+	public fun <init> (Lio/github/ktlint/core/rule/engine/core/api/IndentConfig$IndentStyle;I)V
 	public fun <init> (Lorg/ec4j/core/model/PropertyType$IndentStyleValue;I)V
 	public final fun childIndentOf (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)Ljava/lang/String;
 	public final fun containsUnexpectedIndentChar (Ljava/lang/String;)Z
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getDisabled ()Z
 	public final fun getIndent ()Ljava/lang/String;
-	public final fun getIndentStyle ()Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle;
+	public final fun getIndentStyle ()Lio/github/ktlint/core/rule/engine/core/api/IndentConfig$IndentStyle;
 	public final fun getTabWidth ()I
 	public final fun getUnexpectedIndentCharDescription ()Ljava/lang/String;
 	public fun hashCode ()I
@@ -378,33 +378,33 @@ public final class com/pinterest/ktlint/rule/engine/core/api/IndentConfig {
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/IndentConfig$Companion {
-	public final fun getDEFAULT_INDENT_CONFIG ()Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig;
+public final class io/github/ktlint/core/rule/engine/core/api/IndentConfig$Companion {
+	public final fun getDEFAULT_INDENT_CONFIG ()Lio/github/ktlint/core/rule/engine/core/api/IndentConfig;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle : java/lang/Enum {
-	public static final field SPACE Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle;
-	public static final field TAB Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle;
+public final class io/github/ktlint/core/rule/engine/core/api/IndentConfig$IndentStyle : java/lang/Enum {
+	public static final field SPACE Lio/github/ktlint/core/rule/engine/core/api/IndentConfig$IndentStyle;
+	public static final field TAB Lio/github/ktlint/core/rule/engine/core/api/IndentConfig$IndentStyle;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
-	public static fun valueOf (Ljava/lang/String;)Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle;
-	public static fun values ()[Lcom/pinterest/ktlint/rule/engine/core/api/IndentConfig$IndentStyle;
+	public static fun valueOf (Ljava/lang/String;)Lio/github/ktlint/core/rule/engine/core/api/IndentConfig$IndentStyle;
+	public static fun values ()[Lio/github/ktlint/core/rule/engine/core/api/IndentConfig$IndentStyle;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/KtlintKotlinCompiler {
-	public static final field INSTANCE Lcom/pinterest/ktlint/rule/engine/core/api/KtlintKotlinCompiler;
+public final class io/github/ktlint/core/rule/engine/core/api/KtlintKotlinCompiler {
+	public static final field INSTANCE Lio/github/ktlint/core/rule/engine/core/api/KtlintKotlinCompiler;
 	public final fun createASTNodeFromText (Ljava/lang/String;)Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;
 	public final fun createPsiFileFromText (Ljava/lang/String;Ljava/lang/String;)Lorg/jetbrains/kotlin/com/intellij/psi/PsiFile;
 }
 
-public class com/pinterest/ktlint/rule/engine/core/api/Rule {
-	public fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lcom/pinterest/ktlint/rule/engine/core/api/Rule$About;Ljava/util/Set;Ljava/util/Set;)V
-	public synthetic fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lcom/pinterest/ktlint/rule/engine/core/api/Rule$About;Ljava/util/Set;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+public class io/github/ktlint/core/rule/engine/core/api/Rule {
+	public fun <init> (Lio/github/ktlint/core/rule/engine/core/api/RuleId;Lio/github/ktlint/core/rule/engine/core/api/Rule$About;Ljava/util/Set;Ljava/util/Set;)V
+	public synthetic fun <init> (Lio/github/ktlint/core/rule/engine/core/api/RuleId;Lio/github/ktlint/core/rule/engine/core/api/Rule$About;Ljava/util/Set;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun afterLastNode ()V
 	public fun afterVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
-	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
+	public fun beforeFirstNode (Lio/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfig;)V
 	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;ZLkotlin/jvm/functions/Function3;)V
-	public fun getAbout ()Lcom/pinterest/ktlint/rule/engine/core/api/Rule$About;
-	public fun getRuleId ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+	public fun getAbout ()Lio/github/ktlint/core/rule/engine/core/api/Rule$About;
+	public fun getRuleId ()Lio/github/ktlint/core/rule/engine/core/api/RuleId;
 	public fun getUsesEditorConfigProperties ()Ljava/util/Set;
 	public fun getVisitorModifiers ()Ljava/util/Set;
 	public final fun isUsedForTraversalOfAST ()Z
@@ -413,7 +413,7 @@ public class com/pinterest/ktlint/rule/engine/core/api/Rule {
 	public final fun stopTraversalOfAST ()V
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/Rule$About {
+public final class io/github/ktlint/core/rule/engine/core/api/Rule$About {
 	public fun <init> ()V
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -425,85 +425,86 @@ public final class com/pinterest/ktlint/rule/engine/core/api/Rule$About {
 	public fun toString ()Ljava/lang/String;
 }
 
-public abstract interface class com/pinterest/ktlint/rule/engine/core/api/Rule$Experimental {
+public abstract interface class io/github/ktlint/core/rule/engine/core/api/Rule$Experimental {
 }
 
-public abstract interface class com/pinterest/ktlint/rule/engine/core/api/Rule$OfficialCodeStyle {
+public abstract interface class io/github/ktlint/core/rule/engine/core/api/Rule$OfficialCodeStyle {
 }
 
-public abstract interface class com/pinterest/ktlint/rule/engine/core/api/Rule$OnlyWhenEnabledInEditorconfig {
+public abstract interface class io/github/ktlint/core/rule/engine/core/api/Rule$OnlyWhenEnabledInEditorconfig {
 }
 
-public abstract class com/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier {
+public abstract class io/github/ktlint/core/rule/engine/core/api/Rule$VisitorModifier {
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule : com/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier {
-	public fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;)V
+public final class io/github/ktlint/core/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule : io/github/ktlint/core/rule/engine/core/api/Rule$VisitorModifier {
+	public fun <init> (Lio/github/ktlint/core/rule/engine/core/api/RuleId;Lio/github/ktlint/core/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;)V
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getMode ()Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;
-	public final fun getRuleId ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+	public final fun getMode ()Lio/github/ktlint/core/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;
+	public final fun getRuleId ()Lio/github/ktlint/core/rule/engine/core/api/RuleId;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode : java/lang/Enum {
-	public static final field ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;
-	public static final field REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;
+public final class io/github/ktlint/core/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode : java/lang/Enum {
+	public static final field ONLY_WHEN_RUN_AFTER_RULE_IS_LOADED_AND_ENABLED Lio/github/ktlint/core/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;
+	public static final field REGARDLESS_WHETHER_RUN_AFTER_RULE_IS_LOADED_OR_DISABLED Lio/github/ktlint/core/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
-	public static fun valueOf (Ljava/lang/String;)Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;
-	public static fun values ()[Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;
+	public static fun valueOf (Ljava/lang/String;)Lio/github/ktlint/core/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;
+	public static fun values ()[Lio/github/ktlint/core/rule/engine/core/api/Rule$VisitorModifier$RunAfterRule$Mode;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAsLateAsPossible : com/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier {
-	public static final field INSTANCE Lcom/pinterest/ktlint/rule/engine/core/api/Rule$VisitorModifier$RunAsLateAsPossible;
+public final class io/github/ktlint/core/rule/engine/core/api/Rule$VisitorModifier$RunAsLateAsPossible : io/github/ktlint/core/rule/engine/core/api/Rule$VisitorModifier {
+	public static final field INSTANCE Lio/github/ktlint/core/rule/engine/core/api/Rule$VisitorModifier$RunAsLateAsPossible;
 }
 
-public abstract interface class com/pinterest/ktlint/rule/engine/core/api/RuleAutocorrectApproveHandler {
+public abstract interface class io/github/ktlint/core/rule/engine/core/api/RuleAutocorrectApproveHandler {
 	public fun afterVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/RuleAutocorrectApproveHandler$DefaultImpls {
-	public static fun afterVisitChildNodes (Lcom/pinterest/ktlint/rule/engine/core/api/RuleAutocorrectApproveHandler;Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
-	public static fun beforeVisitChildNodes (Lcom/pinterest/ktlint/rule/engine/core/api/RuleAutocorrectApproveHandler;Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
+public final class io/github/ktlint/core/rule/engine/core/api/RuleAutocorrectApproveHandler$DefaultImpls {
+	public static fun afterVisitChildNodes (Lio/github/ktlint/core/rule/engine/core/api/RuleAutocorrectApproveHandler;Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
+	public static fun beforeVisitChildNodes (Lio/github/ktlint/core/rule/engine/core/api/RuleAutocorrectApproveHandler;Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/RuleId {
-	public static final field Companion Lcom/pinterest/ktlint/rule/engine/core/api/RuleId$Companion;
+public final class io/github/ktlint/core/rule/engine/core/api/RuleId {
+	public static final field Companion Lio/github/ktlint/core/rule/engine/core/api/RuleId$Companion;
 	public fun <init> (Ljava/lang/String;)V
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getRuleSetId ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleSetId;
+	public final fun getRuleSetId ()Lio/github/ktlint/core/rule/engine/core/api/RuleSetId;
 	public final fun getValue ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/RuleId$Companion {
+public final class io/github/ktlint/core/rule/engine/core/api/RuleId$Companion {
 	public final fun isValid (Ljava/lang/String;)Z
 }
 
-public abstract class com/pinterest/ktlint/rule/engine/core/api/RuleInstanceProvider {
-	public synthetic fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public abstract fun createNewRuleInstance ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2;
-	public fun getRuleId ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+public abstract class io/github/ktlint/core/rule/engine/core/api/RuleInstanceProvider {
+	public synthetic fun <init> (Lio/github/ktlint/core/rule/engine/core/api/RuleId;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public abstract fun createNewRuleInstance ()Lio/github/ktlint/core/rule/engine/core/api/RuleV2;
+	public fun getRuleId ()Lio/github/ktlint/core/rule/engine/core/api/RuleId;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/RuleInstanceProviderKt {
+public final class io/github/ktlint/core/rule/engine/core/api/RuleInstanceProviderKt {
 	public static final fun propertyTypes (Ljava/util/Collection;)Ljava/util/Set;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/RuleProvider : com/pinterest/ktlint/rule/engine/core/api/RuleInstanceProvider {
-	public static final field Companion Lcom/pinterest/ktlint/rule/engine/core/api/RuleProvider$Companion;
-	public fun createNewRuleInstance ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2;
-	public fun getRuleId ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+public final class io/github/ktlint/core/rule/engine/core/api/RuleProvider : io/github/ktlint/core/rule/engine/core/api/RuleInstanceProvider {
+	public static final field Companion Lio/github/ktlint/core/rule/engine/core/api/RuleProvider$Companion;
+	public synthetic fun <init> (Lkotlin/jvm/functions/Function0;Lio/github/ktlint/core/rule/engine/core/api/RuleId;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun createNewRuleInstance ()Lio/github/ktlint/core/rule/engine/core/api/RuleV2;
+	public fun getRuleId ()Lio/github/ktlint/core/rule/engine/core/api/RuleId;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/RuleProvider$Companion {
-	public final fun invoke (Lkotlin/jvm/functions/Function0;)Lcom/pinterest/ktlint/rule/engine/core/api/RuleProvider;
+public final class io/github/ktlint/core/rule/engine/core/api/RuleProvider$Companion {
+	public final fun invoke (Lkotlin/jvm/functions/Function0;)Lio/github/ktlint/core/rule/engine/core/api/RuleProvider;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/RuleSetId {
-	public static final field Companion Lcom/pinterest/ktlint/rule/engine/core/api/RuleSetId$Companion;
+public final class io/github/ktlint/core/rule/engine/core/api/RuleSetId {
+	public static final field Companion Lio/github/ktlint/core/rule/engine/core/api/RuleSetId$Companion;
 	public fun <init> (Ljava/lang/String;)V
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getValue ()Ljava/lang/String;
@@ -511,20 +512,20 @@ public final class com/pinterest/ktlint/rule/engine/core/api/RuleSetId {
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/RuleSetId$Companion {
-	public final fun getSTANDARD ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleSetId;
+public final class io/github/ktlint/core/rule/engine/core/api/RuleSetId$Companion {
+	public final fun getSTANDARD ()Lio/github/ktlint/core/rule/engine/core/api/RuleSetId;
 	public final fun isValid (Ljava/lang/String;)Z
 }
 
-public class com/pinterest/ktlint/rule/engine/core/api/RuleV2 {
-	public fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2$About;Ljava/util/Set;)V
-	public synthetic fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2$About;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+public class io/github/ktlint/core/rule/engine/core/api/RuleV2 {
+	public fun <init> (Lio/github/ktlint/core/rule/engine/core/api/RuleId;Lio/github/ktlint/core/rule/engine/core/api/RuleV2$About;Ljava/util/Set;)V
+	public synthetic fun <init> (Lio/github/ktlint/core/rule/engine/core/api/RuleId;Lio/github/ktlint/core/rule/engine/core/api/RuleV2$About;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun afterLastNode ()V
 	public fun afterVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
-	public fun beforeFirstNode (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;)V
+	public fun beforeFirstNode (Lio/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfig;)V
 	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
-	public fun getAbout ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2$About;
-	public fun getRuleId ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+	public fun getAbout ()Lio/github/ktlint/core/rule/engine/core/api/RuleV2$About;
+	public fun getRuleId ()Lio/github/ktlint/core/rule/engine/core/api/RuleId;
 	public fun getUsesEditorConfigProperties ()Ljava/util/Set;
 	public final fun isUsedForTraversalOfAST ()Z
 	public final fun shouldContinueTraversalOfAST ()Z
@@ -532,7 +533,7 @@ public class com/pinterest/ktlint/rule/engine/core/api/RuleV2 {
 	public final fun stopTraversalOfAST ()V
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/RuleV2$About {
+public final class io/github/ktlint/core/rule/engine/core/api/RuleV2$About {
 	public fun <init> ()V
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -544,84 +545,85 @@ public final class com/pinterest/ktlint/rule/engine/core/api/RuleV2$About {
 	public fun toString ()Ljava/lang/String;
 }
 
-public abstract interface class com/pinterest/ktlint/rule/engine/core/api/RuleV2$Experimental {
+public abstract interface class io/github/ktlint/core/rule/engine/core/api/RuleV2$Experimental {
 }
 
-public abstract interface class com/pinterest/ktlint/rule/engine/core/api/RuleV2$OfficialCodeStyle {
+public abstract interface class io/github/ktlint/core/rule/engine/core/api/RuleV2$OfficialCodeStyle {
 }
 
-public abstract interface class com/pinterest/ktlint/rule/engine/core/api/RuleV2$OnlyWhenEnabledInEditorconfig {
+public abstract interface class io/github/ktlint/core/rule/engine/core/api/RuleV2$OnlyWhenEnabledInEditorconfig {
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/RuleV2InstanceProvider : com/pinterest/ktlint/rule/engine/core/api/RuleInstanceProvider {
-	public static final field Companion Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2InstanceProvider$Companion;
-	public fun createNewRuleInstance ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2;
-	public fun getRuleId ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
+public final class io/github/ktlint/core/rule/engine/core/api/RuleV2InstanceProvider : io/github/ktlint/core/rule/engine/core/api/RuleInstanceProvider {
+	public static final field Companion Lio/github/ktlint/core/rule/engine/core/api/RuleV2InstanceProvider$Companion;
+	public synthetic fun <init> (Lkotlin/jvm/functions/Function0;Lio/github/ktlint/core/rule/engine/core/api/RuleId;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun createNewRuleInstance ()Lio/github/ktlint/core/rule/engine/core/api/RuleV2;
+	public fun getRuleId ()Lio/github/ktlint/core/rule/engine/core/api/RuleId;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/RuleV2InstanceProvider$Companion {
-	public final fun invoke (Lkotlin/jvm/functions/Function0;)Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2InstanceProvider;
+public final class io/github/ktlint/core/rule/engine/core/api/RuleV2InstanceProvider$Companion {
+	public final fun invoke (Lkotlin/jvm/functions/Function0;)Lio/github/ktlint/core/rule/engine/core/api/RuleV2InstanceProvider;
 }
 
-public abstract interface annotation class com/pinterest/ktlint/rule/engine/core/api/SinceKtlint : java/lang/annotation/Annotation {
-	public abstract fun status ()Lcom/pinterest/ktlint/rule/engine/core/api/SinceKtlint$Status;
+public abstract interface annotation class io/github/ktlint/core/rule/engine/core/api/SinceKtlint : java/lang/annotation/Annotation {
+	public abstract fun status ()Lio/github/ktlint/core/rule/engine/core/api/SinceKtlint$Status;
 	public abstract fun version ()Ljava/lang/String;
 }
 
-public abstract interface annotation class com/pinterest/ktlint/rule/engine/core/api/SinceKtlint$Container : java/lang/annotation/Annotation {
-	public abstract fun value ()[Lcom/pinterest/ktlint/rule/engine/core/api/SinceKtlint;
+public abstract interface annotation class io/github/ktlint/core/rule/engine/core/api/SinceKtlint$Container : java/lang/annotation/Annotation {
+	public abstract fun value ()[Lio/github/ktlint/core/rule/engine/core/api/SinceKtlint;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/SinceKtlint$Status : java/lang/Enum {
-	public static final field EXPERIMENTAL Lcom/pinterest/ktlint/rule/engine/core/api/SinceKtlint$Status;
-	public static final field STABLE Lcom/pinterest/ktlint/rule/engine/core/api/SinceKtlint$Status;
+public final class io/github/ktlint/core/rule/engine/core/api/SinceKtlint$Status : java/lang/Enum {
+	public static final field EXPERIMENTAL Lio/github/ktlint/core/rule/engine/core/api/SinceKtlint$Status;
+	public static final field STABLE Lio/github/ktlint/core/rule/engine/core/api/SinceKtlint$Status;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
-	public static fun valueOf (Ljava/lang/String;)Lcom/pinterest/ktlint/rule/engine/core/api/SinceKtlint$Status;
-	public static fun values ()[Lcom/pinterest/ktlint/rule/engine/core/api/SinceKtlint$Status;
+	public static fun valueOf (Ljava/lang/String;)Lio/github/ktlint/core/rule/engine/core/api/SinceKtlint$Status;
+	public static fun values ()[Lio/github/ktlint/core/rule/engine/core/api/SinceKtlint$Status;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/TokenSets {
-	public static final field INSTANCE Lcom/pinterest/ktlint/rule/engine/core/api/TokenSets;
+public final class io/github/ktlint/core/rule/engine/core/api/TokenSets {
+	public static final field INSTANCE Lio/github/ktlint/core/rule/engine/core/api/TokenSets;
 	public final fun getCOMMENTS ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/TokenSet;
 	public final fun getCONTROL_FLOW_KEYWORDS ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/TokenSet;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/CodeStyleEditorConfigPropertyKt {
-	public static final fun getCODE_STYLE_PROPERTY ()Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
+public final class io/github/ktlint/core/rule/engine/core/api/editorconfig/CodeStyleEditorConfigPropertyKt {
+	public static final fun getCODE_STYLE_PROPERTY ()Lio/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfigProperty;
 	public static final fun getCODE_STYLE_PROPERTY_TYPE ()Lorg/ec4j/core/model/PropertyType$LowerCasingPropertyType;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/CodeStyleValue : java/lang/Enum {
-	public static final field android_studio Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/CodeStyleValue;
-	public static final field intellij_idea Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/CodeStyleValue;
-	public static final field ktlint_official Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/CodeStyleValue;
+public final class io/github/ktlint/core/rule/engine/core/api/editorconfig/CodeStyleValue : java/lang/Enum {
+	public static final field android_studio Lio/github/ktlint/core/rule/engine/core/api/editorconfig/CodeStyleValue;
+	public static final field intellij_idea Lio/github/ktlint/core/rule/engine/core/api/editorconfig/CodeStyleValue;
+	public static final field ktlint_official Lio/github/ktlint/core/rule/engine/core/api/editorconfig/CodeStyleValue;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
-	public static fun valueOf (Ljava/lang/String;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/CodeStyleValue;
-	public static fun values ()[Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/CodeStyleValue;
+	public static fun valueOf (Ljava/lang/String;)Lio/github/ktlint/core/rule/engine/core/api/editorconfig/CodeStyleValue;
+	public static fun values ()[Lio/github/ktlint/core/rule/engine/core/api/editorconfig/CodeStyleValue;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/CommaSeparatedListValueParser : org/ec4j/core/model/PropertyType$PropertyValueParser {
+public final class io/github/ktlint/core/rule/engine/core/api/editorconfig/CommaSeparatedListValueParser : org/ec4j/core/model/PropertyType$PropertyValueParser {
 	public fun <init> ()V
 	public fun parse (Ljava/lang/String;Ljava/lang/String;)Lorg/ec4j/core/model/PropertyType$PropertyValue;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig {
+public final class io/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfig {
 	public fun <init> ()V
 	public fun <init> (Ljava/util/Map;)V
 	public synthetic fun <init> (Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> ([Lorg/ec4j/core/model/Property;)V
-	public final fun addPropertiesWithDefaultValueIfMissing ([Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;
+	public final fun addPropertiesWithDefaultValueIfMissing ([Lio/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfigProperty;)Lio/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfig;
 	public final fun contains (Ljava/lang/String;)Z
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun filterBy (Ljava/util/Set;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfig;
-	public final fun get (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;)Ljava/lang/Object;
+	public final fun filterBy (Ljava/util/Set;)Lio/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfig;
+	public final fun get (Lio/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfigProperty;)Ljava/lang/Object;
 	public final fun getEditorConfigValueOrNull (Lorg/ec4j/core/model/PropertyType;Ljava/lang/String;)Ljava/lang/Object;
 	public fun hashCode ()I
 	public final fun map (Lkotlin/jvm/functions/Function1;)Ljava/util/Collection;
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty {
+public final class io/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfigProperty {
 	public fun <init> (Lorg/ec4j/core/model/PropertyType;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 	public synthetic fun <init> (Lorg/ec4j/core/model/PropertyType;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun equals (Ljava/lang/Object;)Z
@@ -639,56 +641,56 @@ public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/Editor
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/EndOfLinePropertyKt {
-	public static final fun getEND_OF_LINE_PROPERTY ()Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
+public final class io/github/ktlint/core/rule/engine/core/api/editorconfig/EndOfLinePropertyKt {
+	public static final fun getEND_OF_LINE_PROPERTY ()Lio/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfigProperty;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/IndentSizeEditorConfigPropertyKt {
-	public static final fun getINDENT_SIZE_PROPERTY ()Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
+public final class io/github/ktlint/core/rule/engine/core/api/editorconfig/IndentSizeEditorConfigPropertyKt {
+	public static final fun getINDENT_SIZE_PROPERTY ()Lio/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfigProperty;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/IndentStyleEditorConfigPropertyKt {
-	public static final fun getINDENT_STYLE_PROPERTY ()Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
+public final class io/github/ktlint/core/rule/engine/core/api/editorconfig/IndentStyleEditorConfigPropertyKt {
+	public static final fun getINDENT_STYLE_PROPERTY ()Lio/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfigProperty;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/InsertFinalNewLineEditorConfigPropertyKt {
-	public static final fun getINSERT_FINAL_NEWLINE_PROPERTY ()Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
+public final class io/github/ktlint/core/rule/engine/core/api/editorconfig/InsertFinalNewLineEditorConfigPropertyKt {
+	public static final fun getINSERT_FINAL_NEWLINE_PROPERTY ()Lio/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfigProperty;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/MaxLineLengthEditorConfigPropertyKt {
+public final class io/github/ktlint/core/rule/engine/core/api/editorconfig/MaxLineLengthEditorConfigPropertyKt {
 	public static final field MAX_LINE_LENGTH_PROPERTY_OFF I
-	public static final fun getMAX_LINE_LENGTH_PROPERTY ()Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
+	public static final fun getMAX_LINE_LENGTH_PROPERTY ()Lio/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfigProperty;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/RuleExecution : java/lang/Enum {
-	public static final field disabled Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/RuleExecution;
-	public static final field enabled Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/RuleExecution;
+public final class io/github/ktlint/core/rule/engine/core/api/editorconfig/RuleExecution : java/lang/Enum {
+	public static final field disabled Lio/github/ktlint/core/rule/engine/core/api/editorconfig/RuleExecution;
+	public static final field enabled Lio/github/ktlint/core/rule/engine/core/api/editorconfig/RuleExecution;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
-	public static fun valueOf (Ljava/lang/String;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/RuleExecution;
-	public static fun values ()[Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/RuleExecution;
+	public static fun valueOf (Ljava/lang/String;)Lio/github/ktlint/core/rule/engine/core/api/editorconfig/RuleExecution;
+	public static fun values ()[Lio/github/ktlint/core/rule/engine/core/api/editorconfig/RuleExecution;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/RuleExecutionEditorConfigPropertyKt {
-	public static final fun createRuleExecutionEditorConfigProperty (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/RuleExecution;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
-	public static synthetic fun createRuleExecutionEditorConfigProperty$default (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/RuleExecution;ILjava/lang/Object;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
-	public static final fun createRuleSetExecutionEditorConfigProperty (Lcom/pinterest/ktlint/rule/engine/core/api/RuleSetId;Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/RuleExecution;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
-	public static synthetic fun createRuleSetExecutionEditorConfigProperty$default (Lcom/pinterest/ktlint/rule/engine/core/api/RuleSetId;Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/RuleExecution;ILjava/lang/Object;)Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
-	public static final fun getALL_RULES_EXECUTION_PROPERTY ()Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
-	public static final fun getEXPERIMENTAL_RULES_EXECUTION_PROPERTY ()Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;
+public final class io/github/ktlint/core/rule/engine/core/api/editorconfig/RuleExecutionEditorConfigPropertyKt {
+	public static final fun createRuleExecutionEditorConfigProperty (Lio/github/ktlint/core/rule/engine/core/api/RuleId;Lio/github/ktlint/core/rule/engine/core/api/editorconfig/RuleExecution;)Lio/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfigProperty;
+	public static synthetic fun createRuleExecutionEditorConfigProperty$default (Lio/github/ktlint/core/rule/engine/core/api/RuleId;Lio/github/ktlint/core/rule/engine/core/api/editorconfig/RuleExecution;ILjava/lang/Object;)Lio/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfigProperty;
+	public static final fun createRuleSetExecutionEditorConfigProperty (Lio/github/ktlint/core/rule/engine/core/api/RuleSetId;Lio/github/ktlint/core/rule/engine/core/api/editorconfig/RuleExecution;)Lio/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfigProperty;
+	public static synthetic fun createRuleSetExecutionEditorConfigProperty$default (Lio/github/ktlint/core/rule/engine/core/api/RuleSetId;Lio/github/ktlint/core/rule/engine/core/api/editorconfig/RuleExecution;ILjava/lang/Object;)Lio/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfigProperty;
+	public static final fun getALL_RULES_EXECUTION_PROPERTY ()Lio/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfigProperty;
+	public static final fun getEXPERIMENTAL_RULES_EXECUTION_PROPERTY ()Lio/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfigProperty;
 	public static final fun getRULE_EXECUTION_PROPERTY_TYPE ()Lorg/ec4j/core/model/PropertyType$LowerCasingPropertyType;
-	public static final fun ktLintRuleExecutionPropertyName (Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;)Ljava/lang/String;
-	public static final fun ktLintRuleSetExecutionPropertyName (Lcom/pinterest/ktlint/rule/engine/core/api/RuleSetId;)Ljava/lang/String;
+	public static final fun ktLintRuleExecutionPropertyName (Lio/github/ktlint/core/rule/engine/core/api/RuleId;)Ljava/lang/String;
+	public static final fun ktLintRuleSetExecutionPropertyName (Lio/github/ktlint/core/rule/engine/core/api/RuleSetId;)Ljava/lang/String;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/SafeEnumValueParser : org/ec4j/core/model/PropertyType$PropertyValueParser {
+public final class io/github/ktlint/core/rule/engine/core/api/editorconfig/SafeEnumValueParser : org/ec4j/core/model/PropertyType$PropertyValueParser {
 	public fun <init> (Ljava/lang/Class;)V
 	public fun parse (Ljava/lang/String;Ljava/lang/String;)Lorg/ec4j/core/model/PropertyType$PropertyValue;
 }
 
-public final class com/pinterest/ktlint/rule/engine/core/api/editorconfig/ec4j/EditorConfigPropertyKt {
-	public static final fun toPropertyBuilderWithValue (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;Ljava/lang/String;)Lorg/ec4j/core/model/Property$Builder;
-	public static final fun toPropertyBuilderWithValue (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;Lorg/ec4j/core/model/PropertyType$PropertyValue;)Lorg/ec4j/core/model/Property$Builder;
-	public static final fun toPropertyWithValue (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;Ljava/lang/String;)Lorg/ec4j/core/model/Property;
-	public static final fun toPropertyWithValue (Lcom/pinterest/ktlint/rule/engine/core/api/editorconfig/EditorConfigProperty;Lorg/ec4j/core/model/PropertyType$PropertyValue;)Lorg/ec4j/core/model/Property;
+public final class io/github/ktlint/core/rule/engine/core/api/editorconfig/ec4j/EditorConfigPropertyKt {
+	public static final fun toPropertyBuilderWithValue (Lio/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfigProperty;Ljava/lang/String;)Lorg/ec4j/core/model/Property$Builder;
+	public static final fun toPropertyBuilderWithValue (Lio/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfigProperty;Lorg/ec4j/core/model/PropertyType$PropertyValue;)Lorg/ec4j/core/model/Property$Builder;
+	public static final fun toPropertyWithValue (Lio/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfigProperty;Ljava/lang/String;)Lorg/ec4j/core/model/Property;
+	public static final fun toPropertyWithValue (Lio/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfigProperty;Lorg/ec4j/core/model/PropertyType$PropertyValue;)Lorg/ec4j/core/model/Property;
 }
 

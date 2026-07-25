@@ -15,7 +15,7 @@ tasks.register<JavaExec>("ktlintCheck") {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     description = "Check Kotlin code style"
     classpath = ktlint
-    mainClass = "com.pinterest.ktlint.Main"
+    mainClass = "io.github.ktlint.core.Main"
     args(
         "**/src/**/*.kt",
         "**.kts",
@@ -29,7 +29,7 @@ tasks.register<JavaExec>("ktlintFormat") {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     description = "Check Kotlin code style and format"
     classpath = ktlint
-    mainClass = "com.pinterest.ktlint.Main"
+    mainClass = "io.github.ktlint.core.Main"
     // Suppress "sun.misc.Unsafe::objectFieldOffset" on Java24 (warning) (https://github.com/pinterest/ktlint/issues/2973)
     // jvmArgs("--sun-misc-unsafe-memory-access=allow") // Java 24+
     args(

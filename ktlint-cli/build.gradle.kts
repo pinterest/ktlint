@@ -5,7 +5,7 @@ plugins {
 
 tasks.jar {
     manifest {
-        attributes("Main-Class" to "com.pinterest.ktlint.Main")
+        attributes("Main-Class" to "io.github.ktlint.core.Main")
         attributes("Implementation-Version" to version)
     }
 }
