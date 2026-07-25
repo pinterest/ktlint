@@ -1,0 +1,453 @@
+package io.github.ktlint.core.ruleset.standard.rules
+
+import io.github.ktlint.core.logger.api.initKtLintKLogger
+import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
+import io.github.ktlint.core.rule.engine.core.api.ElementType.ARROW
+import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK
+import io.github.ktlint.core.rule.engine.core.api.ElementType.ELSE
+import io.github.ktlint.core.rule.engine.core.api.ElementType.FUNCTION_LITERAL
+import io.github.ktlint.core.rule.engine.core.api.ElementType.LAMBDA_ARGUMENT
+import io.github.ktlint.core.rule.engine.core.api.ElementType.LAMBDA_EXPRESSION
+import io.github.ktlint.core.rule.engine.core.api.ElementType.LBRACE
+import io.github.ktlint.core.rule.engine.core.api.ElementType.RBRACE
+import io.github.ktlint.core.rule.engine.core.api.ElementType.THEN
+import io.github.ktlint.core.rule.engine.core.api.ElementType.VALUE_PARAMETER
+import io.github.ktlint.core.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
+import io.github.ktlint.core.rule.engine.core.api.ElementType.WHEN_ENTRY
+import io.github.ktlint.core.rule.engine.core.api.IndentConfig
+import io.github.ktlint.core.rule.engine.core.api.RuleId
+import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
+import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
+import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
+import io.github.ktlint.core.rule.engine.core.api.children
+import io.github.ktlint.core.rule.engine.core.api.dropTrailingEolComment
+import io.github.ktlint.core.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
+import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
+import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import io.github.ktlint.core.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
+import io.github.ktlint.core.rule.engine.core.api.findParentByType
+import io.github.ktlint.core.rule.engine.core.api.firstChildLeafOrSelf
+import io.github.ktlint.core.rule.engine.core.api.hasNoMaxLineLengthSuppression
+import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
+import io.github.ktlint.core.rule.engine.core.api.isPartOfComment
+import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
+import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
+import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithoutNewline
+import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithoutNewlineOrNull
+import io.github.ktlint.core.rule.engine.core.api.lastChildLeafOrSelf
+import io.github.ktlint.core.rule.engine.core.api.leavesForwardsIncludingSelf
+import io.github.ktlint.core.rule.engine.core.api.leavesOnLine
+import io.github.ktlint.core.rule.engine.core.api.lineLength
+import io.github.ktlint.core.rule.engine.core.api.nextCodeSibling
+import io.github.ktlint.core.rule.engine.core.api.nextLeaf
+import io.github.ktlint.core.rule.engine.core.api.nextSibling
+import io.github.ktlint.core.rule.engine.core.api.parent
+import io.github.ktlint.core.rule.engine.core.api.prevCodeSibling
+import io.github.ktlint.core.rule.engine.core.api.prevLeaf
+import io.github.ktlint.core.rule.engine.core.api.prevSibling
+import io.github.ktlint.core.rule.engine.core.api.remove
+import io.github.ktlint.core.rule.engine.core.api.upsertWhitespaceAfterMe
+import io.github.ktlint.core.rule.engine.core.api.upsertWhitespaceBeforeMe
+import io.github.ktlint.core.ruleset.standard.StandardRule
+import io.github.oshai.kotlinlogging.KotlinLogging
+import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.psi.psiUtil.siblings
+
+private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
+
+/**
+ * [Kotlin lang documentation](https://kotlinlang.org/docs/coding-conventions.html#lambdas):
+ *
+ * When declaring parameter names in a multiline lambda, put the names on the first line, followed by the arrow and the newline:
+ *
+ * ```
+ * appendCommaSeparated(properties) { prop ->
+ *     val propertyValue = prop.get(obj)  // ...
+ * }
+ * ```
+ *
+ * If the parameter list is too long to fit on a line, put the arrow on a separate line:
+ *
+ * ```
+ * foo {
+ *    context: Context,
+ *    environment: Env
+ *    ->
+ *    context.configureEnv(environment)
+ * }
+ * ```
+ */
+@SinceKtlint("1.0", EXPERIMENTAL)
+@SinceKtlint("1.3", STABLE)
+public class FunctionLiteralRule :
+    StandardRule(
+        id = "function-literal",
+        usesEditorConfigProperties =
+            setOf(
+                CODE_STYLE_PROPERTY,
+                INDENT_SIZE_PROPERTY,
+                INDENT_STYLE_PROPERTY,
+                MAX_LINE_LENGTH_PROPERTY,
+            ),
+    ) {
+    private var codeStyle = CODE_STYLE_PROPERTY.defaultValue
+    private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
+    private var maxLineLength = MAX_LINE_LENGTH_PROPERTY.defaultValue
+
+    override fun beforeFirstNode(editorConfig: EditorConfig) {
+        codeStyle = editorConfig[CODE_STYLE_PROPERTY]
+        maxLineLength = editorConfig.maxLineLength()
+        indentConfig =
+            IndentConfig(
+                indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
+                tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
+            )
+        if (indentConfig.disabled) {
+            stopTraversalOfAST()
+        }
+    }
+
+    override fun beforeVisitChildNodes(
+        node: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+    ) {
+        if (node.elementType == FUNCTION_LITERAL) {
+            node
+                .findChildByType(VALUE_PARAMETER_LIST)
+                ?.let { visitValueParameterList(it, emit) }
+            node
+                .findChildByType(ARROW)
+                ?.let { visitArrow(it, emit) }
+            node
+                .findChildByType(BLOCK)
+                ?.let { visitBlock(it, emit) }
+        }
+    }
+
+    private fun visitValueParameterList(
+        parameterList: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+    ) {
+        val valueParameters =
+            parameterList
+                .children
+                .filter { it.elementType == VALUE_PARAMETER }
+        if (valueParameters.count() > 1 || parameterList.wrapFirstParameterToNewline()) {
+            if (parameterList.textContains('\n') || parameterList.doesNotFitOnSameLineAsStartOfFunctionLiteral()) {
+                rewriteToMultilineParameterList(parameterList, emit)
+            } else {
+                rewriteToSingleLineFunctionLiteral(parameterList, emit)
+            }
+        } else {
+            if (parameterList.textContains('\n')) {
+                // Allow:
+                //    val foo = {
+                //            bar:
+                //                @Baz("baz")
+                //                Bar
+                //        ->
+                //        bar()
+                //    }
+            } else {
+                // Disallow:
+                //    val foo = {
+                //            bar ->
+                //        bar()
+                //    }
+                //    val foo = { bar
+                //        ->
+                //        bar()
+                //    }
+                rewriteToSingleLineFunctionLiteral(parameterList, emit)
+            }
+        }
+    }
+
+    private fun ASTNode.doesNotFitOnSameLineAsStartOfFunctionLiteral(): Boolean {
+        require(elementType == VALUE_PARAMETER_LIST && parent?.elementType == FUNCTION_LITERAL)
+        val lineLength =
+            lineLengthIncludingLbrace()
+                .plus(1) // space before parameter list
+                .plus(lengthOfParameterListWhenOnSingleLine())
+                .plus(3) // space after parameter list followed by ->
+        return hasNoMaxLineLengthSuppression() && lineLength > maxLineLength
+    }
+
+    private fun ASTNode.lineLengthIncludingLbrace(): Int {
+        require(elementType == VALUE_PARAMETER_LIST && parent?.elementType == FUNCTION_LITERAL)
+        val lbrace = parent?.findChildByType(LBRACE)!!
+        return lbrace
+            .leavesOnLine
+            .dropTrailingEolComment()
+            .takeWhile { it.prevLeaf != lbrace }
+            .lineLength
+    }
+
+    private fun ASTNode.lengthOfParameterListWhenOnSingleLine(): Int {
+        require(elementType == VALUE_PARAMETER_LIST)
+        val stopAtLeaf = lastChildLeafOrSelf.nextLeaf
+        return firstChildLeafOrSelf
+            .leavesForwardsIncludingSelf
+            .takeWhile { it != stopAtLeaf }
+            .joinToString(separator = "") {
+                if (it.isWhiteSpace) {
+                    // Eliminate newlines and redundant spaces
+                    " "
+                } else {
+                    it.text
+                }
+            }.length
+    }
+
+    private fun ASTNode.exceedsMaxLineLength(): Boolean {
+        require(elementType == BLOCK)
+        val stopAtLeaf = nextSibling { it.elementType == RBRACE }
+        return hasNoMaxLineLengthSuppression() &&
+            maxLineLength <
+            leavesOnLine
+                .dropTrailingEolComment()
+                .takeWhile { it.prevLeaf != stopAtLeaf }
+                .lineLength
+    }
+
+    private fun ASTNode.wrapFirstParameterToNewline() =
+        if (isFunctionLiteralLambdaWithNonEmptyValueParameterList() && hasNoMaxLineLengthSuppression()) {
+            // Disallow when max line is exceeded:
+            //    val foo = someCallExpression { someLongParameterName ->
+            //        bar()
+            //    }
+            val stopAtLeaf =
+                children
+                    .first { it.elementType == VALUE_PARAMETER }
+                    .lastChildLeafOrSelf
+                    .nextLeaf { !it.isWhiteSpaceWithoutNewline && !it.isPartOfComment }
+            leavesOnLine
+                .dropTrailingEolComment()
+                .takeWhile { it.prevLeaf != stopAtLeaf }
+                .lineLength
+                .let { it > maxLineLength }
+        } else {
+            false
+        }
+
+    private fun ASTNode.isFunctionLiteralLambdaWithNonEmptyValueParameterList() =
+        takeIf { it.elementType == VALUE_PARAMETER_LIST }
+            ?.takeIf { it.findChildByType(VALUE_PARAMETER) != null }
+            ?.takeIf { it.parent?.elementType == FUNCTION_LITERAL }
+            ?.parent
+            ?.takeIf { it.parent?.elementType == LAMBDA_EXPRESSION }
+            ?.parent
+            ?.takeIf { it.parent?.elementType == LAMBDA_ARGUMENT }
+            .let { it != null }
+
+    private fun rewriteToMultilineParameterList(
+        parameterList: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+    ) {
+        require(parameterList.elementType == VALUE_PARAMETER_LIST)
+        parameterList
+            .children
+            .filter { it.elementType == VALUE_PARAMETER }
+            .forEach { wrapValueParameter(it, emit) }
+        parameterList
+            .parent
+            ?.findChildByType(ARROW)
+            ?.let { arrow -> wrapArrow(arrow, emit) }
+        parameterList
+            .parent
+            ?.findChildByType(RBRACE)
+            ?.let { rbrace -> wrapBeforeRbrace(rbrace, emit) }
+    }
+
+    private fun wrapValueParameter(
+        valueParameter: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+    ) {
+        require(valueParameter.elementType == VALUE_PARAMETER)
+        if (valueParameter.prevLeaf.isWhiteSpaceWithoutNewline) {
+            emit(valueParameter.startOffset, "Newline expected before parameter", true)
+                .ifAutocorrectAllowed {
+                    valueParameter.upsertWhitespaceBeforeMe(
+                        indentConfig.childIndentOf(valueParameter.findParentByType(FUNCTION_LITERAL)!!),
+                    )
+                }
+        }
+    }
+
+    private fun wrapArrow(
+        arrow: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+    ) {
+        wrapBeforeArrow(arrow, emit)
+        wrapAfterArrow(arrow, emit)
+    }
+
+    private fun wrapBeforeArrow(
+        arrow: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+    ) {
+        require(arrow.elementType == ARROW)
+        arrow
+            .prevLeaf
+            .takeIf { it.isWhiteSpaceWithoutNewline }
+            ?.let {
+                emit(arrow.startOffset, "Newline expected before arrow", true)
+                    .ifAutocorrectAllowed {
+                        arrow.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(arrow.parent!!))
+                    }
+            }
+    }
+
+    private fun wrapAfterArrow(
+        arrow: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+    ) {
+        require(arrow.elementType == ARROW)
+        arrow
+            .nextLeaf
+            .takeIf { it.isWhiteSpaceWithoutNewlineOrNull }
+            ?.let {
+                emit(arrow.startOffset + arrow.textLength - 1, "Newline expected after arrow", true)
+                    .ifAutocorrectAllowed {
+                        arrow.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(arrow))
+                    }
+            }
+    }
+
+    private fun wrapBeforeRbrace(
+        rbrace: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+    ) {
+        require(rbrace.elementType == RBRACE)
+        rbrace
+            .prevLeaf
+            .takeIf { it.isWhiteSpaceWithoutNewlineOrNull }
+            ?.let {
+                emit(rbrace.startOffset, "Newline expected before closing brace", true)
+                    .ifAutocorrectAllowed {
+                        rbrace.upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(rbrace))
+                    }
+            }
+    }
+
+    private fun rewriteToSingleLineFunctionLiteral(
+        parameterList: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+    ) {
+        require(parameterList.elementType == VALUE_PARAMETER_LIST)
+        parameterList
+            .takeUnless { it.isPrecededByComment() }
+            ?.prevSibling { it.isWhiteSpaceWithNewline }
+            ?.let { whitespaceBeforeParameterList ->
+                emit(parameterList.startOffset, "No newline expected before parameter", true)
+                    .ifAutocorrectAllowed {
+                        whitespaceBeforeParameterList.upsertWhitespaceBeforeMe(" ")
+                    }
+            }
+        parameterList
+            .nextSibling { it.isWhiteSpace }
+            ?.takeIf { it.isWhiteSpaceWithNewline }
+            ?.let { whitespaceAfterParameterList ->
+                emit(parameterList.startOffset + parameterList.textLength, "No newline expected after parameter", true)
+                    .ifAutocorrectAllowed {
+                        whitespaceAfterParameterList.upsertWhitespaceAfterMe(" ")
+                    }
+            }
+    }
+
+    private fun ASTNode.isPrecededByComment() = siblings(forward = false).any { it.isPartOfComment }
+
+    private fun visitArrow(
+        arrow: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+    ) {
+        require(arrow.elementType == ARROW)
+        arrow
+            .prevSibling { it.elementType == VALUE_PARAMETER_LIST }
+            ?.takeIf { it.hasEmptyParameterList() }
+            ?.takeUnless { arrow.isLambdaExpressionNotWrappedInBlock() }
+            ?.takeIf { arrow.isFollowedByNonEmptyBlock() }
+            ?.let {
+                emit(arrow.startOffset, "Arrow is redundant when parameter list is empty", true)
+                    .ifAutocorrectAllowed {
+                        arrow
+                            .nextSibling
+                            .takeIf { it.isWhiteSpace }
+                            ?.remove()
+                        arrow.remove()
+                    }
+            }
+    }
+
+    private fun ASTNode.hasEmptyParameterList(): Boolean {
+        require(elementType == VALUE_PARAMETER_LIST)
+        return findChildByType(VALUE_PARAMETER) == null
+    }
+
+    private fun ASTNode.isLambdaExpressionNotWrappedInBlock(): Boolean {
+        require(elementType == ARROW)
+        return findParentByType(LAMBDA_EXPRESSION)
+            ?.parent
+            ?.elementType
+            ?.let { parentElementType ->
+                // Allow:
+                //     val foo = when {
+                //         1 == 2 -> { -> "hi" }
+                //         else -> { -> "ho" }
+                //     }
+                // or
+                //     val foo = if (cond) { -> "hi" } else { -> "ho" } parent ->
+                parentElementType == WHEN_ENTRY || parentElementType == THEN || parentElementType == ELSE
+            }
+            ?: false
+    }
+
+    private fun ASTNode.isFollowedByNonEmptyBlock(): Boolean {
+        require(elementType == ARROW)
+        return nextSibling { it.elementType == BLOCK }?.firstChildNode != null
+    }
+
+    private fun visitBlock(
+        block: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+    ) {
+        require(block.elementType == BLOCK)
+        if (block.textContains('\n') || block.exceedsMaxLineLength()) {
+            block
+                .prevCodeSibling
+                ?.let { prevCodeSibling ->
+                    when (prevCodeSibling.elementType) {
+                        ARROW -> wrapAfterArrow(prevCodeSibling, emit)
+                        LBRACE -> wrapAfterLbrace(prevCodeSibling, emit)
+                        else -> LOGGER.debug { "Unexpected type of element ${prevCodeSibling.elementType}" }
+                    }
+                }
+
+            block
+                .nextCodeSibling
+                ?.takeIf { it.elementType == RBRACE }
+                ?.let { rbrace -> wrapBeforeRbrace(rbrace, emit) }
+        }
+    }
+
+    private fun wrapAfterLbrace(
+        lbrace: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+    ) {
+        require(lbrace.elementType == LBRACE)
+        lbrace
+            .nextLeaf
+            .takeIf { it.isWhiteSpace }
+            .let { whitespaceAfterLbrace ->
+                if (whitespaceAfterLbrace.isWhiteSpaceWithoutNewlineOrNull) {
+                    emit(lbrace.startOffset, "Newline expected after opening brace", true)
+                        .ifAutocorrectAllowed {
+                            lbrace.upsertWhitespaceAfterMe(indentConfig.childIndentOf(lbrace))
+                        }
+                }
+            }
+    }
+}
+
+public val FUNCTION_LITERAL_RULE_ID: RuleId = FunctionLiteralRule().ruleId

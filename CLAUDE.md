@@ -15,7 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ./gradlew :ktlint-ruleset-standard:test
 
 # Run a specific test class
-./gradlew :ktlint-ruleset-standard:test --tests "com.pinterest.ktlint.ruleset.standard.rules.FinalNewlineRuleTest"
+./gradlew :ktlint-ruleset-standard:test --tests "io.github.ktlint.core.ruleset.standard.rules.FinalNewlineRuleTest"
 
 # Format all Kotlin sources
 ./gradlew ktlintFormat
@@ -89,7 +89,7 @@ Rules declare consumed properties in `usesEditorConfigProperties`. The engine re
 
 Custom rulesets register via Java `ServiceLoader`. Create a file at:
 ```
-META-INF/services/com.pinterest.ktlint.cli.ruleset.core.api.RuleSetV2Provider
+META-INF/services/io.github.ktlint.core.cli.ruleset.core.api.RuleSetV2Provider
 ```
 listing the fully-qualified `RuleSetV2Provider` subclass name.
 

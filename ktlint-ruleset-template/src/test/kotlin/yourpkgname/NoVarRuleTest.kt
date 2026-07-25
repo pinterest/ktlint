@@ -1,6 +1,6 @@
 package yourpkgname
 
-import com.pinterest.ktlint.test.KtLintAssertThat.Companion.assertThatRule
+import io.github.ktlint.core.test.KtLintAssertThat.Companion.assertThatRule
 import org.junit.jupiter.api.Test
 
 class NoVarRuleTest {

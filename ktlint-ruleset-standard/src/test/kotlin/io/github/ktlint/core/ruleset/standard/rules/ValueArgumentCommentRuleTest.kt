@@ -1,0 +1,81 @@
+package io.github.ktlint.core.ruleset.standard.rules
+
+import io.github.ktlint.core.test.KtLintAssertThat
+import org.junit.jupiter.api.Test
+
+class ValueArgumentCommentRuleTest {
+    private val valueArgumentCommentRuleAssertThat = KtLintAssertThat.assertThatRule { ValueArgumentCommentRule() }
+
+    @Test
+    fun `Given a block comment inside a value argument`() {
+        val code =
+            """
+            val foo = foo(
+                bar /* some comment */ = "bar"
+            )
+            """.trimIndent()
+        @Suppress("ktlint:standard:max-line-length")
+        valueArgumentCommentRuleAssertThat(code)
+            .hasLintViolationWithoutAutoCorrect(2, 9, "A (block or EOL) comment inside or on same line after a 'value_argument' is not allowed. It may be placed on a separate line above.")
+    }
+
+    @Test
+    fun `Given an EOL comment inside a value argument`() {
+        val code =
+            """
+            val foo = foo(
+                bar // some comment
+                    = "bar"
+            )
+            """.trimIndent()
+        @Suppress("ktlint:standard:max-line-length")
+        valueArgumentCommentRuleAssertThat(code)
+            .hasLintViolationWithoutAutoCorrect(2, 9, "A (block or EOL) comment inside or on same line after a 'value_argument' is not allowed. It may be placed on a separate line above.")
+    }
+
+    @Test
+    fun `Given a comment as only child of value argument list`() {
+        val code =
+            """
+            val foo1 = foo(
+                // some comment
+            )
+            val foo2 = foo(
+                /* some comment */
+            )
+            """.trimIndent()
+        valueArgumentCommentRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a comment on separate line before value argument ast node`() {
+        val code =
+            """
+            val foo1 = foo(
+                // some comment
+                "bar"
+            )
+            val foo2 = foo(
+                /* some comment */
+                "bar"
+            )
+            """.trimIndent()
+        valueArgumentCommentRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a comment as last node of value argument list`() {
+        val code =
+            """
+            val foo1 = foo(
+                "bar"
+                // some comment
+            )
+            val foo1 = foo(
+                "bar"
+                /* some comment */
+            )
+            """.trimIndent()
+        valueArgumentCommentRuleAssertThat(code).hasNoLintViolations()
+    }
+}
