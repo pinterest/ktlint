@@ -494,7 +494,6 @@ public final class com/pinterest/ktlint/rule/engine/core/api/RuleInstanceProvide
 
 public final class com/pinterest/ktlint/rule/engine/core/api/RuleProvider : com/pinterest/ktlint/rule/engine/core/api/RuleInstanceProvider {
 	public static final field Companion Lcom/pinterest/ktlint/rule/engine/core/api/RuleProvider$Companion;
-	public synthetic fun <init> (Lkotlin/jvm/functions/Function0;Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun createNewRuleInstance ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2;
 	public fun getRuleId ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
 }
@@ -556,7 +555,6 @@ public abstract interface class com/pinterest/ktlint/rule/engine/core/api/RuleV2
 
 public final class com/pinterest/ktlint/rule/engine/core/api/RuleV2InstanceProvider : com/pinterest/ktlint/rule/engine/core/api/RuleInstanceProvider {
 	public static final field Companion Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2InstanceProvider$Companion;
-	public synthetic fun <init> (Lkotlin/jvm/functions/Function0;Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun createNewRuleInstance ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleV2;
 	public fun getRuleId ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
 }

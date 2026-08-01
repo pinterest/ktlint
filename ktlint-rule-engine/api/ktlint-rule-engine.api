@@ -1,6 +1,5 @@
 public final class com/pinterest/ktlint/rule/engine/api/Code {
 	public static final field Companion Lcom/pinterest/ktlint/rule/engine/api/Code$Companion;
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/nio/file/Path;ZZLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun fileNameOrStdin ()Ljava/lang/String;
 	public final fun filePathOrStdin ()Ljava/lang/String;
 	public final fun getContent ()Ljava/lang/String;

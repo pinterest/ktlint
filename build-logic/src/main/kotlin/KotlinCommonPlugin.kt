@@ -15,6 +15,7 @@ import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
 import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -33,6 +34,10 @@ abstract class KotlinCommonPlugin : Plugin<Project> {
             (kotlinExtension as KotlinJvmExtension).apply {
                 // All modules, the CLI included, must have an explicit API
                 explicitApi()
+                if (target.path !in internalNonPublishableProjects) {
+                    @OptIn(ExperimentalAbiValidation::class)
+                    abiValidation()
+                }
                 jvmToolchain(jdkVersion = javaCompilationVersion.asInt())
 
                 compilerOptions {
@@ -96,4 +101,13 @@ abstract class KotlinCommonPlugin : Plugin<Project> {
                 }
             }
         }
+
+    private companion object {
+        val internalNonPublishableProjects =
+            setOf(
+                ":ktlint-api-consumer",
+                ":ktlint-bom",
+                ":ktlint-ruleset-template",
+            )
+    }
 }
