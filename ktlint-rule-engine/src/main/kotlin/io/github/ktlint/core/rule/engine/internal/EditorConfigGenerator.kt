@@ -45,11 +45,14 @@ internal class EditorConfigGenerator(
     ): EditorConfig {
         val usedEditorConfigProperties =
             rules
-                .map { it.usesEditorConfigProperties }
-                .flatten()
+                .flatMap { it.usesEditorConfigProperties }
                 .toSet()
         return loadEditorConfig(codeStyle, filePath)
-            .filterBy(usedEditorConfigProperties.plus(DEFAULT_EDITOR_CONFIG_PROPERTIES))
+            .addPropertiesWithDefaultValueIfMissing(
+                *usedEditorConfigProperties
+                    .plus(DEFAULT_EDITOR_CONFIG_PROPERTIES)
+                    .toTypedArray(),
+            )
     }
 
     private fun loadEditorConfig(

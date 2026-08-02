@@ -32,7 +32,7 @@ class RuleSetsLoaderCLITest {
     }
 
     @Test
-    fun `Given a custom ruleset jar that contains the deprecated RuleSetProviderV3 then display an error and exit`(
+    fun `Given a custom ruleset jar that contains the deprecated RuleSetProviderV3 then display a warning message`(
         @TempDir
         tempDir: Path,
     ) {
@@ -49,7 +49,7 @@ class RuleSetsLoaderCLITest {
                             .containsLineMatching(
                                 Regex(
                                     ".*WARN.* JAR file '.*$jarWithDeprecatedRulesetProvider' contains a class implementing a deprecated " +
-                                        "interface 'io.github.ktlint.core.cli.ruleset.core.api.RuleSetProviderV3'",
+                                        "interface 'com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3'",
                                 ),
                             )
                     }.assertAll()

@@ -1,4 +1,4 @@
-package io.github.ktlint.core.rule.engine.core.api.editorconfig
+package com.pinterest.ktlint.rule.engine.core.api.editorconfig
 
 import dev.drewhamilton.poko.Poko
 import io.github.ktlint.core.logger.api.initKtLintKLogger
@@ -14,6 +14,7 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
  * Loaded [Property]s from `.editorconfig` files.
  */
 @Poko
+@Deprecated(message = "Provides backwards compatibility of custom ruleset JARs created for Ktlint 1.x. Don't use for RuleV2")
 public class EditorConfig(
     private val properties: Map<String, Property> = emptyMap(),
 ) {
@@ -175,7 +176,18 @@ public class EditorConfig(
      * value of the active code style.
      */
     public fun filterBy(additionalEditorConfigProperties: Set<EditorConfigProperty<*>>): EditorConfig =
-        addPropertiesWithDefaultValueIfMissing(*additionalEditorConfigProperties.toTypedArray())
+        additionalEditorConfigProperties
+            // Only add the additional properties if they are not yet provided in de EditorConfig. This prevents duplicates for ktlint 1.x
+            // rulesets whenever a 1.x rule has defined an EditorConfig property which is also provided via the
+            // additionalEditorConfigProperties.
+            .filter { !properties.containsKey(it.name) }
+            .toSet()
+            .also { requireSingularIdentities(it) }
+            .defaultProperties()
+            .plus(
+                // Overwrite default properties with values that were actually already defined in the EditorConfig
+                properties,
+            ).let { EditorConfig(it) }
 
     private fun requireSingularIdentities(editorConfigProperties: Set<EditorConfigProperty<*>>) {
         val editorConfigPropertiesWithMultipleIdentities =

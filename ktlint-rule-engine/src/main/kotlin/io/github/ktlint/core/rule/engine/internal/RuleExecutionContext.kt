@@ -1,12 +1,12 @@
 package io.github.ktlint.core.rule.engine.internal
 
-import io.github.ktlint.core.logger.api.initKtLintKLogger
 import io.github.ktlint.core.rule.engine.api.Code
 import io.github.ktlint.core.rule.engine.api.KtLintParseException
 import io.github.ktlint.core.rule.engine.api.KtLintRuleEngine
 import io.github.ktlint.core.rule.engine.api.KtLintRuleEngine.Companion.UTF8_BOM
 import io.github.ktlint.core.rule.engine.api.KtLintRuleException
 import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
+import io.github.ktlint.core.rule.engine.core.api.ElementType.FILE
 import io.github.ktlint.core.rule.engine.core.api.KtlintKotlinCompiler
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.RuleInstanceProvider
@@ -15,18 +15,16 @@ import io.github.ktlint.core.rule.engine.core.api.editorconfig.CODE_STYLE_PROPER
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.RuleExecution
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
+import io.github.ktlint.core.rule.engine.core.api.parent
 import io.github.ktlint.core.rule.engine.internal.rulefilter.InternalRuleProvidersFilter
 import io.github.ktlint.core.rule.engine.internal.rulefilter.RuleExecutionRuleFilter
 import io.github.ktlint.core.rule.engine.internal.rulefilter.applyRuleFilters
 import io.github.ktlint.core.rule.engine.internal.rules.KTLINT_SUPPRESSION_RULE_ID
-import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.lang.FileASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiErrorElement
 import kotlin.io.path.pathString
-
-private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 internal class RuleExecutionContext private constructor(
     val code: Code,
@@ -116,6 +114,19 @@ internal class RuleExecutionContext private constructor(
         emitAndApprove: (offset: Int, ruleId: RuleId, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         rules.forEach { rule ->
+            if (node.parent == null && node.elementType != FILE) {
+                // In commit 729a0fe23c34a8d03fd06854484fe24571b92bd6 the rule execution order has been changed to process all rules on an
+                // ASTNode before proceeding to the next node. Only when testing the Ktlint 2.0 SNAPSHOT with the Ktlint Intellij Plugin it
+                // was found this in a particular case led to a regression error when running the plugin with an older Ktlint ruleset
+                // version. Similar problems could also occur with custom rulesets.
+                // In case the entire node has been replaced by a previous rule, for example by using function rawReplaceWithText(text) on a
+                // LeafElement then the reference to the parent element of that element is set to null. Also, other fields of the node may
+                // be initialized to a default value. This could result for example result in Null Pointer Exception whenever a next rule is
+                // inspecting the element type of the parent of the node. Normally this would be resolved by fixing that rule to check for a
+                // non-null parent. However, older Ktlint rulesets are not maintained, and can therefore not be fixed.
+                // Hack solution is to stop processing of the node once it is identified that it is likely that the node has been replaced.
+                return
+            }
             try {
                 if (!suppressionLocator.suppress(rootNode, node.startOffset, rule)) {
                     rule.beforeVisitChildNodes(node) { offset, errorMessage, canBeAutoCorrected ->
@@ -156,6 +167,19 @@ internal class RuleExecutionContext private constructor(
                 )
             }
         rules.forEach { rule ->
+            if (node.parent == null && node.elementType != FILE) {
+                // In commit 729a0fe23c34a8d03fd06854484fe24571b92bd6 the rule execution order has been changed to process all rules on an
+                // ASTNode before proceeding to the next node. Only when testing the Ktlint 2.0 SNAPSHOT with the Ktlint Intellij Plugin it
+                // was found this in a particular case led to a regression error when running the plugin with an older Ktlint ruleset
+                // version. Similar problems could also occur with custom rulesets.
+                // In case the entire node has been replaced by a previous rule, for example by using function rawReplaceWithText(text) on a
+                // LeafElement then the reference to the parent element of that element is set to null. Also, other fields of the node may
+                // be initialized to a default value. This could result for example result in Null Pointer Exception whenever a next rule is
+                // inspecting the element type of the parent of the node. Normally this would be resolved by fixing that rule to check for a
+                // non-null parent. However, older Ktlint rulesets are not maintained, and can therefore not be fixed.
+                // Hack solution is to stop processing of the node once it is identified that it is likely that the node has been replaced.
+                return
+            }
             try {
                 if (!suppressionLocator.suppress(rootNode, node.startOffset, rule)) {
                     rule.afterVisitChildNodes(node) { offset, errorMessage, canBeAutoCorrected ->
