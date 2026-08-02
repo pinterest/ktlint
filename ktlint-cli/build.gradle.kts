@@ -31,6 +31,7 @@ dependencies {
     implementation(projects.ktlintCliReporterBaseline)
     implementation(projects.ktlintCliReporterCore)
     implementation(projects.ktlintCliReporterPlain)
+    implementation(projects.ktlintComPinterestBackwardCompatibility)
     implementation(projects.ktlintRuleEngine)
     implementation(projects.ktlintRulesetStandard)
     implementation(libs.clikt)

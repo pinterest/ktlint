@@ -3,7 +3,8 @@ package io.github.ktlint.core.rule.engine.core.api
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfigProperty
 import org.ec4j.core.model.PropertyType
 
-public sealed class RuleInstanceProvider(
+// TODO: Merge abstract class with RuleV2InstanceProvider
+public abstract class RuleInstanceProvider(
     public open val ruleId: RuleId,
 ) {
     public abstract fun createNewRuleInstance(): RuleV2

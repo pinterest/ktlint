@@ -1,7 +1,8 @@
 package io.github.ktlint.core.cli.internal
 
+import com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3
+import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import io.github.ktlint.core.cli.internal.CustomJarProviderCheck.ERROR_WHEN_REQUIRED_PROVIDER_IS_MISSING
-import io.github.ktlint.core.cli.ruleset.core.api.RuleSetProviderV3
 import io.github.ktlint.core.cli.ruleset.core.api.RuleSetV2Provider
 import io.github.ktlint.core.logger.api.initKtLintKLogger
 import io.github.ktlint.core.rule.engine.core.api.RuleInstanceProvider
@@ -54,6 +55,7 @@ private fun loadRulesetProviderV3(
                 providerId = { it.id.value },
                 CustomJarProviderCheck.WARN_WHEN_DEPRECATED_PROVIDER_IS_FOUND,
             ).flatMap { it.getRuleProviders() }
+            .map(RuleProvider::toRuleV2InstanceProvider)
             .toSet()
             .also { LOGGER.debug { "Found ${it.size} rule providers of type 'RuleSetProviderV3' for $url" } }
     } catch (t: Throwable) {

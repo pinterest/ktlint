@@ -1,8 +1,7 @@
 package com.example.ktlint.api.consumer
 
 import com.example.ktlint.api.consumer.rules.KTLINT_API_CONSUMER_RULE_PROVIDERS
-// TODO: Repackage - Use new provider
-import io.github.ktlint.core.cli.ruleset.core.api.RuleSetProviderV3
+import io.github.ktlint.core.cli.ruleset.core.api.RuleSetV2Provider
 import io.github.ktlint.core.logger.api.initKtLintKLogger
 import io.github.ktlint.core.rule.engine.api.Code
 import io.github.ktlint.core.rule.engine.api.EditorConfigDefaults
@@ -23,6 +22,7 @@ import java.net.URLClassLoader
 import java.nio.file.Paths
 import java.util.ServiceConfigurationError
 import java.util.ServiceLoader
+import kotlin.collections.toSet
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -133,7 +133,7 @@ private val runtimeLoadedRuleProviders =
     try {
         ServiceLoader
             .load(
-                RuleSetProviderV3::class.java,
+                RuleSetV2Provider::class.java,
                 URLClassLoader(emptyArray<URL?>()),
             ).flatMap { it.getRuleProviders() }
             .toSet()

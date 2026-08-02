@@ -1,4 +1,4 @@
-package io.github.ktlint.core.rule.engine.core.api
+package com.pinterest.ktlint.rule.engine.core.api
 
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
