@@ -13,6 +13,8 @@ tasks.jar {
 tasks.shadowJar {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
     failOnDuplicateEntries = true
+    @Suppress("DEPRECATION") // This flag will be disabled and removed in the next major version of Shadow.
+    enableKotlinModuleRemapping = false
     mergeServiceFiles()
     // Exclude all duplicate files except service files, as they should be merged by `mergeServiceFiles`.
     filesNotMatching("META-INF/services/**") {
