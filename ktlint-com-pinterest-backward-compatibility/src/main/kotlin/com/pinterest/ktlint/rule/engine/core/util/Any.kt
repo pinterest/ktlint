@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.pinterest.ktlint.rule.engine.core.util
 
 /**

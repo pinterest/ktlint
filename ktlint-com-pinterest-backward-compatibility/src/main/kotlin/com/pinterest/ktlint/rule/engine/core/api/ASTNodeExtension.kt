@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.pinterest.ktlint.rule.engine.core.api
 
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.EOL_COMMENT

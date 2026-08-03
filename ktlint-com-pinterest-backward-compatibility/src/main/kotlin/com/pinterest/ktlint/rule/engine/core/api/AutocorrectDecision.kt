@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.pinterest.ktlint.rule.engine.core.api
 
 @Deprecated(message = "Provides backwards compatibility of custom ruleset JARs created for Ktlint 1.x. Don't use for RuleV2")

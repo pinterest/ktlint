@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.pinterest.ktlint.cli.ruleset.core.api
 
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
