@@ -497,7 +497,6 @@ public final class com/pinterest/ktlint/rule/engine/core/api/RuleKt {
 
 public final class com/pinterest/ktlint/rule/engine/core/api/RuleProvider {
 	public static final field Companion Lcom/pinterest/ktlint/rule/engine/core/api/RuleProvider$Companion;
-	public synthetic fun <init> (Lkotlin/jvm/functions/Function0;Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;ZLjava/util/List;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun createNewRuleInstance ()Lcom/pinterest/ktlint/rule/engine/core/api/Rule;
 	public final fun getRuleId ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
 	public final fun getRunAfterRules ()Ljava/util/List;

@@ -22,9 +22,6 @@ public final class io/github/ktlint/core/cli/reporter/plain/Color : java/lang/En
 }
 
 public final class io/github/ktlint/core/cli/reporter/plain/PlainReporter : io/github/ktlint/core/cli/reporter/core/api/ReporterV2 {
-	public static final field KOTLIN_PARSE_EXCEPTION_MESSAGE Ljava/lang/String;
-	public static final field KTLINT_RULE_ENGINE_EXCEPTION_MESSAGE Ljava/lang/String;
-	public static final field UNKNOWN_CAUSE_MESSAGE Ljava/lang/String;
 	public fun <init> (Ljava/io/PrintStream;ZZLio/github/ktlint/core/cli/reporter/plain/Color;Z)V
 	public synthetic fun <init> (Ljava/io/PrintStream;ZZLio/github/ktlint/core/cli/reporter/plain/Color;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun after (Ljava/lang/String;)V

@@ -473,7 +473,6 @@ public abstract interface class io/github/ktlint/core/rule/engine/core/api/RuleV
 
 public final class io/github/ktlint/core/rule/engine/core/api/RuleV2InstanceProvider : io/github/ktlint/core/rule/engine/core/api/RuleInstanceProvider {
 	public static final field Companion Lio/github/ktlint/core/rule/engine/core/api/RuleV2InstanceProvider$Companion;
-	public synthetic fun <init> (Lkotlin/jvm/functions/Function0;Lio/github/ktlint/core/rule/engine/core/api/RuleId;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun createNewRuleInstance ()Lio/github/ktlint/core/rule/engine/core/api/RuleV2;
 	public fun getRuleId ()Lio/github/ktlint/core/rule/engine/core/api/RuleId;
 }

@@ -85,7 +85,6 @@ public final class io/github/ktlint/core/test/ReplaceStringTemplatePlaceholderKt
 }
 
 public class io/github/ktlint/core/test/RuleSetProviderTest {
-	public static final field NEWLINE_AND_INDENT Ljava/lang/String;
 	public fun <init> (Ljava/lang/Class;Ljava/lang/String;)V
 	public final fun checkAllRulesInPackageAreProvidedByRuleSetProvider ()V
 }
