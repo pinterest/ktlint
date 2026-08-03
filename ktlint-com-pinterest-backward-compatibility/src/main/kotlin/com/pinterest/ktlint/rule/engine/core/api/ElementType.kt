@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.pinterest.ktlint.rule.engine.core.api
 
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType

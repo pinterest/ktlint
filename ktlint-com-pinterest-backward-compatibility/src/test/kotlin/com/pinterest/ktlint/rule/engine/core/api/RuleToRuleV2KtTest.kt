@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
+
 package com.pinterest.ktlint.rule.engine.core.api
 
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.ALLOW_AUTOCORRECT
@@ -28,7 +30,7 @@ class RuleToRuleV2KtTest {
         val rule =
             object : Rule(
                 ruleId = RuleId("custom:legacy-rule"),
-                about = Rule.About(),
+                about = About(),
             ) {}
 
         assertThatThrownBy { rule.toRuleV2() }
@@ -273,7 +275,7 @@ class RuleToRuleV2KtTest {
             Rule(
                 ruleId = RuleId(ruleId),
                 about =
-                    Rule.About(
+                    About(
                         maintainer = maintainer,
                         repositoryUrl = repositoryUrl,
                         issueTrackerUrl = issueTrackerUrl,
@@ -298,6 +300,7 @@ class RuleToRuleV2KtTest {
 
     private fun fakeNode(): ASTNode = KtlintKotlinCompiler.createPsiFileFromText("Fake.kt", "val x = 1").node
 
+    @Suppress("SameParameterValue")
     private fun sampleEditorConfigProperty(name: String): EditorConfigProperty<String> =
         EditorConfigProperty(
             name = name,

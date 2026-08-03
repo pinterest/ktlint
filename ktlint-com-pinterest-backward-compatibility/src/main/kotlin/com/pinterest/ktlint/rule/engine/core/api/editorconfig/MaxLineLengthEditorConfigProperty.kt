@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.pinterest.ktlint.rule.engine.core.api.editorconfig
 
 import io.github.ktlint.core.logger.api.initKtLintKLogger
