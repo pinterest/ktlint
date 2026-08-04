@@ -1230,6 +1230,34 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
   
   
     <li class="md-nav__item">
+      <a href="../../api/migrate-to-ktlint-2.x/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migrate to Ktlint 2.x
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../api/custom-integration/" class="md-nav__link">
         
   
@@ -1757,7 +1785,7 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 <a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">      </span><span class="nt">&lt;argument&gt;</span>-classpath<span class="nt">&lt;/argument&gt;</span>
 <a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">      </span><span class="cm">&lt;!-- automatically creates the classpath using all project dependencies, also adding the project build directory --&gt;</span>
 <a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">      </span><span class="nt">&lt;classpath/&gt;</span>
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="w">      </span><span class="nt">&lt;argument&gt;</span>com.pinterest.ktlint.Main<span class="nt">&lt;/argument&gt;</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="w">      </span><span class="nt">&lt;argument&gt;</span>io.github.ktlint.core.Main<span class="nt">&lt;/argument&gt;</span>
 <a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="w">      </span><span class="cm">&lt;!-- Actual wanted arguments to run ktlint with formatting --&gt;</span>
 <a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="w">      </span><span class="nt">&lt;argument&gt;</span>--format<span class="nt">&lt;/argument&gt;</span>
 <a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="w">      </span><span class="nt">&lt;argument&gt;</span>--relative<span class="nt">&lt;/argument&gt;</span>
@@ -1765,9 +1793,9 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 <a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="w">  </span><span class="nt">&lt;/configuration&gt;</span>
 <a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="w">  </span><span class="nt">&lt;dependencies&gt;</span>
 <a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="w">    </span><span class="nt">&lt;dependency&gt;</span>
-<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="w">      </span><span class="nt">&lt;groupId&gt;</span>com.pinterest.ktlint<span class="nt">&lt;/groupId&gt;</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="w">      </span><span class="nt">&lt;groupId&gt;</span>io.github.ktlint.core<span class="nt">&lt;/groupId&gt;</span>
 <a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="w">      </span><span class="nt">&lt;artifactId&gt;</span>ktlint-cli<span class="nt">&lt;/artifactId&gt;</span>
-<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="w">      </span><span class="nt">&lt;version&gt;</span>1.8.0<span class="nt">&lt;/version&gt;</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="w">      </span><span class="nt">&lt;version&gt;</span>2.0.0<span class="nt">&lt;/version&gt;</span>
 <a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a><span class="w">      </span><span class="cm">&lt;!-- Use fat jar of ktlint-cli --&gt;</span>
 <a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="w">      </span><span class="nt">&lt;classifier&gt;</span>all<span class="nt">&lt;/classifier&gt;</span>
 <a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="w">      </span><span class="nt">&lt;type&gt;</span>jar<span class="nt">&lt;/type&gt;</span>
@@ -1817,7 +1845,7 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 <a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="o">}</span>
 <a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
 <a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="n">dependencies</span><span class="w"> </span><span class="o">{</span>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">    </span><span class="n">ktlint</span><span class="o">(</span><span class="s2">&quot;com.pinterest.ktlint:ktlint-cli:1.8.0&quot;</span><span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">    </span><span class="n">ktlint</span><span class="o">(</span><span class="s2">&quot;io.github.ktlint.core:ktlint-cli:2.0.0&quot;</span><span class="o">)</span><span class="w"> </span><span class="o">{</span>
 <a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">        </span><span class="n">attributes</span><span class="w"> </span><span class="o">{</span>
 <a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">            </span><span class="n">attribute</span><span class="o">(</span><span class="n">Bundling</span><span class="o">.</span><span class="na">BUNDLING_ATTRIBUTE</span><span class="o">,</span><span class="w"> </span><span class="n">getObjects</span><span class="o">().</span><span class="na">named</span><span class="o">(</span><span class="n">Bundling</span><span class="o">,</span><span class="w"> </span><span class="n">Bundling</span><span class="o">.</span><span class="na">EXTERNAL</span><span class="o">))</span>
 <a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="w">        </span><span class="o">}</span>
@@ -1831,7 +1859,7 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 <a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="w">    </span><span class="n">group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;verification&quot;</span>
 <a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a><span class="w">    </span><span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Check Kotlin code style.&quot;</span>
 <a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a><span class="w">    </span><span class="n">classpath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">configurations</span><span class="o">.</span><span class="na">ktlint</span>
-<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a><span class="w">    </span><span class="n">mainClass</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;com.pinterest.ktlint.Main&quot;</span>
+<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a><span class="w">    </span><span class="n">mainClass</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;io.github.ktlint.core.Main&quot;</span>
 <a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a><span class="w">    </span><span class="c1">// see https://ktlint.github.io/ktlint/install/cli/#command-line-usage for more information</span>
 <a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a><span class="w">    </span><span class="n">args</span><span class="w"> </span><span class="s2">&quot;src/**/*.kt&quot;</span><span class="o">,</span><span class="w"> </span><span class="s2">&quot;**.kts&quot;</span><span class="o">,</span><span class="w"> </span><span class="s2">&quot;!**/build/**&quot;</span>
 <a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a><span class="o">}</span>
@@ -1844,7 +1872,7 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 <a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a><span class="w">    </span><span class="n">group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;formatting&quot;</span>
 <a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a><span class="w">    </span><span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Fix Kotlin code style deviations.&quot;</span>
 <a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a><span class="w">    </span><span class="n">classpath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">configurations</span><span class="o">.</span><span class="na">ktlint</span>
-<a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a><span class="w">    </span><span class="n">mainClass</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;com.pinterest.ktlint.Main&quot;</span>
+<a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a><span class="w">    </span><span class="n">mainClass</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;io.github.ktlint.core.Main&quot;</span>
 <a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a><span class="w">    </span><span class="c1">// Suppress &quot;sun.misc.Unsafe::objectFieldOffset&quot; on Java24 (warning) (https://github.com/ktlint/ktlint/issues/2973)</span>
 <a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a><span class="w">    </span><span class="c1">// jvmArgs(&quot;--sun-misc-unsafe-memory-access=allow&quot;) // Java 24+</span>
 <a id="__codelineno-1-47" name="__codelineno-1-47" href="#__codelineno-1-47"></a><span class="w">    </span><span class="c1">// see https://ktlint.github.io/ktlint/install/cli/#command-line-usage for more information</span>
@@ -1865,7 +1893,7 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 <div class="highlight"><span class="filename">build.gradle.kts</span><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kd">val</span><span class="w"> </span><span class="nv">ktlint</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">configurations</span><span class="p">.</span><span class="na">creating</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="n">ktlint</span><span class="p">(</span><span class="s">&quot;com.pinterest.ktlint:ktlint-cli:1.8.0&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="n">ktlint</span><span class="p">(</span><span class="s">&quot;io.github.ktlint.core:ktlint-cli:2.0.0&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">        </span><span class="n">attributes</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">            </span><span class="n">attribute</span><span class="p">(</span><span class="n">Bundling</span><span class="p">.</span><span class="na">BUNDLING_ATTRIBUTE</span><span class="p">,</span><span class="w"> </span><span class="n">objects</span><span class="p">.</span><span class="na">named</span><span class="p">(</span><span class="n">Bundling</span><span class="p">.</span><span class="na">EXTERNAL</span><span class="p">))</span>
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">        </span><span class="p">}</span>
@@ -1877,7 +1905,7 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 <a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span><span class="n">group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LifecycleBasePlugin</span><span class="p">.</span><span class="na">VERIFICATION_GROUP</span>
 <a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">    </span><span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Check Kotlin code style&quot;</span>
 <a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">    </span><span class="n">classpath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ktlint</span>
-<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">    </span><span class="n">mainClass</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="s">&quot;com.pinterest.ktlint.Main&quot;</span><span class="p">)</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">    </span><span class="n">mainClass</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="s">&quot;io.github.ktlint.core.Main&quot;</span><span class="p">)</span>
 <a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">    </span><span class="c1">// see https://ktlint.github.io/ktlint/install/cli/#command-line-usage for more information</span>
 <a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">    </span><span class="n">args</span><span class="p">(</span>
 <a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">        </span><span class="s">&quot;**/src/**/*.kt&quot;</span><span class="p">,</span>
@@ -1894,7 +1922,7 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 <a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a><span class="w">    </span><span class="n">group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LifecycleBasePlugin</span><span class="p">.</span><span class="na">VERIFICATION_GROUP</span>
 <a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a><span class="w">    </span><span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Check Kotlin code style and format&quot;</span>
 <a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a><span class="w">    </span><span class="n">classpath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ktlint</span>
-<a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a><span class="w">    </span><span class="n">mainClass</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="s">&quot;com.pinterest.ktlint.Main&quot;</span><span class="p">)</span>
+<a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a><span class="w">    </span><span class="n">mainClass</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="s">&quot;io.github.ktlint.core.Main&quot;</span><span class="p">)</span>
 <a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a><span class="w">    </span><span class="c1">// Suppress &quot;sun.misc.Unsafe::objectFieldOffset&quot; on Java24 (warning) (https://github.com/ktlint/ktlint/issues/2973)</span>
 <a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a><span class="w">    </span><span class="n">jvmArgs</span><span class="p">(</span><span class="s">&quot;--sun-misc-unsafe-memory-access=allow&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// Java 24+</span>
 <a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a><span class="w">    </span><span class="c1">// see https://ktlint.github.io/ktlint/install/cli/#command-line-usage for more information</span>

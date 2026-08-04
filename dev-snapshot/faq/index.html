@@ -1018,6 +1018,34 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
   
   
     <li class="md-nav__item">
+      <a href="../api/migrate-to-ktlint-2.x/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migrate to Ktlint 2.x
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../api/custom-integration/" class="md-nav__link">
         
   
@@ -1204,10 +1232,10 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 </li>
       
         <li class="md-nav__item">
-  <a href="#what-are-the-maven-coordinates-in-ktlint-1x" class="md-nav__link">
+  <a href="#what-are-the-maven-coordinates-in-ktlint-2x" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What are the Maven coordinates in Ktlint 1.x?
+        What are the Maven coordinates in Ktlint 2.x?
       
     </span>
   </a>
@@ -1535,10 +1563,10 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 </li>
       
         <li class="md-nav__item">
-  <a href="#what-are-the-maven-coordinates-in-ktlint-1x" class="md-nav__link">
+  <a href="#what-are-the-maven-coordinates-in-ktlint-2x" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What are the Maven coordinates in Ktlint 1.x?
+        What are the Maven coordinates in Ktlint 2.x?
       
     </span>
   </a>
@@ -1702,8 +1730,8 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 <p>Spending time on configuration (and maintenance down the road) of hundred-line long style config file(s) is counter-productive. Instead of wasting your energy on something that has no business value - focus on what really matters (not debating whether to use tabs or spaces).</p>
 <p>By using ktlint you put the importance of code clarity and community conventions over personal preferences. This makes things easier for people reading your code as well as frees you from having to document and explain what style potential contributor(s) have to follow.</p>
 <p>ktlint is a single binary with both linter &amp; formatter included. All you need is to drop it in (no need to get <a href="https://en.wikipedia.org/wiki/Decision_fatigue">overwhelmed</a> while choosing among <a href="https://checkstyle.sourceforge.net/checks.html">dozens of code style options</a>).</p>
-<h2 id="what-are-the-maven-coordinates-in-ktlint-1x">What are the Maven coordinates in Ktlint 1.x?<a class="headerlink" href="#what-are-the-maven-coordinates-in-ktlint-1x" title="Permanent link">&para;</a></h2>
-<p>With the release of ktlint <code>1.0</code> the Maven coordinates of most modules have been changed. Now all ktlint modules are published in Maven group <code>com.pinterest.ktlint</code>. Also, the artifact id's of some modules have been changed.</p>
+<h2 id="what-are-the-maven-coordinates-in-ktlint-2x">What are the Maven coordinates in Ktlint 2.x?<a class="headerlink" href="#what-are-the-maven-coordinates-in-ktlint-2x" title="Permanent link">&para;</a></h2>
+<p>With the release of ktlint <code>2.0</code> the Maven coordinates of all modules have been changed. Now all ktlint modules are published in Maven group <code>io.github.ktlint.core</code></p>
 <p>The Maven coordinates of modules below have been changed:</p>
 <table>
 <thead>
@@ -1715,43 +1743,43 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 <tbody>
 <tr>
 <td><code>com.pinterest:ktlint</code></td>
-<td><code>com.pinterest.ktlint:ktlint-cli</code></td>
+<td><code>io.github.ktlint.core:ktlint-cli</code></td>
 </tr>
 <tr>
-<td><code>com.pinterest.ktlint:ktlint-reporter-baseline</code></td>
 <td><code>com.pinterest.ktlint:ktlint-cli-reporter-baseline</code></td>
+<td><code>io.github.ktlint.core:ktlint-cli-reporter-baseline</code></td>
 </tr>
 <tr>
-<td><code>com.pinterest.ktlint:ktlint-reporter-checkstyle</code></td>
 <td><code>com.pinterest.ktlint:ktlint-cli-reporter-checkstyle</code></td>
+<td><code>io.github.ktlint.core:ktlint-cli-reporter-checkstyle</code></td>
 </tr>
 <tr>
-<td><code>com.pinterest.ktlint:ktlint-cli-reporter</code></td>
 <td><code>com.pinterest.ktlint:ktlint-cli-reporter-core</code></td>
+<td><code>io.github.ktlint.core:ktlint-cli-reporter-core</code></td>
 </tr>
 <tr>
-<td><code>com.pinterest.ktlint:ktlint-reporter-format</code></td>
 <td><code>com.pinterest.ktlint:ktlint-cli-reporter-format</code></td>
+<td><code>io.github.ktlint.core:ktlint-cli-reporter-format</code></td>
 </tr>
 <tr>
-<td><code>com.pinterest.ktlint:ktlint-reporter-html</code></td>
 <td><code>com.pinterest.ktlint:ktlint-cli-reporter-html</code></td>
+<td><code>io.github.ktlint.core:ktlint-cli-reporter-html</code></td>
 </tr>
 <tr>
-<td><code>com.pinterest.ktlint:ktlint-reporter-json</code></td>
 <td><code>com.pinterest.ktlint:ktlint-cli-reporter-json</code></td>
+<td><code>io.github.ktlint.core:ktlint-cli-reporter-json</code></td>
 </tr>
 <tr>
-<td><code>com.pinterest.ktlint:ktlint-reporter-plain</code></td>
 <td><code>com.pinterest.ktlint:ktlint-cli-reporter-plain</code></td>
+<td><code>io.github.ktlint.core:ktlint-cli-reporter-plain</code></td>
 </tr>
 <tr>
-<td><code>com.pinterest.ktlint:ktlint-reporter-plain-summary</code></td>
 <td><code>com.pinterest.ktlint:ktlint-cli-reporter-plain-summary</code></td>
+<td><code>io.github.ktlint.core:ktlint-cli-reporter-plain-summary</code></td>
 </tr>
 <tr>
-<td><code>com.pinterest.ktlint:ktlint-reporter-sarif</code></td>
 <td><code>com.pinterest.ktlint:ktlint-cli-reporter-sarif</code></td>
+<td><code>io.github.ktlint.core:ktlint-cli-reporter-sarif</code></td>
 </tr>
 </tbody>
 </table>
@@ -1900,10 +1928,10 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 </div>
 <h2 id="can-i-use-ktlint-to-directly-format-the-code-im-generating-with-kotlinpoet">Can I use KtLint to directly format the code I'm generating with KotlinPoet?<a class="headerlink" href="#can-i-use-ktlint-to-directly-format-the-code-im-generating-with-kotlinpoet" title="Permanent link">&para;</a></h2>
 <p>Yes, it is possible to use KtLint to directly format the code generated with KotlinPoet. 
-To do so, you must include the dependencies <code>com.pinterest.ktlint:ktlint-core</code> and <code>com.pinterest.ktlint:ktlint-ruleset-standard</code> in your Gradle/Maven project.</p>
+To do so, you must include the dependencies <code>io.github.ktlint.core:ktlint-core</code> and <code>io.github.ktlint.core:ktlint-ruleset-standard</code> in your Gradle/Maven project.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Do not include the dependency <code>com.pinterest.ktlint:ktlint-cli</code> as that would import the entire ktlint project including unwanted dependencies. Besides a much bigger artifact, it might also result in problems regarding logging.</p>
+<p>Do not include the dependency <code>io.github.ktlint.core:ktlint-cli</code> as that would import the entire ktlint project including unwanted dependencies. Besides a much bigger artifact, it might also result in problems regarding logging.</p>
 </div>
 <p>To format the output of KotlinPoet with KtLint, you can use the following snippet:</p>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kd">val</span><span class="w"> </span><span class="nv">ruleProviders</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buildSet</span><span class="w"> </span><span class="p">{</span>

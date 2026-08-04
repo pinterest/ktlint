@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://ktlint.github.io/ktlint/dev-snapshot/api/custom-reporter/">
+        <link rel="canonical" href="https://ktlint.github.io/ktlint/dev-snapshot/api/migrate-to-ktlint-2.x/">
       
       
-        <link rel="prev" href="../custom-rule-set/">
+        <link rel="prev" href="../overview/">
       
       
-        <link rel="next" href="../badge/">
+        <link rel="next" href="../custom-integration/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Custom reporter - Ktlint</title>
+        <title>Migrate to Ktlint 2.x - Ktlint</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#build-a-custom-reporter" class="md-skip">
+        <a href="#prepare" class="md-skip">
           Skip to content
         </a>
       
@@ -132,7 +132,7 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Custom reporter
+              Migrate to Ktlint 2.x
             
           </span>
         </div>
@@ -1018,10 +1018,35 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../migrate-to-ktlint-2.x/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migrate to Ktlint 2.x
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1037,6 +1062,96 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prepare" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prepare
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#change-maven-coordinates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Change Maven Coordinates
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#change-package-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Change package names
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Change package names">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rule-extends-non-existent-iogithubktlintcorerule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rule extends non existent io.github.ktlint.core...Rule
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rule-set-provider-extends-non-existent-iogithubktlintcorerulesetproviderv3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rule set provider extends non existent io.github.ktlint.core...RuleSetProviderV3
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backward-compatibility-compinterestktlint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backward compatibility com.pinterest.ktlint
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1102,35 +1217,10 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Custom reporter
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../custom-reporter/" class="md-nav__link">
         
   
   
@@ -1146,46 +1236,6 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#build-a-custom-reporter" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Build a custom reporter
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#third-party-reporters" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Third party reporters
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1423,10 +1473,10 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#build-a-custom-reporter" class="md-nav__link">
+  <a href="#prepare" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Build a custom reporter
+        Prepare
       
     </span>
   </a>
@@ -1434,10 +1484,60 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 </li>
       
         <li class="md-nav__item">
-  <a href="#third-party-reporters" class="md-nav__link">
+  <a href="#change-maven-coordinates" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Third party reporters
+        Change Maven Coordinates
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#change-package-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Change package names
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Change package names">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rule-extends-non-existent-iogithubktlintcorerule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rule extends non existent io.github.ktlint.core...Rule
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rule-set-provider-extends-non-existent-iogithubktlintcorerulesetproviderv3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rule set provider extends non existent io.github.ktlint.core...RuleSetProviderV3
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backward-compatibility-compinterestktlint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backward compatibility com.pinterest.ktlint
       
     </span>
   </a>
@@ -1464,23 +1564,97 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
   
 
 
-  <h1>Custom reporter</h1>
+  <h1>Migrate to Ktlint 2.x</h1>
 
-<h2 id="build-a-custom-reporter">Build a custom reporter<a class="headerlink" href="#build-a-custom-reporter" title="Permanent link">&para;</a></h2>
-<p>Take a look at <a href="https://github.com/ktlint/ktlint/tree/master/ktlint-cli-reporter-plain">ktlint-cli-reporter-plain</a>.</p>
-<p>In short, all you need to do is to implement a
-<a href="https://github.com/ktlint/ktlint/blob/master/ktlint-cli-reporter-core/src/main/kotlin/com/ktlint/ktlint/cli/reporter/core/api/ReporterV2.kt">ReporterV2</a> and make it available by registering
-a custom <a href="https://github.com/ktlint/ktlint/blob/master/ktlint-cli-reporter-core/src/main/kotlin/com/ktlint/ktlint/cli/reporter/core/api/ReporterProviderV2.kt">ReporterProviderV2</a> using
-<code>META-INF/services/io.github.ktlint.core.cli.reporter.core.api.ReporterProviderV2</code>. Pack all of that into a JAR and you're done.</p>
-<p>To load a custom (3<sup>rd</sup> party) reporter use <code>ktlint --reporter=name,artifact=/path/to/custom-ktlint-reporter.jar</code>
-(see <code>ktlint --help</code> for more).</p>
-<h2 id="third-party-reporters">Third party reporters<a class="headerlink" href="#third-party-reporters" title="Permanent link">&para;</a></h2>
-<p>Known third-party reporters:</p>
+<p>Ktlint has been moved away from the Pinterest GitHub organization towards its own <a href="https://github.com/ktlint">Ktlint GitHub organization</a>. This results in several breaking changes which are documented below.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Please <a href="https://github.com/ktlint/ktlint/issues/new/choose">create an issue</a> if you run into problems when migrating your Ktlint integration or your custom ruleset, so that this guide can be updated.</p>
+</div>
+<p>Ktlint Integrators are strongly encouraged to upgrade to Ktlint <code>2.x</code> as soon possible, but also to keep backward compatibility with Ktlint <code>1.x</code> rulesets when relevant. At the time of writing of this guide, the Ktlint CLI <code>2.x and higher</code>, and Ktlint IntelliJ Plugin <code>0.31.0 and higher</code>, are both compatible with:</p>
 <ul>
-<li><a href="https://github.com/kryanod/ktlint-junit-reporter">kryanod/ktlint-junit-reporter</a> reports ktlint output as an xml file in JUnit format so that the ktlint report can be made visible on the Merge Request page.</li>
-<li><a href="https://github.com/musichin/ktlint-github-reporter">musichin/ktlint-github-reporter</a> uses <a href="https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#setting-an-error-message">GitHub workflow commands</a> to set error messages for <code>ktlint</code> issues.</li>
-<li><a href="https://github.com/tobi2k/ktlint-gitlab-reporter">tobi2k/ktlint-gitlab-reporter</a> provides output in JSON format that can be parsed by GitLab automatically.</li>
+<li>rulesets provided by Ktlint <code>1.3.x and higher</code></li>
+<li>custom rules implementing the <code>com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler</code> interface.</li>
 </ul>
+<h2 id="prepare">Prepare<a class="headerlink" href="#prepare" title="Permanent link">&para;</a></h2>
+<p>Before starting the migration to Ktlint 2.x it is advised to upgrade to Ktlint <code>1.8.0</code> version, and resolve all deprecation warnings. Especially, a lot of extensions functions provided via the <code>ASTNodeExtensions</code> file are removed in Ktlint 2.x. By first migrating the deprecated extension functions to their new counterparts in Ktlint <code>1.8.0</code> the migration to the new package names becomes easier.</p>
+<h2 id="change-maven-coordinates">Change Maven Coordinates<a class="headerlink" href="#change-maven-coordinates" title="Permanent link">&para;</a></h2>
+<p>Ktlint 2.x is published with changed maven coordinates. The Maven group id has changed from <code>com.pinterest.ktlint</code> to <code>io.github.ktlint.core</code>. Artifact id's of the Ktlint modules are not changed. Examples:
+* <code>com.pinterest.ktlint:ktlint-rule-engine</code> should be replaced with <code>io.github.ktlint.core:ktlint-rule-engine</code>
+* <code>com.pinterest.ktlint:ktlint-cli-ruleset-core</code> should be replaced with <code>io.github.ktlint-cli-ruleset-core</code></p>
+<h2 id="change-package-names">Change package names<a class="headerlink" href="#change-package-names" title="Permanent link">&para;</a></h2>
+<p>All package names starting with <code>com.pinterest.ktlint</code> have been changed and now start with <code>io.github.ktlint.core</code>. A simple search and replace should resolve most problems.</p>
+<p>This substitution results in several compilation errors as some classes are not provided in the <code>io.github.ktlint.core</code> namespace. See below for how to resolve the compilation errors.</p>
+<h3 id="rule-extends-non-existent-iogithubktlintcorerule">Rule extends non existent <code>io.github.ktlint.core...Rule</code><a class="headerlink" href="#rule-extends-non-existent-iogithubktlintcorerule" title="Permanent link">&para;</a></h3>
+<p>The <code>com.pinterest.ktlint.rule.engine.core.api.Rule</code> class has been replaced with the <code>io.github.ktlint.core.rule.engine.core.api.RuleV2</code> class. </p>
+<p>If the custom rule implemented the <code>com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler</code> interface then remove this interface from the class signature. The functions provided by this interface are now provided directly by the <code>RuleV2</code> class.</p>
+<p>If the custom rule did not yet implement the <code>com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler</code> interface then you will need to update the  signatures of functions <code>beforeVisitChildNodes</code> and <code>afterVisitChildNodes</code>.</p>
+<table>
+<tr>
+<td> 
+
+<div class="highlight"><span class="filename">Old signature (not supported in Ktlint 2.x)</span><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kd">public</span><span class="w"> </span><span class="kd">open</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">beforeVisitChildNodes</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="n">node</span><span class="p">:</span><span class="w"> </span><span class="n">ASTNode</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">autoCorrect</span><span class="p">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="n">emit</span><span class="p">:</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">        </span><span class="n">offset</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">        </span><span class="n">errorMessage</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">        </span><span class="n">canBeAutoCorrected</span><span class="p">:</span><span class="w"> </span><span class="kt">Boolean</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">Unit</span><span class="p">,</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">)</span>
+</code></pre></div>
+
+</td>
+<td>
+
+<div class="highlight"><span class="filename">New signature</span><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kd">public</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">beforeVisitChildNodes</span><span class="p">(</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="n">node</span><span class="p">:</span><span class="w"> </span><span class="n">ASTNode</span><span class="p">,</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="n">emit</span><span class="p">:</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">        </span><span class="n">offset</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">        </span><span class="n">errorMessage</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">        </span><span class="n">canBeAutoCorrected</span><span class="p">:</span><span class="w"> </span><span class="kt">Boolean</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">AutocorrectDecision</span><span class="p">,</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="p">)</span>
+</code></pre></div>
+
+</td>
+</tr>
+</table>
+
+<p>The <code>autoCorrect</code> parameter is no longer passed to the method.</p>
+<p>The signature of the <code>emit</code> parameter has changed from <code>emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -&gt; Unit</code> to <code>emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -&gt; AutocorrectDecision</code>. On each violation found, the emitter calls a lambda provided by the Ktlint Integrator to decide on whether that specific violation should (<code>AutocorrectDecision.ALLOW_AUTOCORRECT</code>) or should not (<code>AutocorrectDecision.NO_AUTOCORRECT</code>) be autocorrected. The AutocorrectDecisions provided by the Ktlint Integrator will be returned to the rule which only should apply the autocorrect fix when allowed. In case a <code>LintError</code> is detected, and can be autocorrected, the <code>LintError</code> can be processed as shown below:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">emit</span><span class="p">(</span><span class="n">node</span><span class="p">.</span><span class="na">startOffset</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;some detail message&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">   </span><span class="p">.</span><span class="na">ifAutocorrectAllowed</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">       </span><span class="c1">// Autocorrect the LintError</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">   </span><span class="p">}</span>
+</code></pre></div>
+<p>In case the <code>LintError</code> can not be autocorrected, if suffices to emit the violation only:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">emit</span><span class="p">(</span><span class="n">node</span><span class="p">.</span><span class="na">startOffset</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;some detail message&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">)</span>
+</code></pre></div></p>
+<h3 id="rule-set-provider-extends-non-existent-iogithubktlintcorerulesetproviderv3">Rule set provider extends non existent <code>io.github.ktlint.core...RuleSetProviderV3</code><a class="headerlink" href="#rule-set-provider-extends-non-existent-iogithubktlintcorerulesetproviderv3" title="Permanent link">&para;</a></h3>
+<p>The <code>com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3</code> class has been replaced with the <code>io.github.ktlint.core.cli.ruleset.core.api.RuleSetV2Provider</code>. Its function <code>getRuleProviders</code> should return a set of <code>io.github.ktlint.core.rule.engine.core.api.RuleV2InstanceProvider</code>.</p>
+<p>Example:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">import</span><span class="w"> </span><span class="nn">io.github.ktlint.core.cli.ruleset.core.api.RuleSetV2Provider</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">import</span><span class="w"> </span><span class="nn">io.github.ktlint.core.rule.engine.core.api.RuleV2InstanceProvider</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">import</span><span class="w"> </span><span class="nn">io.github.ktlint.core.rule.engine.core.api.RuleSetId</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="kd">internal</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">CUSTOM_RULE_SET_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;custom-rule-set-id&quot;</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="kd">class</span><span class="w"> </span><span class="nc">CustomRuleSetProvider</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">RuleSetV2Provider</span><span class="p">(</span><span class="n">RuleSetId</span><span class="p">(</span><span class="n">CUSTOM_RULE_SET_ID</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">getRuleProviders</span><span class="p">():</span><span class="w"> </span><span class="n">Set</span><span class="o">&lt;</span><span class="n">RuleV2InstanceProvider</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">        </span><span class="n">setOf</span><span class="p">(</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">            </span><span class="n">RuleV2InstanceProvider</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">NoVarRule</span><span class="p">()</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">            </span><span class="n">RuleV2InstanceProvider</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">EmptyCollectionInitializationRule</span><span class="p">()</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">        </span><span class="p">)</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="p">}</span>
+</code></pre></div></p>
+<h2 id="backward-compatibility-compinterestktlint">Backward compatibility <code>com.pinterest.ktlint</code><a class="headerlink" href="#backward-compatibility-compinterestktlint" title="Permanent link">&para;</a></h2>
+<p>However, above cannot be applied fully for Ktlint API Integrators that need to support dynamic loading of rulesets extend from classes living in the <code>com.pinterest.ktlint</code> namespace.</p>
+<p>The new module <code>com.pinterest.ktlint:ktlint-com-pinterest-backward-compatibility</code> contains the <code>1.8.0</code> version of classes that are needed to load rulesets extended from class <code>RuleSetProviderV3</code>. Rules loaded via the <code>RuleSetProviderV3</code> should be transformed to the Ktlint 2.x format using the <code>com.pinterest.ktlint.rule.engine.core.api.RuleProvider.toRuleV2InstanceProvider</code>.  </p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Do not use the backward compatibility module to avoid migrating your custom ruleset. This module will be removed in a future Ktlint version without further notice. Once removed, your ruleset will not work anymore in newer versions of Ktlint CLI, Ktlint IntelliJ Plugin, Ktlint Gradle Plugin, etc. </p>
+</div>
 
 
 
