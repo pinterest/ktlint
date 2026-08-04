@@ -40,7 +40,7 @@ import io.github.ktlint.core.rule.engine.api.KtLintRuleEngine
 import io.github.ktlint.core.rule.engine.api.KtLintRuleException
 import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision.ALLOW_AUTOCORRECT
 import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision.NO_AUTOCORRECT
-import io.github.ktlint.core.rule.engine.core.api.RuleInstanceProvider
+import io.github.ktlint.core.rule.engine.core.api.RuleV2Provider
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.RuleExecution
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import io.github.ktlint.core.rule.engine.core.api.propertyTypes
@@ -316,7 +316,7 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
         }
     }
 
-    private fun editorConfigDefaults(ruleProviders: Set<RuleInstanceProvider>): EditorConfigDefaults {
+    private fun editorConfigDefaults(ruleProviders: Set<RuleV2Provider>): EditorConfigDefaults {
         val fullyExpandedEditorConfigPath =
             editorConfigPath
                 ?.expandTildeToFullPath()
@@ -355,7 +355,7 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
             }
         }
 
-    internal val ruleProviders: Set<RuleInstanceProvider> by lazy {
+    internal val ruleProviders: Set<RuleV2Provider> by lazy {
         loadRuleProviders(rulesetJarPaths.toFilesURIList())
     }
 

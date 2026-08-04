@@ -2,10 +2,9 @@ package io.github.ktlint.core.rule.engine.internal.rulefilter
 
 import io.github.ktlint.core.rule.engine.api.KtLintRuleEngine
 import io.github.ktlint.core.rule.engine.core.api.RuleId
-import io.github.ktlint.core.rule.engine.core.api.RuleInstanceProvider
 import io.github.ktlint.core.rule.engine.core.api.RuleV2
 import io.github.ktlint.core.rule.engine.core.api.RuleV2.About
-import io.github.ktlint.core.rule.engine.core.api.RuleV2InstanceProvider
+import io.github.ktlint.core.rule.engine.core.api.RuleV2Provider
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -57,7 +56,7 @@ class RuleFilterKtTest {
     private class RuleIdRuleFilter(
         private val string: String,
     ) : RuleFilter {
-        override fun filter(ruleProviders: Set<RuleInstanceProvider>): Set<RuleInstanceProvider> =
+        override fun filter(ruleProviders: Set<RuleV2Provider>): Set<RuleV2Provider> =
             ruleProviders
                 .filter { it.ruleId.value.contains(string) }
                 .toSet()
@@ -66,7 +65,7 @@ class RuleFilterKtTest {
     private fun createKtLintRuleEngine(ruleIds: Array<RuleId>): KtLintRuleEngine =
         ruleIds
             .map {
-                RuleV2InstanceProvider {
+                RuleV2Provider {
                     RuleV2(
                         ruleId = it,
                         about = About(),

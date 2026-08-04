@@ -84,21 +84,21 @@ emit(node.startOffset, "some detail message", false)
 
 ### Rule set provider extends non existent `io.github.ktlint.core...RuleSetProviderV3`
 
-The `com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3` class has been replaced with the `io.github.ktlint.core.cli.ruleset.core.api.RuleSetV2Provider`. Its function `getRuleProviders` should return a set of `io.github.ktlint.core.rule.engine.core.api.RuleV2InstanceProvider`.
+The `com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3` class has been replaced with the `io.github.ktlint.core.cli.ruleset.core.api.RuleSetV2Provider`. Its function `getRuleProviders` should return a set of `io.github.ktlint.core.rule.engine.core.api.RuleV2Provider`.
 
 Example:
 ```kotlin
 import io.github.ktlint.core.cli.ruleset.core.api.RuleSetV2Provider
-import io.github.ktlint.core.rule.engine.core.api.RuleV2InstanceProvider
+import io.github.ktlint.core.rule.engine.core.api.RuleV2Provider
 import io.github.ktlint.core.rule.engine.core.api.RuleSetId
 
 internal val CUSTOM_RULE_SET_ID = "custom-rule-set-id"
 
 class CustomRuleSetProvider : RuleSetV2Provider(RuleSetId(CUSTOM_RULE_SET_ID)) {
-    override fun getRuleProviders(): Set<RuleV2InstanceProvider> =
+    override fun getRuleProviders(): Set<RuleV2Provider> =
         setOf(
-            RuleV2InstanceProvider { NoVarRule() },
-            RuleV2InstanceProvider { EmptyCollectionInitializationRule() },
+            RuleV2Provider { NoVarRule() },
+            RuleV2Provider { EmptyCollectionInitializationRule() },
         )
 }
 ```
@@ -107,7 +107,7 @@ class CustomRuleSetProvider : RuleSetV2Provider(RuleSetId(CUSTOM_RULE_SET_ID)) {
 
 However, above cannot be applied fully for Ktlint API Integrators that need to support dynamic loading of rulesets extend from classes living in the `com.pinterest.ktlint` namespace.
 
-The new module `com.pinterest.ktlint:ktlint-com-pinterest-backward-compatibility` contains the `1.8.0` version of classes that are needed to load rulesets extended from class `RuleSetProviderV3`. Rules loaded via the `RuleSetProviderV3` should be transformed to the Ktlint 2.x format using the `com.pinterest.ktlint.rule.engine.core.api.RuleProvider.toRuleV2InstanceProvider`.  
+The new module `com.pinterest.ktlint:ktlint-com-pinterest-backward-compatibility` contains the `1.8.0` version of classes that are needed to load rulesets extended from class `RuleSetProviderV3`. Rules loaded via the `RuleSetProviderV3` should be transformed to the Ktlint 2.x format using the `com.pinterest.ktlint.rule.engine.core.api.RuleProvider.toRuleV2Provider`.  
 
 !!! Warning
     Do not use the backward compatibility module to avoid migrating your custom ruleset. This module will be removed in a future Ktlint version without further notice. Once removed, your ruleset will not work anymore in newer versions of Ktlint CLI, Ktlint IntelliJ Plugin, Ktlint Gradle Plugin, etc. 

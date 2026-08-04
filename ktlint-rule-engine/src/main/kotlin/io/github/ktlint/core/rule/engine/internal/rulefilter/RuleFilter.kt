@@ -1,13 +1,13 @@
 package io.github.ktlint.core.rule.engine.internal.rulefilter
 
 import io.github.ktlint.core.rule.engine.api.KtLintRuleEngine
-import io.github.ktlint.core.rule.engine.core.api.RuleInstanceProvider
+import io.github.ktlint.core.rule.engine.core.api.RuleV2Provider
 
 /**
- * Gets the rule providers for the [KtLintRuleEngine] by applying the [ruleFilters] in the given order on the set of [RuleInstanceProvider]s
- * provided by the previous (or the initial list of [RuleInstanceProvider]s).
+ * Gets the rule providers for the [KtLintRuleEngine] by applying the [ruleFilters] in the given order on the set of [RuleV2Provider]s
+ * provided by the previous (or the initial list of [RuleV2Provider]s).
  */
-internal fun KtLintRuleEngine.applyRuleFilters(vararg ruleFilters: RuleFilter): Set<RuleInstanceProvider> {
+internal fun KtLintRuleEngine.applyRuleFilters(vararg ruleFilters: RuleFilter): Set<RuleV2Provider> {
     var ruleProviders = initialRuleProviders()
     val ruleFilterIterator = ruleFilters.iterator()
     while (ruleFilterIterator.hasNext()) {
@@ -23,5 +23,5 @@ private fun KtLintRuleEngine.initialRuleProviders() =
         .toSet()
 
 internal interface RuleFilter {
-    fun filter(ruleProviders: Set<RuleInstanceProvider>): Set<RuleInstanceProvider>
+    fun filter(ruleProviders: Set<RuleV2Provider>): Set<RuleV2Provider>
 }

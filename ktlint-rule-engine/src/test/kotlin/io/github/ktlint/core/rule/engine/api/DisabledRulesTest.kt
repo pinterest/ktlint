@@ -3,7 +3,7 @@ package io.github.ktlint.core.rule.engine.api
 import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.RuleV2
-import io.github.ktlint.core.rule.engine.core.api.RuleV2InstanceProvider
+import io.github.ktlint.core.rule.engine.core.api.RuleV2Provider
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.RuleExecution
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import org.assertj.core.api.Assertions.assertThat
@@ -20,7 +20,7 @@ class DisabledRulesTest {
                 KtLintRuleEngine(
                     ruleProviders =
                         setOf(
-                            RuleV2InstanceProvider { NoVarRule(SOME_RULE_ID) },
+                            RuleV2Provider { NoVarRule(SOME_RULE_ID) },
                         ),
                 ).lint(Code.fromSnippet("var foo")) { e -> add(e) }
             },
@@ -46,7 +46,7 @@ class DisabledRulesTest {
                 KtLintRuleEngine(
                     ruleProviders =
                         setOf(
-                            RuleV2InstanceProvider { NoVarRule(someRuleId) },
+                            RuleV2Provider { NoVarRule(someRuleId) },
                         ),
                     editorConfigOverride =
                         EditorConfigOverride.from(

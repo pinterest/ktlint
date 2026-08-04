@@ -3,7 +3,7 @@ package io.github.ktlint.core.rule.engine.api
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.RuleSetId
 import io.github.ktlint.core.rule.engine.core.api.RuleV2
-import io.github.ktlint.core.rule.engine.core.api.RuleV2InstanceProvider
+import io.github.ktlint.core.rule.engine.core.api.RuleV2Provider
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfigProperty
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
@@ -54,7 +54,7 @@ class EditorConfigPropertyRegistryTest {
         val editorConfigPropertyRegistry =
             EditorConfigPropertyRegistry(
                 setOf(
-                    RuleV2InstanceProvider { SomeTestRule() },
+                    RuleV2Provider { SomeTestRule() },
                 ),
             )
 

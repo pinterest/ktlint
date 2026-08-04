@@ -2,7 +2,7 @@ package io.github.ktlint.core.rule.engine.api
 
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.RuleV2
-import io.github.ktlint.core.rule.engine.core.api.RuleV2InstanceProvider
+import io.github.ktlint.core.rule.engine.core.api.RuleV2Provider
 import io.github.ktlint.core.ruleset.standard.rules.EXPRESSION_OPERAND_WRAPPING_RULE_ID
 import io.github.ktlint.core.ruleset.standard.rules.NO_CONSECUTIVE_BLANK_LINES_RULE_ID
 import io.github.ktlint.core.ruleset.standard.rules.NO_LINE_BREAK_BEFORE_ASSIGNMENT_RULE_ID
@@ -15,7 +15,7 @@ import org.junit.jupiter.params.provider.ValueSource
 class KtlintRuleEngineSuppressionKtTest {
     private val ktLintRuleEngine =
         KtLintRuleEngine(
-            ruleProviders = setOf(RuleV2InstanceProvider { SomeRule() }),
+            ruleProviders = setOf(RuleV2Provider { SomeRule() }),
         )
 
     @Test

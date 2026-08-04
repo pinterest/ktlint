@@ -1,10 +1,9 @@
 package io.github.ktlint.core.rule.engine.internal.rulefilter
 
 import io.github.ktlint.core.rule.engine.core.api.RuleId
-import io.github.ktlint.core.rule.engine.core.api.RuleInstanceProvider
 import io.github.ktlint.core.rule.engine.core.api.RuleSetId
 import io.github.ktlint.core.rule.engine.core.api.RuleV2
-import io.github.ktlint.core.rule.engine.core.api.RuleV2InstanceProvider
+import io.github.ktlint.core.rule.engine.core.api.RuleV2Provider
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.ALL_RULES_EXECUTION_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
@@ -22,9 +21,9 @@ class RuleExecutionRuleFilterTest {
     fun `Given that standard rule set is enabled explicitly then run all standard rules except those that are disabled explicitly`() {
         val actual =
             runWithRuleExecutionRuleFilter(
-                RuleV2InstanceProvider { NormalRule(STANDARD_RULE_A) },
-                RuleV2InstanceProvider { NormalRule(STANDARD_RULE_B) },
-                RuleV2InstanceProvider { NormalRule(STANDARD_RULE_C) },
+                RuleV2Provider { NormalRule(STANDARD_RULE_A) },
+                RuleV2Provider { NormalRule(STANDARD_RULE_B) },
+                RuleV2Provider { NormalRule(STANDARD_RULE_C) },
                 editorConfig =
                     EditorConfig(
                         ktLintRuleExecutionEditorConfigProperty("ktlint_$STANDARD", RuleExecution.enabled),
@@ -42,10 +41,10 @@ class RuleExecutionRuleFilterTest {
     fun `Given that standard rule set is not enabled explicitly then run all standard rules except experimental and explicitly disabled rules`() {
         val actual =
             runWithRuleExecutionRuleFilter(
-                RuleV2InstanceProvider { NormalRule(STANDARD_RULE_A) },
-                RuleV2InstanceProvider { ExperimentalRule(STANDARD_RULE_B) },
-                RuleV2InstanceProvider { NormalRule(STANDARD_RULE_C) },
-                RuleV2InstanceProvider { NormalRule(STANDARD_RULE_D) },
+                RuleV2Provider { NormalRule(STANDARD_RULE_A) },
+                RuleV2Provider { ExperimentalRule(STANDARD_RULE_B) },
+                RuleV2Provider { NormalRule(STANDARD_RULE_C) },
+                RuleV2Provider { NormalRule(STANDARD_RULE_D) },
                 editorConfig =
                     EditorConfig(
                         ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_C, RuleExecution.disabled),
@@ -62,9 +61,9 @@ class RuleExecutionRuleFilterTest {
     fun `Given that standard rule set is disabled explicitly then only run standard rules that are enabled explicitly`() {
         val actual =
             runWithRuleExecutionRuleFilter(
-                RuleV2InstanceProvider { NormalRule(STANDARD_RULE_A) },
-                RuleV2InstanceProvider { NormalRule(STANDARD_RULE_B) },
-                RuleV2InstanceProvider { NormalRule(STANDARD_RULE_C) },
+                RuleV2Provider { NormalRule(STANDARD_RULE_A) },
+                RuleV2Provider { NormalRule(STANDARD_RULE_B) },
+                RuleV2Provider { NormalRule(STANDARD_RULE_C) },
                 editorConfig =
                     EditorConfig(
                         ktLintRuleExecutionEditorConfigProperty("ktlint_$STANDARD", RuleExecution.disabled),
@@ -83,10 +82,10 @@ class RuleExecutionRuleFilterTest {
     fun `Given that the experimental rules are not disabled explicitly then only run rules that are enabled explicitly`() {
         val actual =
             runWithRuleExecutionRuleFilter(
-                RuleV2InstanceProvider { ExperimentalRule(STANDARD_RULE_B) },
-                RuleV2InstanceProvider { ExperimentalRule(STANDARD_RULE_C) },
-                RuleV2InstanceProvider { ExperimentalRule(CUSTOM_RULE_B) },
-                RuleV2InstanceProvider { ExperimentalRule(CUSTOM_RULE_C) },
+                RuleV2Provider { ExperimentalRule(STANDARD_RULE_B) },
+                RuleV2Provider { ExperimentalRule(STANDARD_RULE_C) },
+                RuleV2Provider { ExperimentalRule(CUSTOM_RULE_B) },
+                RuleV2Provider { ExperimentalRule(CUSTOM_RULE_C) },
                 editorConfig =
                     EditorConfig(
                         ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_B, RuleExecution.enabled),
@@ -104,10 +103,10 @@ class RuleExecutionRuleFilterTest {
     fun `Given that a experimental rules are disabled explicitly then only run rules that are enabled explicitly`() {
         val actual =
             runWithRuleExecutionRuleFilter(
-                RuleV2InstanceProvider { ExperimentalRule(STANDARD_RULE_B) },
-                RuleV2InstanceProvider { ExperimentalRule(STANDARD_RULE_C) },
-                RuleV2InstanceProvider { ExperimentalRule(CUSTOM_RULE_B) },
-                RuleV2InstanceProvider { ExperimentalRule(CUSTOM_RULE_C) },
+                RuleV2Provider { ExperimentalRule(STANDARD_RULE_B) },
+                RuleV2Provider { ExperimentalRule(STANDARD_RULE_C) },
+                RuleV2Provider { ExperimentalRule(CUSTOM_RULE_B) },
+                RuleV2Provider { ExperimentalRule(CUSTOM_RULE_C) },
                 editorConfig =
                     EditorConfig(
                         ktLintRuleExecutionEditorConfigProperty("ktlint_experimental", RuleExecution.disabled),
@@ -127,10 +126,10 @@ class RuleExecutionRuleFilterTest {
     fun `Given that the experimental rules are enabled then only run rules that are not disabled explicitly`() {
         val actual =
             runWithRuleExecutionRuleFilter(
-                RuleV2InstanceProvider { ExperimentalRule(STANDARD_RULE_B) },
-                RuleV2InstanceProvider { ExperimentalRule(STANDARD_RULE_C) },
-                RuleV2InstanceProvider { ExperimentalRule(CUSTOM_RULE_B) },
-                RuleV2InstanceProvider { ExperimentalRule(CUSTOM_RULE_C) },
+                RuleV2Provider { ExperimentalRule(STANDARD_RULE_B) },
+                RuleV2Provider { ExperimentalRule(STANDARD_RULE_C) },
+                RuleV2Provider { ExperimentalRule(CUSTOM_RULE_B) },
+                RuleV2Provider { ExperimentalRule(CUSTOM_RULE_C) },
                 editorConfig =
                     EditorConfig(
                         ktLintRuleExecutionEditorConfigProperty("ktlint_experimental", RuleExecution.enabled),
@@ -150,8 +149,8 @@ class RuleExecutionRuleFilterTest {
     fun `When some standard rules which are all disabled explicitly then return empty`() {
         val actual =
             runWithRuleExecutionRuleFilter(
-                RuleV2InstanceProvider { NormalRule(STANDARD_RULE_A) },
-                RuleV2InstanceProvider { NormalRule(STANDARD_RULE_B) },
+                RuleV2Provider { NormalRule(STANDARD_RULE_A) },
+                RuleV2Provider { NormalRule(STANDARD_RULE_B) },
                 editorConfig =
                     EditorConfig(
                         ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_A, RuleExecution.disabled),
@@ -166,8 +165,8 @@ class RuleExecutionRuleFilterTest {
     fun `Given that the ktlint-suppression is disabled in the editorconfig properties then ignore that property`() {
         val actual =
             runWithRuleExecutionRuleFilter(
-                RuleV2InstanceProvider { NormalRule(STANDARD_RULE_A) },
-                RuleV2InstanceProvider { KtlintSuppressionRule(listOf(STANDARD_RULE_A)) },
+                RuleV2Provider { NormalRule(STANDARD_RULE_A) },
+                RuleV2Provider { KtlintSuppressionRule(listOf(STANDARD_RULE_A)) },
                 editorConfig =
                     EditorConfig(
                         ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_A, RuleExecution.disabled),
@@ -182,8 +181,8 @@ class RuleExecutionRuleFilterTest {
     fun `Given that ktlint is disabled entirely then the internal rule for migrating the ktlint-disable directives is disabled`() {
         val actual =
             runWithRuleExecutionRuleFilter(
-                RuleV2InstanceProvider { NormalRule(STANDARD_RULE_A) },
-                RuleV2InstanceProvider { KtlintSuppressionRule(listOf(STANDARD_RULE_A)) },
+                RuleV2Provider { NormalRule(STANDARD_RULE_A) },
+                RuleV2Provider { KtlintSuppressionRule(listOf(STANDARD_RULE_A)) },
                 editorConfig =
                     EditorConfig(
                         ktLintDisableAllRuleExecutionEditorConfigProperty(),
@@ -197,7 +196,7 @@ class RuleExecutionRuleFilterTest {
     fun `Given a rule that only should be run when enabled explicitly, and the rule execution property is not set, then do not execute the rule`() {
         val actual =
             runWithRuleExecutionRuleFilter(
-                RuleV2InstanceProvider { OnlyWhenEnabledInEditorconfigRule(STANDARD_RULE_A) },
+                RuleV2Provider { OnlyWhenEnabledInEditorconfigRule(STANDARD_RULE_A) },
                 editorConfig = EditorConfig(),
             ).toRuleIds()
 
@@ -208,7 +207,7 @@ class RuleExecutionRuleFilterTest {
     fun `Given a rule that only should be run when enabled explicitly, and the rule execution property is enabled, then do execute the rule`() {
         val actual =
             runWithRuleExecutionRuleFilter(
-                RuleV2InstanceProvider { OnlyWhenEnabledInEditorconfigRule(STANDARD_RULE_A) },
+                RuleV2Provider { OnlyWhenEnabledInEditorconfigRule(STANDARD_RULE_A) },
                 editorConfig =
                     EditorConfig(
                         ktLintRuleExecutionEditorConfigProperty(STANDARD_RULE_A, RuleExecution.enabled),
@@ -219,19 +218,19 @@ class RuleExecutionRuleFilterTest {
     }
 
     /**
-     * Create a [RuleExecutionRuleFilter] for a given set of [RuleInstanceProvider]s and an [EditorConfig].
+     * Create a [RuleExecutionRuleFilter] for a given set of [RuleV2Provider]s and an [EditorConfig].
      */
     private fun runWithRuleExecutionRuleFilter(
-        vararg ruleProviders: RuleV2InstanceProvider,
+        vararg ruleProviders: RuleV2Provider,
         editorConfig: EditorConfig,
-    ): Set<RuleInstanceProvider> =
+    ): Set<RuleV2Provider> =
         RuleExecutionRuleFilter(
             editorConfig = editorConfig.addPropertiesWithDefaultValueIfMissing(CODE_STYLE_PROPERTY),
         ).filter(
             ruleProviders.toSet(),
         )
 
-    private fun Set<RuleInstanceProvider>.toRuleIds() = map { it.ruleId }
+    private fun Set<RuleV2Provider>.toRuleIds() = map { it.ruleId }
 
     private fun ktLintDisableAllRuleExecutionEditorConfigProperty() =
         Property

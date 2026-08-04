@@ -501,7 +501,7 @@ public final class com/pinterest/ktlint/rule/engine/core/api/RuleProvider {
 	public final fun getRuleId ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleId;
 	public final fun getRunAfterRules ()Ljava/util/List;
 	public final fun getRunAsLateAsPossible ()Z
-	public final fun toRuleV2InstanceProvider ()Lio/github/ktlint/core/rule/engine/core/api/RuleV2InstanceProvider;
+	public final fun toRuleV2Provider ()Lio/github/ktlint/core/rule/engine/core/api/RuleV2Provider;
 }
 
 public final class com/pinterest/ktlint/rule/engine/core/api/RuleProvider$Companion {

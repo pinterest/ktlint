@@ -14,7 +14,7 @@ import java.io.Serializable
  */
 @Deprecated(
     message = "Only use for backward compatibility of custom ruleset JARs with Ktlint 2.x",
-    ReplaceWith("RuleV2InstanceProvider", "io.github.ktlint.core.cli.ruleset.core.api.ruleV2InstanceProvider"),
+    ReplaceWith("RuleV2Provider", "io.github.ktlint.core.cli.ruleset.core.api.RuleV2Provider"),
 )
 public abstract class RuleSetProviderV3(
     public val id: RuleSetId,

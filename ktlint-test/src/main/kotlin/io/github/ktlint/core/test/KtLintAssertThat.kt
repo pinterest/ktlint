@@ -11,9 +11,8 @@ import io.github.ktlint.core.rule.engine.api.KtLintRuleEngine
 import io.github.ktlint.core.rule.engine.api.LintError
 import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.RuleId
-import io.github.ktlint.core.rule.engine.core.api.RuleInstanceProvider
 import io.github.ktlint.core.rule.engine.core.api.RuleV2
-import io.github.ktlint.core.rule.engine.core.api.RuleV2InstanceProvider
+import io.github.ktlint.core.rule.engine.core.api.RuleV2Provider
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfigProperty
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
@@ -74,7 +73,7 @@ public class KtLintAssertThat(
     /**
      * Provider of a rule which is the subject of the test, e.g. the rule for which the AssertThat is created.
      */
-    private val ruleProvider: RuleV2InstanceProvider,
+    private val ruleProvider: RuleV2Provider,
     /**
      * The code which is to be linted and formatted.
      */
@@ -83,7 +82,7 @@ public class KtLintAssertThat(
      * Providers of rules which have to be executed in addition to the main rule when linting/formatting the code. Note that lint errors for
      * those rules are suppressed.
      */
-    private val additionalRuleProviders: MutableSet<RuleV2InstanceProvider>,
+    private val additionalRuleProviders: MutableSet<RuleV2Provider>,
     /**
      * EditorConfig properties to be applied by default when linting/formatting the code.
      */
@@ -161,7 +160,7 @@ public class KtLintAssertThat(
      * Prefer to use [addAdditionalRuleProviders] when adding multiple providers of rules.
      */
     public fun addAdditionalRuleProvider(provider: () -> RuleV2): KtLintAssertThat {
-        additionalRuleProviders.add(RuleV2InstanceProvider(provider))
+        additionalRuleProviders.add(RuleV2Provider(provider))
 
         return this
     }
@@ -183,7 +182,7 @@ public class KtLintAssertThat(
      */
     public fun addAdditionalRuleProviders(vararg providers: (() -> RuleV2)): KtLintAssertThat {
         additionalRuleProviders.addAll(
-            providers.map { RuleV2InstanceProvider(it) },
+            providers.map { RuleV2Provider(it) },
         )
 
         return this
@@ -333,7 +332,7 @@ public class KtLintAssertThat(
          */
         public fun assertThatRuleBuilder(provider: () -> RuleV2): KtLintAssertThat =
             KtLintAssertThat(
-                ruleProvider = RuleV2InstanceProvider { provider() },
+                ruleProvider = RuleV2Provider { provider() },
                 code = "",
                 additionalRuleProviders = mutableSetOf(),
                 editorConfigProperties = mutableSetOf(),
@@ -373,17 +372,15 @@ public class KtLintAssertThat(
  */
 public class KtLintAssertThatAssertable(
     /** The provider of the rule which is the subject of the test, e.g. the rule for which the AssertThat is created. */
-    private val ruleProvider: RuleInstanceProvider,
+    private val ruleProvider: RuleV2Provider,
     private val code: Code,
     private val editorConfigOverride: EditorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
     /**
      *  The rules which have to be executed in addition to the main rule when linting/formatting the code. Note that
      *  lint errors for those rules are suppressed.
      */
-    private val additionalRuleProviders: Set<RuleInstanceProvider>,
+    private val additionalRuleProviders: Set<RuleV2Provider>,
 ) : AbstractAssert<KtLintAssertThatAssertable, String>(code.content, KtLintAssertThatAssertable::class.java) {
-    private val ruleId = ruleProvider.createNewRuleInstance().ruleId
-
     /**
      * Asserts that the code does not contain any [LintViolation]s caused by the rule associated with the KtLintAssertThat.
      *
@@ -638,9 +635,9 @@ public class KtLintAssertThatAssertable(
         }.distinct()
             .toTypedArray()
 
-    private fun Set<LintError>.filterAdditionalRulesOnly() = filter { it.ruleId != ruleId }.toSet()
+    private fun Set<LintError>.filterAdditionalRulesOnly() = filter { it.ruleId != ruleProvider.ruleId }.toSet()
 
-    private fun Set<LintError>.filterCurrentRuleOnly() = filter { it.ruleId == ruleId }.toSet()
+    private fun Set<LintError>.filterCurrentRuleOnly() = filter { it.ruleId == ruleProvider.ruleId }.toSet()
 
     private fun Set<LintError>.toLintViolationsFields(): Array<LintViolationFields> =
         map {
@@ -725,13 +722,12 @@ public class LintViolation
 /**
  * Enables the rule sets for the given set of [ruleProviders] unless the rule execution of that rule set was already provided.
  */
-private fun EditorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProviders: Set<RuleInstanceProvider>): EditorConfigOverride {
+private fun EditorConfigOverride.extendWithRuleSetRuleExecutionsFor(ruleProviders: Set<RuleV2Provider>): EditorConfigOverride {
     val ruleSetRuleExecutions =
         ruleProviders
             .asSequence()
             .map { ruleProvider ->
                 ruleProvider
-                    .createNewRuleInstance()
                     .ruleId
                     .ruleSetId
                     .createRuleSetExecutionEditorConfigProperty()

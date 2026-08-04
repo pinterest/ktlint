@@ -2,8 +2,8 @@ package io.github.ktlint.core.rule.engine.internal.rulefilter
 
 import io.github.ktlint.core.logger.api.initKtLintKLogger
 import io.github.ktlint.core.rule.engine.api.KtLintRuleEngine
-import io.github.ktlint.core.rule.engine.core.api.RuleInstanceProvider
 import io.github.ktlint.core.rule.engine.core.api.RuleV2
+import io.github.ktlint.core.rule.engine.core.api.RuleV2Provider
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.ALL_RULES_EXECUTION_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.CodeStyleValue
@@ -20,12 +20,12 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
- * Filters the [RuleInstanceProvider]s defined in the [KtLintRuleEngine] for [RuleV2]s which are enabled for the given [EditorConfig].
+ * Filters the [RuleV2Provider]s defined in the [KtLintRuleEngine] for [RuleV2]s which are enabled for the given [EditorConfig].
  */
 internal class RuleExecutionRuleFilter(
     private val editorConfig: EditorConfig,
 ) : RuleFilter {
-    override fun filter(ruleProviders: Set<RuleInstanceProvider>): Set<RuleInstanceProvider> =
+    override fun filter(ruleProviders: Set<RuleV2Provider>): Set<RuleV2Provider> =
         if (disableKtlintEntirely()) {
             emptySet()
         } else {
@@ -42,7 +42,7 @@ internal class RuleExecutionRuleFilter(
     private fun disableKtlintEntirely() =
         editorConfig.getEditorConfigValueOrNull(RULE_EXECUTION_PROPERTY_TYPE, ALL_RULES_EXECUTION_PROPERTY.name) == RuleExecution.disabled
 
-    private fun EditorConfig.ruleExecutionProperties(ruleProviders: Set<RuleInstanceProvider>): Map<String, RuleExecution> {
+    private fun EditorConfig.ruleExecutionProperties(ruleProviders: Set<RuleV2Provider>): Map<String, RuleExecution> {
         val ruleExecutionPropertyNames =
             ruleExecutionPropertyNames(ruleProviders)
                 .plus(ruleSetExecutionPropertyNames(ruleProviders))
@@ -53,12 +53,12 @@ internal class RuleExecutionRuleFilter(
             .mapValues { RULE_EXECUTION_PROPERTY_TYPE.parse(it.value).parsed }
     }
 
-    private fun ruleExecutionPropertyNames(ruleProviders: Set<RuleInstanceProvider>) =
+    private fun ruleExecutionPropertyNames(ruleProviders: Set<RuleV2Provider>) =
         ruleProviders
             .map { it.ruleId.ktLintRuleExecutionPropertyName() }
             .distinct()
 
-    private fun ruleSetExecutionPropertyNames(ruleProviders: Set<RuleInstanceProvider>) =
+    private fun ruleSetExecutionPropertyNames(ruleProviders: Set<RuleV2Provider>) =
         ruleProviders
             .map { it.ruleId.ruleSetId.ktLintRuleSetExecutionPropertyName() }
             .distinct()
@@ -73,7 +73,7 @@ private class RuleExecutionFilter(
     val ruleExecutionProperties: Map<String, RuleExecution>,
     val codeStyleValue: CodeStyleValue,
 ) {
-    fun isEnabled(ruleProvider: RuleInstanceProvider) = isRuleEnabled(ruleProvider.createNewRuleInstance())
+    fun isEnabled(ruleProvider: RuleV2Provider) = isRuleEnabled(ruleProvider.createNewRuleInstance())
 
     private fun isRuleEnabled(rule: RuleV2) =
         /*

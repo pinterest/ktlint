@@ -4,7 +4,7 @@ import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.RuleSetId
 import io.github.ktlint.core.rule.engine.core.api.RuleV2
-import io.github.ktlint.core.rule.engine.core.api.RuleV2InstanceProvider
+import io.github.ktlint.core.rule.engine.core.api.RuleV2Provider
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.junit.jupiter.api.Test
@@ -59,9 +59,9 @@ class RuleProviderSorterTest {
         )
     }
 
-    private fun createRuleProviders(vararg rules: RuleV2): Set<RuleV2InstanceProvider> =
+    private fun createRuleProviders(vararg rules: RuleV2): Set<RuleV2Provider> =
         rules
-            .map { RuleV2InstanceProvider { it } }
+            .map { RuleV2Provider { it } }
             .toSet()
 
     private companion object {

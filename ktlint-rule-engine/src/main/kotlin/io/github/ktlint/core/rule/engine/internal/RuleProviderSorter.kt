@@ -1,25 +1,25 @@
 package io.github.ktlint.core.rule.engine.internal
 
 import io.github.ktlint.core.logger.api.initKtLintKLogger
-import io.github.ktlint.core.rule.engine.core.api.RuleInstanceProvider
 import io.github.ktlint.core.rule.engine.core.api.RuleSetId
 import io.github.ktlint.core.rule.engine.core.api.RuleV2
+import io.github.ktlint.core.rule.engine.core.api.RuleV2Provider
 import io.github.oshai.kotlinlogging.KotlinLogging
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
 /**
- * Sorts the [RuleInstanceProvider]s alphabetically on rule id. Standard rules of Ktlint are executed before custom rules.
+ * Sorts the [RuleV2Provider]s alphabetically on rule id. Standard rules of Ktlint are executed before custom rules.
  */
 internal class RuleProviderSorter {
     /**
      * Prevent duplicate debug logging whenever the same set of [RuleV2.ruleId]s (but not the same instance) are sorted. As the sorting of
-     * the [RuleInstanceProvider] has to be executed for each file.
+     * the [RuleV2Provider] has to be executed for each file.
      */
     private val debugLogCache = mutableMapOf<Int, Boolean>()
 
     @Synchronized
-    fun getSortedRuleProviders(ruleProviders: Set<RuleInstanceProvider>): List<RuleInstanceProvider> =
+    fun getSortedRuleProviders(ruleProviders: Set<RuleV2Provider>): List<RuleV2Provider> =
         ruleProviders
             .sortedWith(defaultRuleExecutionOrderComparator())
             .also { sortedRuleProviders ->
@@ -28,7 +28,7 @@ internal class RuleProviderSorter {
                 }
             }
 
-    private fun logSortedRuleProviders(sortedRuleProviders: List<RuleInstanceProvider>) {
+    private fun logSortedRuleProviders(sortedRuleProviders: List<RuleV2Provider>) {
         debugLogCache
             .putIfAbsent(createHashCode(sortedRuleProviders), true)
             .also { previousValue ->
@@ -42,7 +42,7 @@ internal class RuleProviderSorter {
             }
     }
 
-    private fun createHashCode(sortedRuleProviders: List<RuleInstanceProvider>): Int =
+    private fun createHashCode(sortedRuleProviders: List<RuleV2Provider>): Int =
         sortedRuleProviders
             .joinToString(
                 prefix = "rule-ids=[",
@@ -54,7 +54,7 @@ internal class RuleProviderSorter {
     private fun defaultRuleExecutionOrderComparator() =
         // The sort order below should guarantee a stable order of the rule between multiple invocations of KtLint given
         // the same set of input parameters. There should be no dependency on data ordering outside this class.
-        compareBy<RuleInstanceProvider> {
+        compareBy<RuleV2Provider> {
             if (it.ruleId.ruleSetId == RuleSetId.STANDARD) {
                 0
             } else {

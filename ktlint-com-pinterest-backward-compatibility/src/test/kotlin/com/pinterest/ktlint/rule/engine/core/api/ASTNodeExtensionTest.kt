@@ -1155,7 +1155,7 @@ class ASTNodeExtensionTest {
         KtLintRuleEngine(
             ruleProviders =
                 setOf(
-                    RuleProvider { DummyRule() }.toRuleV2InstanceProvider(),
+                    RuleProvider { DummyRule() }.toRuleV2Provider(),
                 ),
         ).transformToAst(
             Code.fromSnippet(code),

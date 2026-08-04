@@ -11,7 +11,7 @@ import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision.NO_AUTOCOR
 import io.github.ktlint.core.rule.engine.core.api.ElementType.EOL_COMMENT
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.RuleV2
-import io.github.ktlint.core.rule.engine.core.api.RuleV2InstanceProvider
+import io.github.ktlint.core.rule.engine.core.api.RuleV2Provider
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EXPERIMENTAL_RULES_EXECUTION_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.RuleExecution
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
@@ -42,8 +42,8 @@ class KtLintRuleEngineTest {
         KtLintRuleEngine(
             ruleProviders =
                 setOf(
-                    RuleV2InstanceProvider { IndentationRule() },
-                    RuleV2InstanceProvider { DemoRule() },
+                    RuleV2Provider { IndentationRule() },
+                    RuleV2Provider { DemoRule() },
                 ),
             editorConfigOverride =
                 from(
@@ -136,7 +136,7 @@ class KtLintRuleEngineTest {
                 KtLintRuleEngine(
                     ruleProviders =
                         setOf(
-                            RuleV2InstanceProvider { FilenameRule() },
+                            RuleV2Provider { FilenameRule() },
                         ),
                     fileSystem = ktlintTestFileSystem.fileSystem,
                 )
@@ -548,8 +548,8 @@ class KtLintRuleEngineTest {
                 KtLintRuleEngine(
                     ruleProviders =
                         setOf(
-                            RuleV2InstanceProvider { IndentationRule() },
-                            RuleV2InstanceProvider { DemoRule() },
+                            RuleV2Provider { IndentationRule() },
+                            RuleV2Provider { DemoRule() },
                         ),
                     editorConfigOverride =
                         from(
@@ -576,8 +576,8 @@ class KtLintRuleEngineTest {
             KtLintRuleEngine(
                 ruleProviders =
                     setOf(
-                        RuleV2InstanceProvider { IndentationRule() },
-                        RuleV2InstanceProvider { DemoRule() },
+                        RuleV2Provider { IndentationRule() },
+                        RuleV2Provider { DemoRule() },
                     ),
                 editorConfigOverride =
                     from(
