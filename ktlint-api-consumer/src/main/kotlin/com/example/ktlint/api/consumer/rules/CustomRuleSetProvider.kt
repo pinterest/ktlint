@@ -1,6 +1,6 @@
 package com.example.ktlint.api.consumer.rules
 
-import com.pinterest.ktlint.rule.engine.core.api.RuleV2InstanceProvider
+import io.github.ktlint.core.rule.engine.core.api.RuleV2InstanceProvider
 
 internal val CUSTOM_RULE_SET_ID = "custom-rule-set-id"
 

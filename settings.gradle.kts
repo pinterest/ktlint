@@ -37,6 +37,7 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(
     ":ktlint-api-consumer",
     ":ktlint-bom",
+    ":ktlint-com-pinterest-backward-compatibility",
     ":ktlint-cli",
     ":ktlint-cli-reporter-baseline",
     ":ktlint-cli-reporter-checkstyle",

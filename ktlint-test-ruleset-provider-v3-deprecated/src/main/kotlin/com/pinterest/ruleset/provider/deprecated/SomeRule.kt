@@ -1,5 +1,5 @@
 package com.pinterest.ruleset.provider.deprecated
 
-import com.pinterest.ktlint.core.Rule
+import io.github.ktlint.core.core.Rule
 
 public class SomeRule : Rule("dump")

@@ -1,4 +1,4 @@
-public final class com/pinterest/ktlint/Main {
+public final class io/github/ktlint/core/Main {
 	public static final fun main ([Ljava/lang/String;)V
 }
 

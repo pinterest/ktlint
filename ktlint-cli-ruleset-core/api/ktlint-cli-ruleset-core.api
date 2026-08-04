@@ -1,12 +1,6 @@
-public abstract class com/pinterest/ktlint/cli/ruleset/core/api/RuleSetProviderV3 : java/io/Serializable {
-	public fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleSetId;)V
-	public final fun getId ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleSetId;
-	public abstract fun getRuleProviders ()Ljava/util/Set;
-}
-
-public abstract class com/pinterest/ktlint/cli/ruleset/core/api/RuleSetV2Provider : java/io/Serializable {
-	public fun <init> (Lcom/pinterest/ktlint/rule/engine/core/api/RuleSetId;)V
-	public final fun getId ()Lcom/pinterest/ktlint/rule/engine/core/api/RuleSetId;
+public abstract class io/github/ktlint/core/cli/ruleset/core/api/RuleSetV2Provider : java/io/Serializable {
+	public fun <init> (Lio/github/ktlint/core/rule/engine/core/api/RuleSetId;)V
+	public final fun getId ()Lio/github/ktlint/core/rule/engine/core/api/RuleSetId;
 	public abstract fun getRuleProviders ()Ljava/util/Set;
 }
 

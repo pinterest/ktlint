@@ -5,7 +5,7 @@ plugins {
 
 tasks.jar {
     manifest {
-        attributes("Main-Class" to "com.pinterest.ktlint.Main")
+        attributes("Main-Class" to "io.github.ktlint.core.Main")
         attributes("Implementation-Version" to version)
     }
 }
@@ -31,6 +31,7 @@ dependencies {
     implementation(projects.ktlintCliReporterBaseline)
     implementation(projects.ktlintCliReporterCore)
     implementation(projects.ktlintCliReporterPlain)
+    implementation(projects.ktlintComPinterestBackwardCompatibility)
     implementation(projects.ktlintRuleEngine)
     implementation(projects.ktlintRulesetStandard)
     implementation(libs.clikt)
