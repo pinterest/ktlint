@@ -47,8 +47,8 @@ public class RuleSetId(
 /**
  * The [RuleV2] contains the life cycle hooks which are called by the KtLint rule engine to execute the rule.
  *
- * The implementation of a [RuleV2] **doesn't** have to be thread-safe or stateless provided that the [RuleV2InstanceProvider] creates a new
- * instance of [RuleV2] on each call to [RuleV2InstanceProvider.provider].
+ * The implementation of a [RuleV2] **doesn't** have to be thread-safe or stateless provided that the [RuleV2Provider] creates a new
+ * instance of [RuleV2] on each call to [RuleV2Provider.provider].
  *
  * When wrapping a rule from the ktlint project and modifying its behavior, please change the [ruleId] and [about] fields, so that it is
  * clear to users whenever they used the original rule provided by KtLint versus a modified version which is not maintained by the KtLint

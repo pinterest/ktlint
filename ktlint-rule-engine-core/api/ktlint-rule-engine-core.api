@@ -410,13 +410,13 @@ public final class io/github/ktlint/core/rule/engine/core/api/RuleId$Companion {
 	public final fun isValid (Ljava/lang/String;)Z
 }
 
-public abstract class io/github/ktlint/core/rule/engine/core/api/RuleInstanceProvider {
+public abstract class io/github/ktlint/core/rule/engine/core/api/RuleV2Provider {
 	public fun <init> (Lio/github/ktlint/core/rule/engine/core/api/RuleId;)V
 	public abstract fun createNewRuleInstance ()Lio/github/ktlint/core/rule/engine/core/api/RuleV2;
 	public fun getRuleId ()Lio/github/ktlint/core/rule/engine/core/api/RuleId;
 }
 
-public final class io/github/ktlint/core/rule/engine/core/api/RuleInstanceProviderKt {
+public final class io/github/ktlint/core/rule/engine/core/api/RuleV2ProviderKt {
 	public static final fun propertyTypes (Ljava/util/Collection;)Ljava/util/Set;
 }
 
@@ -471,14 +471,14 @@ public abstract interface class io/github/ktlint/core/rule/engine/core/api/RuleV
 public abstract interface class io/github/ktlint/core/rule/engine/core/api/RuleV2$OnlyWhenEnabledInEditorconfig {
 }
 
-public final class io/github/ktlint/core/rule/engine/core/api/RuleV2InstanceProvider : io/github/ktlint/core/rule/engine/core/api/RuleInstanceProvider {
-	public static final field Companion Lio/github/ktlint/core/rule/engine/core/api/RuleV2InstanceProvider$Companion;
+public final class io/github/ktlint/core/rule/engine/core/api/RuleV2Provider : io/github/ktlint/core/rule/engine/core/api/RuleV2Provider {
+	public static final field Companion Lio/github/ktlint/core/rule/engine/core/api/RuleV2Provider$Companion;
 	public fun createNewRuleInstance ()Lio/github/ktlint/core/rule/engine/core/api/RuleV2;
 	public fun getRuleId ()Lio/github/ktlint/core/rule/engine/core/api/RuleId;
 }
 
-public final class io/github/ktlint/core/rule/engine/core/api/RuleV2InstanceProvider$Companion {
-	public final fun invoke (Lkotlin/jvm/functions/Function0;)Lio/github/ktlint/core/rule/engine/core/api/RuleV2InstanceProvider;
+public final class io/github/ktlint/core/rule/engine/core/api/RuleV2Provider$Companion {
+	public final fun invoke (Lkotlin/jvm/functions/Function0;)Lio/github/ktlint/core/rule/engine/core/api/RuleV2Provider;
 }
 
 public abstract interface annotation class io/github/ktlint/core/rule/engine/core/api/SinceKtlint : java/lang/annotation/Annotation {

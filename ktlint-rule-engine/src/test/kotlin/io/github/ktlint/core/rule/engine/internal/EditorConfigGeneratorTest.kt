@@ -2,7 +2,7 @@ package io.github.ktlint.core.rule.engine.internal
 
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.RuleV2
-import io.github.ktlint.core.rule.engine.core.api.RuleV2InstanceProvider
+import io.github.ktlint.core.rule.engine.core.api.RuleV2Provider
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.CodeStyleValue
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfigProperty
 import io.github.ktlint.core.rule.engine.core.api.propertyTypes
@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 internal class EditorConfigGeneratorTest {
     private val ruleProviders =
         setOf(
-            RuleV2InstanceProvider { TestRule() },
+            RuleV2Provider { TestRule() },
         )
     private val rules =
         ruleProviders

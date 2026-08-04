@@ -21,7 +21,7 @@ import io.github.ktlint.core.rule.engine.core.api.ElementType.PACKAGE_DIRECTIVE
 import io.github.ktlint.core.rule.engine.core.api.ElementType.REGULAR_STRING_PART
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.RuleV2
-import io.github.ktlint.core.rule.engine.core.api.RuleV2InstanceProvider
+import io.github.ktlint.core.rule.engine.core.api.RuleV2Provider
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.END_OF_LINE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
 import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
@@ -49,7 +49,7 @@ class KtLintTest {
                 KtLintRuleEngine(
                     ruleProviders =
                         setOf(
-                            RuleV2InstanceProvider {
+                            RuleV2Provider {
                                 DummyRule { node ->
                                     if (node.isRoot) {
                                         numberOfRootNodesVisited++
@@ -72,7 +72,7 @@ class KtLintTest {
                 KtLintRuleEngine(
                     ruleProviders =
                         setOf(
-                            RuleV2InstanceProvider { AutoCorrectErrorRule() },
+                            RuleV2Provider { AutoCorrectErrorRule() },
                         ),
                 ).lint(Code.fromSnippet(code)) { e ->
                     callbacks.add(
@@ -115,7 +115,7 @@ class KtLintTest {
                 KtLintRuleEngine(
                     ruleProviders =
                         setOf(
-                            RuleV2InstanceProvider {
+                            RuleV2Provider {
                                 DummyRule { node ->
                                     if (node.isRoot) {
                                         numberOfRootNodesVisited++
@@ -144,7 +144,7 @@ class KtLintTest {
                     KtLintRuleEngine(
                         ruleProviders =
                             setOf(
-                                RuleV2InstanceProvider { AutoCorrectErrorRule() },
+                                RuleV2Provider { AutoCorrectErrorRule() },
                             ),
                     ).format(Code.fromSnippet(code)) { e ->
                         callbacks.add(
@@ -192,13 +192,13 @@ class KtLintTest {
         KtLintRuleEngine(
             ruleProviders =
                 setOf(
-                    RuleV2InstanceProvider {
+                    RuleV2Provider {
                         SimpleTestRule(
                             ruleExecutionCalls = ruleExecutionCalls,
                             ruleId = SimpleTestRule.RULE_ID_A,
                         )
                     },
-                    RuleV2InstanceProvider {
+                    RuleV2Provider {
                         SimpleTestRule(
                             ruleExecutionCalls = ruleExecutionCalls,
                             ruleId = SimpleTestRule.RULE_ID_B,
@@ -242,7 +242,7 @@ class KtLintTest {
         val actual =
             KtLintRuleEngine(
                 // We need a rule that actually modifies the file to test whether UTF BOM character is handled correctly
-                ruleProviders = setOf(RuleV2InstanceProvider { IndentationRule() }),
+                ruleProviders = setOf(RuleV2Provider { IndentationRule() }),
                 editorConfigOverride =
                     EditorConfigOverride.from(
                         // The code sample use LF as line separator, so ensure that formatted code uses that as well, as otherwise the test
@@ -270,7 +270,7 @@ class KtLintTest {
         val actual =
             KtLintRuleEngine(
                 // We need a rule that actually modifies the file to test whether UTF BOM character is handled correctly
-                ruleProviders = setOf(RuleV2InstanceProvider { IndentationRule() }),
+                ruleProviders = setOf(RuleV2Provider { IndentationRule() }),
                 editorConfigOverride =
                     EditorConfigOverride.from(
                         // The code sample use LF as line separator, so ensure that formatted code uses that as well, as otherwise the test
@@ -290,7 +290,7 @@ class KtLintTest {
             KtLintRuleEngine(
                 ruleProviders =
                     setOf(
-                        RuleV2InstanceProvider {
+                        RuleV2Provider {
                             SimpleTestRule(
                                 ruleId = SimpleTestRule.RULE_ID_STOP_TRAVERSAL,
                                 ruleExecutionCalls = ruleExecutionCalls,
@@ -322,7 +322,7 @@ class KtLintTest {
             KtLintRuleEngine(
                 ruleProviders =
                     setOf(
-                        RuleV2InstanceProvider {
+                        RuleV2Provider {
                             SimpleTestRule(
                                 ruleId = SimpleTestRule.RULE_ID_STOP_TRAVERSAL,
                                 ruleExecutionCalls = ruleExecutionCalls,
@@ -363,7 +363,7 @@ class KtLintTest {
             KtLintRuleEngine(
                 ruleProviders =
                     setOf(
-                        RuleV2InstanceProvider {
+                        RuleV2Provider {
                             SimpleTestRule(
                                 ruleId = SimpleTestRule.RULE_ID_STOP_TRAVERSAL,
                                 ruleExecutionCalls = ruleExecutionCalls,
@@ -396,7 +396,7 @@ class KtLintTest {
             KtLintRuleEngine(
                 ruleProviders =
                     setOf(
-                        RuleV2InstanceProvider {
+                        RuleV2Provider {
                             SimpleTestRule(
                                 ruleId = SimpleTestRule.RULE_ID_STOP_TRAVERSAL,
                                 ruleExecutionCalls = ruleExecutionCalls,
@@ -422,7 +422,7 @@ class KtLintTest {
         KtLintRuleEngine(
             ruleProviders =
                 setOf(
-                    RuleV2InstanceProvider { WithStateRule() },
+                    RuleV2Provider { WithStateRule() },
                 ),
         ).format(EMPTY_CODE_SNIPPET) { _ -> AutocorrectDecision.ALLOW_AUTOCORRECT }
     }
@@ -439,7 +439,7 @@ class KtLintTest {
             KtLintRuleEngine(
                 ruleProviders =
                     setOf(
-                        RuleV2InstanceProvider { AutoCorrectErrorRule() },
+                        RuleV2Provider { AutoCorrectErrorRule() },
                     ),
             ).format(Code.fromSnippet(code)) { _ -> AutocorrectDecision.ALLOW_AUTOCORRECT }
         assertThat(actualFormattedCode).isEqualTo(code)

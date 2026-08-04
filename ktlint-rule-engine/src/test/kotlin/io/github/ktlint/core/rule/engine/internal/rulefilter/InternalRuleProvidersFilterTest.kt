@@ -5,7 +5,7 @@ import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.RuleSetId
 import io.github.ktlint.core.rule.engine.core.api.RuleV2
-import io.github.ktlint.core.rule.engine.core.api.RuleV2InstanceProvider
+import io.github.ktlint.core.rule.engine.core.api.RuleV2Provider
 import io.github.ktlint.core.rule.engine.internal.rules.KTLINT_SUPPRESSION_RULE_ID
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -18,7 +18,7 @@ class InternalRuleProvidersFilterTest {
             KtLintRuleEngine(
                 ruleProviders =
                     setOf(
-                        RuleV2InstanceProvider {
+                        RuleV2Provider {
                             object : R(ruleId = STANDARD_RULE_A) {}
                         },
                     ),

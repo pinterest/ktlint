@@ -11,7 +11,7 @@ import io.github.ktlint.core.rule.engine.core.api.ElementType.IDENTIFIER
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.RuleSetId
 import io.github.ktlint.core.rule.engine.core.api.RuleV2
-import io.github.ktlint.core.rule.engine.core.api.RuleV2InstanceProvider
+import io.github.ktlint.core.rule.engine.core.api.RuleV2Provider
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.RuleExecution
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import io.github.ktlint.core.rule.engine.internal.FormatterTags.Companion.FORMATTER_TAGS_ENABLED_PROPERTY
@@ -242,7 +242,7 @@ class SuppressionLocatorTest {
                 lint(
                     code,
                     editorConfigOverride = EditorConfigOverride.from(FORMATTER_TAGS_ENABLED_PROPERTY to true),
-                    ruleProviders = setOf(RuleV2InstanceProvider { IndentationRule() }),
+                    ruleProviders = setOf(RuleV2Provider { IndentationRule() }),
                 )
             assertThat(actual).containsExactly(
                 lintError(1, 5, "standard:no-foo-identifier-standard"),
@@ -267,7 +267,7 @@ class SuppressionLocatorTest {
                 lint(
                     code,
                     editorConfigOverride = EditorConfigOverride.from(FORMATTER_TAGS_ENABLED_PROPERTY to true),
-                    ruleProviders = setOf(RuleV2InstanceProvider { IndentationRule() }),
+                    ruleProviders = setOf(RuleV2Provider { IndentationRule() }),
                 )
             assertThat(actual).containsExactly(
                 lintError(1, 12, "standard:no-foo-identifier-standard"),
@@ -438,7 +438,7 @@ class SuppressionLocatorTest {
 
         val actual =
             KtLintRuleEngine(
-                ruleProviders = setOf(RuleV2InstanceProvider { IndentationRule() }),
+                ruleProviders = setOf(RuleV2Provider { IndentationRule() }),
                 editorConfigOverride =
                     EMPTY_EDITOR_CONFIG_OVERRIDE
                         .plus(
@@ -479,7 +479,7 @@ class SuppressionLocatorTest {
 
         val actual =
             KtLintRuleEngine(
-                ruleProviders = setOf(RuleV2InstanceProvider { IndentationRule() }),
+                ruleProviders = setOf(RuleV2Provider { IndentationRule() }),
                 editorConfigOverride =
                     EMPTY_EDITOR_CONFIG_OVERRIDE
                         .plus(
@@ -514,7 +514,7 @@ class SuppressionLocatorTest {
             lint(
                 code,
                 editorConfigOverride = EditorConfigOverride.from(FORMATTER_TAGS_ENABLED_PROPERTY to true),
-                ruleProviders = setOf(RuleV2InstanceProvider { NoUnusedImportsRule() }),
+                ruleProviders = setOf(RuleV2Provider { NoUnusedImportsRule() }),
             )
         assertThat(actual).containsExactly(
             lintError(5, 5, "standard:no-foo-identifier-standard"),
@@ -541,7 +541,7 @@ class SuppressionLocatorTest {
     private fun lint(
         code: String,
         editorConfigOverride: EditorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
-        ruleProviders: Set<RuleV2InstanceProvider> = emptySet(),
+        ruleProviders: Set<RuleV2Provider> = emptySet(),
         ignoreKtlintSuppressionRule: Boolean = true,
     ) = ArrayList<LintError>().apply {
         KtLintRuleEngine(
@@ -549,8 +549,8 @@ class SuppressionLocatorTest {
                 setOf(
                     // The same rule is supplied once a standard rule and once as non-standard rule. Note that the
                     // ruleIds are different.
-                    RuleV2InstanceProvider { NoFooIdentifierRule(STANDARD_NO_FOO_IDENTIFIER_RULE_ID) },
-                    RuleV2InstanceProvider { NoFooIdentifierRule(NON_STANDARD_NO_FOO_IDENTIFIER_RULE_ID) },
+                    RuleV2Provider { NoFooIdentifierRule(STANDARD_NO_FOO_IDENTIFIER_RULE_ID) },
+                    RuleV2Provider { NoFooIdentifierRule(NON_STANDARD_NO_FOO_IDENTIFIER_RULE_ID) },
                 ).plus(ruleProviders),
             editorConfigOverride =
                 editorConfigOverride

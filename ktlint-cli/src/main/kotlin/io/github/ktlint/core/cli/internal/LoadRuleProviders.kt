@@ -5,7 +5,7 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
 import io.github.ktlint.core.cli.internal.CustomJarProviderCheck.ERROR_WHEN_REQUIRED_PROVIDER_IS_MISSING
 import io.github.ktlint.core.cli.ruleset.core.api.RuleSetV2Provider
 import io.github.ktlint.core.logger.api.initKtLintKLogger
-import io.github.ktlint.core.rule.engine.core.api.RuleInstanceProvider
+import io.github.ktlint.core.rule.engine.core.api.RuleV2Provider
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.net.URL
 
@@ -14,12 +14,12 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 /**
  * Loads given list of paths to jar files.
  */
-internal fun loadRuleProviders(urls: List<URL>): Set<RuleInstanceProvider> {
+internal fun loadRuleProviders(urls: List<URL>): Set<RuleV2Provider> {
     val ruleSetV2Providers = RuleSetV2Provider::class.java.loadFromKtlintCliJar({ it.id.value })
     val ruleSetV2ProviderIds = ruleSetV2Providers.map { it.id.value }
 
-    val ruleInstanceProviders = mutableListOf<RuleInstanceProvider>()
-    ruleInstanceProviders.addAll(
+    val ruleV2Providers = mutableListOf<RuleV2Provider>()
+    ruleV2Providers.addAll(
         ruleSetV2Providers
             .flatMap { it.getRuleProviders() }
             .toSet(),
@@ -30,22 +30,22 @@ internal fun loadRuleProviders(urls: List<URL>): Set<RuleInstanceProvider> {
         .distinct()
         .forEach { url ->
             // Try to load the deprecated RulesetProviderV3 from the url. When found then print a deprecation warning
-            val customRuleInstanceProviders = loadRulesetProviderV3(url, ruleSetV2ProviderIds)
-            if (customRuleInstanceProviders.isNotEmpty()) {
-                ruleInstanceProviders.addAll(customRuleInstanceProviders)
+            val customRuleV2Providers = loadRulesetProviderV3(url, ruleSetV2ProviderIds)
+            if (customRuleV2Providers.isNotEmpty()) {
+                ruleV2Providers.addAll(customRuleV2Providers)
             } else {
                 // Only when RulesetProviderV3 was not found, try to load RuleSetV2Provider, and print an error when it is not found
-                ruleInstanceProviders.addAll(loadRuleSetV2Provider(url, ruleSetV2ProviderIds))
+                ruleV2Providers.addAll(loadRuleSetV2Provider(url, ruleSetV2ProviderIds))
             }
         }
 
-    return ruleInstanceProviders.toSet()
+    return ruleV2Providers.toSet()
 }
 
 private fun loadRulesetProviderV3(
     url: URL,
     ruleIdsFromKtlintJars: List<String>,
-): Collection<RuleInstanceProvider> =
+): Collection<RuleV2Provider> =
     try {
         LOGGER.debug { "Try loading ruleset provider of type 'RuleSetProviderV3' for $url" }
         RuleSetProviderV3::class.java
@@ -55,7 +55,7 @@ private fun loadRulesetProviderV3(
                 providerId = { it.id.value },
                 CustomJarProviderCheck.WARN_WHEN_DEPRECATED_PROVIDER_IS_FOUND,
             ).flatMap { it.getRuleProviders() }
-            .map(RuleProvider::toRuleV2InstanceProvider)
+            .map(RuleProvider::toRuleV2Provider)
             .toSet()
             .also { LOGGER.debug { "Found ${it.size} rule providers of type 'RuleSetProviderV3' for $url" } }
     } catch (t: Throwable) {
@@ -66,7 +66,7 @@ private fun loadRulesetProviderV3(
 private fun loadRuleSetV2Provider(
     url: URL,
     ruleIdsFromKtlintJars: List<String>,
-): Collection<RuleInstanceProvider> =
+): Collection<RuleV2Provider> =
     try {
         LOGGER.debug { "Try loading ruleset provider of type 'RuleSetV2Provider' for $url" }
         RuleSetV2Provider::class.java

@@ -2,7 +2,7 @@
 
 package com.pinterest.ktlint.rule.engine.core.api
 
-import io.github.ktlint.core.rule.engine.core.api.RuleV2InstanceProvider
+import io.github.ktlint.core.rule.engine.core.api.RuleV2Provider
 import org.ec4j.core.model.PropertyType
 
 /**
@@ -34,9 +34,9 @@ public class RuleProvider private constructor(
     public fun createNewRuleInstance(): Rule = provider()
 
     /**
-     * Creates a RuleInstanceProvider compatible with Ktlint 2.x
+     * Creates a RuleV2Provider compatible with Ktlint 2.x
      */
-    public fun toRuleV2InstanceProvider(): RuleV2InstanceProvider = RuleV2InstanceProvider { provider().toRuleV2() }
+    public fun toRuleV2Provider(): RuleV2Provider = RuleV2Provider { provider().toRuleV2() }
 
     /**
      * Lambda which creates a new instance of the [Rule]. Important: to ensure that a [Rule] can keep internal state and that processing of

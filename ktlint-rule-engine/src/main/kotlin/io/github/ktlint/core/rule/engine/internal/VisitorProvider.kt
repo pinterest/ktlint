@@ -1,8 +1,8 @@
 package io.github.ktlint.core.rule.engine.internal
 
 import io.github.ktlint.core.logger.api.initKtLintKLogger
-import io.github.ktlint.core.rule.engine.core.api.RuleInstanceProvider
 import io.github.ktlint.core.rule.engine.core.api.RuleV2
+import io.github.ktlint.core.rule.engine.core.api.RuleV2Provider
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
 import io.github.oshai.kotlinlogging.KotlinLogging
 
@@ -17,10 +17,10 @@ private val RULE_PROVIDER_SORTER = RuleProviderSorter()
 
 internal class VisitorProvider(
     /**
-     * The set of [RuleInstanceProvider]s to be executed. This set should not contain any [RuleInstanceProvider]s which are disabled via the
+     * The set of [RuleV2Provider]s to be executed. This set should not contain any [RuleV2Provider]s which are disabled via the
      * [EditorConfig].
      */
-    ruleProviders: Set<RuleInstanceProvider>,
+    ruleProviders: Set<RuleV2Provider>,
     /**
      * Creates a new [RuleProviderSorter]. Only to be used in unit tests where the same set of rules are used with distinct
      * [RuleV2.VisitorModifier]s.
@@ -30,7 +30,7 @@ internal class VisitorProvider(
     /**
      * The list of [ruleProvidersSorted] is sorted based on the [RuleV2.VisitorModifier] of the rules.
      */
-    private val ruleProvidersSorted: List<RuleInstanceProvider> =
+    private val ruleProvidersSorted: List<RuleV2Provider> =
         if (recreateRuleSorter) {
             RuleProviderSorter()
         } else {

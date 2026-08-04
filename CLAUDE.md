@@ -95,7 +95,7 @@ listing the fully-qualified `RuleSetV2Provider` subclass name.
 
 ### Thread Safety
 
-`KtLintRuleEngine` is thread-safe. `RuleV2InstanceProvider` (a `() -> RuleV2` lambda) creates a fresh rule instance per file, so rule instances may hold mutable state safely.
+`KtLintRuleEngine` is thread-safe. `RuleV2Provider` (a `() -> RuleV2` lambda) creates a fresh rule instance per file, so rule instances may hold mutable state safely.
 
 ### Format Loop
 

@@ -5,8 +5,8 @@ package io.github.ktlint.core.rule.engine.api
 import io.github.ktlint.core.rule.engine.api.EditorConfigDefaults.Companion.EMPTY_EDITOR_CONFIG_DEFAULTS
 import io.github.ktlint.core.rule.engine.api.EditorConfigOverride.Companion.EMPTY_EDITOR_CONFIG_OVERRIDE
 import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
-import io.github.ktlint.core.rule.engine.core.api.RuleInstanceProvider
 import io.github.ktlint.core.rule.engine.core.api.RuleV2
+import io.github.ktlint.core.rule.engine.core.api.RuleV2Provider
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.CodeStyleValue
 import io.github.ktlint.core.rule.engine.core.api.propertyTypes
@@ -29,10 +29,10 @@ import java.nio.file.Path
 
 public class KtLintRuleEngine(
     /**
-     * The set of [RuleInstanceProvider]s to be invoked by the [KtLintRuleEngine]. A [RuleInstanceProvider] is able to create a new instance
+     * The set of [RuleV2Provider]s to be invoked by the [KtLintRuleEngine]. A [RuleV2Provider] is able to create a new instance
      * of a [RuleV2] so that it can keep internal state and be called thread-safe manner
      */
-    public val ruleProviders: Set<RuleInstanceProvider> = emptySet(),
+    public val ruleProviders: Set<RuleV2Provider> = emptySet(),
     /**
      * The default values for `.editorconfig` properties which are not set explicitly in any '.editorconfig' file located on the path of the
      * file which is processed with the [KtLintRuleEngine]. If a property is set in [editorConfigDefaults] this takes precedence above the
