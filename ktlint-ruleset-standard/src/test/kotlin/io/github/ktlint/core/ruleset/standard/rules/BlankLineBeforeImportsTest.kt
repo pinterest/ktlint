@@ -45,7 +45,7 @@ class BlankLineBeforeImportsTest {
 
     @ParameterizedTest(name = "Code style: {0}")
     @EnumSource(CodeStyleValue::class, mode = EXCLUDE, names = ["ktlint_official", "android_studio"])
-    fun `Given a copyright comment and first import statement not separated by a blank line then do insert a blank line in between`(
+    fun `Given a copyright comment and first import statement not separated by a blank line then do not insert a blank line in between`(
         codeStyleValue: CodeStyleValue,
     ) {
         val code =
@@ -83,7 +83,7 @@ class BlankLineBeforeImportsTest {
     }
 
     @Test
-    fun `Given a copyright comment and import statement separated by too many blank line then do remove the redundant blank lines`() {
+    fun `Given a copyright comment and import statement separated by too many blank lines then do remove the redundant blank lines`() {
         val code =
             """
             /*
@@ -102,7 +102,7 @@ class BlankLineBeforeImportsTest {
             import foo
             """.trimIndent()
         blankLineBeforeImportsRuleAssertThat(code)
-            .hasNoLintViolationsExceptInAdditionalRules()
+            .hasLintViolationForAdditionalRule(5, 1, "Needless blank line(s)")
             .isFormattedAs(formattedCode)
     }
 
@@ -143,12 +143,72 @@ class BlankLineBeforeImportsTest {
     }
 
     @Test
+    fun `Given a blank line exists between package and import then do not emit`() {
+        val code =
+            """
+            package foo
+
+            import bar.*
+            """.trimIndent()
+        blankLineBeforeImportsRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a comment above import and no blank line after package then emit and autocorrect`() {
+        val code =
+            """
+            package foo
+            // Some comment
+            import bar.*
+            """.trimIndent()
+        val formattedCode =
+            """
+            package foo
+
+            // Some comment
+            import bar.*
+            """.trimIndent()
+        blankLineBeforeImportsRuleAssertThat(code)
+            .hasLintViolation(2, 1, "Expected a blank line before the import(s)")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given too many blank lines between package and import then emit and autocorrect`() {
+        val code =
+            """
+            package foo
+
+
+            import bar.*
+            """.trimIndent()
+        val formattedCode =
+            """
+            package foo
+
+            import bar.*
+            """.trimIndent()
+        blankLineBeforeImportsRuleAssertThat(code)
+            .hasLintViolationForAdditionalRule(3, 1, "Needless blank line(s)")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
     fun `Given a file not containing any import statement`() {
         val code =
             """
             package bar
 
             val foo = "foo"
+            """.trimIndent()
+        blankLineBeforeImportsRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given no imports then do not emit`() {
+        val code =
+            """
+            package foo
             """.trimIndent()
         blankLineBeforeImportsRuleAssertThat(code).hasNoLintViolations()
     }
