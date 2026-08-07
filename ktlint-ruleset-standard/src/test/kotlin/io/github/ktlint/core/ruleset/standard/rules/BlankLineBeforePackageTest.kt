@@ -123,4 +123,17 @@ class BlankLineBeforePackageTest {
             .hasLintViolation(2, 1, "Expected a blank line before the package statement")
             .isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Given a file containing a file annotation and an import separated by a blank line, but without package statement then do not add an additional blank line before the empty package directive`() {
+        val code =
+            """
+            @file:bar
+
+            import foo
+            """.trimIndent()
+        blankLineBeforePackageRuleAssertThat(code)
+            .addAdditionalRuleProvider { IndentationRule() }
+            .hasNoLintViolations()
+    }
 }
