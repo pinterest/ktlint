@@ -192,4 +192,15 @@ class CallExpressionWrappingRuleTest {
             .setMaxLineLength()
             .isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Given a call expression with a function literal having an empty multiline body block then do not add an addition line break before the closing brace`() {
+        val code =
+            """
+            val foo =
+                bar {
+                }
+            """.trimIndent()
+        callExpressionWrappingRuleAssertThat(code).hasNoLintViolations()
+    }
 }
