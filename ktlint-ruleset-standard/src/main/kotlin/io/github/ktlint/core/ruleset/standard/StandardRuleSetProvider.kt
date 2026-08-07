@@ -70,7 +70,6 @@ import io.github.ktlint.core.ruleset.standard.rules.NoUnitReturnRule
 import io.github.ktlint.core.ruleset.standard.rules.NoUnusedImportsRule
 import io.github.ktlint.core.ruleset.standard.rules.NoWildcardImportsRule
 import io.github.ktlint.core.ruleset.standard.rules.NullableTypeSpacingRule
-import io.github.ktlint.core.ruleset.standard.rules.PackageImportSpacingRule
 import io.github.ktlint.core.ruleset.standard.rules.PackageNameRule
 import io.github.ktlint.core.ruleset.standard.rules.ParameterListSpacingRule
 import io.github.ktlint.core.ruleset.standard.rules.ParameterListWrappingRule
@@ -179,7 +178,6 @@ public class StandardRuleSetProvider : RuleSetV2Provider(RuleSetId.STANDARD) {
             RuleV2Provider { NoUnusedImportsRule() },
             RuleV2Provider { NoWildcardImportsRule() },
             RuleV2Provider { NullableTypeSpacingRule() },
-            RuleV2Provider { PackageImportSpacingRule() },
             RuleV2Provider { PackageNameRule() },
             RuleV2Provider { ParameterListSpacingRule() },
             RuleV2Provider { ParameterListWrappingRule() },
