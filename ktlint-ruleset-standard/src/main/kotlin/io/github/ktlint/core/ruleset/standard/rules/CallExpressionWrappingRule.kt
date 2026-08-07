@@ -137,7 +137,7 @@ public class CallExpressionWrappingRule :
             }
             functionLiteral
                 ?.findChildByType(RBRACE)
-                ?.takeUnless { it.prevSibling.isWhiteSpaceWithNewline }
+                ?.takeUnless { it.prevLeaf.isWhiteSpaceWithNewline }
                 ?.let { rbrace ->
                     emit(rbrace.startOffset, "Expected new line before '}'", true)
                         .ifAutocorrectAllowed {
