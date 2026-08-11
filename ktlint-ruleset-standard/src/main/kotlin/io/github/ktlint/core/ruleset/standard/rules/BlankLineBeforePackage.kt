@@ -38,7 +38,9 @@ public class BlankLineBeforePackage :
         when (node.elementType) {
             PACKAGE_DIRECTIVE -> {
                 node
-                    .takeUnless { it.prevLeaf.isBlankLine() }
+                    // Skip empty package directive (e.g. no package statement)
+                    .takeUnless { it.firstChildNode == null }
+                    ?.takeUnless { it.prevLeaf.isBlankLine() }
                     ?.let { insertBeforeNode ->
                         emit(insertBeforeNode.startOffset, "Expected a blank line before the package statement", true)
                             .ifAutocorrectAllowed {
