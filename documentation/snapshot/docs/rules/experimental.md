@@ -239,28 +239,50 @@ Suppress or disable rule (1)
 
 ## Lambda return
 
-Do not use a labeled return for the last statement in a lambda.
+Do not use a labeled return for the last statement in a lambda if that label refers to the lambda itself.
 
 === "[:material-heart:](#) Ktlint"
 
     ```kotlin
-    val foo1 = bar { "value" }
-    val foo2 = bar {
-        if (baz()) return@bar "value"
-
-        "value"
-    }
+    val foo =
+        "Foo"
+            .let outer@{ foo ->
+                if (foo != "Foo") {
+                    return@outer "$foo is not expected input"
+                }
+                foo
+                    .let { "$it was a" }
+                    .let secondLet@{
+                        if (foo != "Foo") {
+                            return@secondLet "$foo is not expected input"
+                        }
+                        "$it success"
+                    }.let { return@outer "$it (map after let)" }
+                // This is unreachable code due to "return@outer" in let above.
+                "$foo was a failure"
+            }.let { "$it (let after also)" }
     ```
 
 === "[:material-heart-off-outline:](#) Disallowed"
 
     ```kotlin
-    val foo1 = bar { return@foo "value" }
-    val foo2 = bar {
-        if (baz()) return@bar "value" // This is OK
-
-        return@bar "value" // This is disallowed
-    }
+    val foo =
+        "Foo"
+            .let outer@{ foo ->
+                if (foo != "Foo") {
+                    return@outer "$foo is not expected input"
+                }
+                foo
+                    .let { return@let "$it was a" }
+                    .let secondLet@{
+                        if (foo != "Foo") {
+                            return@secondLet "$foo is not expected input"
+                        }
+                        return@secondLet "$it success"
+                    }.let { return@outer "$it (map after let)" }
+                // This is unreachable code due to "return@outer" in let above.
+                return@outer "$foo was a failure"
+            }.let { return@let "$it (let after also)" }
     ```
 
 Rule id: `standard:lambda-return`
