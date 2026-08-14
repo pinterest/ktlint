@@ -302,3 +302,38 @@ Suppress or disable rule (1)
     ```editorconfig
     ktlint_standard_lambda-return = disabled
     ```
+
+## No blank line at start of file
+
+Don't allow whitespace at the start of the file.
+
+=== "[:material-heart:](#) Ktlint"
+
+    ```kotlin 
+    package foo
+    ```
+
+=== "[:material-heart-off-outline:](#) Disallowed"
+
+    ```kotlin
+    
+    package foo
+    ```
+
+Rule id: `standard:no-blank-line-at-start-of-file`
+
+Suppress or disable rule (1)
+{ .annotate }
+
+1. Suppress rule in code with annotation below:
+    ```kotlin
+    @Suppress("ktlint:standard:no-blank-line-at-start-of-file")
+    ```
+   Enable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-blank-line-at-start-of-file = enabled
+    ```
+   Disable rule via `.editorconfig`
+    ```editorconfig
+    ktlint_standard_no-blank-line-at-start-of-file = disabled
+    ```
