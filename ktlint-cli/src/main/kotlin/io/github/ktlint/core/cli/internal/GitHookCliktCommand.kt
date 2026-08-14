@@ -25,7 +25,7 @@ internal abstract class GitHookCliktCommand(
                 resolveGitHooksDir()
             } catch (e: IOException) {
                 echo(e.message, err = true)
-                exitKtLintProcess(1)
+                exitKtLintProcess(ExitCode.IO_EXCEPTION)
             }
         val gitHookFile = gitHooksDir.resolve(gitHookName)
         val hookContent = hookContentProvider()

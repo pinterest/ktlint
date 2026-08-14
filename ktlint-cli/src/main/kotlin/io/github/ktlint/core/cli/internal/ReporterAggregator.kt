@@ -127,7 +127,7 @@ internal class ReporterAggregator(
                         postfix = ")",
                     )
             }
-            exitKtLintProcess(1)
+            exitKtLintProcess(ExitCode.INVALID_REPORTER_CONFIGURATION)
         }
         return reporterProviderV2
     }

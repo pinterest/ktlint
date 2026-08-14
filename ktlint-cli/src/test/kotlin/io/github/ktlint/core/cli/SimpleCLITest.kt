@@ -441,7 +441,7 @@ class SimpleCLITest {
     }
 
     @Test
-    fun `Issue 1832 - Given stdin input containing Kotlin Script resulting in a KtLintParseException when linted as Kotlin code then process the input as Kotlin Script`(
+    fun `Issue 1832 - Given stdin input containing Kotlin code resulting in a KtLintParseException when linted as Kotlin code then process the input as Kotlin Script`(
         @TempDir
         tempDir: Path,
     ) {
@@ -464,16 +464,13 @@ class SimpleCLITest {
                         """.trimIndent().toByteArray(),
                     ),
             ) {
-                assertThat(normalOutput)
-                    .containsLineMatching(Regex(".*Not a valid Kotlin file.*"))
-                    .containsLineMatching(Regex(".*Now, trying to read the input as Kotlin Script.*"))
-                assertThat(errorOutput)
-                    .containsLineMatching(Regex(".*Needless blank line.*"))
+                assertThat(normalOutput).containsLineMatching("Can not parse input from <stdin> as Kotlin, due to error below:")
+                assertThat(errorOutput).containsLineMatching("Needless blank line")
             }
     }
 
     @Test
-    fun `Issue 1832 - Given stdin input containing Kotlin Script resulting in a KtLintParseException when formatted as Kotlin code then process the input as Kotlin Script`(
+    fun `Issue 1832 - Given stdin input containing valid Kotlin Script but results in a KtLintParseException when formatted as Kotlin code then process the input as Kotlin Script`(
         @TempDir
         tempDir: Path,
     ) {
@@ -497,15 +494,14 @@ class SimpleCLITest {
                     ),
             ) {
                 assertThat(normalOutput)
-                    .containsLineMatching(Regex(".*Not a valid Kotlin file.*"))
-                    .containsLineMatching(Regex(".*Now, trying to read the input as Kotlin Script.*"))
-                assertThat(errorOutput)
-                    .doesNotContainLineMatching(Regex(".*Needless blank line.*"))
+                    .containsLineMatching("Can not parse input from <stdin> as Kotlin, due to error below:")
+                    .containsLineMatching("Now, trying to read the input as Kotlin Script.")
+                    .doesNotContainLineMatching("Can not parse input from <stdin> as Kotlin script, due to error below:")
             }
     }
 
     @Test
-    fun `Issue 2379 - Given stdin input resulting in a KtLintParseException when formatted as Kotlin Script code`(
+    fun `Issue 2379 - Given stdin input resulting in a KtLintParseException when parsed as Kotlin code and Kotlin Script`(
         @TempDir
         tempDir: Path,
     ) {
@@ -520,9 +516,10 @@ class SimpleCLITest {
                         """.trimIndent().toByteArray(),
                     ),
             ) {
-                assertThat(errorOutput)
-                    .containsLineMatching(Regex(".*Not a valid Kotlin file.*"))
-                    .doesNotContainLineMatching(Regex(".*Now, trying to read the input as Kotlin Script.*"))
+                assertThat(normalOutput)
+                    .containsLineMatching("Can not parse input from <stdin> as Kotlin, due to error below:")
+                    .containsLineMatching("Can not parse input from <stdin> as Kotlin script, due to error below:")
+                    .containsLineMatching("Not a valid Kotlin file")
             }
     }
 
@@ -608,6 +605,38 @@ class SimpleCLITest {
                             assertThat(normalOutput)
                                 .doesNotContainLineMatching(Regex(".*\\(cannot be auto-corrected\\) \\(standard:filename\\).*"))
                         }.assertAll()
+                }
+        }
+    }
+
+    @Nested
+    inner class `Do not print kotlin-logging startup message to stdout` {
+        @Test
+        fun `Given a file containing a violation which can be autocorrected`(
+            @TempDir
+            tempDir: Path,
+        ) {
+            CommandLineTestRunner(tempDir)
+                .run(
+                    "too-many-empty-lines",
+                    listOf("**/*.test", "--reporter=plain"),
+                ) {
+                    assertThat(normalOutput).doesNotContainLineMatching("kotlin-logging: initializing...")
+                }
+        }
+
+        @Test
+        fun `Given a command with option --stdin and which reformats the file`(
+            @TempDir
+            tempDir: Path,
+        ) {
+            CommandLineTestRunner(tempDir)
+                .run(
+                    testProjectName = "too-many-empty-lines",
+                    arguments = listOf("--stdin"),
+                    stdin = ByteArrayInputStream("   fun foo() = 42".toByteArray()),
+                ) {
+                    assertThat(normalOutput).doesNotContainLineMatching("kotlin-logging: initializing...")
                 }
         }
     }
