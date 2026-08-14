@@ -53,7 +53,7 @@ internal fun <T> Class<T>.loadFromJarFile(
                         "for more information)"
                 }
             }
-            exitKtLintProcess(1)
+            exitKtLintProcess(ExitCode.INVALID_RULESET_JAR)
         }
         providers
     } else {

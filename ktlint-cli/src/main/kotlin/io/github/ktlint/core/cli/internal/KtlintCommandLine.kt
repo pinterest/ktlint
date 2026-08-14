@@ -48,6 +48,7 @@ import io.github.ktlint.core.ruleset.standard.rules.FILENAME_RULE_ID
 import io.github.oshai.kotlinlogging.DelegatingKLogger
 import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLoggingConfiguration
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
 import java.io.File
 import java.io.OutputStreamWriter
@@ -69,6 +70,12 @@ import kotlin.text.Charsets.UTF_8
 private lateinit var logger: KLogger
 
 internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
+    init {
+        // Suppress the kotlin-logging startup message below as it would be included in the formatted output when using the option --stdin
+        //   kotlin-logging: initializing... active logger factory: Slf4jLoggerFactory
+        KotlinLoggingConfiguration.logStartupMessage = false
+    }
+
     override fun help(context: Context) =
         """
         An anti-bikeshedding Kotlin linter with built-in formatter.
@@ -310,9 +317,9 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
             logger.warn { "No files matched $patterns" }
         }
         if (containsUnfixedLintErrors.get()) {
-            exitKtLintProcess(1)
+            exitKtLintProcess(ExitCode.HAS_UNFIXED_LINT_ERRORS_AFTER_FORMAT)
         } else {
-            exitKtLintProcess(0)
+            exitKtLintProcess(ExitCode.OK)
         }
     }
 
@@ -514,19 +521,12 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
                             // Intentionally stop formatting other files. The '--force-lint-after-format' is only supposed to be used during
                             // release testing of Ktlint CLI. An immediate exit forces to fix the issue immediately as release test can
                             // otherwise not be completed.
-                            exitKtLintProcess(123)
+                            exitKtLintProcess(ExitCode.PARSE_EXCEPTION_AFTER_FORMAT)
                         }
                     }
                     when {
                         code.isStdIn -> {
-                            // Avoid Unicode characters on Windows OS to be malformed as stdout does not default to UTF-8 (#3133).
-                            with(PrintWriter(OutputStreamWriter(System.out, UTF_8), true)) {
-                                // Do not use print, print which invoke the format functions which will malfunction when the input file
-                                // contains a '%' character (#3278).
-                                write(formattedFileContent)
-                                // The write method does not autoflush.
-                                flush()
-                            }
+                            writeToStdout(formattedFileContent)
                         }
 
                         code.content != formattedFileContent -> {
@@ -538,32 +538,45 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
                     }
                 }
         } catch (e: Exception) {
-            if (code.isStdIn && e is KtLintParseException) {
-                if (code.script) {
-                    // When reading from stdin, code is only parsed as Kotlin script, if it could not be parsed as pure Kotlin. Now parsing
-                    // of the code has failed for both, the file has to be ignored.
-                    logger.error {
-                        """
-                        Can not parse input from <stdin> as Kotlin, due to error below:
-                            ${e.toKtlintCliError(code).detail}
-                        """.trimIndent()
+            if (code.isStdIn) {
+                if (e is KtLintParseException) {
+                    if (code.script) {
+                        // When reading from stdin, code is only parsed as Kotlin script, if it could not be parsed as pure Kotlin. Now
+                        // parsing of the code has failed for both, the file has to be ignored.
+                        logger.error {
+                            """
+                            Can not parse input from <stdin> as Kotlin script, due to error below:
+                                ${e.toKtlintCliError(code).detail}
+                            """.trimIndent()
+                        }
+                        // Write original code back to stdout before exiting with a non-zero error code. This is useful in case a tool that
+                        // integrates with Ktlint CLI without checking the exit code does not replace the original content with an empty
+                        // stdout but just with the original content instead.
+                        writeToStdout(code.content)
+                        exitKtLintProcess(ExitCode.PARSE_EXCEPTION_STDIN)
+                    } else {
+                        // When reading from stdin, it is first assumed that the provided code is pure Kotlin instead of Kotlin script. If
+                        // parsing fails, retry parsing at Kotlin script.
+                        logger.warn {
+                            """
+                            Can not parse input from <stdin> as Kotlin, due to error below:
+                                ${e.toKtlintCliError(code).detail}
+                            Now, trying to read the input as Kotlin Script.
+                            """.trimIndent()
+                        }
+                        return format(
+                            ktLintRuleEngine = ktLintRuleEngine,
+                            code = Code.fromSnippet(code.content, script = true),
+                            baselineLintErrors = baselineLintErrors,
+                        )
                     }
-                    ktlintCliErrors.add(e.toKtlintCliError(code))
                 } else {
-                    // When reading from stdin, it is first assumed that the provided code is pure Kotlin instead of Kotlin script. If
-                    // parsing fails, retry parsing at Kotlin script.
-                    logger.warn {
-                        """
-                        Can not parse input from <stdin> as Kotlin, due to error below:
-                            ${e.toKtlintCliError(code).detail}
-                        Now, trying to read the input as Kotlin Script.
-                        """.trimIndent()
-                    }
-                    return format(
-                        ktLintRuleEngine = ktLintRuleEngine,
-                        code = Code.fromSnippet(code.content, script = true),
-                        baselineLintErrors = baselineLintErrors,
-                    )
+                    // Write original code back to stdout before exiting with a non-zero error code. This is useful in case a tool that
+                    // integrates with Ktlint CLI without checking the exit code does not replace the original content with an empty
+                    // stdout but just with the original content instead.
+                    writeToStdout(code.content)
+                    logger.error(e) {}
+                    exitKtLintProcess(ExitCode.EXCEPTION_STDIN)
                 }
             } else {
                 if (!ignoreAutocorrectFailures) {
@@ -574,6 +587,17 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
             }
         }
         return ktlintCliErrors.toList()
+    }
+
+    private fun writeToStdout(content: String) {
+        // Avoid Unicode characters on Windows OS to be malformed as stdout does not default to UTF-8 (#3133).
+        with(PrintWriter(OutputStreamWriter(System.out, UTF_8), true)) {
+            // Do not use print, print which invoke the format functions which will malfunction when the input file
+            // contains a '%' character (#3278).
+            write(content)
+            // The write method does not autoflush.
+            flush()
+        }
     }
 
     private fun lint(
@@ -603,32 +627,37 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
                 }
             }
         } catch (e: Exception) {
-            if (code.isStdIn && e is KtLintParseException) {
-                if (code.script) {
-                    // When reading from stdin, code is only parsed as Kotlin script, if it could not be parsed as pure Kotlin. Now parsing
-                    // of the code has failed for both, the file has to be ignored.
-                    logger.error {
-                        """
-                        Can not parse input from <stdin> as Kotlin, due to error below:
-                            ${e.toKtlintCliError(code).detail}
-                        """.trimIndent()
+            if (code.isStdIn) {
+                if (e is KtLintParseException) {
+                    if (code.script) {
+                        // When reading from stdin, code is only parsed as Kotlin script, if it could not be parsed as pure Kotlin. Now parsing
+                        // of the code has failed for both, the file has to be ignored.
+                        logger.error {
+                            """
+                            Can not parse input from <stdin> as Kotlin script, due to error below:
+                                ${e.toKtlintCliError(code).detail}
+                            """.trimIndent()
+                        }
+                        exitKtLintProcess(ExitCode.PARSE_EXCEPTION_STDIN)
+                    } else {
+                        // When reading from stdin, it is first assumed that the provided code is pure Kotlin instead of Kotlin script. If
+                        // parsing fails, retry parsing at Kotlin script.
+                        logger.warn {
+                            """
+                            Can not parse input from <stdin> as Kotlin, due to error below:
+                                ${e.toKtlintCliError(code).detail}
+                            Now, trying to read the input as Kotlin Script.
+                            """.trimIndent()
+                        }
+                        return lint(
+                            ktLintRuleEngine = ktLintRuleEngine,
+                            code = Code.fromSnippet(code.content, script = true),
+                            baselineLintErrors = baselineLintErrors,
+                        )
                     }
-                    ktlintCliErrors.add(e.toKtlintCliError(code))
                 } else {
-                    // When reading from stdin, it is first assumed that the provided code is pure Kotlin instead of Kotlin script. If
-                    // parsing fails, retry parsing at Kotlin script.
-                    logger.warn {
-                        """
-                        Can not parse input from <stdin> as Kotlin, due to error below:
-                            ${e.toKtlintCliError(code).detail}
-                        Now, trying to read the input as Kotlin Script.
-                        """.trimIndent()
-                    }
-                    return lint(
-                        ktLintRuleEngine = ktLintRuleEngine,
-                        code = Code.fromSnippet(code.content, script = true),
-                        baselineLintErrors = baselineLintErrors,
-                    )
+                    logger.error(e) {}
+                    exitKtLintProcess(ExitCode.EXCEPTION_STDIN)
                 }
             } else if (!ignoreAutocorrectFailures) {
                 ktlintCliErrors.add(e.toKtlintCliError(code))
@@ -757,7 +786,7 @@ internal fun List<String>.toFilesURIList() =
         val jarFile = File(it.expandTildeToFullPath())
         if (!jarFile.exists()) {
             logger.error { "File '$it' does not exist" }
-            exitKtLintProcess(1)
+            exitKtLintProcess(ExitCode.FILE_NOT_FOUND)
         }
         jarFile.toURI().toURL()
     }
@@ -766,7 +795,22 @@ internal fun List<String>.toFilesURIList() =
  * Wrapper around exitProcess which ensure that a proper log line is written which can be used in unit tests for
  * validating the result of the test.
  */
-internal fun exitKtLintProcess(status: Int): Nothing {
-    logger.debug { "Exit ktlint with exit code: $status" }
-    exitProcess(status)
+internal fun exitKtLintProcess(exitCode: ExitCode): Nothing {
+    logger.debug { "Exit ktlint with exit code: ${exitCode.value}" }
+    exitProcess(exitCode.value)
+}
+
+internal enum class ExitCode(
+    val value: Int,
+) {
+    // Do not change the values of the ExitCode as they might be used by external integrations with Ktlint CLI
+    OK(0),
+    HAS_UNFIXED_LINT_ERRORS_AFTER_FORMAT(1),
+    IO_EXCEPTION(2),
+    PARSE_EXCEPTION_STDIN(3),
+    EXCEPTION_STDIN(4),
+    FILE_NOT_FOUND(5),
+    INVALID_RULESET_JAR(6),
+    INVALID_REPORTER_CONFIGURATION(7),
+    PARSE_EXCEPTION_AFTER_FORMAT(123),
 }
