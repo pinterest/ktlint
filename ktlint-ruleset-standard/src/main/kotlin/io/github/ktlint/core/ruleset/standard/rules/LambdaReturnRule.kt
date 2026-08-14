@@ -2,8 +2,15 @@ package io.github.ktlint.core.ruleset.standard.rules
 
 import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK
+import io.github.ktlint.core.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.FUNCTION_LITERAL
+import io.github.ktlint.core.rule.engine.core.api.ElementType.IDENTIFIER
+import io.github.ktlint.core.rule.engine.core.api.ElementType.LABEL
+import io.github.ktlint.core.rule.engine.core.api.ElementType.LABELED_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.LABEL_QUALIFIER
+import io.github.ktlint.core.rule.engine.core.api.ElementType.LAMBDA_ARGUMENT
+import io.github.ktlint.core.rule.engine.core.api.ElementType.LAMBDA_EXPRESSION
+import io.github.ktlint.core.rule.engine.core.api.ElementType.REFERENCE_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.RETURN
 import io.github.ktlint.core.rule.engine.core.api.IndentConfig
 import io.github.ktlint.core.rule.engine.core.api.RuleId
@@ -19,6 +26,7 @@ import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.nextCodeSibling
 import io.github.ktlint.core.rule.engine.core.api.parent
+import io.github.ktlint.core.rule.engine.core.api.prevCodeSibling
 import io.github.ktlint.core.rule.engine.core.api.remove
 import io.github.ktlint.core.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -80,11 +88,12 @@ public class LambdaReturnRule :
     ) {
         require(node.elementType == RETURN)
 
-        node
-            .findChildByType(LABEL_QUALIFIER)
+        val labelQualifier = node.findChildByType(LABEL_QUALIFIER)
+        labelQualifier
             ?.siblings()
             ?.dropWhile { it.isWhiteSpace }
             ?.takeIf { it.count() > 0 }
+            ?.takeIf { node.refersToInnerMostLambdaArgument(labelQualifier.qualifierIdentifier()) }
             ?.let { siblings ->
                 emit(node.startOffset, "Unnecessary return", true)
                     .ifAutocorrectAllowed {
@@ -98,6 +107,35 @@ public class LambdaReturnRule :
                     }
             }
     }
+
+    private fun ASTNode.refersToInnerMostLambdaArgument(qualifierIdentifier: String?) =
+        qualifierIdentifier == listOfNotNull(labeledLambdaArgumentIdentifier(), unlabeledLambdaArgumentIdentifier()).firstOrNull()
+
+    private fun ASTNode.labeledLambdaArgumentIdentifier() =
+        // For lambda argument having an explicit label, extract the label (e.g. "someLabel") for code like:
+        // .    foo.let someLabel@{ ... }
+        parent { it.elementType == LAMBDA_EXPRESSION }
+            ?.takeIf { it.treeParent.elementType == LABELED_EXPRESSION }
+            ?.prevCodeSibling
+            ?.qualifierIdentifier()
+
+    private fun ASTNode.unlabeledLambdaArgumentIdentifier() =
+        // For lambda argument not having an explicit label, extract the identifier (e.g. "let") for code like:
+        // .    foo.let { ... }
+        parent { it.elementType == LAMBDA_EXPRESSION }
+            ?.takeIf { it.treeParent.elementType != LABELED_EXPRESSION }
+            ?.parent { it.elementType == LAMBDA_ARGUMENT }
+            ?.parent { it.elementType == CALL_EXPRESSION }
+            ?.findChildByType(REFERENCE_EXPRESSION)
+            ?.findChildByType(IDENTIFIER)
+            ?.text
+
+    private fun ASTNode?.qualifierIdentifier(): String? =
+        this
+            ?.takeIf { it.elementType == LABEL_QUALIFIER }
+            ?.findChildByType(LABEL)
+            ?.findChildByType(IDENTIFIER)
+            ?.text
 }
 
 public val LAMBDA_RETURN_RULE_ID: RuleId = LambdaReturnRule().ruleId
