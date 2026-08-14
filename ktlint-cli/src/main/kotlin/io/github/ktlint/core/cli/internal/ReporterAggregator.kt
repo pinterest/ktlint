@@ -144,7 +144,7 @@ internal class ReporterAggregator(
                     PrintStream(reporterConfiguration.output, "UTF-8")
                 }
 
-                stdin -> {
+                stdin -> { //
                     System.err
                 }
 
