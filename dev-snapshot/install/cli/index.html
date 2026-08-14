@@ -847,6 +847,17 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 </li>
         
           <li class="md-nav__item">
+  <a href="#exit-codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exit codes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#miscellaneous-flags-and-commands" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1761,6 +1772,17 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 </li>
         
           <li class="md-nav__item">
+  <a href="#exit-codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exit codes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#miscellaneous-flags-and-commands" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1954,6 +1976,54 @@ Output printed to <code>stderr</code> can be suppressed in different ways. To ig
 </code></pre></div>
 <div class="highlight"><span class="filename">Install git pre-push hook</span><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>ktlint<span class="w"> </span>installGitPrePushHook
 </code></pre></div>
+<h3 id="exit-codes">Exit codes<a class="headerlink" href="#exit-codes" title="Permanent link">&para;</a></h3>
+<p>When integrating with Ktlint CLI with another tool it is important to take the exit codes below into account.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Exit code</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">0</td>
+<td>The command has been executed succesfully. If the command included the option to format the code then no violations were found, or all violations have been autocorrected.</td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td>The input has been reformatted succesfully but at least one violation remains to be fixed. Usually this is a violation which cannot be autocorrected. After autocorrecting the error, rerun ktlint again.<br/><br/>However, in some occasions it might happen that some violations remain that will be autocorrected in the next run.<br/><br/>Note that Ktlint automatically reruns format a couple of times automatically. Inspect the logging output to verify that no cyclic behavior occurs where the fix of one rule is reverted by another rule in the next run as this might result in an endless loop.</td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td>An IO Exception has occurred. Check the logging output.</td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td>Input provided via <code>stdin</code> is not valid Kotlin (Script) code. Ensure that the input can be compiled before invoking Ktlint.</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td>Input provided via <code>stdin</code> resulted in an exception. In case the <stderr> logging has been suppressed, rerun Ktlint with logging enabled and see the stacktrace.</td>
+</tr>
+<tr>
+<td style="text-align: right;">5</td>
+<td>A command line option refers to an invalid path. See logging output.</td>
+</tr>
+<tr>
+<td style="text-align: right;">6</td>
+<td>The rule set jar provided is not supported. See logging output.</td>
+</tr>
+<tr>
+<td style="text-align: right;">7</td>
+<td>The reporter configuration is invalid. See logging output.</td>
+</tr>
+<tr>
+<td style="text-align: right;">123</td>
+<td>When using option <code>--force-lint-after-format</code>, a parse exception occurs when trying to lint the formatted output. This means that Ktlint changes resulted in a file which no longer can be compiled. This option is merely used for regression testing only.</td>
+</tr>
+</tbody>
+</table>
 <h3 id="miscellaneous-flags-and-commands">Miscellaneous flags and commands<a class="headerlink" href="#miscellaneous-flags-and-commands" title="Permanent link">&para;</a></h3>
 <p><code>--color</code> and <code>--color-name=&lt;colorName&gt;</code>: Make output colorful and optionally set the color name to use.</p>
 <p><code>-h</code> or <code>--help</code>: Prints help information.</p>
