@@ -2807,6 +2807,41 @@ internal class IndentationRuleTest {
         }
     }
 
+    @Nested
+    inner class `Issue 3362 - Given the WHERE keyword and tab indentation` {
+        @Test
+        fun `Given a function with WHERE on a separate line`() {
+            val code =
+                """
+                private interface First
+
+                private interface Second
+
+                private fun <T> example(value: T)
+                    where T : First,
+                          T : Second {
+                    println(value)
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                private interface First
+
+                private interface Second
+
+                private fun <T> example(value: T)
+                ${TAB}where T : First,
+                ${TAB}      T : Second {
+                ${TAB}println(value)
+                }
+                """.trimIndent()
+
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(INDENT_STYLE_TAB)
+                .isFormattedAs(formattedCode)
+        }
+    }
+
     @Test // "https://github.com/pinterest/ktlint/issues/433"
     fun `Given a parameter list in which parameters are prefixed with a comment block`() {
         val code =
