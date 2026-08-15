@@ -51,6 +51,7 @@ import io.github.ktlint.core.ruleset.standard.rules.ModifierOrderRule
 import io.github.ktlint.core.ruleset.standard.rules.MultiLineIfElseRule
 import io.github.ktlint.core.ruleset.standard.rules.MultilineExpressionWrappingRule
 import io.github.ktlint.core.ruleset.standard.rules.MultilineLoopRule
+import io.github.ktlint.core.ruleset.standard.rules.NoBlankLineAtStartOfFileRule
 import io.github.ktlint.core.ruleset.standard.rules.NoBlankLineBeforeRbraceRule
 import io.github.ktlint.core.ruleset.standard.rules.NoBlankLineInListRule
 import io.github.ktlint.core.ruleset.standard.rules.NoBlankLinesInChainedMethodCallsRule
@@ -159,6 +160,7 @@ public class StandardRuleSetProvider : RuleSetV2Provider(RuleSetId.STANDARD) {
             RuleV2Provider { MultiLineIfElseRule() },
             RuleV2Provider { MultilineExpressionWrappingRule() },
             RuleV2Provider { MultilineLoopRule() },
+            RuleV2Provider { NoBlankLineAtStartOfFileRule() },
             RuleV2Provider { NoBlankLineBeforeRbraceRule() },
             RuleV2Provider { NoBlankLineInListRule() },
             RuleV2Provider { NoBlankLinesInChainedMethodCallsRule() },
