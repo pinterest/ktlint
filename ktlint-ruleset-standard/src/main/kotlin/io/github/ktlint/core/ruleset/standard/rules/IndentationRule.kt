@@ -666,9 +666,13 @@ public class IndentationRule :
                         fromAstNode = where.getPrecedingLeadingCommentsAndWhitespaces(),
                         toAstNode = typeConstraintList.lastChildLeafOrSelf,
                         childIndent =
-                            " ".repeat(
-                                maxOf(0, where.column - 1 - node.indentWithoutNewlinePrefix.length),
-                            ),
+                            if (where.prevLeaf?.isWhiteSpaceWithNewline == true) {
+                                indentConfig.indent
+                            } else {
+                                " ".repeat(
+                                    maxOf(0, where.column - 1 - node.indentWithoutNewlinePrefix.length),
+                                )
+                            },
                     ).prevCodeLeaf()
             }
 
