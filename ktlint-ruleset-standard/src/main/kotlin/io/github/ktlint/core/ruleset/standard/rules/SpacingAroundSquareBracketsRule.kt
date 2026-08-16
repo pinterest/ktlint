@@ -2,6 +2,7 @@ package io.github.ktlint.core.ruleset.standard.rules
 
 import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.COLLECTION_LITERAL_EXPRESSION
+import io.github.ktlint.core.rule.engine.core.api.ElementType.DESTRUCTURING_DECLARATION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.KDOC_MARKDOWN_LINK
 import io.github.ktlint.core.rule.engine.core.api.ElementType.LBRACKET
 import io.github.ktlint.core.rule.engine.core.api.ElementType.RBRACKET
@@ -44,7 +45,7 @@ public class SpacingAroundSquareBracketsRule : StandardRule("square-brackets-spa
                         false
                     }
 
-                    COLLECTION_LITERAL_EXPRESSION -> {
+                    COLLECTION_LITERAL_EXPRESSION, DESTRUCTURING_DECLARATION -> {
                         // Allow:
                         //     @Foo(
                         //        fooBar = ["foo", "bar"],

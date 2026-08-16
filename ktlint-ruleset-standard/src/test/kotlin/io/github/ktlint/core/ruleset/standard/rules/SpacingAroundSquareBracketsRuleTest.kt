@@ -145,4 +145,15 @@ class SpacingAroundSquareBracketsRuleTest {
                 LintViolation(1, 23, "Unexpected spacing before ']'", canBeAutoCorrected = true),
             ).isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Issue 3364 - Given an declaration with positional based destructuring then ignore space before lbracket`() {
+        val code =
+            """
+            fun foo() {
+                val [x, y] = Pair(1, 2)
+            }
+            """.trimIndent()
+        spacingAroundSquareBracketsRuleAssertThat(code).hasNoLintViolations()
+    }
 }
