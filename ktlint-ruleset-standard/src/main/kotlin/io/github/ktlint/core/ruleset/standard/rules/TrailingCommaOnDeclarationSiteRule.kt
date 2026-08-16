@@ -7,11 +7,13 @@ import io.github.ktlint.core.rule.engine.core.api.ElementType.CLASS_BODY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.COLLECTION_LITERAL_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.COMMA
 import io.github.ktlint.core.rule.engine.core.api.ElementType.DESTRUCTURING_DECLARATION
+import io.github.ktlint.core.rule.engine.core.api.ElementType.DESTRUCTURING_DECLARATION_ENTRY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ENUM_ENTRY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ENUM_KEYWORD
 import io.github.ktlint.core.rule.engine.core.api.ElementType.FUNCTION_LITERAL
 import io.github.ktlint.core.rule.engine.core.api.ElementType.FUNCTION_TYPE
 import io.github.ktlint.core.rule.engine.core.api.ElementType.GT
+import io.github.ktlint.core.rule.engine.core.api.ElementType.LBRACKET
 import io.github.ktlint.core.rule.engine.core.api.ElementType.LPAR
 import io.github.ktlint.core.rule.engine.core.api.ElementType.RBRACE
 import io.github.ktlint.core.rule.engine.core.api.ElementType.RBRACKET
@@ -38,9 +40,11 @@ import io.github.ktlint.core.rule.engine.core.api.isCode
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
 import io.github.ktlint.core.rule.engine.core.api.nextLeaf
+import io.github.ktlint.core.rule.engine.core.api.nextSibling
 import io.github.ktlint.core.rule.engine.core.api.noNewLineInClosedRange
 import io.github.ktlint.core.rule.engine.core.api.parent
 import io.github.ktlint.core.rule.engine.core.api.prevCodeLeaf
+import io.github.ktlint.core.rule.engine.core.api.prevCodeSibling
 import io.github.ktlint.core.rule.engine.core.api.prevLeaf
 import io.github.ktlint.core.rule.engine.core.api.remove
 import io.github.ktlint.core.rule.engine.core.api.replaceTextWith
@@ -97,12 +101,8 @@ public class TrailingCommaOnDeclarationSiteRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val inspectNode =
-            node
-                .children
-                .last { it.elementType == RPAR }
         node.reportAndCorrectTrailingCommaNodeBefore(
-            inspectNode = inspectNode,
+            inspectNode = node.closingElementDestructuringDeclarationEntries(),
             isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
             emit = emit,
         )
@@ -358,7 +358,6 @@ public class TrailingCommaOnDeclarationSiteRule :
             }
 
             TrailingCommaState.NOT_EXISTS -> {
-                Unit
             }
         }
     }
@@ -378,7 +377,12 @@ public class TrailingCommaOnDeclarationSiteRule :
             }
 
             elementType == DESTRUCTURING_DECLARATION -> {
-                hasNewLineInClosedRange(findChildByType(LPAR)!!, findChildByType(RPAR)!!)
+                hasNewLineInClosedRange(
+                    // Get the LPAR or LBRACKET before the first entry
+                    openingElementDestructuringDeclarationEntries(),
+                    // Get the RPAR or RBRACKET after the last entry
+                    closingElementDestructuringDeclarationEntries(),
+                )
             }
 
             elementType == VALUE_ARGUMENT_LIST &&
@@ -399,6 +403,21 @@ public class TrailingCommaOnDeclarationSiteRule :
                 textContains('\n')
             }
         }
+
+    private fun ASTNode.openingElementDestructuringDeclarationEntries(): ASTNode {
+        require(elementType == DESTRUCTURING_DECLARATION)
+        return findChildByType(DESTRUCTURING_DECLARATION_ENTRY)!!
+            .prevCodeSibling!!
+            .also { require(it.elementType == LPAR || it.elementType == LBRACKET) }
+    }
+
+    private fun ASTNode.closingElementDestructuringDeclarationEntries(): ASTNode {
+        require(elementType == DESTRUCTURING_DECLARATION)
+        return children()
+            .last { it.elementType == DESTRUCTURING_DECLARATION_ENTRY }
+            .nextSibling { it.isCode && it.elementType != COMMA }!!
+            .also { require(it.elementType == RPAR || it.elementType == RBRACKET) }
+    }
 
     private fun ASTNode.leafBeforeArrowOrNull() =
         takeIf { it.elementType == WHEN_ENTRY || it.elementType == FUNCTION_LITERAL }

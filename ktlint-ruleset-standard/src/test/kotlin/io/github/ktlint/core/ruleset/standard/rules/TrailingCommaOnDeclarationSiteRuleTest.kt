@@ -30,6 +30,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
                 fun bar(): Pair<Int, Int> = Pair(1, 2)
 
                 val (x, y,) = bar()
+                val [a, b,] = bar()
             }
 
             val foo5: (Int, Int,) -> Int = 42
@@ -51,6 +52,7 @@ class TrailingCommaOnDeclarationSiteRuleTest {
                 fun bar(): Pair<Int, Int> = Pair(1, 2)
 
                 val (x, y) = bar()
+                val [a, b] = bar()
             }
 
             val foo5: (Int, Int) -> Int = 42
@@ -63,9 +65,10 @@ class TrailingCommaOnDeclarationSiteRuleTest {
                 LintViolation(3, 16, "Unnecessary trailing comma before \">\""),
                 LintViolation(6, 9, "Unnecessary trailing comma before \"->\""),
                 LintViolation(13, 14, "Unnecessary trailing comma before \")\""),
-                LintViolation(16, 20, "Unnecessary trailing comma before \")\""),
-                LintViolation(18, 20, "Unnecessary trailing comma before \")\""),
-                LintViolation(18, 42, "Unnecessary trailing comma before \"->\""),
+                LintViolation(14, 14, "Unnecessary trailing comma before \"]\""),
+                LintViolation(17, 20, "Unnecessary trailing comma before \")\""),
+                LintViolation(19, 20, "Unnecessary trailing comma before \")\""),
+                LintViolation(19, 42, "Unnecessary trailing comma before \"->\""),
             ).isFormattedAs(formattedCode)
     }
 
@@ -1086,5 +1089,90 @@ class TrailingCommaOnDeclarationSiteRuleTest {
         trailingCommaOnDeclarationSiteRuleAssertThat(code)
             .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
             .hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 3364 - Given that the trailing comma is not allowed on declaration site then remove it from the positional destructuring declaration when present`() {
+        val code =
+            """
+            fun foo() {
+                fun bar(): Pair<Int, Int> = Pair(1, 2)
+
+                val [x, y,] = bar()
+                val [
+                    x,
+                    y, // The comma before the comment should be removed without removing the comment itself
+                ] = bar()
+                val [
+                    x,
+                    y, /* The comma before the comment should be removed without removing the comment itself */
+                ] = bar()
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo() {
+                fun bar(): Pair<Int, Int> = Pair(1, 2)
+
+                val [x, y] = bar()
+                val [
+                    x,
+                    y // The comma before the comment should be removed without removing the comment itself
+                ] = bar()
+                val [
+                    x,
+                    y /* The comma before the comment should be removed without removing the comment itself */
+                ] = bar()
+            }
+            """.trimIndent()
+        trailingCommaOnDeclarationSiteRuleAssertThat(code)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to false)
+            .hasLintViolations(
+                LintViolation(4, 14, "Unnecessary trailing comma before \"]\""),
+                LintViolation(7, 10, "Unnecessary trailing comma before \"]\""),
+                LintViolation(11, 10, "Unnecessary trailing comma before \"]\""),
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Issue 3364 - Given that the trailing comma is required on declaration site then add it to the positional destructuring declaration when missing`() {
+        val code =
+            """
+            fun foo() {
+                fun bar(): Pair<Int, Int> = Pair(1, 2)
+
+                val [x, y] = bar()
+                val [
+                    x,
+                    y // The comma should be inserted before the comment
+                ] = bar()
+                val [
+                    x,
+                    y /* The comma should be inserted before the comment */
+                ] = bar()
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun foo() {
+                fun bar(): Pair<Int, Int> = Pair(1, 2)
+
+                val [x, y] = bar()
+                val [
+                    x,
+                    y, // The comma should be inserted before the comment
+                ] = bar()
+                val [
+                    x,
+                    y, /* The comma should be inserted before the comment */
+                ] = bar()
+            }
+            """.trimIndent()
+        trailingCommaOnDeclarationSiteRuleAssertThat(code)
+            .withEditorConfigOverride(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY to true)
+            .hasLintViolations(
+                LintViolation(7, 10, "Missing trailing comma before \"]\""),
+                LintViolation(11, 10, "Missing trailing comma before \"]\""),
+            ).isFormattedAs(formattedCode)
     }
 }
