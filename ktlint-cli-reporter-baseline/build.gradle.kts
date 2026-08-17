@@ -3,6 +3,22 @@ plugins {
 }
 
 dependencies {
+    constraints {
+        implementation("org.apache.logging.log4j:log4j-to-slf4j:2.26.1") {
+            //  +--- io.github.hakky54:logcaptor:2.12.6
+            //  |    +--- org.slf4j:slf4j-api:2.0.17 -> 2.0.18
+            //  |    +--- ch.qos.logback:logback-classic:1.3.15 -> 1.6.3 (*)
+            //  |    +--- org.apache.logging.log4j:log4j-to-slf4j:2.25.3 -> 2.26.1
+            because("logcaptor 2.12.6 provides an outdated version of slf4j")
+        }
+        implementation("org.apache.logging.log4j:log4j-api:2.26.1") {
+            //  +--- io.github.hakky54:logcaptor:2.12.6
+            //  |    +--- org.slf4j:slf4j-api:2.0.17 -> 2.0.18
+            //  |    +--- ch.qos.logback:logback-classic:1.3.15 -> 1.6.3 (*)
+            //  |    +--- org.apache.logging.log4j:log4j-to-slf4j:2.25.3 -> 2.26.1
+            because("logcaptor 2.12.6 provides an outdated version of slf4j")
+        }
+    }
     implementation(projects.ktlintLogger)
     implementation(projects.ktlintRuleEngineCore)
     implementation(projects.ktlintCliReporterCore)
