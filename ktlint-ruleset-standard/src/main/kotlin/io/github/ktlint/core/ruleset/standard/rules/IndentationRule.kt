@@ -1300,7 +1300,7 @@ public class IndentationRule :
             }
         val nodeIndent = text.substringAfterLast("\n")
         return if (nodeIndent.endsWith(acceptableTrailingSpaces)) {
-            return acceptableTrailingSpaces
+            acceptableTrailingSpaces
         } else {
             ""
         }

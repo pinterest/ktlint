@@ -283,7 +283,6 @@ public object ElementType {
     public val KDOC_TAG_NAME: IElementType = KDocTokens.TAG_NAME
     public val KDOC_MARKDOWN_LINK: IElementType = KDocTokens.MARKDOWN_LINK
     public val KDOC_MARKDOWN_ESCAPED_CHAR: IElementType = KDocTokens.MARKDOWN_ESCAPED_CHAR
-    public val KDOC_MARKDOWN_INLINE_LINK: IElementType = KDocTokens.MARKDOWN_INLINE_LINK
     public val KDOC_SECTION: IElementType = KDocElementTypes.KDOC_SECTION
     public val KDOC_TAG: IElementType = KDocElementTypes.KDOC_TAG
     public val KDOC_NAME: IElementType = KDocElementTypes.KDOC_NAME

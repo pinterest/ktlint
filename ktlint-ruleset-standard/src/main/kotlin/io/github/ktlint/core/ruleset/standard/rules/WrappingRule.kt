@@ -303,8 +303,8 @@ public class WrappingRule :
             // class A : B, C, D({
             // })
             !(
-                entries.dropLast(1).all { it.elementType == SUPER_TYPE_ENTRY } &&
-                    entries.last().elementType == SUPER_TYPE_CALL_ENTRY
+                entries.dropLast(1).all { it.iElementType == SUPER_TYPE_ENTRY } &&
+                    entries.last().iElementType == SUPER_TYPE_CALL_ENTRY
             )
         ) {
             // put space after :

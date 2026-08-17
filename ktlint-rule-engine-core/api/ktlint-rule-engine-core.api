@@ -210,7 +210,6 @@ public final class io/github/ktlint/core/rule/engine/core/api/ElementType {
 	public final fun getKDOC_END ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
 	public final fun getKDOC_LEADING_ASTERISK ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
 	public final fun getKDOC_MARKDOWN_ESCAPED_CHAR ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
-	public final fun getKDOC_MARKDOWN_INLINE_LINK ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
 	public final fun getKDOC_MARKDOWN_LINK ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
 	public final fun getKDOC_NAME ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
 	public final fun getKDOC_SECTION ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;

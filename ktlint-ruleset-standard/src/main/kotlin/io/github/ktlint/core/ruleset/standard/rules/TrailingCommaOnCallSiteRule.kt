@@ -182,7 +182,7 @@ public class TrailingCommaOnCallSiteRule :
             }
 
             TrailingCommaState.NOT_EXISTS -> {
-                Unit
+                // Nothing to do
             }
         }
     }

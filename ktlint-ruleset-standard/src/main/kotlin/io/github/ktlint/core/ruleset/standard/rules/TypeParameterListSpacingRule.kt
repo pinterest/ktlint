@@ -249,7 +249,7 @@ public class TypeParameterListSpacingRule :
     ) {
         when {
             node.text == " " -> {
-                Unit
+                // Nothing to do
             }
 
             node.isWhiteSpaceWithNewline -> {
