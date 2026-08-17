@@ -1610,7 +1610,7 @@ Also see <a href="../configuration-ktlint/#disable-rules">enable/disable specifi
 <p class="annotate">Suppress or disable rule (1)</p>
 <ol>
 <li>Suppress rule in code with annotation below:
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:standard:blank-line-before-file-annotation&quot;</span><span class="p">)</span>
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">"ktlint:standard:blank-line-before-file-annotation"</span><span class="p">)</span>
 </code></pre></div>
    Enable rule via <code>.editorconfig</code>
     <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>ktlint_standard_blank-line-before-file-annotation = enabled
@@ -1644,7 +1644,7 @@ Also see <a href="../configuration-ktlint/#disable-rules">enable/disable specifi
 <p class="annotate">Suppress or disable rule (1)</p>
 <ol>
 <li>Suppress rule in code with annotation below:
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:standard:blank-line-before-imports&quot;</span><span class="p">)</span>
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">"ktlint:standard:blank-line-before-imports"</span><span class="p">)</span>
 </code></pre></div>
    Enable rule via <code>.editorconfig</code>
     <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>ktlint_standard_blank-line-before-imports = enabled
@@ -1678,7 +1678,7 @@ Also see <a href="../configuration-ktlint/#disable-rules">enable/disable specifi
 <p class="annotate">Suppress or disable rule (1)</p>
 <ol>
 <li>Suppress rule in code with annotation below:
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:standard:blank-line-before-package&quot;</span><span class="p">)</span>
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">"ktlint:standard:blank-line-before-package"</span><span class="p">)</span>
 </code></pre></div>
    Enable rule via <code>.editorconfig</code>
     <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>ktlint_standard_blank-line-before-package = enabled
@@ -1700,15 +1700,15 @@ Also see <a href="../configuration-ktlint/#disable-rules">enable/disable specifi
 <a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="c1">// character is at the X character</span>
 <a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="c1">// on the right                  X</span>
 <a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="kd">val</span><span class="w"> </span><span class="nv">foo1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bar</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">    </span><span class="s">&quot;some message&quot;</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">    </span><span class="s">"some message"</span>
 <a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="p">}</span>
 <a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="kd">val</span><span class="w"> </span><span class="nv">foo2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bar</span><span class="p">(</span>
-<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="w">    </span><span class="s">&quot;foobarrrrrrrrrrrr&quot;</span>
-<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;some message&quot;</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="w">    </span><span class="s">"foobarrrrrrrrrrrr"</span>
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">"some message"</span><span class="w"> </span><span class="p">}</span>
 <a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="kd">val</span><span class="w"> </span><span class="nv">foo3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bar</span><span class="p">(</span>
-<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="w">    </span><span class="s">&quot;foobarrrrrrrrrrrr&quot;</span>
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="w">    </span><span class="s">"foobarrrrrrrrrrrr"</span>
 <a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a><span class="w">    </span><span class="s">&quot;some longgggggggggg message&quot;</span>
+<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a><span class="w">    </span><span class="s">"some longgggggggggg message"</span>
 <a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a><span class="p">}</span>
 </code></pre></div>
 </div>
@@ -1716,9 +1716,9 @@ Also see <a href="../configuration-ktlint/#disable-rules">enable/disable specifi
 <div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1">// Assume that the last allowed</span>
 <a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="c1">// character is at the X character</span>
 <a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="c1">// on the right                  X</span>
-<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="kd">val</span><span class="w"> </span><span class="nv">foo1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bar</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;some message&quot;</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="kd">val</span><span class="w"> </span><span class="nv">foo2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bar</span><span class="p">(</span><span class="s">&quot;foobarrrrrrrrrrrr&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;some message&quot;</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="kd">val</span><span class="w"> </span><span class="nv">foo3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bar</span><span class="p">(</span><span class="s">&quot;foobarrrrrrrrrrrr&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;some longgggggggggg message&quot;</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="kd">val</span><span class="w"> </span><span class="nv">foo1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bar</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">"some message"</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="kd">val</span><span class="w"> </span><span class="nv">foo2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bar</span><span class="p">(</span><span class="s">"foobarrrrrrrrrrrr"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">"some message"</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="kd">val</span><span class="w"> </span><span class="nv">foo3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bar</span><span class="p">(</span><span class="s">"foobarrrrrrrrrrrr"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">"some longgggggggggg message"</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 </div>
 </div>
@@ -1727,7 +1727,7 @@ Also see <a href="../configuration-ktlint/#disable-rules">enable/disable specifi
 <p class="annotate">Suppress or disable rule (1)</p>
 <ol>
 <li>Suppress rule in code with annotation below:
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:standard:call-expression-wrapping&quot;</span><span class="p">)</span>
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">"ktlint:standard:call-expression-wrapping"</span><span class="p">)</span>
 </code></pre></div>
    Enable rule via <code>.editorconfig</code>
     <div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>ktlint_standard_call-expression-wrapping = enabled
@@ -1758,7 +1758,7 @@ Also see <a href="../configuration-ktlint/#disable-rules">enable/disable specifi
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="kd">val</span><span class="w"> </span><span class="nv">foo</span><span class="w"> </span><span class="o">=</span>
 <a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="w">  </span><span class="n">multiLineOperand</span><span class="p">(</span>
-<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">      </span><span class="s">&quot;bar&quot;</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">      </span><span class="s">"bar"</span>
 <a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">baz</span>
 <a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bar1</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">bar2</span><span class="w"> </span><span class="o">||</span>
 <a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a><span class="w">    </span><span class="n">baz1</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="n">baz2</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">baz3</span><span class="p">)</span>
@@ -1773,7 +1773,7 @@ Also see <a href="../configuration-ktlint/#disable-rules">enable/disable specifi
 <p class="annotate">Suppress or disable rule (1)</p>
 <ol>
 <li>Suppress rule in code with annotation below:
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:standard:expression-operand-wrapping&quot;</span><span class="p">)</span>
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">"ktlint:standard:expression-operand-wrapping"</span><span class="p">)</span>
 </code></pre></div>
    Enable rule via <code>.editorconfig</code>
     <div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>ktlint_standard_expression-operand-wrapping = enabled
@@ -1788,42 +1788,42 @@ Also see <a href="../configuration-ktlint/#disable-rules">enable/disable specifi
 <div class="tabbed-content">
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="kd">val</span><span class="w"> </span><span class="nv">foo</span><span class="w"> </span><span class="o">=</span>
-<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="w">    </span><span class="s">&quot;Foo&quot;</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="w">    </span><span class="s">"Foo"</span>
 <a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="w">        </span><span class="p">.</span><span class="na">let</span><span class="w"> </span><span class="nd">outer@</span><span class="p">{</span><span class="w"> </span><span class="n">foo</span><span class="w"> </span><span class="o">-&gt;</span>
-<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">foo</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">&quot;Foo&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a><span class="w">                </span><span class="k">return</span><span class="nd">@outer</span><span class="w"> </span><span class="s">&quot;</span><span class="si">$</span><span class="n">foo</span><span class="s"> is not expected input&quot;</span>
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">foo</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">"Foo"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a><span class="w">                </span><span class="k">return</span><span class="nd">@outer</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">foo</span><span class="s"> is not expected input"</span>
 <a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a><span class="w">            </span><span class="p">}</span>
 <a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a><span class="w">            </span><span class="n">foo</span>
-<a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a><span class="w">                </span><span class="p">.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;</span><span class="si">$</span><span class="n">it</span><span class="s"> was a&quot;</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a><span class="w">                </span><span class="p">.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">it</span><span class="s"> was a"</span><span class="w"> </span><span class="p">}</span>
 <a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a><span class="w">                </span><span class="p">.</span><span class="na">let</span><span class="w"> </span><span class="nd">secondLet@</span><span class="p">{</span>
-<a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a><span class="w">                    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">foo</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">&quot;Foo&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-26-11" name="__codelineno-26-11" href="#__codelineno-26-11"></a><span class="w">                        </span><span class="k">return</span><span class="nd">@secondLet</span><span class="w"> </span><span class="s">&quot;</span><span class="si">$</span><span class="n">foo</span><span class="s"> is not expected input&quot;</span>
+<a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a><span class="w">                    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">foo</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">"Foo"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-26-11" name="__codelineno-26-11" href="#__codelineno-26-11"></a><span class="w">                        </span><span class="k">return</span><span class="nd">@secondLet</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">foo</span><span class="s"> is not expected input"</span>
 <a id="__codelineno-26-12" name="__codelineno-26-12" href="#__codelineno-26-12"></a><span class="w">                    </span><span class="p">}</span>
-<a id="__codelineno-26-13" name="__codelineno-26-13" href="#__codelineno-26-13"></a><span class="w">                    </span><span class="s">&quot;</span><span class="si">$</span><span class="n">it</span><span class="s"> success&quot;</span>
-<a id="__codelineno-26-14" name="__codelineno-26-14" href="#__codelineno-26-14"></a><span class="w">                </span><span class="p">}.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="nd">@outer</span><span class="w"> </span><span class="s">&quot;</span><span class="si">$</span><span class="n">it</span><span class="s"> (map after let)&quot;</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-26-15" name="__codelineno-26-15" href="#__codelineno-26-15"></a><span class="w">            </span><span class="c1">// This is unreachable code due to &quot;return@outer&quot; in let above.</span>
-<a id="__codelineno-26-16" name="__codelineno-26-16" href="#__codelineno-26-16"></a><span class="w">            </span><span class="s">&quot;</span><span class="si">$</span><span class="n">foo</span><span class="s"> was a failure&quot;</span>
-<a id="__codelineno-26-17" name="__codelineno-26-17" href="#__codelineno-26-17"></a><span class="w">        </span><span class="p">}.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;</span><span class="si">$</span><span class="n">it</span><span class="s"> (let after also)&quot;</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-26-13" name="__codelineno-26-13" href="#__codelineno-26-13"></a><span class="w">                    </span><span class="s">"</span><span class="si">$</span><span class="n">it</span><span class="s"> success"</span>
+<a id="__codelineno-26-14" name="__codelineno-26-14" href="#__codelineno-26-14"></a><span class="w">                </span><span class="p">}.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="nd">@outer</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">it</span><span class="s"> (map after let)"</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-26-15" name="__codelineno-26-15" href="#__codelineno-26-15"></a><span class="w">            </span><span class="c1">// This is unreachable code due to "return@outer" in let above.</span>
+<a id="__codelineno-26-16" name="__codelineno-26-16" href="#__codelineno-26-16"></a><span class="w">            </span><span class="s">"</span><span class="si">$</span><span class="n">foo</span><span class="s"> was a failure"</span>
+<a id="__codelineno-26-17" name="__codelineno-26-17" href="#__codelineno-26-17"></a><span class="w">        </span><span class="p">}.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">it</span><span class="s"> (let after also)"</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="kd">val</span><span class="w"> </span><span class="nv">foo</span><span class="w"> </span><span class="o">=</span>
-<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="w">    </span><span class="s">&quot;Foo&quot;</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="w">    </span><span class="s">"Foo"</span>
 <a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="w">        </span><span class="p">.</span><span class="na">let</span><span class="w"> </span><span class="nd">outer@</span><span class="p">{</span><span class="w"> </span><span class="n">foo</span><span class="w"> </span><span class="o">-&gt;</span>
-<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">foo</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">&quot;Foo&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a><span class="w">                </span><span class="k">return</span><span class="nd">@outer</span><span class="w"> </span><span class="s">&quot;</span><span class="si">$</span><span class="n">foo</span><span class="s"> is not expected input&quot;</span>
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">foo</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">"Foo"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a><span class="w">                </span><span class="k">return</span><span class="nd">@outer</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">foo</span><span class="s"> is not expected input"</span>
 <a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a><span class="w">            </span><span class="p">}</span>
 <a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a><span class="w">            </span><span class="n">foo</span>
-<a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a><span class="w">                </span><span class="p">.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="nd">@let</span><span class="w"> </span><span class="s">&quot;</span><span class="si">$</span><span class="n">it</span><span class="s"> was a&quot;</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a><span class="w">                </span><span class="p">.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="nd">@let</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">it</span><span class="s"> was a"</span><span class="w"> </span><span class="p">}</span>
 <a id="__codelineno-27-9" name="__codelineno-27-9" href="#__codelineno-27-9"></a><span class="w">                </span><span class="p">.</span><span class="na">let</span><span class="w"> </span><span class="nd">secondLet@</span><span class="p">{</span>
-<a id="__codelineno-27-10" name="__codelineno-27-10" href="#__codelineno-27-10"></a><span class="w">                    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">foo</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">&quot;Foo&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-27-11" name="__codelineno-27-11" href="#__codelineno-27-11"></a><span class="w">                        </span><span class="k">return</span><span class="nd">@secondLet</span><span class="w"> </span><span class="s">&quot;</span><span class="si">$</span><span class="n">foo</span><span class="s"> is not expected input&quot;</span>
+<a id="__codelineno-27-10" name="__codelineno-27-10" href="#__codelineno-27-10"></a><span class="w">                    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">foo</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">"Foo"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-27-11" name="__codelineno-27-11" href="#__codelineno-27-11"></a><span class="w">                        </span><span class="k">return</span><span class="nd">@secondLet</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">foo</span><span class="s"> is not expected input"</span>
 <a id="__codelineno-27-12" name="__codelineno-27-12" href="#__codelineno-27-12"></a><span class="w">                    </span><span class="p">}</span>
-<a id="__codelineno-27-13" name="__codelineno-27-13" href="#__codelineno-27-13"></a><span class="w">                    </span><span class="k">return</span><span class="nd">@secondLet</span><span class="w"> </span><span class="s">&quot;</span><span class="si">$</span><span class="n">it</span><span class="s"> success&quot;</span>
-<a id="__codelineno-27-14" name="__codelineno-27-14" href="#__codelineno-27-14"></a><span class="w">                </span><span class="p">}.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="nd">@outer</span><span class="w"> </span><span class="s">&quot;</span><span class="si">$</span><span class="n">it</span><span class="s"> (map after let)&quot;</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-27-15" name="__codelineno-27-15" href="#__codelineno-27-15"></a><span class="w">            </span><span class="c1">// This is unreachable code due to &quot;return@outer&quot; in let above.</span>
-<a id="__codelineno-27-16" name="__codelineno-27-16" href="#__codelineno-27-16"></a><span class="w">            </span><span class="k">return</span><span class="nd">@outer</span><span class="w"> </span><span class="s">&quot;</span><span class="si">$</span><span class="n">foo</span><span class="s"> was a failure&quot;</span>
-<a id="__codelineno-27-17" name="__codelineno-27-17" href="#__codelineno-27-17"></a><span class="w">        </span><span class="p">}.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="nd">@let</span><span class="w"> </span><span class="s">&quot;</span><span class="si">$</span><span class="n">it</span><span class="s"> (let after also)&quot;</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-27-13" name="__codelineno-27-13" href="#__codelineno-27-13"></a><span class="w">                    </span><span class="k">return</span><span class="nd">@secondLet</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">it</span><span class="s"> success"</span>
+<a id="__codelineno-27-14" name="__codelineno-27-14" href="#__codelineno-27-14"></a><span class="w">                </span><span class="p">}.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="nd">@outer</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">it</span><span class="s"> (map after let)"</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-27-15" name="__codelineno-27-15" href="#__codelineno-27-15"></a><span class="w">            </span><span class="c1">// This is unreachable code due to "return@outer" in let above.</span>
+<a id="__codelineno-27-16" name="__codelineno-27-16" href="#__codelineno-27-16"></a><span class="w">            </span><span class="k">return</span><span class="nd">@outer</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">foo</span><span class="s"> was a failure"</span>
+<a id="__codelineno-27-17" name="__codelineno-27-17" href="#__codelineno-27-17"></a><span class="w">        </span><span class="p">}.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="nd">@let</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">it</span><span class="s"> (let after also)"</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 </div>
 </div>
@@ -1832,7 +1832,7 @@ Also see <a href="../configuration-ktlint/#disable-rules">enable/disable specifi
 <p class="annotate">Suppress or disable rule (1)</p>
 <ol>
 <li>Suppress rule in code with annotation below:
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:standard:lambda-return&quot;</span><span class="p">)</span>
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">"ktlint:standard:lambda-return"</span><span class="p">)</span>
 </code></pre></div>
    Enable rule via <code>.editorconfig</code>
     <div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>ktlint_standard_lambda-return = enabled
@@ -1859,7 +1859,7 @@ Also see <a href="../configuration-ktlint/#disable-rules">enable/disable specifi
 <p class="annotate">Suppress or disable rule (1)</p>
 <ol>
 <li>Suppress rule in code with annotation below:
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:standard:no-blank-line-at-start-of-file&quot;</span><span class="p">)</span>
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">"ktlint:standard:no-blank-line-at-start-of-file"</span><span class="p">)</span>
 </code></pre></div>
    Enable rule via <code>.editorconfig</code>
     <div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>ktlint_standard_no-blank-line-at-start-of-file = enabled

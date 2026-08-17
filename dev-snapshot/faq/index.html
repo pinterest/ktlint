@@ -1807,12 +1807,12 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 <p>Most rules in ktlint can be executed independently of other rules. However, some rules can only be executed in case one or more other rules are also loaded and/or enabled. Dependencies between rules are introduced to reduce complexity in ktlint. Similar logic in different rules has to be avoided as this might result in formatting conflicts between different rules, which could result in endless loops of formatting and reformatting by a set of rules.</p>
 <p>In case, you disable a rule, you might run into an <code>IllegalStateException</code> like below:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>java.lang.IllegalStateException: Skipping rule(s) which are depending on a rule which is not loaded. Please check if you need to add additional rule sets before creating an issue.
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>  - Rule with id &#39;RuleId(value=standard:string-template-indent)&#39; requires rule with id &#39;RuleId(value=standard:multiline-expression-wrapping)&#39; to be loaded
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>  - Rule with id 'RuleId(value=standard:string-template-indent)' requires rule with id 'RuleId(value=standard:multiline-expression-wrapping)' to be loaded
 </code></pre></div>
 <p>For the example above, the <code>string-template-indent</code> rule depends on the <code>multiline-expression-wrapping</code> so that the former rule does not need to know, how to wrap a multiline string that is not yet wrapped:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kd">val</span><span class="w"> </span><span class="nv">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;&quot;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kd">val</span><span class="w"> </span><span class="nv">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"""</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="s">    some text</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="s">   &quot;&quot;&quot;</span><span class="p">.</span><span class="na">trimIndent</span><span class="p">()</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="s">   """</span><span class="p">.</span><span class="na">trimIndent</span><span class="p">()</span>
 </code></pre></div></p>
 <h2 id="why-does-ktlint-discourage-certain-comment-locations">Why does ktlint discourage certain comment locations?<a class="headerlink" href="#why-does-ktlint-discourage-certain-comment-locations" title="Permanent link">&para;</a></h2>
 <p>Kotlin has three different type of comments. Although the KDoc and the block comment look similar in code, their internal PSI structure is different. The EOL comment is yet very different.</p>
@@ -1880,18 +1880,18 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 <div class="tabbed-content">
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1">// Suppressing all rules for the entire file</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nd">@file</span><span class="p">:</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;ktlint&quot;</span><span class="p">)</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nd">@file</span><span class="p">:</span><span class="n">Suppress</span><span class="p">(</span><span class="s">"ktlint"</span><span class="p">)</span>
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
 <a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="c1">// Suppressing specific rules for the entire file</span>
 <a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="c1">// Rules related to import statements can only be suppressed using file annotations</span>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="nd">@file</span><span class="p">:</span><span class="n">Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:standard:no-wildcard-imports&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ktlint:custom-rule-set-id:custom-rule-id&quot;</span><span class="p">)</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="nd">@file</span><span class="p">:</span><span class="n">Suppress</span><span class="p">(</span><span class="s">"ktlint:standard:no-wildcard-imports"</span><span class="p">,</span><span class="w"> </span><span class="s">"ktlint:custom-rule-set-id:custom-rule-id"</span><span class="p">)</span>
 <a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>
 <a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="c1">// Suppress all rules for the annotated construct</span>
-<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint&quot;</span><span class="p">)</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">"ktlint"</span><span class="p">)</span>
 <a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo</span><span class="w"> </span><span class="p">{}</span>
 <a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>
-<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="c1">// Suppress a single rule (with id &#39;rule-id&#39;, defined in rule set with id &#39;rule-set-id&#39;) in the scope of the annotated construct</span>
-<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">&quot;ktlint:rule-set-id:rule-id&quot;</span><span class="p">)</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="c1">// Suppress a single rule (with id 'rule-id', defined in rule set with id 'rule-set-id') in the scope of the annotated construct</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">"ktlint:rule-set-id:rule-id"</span><span class="p">)</span>
 <a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="kd">class</span><span class="w"> </span><span class="nc">Foo</span><span class="w"> </span><span class="p">{}</span>
 </code></pre></div>
 </div>
@@ -1958,9 +1958,9 @@ and send the generated code as <code>String</code> to KtLint inside a <code>Code
 </code></pre></div></p>
 <h1 id="are-formatter-tags-respected">Are formatter tags respected?<a class="headerlink" href="#are-formatter-tags-respected" title="Permanent link">&para;</a></h1>
 <p>As of version <code>0.49.x</code> the formatter tags of IntelliJ IDEA are respected. By default, those formatter tags are disabled. The formatter tags can be enabled with <code>.editorconfig</code> properties below:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>ij_formatter_tags_enabled = true # Defaults to &#39;false&#39;
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>ij_formatter_off_tag = some-custom-off-tag # Defaults to &#39;@formatter:off&#39;
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>ij_formatter_on_tag = some-custom-on-tag # Defaults to &#39;@formatter:on&#39;
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>ij_formatter_tags_enabled = true # Defaults to 'false'
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>ij_formatter_off_tag = some-custom-off-tag # Defaults to '@formatter:off'
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>ij_formatter_on_tag = some-custom-on-tag # Defaults to '@formatter:on'
 </code></pre></div></p>
 <p>When enabled, the ktlint rule checking is disabled for all code surrounded by the formatter tags.</p>
 <h1 id="how-do-i-disable-ktlint-for-generated-code">How do I disable ktlint for generated code?<a class="headerlink" href="#how-do-i-disable-ktlint-for-generated-code" title="Permanent link">&para;</a></h1>
