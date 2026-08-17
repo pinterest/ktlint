@@ -20,7 +20,7 @@ import io.github.ktlint.core.rule.engine.core.api.ElementType.COLON
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CONDITION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CONSTRUCTOR_DELEGATION_CALL
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CONSTRUCTOR_KEYWORD
-import io.github.ktlint.core.rule.engine.core.api.ElementType.CONTEXT_RECEIVER_LIST
+import io.github.ktlint.core.rule.engine.core.api.ElementType.CONTEXT_PARAMETER_LIST
 import io.github.ktlint.core.rule.engine.core.api.ElementType.DELEGATED_SUPER_TYPE_ENTRY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.DESTRUCTURING_DECLARATION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.DOT
@@ -196,7 +196,7 @@ public class IndentationRule :
                 visitNewLineIndentation(node, emit)
             }
 
-            node.elementType == CONTEXT_RECEIVER_LIST ||
+            node.elementType == CONTEXT_PARAMETER_LIST ||
                 node.elementType == LONG_STRING_TEMPLATE_ENTRY ||
                 node.elementType == STRING_TEMPLATE ||
                 node.elementType == VALUE_ARGUMENT_LIST -> {

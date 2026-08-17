@@ -7,7 +7,7 @@ import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATION_KEYWORD
 import io.github.ktlint.core.rule.engine.core.api.ElementType.COMPANION_KEYWORD
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CONST_KEYWORD
-import io.github.ktlint.core.rule.engine.core.api.ElementType.CONTEXT_RECEIVER_LIST
+import io.github.ktlint.core.rule.engine.core.api.ElementType.CONTEXT_PARAMETER_LIST
 import io.github.ktlint.core.rule.engine.core.api.ElementType.DATA_KEYWORD
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ENUM_KEYWORD
 import io.github.ktlint.core.rule.engine.core.api.ElementType.EXPECT_KEYWORD
@@ -82,7 +82,7 @@ public class ModifierOrderRule : StandardRule("modifier-order") {
         private val ORDERED_MODIFIERS =
             arrayOf(
                 ANNOTATION_ENTRY,
-                CONTEXT_RECEIVER_LIST,
+                CONTEXT_PARAMETER_LIST,
                 PUBLIC_KEYWORD,
                 PROTECTED_KEYWORD,
                 PRIVATE_KEYWORD,

@@ -3,7 +3,7 @@ package io.github.ktlint.core.ruleset.standard.rules
 import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
-import io.github.ktlint.core.rule.engine.core.api.ElementType.CONTEXT_RECEIVER_LIST
+import io.github.ktlint.core.rule.engine.core.api.ElementType.CONTEXT_PARAMETER_LIST
 import io.github.ktlint.core.rule.engine.core.api.ElementType.MODIFIER_LIST
 import io.github.ktlint.core.rule.engine.core.api.IndentConfig
 import io.github.ktlint.core.rule.engine.core.api.IndentConfig.Companion.DEFAULT_INDENT_CONFIG
@@ -111,7 +111,7 @@ public class ModifierListSpacingRule :
     private fun ASTNode?.isAnnotationElement() = this != null && (elementType == ANNOTATION || elementType == ANNOTATION_ENTRY)
 
     private fun ASTNode.isContextReceiverList(): Boolean =
-        elementType == CONTEXT_RECEIVER_LIST || (elementType == MODIFIER_LIST && lastChildNode.isContextReceiverList())
+        elementType == CONTEXT_PARAMETER_LIST || (elementType == MODIFIER_LIST && lastChildNode.isContextReceiverList())
 }
 
 public val MODIFIER_LIST_SPACING_RULE_ID: RuleId = ModifierListSpacingRule().ruleId

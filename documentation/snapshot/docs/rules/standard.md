@@ -4718,7 +4718,7 @@ Suppress or disable rule (1)
     Context receivers are deprecated starting from Kotlin 2.2.0 and will be removed in a future version. Once KtLint is upgraded to a Kotlin version that no longer supports context receivers, then you will not be able to use that KtLint version as long as your code still contains context receiver.
 
 !!! tip
-    This rule does not affect context parameters. See rule `context-receiver-list-wrapping` for wrapping of context parameters.
+    This rule does not affect context parameters. See rule `context-parameter-list-wrapping` for wrapping of context parameters.
 
 Wraps the context receiver list containing a context receiver to a separate line regardless of maximum line length. If the maximum line length is configured and is exceeded, wrap the context receivers and if needed its projection types to separate lines.
 
@@ -4792,10 +4792,13 @@ Suppress or disable rule (1)
     ktlint_standard_context-receiver-wrapping = disabled
     ```
    
-### Context receiver list wrapping
+### Context parameter list wrapping
 
 !!! tip
     This rule does not affect context receivers. See rule `context-receiver-wrapping` for wrapping of context receivers.
+
+!!! note
+    Upon introduction in Ktlint 1.7.0 this rule was named `context-receiver-list-wrapping`. In Ktlint 2.0.0 the rule has been renamed to `context-parameter-list-wrapping` to keep naming aligned with Kotlin naming.
 
 Wraps the context receiver list containing a context parameter to a separate line regardless of maximum line length. If the maximum line length is configured and is exceeded, wrap the context receivers and if needed its projection types to separate lines.
 
@@ -4851,22 +4854,22 @@ Wraps the context receiver list containing a context parameter to a separate lin
 |:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
 | `max_line_length`<br/><i>Maximum length of a (regular) line. This property is ignored in case the `max-line-length` rule is disabled, or when using Ktlint via a third party integration that does not provide this rule.</i> |       140       |     `off`     |     `100`      |
 
-Rule id: `standard:context-receiver-list-wrapping`
+Rule id: `standard:context-parameter-list-wrapping`
 
 Suppress or disable rule (1)
 { .annotate }
 
 1. Suppress rule in code with annotation below:
     ```kotlin
-    @Suppress("ktlint:standard:context-receiver-list-wrapping")
+    @Suppress("ktlint:standard:context-parameter-list-wrapping")
     ```
    Enable rule via `.editorconfig`
     ```editorconfig
-    ktlint_standard_context-receiver-list-wrapping = enabled
+    ktlint_standard_context-parameter-list-wrapping = enabled
     ```
    Disable rule via `.editorconfig`
     ```editorconfig
-    ktlint_standard_context-receiver-list-wrapping = disabled
+    ktlint_standard_context-parameter-list-wrapping = disabled
     ```
 
 ### Enum wrapping

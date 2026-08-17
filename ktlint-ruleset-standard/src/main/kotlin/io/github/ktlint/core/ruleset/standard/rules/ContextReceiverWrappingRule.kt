@@ -1,8 +1,8 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
 import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
+import io.github.ktlint.core.rule.engine.core.api.ElementType.CONTEXT_PARAMETER_LIST
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CONTEXT_RECEIVER
-import io.github.ktlint.core.rule.engine.core.api.ElementType.CONTEXT_RECEIVER_LIST
 import io.github.ktlint.core.rule.engine.core.api.ElementType.FUNCTION_TYPE
 import io.github.ktlint.core.rule.engine.core.api.ElementType.GT
 import io.github.ktlint.core.rule.engine.core.api.ElementType.RPAR
@@ -77,7 +77,7 @@ public class ContextReceiverWrappingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         when {
-            node.elementType == CONTEXT_RECEIVER_LIST && node.findChildByType(CONTEXT_RECEIVER) != null -> {
+            node.elementType == CONTEXT_PARAMETER_LIST && node.findChildByType(CONTEXT_RECEIVER) != null -> {
                 visitContextReceiverList(node, emit)
             }
 
@@ -140,7 +140,7 @@ public class ContextReceiverWrappingRule :
     }
 
     private fun ASTNode.isFunctionTypeReferenceInValueParameterList() =
-        takeIf { it.elementType == CONTEXT_RECEIVER_LIST }
+        takeIf { it.elementType == CONTEXT_PARAMETER_LIST }
             ?.parent
             ?.takeIf { it.elementType == FUNCTION_TYPE }
             ?.parent
