@@ -120,8 +120,8 @@ public final class io/github/ktlint/core/rule/engine/core/api/ElementType {
 	public final fun getCONSTRUCTOR_DELEGATION_REFERENCE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
 	public final fun getCONSTRUCTOR_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
 	public final fun getCONST_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
+	public final fun getCONTEXT_PARAMETER_LIST ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
 	public final fun getCONTEXT_RECEIVER ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
-	public final fun getCONTEXT_RECEIVER_LIST ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
 	public final fun getCONTINUE ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
 	public final fun getCONTINUE_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
 	public final fun getCROSSINLINE_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;

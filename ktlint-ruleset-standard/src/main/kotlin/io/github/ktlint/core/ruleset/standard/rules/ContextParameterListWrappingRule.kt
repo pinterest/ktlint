@@ -1,8 +1,8 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
 import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
+import io.github.ktlint.core.rule.engine.core.api.ElementType.CONTEXT_PARAMETER_LIST
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CONTEXT_RECEIVER
-import io.github.ktlint.core.rule.engine.core.api.ElementType.CONTEXT_RECEIVER_LIST
 import io.github.ktlint.core.rule.engine.core.api.ElementType.FUN
 import io.github.ktlint.core.rule.engine.core.api.ElementType.FUNCTION_TYPE
 import io.github.ktlint.core.rule.engine.core.api.ElementType.GT
@@ -45,11 +45,13 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  *
  * IMPORTANT: This rule only affects a context receiver list that does not contain a context receiver. Context receivers are deprecated
  * since Kotlin 2.2.0, and are wrapped by the 'context-receiver-wrapping' rule.
+ *
+ * Note: In Ktlint 2.x this rule has been renamed from ContextReceiverListWrappingRule to ContextParameterListWrappingRule
  */
 @SinceKtlint("1.7", STABLE)
-public class ContextReceiverListWrappingRule :
+public class ContextParameterListWrappingRule :
     StandardRule(
-        id = "context-receiver-list-wrapping",
+        id = "context-parameter-list-wrapping",
         usesEditorConfigProperties =
             setOf(
                 INDENT_SIZE_PROPERTY,
@@ -74,7 +76,7 @@ public class ContextReceiverListWrappingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         when {
-            node.elementType == CONTEXT_RECEIVER_LIST && node.isContextParameter() -> {
+            node.elementType == CONTEXT_PARAMETER_LIST && node.isContextParameter() -> {
                 visitContextReceiverList(node, emit)
             }
 
@@ -84,7 +86,7 @@ public class ContextReceiverListWrappingRule :
         }
     }
 
-    private fun ASTNode.isContextParameter(): Boolean = isPartOf(CONTEXT_RECEIVER_LIST) && findChildByType(CONTEXT_RECEIVER) == null
+    private fun ASTNode.isContextParameter(): Boolean = isPartOf(CONTEXT_PARAMETER_LIST) && findChildByType(CONTEXT_RECEIVER) == null
 
     private fun visitContextReceiverList(
         node: ASTNode,
@@ -139,7 +141,7 @@ public class ContextReceiverListWrappingRule :
     }
 
     private fun ASTNode.isTypeReferenceParameterInFunction() =
-        takeIf { it.elementType == CONTEXT_RECEIVER_LIST }
+        takeIf { it.elementType == CONTEXT_PARAMETER_LIST }
             ?.parent
             ?.takeIf { it.elementType == FUNCTION_TYPE }
             ?.parent
@@ -193,4 +195,4 @@ public class ContextReceiverListWrappingRule :
     }
 }
 
-public val CONTEXT_RECEIVER_LIST_WRAPPING_RULE_ID: RuleId = ContextReceiverListWrappingRule().ruleId
+public val CONTEXT_PARAMETER_LIST_WRAPPING_RULE_ID: RuleId = ContextParameterListWrappingRule().ruleId

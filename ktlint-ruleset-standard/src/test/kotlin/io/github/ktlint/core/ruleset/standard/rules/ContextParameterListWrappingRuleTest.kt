@@ -6,9 +6,9 @@ import io.github.ktlint.core.test.KtLintAssertThat.Companion.assertThatRuleBuild
 import io.github.ktlint.core.test.LintViolation
 import org.junit.jupiter.api.Test
 
-class ContextReceiverListWrappingRuleTest {
-    private val contextReceiverListWrappingRuleAssertThat =
-        assertThatRuleBuilder { ContextReceiverListWrappingRule() }
+class ContextParameterListWrappingRuleTest {
+    private val contextParameterListWrappingRuleAssertThat =
+        assertThatRuleBuilder { ContextParameterListWrappingRule() }
             .addAdditionalRuleProvider { MaxLineLengthRule() }
             .assertThat()
 
@@ -23,7 +23,7 @@ class ContextReceiverListWrappingRuleTest {
             context(_: Foo)
             fun fooBar()
             """.trimIndent()
-        contextReceiverListWrappingRuleAssertThat(code)
+        contextParameterListWrappingRuleAssertThat(code)
             .hasLintViolation(1, 17, "Expected a newline after the context parameter")
             .isFormattedAs(formattedCode)
     }
@@ -42,7 +42,7 @@ class ContextReceiverListWrappingRuleTest {
             context(_: Foo) /** some comment */
             fun fooBar2()
             """.trimIndent()
-        contextReceiverListWrappingRuleAssertThat(code)
+        contextParameterListWrappingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(1, 36, "Expected a newline after the context parameter"),
                 LintViolation(2, 37, "Expected a newline after the context parameter"),
@@ -56,7 +56,7 @@ class ContextReceiverListWrappingRuleTest {
             context(_: Foo) // some comment
             fun fooBar2()
             """.trimIndent()
-        contextReceiverListWrappingRuleAssertThat(code).hasNoLintViolations()
+        contextParameterListWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -70,7 +70,7 @@ class ContextReceiverListWrappingRuleTest {
             context(_: Foo)
             public fun fooBar()
             """.trimIndent()
-        contextReceiverListWrappingRuleAssertThat(code)
+        contextParameterListWrappingRuleAssertThat(code)
             .hasLintViolation(1, 17, "Expected a newline after the context parameter")
             .isFormattedAs(formattedCode)
     }
@@ -86,7 +86,7 @@ class ContextReceiverListWrappingRuleTest {
             context(_: Foo)
             @Bar fun fooBar()
             """.trimIndent()
-        contextReceiverListWrappingRuleAssertThat(code)
+        contextParameterListWrappingRuleAssertThat(code)
             .hasLintViolation(1, 17, "Expected a newline after the context parameter")
             .isFormattedAs(formattedCode)
     }
@@ -119,7 +119,7 @@ class ContextReceiverListWrappingRuleTest {
                 fun fooBar()
             }
             """.trimIndent()
-        contextReceiverListWrappingRuleAssertThat(code)
+        contextParameterListWrappingRuleAssertThat(code)
             .setMaxLineLength()
             .hasLintViolations(
                 LintViolation(2, 9, "Newline expected before context parameter as max line length is violated"),
@@ -167,7 +167,7 @@ class ContextReceiverListWrappingRuleTest {
                 fun fooBar3()
             }
             """.trimIndent()
-        contextReceiverListWrappingRuleAssertThat(code)
+        contextParameterListWrappingRuleAssertThat(code)
             .setMaxLineLength()
             .hasLintViolations(
                 LintViolation(2, 9, "Newline expected before context parameter as max line length is violated"),
@@ -208,7 +208,7 @@ class ContextReceiverListWrappingRuleTest {
             context(_: Foooooooooooooooo<Foo, Bar>)
             fun fooBar2()
             """.trimIndent()
-        contextReceiverListWrappingRuleAssertThat(code)
+        contextParameterListWrappingRuleAssertThat(code)
             .setMaxLineLength()
             .hasLintViolations(
                 LintViolation(2, 9, "Newline expected before context parameter as max line length is violated"),
@@ -225,7 +225,7 @@ class ContextReceiverListWrappingRuleTest {
                 foo: context(_: Foo) () -> Unit = { foobar() }
             ) {}
             """.trimIndent()
-        contextReceiverListWrappingRuleAssertThat(code).hasNoLintViolations()
+        contextParameterListWrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
@@ -238,7 +238,7 @@ class ContextReceiverListWrappingRuleTest {
             context(Foooooooooooooooo<Foo, Bar>) fun fooBar()
             context(_: Foooooooooooooooo<Foo, Bar>) fun fooBar()
             """.trimIndent()
-        contextReceiverListWrappingRuleAssertThat(code)
+        contextParameterListWrappingRuleAssertThat(code)
             // Find violations on the context parameter, but skip the context receivers
             .hasLintViolations(
                 LintViolation(2, 17, "Expected a newline after the context parameter"),

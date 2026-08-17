@@ -6,7 +6,7 @@ import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK_COMMENT
-import io.github.ktlint.core.rule.engine.core.api.ElementType.CONTEXT_RECEIVER_LIST
+import io.github.ktlint.core.rule.engine.core.api.ElementType.CONTEXT_PARAMETER_LIST
 import io.github.ktlint.core.rule.engine.core.api.ElementType.EOL_COMMENT
 import io.github.ktlint.core.rule.engine.core.api.ElementType.EQ
 import io.github.ktlint.core.rule.engine.core.api.ElementType.FUN
@@ -150,7 +150,7 @@ public class FunctionSignatureRule :
                 var currentNode: ASTNode
                 while (iterator.hasNext()) {
                     currentNode = iterator.next()
-                    if (currentNode.elementType == CONTEXT_RECEIVER_LIST) {
+                    if (currentNode.elementType == CONTEXT_PARAMETER_LIST) {
                         return currentNode
                             .lastChildLeafOrSelf
                             .nextLeaf

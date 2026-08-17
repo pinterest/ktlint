@@ -21,7 +21,7 @@ import io.github.ktlint.core.ruleset.standard.rules.ClassNamingRule
 import io.github.ktlint.core.ruleset.standard.rules.ClassSignatureRule
 import io.github.ktlint.core.ruleset.standard.rules.CommentSpacingRule
 import io.github.ktlint.core.ruleset.standard.rules.CommentWrappingRule
-import io.github.ktlint.core.ruleset.standard.rules.ContextReceiverListWrappingRule
+import io.github.ktlint.core.ruleset.standard.rules.ContextParameterListWrappingRule
 import io.github.ktlint.core.ruleset.standard.rules.ContextReceiverWrappingRule
 import io.github.ktlint.core.ruleset.standard.rules.EnumEntryNameCaseRule
 import io.github.ktlint.core.ruleset.standard.rules.EnumWrappingRule
@@ -131,7 +131,7 @@ public class StandardRuleSetProvider : RuleSetV2Provider(RuleSetId.STANDARD) {
             RuleV2Provider { CommentSpacingRule() },
             RuleV2Provider { CommentWrappingRule() },
             RuleV2Provider { ContextReceiverWrappingRule() },
-            RuleV2Provider { ContextReceiverListWrappingRule() },
+            RuleV2Provider { ContextParameterListWrappingRule() },
             RuleV2Provider { EnumEntryNameCaseRule() },
             RuleV2Provider { EnumWrappingRule() },
             RuleV2Provider { ExpressionOperandWrappingRule() },
