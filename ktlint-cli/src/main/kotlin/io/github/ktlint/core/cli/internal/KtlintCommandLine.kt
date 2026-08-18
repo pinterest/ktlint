@@ -688,7 +688,7 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
                         ruleId = "",
                         detail =
                             "Internal Error (rule '${e.ruleId}') in ${code.fileNameOrStdin()} at position '${e.line}:${e.col}. Please " +
-                                "create a ticket at https://github.com/pinterest/ktlint/issues and provide the source code that " +
+                                "create a ticket at https://github.com/ktlint/ktlint/issues and provide the source code that " +
                                 "triggered an error.\n" +
                                 e.stackTraceToString(),
                         status = KTLINT_RULE_ENGINE_EXCEPTION,

@@ -10,7 +10,7 @@ internal class GitPreCommitHookSubCommand :
             """
             #!/bin/sh
 
-            # <https://github.com/pinterest/ktlint> pre-commit hook
+            # <https://github.com/ktlint/ktlint> pre-commit hook
 
             git diff --name-only -z --cached --relative -- '*.kt' '*.kts' | ktlint --relative --patterns-from-stdin=''
             """.trimIndent().toByteArray()

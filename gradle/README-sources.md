@@ -1,1 +1,1 @@
-Source code available at https://github.com/pinterest/ktlint
+Source code available at https://github.com/ktlint/ktlint

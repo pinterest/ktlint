@@ -6,7 +6,7 @@
 
 <p align="center">
 <a href="https://kotlinlang.slack.com/messages/CKS3XG0LS"><img src="https://img.shields.io/badge/slack-@kotlinlang/ktlint-yellow.svg?logo=slack" alt="Join the chat at https://kotlinlang.slack.com"/></a>
-<a href="https://github.com/pinterest/ktlint/actions/workflows/publish-snapshot-build.yml"><img src="https://github.com/pinterest/ktlint/actions/workflows/publish-snapshot-build.yml/badge.svg" alt="Build status"></a>
+<a href="https://github.com/ktlint/ktlint/actions/workflows/publish-snapshot-build.yml"><img src="https://github.com/ktlint/ktlint/actions/workflows/publish-snapshot-build.yml/badge.svg" alt="Build status"></a>
 <a href="https://central.sonatype.com/artifact/com.pinterest.ktlint/ktlint-cli?smo=true"><img src="https://img.shields.io/maven-central/v/com.pinterest.ktlint/ktlint-cli.svg" alt="Maven Central"></a>
 <a href="https://jitpack.io/#pinterest/ktlint"><img src="https://jitpack.io/v/pinterest/ktlint.svg" alt="JitPack"></a>
 <a href="https://formulae.brew.sh/formula/ktlint"><img src="https://img.shields.io/homebrew/v/ktlint.svg" alt="HomeBrew"></a>
@@ -56,5 +56,6 @@ Follow steps below for a quick start with latest ktlint release.
 
 This project is no longer affiliated with Pinterest and is not affiliated with nor endorsed by JetBrains.
 All code, unless specified otherwise, is licensed under the [MIT](https://opensource.org/licenses/MIT) license.  
-Copyright (c) 2019 Pinterest, Inc.  
+Copyright (c) 2026 Ktlint  
+Copyright (c) 2019-2026 Pinterest, Inc.  
 Copyright (c) 2016-2019 Stanley Shyiko.

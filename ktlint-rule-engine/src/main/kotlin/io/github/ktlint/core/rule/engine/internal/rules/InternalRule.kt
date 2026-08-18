@@ -7,8 +7,8 @@ import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfigPrope
 internal val INTERNAL_RULE_ABOUT =
     RuleV2.About(
         maintainer = "KtLint",
-        repositoryUrl = "https://github.com/pinterest/ktlint",
-        issueTrackerUrl = "https://github.com/pinterest/ktlint/issues",
+        repositoryUrl = "https://github.com/ktlint/ktlint",
+        issueTrackerUrl = "https://github.com/ktlint/ktlint/issues",
     )
 
 /**

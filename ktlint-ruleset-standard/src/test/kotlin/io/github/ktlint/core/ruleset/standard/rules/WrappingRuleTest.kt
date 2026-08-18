@@ -293,7 +293,7 @@ internal class WrappingRuleTest {
         wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
-    @Test // "https://github.com/pinterest/ktlint/issues/433"
+    @Test // "https://github.com/ktlint/ktlint/issues/433"
     fun testLintParameterListWithComments() {
         val code =
             """
@@ -462,7 +462,7 @@ internal class WrappingRuleTest {
         wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
-    // https://github.com/pinterest/ktlint/issues/796
+    // https://github.com/ktlint/ktlint/issues/796
     @Test
     fun `lint if-condition with multiline call expression is indented properly`() {
         val code =
@@ -636,7 +636,7 @@ internal class WrappingRuleTest {
     fun `lint if-condition with line break and multiline call expression is indented properly`() {
         val code =
             """
-            // https://github.com/pinterest/ktlint/issues/871
+            // https://github.com/ktlint/ktlint/issues/871
             fun function(param1: Int, param2: Int, param3: Int?): Boolean {
                 return if (
                     listOf(
@@ -651,7 +651,7 @@ internal class WrappingRuleTest {
                 }
             }
 
-            // https://github.com/pinterest/ktlint/issues/900
+            // https://github.com/ktlint/ktlint/issues/900
             enum class Letter(val value: String) {
                 A("a"),
                 B("b");
@@ -754,7 +754,7 @@ internal class WrappingRuleTest {
         wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
-    // https://github.com/pinterest/ktlint/issues/1210
+    // https://github.com/ktlint/ktlint/issues/1210
     @Test
     fun `lint delegated properties with a lambda argument`() {
         val code =
@@ -914,7 +914,7 @@ internal class WrappingRuleTest {
         wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
-    // https://github.com/pinterest/ktlint/issues/959
+    // https://github.com/ktlint/ktlint/issues/959
     @Test
     fun `lint conditions with multi-line call expressions indented properly`() {
         val code =
@@ -929,7 +929,7 @@ internal class WrappingRuleTest {
         wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
-    // https://github.com/pinterest/ktlint/issues/1003
+    // https://github.com/ktlint/ktlint/issues/1003
     @Test
     fun `lint multiple interfaces`() {
         val code =
@@ -950,7 +950,7 @@ internal class WrappingRuleTest {
         wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
-    // https://github.com/pinterest/ktlint/issues/918
+    // https://github.com/ktlint/ktlint/issues/918
     @Test
     fun `lint newline after type reference in functions`() {
         val code =
@@ -969,7 +969,7 @@ internal class WrappingRuleTest {
         wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
-    // https://github.com/pinterest/ktlint/issues/764
+    // https://github.com/ktlint/ktlint/issues/764
     @Test
     fun `lint value argument list with lambda`() {
         val code =
@@ -1039,7 +1039,7 @@ internal class WrappingRuleTest {
         wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
-    // https://github.com/pinterest/ktlint/issues/1202
+    // https://github.com/ktlint/ktlint/issues/1202
     @Test
     fun `lint lambda argument and call chain`() {
         val code =
@@ -1053,7 +1053,7 @@ internal class WrappingRuleTest {
         wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
-    // https://github.com/pinterest/ktlint/issues/1165
+    // https://github.com/ktlint/ktlint/issues/1165
     @Test
     fun `lint multiline expression with elvis operator in assignment`() {
         val code =
@@ -1263,7 +1263,7 @@ internal class WrappingRuleTest {
     fun `Function with multiple lambda parameters can be formatted differently`() {
         val code =
             """
-            // https://github.com/pinterest/ktlint/issues/764#issuecomment-646822853
+            // https://github.com/ktlint/ktlint/issues/764#issuecomment-646822853
             val foo1 = println({
                 bar()
             }, {

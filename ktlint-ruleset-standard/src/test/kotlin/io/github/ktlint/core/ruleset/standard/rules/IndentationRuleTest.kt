@@ -2842,7 +2842,7 @@ internal class IndentationRuleTest {
         }
     }
 
-    @Test // "https://github.com/pinterest/ktlint/issues/433"
+    @Test // "https://github.com/ktlint/ktlint/issues/433"
     fun `Given a parameter list in which parameters are prefixed with a comment block`() {
         val code =
             """
@@ -3442,7 +3442,7 @@ internal class IndentationRuleTest {
     fun `Given an if-condition with line break and multiline call expression which is indented properly then do not return lint errors`() {
         val code =
             """
-            // https://github.com/pinterest/ktlint/issues/871
+            // https://github.com/ktlint/ktlint/issues/871
             fun function(param1: Int, param2: Int, param3: Int?): Boolean {
                 return if (
                     listOf(
@@ -3457,7 +3457,7 @@ internal class IndentationRuleTest {
                 }
             }
 
-            // https://github.com/pinterest/ktlint/issues/900
+            // https://github.com/ktlint/ktlint/issues/900
             enum class Letter(val value: String) {
                 A("a"),
                 B("b");
@@ -4241,7 +4241,7 @@ internal class IndentationRuleTest {
     fun `Given a function with multiple lambda parameters can be formatted differently`() {
         val code =
             """
-            // https://github.com/pinterest/ktlint/issues/764#issuecomment-646822853
+            // https://github.com/ktlint/ktlint/issues/764#issuecomment-646822853
             val foo1 = println({
                 bar()
             }, {

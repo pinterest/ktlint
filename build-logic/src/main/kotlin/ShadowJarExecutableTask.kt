@@ -54,7 +54,7 @@ abstract class ShadowJarExecutableTask
                     # First we get the major Java version as an integer, e.g. 17, 21, 25
                     JV=$(java -version 2>&1 | sed -E -n 's/.* version "([^.-]*).*".*/\1/p')
 
-                    # Suppress warning "sun.misc.Unsafe::objectFieldOffset" on Java24+ (https://github.com/pinterest/ktlint/issues/2973)
+                    # Suppress warning "sun.misc.Unsafe::objectFieldOffset" on Java24+ (https://github.com/ktlint/ktlint/issues/2973)
                     X=$( [ "$JV" -ge "24" ] && echo "$X --sun-misc-unsafe-memory-access=allow" || echo "")
 
                     # Suppress warning "A restricted method in java.lang.System has been called" on Java 24

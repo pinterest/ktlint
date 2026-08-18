@@ -146,9 +146,9 @@ class CommandLineTestRunner(
                         .javaVersionAsInt()
                         ?.let { javaVersion ->
                             if (javaVersion >= 24) {
-                                // Suppress warning "sun.misc.Unsafe::objectFieldOffset" on Java24+ (https://github.com/pinterest/ktlint/issues/2973)
+                                // Suppress warning "sun.misc.Unsafe::objectFieldOffset" on Java24+ (https://github.com/ktlint/ktlint/issues/2973)
                                 add("--sun-misc-unsafe-memory-access=allow")
-                                // Suppress warning "A restricted method in java.lang.System has been called" on Java24+ (https://github.com/pinterest/ktlint/issues/3041)
+                                // Suppress warning "A restricted method in java.lang.System has been called" on Java24+ (https://github.com/ktlint/ktlint/issues/3041)
                                 add("--enable-native-access=ALL-UNNAMED")
                             }
                         }

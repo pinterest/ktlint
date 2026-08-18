@@ -40,7 +40,7 @@ import org.jetbrains.kotlin.resolve.ImportPath
 public class NoUnusedImportsRule :
     StandardRule("no-unused-imports"),
     // This rule is an opt-in rule as occasionally an import is falsely marked as unused, and after removal results in code that cannot be
-    // compiled. Upon request of the community (https://github.com/pinterest/ktlint/issues/3038) the rule will not be removed, but kept as
+    // compiled. Upon request of the community (https://github.com/ktlint/ktlint/issues/3038) the rule will not be removed, but kept as
     // an opt-in rule.
     OnlyWhenEnabledInEditorconfig,
     // Prevent that imports which are only used inside code that is suppressed are (falsely) reported as unused.
@@ -159,7 +159,7 @@ public class NoUnusedImportsRule :
                     importPath.substring(packageName.length + 1).indexOf('.') == -1
                 ) {
                     // Allow imports without alias for which the fully qualified path is equal to the package name. See
-                    // https://github.com/pinterest/ktlint/issues/2821 for an example in which marking an import from the same package
+                    // https://github.com/ktlint/ktlint/issues/2821 for an example in which marking an import from the same package
                     // led to compile failure.
                 } else if (name != null &&
                     (!ref.map { it.text }.contains(name) || !isAValidImport(importPath)) &&

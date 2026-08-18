@@ -93,13 +93,13 @@ public class SarifReporter(
                                 Tool(
                                     driver =
                                         ToolComponent(
-                                            downloadURI = "https://github.com/pinterest/ktlint/releases/tag/$version",
+                                            downloadURI = "https://github.com/ktlint/ktlint/releases/tag/$version",
                                             fullName = "ktlint",
-                                            informationURI = "https://github.com/pinterest/ktlint/",
+                                            informationURI = "https://github.com/ktlint/ktlint/",
                                             language = "en",
                                             name = "ktlint",
                                             rules = listOf(),
-                                            organization = "pinterest",
+                                            organization = "ktlint",
                                             semanticVersion = version,
                                             version = version,
                                         ),
