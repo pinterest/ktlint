@@ -70,8 +70,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Bump Homebrew formula only when not a pre-release (e.g. "2.0.0-ALPHA-1")
       - name: Bump Homebrew Formula
-        if: ${{ success() }}
+        if: ${{ (success() && contains(env.version,'-') == false ) }}
         uses: mislav/bump-homebrew-formula-action@v4.2
         env:
           COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TOKEN }}
