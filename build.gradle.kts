@@ -30,7 +30,7 @@ tasks.register<JavaExec>("ktlintFormat") {
     description = "Check Kotlin code style and format"
     classpath = ktlint
     mainClass = "io.github.ktlint.core.Main"
-    // Suppress "sun.misc.Unsafe::objectFieldOffset" on Java24 (warning) (https://github.com/pinterest/ktlint/issues/2973)
+    // Suppress "sun.misc.Unsafe::objectFieldOffset" on Java24 (warning) (https://github.com/ktlint/ktlint/issues/2973)
     // jvmArgs("--sun-misc-unsafe-memory-access=allow") // Java 24+
     args(
         "-F",

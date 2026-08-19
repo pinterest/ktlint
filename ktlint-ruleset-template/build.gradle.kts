@@ -1,5 +1,5 @@
 // This module serves as a sample project for development of a custom ruleset. To avoid any confusion, this build setup is not reusing the
-// build logic of other internal ktlint modules (https://github.com/pinterest/ktlint/issues/3048)..
+// build logic of other internal ktlint modules (https://github.com/ktlint/ktlint/issues/3048)..
 
 plugins {
     kotlin("jvm") version "2.4.10"

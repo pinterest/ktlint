@@ -2,6 +2,143 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.0.0-ALPHA-1] - 2026-08-19
+
+IMPORTANT: This project is no longer maintained by Pinterest. As a result the Maven coordinates of the project have changed from `com.pinterest.ktlint` to `io.github.ktlint`. Read more in the [documentation](https://ktlint.github.io/ktlint/dev-snapshot/api/migrate-to-ktlint-2.x/).
+
+### 🆕 Features
+
+* Execute all rules on same AST Node before proceeding to next AST Node (possibly breaking change) - [#3252](https://github.com/ktlint/ktlint/pull/3252), by @paul-dingemans  
+Due to changing the order in which rules are executed, this is a potentially breaking change when rules are not well written. Normal rules only manipulate the AST for nodes that have not yet been visited. In case a rule for a given AST Node decides to manipulate an AST Node that already has been visited before, this might result in a failure.
+
+* Add RuleV2 to enforce autocorrect approve visitor - [#3241](https://github.com/ktlint/ktlint/pull/3241), by @paul-dingemans
+
+* Add rule `call-expression-wrapping`, and improve wrapping in `chain-method-continuation` and `function-literal` - [#3253](https://github.com/ktlint/ktlint/pull/3253), by @paul-dingemans
+
+* Add blank line check between package and import statements - [#3266](https://github.com/ktlint/ktlint/pull/3266), by @maheen8q
+
+* Add experimental rule `lambda-return` - [#3274](https://github.com/ktlint/ktlint/pull/3274), by @paul-dingemans
+
+* Update kotlin to v2.4.0 / set java compilation to 26 - [#3316](https://github.com/ktlint/ktlint/pull/3316), by @paul-dingemans
+
+* Enable rule `blank-line-before-declaration` by default for `android_studio` - [#3318](https://github.com/ktlint/ktlint/pull/3318), by @paul-dingemans
+
+* Add experimental rules for blank lines between sections - [#3319](https://github.com/ktlint/ktlint/pull/3319), by @paul-dingemans
+
+* feat: add GraalVM native-image binaries to release (linux, macOS, Windows) - [#3284](https://github.com/ktlint/ktlint/pull/3284), by @zeitlinger
+
+* Add experimental rule no-blank-line-at-start-of-file - [#3361](https://github.com/ktlint/ktlint/pull/3361), by @paul-dingemans
+
+### 🔧 Fixes
+
+* Handle trailing comments on when entries in `BlankLineBetweenWhenConditions` - [#3177](https://github.com/ktlint/ktlint/pull/3177), by @jonapoul
+
+* Keep `no-unused-import` as opt-in - [#3192](https://github.com/ktlint/ktlint/pull/3192), by @paul-dingemans
+
+* Fix handling of EOL-comment in `paren-spacing` - [#3236](https://github.com/ktlint/ktlint/pull/3236), by @SubhrajyotiSen
+
+* Fix Square brackets spacing rule heading level - [#3244](https://github.com/ktlint/ktlint/pull/3244), by @moon-dylan
+
+* Respect suppressions on "ktlint:standard:max-line-length" - [#3255](https://github.com/ktlint/ktlint/pull/3255), by @paul-dingemans
+
+* Keep EOL comments on same line as when condition - [#3261](https://github.com/ktlint/ktlint/pull/3261), by @paul-dingemans
+
+* Do not remove UTF BOM character - [#3264](https://github.com/ktlint/ktlint/pull/3264), by @paul-dingemans
+
+* Do not wrap an annotated expression before a lambda expression - [#3268](https://github.com/ktlint/ktlint/pull/3268), by @paul-dingemans
+
+* Fix writing formatted code containing a "%" character provided via --stdin - [#3281](https://github.com/ktlint/ktlint/pull/3281), by @paul-dingemans
+
+* Do not join supertype with previous line when that line ends with and EOL comment - [#3312](https://github.com/ktlint/ktlint/pull/3312), by @paul-dingemans
+
+* Prevent throwing a NullPointerException after fixing EOL comment by `comment-spacing` rule  - [#3314](https://github.com/ktlint/ktlint/pull/3314), by @paul-dingemans
+
+* Load `.editorconfig` correctly when `--stdin-path` is a relative path - [#3322](https://github.com/ktlint/ktlint/pull/3322), by @paul-dingemans
+
+* Fix call expression wrapping when function literal has an empty multiline block body. - [#3353](https://github.com/ktlint/ktlint/pull/3353), by @paul-dingemans
+
+* Fix output when reading input from stdin - [#3359](https://github.com/ktlint/ktlint/pull/3359), by @paul-dingemans
+
+* fix(indent): support tabs before multiline where clauses - [#3363](https://github.com/ktlint/ktlint/pull/3363), by @autaut03
+
+* Support positional name based destructuring - [#3365](https://github.com/ktlint/ktlint/pull/3365), by @paul-dingemans
+
+* Rename `context-receiver-list-wrapping` to `context-parameter-list-wrapping` - [#3367](https://github.com/ktlint/ktlint/pull/3367), by @paul-dingemans
+
+### 📦 Dependencies
+
+* chore(deps): update ffurrer2/extract-release-notes action to v3 - [#3196](https://github.com/ktlint/ktlint/pull/3196), by @renovate[bot]
+
+* fix(deps): update dependency org.ec4j.core:ec4j-core to v1.2.0 - [#3197](https://github.com/ktlint/ktlint/pull/3197), by @renovate[bot]
+
+* fix(deps): update dependency com.github.ajalt.clikt:clikt to v5.1.0 - [#3224](https://github.com/ktlint/ktlint/pull/3224), by @renovate[bot]
+
+* fix(deps): update dependency org.assertj:assertj-core to v3.27.7 - [#3229](https://github.com/ktlint/ktlint/pull/3229), by @renovate[bot]
+
+* fix(deps): update dependency io.github.hakky54:logcaptor to v2.12.6 - [#3273](https://github.com/ktlint/ktlint/pull/3273), by @renovate[bot]
+
+* chore(deps): update gradle/actions action to v6 - [#3275](https://github.com/ktlint/ktlint/pull/3275), by @renovate[bot]
+
+* fix(deps): update dependency org.jetbrains.dokka:dokka-gradle-plugin to v2.2.0 - autoclosed - [#3277](https://github.com/ktlint/ktlint/pull/3277), by @renovate[bot]
+
+* Update dependency io.github.detekt.sarif4k:sarif4k to v0.7.0 - [#3285](https://github.com/ktlint/ktlint/pull/3285), by @renovate[bot]
+
+* Configure Renovate - [#3304](https://github.com/ktlint/ktlint/pull/3304), by @renovate[bot]
+
+* Update softprops/action-gh-release action to v3 - [#3283](https://github.com/ktlint/ktlint/pull/3283), by @renovate[bot]
+
+* Update dependency io.github.oshai:kotlin-logging-jvm to v8.0.4 - [#3292](https://github.com/ktlint/ktlint/pull/3292), by @renovate[bot]
+
+* Update dependency org.slf4j:slf4j-simple to v2.0.18 - [#3294](https://github.com/ktlint/ktlint/pull/3294), by @renovate[bot]
+
+* Update logback monorepo to v1.5.34 - [#3310](https://github.com/ktlint/ktlint/pull/3310), by @renovate[bot]
+
+* Update dependency dev.drewhamilton.poko:poko-gradle-plugin to v0.23.1 - [#3320](https://github.com/ktlint/ktlint/pull/3320), by @renovate[bot]
+
+* Update dependency com.vanniktech:gradle-maven-publish-plugin to v0.37.0 - [#3327](https://github.com/ktlint/ktlint/pull/3327), by @renovate[bot]
+
+* Update plugin com.gradle.develocity to v4.5.0 - [#3332](https://github.com/ktlint/ktlint/pull/3332), by @renovate[bot]
+
+* Update mislav/bump-homebrew-formula-action action to v4.2 - [#3339](https://github.com/ktlint/ktlint/pull/3339), by @renovate[bot]
+
+* Update kotlin monorepo to v2.4.10 - [#3340](https://github.com/ktlint/ktlint/pull/3340), by @renovate[bot]
+
+* Update plugin shadow to v9.6.1 - [#3341](https://github.com/ktlint/ktlint/pull/3341), by @renovate[bot]
+
+* Update actions/setup-python action to v7 - [#3342](https://github.com/ktlint/ktlint/pull/3342), by @renovate[bot]
+
+* Update actions/checkout action to v7 - [#3347](https://github.com/ktlint/ktlint/pull/3347), by @renovate[bot]
+
+* Update Gradle to v9.7.0 - [#3352](https://github.com/ktlint/ktlint/pull/3352), by @renovate[bot]
+
+* Update junit-framework monorepo to v6.1.3 - [#3354](https://github.com/ktlint/ktlint/pull/3354), by @renovate[bot]
+
+* Update dependency ch.qos.logback:logback-classic to v1.6.3 - [#3360](https://github.com/ktlint/ktlint/pull/3360), by @renovate[bot]
+
+* Override outdated log4j dependencies provided via logcaptor 2.12.6 - [#3366](https://github.com/ktlint/ktlint/pull/3366), by @paul-dingemans
+
+### 💬 Other
+
+* Avoid parallel uploads to Maven Central repository - [#3194](https://github.com/ktlint/ktlint/pull/3194), by @paul-dingemans
+
+* Remove deprecated `ConditionWrappingRule`, and `DiscouragedCommentLocationRule` - [#3237](https://github.com/ktlint/ktlint/pull/3237), by @paul-dingemans
+
+* Drop support for Java 8 and 11 - [#3256](https://github.com/ktlint/ktlint/pull/3256), by @paul-dingemans
+
+* Remove deprecated methods which were marked for removal in Ktlint 2.0, and resolve TODO's - [#3263](https://github.com/ktlint/ktlint/pull/3263), by @paul-dingemans
+
+* Update legal text to indicate this project is no longer maintained by Pinterest - [#3297](https://github.com/ktlint/ktlint/pull/3297), by @shashachu
+
+* Update link to documentation in CLI help - [#3311](https://github.com/ktlint/ktlint/pull/3311), by @Palleas
+
+* Migrate BCV - [#3344](https://github.com/ktlint/ktlint/pull/3344), by @Goooler
+
+* Disable enableKotlinModuleRemapping for shadowJar - [#3345](https://github.com/ktlint/ktlint/pull/3345), by @Goooler
+
+* Migrate "com.pinterest.ktlint" namespace to "io.github.ktlint.core" - [#3348](https://github.com/ktlint/ktlint/pull/3348), by @paul-dingemans
+
+* Cleanup compilation warnings - [#3368](https://github.com/ktlint/ktlint/pull/3368), by @paul-dingemans
+
 ## [1.8.0] - 2025-11-12
 
 ### 🆕 Features
@@ -2875,6 +3012,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
+[2.0.0-ALPHA-1]: https://github.com/pinterest/ktlint/compare/2.0.0-ALPHA-1...1.8.0
 [1.8.0]: https://github.com/pinterest/ktlint/compare/1.8.0...1.7.1
 [1.7.1]: https://github.com/pinterest/ktlint/compare/1.7.1...1.7.0
 [1.7.0]: https://github.com/pinterest/ktlint/compare/1.7.0...1.6.0

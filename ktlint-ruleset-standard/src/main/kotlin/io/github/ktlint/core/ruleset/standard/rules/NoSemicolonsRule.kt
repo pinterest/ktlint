@@ -99,13 +99,13 @@ public class NoSemicolonsRule :
             .prevCodeLeaf
             ?.also { prevCodeLeaf ->
                 if (prevCodeLeaf.elementType == OBJECT_KEYWORD) {
-                    // https://github.com/pinterest/ktlint/issues/281
+                    // https://github.com/ktlint/ktlint/issues/281
                     return false
                 }
             }?.parent
             ?.run {
                 if (isLoopWithoutBody()) {
-                    // https://github.com/pinterest/ktlint/issues/955
+                    // https://github.com/ktlint/ktlint/issues/955
                     return false
                 }
                 if (isIfExpressionWithoutThen()) {

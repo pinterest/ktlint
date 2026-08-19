@@ -117,12 +117,12 @@
       ],
       "tool": {
         "driver": {
-          "downloadUri": "https://github.com/pinterest/ktlint/releases/tag/null",
+          "downloadUri": "https://github.com/ktlint/ktlint/releases/tag/null",
           "fullName": "ktlint",
-          "informationUri": "https://github.com/pinterest/ktlint/",
+          "informationUri": "https://github.com/ktlint/ktlint/",
           "language": "en",
           "name": "ktlint",
-          "organization": "pinterest",
+          "organization": "ktlint",
           "rules": [
           ]
         }

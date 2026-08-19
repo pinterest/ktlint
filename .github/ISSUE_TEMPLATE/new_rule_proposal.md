@@ -5,7 +5,7 @@ about: Propose new rule
 ---
 
 <!-- New rule you want to propose might have already been reported!
-Please search in the [issues](https://github.com/pinterest/ktlint/issues) before creating one. -->
+Please search in the [issues](https://github.com/ktlint/ktlint/issues) before creating one. -->
 
 ## Expected Rule behavior
 <!-- Tell us what the new rule should check -->
