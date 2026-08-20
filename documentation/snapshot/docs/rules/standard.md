@@ -1437,62 +1437,6 @@ Suppress or disable rule (1)
     ktlint_standard_kdoc = disabled
     ```
 
-## KDoc comment format
-
-A single-line KDoc comment starts with `/** ` and ends with ` */`. A multi-line KDoc comment starts with the line `/**`, ends with the line `*/`, and every other line starts with a leading asterisk which is indented one space more than the opening `/**`, followed by a single space and the content of that line, or by nothing in case the line is empty.
-
-Autocorrect is only applied when it can not change the visual indentation, or the meaning, of the actual content of the KDoc comment. For example, a continuation line which is missing its leading asterisk is only autocorrected when the line is already indented at least as much as required, so that the relative indentation of that content is not affected. Also, autocorrect is not applied when tabs are involved in determining a safe amount of indentation.
-
-=== "[:material-heart:](#) Ktlint"
-
-    ```kotlin
-    /** A group of *members* */
-
-    /**
-     * A group of *members*.
-     *
-     * This class has no useful logic; it's just a documentation example.
-     *
-     * @param T the type of a member in this group.
-     * @property name the name of this group.
-     * @constructor Creates an empty group.
-     */
-    ```
-=== "[:material-heart-off-outline:](#) Disallowed"
-
-    ```kotlin
-    /***
-     * A group of *members*.
-     */
-
-    /**A group of *members* */
-
-    /** A group of *members*.
-     * This class has no useful logic; it's just a documentation example.
-     */
-    ```
-
-!!! note
-    This rule is only run when `ktlint_code_style` is set to `ktlint_official` or when the rule is enabled explicitly.
-
-Rule id: `standard:kdoc-comment-format`
-
-Suppress or disable rule (1)
-{ .annotate }
-
-1. Suppress rule in code with annotation below:
-    ```kotlin
-    @Suppress("ktlint:standard:kdoc-comment-format")
-    ```
-   Enable rule via `.editorconfig`
-    ```editorconfig
-    ktlint_standard_kdoc-comment-format = enabled
-    ```
-   Disable rule via `.editorconfig`
-    ```editorconfig
-    ktlint_standard_kdoc-comment-format = disabled
-    ```
-
 ## Mixed condition operators
 
 Conditions cannot use both `&&` and `||` operators between operators at the same level. By using parenthesis the expression is to be clarified.

@@ -41,7 +41,7 @@ import io.github.ktlint.core.ruleset.standard.rules.IfElseBracingRule
 import io.github.ktlint.core.ruleset.standard.rules.IfElseWrappingRule
 import io.github.ktlint.core.ruleset.standard.rules.ImportOrderingRule
 import io.github.ktlint.core.ruleset.standard.rules.IndentationRule
-import io.github.ktlint.core.ruleset.standard.rules.KdocCommentFormatRule
+import io.github.ktlint.core.ruleset.standard.rules.KdocDelimiterRule
 import io.github.ktlint.core.ruleset.standard.rules.KdocRule
 import io.github.ktlint.core.ruleset.standard.rules.KdocWrappingRule
 import io.github.ktlint.core.ruleset.standard.rules.LambdaReturnRule
@@ -151,7 +151,7 @@ public class StandardRuleSetProvider : RuleSetV2Provider(RuleSetId.STANDARD) {
             RuleV2Provider { IfElseWrappingRule() },
             RuleV2Provider { ImportOrderingRule() },
             RuleV2Provider { IndentationRule() },
-            RuleV2Provider { KdocCommentFormatRule() },
+            RuleV2Provider { KdocDelimiterRule() },
             RuleV2Provider { KdocRule() },
             RuleV2Provider { KdocWrappingRule() },
             RuleV2Provider { LambdaReturnRule() },

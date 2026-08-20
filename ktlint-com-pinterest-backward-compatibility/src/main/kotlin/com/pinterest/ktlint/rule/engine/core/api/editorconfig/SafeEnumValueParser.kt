@@ -13,7 +13,6 @@ import java.util.Locale
  * As the ec4j project has not provided any new release since version 1.0 (2019-08-01) a custom implementation has been added.
  *
  * @param <T> the type of the value <T>
- *
  */
 @Deprecated(message = "Provides backwards compatibility of custom ruleset JARs created for Ktlint 1.x. Don't use for RuleV2")
 public class SafeEnumValueParser<T : Enum<T>>(

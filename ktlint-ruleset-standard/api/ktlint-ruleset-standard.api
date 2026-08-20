@@ -449,13 +449,13 @@ public final class io/github/ktlint/core/ruleset/standard/rules/IndentationRuleK
 	public static final fun getINDENTATION_RULE_ID ()Lio/github/ktlint/core/rule/engine/core/api/RuleId;
 }
 
-public final class io/github/ktlint/core/ruleset/standard/rules/KdocCommentFormatRule : io/github/ktlint/core/ruleset/standard/StandardRule, io/github/ktlint/core/rule/engine/core/api/RuleV2$OfficialCodeStyle {
+public final class io/github/ktlint/core/ruleset/standard/rules/KdocDelimiterRule : io/github/ktlint/core/ruleset/standard/StandardRule, io/github/ktlint/core/rule/engine/core/api/RuleV2$Experimental, io/github/ktlint/core/rule/engine/core/api/RuleV2$OfficialCodeStyle {
 	public fun <init> ()V
 	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
 }
 
-public final class io/github/ktlint/core/ruleset/standard/rules/KdocCommentFormatRuleKt {
-	public static final fun getKDOC_COMMENT_FORMAT_RULE_ID ()Lio/github/ktlint/core/rule/engine/core/api/RuleId;
+public final class io/github/ktlint/core/ruleset/standard/rules/KdocDelimiterRuleKt {
+	public static final fun getKDOC_DELIMITER_RULE_ID ()Lio/github/ktlint/core/rule/engine/core/api/RuleId;
 }
 
 public final class io/github/ktlint/core/ruleset/standard/rules/KdocRule : io/github/ktlint/core/ruleset/standard/StandardRule {
