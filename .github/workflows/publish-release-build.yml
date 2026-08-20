@@ -30,11 +30,6 @@ jobs:
             exit 1
           fi
 
-      - name: Extract release notes
-        id: release_notes
-        if: ${{ success() }}
-        uses: ffurrer2/extract-release-notes@v3
-
       - name: Build executable
         run: ./gradlew clean build ktlintCliFiles
 
@@ -128,6 +123,11 @@ jobs:
       - name: List build artifacts 3
         run: ls -alsh ktlint-cli/build/run
         shell: bash
+
+      - name: Extract release notes
+        id: release_notes
+        if: ${{ success() }}
+        uses: ffurrer2/extract-release-notes@v3
 
       - name: Create GitHub release
         id: github_release
