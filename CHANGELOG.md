@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [2.0.0-ALPHA-1] - 2026-08-19
+## [2.0.0-ALPHA-2] - 2026-08-19
 
 IMPORTANT: This project is no longer maintained by Pinterest. As a result the Maven coordinates of the project have changed from `com.pinterest.ktlint` to `io.github.ktlint`. Read more in the [documentation](https://ktlint.github.io/ktlint/dev-snapshot/api/migrate-to-ktlint-2.x/).
 
@@ -3012,7 +3012,7 @@ set in `[*{kt,kts}]` section).
 
 ## 0.1.0 - 2016-07-27
 
-[2.0.0-ALPHA-1]: https://github.com/pinterest/ktlint/compare/2.0.0-ALPHA-1...1.8.0
+[2.0.0-ALPHA-2]: https://github.com/pinterest/ktlint/compare/2.0.0-ALPHA-1...1.8.0
 [1.8.0]: https://github.com/pinterest/ktlint/compare/1.8.0...1.7.1
 [1.7.1]: https://github.com/pinterest/ktlint/compare/1.7.1...1.7.0
 [1.7.0]: https://github.com/pinterest/ktlint/compare/1.7.0...1.6.0
