@@ -51,7 +51,7 @@ internal class RuleExecutionContext private constructor(
     /**
      * While traversing the AST, execute all rules on an AST Node before proceeding to the next AST Node.
      */
-    fun executeRulesOnAST(
+    private fun executeRulesOnAST(
         rules: List<RuleV2>,
         autocorrectHandler: AutocorrectHandler,
         emitAndApprove: (offset: Int, ruleId: RuleId, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
@@ -59,30 +59,7 @@ internal class RuleExecutionContext private constructor(
         try {
             rules.forEach { rule ->
                 rule.startTraversalOfAST()
-                rule.beforeFirstNode(
-                    // The rule gets access to an EditConfig which is filtered by the properties which are actually registered as being used by
-                    // the rule. In this way it can be forced that the rule actually registers the properties that it uses and the field becomes
-                    // reliable to be used by for example the ".editorconfig" file generator.
-                    editorConfig.filterBy(
-                        rule.usesEditorConfigProperties
-                            // Provide the CODE_STYLE_PROPERTY as this property is needed to determine the default value of an
-                            // EditorConfigProperty that is not explicitly defined.
-                            .plus(CODE_STYLE_PROPERTY)
-                            // Provide the rule execution property for the "standard:max-line-length" property based on whether a rule provider
-                            // for this rule exists. This property is required to determine whether the property `max_line_length` needs to be
-                            // taken into account.
-                            .plus(
-                                RuleId("standard:max-line-length")
-                                    .createRuleExecutionEditorConfigProperty(
-                                        if (ruleProviders.any { it.ruleId.value == "standard:max-line-length" }) {
-                                            RuleExecution.enabled
-                                        } else {
-                                            RuleExecution.disabled
-                                        },
-                                    ),
-                            ),
-                    ),
-                )
+                rule.execute { it.beforeFirstNode(it.editorConfig()) }
             }
             this.executeRulesOnNodeRecursively(
                 rootNode,
@@ -90,7 +67,9 @@ internal class RuleExecutionContext private constructor(
                 autocorrectHandler,
                 emitAndApprove,
             )
-            rules.forEach { rule -> rule.afterLastNode() }
+            rules.forEach { rule ->
+                rule.execute { it.afterLastNode() }
+            }
         } catch (e: RuleExecutionException) {
             throw KtLintRuleException(
                 e.line,
@@ -104,6 +83,43 @@ internal class RuleExecutionContext private constructor(
                 """.trimIndent(),
                 e.cause,
             )
+        }
+    }
+
+    // The rule gets access to an EditConfig which is filtered by the properties which are actually registered as being used by the rule. In
+    // this way it can be forced that the rule actually registers the properties that it uses and the field becomes reliable to be used by
+    // for example the ".editorconfig" file generator.
+    private fun RuleV2.editorConfig(): EditorConfig =
+        editorConfig.filterBy(
+            usesEditorConfigProperties
+                // Provide the CODE_STYLE_PROPERTY as this property is needed to determine the default value of an EditorConfigProperty that
+                // is not explicitly defined.
+                .plus(CODE_STYLE_PROPERTY)
+                // Provide the rule execution property for the "standard:max-line-length" property based on whether a rule provider for this
+                // rule exists. This property is required to determine whether the property `max_line_length` needs to be taken into
+                // account.
+                .plus(
+                    RuleId("standard:max-line-length")
+                        .createRuleExecutionEditorConfigProperty(
+                            if (ruleProviders.any { it.ruleId.value == "standard:max-line-length" }) {
+                                RuleExecution.enabled
+                            } else {
+                                RuleExecution.disabled
+                            },
+                        ),
+                ),
+        )
+
+    private fun RuleV2.execute(action: (RuleV2) -> Unit) {
+        try {
+            action(this)
+        } catch (e: KtLintParseException) {
+            throw e
+        } catch (e: RuleExecutionException) {
+            throw e
+        } catch (e: Exception) {
+            // Wrap remaining exception. Line and column can not be determined for this type of exception
+            throw RuleExecutionException(this, line = 0, col = 0, e)
         }
     }
 
