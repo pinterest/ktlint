@@ -72,7 +72,7 @@ jobs:
 
       - uses: ./.github/actions/build-native-image
         with:
-          output-name: ktlint-cli/build/run/ktlint_${{ env.SUFFIX }}
+          output-name: ktlint_${{ env.SUFFIX }}
 
   publish:
     runs-on: ubuntu-latest
