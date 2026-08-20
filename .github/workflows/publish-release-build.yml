@@ -8,25 +8,15 @@ on:
       - '*.*.*'
 
 jobs:
-  publish:
+  prepare:
     runs-on: ubuntu-latest
     if: github.repository == 'ktlint/ktlint'
-
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: 'master'
 
       - uses: ./.github/actions/setup-gradle-build
-
-      - name: Build executable and publish to Maven
-        run: ./gradlew clean ktlintCliFiles publishMavenPublicationToMavenCentralRepository
-        env:
-          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.CENTRAL_PORTAL_USERNAME_KTLINT_2 }}
-          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.CENTRAL_PORTAL_TOKEN_KTLINT_2 }}
-          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEY_KTLINT_2 }}
-          ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID_KTLINT_2 }}
-          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD_KTLINT_2 }}
 
       - name: Validate changelog.md
         id: validate_changelog
@@ -50,6 +40,61 @@ jobs:
         if: ${{ success() }}
         run: echo "version=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
 
+      - name: Build executable
+        run: ./gradlew clean build ktlintCliFiles
+
+  build-native-image:
+    name: "Build GraalVM native-image (${{ matrix.os }})"
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+    needs: prepare
+    if: github.repository == 'ktlint/ktlint'
+    strategy:
+      matrix:
+        # ubuntu-22.04 is pinned (not ubuntu-latest) so the native binary links against an older glibc
+        # (2.35), keeping it compatible with RHEL 8, CentOS 7, Debian 11, etc. See
+        # https://github.com/google/google-java-format/issues/1072. Bump when either (a) GitHub deprecates
+        # the ubuntu-22.04 runner, or (b) a real user need requires a newer glibc feature.
+        os: [ubuntu-22.04, macos-latest, windows-latest]
+    env:
+      SUFFIX: ${{ fromJson('{"ubuntu-22.04":"linux-x86-64","macos-latest":"darwin-arm64","windows-latest":"windows-x86-64"}')[matrix.os] }}
+      EXTENSION: ${{ matrix.os == 'windows-latest' && '.exe' || '' }}
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: 'master'
+
+#      - name: Get version
+#        run: echo "version=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+#        shell: bash
+
+      - uses: ./.github/actions/build-native-image
+        with:
+          output-name: ktlint-cli/build/run/ktlint_${{ env.SUFFIX }}
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: [prepare, build-native-image]
+    if: github.repository == 'ktlint/ktlint'
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: 'master'
+
+      - uses: ./.github/actions/setup-gradle-build
+
+      - name: Publish to Maven
+        run: ./gradlew ktlintCliFiles publishMavenPublicationToMavenCentralRepository
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.CENTRAL_PORTAL_USERNAME_KTLINT_2 }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.CENTRAL_PORTAL_TOKEN_KTLINT_2 }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEY_KTLINT_2 }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID_KTLINT_2 }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD_KTLINT_2 }}
+
       - name: Create zip for dependency manager(s)
         if: ${{ success() }}
         run: |
@@ -58,13 +103,13 @@ jobs:
           cp ktlint ktlint-${{ env.version }}/bin
           zip -rm ktlint-${{ env.version }}.zip ktlint-${{ env.version }}
 
-      - name: Create release
+      - name: Create GitHub release
         id: github_release
         if: ${{ success() }}
         uses: softprops/action-gh-release@v3
         with:
           draft: false
-          prerelease: false
+          prerelease: ${{ contains(env.version,'-') }}
           body: ${{ steps.release_notes.outputs.release_notes }}
           files: |
             ktlint-cli/build/run/*
@@ -90,41 +135,3 @@ jobs:
           ./.announce -y
         env:
           VERSION: ${{ env.version }}
-
-  build-native-image:
-    name: "Build GraalVM native-image (${{ matrix.os }})"
-    runs-on: ${{ matrix.os }}
-    permissions:
-      contents: write
-    needs: publish
-    if: github.repository == 'ktlint/ktlint'
-    strategy:
-      matrix:
-        # ubuntu-22.04 is pinned (not ubuntu-latest) so the native binary links against an older glibc
-        # (2.35), keeping it compatible with RHEL 8, CentOS 7, Debian 11, etc. See
-        # https://github.com/google/google-java-format/issues/1072. Bump when either (a) GitHub deprecates
-        # the ubuntu-22.04 runner, or (b) a real user need requires a newer glibc feature.
-        os: [ubuntu-22.04, macos-latest, windows-latest]
-    env:
-      SUFFIX: ${{ fromJson('{"ubuntu-22.04":"linux-x86-64","macos-latest":"darwin-arm64","windows-latest":"windows-x86-64"}')[matrix.os] }}
-      EXTENSION: ${{ matrix.os == 'windows-latest' && '.exe' || '' }}
-
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          ref: 'master'
-
-      - name: Get version
-        run: echo "version=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
-        shell: bash
-
-      - uses: ./.github/actions/build-native-image
-        with:
-          output-name: ktlint_${{ env.SUFFIX }}
-
-      - name: Upload native binary to release
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-        run: gh release upload "${{ github.ref_name }}" "ktlint_${{ env.SUFFIX }}${{ env.EXTENSION }}"
-        shell: bash
