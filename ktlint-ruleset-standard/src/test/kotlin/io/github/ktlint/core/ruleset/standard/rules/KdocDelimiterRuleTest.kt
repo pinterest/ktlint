@@ -730,32 +730,29 @@ class KdocDelimiterRuleTest {
         }
     }
 
-    @Nested
-    inner class `Given the code style is not ktlint_official` {
-        @ParameterizedTest(name = "code style: {0}")
-        @EnumSource(
-            value = CodeStyleValue::class,
-            mode = EnumSource.Mode.EXCLUDE,
-            names = ["ktlint_official"],
-        )
-        fun `Given a malformed KDoc comment and a code style other than ktlint_official then the rule can still be run explicitly`(
-            codeStyleValue: CodeStyleValue,
-        ) {
-            val code =
-                """
-                /**A group of *members* */
-                class Foo
-                """.trimIndent()
-            val formattedCode =
-                """
-                /** A group of *members* */
-                class Foo
-                """.trimIndent()
-            kdocDelimiterRuleAssertThat(code)
-                .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyleValue)
-                .withEditorConfigOverride(KDOC_DELIMITER_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled)
-                .hasLintViolation(1, 1, "A single-line KDoc comment should start with '/** '")
-                .isFormattedAs(formattedCode)
-        }
+    @ParameterizedTest(name = "code style: {0}")
+    @EnumSource(
+        value = CodeStyleValue::class,
+        mode = EnumSource.Mode.EXCLUDE,
+        names = ["ktlint_official"],
+    )
+    fun `Given a malformed KDoc comment and a code style other than ktlint_official then the rule can still be run explicitly`(
+        codeStyleValue: CodeStyleValue,
+    ) {
+        val code =
+            """
+            /**A group of *members* */
+            class Foo
+            """.trimIndent()
+        val formattedCode =
+            """
+            /** A group of *members* */
+            class Foo
+            """.trimIndent()
+        kdocDelimiterRuleAssertThat(code)
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to codeStyleValue)
+            .withEditorConfigOverride(KDOC_DELIMITER_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled)
+            .hasLintViolation(1, 1, "A single-line KDoc comment should start with '/** '")
+            .isFormattedAs(formattedCode)
     }
 }

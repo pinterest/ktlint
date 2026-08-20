@@ -241,7 +241,7 @@ Suppress or disable rule (1)
 
 A single-line KDoc comment starts with `/** ` and ends with ` */`. A multi-line KDoc comment starts with a line containing only `/**`, ends with a line containing only `*/`, and every other line starts with a leading asterisk indented one space more than the opening `/**`, followed by a single space and the content of that line, or by nothing in case the line is empty. The line directly after the opening delimiter, and the line directly before the closing delimiter, must not be empty. An empty (or blank) KDoc comment is not allowed.
 
-Autocorrect is only applied to whitespace and delimiters, and only when doing so can not change the meaning, or the visual indentation, of the actual content of the KDoc comment. Most notably, a continuation line which is missing its leading asterisk is always reported without being autocorrected, as inserting the asterisk could change the intended visual indentation of that content.
+Autocorrect is only applied to whitespace and delimiters, and only when doing so will not change the meaning, or the visual indentation, of the actual content of the KDoc comment. Most notably, a continuation line which is missing its leading asterisk is always reported without being autocorrected, as inserting the asterisk could change the intended visual indentation of that content.
 
 === "[:material-heart:](#) Ktlint"
 
@@ -270,6 +270,16 @@ Autocorrect is only applied to whitespace and delimiters, and only when doing so
     /** A group of *members*.
      * This class has no useful logic; it's just a documentation example.
      */
+
+    /**
+     * A group of *members*.
+       This class has no useful logic; it's just a documentation example.
+     */
+
+    /**
+     * A group of *members*.
+     * This class has no useful logic; it's just a documentation example.
+    */
 
     /**
      *
