@@ -35,11 +35,6 @@ jobs:
         if: ${{ success() }}
         uses: ffurrer2/extract-release-notes@v3
 
-      - name: Get version
-        id: get_version
-        if: ${{ success() }}
-        run: echo "version=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
-
       - name: Build executable
         run: ./gradlew clean build ktlintCliFiles
 
@@ -94,6 +89,10 @@ jobs:
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEY_KTLINT_2 }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID_KTLINT_2 }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD_KTLINT_2 }}
+
+      - name: Get version
+        run: echo "version=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+        shell: bash
 
       - name: Create zip for dependency manager(s)
         if: ${{ success() }}
