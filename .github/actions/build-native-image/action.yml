@@ -25,10 +25,7 @@ runs:
         set-java-home: "false"
 
     - name: Build shadow JAR
-      run: |
-        ./gradlew :ktlint-cli:shadowJar
-        # Prepare output directory for native images
-        mkdir -p ktlint-cli/build/run
+      run: ./gradlew :ktlint-cli:shadowJar
       shell: bash
       env:
         # Signing is not needed for the shadow JAR — skip it to avoid missing-key failures
@@ -54,7 +51,7 @@ runs:
         -H:+ReportExceptionStackTraces
         -march=compatibility
         -jar "${{ env.SHADOW_JAR }}"
-        -o "ktlint-cli/build/run/${{ inputs.output-name }}"
+        -o "${{ inputs.output-name }}"
       shell: bash
 
     - name: Build native image (Windows)
