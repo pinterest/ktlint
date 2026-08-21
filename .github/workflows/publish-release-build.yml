@@ -60,25 +60,17 @@ jobs:
 #        run: echo "version=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
 #        shell: bash
 
-      - name: Create output directory for native images
-        run: mkdir -p ktlint-cli/build/run
-        shell: bash
-
       - name: Build the native image
         uses: ./.github/actions/build-native-image
         with:
-          output-name: ktlint-cli/build/run/ktlint_${{ env.SUFFIX }}
+          output-name: ktlint_${{ env.SUFFIX }}
 
-      - name: List native images
-        run: ls -alsh ktlint-cli/build/run
-        shell: bash
-
-      - name: Upload native images
-        id: upload-native-images
+      - name: Upload native image
+        id: upload-native-image
         uses: actions/upload-artifact@v7
         with:
-          name: native-images
-          path: ktlint-cli/build/run/
+          name: native-image-${{ env.SUFFIX }}
+          path: ktlint_${{ env.SUFFIX }}
           archive: false
 
   publish:
@@ -114,11 +106,12 @@ jobs:
           cp ktlint ktlint-${{ env.version }}/bin
           zip -rm ktlint-${{ env.version }}.zip ktlint-${{ env.version }}
 
-      - name: Download native images artifact
+      - name: Download native image artifacts
         uses: actions/download-artifact@v8
         with:
-          name: native-images
-      - run: ls -R native-images
+          path: ktlint-cli/native-images
+          merge-multiple: true
+      - run: ls -R ktlint-cli/native-images
 
       - name: List build artifacts 3
         run: ls -alsh ktlint-cli/build/run
@@ -139,7 +132,7 @@ jobs:
           body: ${{ steps.release_notes.outputs.release_notes }}
           files: |
             ktlint-cli/build/run/*
-            native-images/ktlint-cli/build/run
+            ktlint-cli/native-images/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
