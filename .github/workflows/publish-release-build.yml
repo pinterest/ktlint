@@ -47,8 +47,14 @@ jobs:
         # https://github.com/google/google-java-format/issues/1072. Bump when either (a) GitHub deprecates
         # the ubuntu-22.04 runner, or (b) a real user need requires a newer glibc feature.
         os: [ubuntu-22.04, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-22.04
+            arch: linux-x86-64
+          - os: macos-latest
+            arch: darwin-arm64
+          - os: windows-latest
+            arch: windows-x86-64
     env:
-      SUFFIX: ${{ fromJson('{"ubuntu-22.04":"linux-x86-64","macos-latest":"darwin-arm64","windows-latest":"windows-x86-64"}')[matrix.os] }}
       EXTENSION: ${{ matrix.os == 'windows-latest' && '.exe' || '' }}
 
     steps:
@@ -63,14 +69,14 @@ jobs:
       - name: Build the native image
         uses: ./.github/actions/build-native-image
         with:
-          output-name: ktlint_${{ env.SUFFIX }}
+          output-name: ktlint_${{ matrix.arch }}
 
       - name: Upload native image
         id: upload-native-image
         uses: actions/upload-artifact@v7
         with:
-          name: native-image-${{ env.SUFFIX }}
-          path: ktlint_${{ env.SUFFIX }}
+          name: native-image-${{ matrix.arch }}
+          path: ktlint_${{ matrix.arch }}
           archive: false
 
   publish:
