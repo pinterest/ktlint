@@ -135,9 +135,12 @@ jobs:
           draft: false
           prerelease: ${{ contains(env.version,'-') }}
           body: ${{ steps.release_notes.outputs.release_notes }}
+          fail_on_unmatched_files: true
           files: |
             ktlint-cli/build/run/*
-            ktlint-cli/native-images/*
+            ktlint-cli/native-images/ktlint_linux-x86-64
+            ktlint-cli/native-images/ktlint_darwin-arm64
+            ktlint-cli/native-images/ktlint_windows-x86-64.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
