@@ -78,6 +78,7 @@ jobs:
           name: native-image-${{ matrix.arch }}
           path: ktlint_${{ matrix.arch }}
           archive: false
+          if-no-files-found: error
 
   publish:
     runs-on: ubuntu-latest
