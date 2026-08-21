@@ -127,12 +127,14 @@ jobs:
         if: ${{ success() }}
         uses: ffurrer2/extract-release-notes@v3
 
-      - name: Create GitHub release
-        id: github_release
+      - name: Create GitHub (draft) release
+        id: github_draft_release
         if: ${{ success() }}
         uses: softprops/action-gh-release@v3
         with:
-          draft: false
+          # Create a draft release is required in case of a prerelease. By default, a prerelease is published which results in failure when
+          # uploading the artifacts
+          draft: true
           prerelease: ${{ contains(env.version,'-') }}
           body: ${{ steps.release_notes.outputs.release_notes }}
           fail_on_unmatched_files: true
@@ -163,3 +165,13 @@ jobs:
           ./.announce -y
         env:
           VERSION: ${{ env.version }}
+
+      - name: Publish GitHub release
+        if: ${{ success() }}
+        uses: softprops/action-gh-release@v3
+        with:
+          draft: false
+          prerelease: ${{ contains(env.version,'-') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
