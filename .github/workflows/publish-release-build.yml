@@ -73,8 +73,8 @@ jobs:
         id: upload-native-image
         uses: actions/upload-artifact@v7
         with:
-          name: ktlint_${{ matrix.output-name }}
-          path: ktlint_${{ matrix.output-name }}
+          name: ${{ matrix.output-name }}
+          path: ${{ matrix.output-name }}
           archive: false
           if-no-files-found: error
 
