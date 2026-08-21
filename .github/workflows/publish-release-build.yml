@@ -49,13 +49,11 @@ jobs:
         os: [ubuntu-22.04, macos-latest, windows-latest]
         include:
           - os: ubuntu-22.04
-            arch: linux-x86-64
+            output-name: ktlint_linux-x86-64
           - os: macos-latest
-            arch: darwin-arm64
+            output-name: ktlint_darwin-arm64
           - os: windows-latest
-            arch: windows-x86-64
-    env:
-      EXTENSION: ${{ matrix.os == 'windows-latest' && '.exe' || '' }}
+            output-name: ktlint_windows-x86-64.exe
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -69,14 +67,14 @@ jobs:
       - name: Build the native image
         uses: ./.github/actions/build-native-image
         with:
-          output-name: ktlint_${{ matrix.arch }}
+          output-name: ${{ matrix.output-name }}
 
       - name: Upload native image
         id: upload-native-image
         uses: actions/upload-artifact@v7
         with:
-          name: native-image-${{ matrix.arch }}
-          path: ktlint_${{ matrix.arch }}
+          name: ktlint_${{ matrix.output-name }}
+          path: ktlint_${{ matrix.output-name }}
           archive: false
           if-no-files-found: error
 
