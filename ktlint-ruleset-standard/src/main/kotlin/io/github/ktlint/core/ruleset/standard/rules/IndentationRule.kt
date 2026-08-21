@@ -1280,14 +1280,14 @@ public class IndentationRule :
     private fun ASTNode.acceptableTrailingSpaces(): String {
         require(isWhiteSpace)
         val acceptableTrailingSpaces =
-            when (nextLeaf?.elementType) {
-                KDOC_LEADING_ASTERISK, KDOC_END -> {
+            when {
+                nextLeaf?.elementType == KDOC_LEADING_ASTERISK || nextLeaf?.elementType == KDOC_END -> {
                     // The indentation of a KDoc comment contains a space as the last character regardless of the indentation
                     // style (tabs or spaces) except for the starting line of the KDoc comment
                     KDOC_CONTINUATION_INDENT
                 }
 
-                TYPE_CONSTRAINT -> {
+                nextCodeSibling?.elementType == TYPE_CONSTRAINT -> {
                     // 6 spaces (length of "where" keyword plus a separator space) to indent type constraints as below:
                     //    where A1 : RecyclerView.Adapter<V1>,
                     //          A1 : ComposableAdapter.ViewTypeProvider,

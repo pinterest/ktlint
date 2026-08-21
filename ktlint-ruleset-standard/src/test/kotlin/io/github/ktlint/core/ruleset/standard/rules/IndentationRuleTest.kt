@@ -1486,6 +1486,23 @@ internal class IndentationRuleTest {
     @Nested
     inner class `Given a KDoc` {
         @Test
+        fun `Given a correctly indented KDoc with tab indentation`() {
+            val code =
+                """
+                class Foo {
+                ${TAB}/**
+                ${TAB} * Some comment
+                ${TAB} */
+                ${TAB}fun foo() = "foo"
+                }
+                """.trimIndent()
+
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(INDENT_STYLE_TAB)
+                .hasNoLintViolations()
+        }
+
+        @Test
         fun `Given some correctly indented KDoc`() {
             val code =
                 """
@@ -2810,6 +2827,40 @@ internal class IndentationRuleTest {
     @Nested
     inner class `Issue 3362 - Given the WHERE keyword and tab indentation` {
         @Test
+        fun `Given a comma at the start of a continuation line`() {
+            val code =
+                """
+                private fun <T> example(value: T)
+                ${TAB}where T : First
+                ${TAB}      , T : Second {
+                ${TAB}println(value)
+                }
+                """.trimIndent()
+
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(INDENT_STYLE_TAB)
+                .hasLintViolation(3, 1, "Unexpected space character(s)")
+        }
+
+        @Test
+        fun `Given comments before a type constraint`() {
+            val code =
+                """
+                private fun <T> example(value: T)
+                ${TAB}where T : First,
+                ${TAB}      // Line comment before the second constraint
+                ${TAB}      /* Block comment before the second constraint */
+                ${TAB}      T : Second {
+                ${TAB}println(value)
+                }
+                """.trimIndent()
+
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(INDENT_STYLE_TAB)
+                .hasNoLintViolations()
+        }
+
+        @Test
         fun `Given a function with WHERE on a separate line`() {
             val code =
                 """
@@ -2839,6 +2890,10 @@ internal class IndentationRuleTest {
             indentationRuleAssertThat(code)
                 .withEditorConfigOverride(INDENT_STYLE_TAB)
                 .isFormattedAs(formattedCode)
+
+            indentationRuleAssertThat(formattedCode)
+                .withEditorConfigOverride(INDENT_STYLE_TAB)
+                .hasNoLintViolations()
         }
     }
 
