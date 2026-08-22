@@ -1,17 +1,17 @@
 # Welcome to Ktlint
 
-<h1 align="center">
+<p style="text-align: center;">
 <a href="https://ktlint.github.io/ktlint/">
-  <img src="https://cloud.githubusercontent.com/assets/370176/26518284/38b680da-4262-11e7-8d27-2b9e849fb55f.png"/>
+  <img src="https://cloud.githubusercontent.com/assets/370176/26518284/38b680da-4262-11e7-8d27-2b9e849fb55f.png" alt="KtLint logo with tag line 'An anti-bikeshedding Kotlin linter with built-in formatter.'"/>
 </a>
-</h1>
-<p align="center">
+</p>
+<p style="text-align: center;">
 <a href="https://kotlinlang.slack.com/messages/CKS3XG0LS"><img src="https://img.shields.io/badge/slack-@kotlinlang/ktlint-yellow.svg?logo=slack" alt="Join the chat at https://kotlinlang.slack.com"/></a>
 <a href="https://github.com/ktlint/ktlint/actions?query=workflow%3A%22Publish+snapshot+build%22"><img src="https://github.com/ktlint/ktlint/workflows/Publish%20snapshot%20build/badge.svg" alt="Build status snapshot"></a>
 <a href="https://central.sonatype.com/artifact/com.pinterest.ktlint/ktlint-cli?smo=true"><img src="https://img.shields.io/maven-central/v/com.pinterest.ktlint/ktlint-cli.svg" alt="Maven Central"></a>
 <a href="https://ktlint.github.io/ktlint/"><img src="https://img.shields.io/badge/ktlint%20code--style-%E2%9D%A4-FF4081.svg" alt="ktlint"></a>
 </p>
-<p align="center">
+<p style="text-align: center;">
 <a href="https://kotlinlang.org/">Kotlin</a> linter in spirit of <a href="https://github.com/feross/standard">feross/standard</a> (JavaScript) and <a href="https://golang.org/cmd/gofmt/">gofmt</a> (Go).  
 </p>
 
@@ -29,13 +29,14 @@
   Most lint violations don't need to be fixed manually. `ktlint` has a built-in formatter which fixes violations when possible. Some violations can not be fixed in a deterministic way, and need manual action.
 - **Customizable output**
   Several reporters are available out-of-the-box: `plain` (+ `plain?group_by_file`), `plain-summary`, `json`, `html` and `checkstyle`.
-  It's also easy to [create a custom reporter](api/custom-reporter/).
-- **Executable jar**  
-  `ktlint` is released as a single executable jar with all dependencies included.
+  It's also easy to [create a custom reporter](api/custom-reporter.md).
+- **Executable jar and native binaries**  
+  `ktlint` is released as an executable jar with all dependencies included and as native executables for Linux, macOS, and Windows.
 
 ## Legal
 
 This project is not affiliated with nor endorsed by JetBrains.  
 All code, unless specified otherwise, is licensed under the [MIT](https://opensource.org/licenses/MIT) license.  
-Copyright (c) 2019 Pinterest, Inc.  
+Copyright (c) 2026 Ktlint  
+Copyright (c) 2019-2026 Pinterest, Inc.  
 Copyright (c) 2016-2019 Stanley Shyiko.
