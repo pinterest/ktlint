@@ -1338,7 +1338,7 @@ Indentation formatting - respects `.editorconfig` `indent_size` with no continua
     ```
 
 !!! note
-    This rule handles indentation for many different language constructs which can not be summarized with a few examples. See the [unit tests](https://github.com/ktlint/ktlint/blob/master/ktlint-ruleset-standard/src/test/kotlin/com/ktlint/ktlint/ruleset/standard/rules/IndentationRuleTest.kt) for more details.
+    This rule handles indentation for many different language constructs which can not be summarized with a few examples. See the [unit tests](https://github.com/ktlint/ktlint/blob/master/ktlint-ruleset-standard/src/test/kotlin/io/github/ktlint/core/ruleset/standard/rules/IndentationRuleTest.kt) for more details.
 
 | Configuration setting                                                                                                                                                                                                                                                                             | ktlint_official | intellij_idea | android_studio |
 |:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------:|:-------------:|:--------------:|
