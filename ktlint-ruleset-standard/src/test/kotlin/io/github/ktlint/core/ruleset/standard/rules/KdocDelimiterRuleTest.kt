@@ -114,8 +114,7 @@ class KdocDelimiterRuleTest {
                 /***/
                 class Foo
                 """.trimIndent()
-            kdocDelimiterRuleAssertThat(code)
-                .hasLintViolationWithoutAutoCorrect(1, 4, "An empty KDoc comment is not allowed")
+            kdocDelimiterRuleAssertThat(code).hasLintViolationWithoutAutoCorrect(1, 4, "An empty KDoc comment is not allowed")
         }
 
         @Test
@@ -125,8 +124,7 @@ class KdocDelimiterRuleTest {
                 /** */
                 class Foo
                 """.trimIndent()
-            kdocDelimiterRuleAssertThat(code)
-                .hasLintViolationWithoutAutoCorrect(1, 4, "An empty KDoc comment is not allowed")
+            kdocDelimiterRuleAssertThat(code).hasLintViolationWithoutAutoCorrect(1, 4, "An empty KDoc comment is not allowed")
         }
 
         @Test
@@ -137,14 +135,12 @@ class KdocDelimiterRuleTest {
                  */
                 class Foo
                 """.trimIndent()
-            kdocDelimiterRuleAssertThat(code)
-                .hasLintViolationWithoutAutoCorrect(1, 4, "An empty KDoc comment is not allowed")
+            kdocDelimiterRuleAssertThat(code).hasLintViolationWithoutAutoCorrect(1, 4, "An empty KDoc comment is not allowed")
         }
     }
 
     @Nested
     inner class `Given a malformed opening or closing` {
-        @Suppress("ktlint:standard:max-line-length")
         @Test
         fun `Given a KDoc comment starting with an additional asterisk then do report but not autocorrect`() {
             // The extra asterisk becomes part of the actual content, so this is caught by the general check on
@@ -156,15 +152,16 @@ class KdocDelimiterRuleTest {
                  */
                 class Foo
                 """.trimIndent()
-            kdocDelimiterRuleAssertThat(code)
-                .hasLintViolationWithoutAutoCorrect(
-                    1,
-                    4,
-                    "Opening '/**' of a multi-line KDoc comment should not be followed by any other text on the same line",
-                )
+            @Suppress("ktlint:standard:max-line-length")
+            kdocDelimiterRuleAssertThat(
+                code,
+            ).hasLintViolationWithoutAutoCorrect(
+                1,
+                4,
+                "Opening '/**' of a multi-line KDoc comment should not be followed by any other text on the same line",
+            )
         }
 
-        @Suppress("ktlint:standard:max-line-length")
         @Test
         fun `Given a KDoc comment starting with multiple additional asterisks then do report but not autocorrect`() {
             val code =
@@ -174,12 +171,14 @@ class KdocDelimiterRuleTest {
                  */
                 class Foo
                 """.trimIndent()
-            kdocDelimiterRuleAssertThat(code)
-                .hasLintViolationWithoutAutoCorrect(
-                    1,
-                    4,
-                    "Opening '/**' of a multi-line KDoc comment should not be followed by any other text on the same line",
-                )
+            @Suppress("ktlint:standard:max-line-length")
+            kdocDelimiterRuleAssertThat(
+                code,
+            ).hasLintViolationWithoutAutoCorrect(
+                1,
+                4,
+                "Opening '/**' of a multi-line KDoc comment should not be followed by any other text on the same line",
+            )
         }
 
         @Suppress("ktlint:standard:max-line-length")
@@ -204,7 +203,6 @@ class KdocDelimiterRuleTest {
                 ).isFormattedAs(formattedCode)
         }
 
-        @Suppress("ktlint:standard:max-line-length")
         @Test
         fun `Given a multi-line KDoc comment for which the body starts on the opening line then do report but not autocorrect`() {
             val code =
@@ -214,15 +212,16 @@ class KdocDelimiterRuleTest {
                  */
                 class Foo
                 """.trimIndent()
-            kdocDelimiterRuleAssertThat(code)
-                .hasLintViolationWithoutAutoCorrect(
-                    1,
-                    4,
-                    "Opening '/**' of a multi-line KDoc comment should not be followed by any other text on the same line",
-                )
+            @Suppress("ktlint:standard:max-line-length")
+            kdocDelimiterRuleAssertThat(
+                code,
+            ).hasLintViolationWithoutAutoCorrect(
+                1,
+                4,
+                "Opening '/**' of a multi-line KDoc comment should not be followed by any other text on the same line",
+            )
         }
 
-        @Suppress("ktlint:standard:max-line-length")
         @Test
         fun `Given a multi-line KDoc comment for which the body ends on the closing line then do report but not autocorrect`() {
             val code =
@@ -232,12 +231,14 @@ class KdocDelimiterRuleTest {
                  * This class has no useful logic; it's just a documentation example. */
                 class Foo
                 """.trimIndent()
-            kdocDelimiterRuleAssertThat(code)
-                .hasLintViolationWithoutAutoCorrect(
-                    3,
-                    71,
-                    "Closing '*/' of a multi-line KDoc comment should not be preceded by any other text on the same line",
-                )
+            @Suppress("ktlint:standard:max-line-length")
+            kdocDelimiterRuleAssertThat(
+                code,
+            ).hasLintViolationWithoutAutoCorrect(
+                3,
+                71,
+                "Closing '*/' of a multi-line KDoc comment should not be preceded by any other text on the same line",
+            )
         }
     }
 
@@ -315,7 +316,6 @@ class KdocDelimiterRuleTest {
                 ).isFormattedAs(formattedCode)
         }
 
-        @Suppress("ktlint:standard:max-line-length")
         @Test
         fun `Given a single-line KDoc comment ending with an extra closing asterisk then only report the violation`() {
             // The extra asterisk is real content (e.g. the closing asterisk of markdown emphasis) that needs to be
@@ -327,8 +327,7 @@ class KdocDelimiterRuleTest {
                 /** A group of *members**/
                 class Foo
                 """.trimIndent()
-            kdocDelimiterRuleAssertThat(code)
-                .hasLintViolationWithoutAutoCorrect(1, 24, "A single-line KDoc comment should end with ' */'")
+            kdocDelimiterRuleAssertThat(code).hasLintViolationWithoutAutoCorrect(1, 24, "A single-line KDoc comment should end with ' */'")
         }
     }
 
@@ -429,7 +428,6 @@ class KdocDelimiterRuleTest {
 
     @Nested
     inner class `Given a missing leading asterisk` {
-        @Suppress("ktlint:standard:max-line-length")
         @Test
         fun `Given a continuation line without a leading asterisk which is indented at least as much as required then only report the violation`() {
             val code =
@@ -442,15 +440,12 @@ class KdocDelimiterRuleTest {
                     fun bar() {}
                 }
                 """.trimIndent()
-            kdocDelimiterRuleAssertThat(code)
-                .hasLintViolationWithoutAutoCorrect(
-                    4,
-                    9,
-                    "Each line of a multi-line KDoc comment should start with a leading asterisk",
-                )
+            @Suppress("ktlint:standard:max-line-length")
+            kdocDelimiterRuleAssertThat(
+                code,
+            ).hasLintViolationWithoutAutoCorrect(4, 9, "Each line of a multi-line KDoc comment should start with a leading asterisk")
         }
 
-        @Suppress("ktlint:standard:max-line-length")
         @Test
         fun `Given a continuation line without a leading asterisk which is not indented at all then only report the violation`() {
             val code =
@@ -463,12 +458,10 @@ class KdocDelimiterRuleTest {
                     fun foo() {}
                 }
                 """.trimIndent()
-            kdocDelimiterRuleAssertThat(code)
-                .hasLintViolationWithoutAutoCorrect(
-                    4,
-                    1,
-                    "Each line of a multi-line KDoc comment should start with a leading asterisk",
-                )
+            @Suppress("ktlint:standard:max-line-length")
+            kdocDelimiterRuleAssertThat(
+                code,
+            ).hasLintViolationWithoutAutoCorrect(4, 1, "Each line of a multi-line KDoc comment should start with a leading asterisk")
         }
 
         @Test
@@ -483,12 +476,10 @@ class KdocDelimiterRuleTest {
                     fun foo() {}
                 }
                 """.trimIndent()
-            kdocDelimiterRuleAssertThat(code)
-                .hasLintViolationWithoutAutoCorrect(
-                    4,
-                    3,
-                    "Each line of a multi-line KDoc comment should start with a leading asterisk",
-                )
+            @Suppress("ktlint:standard:max-line-length")
+            kdocDelimiterRuleAssertThat(
+                code,
+            ).hasLintViolationWithoutAutoCorrect(4, 3, "Each line of a multi-line KDoc comment should start with a leading asterisk")
         }
 
         @Test
