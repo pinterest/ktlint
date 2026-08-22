@@ -1,18 +1,14 @@
 First off, thanks for taking the time to contribute! This guide will answer some common questions about how this project works.
 
-While this is a Pinterest open source project, we welcome contributions from everyone. Regular outside contributors can become project maintainers.
+We welcome contributions from everyone. Regular contributors can become project maintainers.
 
 ## Help
 
 If you're having trouble using this project, please start by reading all documentation and searching for solutions in the existing open and closed issues.
 
-## Security
-
-If you've found a security issue in one of our open source projects, please report it at [Bugcrowd](https://bugcrowd.com/pinterest); you may even make some money!
-
 ## Code of Conduct
 
-Please be sure to read and understand our [code of conduct](code-of-conduct.md). We work hard to ensure that our projects are welcoming and inclusive to as many people as possible.
+Please be sure to read and understand our [code of conduct](code-of-conduct.md).
 
 ## Reporting Issues
 
