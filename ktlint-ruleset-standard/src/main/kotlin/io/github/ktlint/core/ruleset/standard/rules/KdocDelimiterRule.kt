@@ -166,12 +166,30 @@ public class KdocDelimiterRule :
             val afterWhitespace = lineStartWhitespace.nextLeaf ?: break
 
             if (afterWhitespace.elementType == KDOC_LEADING_ASTERISK) {
-                checkContinuationIndent(
-                    lineStartWhitespace,
-                    expectedContinuationIndent,
-                    "Leading asterisk should align with the first asterisk of the KDoc opening '/**'",
-                    emit,
-                )
+                val actualIndent = lineStartWhitespace.text.substringAfterLast('\n')
+                if (actualIndent != expectedContinuationIndent) {
+                    // Given code sample below, the lines for "option 1" and "option 2" below do start with an actual leading asterisk but
+                    // are not properly indented. However, the intent of the developer can not be determined here with certainty.
+                    //    /**
+                    //     * However, in case below:
+                    //        * option 1
+                    //        * option 2
+                    //     * following applies: some more text.
+                    //     */
+                    // A possible intent could be that it should have been formatted as:
+                    //    /**
+                    //     * However, in case below:
+                    //     *   * option 1
+                    //     *   * option 2
+                    //     * following applies: some more text.
+                    //     */
+                    val prefixLength = lineStartWhitespace.text.length - actualIndent.length
+                    emit(
+                        lineStartWhitespace.startOffset + prefixLength,
+                        "Leading asterisk is not properly aligned with the first asterisk of the KDoc opening '/**'",
+                        false,
+                    )
+                }
                 checkContentAfterLeadingAsterisk(afterWhitespace, emit)
             } else {
                 emit(
@@ -238,14 +256,13 @@ public class KdocDelimiterRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         val actualIndent = whitespace.text.substringAfterLast('\n')
-        if (actualIndent == expectedIndent) {
-            return
+        if (actualIndent != expectedIndent) {
+            val prefixLength = whitespace.text.length - actualIndent.length
+            emit(whitespace.startOffset + prefixLength, errorMessage, true)
+                .ifAutocorrectAllowed {
+                    whitespace.replaceTextWith(whitespace.text.substring(0, prefixLength) + expectedIndent)
+                }
         }
-        val prefixLength = whitespace.text.length - actualIndent.length
-        emit(whitespace.startOffset + prefixLength, errorMessage, true)
-            .ifAutocorrectAllowed {
-                whitespace.replaceTextWith(whitespace.text.substring(0, prefixLength) + expectedIndent)
-            }
     }
 
     private fun checkContentAfterLeadingAsterisk(

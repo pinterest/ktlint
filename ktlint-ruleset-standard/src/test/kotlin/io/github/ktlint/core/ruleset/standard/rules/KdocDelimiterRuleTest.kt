@@ -331,99 +331,26 @@ class KdocDelimiterRuleTest {
         }
     }
 
-    @Nested
-    inner class `Given a multi-line KDoc comment with misaligned lines` {
-        @Test
-        fun `Given a leading asterisk which is not aligned with the opening then reformat`() {
-            val code =
-                """
-                /**
-                   * A group of *members*.
-                 */
-                class Foo
-                """.trimIndent()
-            val formattedCode =
-                """
-                /**
-                 * A group of *members*.
-                 */
-                class Foo
-                """.trimIndent()
-            kdocDelimiterRuleAssertThat(code)
-                .hasLintViolation(2, 1, "Leading asterisk should align with the first asterisk of the KDoc opening '/**'")
-                .isFormattedAs(formattedCode)
-        }
 
-        @Test
-        fun `Given a closing marker which is not aligned with the leading asterisks then reformat`() {
-            val code =
-                """
+    @Test
+    fun `Given a closing marker which is not aligned with the leading asterisks then reformat`() {
+        val code =
+            """
                 /**
                  * A group of *members*.
                    */
                 class Foo
                 """.trimIndent()
-            val formattedCode =
-                """
+        val formattedCode =
+            """
                 /**
                  * A group of *members*.
                  */
                 class Foo
                 """.trimIndent()
-            kdocDelimiterRuleAssertThat(code)
-                .hasLintViolation(3, 1, "Closing '*/' should align with the leading asterisks of the KDoc comment")
-                .isFormattedAs(formattedCode)
-        }
-
-        @Test
-        fun `Given a nested KDoc comment with a misaligned leading asterisk then reformat`() {
-            val code =
-                """
-                class Foo {
-                    /**
-                       * Some bar KDoc.
-                     */
-                    fun bar() {}
-                }
-                """.trimIndent()
-            val formattedCode =
-                """
-                class Foo {
-                    /**
-                     * Some bar KDoc.
-                     */
-                    fun bar() {}
-                }
-                """.trimIndent()
-            kdocDelimiterRuleAssertThat(code)
-                .hasLintViolation(3, 1, "Leading asterisk should align with the first asterisk of the KDoc opening '/**'")
-                .isFormattedAs(formattedCode)
-        }
-
-        @Test
-        fun `Given a leading asterisk indented with a tab then reformat`() {
-            val code =
-                """
-                class Foo {
-                $TAB/**
-                $TAB$TAB* Some bar KDoc.
-                $TAB */
-                ${TAB}fun bar() {}
-                }
-                """.trimIndent()
-            val formattedCode =
-                """
-                class Foo {
-                $TAB/**
-                $TAB * Some bar KDoc.
-                $TAB */
-                ${TAB}fun bar() {}
-                }
-                """.trimIndent()
-            kdocDelimiterRuleAssertThat(code)
-                .hasLintViolation(3, 1, "Leading asterisk should align with the first asterisk of the KDoc opening '/**'")
-                .isFormattedAs(formattedCode)
-        }
+        kdocDelimiterRuleAssertThat(code)
+            .hasLintViolation(3, 1, "Closing '*/' should align with the leading asterisks of the KDoc comment")
+            .isFormattedAs(formattedCode)
     }
 
     @Nested
@@ -504,14 +431,13 @@ class KdocDelimiterRuleTest {
 
         @Test
         fun `Given two consecutive lines with a deeply misaligned leading asterisk then reformat each individually`() {
-            // Note that both lines below do start with an actual leading asterisk (unlike the other tests in this
-            // class), just at a deeper indentation. As for any other misaligned leading asterisk, the asterisk
-            // itself is realigned without touching the content that follows it.
+            // Note that lines for "option 1" and "option 2" below do start with an actual leading asterisk but are not properly indented.
+            // The intent of the developer can not be determined here.
             val code =
                 """
                 class Bar {
                     /**
-                     *  However, in case below
+                     * However, in case below:
                             * option 1
                             * option 2
                      * following applies: some more text.
@@ -519,23 +445,36 @@ class KdocDelimiterRuleTest {
                     fun bar() {}
                 }
                 """.trimIndent()
-            val formattedCode =
+            @Suppress("ktlint:standard:max-line-length")
+            kdocDelimiterRuleAssertThat(code)
+                .hasLintViolationsWithoutAutoCorrect(
+                    LintViolation(4, 1, "Leading asterisk is not properly aligned with the first asterisk of the KDoc opening '/**'"),
+                    LintViolation(5, 1, "Leading asterisk is not properly aligned with the first asterisk of the KDoc opening '/**'"),
+                )
+        }
+
+        @Test
+        fun `Given two consecutive lines with a deeply misaligned leading asterisk using tab indents then reformat each individually`() {
+            // Note that lines for "option 1" and "option 2" below do start with an actual leading asterisk but are not properly indented.
+            // The intent of the developer can not be determined here.
+            val code =
                 """
                 class Bar {
-                    /**
-                     *  However, in case below
-                     * option 1
-                     * option 2
-                     * following applies: some more text.
-                     */
-                    fun bar() {}
+                $TAB/**
+                $TAB * However, in case below:
+                $TAB$TAB$TAB* option 1
+                $TAB$TAB$TAB* option 2
+                $TAB * following applies: some more text.
+                $TAB */
+                ${TAB}fun bar() {}
                 }
                 """.trimIndent()
+            @Suppress("ktlint:standard:max-line-length")
             kdocDelimiterRuleAssertThat(code)
-                .hasLintViolations(
-                    LintViolation(4, 1, "Leading asterisk should align with the first asterisk of the KDoc opening '/**'"),
-                    LintViolation(5, 1, "Leading asterisk should align with the first asterisk of the KDoc opening '/**'"),
-                ).isFormattedAs(formattedCode)
+                .hasLintViolationsWithoutAutoCorrect(
+                    LintViolation(4, 1, "Leading asterisk is not properly aligned with the first asterisk of the KDoc opening '/**'"),
+                    LintViolation(5, 1, "Leading asterisk is not properly aligned with the first asterisk of the KDoc opening '/**'"),
+                )
         }
     }
 
