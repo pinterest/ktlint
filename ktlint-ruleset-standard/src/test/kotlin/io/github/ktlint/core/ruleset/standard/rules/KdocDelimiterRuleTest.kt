@@ -307,23 +307,22 @@ class KdocDelimiterRuleTest {
         }
     }
 
-
     @Test
     fun `Given a closing marker which is not aligned with the leading asterisks then reformat`() {
         val code =
             """
-                /**
-                 * A group of *members*.
-                   */
-                class Foo
-                """.trimIndent()
+            /**
+             * A group of *members*.
+               */
+            class Foo
+            """.trimIndent()
         val formattedCode =
             """
-                /**
-                 * A group of *members*.
-                 */
-                class Foo
-                """.trimIndent()
+            /**
+             * A group of *members*.
+             */
+            class Foo
+            """.trimIndent()
         kdocDelimiterRuleAssertThat(code)
             .hasLintViolation(3, 1, "Closing '*/' should align with the leading asterisks of the KDoc comment")
             .isFormattedAs(formattedCode)
