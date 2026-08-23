@@ -7,13 +7,20 @@
 
 All releases of `ktlint` can be downloaded from the [releases](https://github.com/ktlint/ktlint/releases) page.
 
-### Download using curl
+Each release contains multiple ways to run `ktlint`:
 
-A particular version of `ktlint` can be downloaded with next command which also changes the file to an executable in directory `/usr/local/bin`:
+- `ktlint` is the executable JAR and requires a JVM.
+- `ktlint_linux-x86-64` is a native executable for Linux x86-64.
+- `ktlint_darwin-arm64` is a native executable for macOS Apple Silicon.
+- `ktlint_windows-x86-64.exe` is a native executable for Windows x86-64.
+- `ktlint.bat` starts the executable JAR on Windows.
 
-```sh title="Download"
-curl -sSLO https://github.com/ktlint/ktlint/releases/download/1.8.0/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
-```
+!!! warning "Native executables and custom rulesets/reporters"
+    The native executables (`ktlint_linux-x86-64`, `ktlint_darwin-arm64`, `ktlint_windows-x86-64.exe`) are ahead-of-time compiled with GraalVM `native-image` and cannot load ruleset or reporter JARs supplied at runtime via the command line. Only the built-in rulesets and reporters are available. If you need custom or third-party rulesets/reporters, use the executable JAR (`ktlint`) instead.
+
+### Download using curl (Linux or macOS)
+
+A particular version of `ktlint` can be downloaded with the commands below. Each command uses `curl` for downloading. The downloaded file will be renamed to `/usr/local/bin/ktlint` and changed to an executable file.
 
 !!! tip "Curl not installed or behind proxy"
     If you don't have curl installed - replace `curl -sL` with `wget -qO-`.  
@@ -22,14 +29,48 @@ curl -sSLO https://github.com/ktlint/ktlint/releases/download/1.8.0/ktlint && ch
     http_proxy=http://proxy-server:port https_proxy=http://proxy-server:port curl -sL ...
     ```
 
+```sh title="Download Linux native for x86-64"
+curl -sSLO https://github.com/ktlint/ktlint/releases/download/2.0.0-ALPHA-4/ktlint_linux-x86-64 && chmod a+x ktlint_linux-x86-64 && sudo mv ktlint_linux-x86-64 /usr/local/bin/ktlint
+```
+
+```sh title="Download macOS native for Apple Silicon"
+curl -sSLO https://github.com/ktlint/ktlint/releases/download/2.0.0-ALPHA-4/ktlint_darwin-arm64 && chmod a+x ktlint_darwin-arm64 && sudo mv ktlint_darwin-arm64 /usr/local/bin/ktlint
+```
+
+```sh title="Download executable JAR"
+curl -sSLO https://github.com/ktlint/ktlint/releases/download/2.0.0-ALPHA-4/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
+```
+
+### Download on Windows
+
+Download `ktlint_windows-x86-64.exe` from the [release](https://github.com/ktlint/ktlint/releases/tag/2.0.0-ALPHA-4) and add the directory containing it to your `%PATH%`.
+
+```powershell title="Download Windows native"
+Invoke-WebRequest -Uri https://github.com/ktlint/ktlint/releases/download/2.0.0-ALPHA-4/ktlint_windows-x86-64.exe -OutFile ktlint.exe
+```
+
+!!! tip "Run ktlint on Microsoft Windows"
+    Ktlint can be run in following ways on Microsoft Windows:    
+    * Use the native executable `ktlint_windows-x86-64.exe` provided as part of the [release](https://github.com/ktlint/ktlint/releases/tag/2.0.0-ALPHA-4)
+    * Use the `ktlint.bat` batch file provided as part of the release. Add the batch file to your `%PATH%` environment variable for easy access
+    * Run `ktlint` using Git Bash
+    * Run the executable JAR as `java -jar ktlint`
+
 ### Verification of download
 
 `ktlint.asc` contains PGP signature which you can verify with:
 
 !!! note
+    Ktlint 2.x has been moved to a separate organization, and no longer affiliated with Pinterest open source projects. Our public signature can be downloaded from the Unbuntu Key Server.
+
+```sh title="Verify releases 2.0 and up"
+curl -sS "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x0F631C1DD2A656869B1F47350FDF10E71780F7FD" | gpg --import && gpg --verify ktlint.asc
+```
+
+!!! note
     As reported in [this issue](https://github.com/ktlint/ktlint/issues/3130) the https://keybase.io/ktlint/pgp_keys.asc is no longer available. Our public signature can be downloaded from the Unbuntu Key Server.
 
-```sh title="Verify releases 0.32.0 and above"
+```sh title="Verify releases 0.32.0 - 1.8.0"
 curl -sS "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xadbc987d1a7b91db6b0aaa81995efbf4a3d20beb" | gpg --import && gpg --verify ktlint.asc
 ```
 
@@ -190,6 +231,24 @@ ktlint installGitPreCommitHook
 ktlint installGitPrePushHook
 ```
 
+### Exit codes
+
+When integrating with Ktlint CLI with another tool it is important to take the exit codes below into account.
+
+| Exit code | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+|----------:|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|         0 | The command has been executed succesfully. If the command included the option to format the code then no violations were found, or all violations have been autocorrected.                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+|         1 | The input has been reformatted succesfully but at least one violation remains to be fixed. Usually this is a violation which cannot be autocorrected. After autocorrecting the error, rerun ktlint again.<br/><br/>However, in some occasions it might happen that some violations remain that will be autocorrected in the next run.<br/><br/>Note that Ktlint automatically reruns format a couple of times automatically. Inspect the logging output to verify that no cyclic behavior occurs where the fix of one rule is reverted by another rule in the next run as this might result in an endless loop. |
+|         2 | An IO Exception has occurred. Check the logging output.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+|         3 | Input provided via `stdin` is not valid Kotlin (Script) code. Ensure that the input can be compiled before invoking Ktlint.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |                                                                                                                                                                                                                                                                                                                                                                                              |
+|         4 | Input provided via `stdin` resulted in an exception. In case the <stderr> logging has been suppressed, rerun Ktlint with logging enabled and see the stacktrace.                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+|         5 | A command line option refers to an invalid path. See logging output.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+|         6 | The rule set jar provided is not supported. See logging output.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+|         7 | The reporter configuration is invalid. See logging output.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+|       123 | When using option `--force-lint-after-format`, a parse exception occurs when trying to lint the formatted output. This means that Ktlint changes resulted in a file which no longer can be compiled. This option is merely used for regression testing only.                                                                                                                                                                                                                                                                                                                                                    |
+
+
+
 ### Miscellaneous flags and commands
 
 `--color` and `--color-name=<colorName>`: Make output colorful and optionally set the color name to use.
@@ -205,11 +264,3 @@ If this option is given, then the default patterns are disabled.
 Options `--stdin` and `--patterns-from-stdin` are mutually exclusive, only one of them can be given at a time.
 
 `-V` or `--version`: Prints version information and exit.
-
-### Microsoft Windows users
-
-Microsoft Windows is not able to run the `ktlint` command directly. Ktlint can be run in following ways on Microsoft Windows:
-
-1. Use the `ktlint.bat` batch file provided as part of the [release](https://github.com/ktlint/ktlint/releases/tag/1.8.0). Add the batch file to your `%PATH%` environment variable for easy access
-2. Run `ktlint` using Git Bash
-3. Run as `java -jar ktlint`

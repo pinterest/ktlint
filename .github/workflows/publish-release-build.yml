@@ -102,6 +102,10 @@ jobs:
           ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID_KTLINT_2 }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD_KTLINT_2 }}
 
+      - name: List Ktlint CLI build artifacts
+        run: ls -R -alsh ktlint-cli/build/run
+        shell: bash
+
       - name: Get version
         run: echo "version=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
         shell: bash
@@ -117,12 +121,11 @@ jobs:
       - name: Download native image artifacts
         uses: actions/download-artifact@v8
         with:
-          path: ktlint-cli/native-images
+          path: ktlint-cli/build/native-images
           merge-multiple: true
-      - run: ls -R ktlint-cli/native-images
 
-      - name: List build artifacts 3
-        run: ls -alsh ktlint-cli/build/run
+      - name: List downloaded native images
+        run: ls -R ktlint-cli/build/native-images
         shell: bash
 
       - name: Extract release notes
@@ -143,9 +146,9 @@ jobs:
           fail_on_unmatched_files: true
           files: |
             ktlint-cli/build/run/*
-            ktlint-cli/native-images/ktlint_linux-x86-64
-            ktlint-cli/native-images/ktlint_darwin-arm64
-            ktlint-cli/native-images/ktlint_windows-x86-64.exe
+            ktlint-cli/build/native-images/ktlint_linux-x86-64
+            ktlint-cli/build/native-images/ktlint_darwin-arm64
+            ktlint-cli/build/native-images/ktlint_windows-x86-64.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

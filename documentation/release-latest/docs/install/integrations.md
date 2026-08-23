@@ -32,7 +32,7 @@ See [cli usage](cli.md) for arguments that can be supplied to `ktlint`.
       <argument>-classpath</argument>
       <!-- automatically creates the classpath using all project dependencies, also adding the project build directory -->
       <classpath/>
-      <argument>com.pinterest.ktlint.Main</argument>
+      <argument>io.github.ktlint.core.Main</argument>
       <!-- Actual wanted arguments to run ktlint with formatting -->
       <argument>--format</argument>
       <argument>--relative</argument>
@@ -40,9 +40,9 @@ See [cli usage](cli.md) for arguments that can be supplied to `ktlint`.
   </configuration>
   <dependencies>
     <dependency>
-      <groupId>com.pinterest.ktlint</groupId>
+      <groupId>io.github.ktlint.core</groupId>
       <artifactId>ktlint-cli</artifactId>
-      <version>1.8.0</version>
+      <version>2.0.0</version>
       <!-- Use fat jar of ktlint-cli -->
       <classifier>all</classifier>
       <type>jar</type>
@@ -103,7 +103,7 @@ configurations {
 }
 
 dependencies {
-    ktlint("com.pinterest.ktlint:ktlint-cli:1.8.0") {
+    ktlint("io.github.ktlint.core:ktlint-cli:2.0.0") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, getObjects().named(Bundling, Bundling.EXTERNAL))
         }
@@ -117,7 +117,7 @@ tasks.register("ktlintCheck", JavaExec) {
     group = "verification"
     description = "Check Kotlin code style."
     classpath = configurations.ktlint
-    mainClass = "com.pinterest.ktlint.Main"
+    mainClass = "io.github.ktlint.core.Main"
     // see https://ktlint.github.io/ktlint/install/cli/#command-line-usage for more information
     args "src/**/*.kt", "**.kts", "!**/build/**"
 }
@@ -130,7 +130,7 @@ tasks.register("ktlintFormat", JavaExec) {
     group = "formatting"
     description = "Fix Kotlin code style deviations."
     classpath = configurations.ktlint
-    mainClass = "com.pinterest.ktlint.Main"
+    mainClass = "io.github.ktlint.core.Main"
     // Suppress "sun.misc.Unsafe::objectFieldOffset" on Java24 (warning) (https://github.com/ktlint/ktlint/issues/2973)
     // jvmArgs("--sun-misc-unsafe-memory-access=allow") // Java 24+
     // see https://ktlint.github.io/ktlint/install/cli/#command-line-usage for more information
@@ -154,7 +154,7 @@ The configuration below, defines following task:
 val ktlint by configurations.creating
 
 dependencies {
-    ktlint("com.pinterest.ktlint:ktlint-cli:1.8.0") {
+    ktlint("io.github.ktlint.core:ktlint-cli:2.0.0") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
         }
@@ -166,7 +166,7 @@ val ktlintCheck by tasks.registering(JavaExec::class) {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     description = "Check Kotlin code style"
     classpath = ktlint
-    mainClass.set("com.pinterest.ktlint.Main")
+    mainClass.set("io.github.ktlint.core.Main")
     // see https://ktlint.github.io/ktlint/install/cli/#command-line-usage for more information
     args(
         "**/src/**/*.kt",
@@ -183,7 +183,7 @@ tasks.register<JavaExec>("ktlintFormat") {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     description = "Check Kotlin code style and format"
     classpath = ktlint
-    mainClass.set("com.pinterest.ktlint.Main")
+    mainClass.set("io.github.ktlint.core.Main")
     // Suppress "sun.misc.Unsafe::objectFieldOffset" on Java24 (warning) (https://github.com/ktlint/ktlint/issues/2973)
     jvmArgs("--sun-misc-unsafe-memory-access=allow") // Java 24+
     // see https://ktlint.github.io/ktlint/install/cli/#command-line-usage for more information

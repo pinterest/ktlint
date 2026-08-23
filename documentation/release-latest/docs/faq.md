@@ -9,24 +9,24 @@ By using ktlint you put the importance of code clarity and community conventions
 ktlint is a single binary with both linter & formatter included. All you need is to drop it in (no need to get [overwhelmed](https://en.wikipedia.org/wiki/Decision_fatigue) while choosing among [dozens of code style options](https://checkstyle.sourceforge.net/checks.html)).
 
 
-## What are the Maven coordinates in Ktlint 1.x?
+## What are the Maven coordinates in Ktlint 2.x?
 
-With the release of ktlint `1.0` the Maven coordinates of most modules have been changed. Now all ktlint modules are published in Maven group `com.pinterest.ktlint`. Also, the artifact id's of some modules have been changed.
+With the release of ktlint `2.0` the Maven coordinates of all modules have been changed. Now all ktlint modules are published in Maven group `io.github.ktlint.core`
 
 The Maven coordinates of modules below have been changed:
 
-| Old Maven coordinates                                | New Maven coordinates                                    |
-|------------------------------------------------------|----------------------------------------------------------|
-| `com.pinterest:ktlint`                               | `com.pinterest.ktlint:ktlint-cli`                        |
-| `com.pinterest.ktlint:ktlint-reporter-baseline`      | `com.pinterest.ktlint:ktlint-cli-reporter-baseline`      |
-| `com.pinterest.ktlint:ktlint-reporter-checkstyle`    | `com.pinterest.ktlint:ktlint-cli-reporter-checkstyle`    |
-| `com.pinterest.ktlint:ktlint-cli-reporter`           | `com.pinterest.ktlint:ktlint-cli-reporter-core`          |
-| `com.pinterest.ktlint:ktlint-reporter-format`        | `com.pinterest.ktlint:ktlint-cli-reporter-format`        |
-| `com.pinterest.ktlint:ktlint-reporter-html`          | `com.pinterest.ktlint:ktlint-cli-reporter-html`          |
-| `com.pinterest.ktlint:ktlint-reporter-json`          | `com.pinterest.ktlint:ktlint-cli-reporter-json`          |
-| `com.pinterest.ktlint:ktlint-reporter-plain`         | `com.pinterest.ktlint:ktlint-cli-reporter-plain`         |
-| `com.pinterest.ktlint:ktlint-reporter-plain-summary` | `com.pinterest.ktlint:ktlint-cli-reporter-plain-summary` |
-| `com.pinterest.ktlint:ktlint-reporter-sarif`         | `com.pinterest.ktlint:ktlint-cli-reporter-sarif`         |
+| Old Maven coordinates                                    | New Maven coordinates                                     |
+|----------------------------------------------------------|-----------------------------------------------------------|
+| `com.pinterest:ktlint`                                   | `io.github.ktlint.core:ktlint-cli`                        |
+| `com.pinterest.ktlint:ktlint-cli-reporter-baseline`      | `io.github.ktlint.core:ktlint-cli-reporter-baseline`      |
+| `com.pinterest.ktlint:ktlint-cli-reporter-checkstyle`    | `io.github.ktlint.core:ktlint-cli-reporter-checkstyle`    |
+| `com.pinterest.ktlint:ktlint-cli-reporter-core`          | `io.github.ktlint.core:ktlint-cli-reporter-core`          |
+| `com.pinterest.ktlint:ktlint-cli-reporter-format`        | `io.github.ktlint.core:ktlint-cli-reporter-format`        |
+| `com.pinterest.ktlint:ktlint-cli-reporter-html`          | `io.github.ktlint.core:ktlint-cli-reporter-html`          |
+| `com.pinterest.ktlint:ktlint-cli-reporter-json`          | `io.github.ktlint.core:ktlint-cli-reporter-json`          |
+| `com.pinterest.ktlint:ktlint-cli-reporter-plain`         | `io.github.ktlint.core:ktlint-cli-reporter-plain`         |
+| `com.pinterest.ktlint:ktlint-cli-reporter-plain-summary` | `io.github.ktlint.core:ktlint-cli-reporter-plain-summary` |
+| `com.pinterest.ktlint:ktlint-cli-reporter-sarif`         | `io.github.ktlint.core:ktlint-cli-reporter-sarif`         |
 
 ##  How do I enable or disable a rule?
 
@@ -201,10 +201,10 @@ Less configuration options also means less discussions in teams about settings t
 ## Can I use KtLint to directly format the code I'm generating with KotlinPoet?
 
 Yes, it is possible to use KtLint to directly format the code generated with KotlinPoet. 
-To do so, you must include the dependencies `com.pinterest.ktlint:ktlint-core` and `com.pinterest.ktlint:ktlint-ruleset-standard` in your Gradle/Maven project.
+To do so, you must include the dependencies `io.github.ktlint.core:ktlint-core` and `io.github.ktlint.core:ktlint-ruleset-standard` in your Gradle/Maven project.
 
 !!! warning
-    Do not include the dependency `com.pinterest.ktlint:ktlint-cli` as that would import the entire ktlint project including unwanted dependencies. Besides a much bigger artifact, it might also result in problems regarding logging.
+    Do not include the dependency `io.github.ktlint.core:ktlint-cli` as that would import the entire ktlint project including unwanted dependencies. Besides a much bigger artifact, it might also result in problems regarding logging.
 
 To format the output of KotlinPoet with KtLint, you can use the following snippet:
 

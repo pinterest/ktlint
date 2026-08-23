@@ -2,9 +2,9 @@
 Take a look at [ktlint-cli-reporter-plain](https://github.com/ktlint/ktlint/tree/master/ktlint-cli-reporter-plain).
 
 In short, all you need to do is to implement a
-[ReporterV2](https://github.com/ktlint/ktlint/blob/master/ktlint-cli-reporter-core/src/main/kotlin/com/ktlint/ktlint/cli/reporter/core/api/ReporterV2.kt) and make it available by registering
-a custom [ReporterProviderV2](https://github.com/ktlint/ktlint/blob/master/ktlint-cli-reporter-core/src/main/kotlin/com/ktlint/ktlint/cli/reporter/core/api/ReporterProviderV2.kt) using
-`META-INF/services/com.pinterest.ktlint.cli.reporter.core.api.ReporterProviderV2`. Pack all of that into a JAR and you're done.
+[ReporterV2](https://github.com/ktlint/ktlint/blob/master/ktlint-cli-reporter-core/src/main/kotlin/io/github/ktlint/core/cli/reporter/core/api/ReporterV2.kt) and make it available by registering
+a custom [ReporterProviderV2](https://github.com/ktlint/ktlint/blob/master/ktlint-cli-reporter-core/src/main/kotlin/io/github/ktlint/core/cli/reporter/core/api/ReporterProviderV2.kt) using
+`META-INF/services/io.github.ktlint.core.cli.reporter.core.api.ReporterProviderV2`. Pack all of that into a JAR and you're done.
 
 To load a custom (3rd party) reporter use `ktlint --reporter=name,artifact=/path/to/custom-ktlint-reporter.jar`
 (see `ktlint --help` for more).
