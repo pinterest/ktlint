@@ -6,6 +6,7 @@ import io.github.ktlint.core.rule.engine.core.api.editorconfig.RuleExecution
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
 import io.github.ktlint.core.test.KtLintAssertThat.Companion.assertThatRule
 import io.github.ktlint.core.test.LintViolation
+import io.github.ktlint.core.test.SPACE
 import io.github.ktlint.core.test.TAB
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -466,19 +467,23 @@ class KdocDelimiterRuleTest {
         @Test
         fun `Given an empty line with trailing whitespace then reformat`() {
             val code =
-                "/**\n" +
-                    " * A group of *members*.\n" +
-                    " * \n" +
-                    " * More text.\n" +
-                    " */\n" +
-                    "class Foo\n"
+                """
+                /**
+                 * A group of *members*.
+                 *$SPACE
+                 * More text.
+                 */
+                class Foo
+                """.trimIndent()
             val formattedCode =
-                "/**\n" +
-                    " * A group of *members*.\n" +
-                    " *\n" +
-                    " * More text.\n" +
-                    " */\n" +
-                    "class Foo\n"
+                """
+                /**
+                 * A group of *members*.
+                 *
+                 * More text.
+                 */
+                class Foo
+                """.trimIndent()
             kdocDelimiterRuleAssertThat(code)
                 .hasLintViolation(3, 3, "An empty line in a KDoc comment should not contain trailing whitespace after the leading asterisk")
                 .isFormattedAs(formattedCode)
