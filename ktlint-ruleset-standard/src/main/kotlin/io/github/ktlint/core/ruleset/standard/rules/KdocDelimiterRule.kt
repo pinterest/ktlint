@@ -201,12 +201,7 @@ public class KdocDelimiterRule :
 
             lineStartWhitespace = afterWhitespace.nextLineBreak() ?: break
         }
-        checkContinuationIndent(
-            closingWhitespace,
-            expectedContinuationIndent,
-            "Closing '*/' should align with the leading asterisks of the KDoc comment",
-            emit,
-        )
+        visitIndentationClosingDelimiter(closingWhitespace, expectedContinuationIndent, emit)
     }
 
     /**
@@ -249,16 +244,15 @@ public class KdocDelimiterRule :
         }
     }
 
-    private fun checkContinuationIndent(
+    private fun visitIndentationClosingDelimiter(
         whitespace: ASTNode,
         expectedIndent: String,
-        errorMessage: String,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         val actualIndent = whitespace.text.substringAfterLast('\n')
         if (actualIndent != expectedIndent) {
             val prefixLength = whitespace.text.length - actualIndent.length
-            emit(whitespace.startOffset + prefixLength, errorMessage, true)
+            emit(whitespace.startOffset + prefixLength, "Closing '*/' should align with the leading asterisks of the KDoc comment", true)
                 .ifAutocorrectAllowed {
                     whitespace.replaceTextWith(whitespace.text.substring(0, prefixLength) + expectedIndent)
                 }
