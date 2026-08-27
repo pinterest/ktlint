@@ -130,10 +130,22 @@ class KdocDelimiterRuleTest {
         }
 
         @Test
-        fun `Given a blank multi-line KDoc comment then do report but not autocorrect`() {
+        fun `Given a blank multi-line KDoc comment without blank lines then do report but not autocorrect`() {
             val code =
                 """
                 /**
+                 */
+                class Foo
+                """.trimIndent()
+            kdocDelimiterRuleAssertThat(code).hasLintViolationWithoutAutoCorrect(1, 4, "An empty KDoc comment is not allowed")
+        }
+
+        @Test
+        fun `Given a blank multi-line KDoc comment including blank lines then do report but not autocorrect`() {
+            val code =
+                """
+                /**
+                 *
                  */
                 class Foo
                 """.trimIndent()
@@ -217,6 +229,42 @@ class KdocDelimiterRuleTest {
                 """.trimIndent()
             @Suppress("ktlint:standard:max-line-length")
             kdocDelimiterRuleAssertThat(code).hasLintViolationWithoutAutoCorrect(3, 71, "Closing '*/' of a multi-line KDoc comment should not be preceded by any other text on the same line")
+        }
+
+        @Test
+        fun `Given a multi-line KDoc comment with some text containing an KDOC_LPAR on same line as opening delimiter then do report but not autocorrect`() {
+            val code =
+                """
+                /** Foo (bar)
+                 */
+                class Foo
+                """.trimIndent()
+            @Suppress("ktlint:standard:max-line-length")
+            kdocDelimiterRuleAssertThat(code).hasLintViolationWithoutAutoCorrect(1, 4, "Opening '/**' of a multi-line KDoc comment should not be followed by any other text on the same line")
+        }
+
+        @Test
+        fun `Given a multi-line KDoc comment with some text containing an markdown link on same line as opening delimiter then do report but not autocorrect`() {
+            val code =
+                """
+                /** Foo [Bar] baz
+                 */
+                class Foo
+                """.trimIndent()
+            @Suppress("ktlint:standard:max-line-length")
+            kdocDelimiterRuleAssertThat(code).hasLintViolationWithoutAutoCorrect(1, 4, "Opening '/**' of a multi-line KDoc comment should not be followed by any other text on the same line")
+        }
+
+        @Test
+        fun `Given a multi-line KDoc comment with a tag on same line as opening delimiter then do report but not autocorrect`() {
+            val code =
+                """
+                /** @see Bar
+                 */
+                class Foo
+                """.trimIndent()
+            @Suppress("ktlint:standard:max-line-length")
+            kdocDelimiterRuleAssertThat(code).hasLintViolationWithoutAutoCorrect(1, 4, "Opening '/**' of a multi-line KDoc comment should not be followed by any other text on the same line")
         }
     }
 
@@ -349,6 +397,27 @@ class KdocDelimiterRuleTest {
             """.trimIndent()
         kdocDelimiterRuleAssertThat(code)
             .hasLintViolation(3, 1, "Closing '*/' should align with the leading asterisks of the KDoc comment")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a closing marker preceded by an additional leading asterisk then reformat`() {
+        val code =
+            """
+            /**
+             * A group of *members*.
+             * */
+            class Foo
+            """.trimIndent()
+        val formattedCode =
+            """
+            /**
+             * A group of *members*.
+             */
+            class Foo
+            """.trimIndent()
+        kdocDelimiterRuleAssertThat(code)
+            .hasLintViolation(3, 2, "Unexpected leading asterisk followed by Closing '*/' om same line")
             .isFormattedAs(formattedCode)
     }
 
@@ -509,6 +578,78 @@ class KdocDelimiterRuleTest {
                 """.trimIndent()
             kdocDelimiterRuleAssertThat(code)
                 .hasLintViolation(3, 3, "An empty line in a KDoc comment should not contain trailing whitespace after the leading asterisk")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given consecutive empty lines then reformat`() {
+            val code =
+                """
+                /**
+                 * A group of *members*.
+                 *
+                 *
+                 * More text.
+                 */
+                class Foo
+                """.trimIndent()
+            val formattedCode =
+                """
+                /**
+                 * A group of *members*.
+                 *
+                 * More text.
+                 */
+                class Foo
+                """.trimIndent()
+            kdocDelimiterRuleAssertThat(code)
+                .hasLintViolation(4, 2, "Unexpected consecutive blank line")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given a single empty line between tags then do not reformat`() {
+            val code =
+                """
+                /**
+                 * A group of *members*.
+                 *
+                 * @param bar some bar
+                 *
+                 * @return New Baz for bar
+                 */
+                fun foo(bar: Bar): Baz = Baz(bar)
+                """.trimIndent()
+            kdocDelimiterRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `Given consecutive empty lines between tags then do reformat but keep one blank line`() {
+            val code =
+                """
+                /**
+                 * A group of *members*.
+                 *
+                 * @param bar some bar
+                 *
+                 *
+                 * @return New Baz for bar
+                 */
+                fun foo(bar: Bar): Baz = Baz(bar)
+                """.trimIndent()
+            val formattedCode =
+                """
+                /**
+                 * A group of *members*.
+                 *
+                 * @param bar some bar
+                 *
+                 * @return New Baz for bar
+                 */
+                fun foo(bar: Bar): Baz = Baz(bar)
+                """.trimIndent()
+            kdocDelimiterRuleAssertThat(code)
+                .hasLintViolation(6, 2, "Unexpected consecutive blank line")
                 .isFormattedAs(formattedCode)
         }
 

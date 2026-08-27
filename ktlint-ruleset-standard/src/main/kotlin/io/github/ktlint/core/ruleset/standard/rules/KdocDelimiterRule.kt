@@ -72,7 +72,16 @@ public class KdocDelimiterRule :
             }
 
             KDOC_LEADING_ASTERISK -> {
-                visitLeadingAsterisk(node, emit)
+                if (node.parent { it.elementType == KDOC_SECTION }!!.isEmptyOrBlank()) {
+                    // Ignore multiline empty KDoc
+                    //    /**
+                    //     *
+                    //     */
+                    // Note that a non auto-correctable error is reported for the empty Kdoc. Removing the empty line, but not removing the
+                    // KDOC_START and KDOC_END is confusing.
+                } else {
+                    visitLeadingAsterisk(node, emit)
+                }
             }
 
             KDOC_TEXT -> {
@@ -131,36 +140,74 @@ public class KdocDelimiterRule :
     ) {
         require(leadingAsterisk.elementType == KDOC_LEADING_ASTERISK)
 
-        leadingAsterisk
-            .nextLeaf
-            .takeIf { it.isWhiteSpaceWithNewline }
-            ?.let { whitespaceAfterLeadingAsterisk ->
-                val errorMessage =
-                    when (leadingAsterisk) {
-                        leadingAsterisk.treeParent.firstChildLeafOrSelf -> "No empty line expected after opening delimiter"
-                        leadingAsterisk.treeParent.lastChildLeafOrSelf -> "No empty line expected before closing delimiter"
-                        else -> null
-                    }
-                if (errorMessage != null) {
-                    emit(leadingAsterisk.startOffset, errorMessage, true)
-                        .ifAutocorrectAllowed {
-                            whitespaceAfterLeadingAsterisk.remove()
-                            leadingAsterisk.remove()
-                        }
-                    // Remainder of checks (improper indentation, and context after asterisk) are not relevant when the line is (to be)
-                    // removed.
-                    return
-                }
-            }
-
+        if (checkEmptyLineAfterOpeningDelimiter(leadingAsterisk, emit)) {
+            // Remainder of checks (improper indentation, and context after asterisk) are not relevant when the line is (to be) removed.
+            return
+        }
+        if (checkEmptyLineBeforeClosingDelimiter(leadingAsterisk, emit)) {
+            // Remainder of checks (improper indentation, and context after asterisk) are not relevant when the line is (to be) removed.
+            return
+        }
         checkIndentationBeforeLeadingAsterisk(leadingAsterisk, emit)
         checkContentAfterLeadingAsterisk(leadingAsterisk, emit)
+        checkConsecutiveBlankLines(leadingAsterisk, emit)
+    }
+
+    private fun checkEmptyLineAfterOpeningDelimiter(
+        leadingAsterisk: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+    ): Boolean {
+        require(leadingAsterisk.elementType == KDOC_LEADING_ASTERISK)
+
+        val kdocSection = leadingAsterisk.parent { it.elementType == KDOC_SECTION }
+        leadingAsterisk
+            .takeIf { leadingAsterisk == kdocSection?.firstChildLeafOrSelf }
+            ?.nextLeaf
+            ?.takeIf { it.isWhiteSpaceWithNewline }
+            ?.let { whitespaceAfterLeadingAsterisk ->
+                emit(leadingAsterisk.startOffset, "No empty line expected after opening delimiter", true)
+                    .ifAutocorrectAllowed {
+                        whitespaceAfterLeadingAsterisk.remove()
+                        leadingAsterisk.remove()
+                    }
+                // Remainder of checks (improper indentation, and context after asterisk) are not relevant when the line is (to be)
+                // removed.
+                return true
+            }
+
+        return false
+    }
+
+    private fun checkEmptyLineBeforeClosingDelimiter(
+        leadingAsterisk: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+    ): Boolean {
+        require(leadingAsterisk.elementType == KDOC_LEADING_ASTERISK)
+
+        val kdocSection = leadingAsterisk.parent { it.elementType == KDOC_SECTION }
+        leadingAsterisk
+            .takeIf { leadingAsterisk == kdocSection?.lastChildLeafOrSelf }
+            ?.prevLeaf
+            ?.takeIf { it.isWhiteSpaceWithNewline }
+            ?.let { whitespaceAfterLeadingAsterisk ->
+                emit(leadingAsterisk.startOffset, "No empty line expected before closing delimiter", true)
+                    .ifAutocorrectAllowed {
+                        whitespaceAfterLeadingAsterisk.remove()
+                        leadingAsterisk.remove()
+                    }
+                // Remainder of checks (improper indentation, and context after asterisk) are not relevant when the line is (to be)
+                // removed.
+                return true
+            }
+
+        return false
     }
 
     private fun checkIndentationBeforeLeadingAsterisk(
         leadingAsterisk: ASTNode,
         emit: (Int, String, Boolean) -> AutocorrectDecision,
     ) {
+        require(leadingAsterisk.elementType == KDOC_LEADING_ASTERISK)
         val actualIndent =
             leadingAsterisk
                 .prevLeaf { it.isWhiteSpace }
@@ -227,6 +274,24 @@ public class KdocDelimiterRule :
             }
     }
 
+    private fun checkConsecutiveBlankLines(
+        leadingAsterisk: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+    ) {
+        require(leadingAsterisk.elementType == KDOC_LEADING_ASTERISK)
+        leadingAsterisk
+            .takeIf { it.nextLeaf.isWhiteSpaceWithNewline && it.prevLeaf.isWhiteSpaceWithNewline }
+            ?.prevSibling { !it.isWhiteSpace }
+            ?.takeIf { it.elementType == KDOC_LEADING_ASTERISK }
+            ?.let {
+                emit(leadingAsterisk.startOffset, "Unexpected consecutive blank line", true)
+                    .ifAutocorrectAllowed {
+                        leadingAsterisk.prevSibling.takeIf { it.isWhiteSpace }?.remove()
+                        leadingAsterisk.remove()
+                    }
+            }
+    }
+
     private fun visitKdocTextInMultiLineKdoc(
         node: ASTNode,
         emit: (Int, String, Boolean) -> AutocorrectDecision,
@@ -242,9 +307,9 @@ public class KdocDelimiterRule :
         } else {
             val hasKdocLeadingAsteriskOnSameLine =
                 node
-                    .prevLeaf { it.isWhiteSpaceWithNewline || it.elementType == KDOC_LEADING_ASTERISK }
-                    .let { it?.elementType == KDOC_LEADING_ASTERISK }
-            if (!hasKdocLeadingAsteriskOnSameLine) {
+                    .prevLeaf { it.isWhiteSpaceWithNewline || it.elementType == KDOC_LEADING_ASTERISK || it.elementType == KDOC_START }
+                    .isWhiteSpaceWithNewline
+            if (hasKdocLeadingAsteriskOnSameLine) {
                 emit(
                     node.startOffset,
                     "Each line of a multi-line KDoc comment should start with a leading asterisk",
@@ -266,6 +331,28 @@ public class KdocDelimiterRule :
         require(kdocEnd.elementType == KDOC_END)
         val siblingBeforeKdocEnd = kdocEnd.prevSibling!!
         when {
+            siblingBeforeKdocEnd.elementType == KDOC_SECTION &&
+                siblingBeforeKdocEnd.lastChildLeafOrSelf.elementType == KDOC_TEXT &&
+                siblingBeforeKdocEnd.lastChildLeafOrSelf.text.isBlank() &&
+                siblingBeforeKdocEnd.lastChildLeafOrSelf.prevSibling?.elementType == KDOC_LEADING_ASTERISK -> {
+                // Remove leading asterisk before closing delimiter when on same line only
+                //     /**
+                //      * Some text
+                //      * */
+                siblingBeforeKdocEnd
+                    .lastChildLeafOrSelf
+                    .let { kdocText ->
+                        emit(
+                            kdocText.prevSibling!!.startOffset,
+                            "Unexpected leading asterisk followed by Closing '*/' om same line",
+                            true,
+                        ).ifAutocorrectAllowed {
+                            kdocText.prevSibling?.remove()
+                            kdocText.remove()
+                        }
+                    }
+            }
+
             siblingBeforeKdocEnd.elementType == KDOC_SECTION && siblingBeforeKdocEnd.text.isNotBlank() -> {
                 emit(
                     kdocEnd.startOffset,
