@@ -353,6 +353,7 @@ class KdocDelimiterRuleTest {
                 /** A group of *members**/
                 class Foo
                 """.trimIndent()
+            @Suppress("ktlint:standard:max-line-length")
             kdocDelimiterRuleAssertThat(code).hasLintViolationWithoutAutoCorrect(1, 24, "Expected a single space before '*/' in a single-line KDoc comment")
         }
 
