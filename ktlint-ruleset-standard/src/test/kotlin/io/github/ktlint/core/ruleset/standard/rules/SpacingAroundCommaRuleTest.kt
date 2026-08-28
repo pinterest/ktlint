@@ -176,4 +176,46 @@ class SpacingAroundCommaRuleTest {
         spacingAroundCommaRuleAssertThat(code)
             .hasNoLintViolations()
     }
+
+    @Test
+    fun `Given a function with return type and WHERE and unexpected space before comma between type constraints `() {
+        val code =
+            """
+            fun <T> copyWhenGreater(list: List<T>, threshold: T): List<String>
+                where T : CharSequence , T : Comparable<T> {
+                return list.filter { it > threshold }.map { it.toString() }
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun <T> copyWhenGreater(list: List<T>, threshold: T): List<String>
+                where T : CharSequence, T : Comparable<T> {
+                return list.filter { it > threshold }.map { it.toString() }
+            }
+            """.trimIndent()
+        spacingAroundCommaRuleAssertThat(code)
+            .hasLintViolation(2, 27, "Unexpected spacing before \",\"")
+            .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a function with return type and WHERE and no space space after comma between type constraints `() {
+        val code =
+            """
+            fun <T> copyWhenGreater(list: List<T>, threshold: T): List<String>
+                where T : CharSequence,T : Comparable<T> {
+                return list.filter { it > threshold }.map { it.toString() }
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun <T> copyWhenGreater(list: List<T>, threshold: T): List<String>
+                where T : CharSequence, T : Comparable<T> {
+                return list.filter { it > threshold }.map { it.toString() }
+            }
+            """.trimIndent()
+        spacingAroundCommaRuleAssertThat(code)
+            .hasLintViolation(2, 28, "Missing spacing after \",\"")
+            .isFormattedAs(formattedCode)
+    }
 }

@@ -286,8 +286,10 @@ internal class WrappingRuleTest {
                 val adapter1: A1,
                 val adapter2: A2
             ) : RecyclerView.Adapter<C>()
-                where A1 : RecyclerView.Adapter<V1>, A1 : ComposableAdapter.ViewTypeProvider,
-                      A2 : RecyclerView.Adapter<V2>, A2 : ComposableAdapter.ViewTypeProvider {
+                where A1 : RecyclerView.Adapter<V1>,
+                      A1 : ComposableAdapter.ViewTypeProvider,
+                      A2 : RecyclerView.Adapter<V2>,
+                      A2 : ComposableAdapter.ViewTypeProvider {
             }
             """.trimIndent()
         wrappingRuleAssertThat(code).hasNoLintViolations()
@@ -1911,5 +1913,59 @@ internal class WrappingRuleTest {
                 }
             """.trimIndent()
         wrappingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a function with return type and WHERE and unexpected newline before comma between type constraints `() {
+        val code =
+            """
+            fun <T> copyWhenGreater(list: List<T>, threshold: T): List<String>
+                where T : CharSequence
+                , T : Comparable<T> {
+                return list.filter { it > threshold }.map { it.toString() }
+            }
+
+            fun <T> copyWhenGreater(list: List<T>, threshold: T): List<String>
+                where T : CharSequence /* Some comment */
+                , T : Comparable<T> {
+                return list.filter { it > threshold }.map { it.toString() }
+            }
+
+            fun <T> copyWhenGreater(list: List<T>, threshold: T): List<String>
+                where T : CharSequence // Some comment
+                , T : Comparable<T> {
+                return list.filter { it > threshold }.map { it.toString() }
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun <T> copyWhenGreater(list: List<T>, threshold: T): List<String>
+                where T : CharSequence,
+                      T : Comparable<T> {
+                return list.filter { it > threshold }.map { it.toString() }
+            }
+
+            fun <T> copyWhenGreater(list: List<T>, threshold: T): List<String>
+                where T : CharSequence /* Some comment */,
+                      T : Comparable<T> {
+                return list.filter { it > threshold }.map { it.toString() }
+            }
+
+            fun <T> copyWhenGreater(list: List<T>, threshold: T): List<String>
+                where T : CharSequence, // Some comment
+                      T : Comparable<T> {
+                return list.filter { it > threshold }.map { it.toString() }
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code)
+            .addAdditionalRuleProvider { IndentationRule() }
+            .hasLintViolations(
+                LintViolation(3, 5, "No whitespace was expected before ','"),
+                LintViolation(3, 7, "A newline was expected before 'T : Comparable<T>'"),
+                LintViolation(9, 5, "No whitespace was expected before ','"),
+                LintViolation(9, 7, "A newline was expected before 'T : Comparable<T>'"),
+                LintViolation(15, 5, "No whitespace was expected before ','"),
+                LintViolation(15, 7, "A newline was expected before 'T : Comparable<T>'"),
+            ).isFormattedAs(formattedCode)
     }
 }
