@@ -14,7 +14,6 @@ public object TokenSets {
     public val COMMENTS: TokenSet = KtTokens.COMMENTS
 
     /**
-     *
      * Reference: This is a subset of [KotlinExpressionParsing.EXPRESSION_FIRST]
      */
     public val CONTROL_FLOW_KEYWORDS: TokenSet =
