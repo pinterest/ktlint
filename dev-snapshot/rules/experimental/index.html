@@ -931,6 +931,17 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 </li>
       
         <li class="md-nav__item">
+  <a href="#kdoc-delimiter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KDoc delimiter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#lambda-return" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1533,6 +1544,17 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 </li>
       
         <li class="md-nav__item">
+  <a href="#kdoc-delimiter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KDoc delimiter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#lambda-return" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1782,48 +1804,115 @@ Also see <a href="../configuration-ktlint/#disable-rules">enable/disable specifi
     <div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>ktlint_standard_expression-operand-wrapping = disabled
 </code></pre></div></li>
 </ol>
-<h2 id="lambda-return">Lambda return<a class="headerlink" href="#lambda-return" title="Permanent link">&para;</a></h2>
-<p>Do not use a labeled return for the last statement in a lambda if that label refers to the lambda itself.</p>
+<h2 id="kdoc-delimiter">KDoc delimiter<a class="headerlink" href="#kdoc-delimiter" title="Permanent link">&para;</a></h2>
+<p>A single-line KDoc comment starts with <code>/**</code> and ends with <code>*/</code>. A multi-line KDoc comment starts with a line containing only <code>/**</code>, ends with a line containing only <code>*/</code>, and every other line starts with a leading asterisk indented one space more than the opening <code>/**</code>, followed by a single space and the content of that line, or by nothing in case the line is empty. The line directly after the opening delimiter, and the line directly before the closing delimiter, must not be empty. An empty (or blank) KDoc comment is not allowed.</p>
+<p>Autocorrect is only applied to whitespace and delimiters, and only when doing so will not change the meaning, or the visual indentation, of the actual content of the KDoc comment. Most notably, a continuation line which is missing its leading asterisk is always reported without being autocorrected, as inserting the asterisk could change the intended visual indentation of that content.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="6:2"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint</label><label for="__tabbed_6_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="kd">val</span><span class="w"> </span><span class="nv">foo</span><span class="w"> </span><span class="o">=</span>
-<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="w">    </span><span class="s">"Foo"</span>
-<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="w">        </span><span class="p">.</span><span class="na">let</span><span class="w"> </span><span class="nd">outer@</span><span class="p">{</span><span class="w"> </span><span class="n">foo</span><span class="w"> </span><span class="o">-&gt;</span>
-<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">foo</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">"Foo"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a><span class="w">                </span><span class="k">return</span><span class="nd">@outer</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">foo</span><span class="s"> is not expected input"</span>
-<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a><span class="w">            </span><span class="p">}</span>
-<a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a><span class="w">            </span><span class="n">foo</span>
-<a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a><span class="w">                </span><span class="p">.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">it</span><span class="s"> was a"</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a><span class="w">                </span><span class="p">.</span><span class="na">let</span><span class="w"> </span><span class="nd">secondLet@</span><span class="p">{</span>
-<a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a><span class="w">                    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">foo</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">"Foo"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-26-11" name="__codelineno-26-11" href="#__codelineno-26-11"></a><span class="w">                        </span><span class="k">return</span><span class="nd">@secondLet</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">foo</span><span class="s"> is not expected input"</span>
-<a id="__codelineno-26-12" name="__codelineno-26-12" href="#__codelineno-26-12"></a><span class="w">                    </span><span class="p">}</span>
-<a id="__codelineno-26-13" name="__codelineno-26-13" href="#__codelineno-26-13"></a><span class="w">                    </span><span class="s">"</span><span class="si">$</span><span class="n">it</span><span class="s"> success"</span>
-<a id="__codelineno-26-14" name="__codelineno-26-14" href="#__codelineno-26-14"></a><span class="w">                </span><span class="p">}.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="nd">@outer</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">it</span><span class="s"> (map after let)"</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-26-15" name="__codelineno-26-15" href="#__codelineno-26-15"></a><span class="w">            </span><span class="c1">// This is unreachable code due to "return@outer" in let above.</span>
-<a id="__codelineno-26-16" name="__codelineno-26-16" href="#__codelineno-26-16"></a><span class="w">            </span><span class="s">"</span><span class="si">$</span><span class="n">foo</span><span class="s"> was a failure"</span>
-<a id="__codelineno-26-17" name="__codelineno-26-17" href="#__codelineno-26-17"></a><span class="w">        </span><span class="p">}.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">it</span><span class="s"> (let after also)"</span><span class="w"> </span><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="cm">/** A group of *members* */</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="cm">/**</span>
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a><span class="cm"> * A group of *members*.</span>
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a><span class="cm"> *</span>
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a><span class="cm"> * This class has no useful logic; it's just a documentation example.</span>
+<a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a><span class="cm"> *</span>
+<a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a><span class="cm"> * @param T the type of a member in this group.</span>
+<a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a><span class="cm"> * @property name the name of this group.</span>
+<a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a><span class="cm"> * @constructor Creates an empty group.</span>
+<a id="__codelineno-26-11" name="__codelineno-26-11" href="#__codelineno-26-11"></a><span class="cm"> */</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="kd">val</span><span class="w"> </span><span class="nv">foo</span><span class="w"> </span><span class="o">=</span>
-<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="w">    </span><span class="s">"Foo"</span>
-<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="w">        </span><span class="p">.</span><span class="na">let</span><span class="w"> </span><span class="nd">outer@</span><span class="p">{</span><span class="w"> </span><span class="n">foo</span><span class="w"> </span><span class="o">-&gt;</span>
-<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">foo</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">"Foo"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a><span class="w">                </span><span class="k">return</span><span class="nd">@outer</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">foo</span><span class="s"> is not expected input"</span>
-<a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a><span class="w">            </span><span class="p">}</span>
-<a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a><span class="w">            </span><span class="n">foo</span>
-<a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a><span class="w">                </span><span class="p">.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="nd">@let</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">it</span><span class="s"> was a"</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-27-9" name="__codelineno-27-9" href="#__codelineno-27-9"></a><span class="w">                </span><span class="p">.</span><span class="na">let</span><span class="w"> </span><span class="nd">secondLet@</span><span class="p">{</span>
-<a id="__codelineno-27-10" name="__codelineno-27-10" href="#__codelineno-27-10"></a><span class="w">                    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">foo</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">"Foo"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-27-11" name="__codelineno-27-11" href="#__codelineno-27-11"></a><span class="w">                        </span><span class="k">return</span><span class="nd">@secondLet</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">foo</span><span class="s"> is not expected input"</span>
-<a id="__codelineno-27-12" name="__codelineno-27-12" href="#__codelineno-27-12"></a><span class="w">                    </span><span class="p">}</span>
-<a id="__codelineno-27-13" name="__codelineno-27-13" href="#__codelineno-27-13"></a><span class="w">                    </span><span class="k">return</span><span class="nd">@secondLet</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">it</span><span class="s"> success"</span>
-<a id="__codelineno-27-14" name="__codelineno-27-14" href="#__codelineno-27-14"></a><span class="w">                </span><span class="p">}.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="nd">@outer</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">it</span><span class="s"> (map after let)"</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-27-15" name="__codelineno-27-15" href="#__codelineno-27-15"></a><span class="w">            </span><span class="c1">// This is unreachable code due to "return@outer" in let above.</span>
-<a id="__codelineno-27-16" name="__codelineno-27-16" href="#__codelineno-27-16"></a><span class="w">            </span><span class="k">return</span><span class="nd">@outer</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">foo</span><span class="s"> was a failure"</span>
-<a id="__codelineno-27-17" name="__codelineno-27-17" href="#__codelineno-27-17"></a><span class="w">        </span><span class="p">}.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="nd">@let</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">it</span><span class="s"> (let after also)"</span><span class="w"> </span><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="cm">/***</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="cm"> * A group of *members*.</span>
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="cm"> */</span>
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>
+<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a><span class="cm">/**A group of *members* */</span>
+<a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a>
+<a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a><span class="cm">/** A group of *members*.</span>
+<a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a><span class="cm"> * This class has no useful logic; it's just a documentation example.</span>
+<a id="__codelineno-27-9" name="__codelineno-27-9" href="#__codelineno-27-9"></a><span class="cm"> */</span>
+<a id="__codelineno-27-10" name="__codelineno-27-10" href="#__codelineno-27-10"></a>
+<a id="__codelineno-27-11" name="__codelineno-27-11" href="#__codelineno-27-11"></a><span class="cm">/**</span>
+<a id="__codelineno-27-12" name="__codelineno-27-12" href="#__codelineno-27-12"></a><span class="cm"> * A group of *members*.</span>
+<a id="__codelineno-27-13" name="__codelineno-27-13" href="#__codelineno-27-13"></a><span class="cm">   This class has no useful logic; it's just a documentation example.</span>
+<a id="__codelineno-27-14" name="__codelineno-27-14" href="#__codelineno-27-14"></a><span class="cm"> */</span>
+<a id="__codelineno-27-15" name="__codelineno-27-15" href="#__codelineno-27-15"></a>
+<a id="__codelineno-27-16" name="__codelineno-27-16" href="#__codelineno-27-16"></a><span class="cm">/**</span>
+<a id="__codelineno-27-17" name="__codelineno-27-17" href="#__codelineno-27-17"></a><span class="cm"> * A group of *members*.</span>
+<a id="__codelineno-27-18" name="__codelineno-27-18" href="#__codelineno-27-18"></a><span class="cm"> * This class has no useful logic; it's just a documentation example.</span>
+<a id="__codelineno-27-19" name="__codelineno-27-19" href="#__codelineno-27-19"></a><span class="cm">*/</span>
+<a id="__codelineno-27-20" name="__codelineno-27-20" href="#__codelineno-27-20"></a>
+<a id="__codelineno-27-21" name="__codelineno-27-21" href="#__codelineno-27-21"></a><span class="cm">/**</span>
+<a id="__codelineno-27-22" name="__codelineno-27-22" href="#__codelineno-27-22"></a><span class="cm"> *</span>
+<a id="__codelineno-27-23" name="__codelineno-27-23" href="#__codelineno-27-23"></a><span class="cm"> * A group of *members*.</span>
+<a id="__codelineno-27-24" name="__codelineno-27-24" href="#__codelineno-27-24"></a><span class="cm"> */</span>
+<a id="__codelineno-27-25" name="__codelineno-27-25" href="#__codelineno-27-25"></a>
+<a id="__codelineno-27-26" name="__codelineno-27-26" href="#__codelineno-27-26"></a><span class="cm">/***/</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This rule is only run when <code>ktlint_experimental</code> is enabled and <code>ktlint_code_style</code> is set to <code>ktlint_official</code>, or when the rule is enabled explicitly.</p>
+</div>
+<p>Rule id: <code>standard:kdoc-delimiter</code></p>
+<p class="annotate">Suppress or disable rule (1)</p>
+<ol>
+<li>Suppress rule in code with annotation below:
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">"ktlint:standard:kdoc-delimiter"</span><span class="p">)</span>
+</code></pre></div>
+   Enable rule via <code>.editorconfig</code>
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>ktlint_standard_kdoc-delimiter = enabled
+</code></pre></div>
+   Disable rule via <code>.editorconfig</code>
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>ktlint_standard_kdoc-delimiter = disabled
+</code></pre></div></li>
+</ol>
+<h2 id="lambda-return">Lambda return<a class="headerlink" href="#lambda-return" title="Permanent link">&para;</a></h2>
+<p>Do not use a labeled return for the last statement in a lambda if that label refers to the lambda itself.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="7:2"><input checked="checked" id="__tabbed_7_1" name="__tabbed_7" type="radio" /><input id="__tabbed_7_2" name="__tabbed_7" type="radio" /><div class="tabbed-labels"><label for="__tabbed_7_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint</label><label for="__tabbed_7_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="kd">val</span><span class="w"> </span><span class="nv">foo</span><span class="w"> </span><span class="o">=</span>
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a><span class="w">    </span><span class="s">"Foo"</span>
+<a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a><span class="w">        </span><span class="p">.</span><span class="na">let</span><span class="w"> </span><span class="nd">outer@</span><span class="p">{</span><span class="w"> </span><span class="n">foo</span><span class="w"> </span><span class="o">-&gt;</span>
+<a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">foo</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">"Foo"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a><span class="w">                </span><span class="k">return</span><span class="nd">@outer</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">foo</span><span class="s"> is not expected input"</span>
+<a id="__codelineno-31-6" name="__codelineno-31-6" href="#__codelineno-31-6"></a><span class="w">            </span><span class="p">}</span>
+<a id="__codelineno-31-7" name="__codelineno-31-7" href="#__codelineno-31-7"></a><span class="w">            </span><span class="n">foo</span>
+<a id="__codelineno-31-8" name="__codelineno-31-8" href="#__codelineno-31-8"></a><span class="w">                </span><span class="p">.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">it</span><span class="s"> was a"</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-31-9" name="__codelineno-31-9" href="#__codelineno-31-9"></a><span class="w">                </span><span class="p">.</span><span class="na">let</span><span class="w"> </span><span class="nd">secondLet@</span><span class="p">{</span>
+<a id="__codelineno-31-10" name="__codelineno-31-10" href="#__codelineno-31-10"></a><span class="w">                    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">foo</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">"Foo"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-31-11" name="__codelineno-31-11" href="#__codelineno-31-11"></a><span class="w">                        </span><span class="k">return</span><span class="nd">@secondLet</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">foo</span><span class="s"> is not expected input"</span>
+<a id="__codelineno-31-12" name="__codelineno-31-12" href="#__codelineno-31-12"></a><span class="w">                    </span><span class="p">}</span>
+<a id="__codelineno-31-13" name="__codelineno-31-13" href="#__codelineno-31-13"></a><span class="w">                    </span><span class="s">"</span><span class="si">$</span><span class="n">it</span><span class="s"> success"</span>
+<a id="__codelineno-31-14" name="__codelineno-31-14" href="#__codelineno-31-14"></a><span class="w">                </span><span class="p">}.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="nd">@outer</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">it</span><span class="s"> (map after let)"</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-31-15" name="__codelineno-31-15" href="#__codelineno-31-15"></a><span class="w">            </span><span class="c1">// This is unreachable code due to "return@outer" in let above.</span>
+<a id="__codelineno-31-16" name="__codelineno-31-16" href="#__codelineno-31-16"></a><span class="w">            </span><span class="s">"</span><span class="si">$</span><span class="n">foo</span><span class="s"> was a failure"</span>
+<a id="__codelineno-31-17" name="__codelineno-31-17" href="#__codelineno-31-17"></a><span class="w">        </span><span class="p">}.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">it</span><span class="s"> (let after also)"</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="kd">val</span><span class="w"> </span><span class="nv">foo</span><span class="w"> </span><span class="o">=</span>
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a><span class="w">    </span><span class="s">"Foo"</span>
+<a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a><span class="w">        </span><span class="p">.</span><span class="na">let</span><span class="w"> </span><span class="nd">outer@</span><span class="p">{</span><span class="w"> </span><span class="n">foo</span><span class="w"> </span><span class="o">-&gt;</span>
+<a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">foo</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">"Foo"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a><span class="w">                </span><span class="k">return</span><span class="nd">@outer</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">foo</span><span class="s"> is not expected input"</span>
+<a id="__codelineno-32-6" name="__codelineno-32-6" href="#__codelineno-32-6"></a><span class="w">            </span><span class="p">}</span>
+<a id="__codelineno-32-7" name="__codelineno-32-7" href="#__codelineno-32-7"></a><span class="w">            </span><span class="n">foo</span>
+<a id="__codelineno-32-8" name="__codelineno-32-8" href="#__codelineno-32-8"></a><span class="w">                </span><span class="p">.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="nd">@let</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">it</span><span class="s"> was a"</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-32-9" name="__codelineno-32-9" href="#__codelineno-32-9"></a><span class="w">                </span><span class="p">.</span><span class="na">let</span><span class="w"> </span><span class="nd">secondLet@</span><span class="p">{</span>
+<a id="__codelineno-32-10" name="__codelineno-32-10" href="#__codelineno-32-10"></a><span class="w">                    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">foo</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">"Foo"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-32-11" name="__codelineno-32-11" href="#__codelineno-32-11"></a><span class="w">                        </span><span class="k">return</span><span class="nd">@secondLet</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">foo</span><span class="s"> is not expected input"</span>
+<a id="__codelineno-32-12" name="__codelineno-32-12" href="#__codelineno-32-12"></a><span class="w">                    </span><span class="p">}</span>
+<a id="__codelineno-32-13" name="__codelineno-32-13" href="#__codelineno-32-13"></a><span class="w">                    </span><span class="k">return</span><span class="nd">@secondLet</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">it</span><span class="s"> success"</span>
+<a id="__codelineno-32-14" name="__codelineno-32-14" href="#__codelineno-32-14"></a><span class="w">                </span><span class="p">}.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="nd">@outer</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">it</span><span class="s"> (map after let)"</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-32-15" name="__codelineno-32-15" href="#__codelineno-32-15"></a><span class="w">            </span><span class="c1">// This is unreachable code due to "return@outer" in let above.</span>
+<a id="__codelineno-32-16" name="__codelineno-32-16" href="#__codelineno-32-16"></a><span class="w">            </span><span class="k">return</span><span class="nd">@outer</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">foo</span><span class="s"> was a failure"</span>
+<a id="__codelineno-32-17" name="__codelineno-32-17" href="#__codelineno-32-17"></a><span class="w">        </span><span class="p">}.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="nd">@let</span><span class="w"> </span><span class="s">"</span><span class="si">$</span><span class="n">it</span><span class="s"> (let after also)"</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 </div>
 </div>
@@ -1832,25 +1921,25 @@ Also see <a href="../configuration-ktlint/#disable-rules">enable/disable specifi
 <p class="annotate">Suppress or disable rule (1)</p>
 <ol>
 <li>Suppress rule in code with annotation below:
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">"ktlint:standard:lambda-return"</span><span class="p">)</span>
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">"ktlint:standard:lambda-return"</span><span class="p">)</span>
 </code></pre></div>
    Enable rule via <code>.editorconfig</code>
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>ktlint_standard_lambda-return = enabled
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>ktlint_standard_lambda-return = enabled
 </code></pre></div>
    Disable rule via <code>.editorconfig</code>
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>ktlint_standard_lambda-return = disabled
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>ktlint_standard_lambda-return = disabled
 </code></pre></div></li>
 </ol>
 <h2 id="no-blank-line-at-start-of-file">No blank line at start of file<a class="headerlink" href="#no-blank-line-at-start-of-file" title="Permanent link">&para;</a></h2>
 <p>Don't allow whitespace at the start of the file.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="7:2"><input checked="checked" id="__tabbed_7_1" name="__tabbed_7" type="radio" /><input id="__tabbed_7_2" name="__tabbed_7" type="radio" /><div class="tabbed-labels"><label for="__tabbed_7_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint</label><label for="__tabbed_7_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="8:2"><input checked="checked" id="__tabbed_8_1" name="__tabbed_8" type="radio" /><input id="__tabbed_8_2" name="__tabbed_8" type="radio" /><div class="tabbed-labels"><label for="__tabbed_8_1"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53z"/></svg></span></a> Ktlint</label><label for="__tabbed_8_2"><a href="#"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2.39 1.73 1.11 3l2.08 2.08C2.45 6 2 7.19 2 8.5c0 3.77 3.4 6.86 8.55 11.53L12 21.35l1.45-1.32c.87-.79 1.69-1.53 2.45-2.24L20 22l1.27-1.27m-9.17-2.18-.1.1-.11-.1C7.14 14.24 4 11.39 4 8.5c0-.76.22-1.44.61-2l9.89 9.87c-.76.69-1.55 1.41-2.4 2.18M8.3 5.1 6.33 3.13C6.7 3.05 7.1 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.34-1.31 4.42-3.53 6.77l-1.41-1.41C18.91 11.88 20 10.2 20 8.5c0-2-1.5-3.5-3.5-3.5-1.4 0-2.76.83-3.39 2h-2.22c-.51-.94-1.5-1.66-2.59-1.9"/></svg></span></a> Disallowed</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="k">package</span><span class="w"> </span><span class="nn">foo</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="k">package</span><span class="w"> </span><span class="nn">foo</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="k">package</span><span class="w"> </span><span class="nn">foo</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="k">package</span><span class="w"> </span><span class="nn">foo</span>
 </code></pre></div>
 </div>
 </div>
@@ -1859,13 +1948,13 @@ Also see <a href="../configuration-ktlint/#disable-rules">enable/disable specifi
 <p class="annotate">Suppress or disable rule (1)</p>
 <ol>
 <li>Suppress rule in code with annotation below:
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">"ktlint:standard:no-blank-line-at-start-of-file"</span><span class="p">)</span>
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a><span class="nd">@Suppress</span><span class="p">(</span><span class="s">"ktlint:standard:no-blank-line-at-start-of-file"</span><span class="p">)</span>
 </code></pre></div>
    Enable rule via <code>.editorconfig</code>
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>ktlint_standard_no-blank-line-at-start-of-file = enabled
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>ktlint_standard_no-blank-line-at-start-of-file = enabled
 </code></pre></div>
    Disable rule via <code>.editorconfig</code>
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>ktlint_standard_no-blank-line-at-start-of-file = disabled
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>ktlint_standard_no-blank-line-at-start-of-file = disabled
 </code></pre></div></li>
 </ol>
 
