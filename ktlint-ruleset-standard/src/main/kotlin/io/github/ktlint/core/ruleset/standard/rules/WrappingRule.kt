@@ -33,6 +33,8 @@ import io.github.ktlint.core.rule.engine.core.api.ElementType.SUPER_TYPE_CALL_EN
 import io.github.ktlint.core.rule.engine.core.api.ElementType.SUPER_TYPE_ENTRY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.SUPER_TYPE_LIST
 import io.github.ktlint.core.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
+import io.github.ktlint.core.rule.engine.core.api.ElementType.TYPE_CONSTRAINT
+import io.github.ktlint.core.rule.engine.core.api.ElementType.TYPE_CONSTRAINT_LIST
 import io.github.ktlint.core.rule.engine.core.api.ElementType.TYPE_PARAMETER
 import io.github.ktlint.core.rule.engine.core.api.ElementType.TYPE_PARAMETER_LIST
 import io.github.ktlint.core.rule.engine.core.api.ElementType.TYPE_PROJECTION
@@ -75,6 +77,7 @@ import io.github.ktlint.core.rule.engine.core.api.prevCodeLeaf
 import io.github.ktlint.core.rule.engine.core.api.prevCodeSibling
 import io.github.ktlint.core.rule.engine.core.api.prevLeaf
 import io.github.ktlint.core.rule.engine.core.api.prevSibling
+import io.github.ktlint.core.rule.engine.core.api.remove
 import io.github.ktlint.core.rule.engine.core.api.upsertWhitespaceAfterMe
 import io.github.ktlint.core.rule.engine.core.api.upsertWhitespaceBeforeMe
 import io.github.ktlint.core.ruleset.standard.StandardRule
@@ -133,6 +136,7 @@ public class WrappingRule :
             SUPER_TYPE_LIST -> rearrangeSuperTypeList(node, emit)
             VALUE_PARAMETER_LIST, VALUE_ARGUMENT_LIST -> rearrangeValueList(node, emit)
             TYPE_ARGUMENT_LIST, TYPE_PARAMETER_LIST -> rearrangeTypeArgumentList(node, emit)
+            TYPE_CONSTRAINT_LIST -> rearrangeTypeConstraintList(node, emit)
             ARROW -> rearrangeArrow(node, emit)
             WHITE_SPACE -> line += node.text.count { it == '\n' }
             CLOSING_QUOTE -> rearrangeClosingQuote(node, emit)
@@ -424,6 +428,69 @@ public class WrappingRule :
                             .ifAutocorrectAllowed {
                                 closingAngle.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
                             }
+                    }
+                }
+        }
+    }
+
+    private fun rearrangeTypeConstraintList(
+        node: ASTNode,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+    ) {
+        require(node.elementType == TYPE_CONSTRAINT_LIST)
+
+        if (node.textContains('\n')) {
+            // Each type projection must be preceded with a whitespace containing a newline
+            node
+                .children
+                .forEach { child ->
+                    when (child.elementType) {
+                        COMMA -> {
+                            child
+                                .prevSibling // { !it.isPartOfComment }
+                                ?.takeIf { it.isWhiteSpaceWithNewline }
+                                ?.let { whitespaceWithNewline ->
+                                    emit(child.startOffset, "No whitespace was expected before '${child.text}'", true)
+                                        .ifAutocorrectAllowed {
+                                            if (whitespaceWithNewline.prevLeaf?.elementType == EOL_COMMENT) {
+                                                // In case the comma was preceded by an EOL_COMMENT then move the comma before that comment
+                                                //        where T : CharSequence // Some comment
+                                                //            , T : Comparable<T>
+                                                val eolCommentBeforeComma = whitespaceWithNewline.prevLeaf!!
+                                                val insertCommaBefore =
+                                                    eolCommentBeforeComma
+                                                        .prevLeaf
+                                                        .takeIf { it.isWhiteSpace }
+                                                        ?: eolCommentBeforeComma
+                                                eolCommentBeforeComma.treeParent.addChild(LeafPsiElement(COMMA, ","), insertCommaBefore)
+                                                child
+                                                    .nextSibling
+                                                    ?.takeIf { it.isWhiteSpace }
+                                                    ?.remove()
+                                                child.remove()
+                                            } else {
+                                                whitespaceWithNewline.remove()
+                                            }
+                                        }
+                                }
+                        }
+
+                        TYPE_CONSTRAINT -> {
+                            child
+                                .prevSibling { !it.isPartOfComment }
+                                .let { prevSibling ->
+                                    if (prevSibling.isWhiteSpaceWithoutNewline) {
+                                        emit(child.startOffset, "A newline was expected before '${child.text}'", true)
+                                            .ifAutocorrectAllowed {
+                                                child.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
+                                            }
+                                    }
+                                }
+                        }
+
+                        else -> {
+                            // No-op
+                        }
                     }
                 }
         }
