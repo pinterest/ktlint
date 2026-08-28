@@ -68,7 +68,6 @@ import io.github.ktlint.core.rule.engine.core.api.ElementType.THEN
 import io.github.ktlint.core.rule.engine.core.api.ElementType.TRY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.TYPEALIAS
 import io.github.ktlint.core.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
-import io.github.ktlint.core.rule.engine.core.api.ElementType.TYPE_CONSTRAINT
 import io.github.ktlint.core.rule.engine.core.api.ElementType.TYPE_CONSTRAINT_LIST
 import io.github.ktlint.core.rule.engine.core.api.ElementType.TYPE_PARAMETER_LIST
 import io.github.ktlint.core.rule.engine.core.api.ElementType.TYPE_REFERENCE
@@ -1243,21 +1242,27 @@ public class IndentationRule :
             }
 
             TAB -> {
-                val acceptableTrailingSpaces = acceptableTrailingSpaces()
-                val nodeIndentWithoutAcceptableTrailingSpaces = nodeIndent.removeSuffix(acceptableTrailingSpaces)
-                if (' ' in nodeIndentWithoutAcceptableTrailingSpaces) {
-                    emitAndApprove(
-                        startOffset + text.length - nodeIndent.length,
-                        "Unexpected space character(s)",
-                        true,
-                    ).ifAutocorrectAllowed {
-                        indentConfig
-                            .toNormalizedIndent(nodeIndentWithoutAcceptableTrailingSpaces)
-                            .plus(acceptableTrailingSpaces)
+                val expectedTrailingSpaces = expectedTrailingSpaces()
+                val expectedIndent = text.trimEnd() + expectedTrailingSpaces
+                takeIf { nodeIndent.substringAfterLast('\t') > expectedIndent }
+                    ?.let {
+                        // Actual indentation contains more spaces than expected
+                        nodeIndent
+                            .removeSuffix(expectedTrailingSpaces)
+                            .takeIf { ' ' in it }
+                            ?.let { nodeIndentWithoutExpectedTrailingSpaces ->
+                                // Remaining indentation contains unexpected space(s)
+                                emitAndApprove(
+                                    startOffset + textLength - nodeIndent.substringAfterLast('\t').length + expectedIndent.length,
+                                    "Unexpected space character(s)",
+                                    true,
+                                ).ifAutocorrectAllowed {
+                                    indentConfig
+                                        .toNormalizedIndent(nodeIndentWithoutExpectedTrailingSpaces)
+                                        .plus(expectedTrailingSpaces)
+                                }
+                            }
                     } ?: nodeIndent
-                } else {
-                    nodeIndent
-                }
             }
         }
     }
@@ -1277,32 +1282,25 @@ public class IndentationRule :
             elementType == OPERATION_REFERENCE &&
             firstChildNode?.elementType == ELVIS
 
-    private fun ASTNode.acceptableTrailingSpaces(): String {
+    private fun ASTNode.expectedTrailingSpaces(): String {
         require(isWhiteSpace)
-        val acceptableTrailingSpaces =
-            when (nextLeaf?.elementType) {
-                KDOC_LEADING_ASTERISK, KDOC_END -> {
-                    // The indentation of a KDoc comment contains a space as the last character regardless of the indentation
-                    // style (tabs or spaces) except for the starting line of the KDoc comment
-                    KDOC_CONTINUATION_INDENT
-                }
-
-                TYPE_CONSTRAINT -> {
-                    // 6 spaces (length of "where" keyword plus a separator space) to indent type constraints as below:
-                    //    where A1 : RecyclerView.Adapter<V1>,
-                    //          A1 : ComposableAdapter.ViewTypeProvider,
-                    TYPE_CONSTRAINT_CONTINUATION_INDENT
-                }
-
-                else -> {
-                    ""
-                }
+        return when {
+            nextLeaf?.elementType == KDOC_LEADING_ASTERISK || nextLeaf?.elementType == KDOC_END -> {
+                // The indentation of a KDoc comment contains a space as the last character regardless of the indentation
+                // style (tabs or spaces) except for the starting line of the KDoc comment
+                KDOC_CONTINUATION_INDENT
             }
-        val nodeIndent = text.substringAfterLast("\n")
-        return if (nodeIndent.endsWith(acceptableTrailingSpaces)) {
-            acceptableTrailingSpaces
-        } else {
-            ""
+
+            treeParent.elementType == TYPE_CONSTRAINT_LIST -> {
+                // 6 spaces (length of "where" keyword plus a separator space) to indent type constraints as below:
+                //    where A1 : RecyclerView.Adapter<V1>,
+                //          A1 : ComposableAdapter.ViewTypeProvider,
+                TYPE_CONSTRAINT_CONTINUATION_INDENT
+            }
+
+            else -> {
+                ""
+            }
         }
     }
 

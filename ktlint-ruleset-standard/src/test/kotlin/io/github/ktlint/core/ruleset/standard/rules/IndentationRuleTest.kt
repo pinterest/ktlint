@@ -1486,6 +1486,23 @@ internal class IndentationRuleTest {
     @Nested
     inner class `Given a KDoc` {
         @Test
+        fun `Given a correctly indented KDoc with tab indentation`() {
+            val code =
+                """
+                class Foo {
+                ${TAB}/**
+                ${TAB} * Some comment
+                ${TAB} */
+                ${TAB}fun foo() = "foo"
+                }
+                """.trimIndent()
+
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(INDENT_STYLE_TAB)
+                .hasNoLintViolations()
+        }
+
+        @Test
         fun `Given some correctly indented KDoc`() {
             val code =
                 """
@@ -2810,6 +2827,106 @@ internal class IndentationRuleTest {
     @Nested
     inner class `Issue 3362 - Given the WHERE keyword and tab indentation` {
         @Test
+        fun `Given a well formed WHERE with multiple type constraints`() {
+            val code =
+                """
+                private fun <T> example(value: T)
+                ${TAB}where T : First,
+                ${TAB}      T : Second {
+                ${TAB}println(value)
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(INDENT_STYLE_TAB)
+                .hasNoLintViolations()
+        }
+
+        @Test
+        fun `Given a malformed WHERE with multiple type constraints, and too few spaces before second type constraint`() {
+            val code =
+                """
+                private fun <T> example(value: T)
+                ${TAB}where T : First,
+                ${TAB}     T : Second {
+                ${TAB}println(value)
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                private fun <T> example(value: T)
+                ${TAB}where T : First,
+                ${TAB}      T : Second {
+                ${TAB}println(value)
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(INDENT_STYLE_TAB)
+                .hasLintViolation(3, 1, "Unexpected indentation (6) (should be 7)")
+                .isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given a malformed WHERE with multiple type constraints, and too much spaces before second type constraint`() {
+            val code =
+                """
+                private fun <T> example(value: T)
+                ${TAB}where T : First,
+                ${TAB}        T : Second {
+                ${TAB}println(value)
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                private fun <T> example(value: T)
+                ${TAB}where T : First,
+                ${TAB}      T : Second {
+                ${TAB}println(value)
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(INDENT_STYLE_TAB)
+                .hasLintViolations(
+                    LintViolation(3, 1, "Unexpected indentation (9) (should be 7)"),
+                    LintViolation(3, 8, "Unexpected space character(s)"),
+                ).isFormattedAs(formattedCode)
+        }
+
+        @Test
+        fun `Given a comma at the start of a continuation line`() {
+            val code =
+                // The comma at start of the continuation line should have been placed at the end of the previous line. But as the indent
+                // is correct, no violation should be reported about unexpected spaces in the indent.
+                """
+                private fun <T> example(value: T)
+                ${TAB}where T : First
+                ${TAB}      , T : Second {
+                ${TAB}println(value)
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(INDENT_STYLE_TAB)
+                .hasNoLintViolations()
+        }
+
+        @Test
+        fun `Given comments before a type constraint`() {
+            val code =
+                """
+                private fun <T> example(value: T)
+                ${TAB}where T : First,
+                ${TAB}      // Line comment before the second constraint
+                ${TAB}      /* Block comment before the second constraint */
+                ${TAB}      T : Second {
+                ${TAB}println(value)
+                }
+                """.trimIndent()
+
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(INDENT_STYLE_TAB)
+                .hasNoLintViolations()
+        }
+
+        @Test
         fun `Given a function with WHERE on a separate line`() {
             val code =
                 """
@@ -2839,6 +2956,10 @@ internal class IndentationRuleTest {
             indentationRuleAssertThat(code)
                 .withEditorConfigOverride(INDENT_STYLE_TAB)
                 .isFormattedAs(formattedCode)
+
+            indentationRuleAssertThat(formattedCode)
+                .withEditorConfigOverride(INDENT_STYLE_TAB)
+                .hasNoLintViolations()
         }
     }
 
