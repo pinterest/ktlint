@@ -30,27 +30,27 @@ val ktlint: Configuration by configurations.creating
 // External users who copy this template should remove this block and ensure mavenCentral() is in their repositories.
 configurations.all {
     resolutionStrategy.dependencySubstitution {
-        substitute(module("io.github.ktlint:ktlint-cli")).using(project(":ktlint-cli"))
-        substitute(module("io.github.ktlint:ktlint-cli-ruleset-core")).using(project(":ktlint-cli-ruleset-core"))
-        substitute(module("io.github.ktlint:ktlint-rule-engine-core")).using(project(":ktlint-rule-engine-core"))
-        substitute(module("io.github.ktlint:ktlint-test")).using(project(":ktlint-test"))
+        substitute(module("io.github.ktlint.core:ktlint-cli")).using(project(":ktlint-cli"))
+        substitute(module("io.github.ktlint.core:ktlint-cli-ruleset-core")).using(project(":ktlint-cli-ruleset-core"))
+        substitute(module("io.github.ktlint.core:ktlint-rule-engine-core")).using(project(":ktlint-rule-engine-core"))
+        substitute(module("io.github.ktlint.core:ktlint-test")).using(project(":ktlint-test"))
     }
 }
 
 // Update the version numbers of dependencies below to the most recent stable versions
 dependencies {
     // Remove when the Gradle task 'ktlintCheck' is not to be added to the project
-    ktlint("io.github.ktlint:ktlint-cli:2.0.0-SNAPSHOT")
+    ktlint("io.github.ktlint.core:ktlint-cli:2.0.0-SNAPSHOT")
 
-    implementation("io.github.ktlint:ktlint-cli-ruleset-core:2.0.0-SNAPSHOT")
-    implementation("io.github.ktlint:ktlint-rule-engine-core:2.0.0-SNAPSHOT")
+    implementation("io.github.ktlint.core:ktlint-cli-ruleset-core:2.0.0-SNAPSHOT")
+    implementation("io.github.ktlint.core:ktlint-rule-engine-core:2.0.0-SNAPSHOT")
 
     testImplementation("org.junit.jupiter:junit-jupiter:6.1.3")
     // Since Gradle 8 the platform launcher needs explicitly be defined as runtime dependency to avoid classpath problems
     // https://docs.gradle.org/8.12/userguide/upgrading_version_8.html#test_framework_implementation_dependencies
     testImplementation("org.junit.platform:junit-platform-launcher:6.1.3")
     testImplementation("org.slf4j:slf4j-simple:2.0.18")
-    testImplementation("io.github.ktlint:ktlint-test:2.0.0-SNAPSHOT")
+    testImplementation("io.github.ktlint.core:ktlint-test:2.0.0-SNAPSHOT")
 }
 
 tasks.test {
