@@ -9,6 +9,7 @@ import io.github.ktlint.core.rule.engine.core.api.ElementType.FUN
 import io.github.ktlint.core.rule.engine.core.api.ElementType.GT
 import io.github.ktlint.core.rule.engine.core.api.ElementType.LT
 import io.github.ktlint.core.rule.engine.core.api.ElementType.PRIMARY_CONSTRUCTOR
+import io.github.ktlint.core.rule.engine.core.api.ElementType.PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.TYPEALIAS
 import io.github.ktlint.core.rule.engine.core.api.ElementType.TYPE_PARAMETER_LIST
 import io.github.ktlint.core.rule.engine.core.api.IndentConfig
@@ -70,7 +71,7 @@ public class TypeParameterListSpacingRule :
         when (node.parent?.elementType) {
             CLASS -> visitClassDeclaration(node, emit)
             TYPEALIAS -> visitTypeAliasDeclaration(node, emit)
-            FUN -> visitFunctionDeclaration(node, emit)
+            FUN, PROPERTY -> visitFunctionOrPropertyDeclaration(node, emit)
         }
         visitInsideTypeParameterList(node, emit)
     }
@@ -156,12 +157,13 @@ public class TypeParameterListSpacingRule :
             ?.let { singleSpaceExpected(it, emit) }
     }
 
-    private fun visitFunctionDeclaration(
+    private fun visitFunctionOrPropertyDeclaration(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        // Single space expected before type parameter list of function
+        // Single space expected before type parameter list of function or property
         //    fun<T> foo(...)
+        //    val<T> List<T>.foo: T
         node
             .prevLeaf
             ?.let { prevLeaf ->
@@ -172,9 +174,10 @@ public class TypeParameterListSpacingRule :
                 }
             }
 
-        // Single space expected after type parameter list of function
+        // Single space expected after type parameter list of function or property
         //   fun <T>foo(...)
         //   fun <T>List<T>foo(...)
+        //   val <T>List<T>.foo: T
         node
             .lastChildNode
             .nextLeaf
