@@ -1968,4 +1968,86 @@ internal class WrappingRuleTest {
                 LintViolation(15, 7, "A newline was expected before 'T : Comparable<T>'"),
             ).isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Given a function with a multiline WHERE`() {
+        val code =
+            """
+            fun <T> copy(list: List<T>): List<String> where T : CharSequence,
+                T : Comparable<T> {
+                return list.map { it.toString() }
+            }
+
+            fun <T> copy(list: List<T>): List<String> where T : CharSequence
+                , T : Comparable<T> {
+                return list.map { it.toString() }
+            }
+
+            fun <T> copy(list: List<T>): List<String> where T : CharSequence /* Some comment */
+                , T : Comparable<T> {
+                return list.map { it.toString() }
+            }
+
+            fun <T> copy(list: List<T>): List<String> where T : CharSequence // Some comment
+                , T : Comparable<T> {
+                return list.map { it.toString() }
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun <T> copy(list: List<T>): List<String>
+                where T : CharSequence,
+                      T : Comparable<T> {
+                return list.map { it.toString() }
+            }
+
+            fun <T> copy(list: List<T>): List<String>
+                where T : CharSequence,
+                      T : Comparable<T> {
+                return list.map { it.toString() }
+            }
+
+            fun <T> copy(list: List<T>): List<String>
+                where T : CharSequence /* Some comment */,
+                      T : Comparable<T> {
+                return list.map { it.toString() }
+            }
+
+            fun <T> copy(list: List<T>): List<String>
+                where T : CharSequence, // Some comment
+                      T : Comparable<T> {
+                return list.map { it.toString() }
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code)
+            .addAdditionalRuleProvider { IndentationRule() }
+            .hasLintViolations(
+                LintViolation(1, 43, "A newline was expected before 'where'"),
+                LintViolation(6, 43, "A newline was expected before 'where'"),
+                LintViolation(7, 5, "No whitespace was expected before ','"),
+                LintViolation(7, 7, "A newline was expected before 'T : Comparable<T>'"),
+                LintViolation(11, 43, "A newline was expected before 'where'"),
+                LintViolation(12, 5, "No whitespace was expected before ','"),
+                LintViolation(12, 7, "A newline was expected before 'T : Comparable<T>'"),
+                LintViolation(16, 43, "A newline was expected before 'where'"),
+                LintViolation(17, 5, "No whitespace was expected before ','"),
+                LintViolation(17, 7, "A newline was expected before 'T : Comparable<T>'"),
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a function with a single line WHERE then do not reformat`() {
+        val code =
+            """
+            fun <T> copyWhenGreater(list: List<T>, threshold: T): List<String> where T : CharSequence, T : Comparable<T> {
+                return list.filter { it > threshold }.map { it.toString() }
+            }
+
+            fun <T> copyWhenGreater(list: List<T>, threshold: T): List<String>
+                where T : CharSequence, T : Comparable<T> {
+                return list.filter { it > threshold }.map { it.toString() }
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
+    }
 }

@@ -43,6 +43,7 @@ import io.github.ktlint.core.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIS
 import io.github.ktlint.core.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import io.github.ktlint.core.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import io.github.ktlint.core.rule.engine.core.api.ElementType.WHEN_ENTRY
+import io.github.ktlint.core.rule.engine.core.api.ElementType.WHERE_KEYWORD
 import io.github.ktlint.core.rule.engine.core.api.ElementType.WHITE_SPACE
 import io.github.ktlint.core.rule.engine.core.api.IndentConfig
 import io.github.ktlint.core.rule.engine.core.api.IndentConfig.Companion.DEFAULT_INDENT_CONFIG
@@ -136,7 +137,7 @@ public class WrappingRule :
             SUPER_TYPE_LIST -> rearrangeSuperTypeList(node, emit)
             VALUE_PARAMETER_LIST, VALUE_ARGUMENT_LIST -> rearrangeValueList(node, emit)
             TYPE_ARGUMENT_LIST, TYPE_PARAMETER_LIST -> rearrangeTypeArgumentList(node, emit)
-            TYPE_CONSTRAINT_LIST -> rearrangeTypeConstraintList(node, emit)
+            WHERE_KEYWORD -> rearrangeTypeConstraintList(node, emit)
             ARROW -> rearrangeArrow(node, emit)
             WHITE_SPACE -> line += node.text.count { it == '\n' }
             CLOSING_QUOTE -> rearrangeClosingQuote(node, emit)
@@ -437,17 +438,30 @@ public class WrappingRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        require(node.elementType == TYPE_CONSTRAINT_LIST)
+        require(node.elementType == WHERE_KEYWORD)
 
-        if (node.textContains('\n')) {
+        if (hasNewLineInClosedRange(node, node.nextSibling { it.elementType == TYPE_CONSTRAINT_LIST } ?: node)) {
+            // Indent where keyword
+            node
+                .prevSibling { !it.isPartOfComment }
+                .let { prevSibling ->
+                    if (prevSibling.isWhiteSpaceWithoutNewline) {
+                        emit(node.startOffset, "A newline was expected before 'where'", true)
+                            .ifAutocorrectAllowed {
+                                node.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
+                            }
+                    }
+                }
+
             // Each type projection must be preceded with a whitespace containing a newline
             node
-                .children
-                .forEach { child ->
+                .nextSibling { it.elementType == TYPE_CONSTRAINT_LIST }
+                ?.children
+                ?.forEach { child ->
                     when (child.elementType) {
                         COMMA -> {
                             child
-                                .prevSibling // { !it.isPartOfComment }
+                                .prevSibling
                                 ?.takeIf { it.isWhiteSpaceWithNewline }
                                 ?.let { whitespaceWithNewline ->
                                     emit(child.startOffset, "No whitespace was expected before '${child.text}'", true)
