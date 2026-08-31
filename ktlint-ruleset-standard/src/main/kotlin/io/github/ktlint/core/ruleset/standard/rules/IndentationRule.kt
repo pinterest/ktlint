@@ -710,6 +710,14 @@ public class IndentationRule :
                     startIndentContext(
                         fromAstNode = where.getPrecedingLeadingCommentsAndWhitespaces(),
                         toAstNode = typeConstraintList.lastChildLeafOrSelf,
+                        childIndent =
+                            if (where.prevLeaf?.isWhiteSpaceWithNewline == true) {
+                                indentConfig.indent
+                            } else {
+                                " ".repeat(
+                                    maxOf(0, where.column - 1 - node.indentWithoutNewlinePrefix.length),
+                                )
+                            },
                     ).prevCodeLeaf()
             }
 
