@@ -2825,6 +2825,42 @@ internal class IndentationRuleTest {
     }
 
     @Nested
+    inner class `Issue 3380 - Given a class declaration using the WHERE keyword on the same line` {
+        @Test
+        fun `Issue 3380 - Given a class declaration with WHERE on same line`() {
+            val code =
+                """
+                class Container<T> where T : Comparable<T>,
+                                         T : java.io.Serializable {
+                    fun body() {}
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code).hasNoLintViolations()
+        }
+
+        @Test
+        fun `Issue 3380 - Given a misaligned class declaration with WHERE on same line`() {
+            val code =
+                """
+                class Container<T> where T : Comparable<T>,
+                          T : java.io.Serializable {
+                    fun body() {}
+                }
+                """.trimIndent()
+            val formattedCode =
+                """
+                class Container<T> where T : Comparable<T>,
+                                         T : java.io.Serializable {
+                    fun body() {}
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .hasLintViolation(2, 1, "Unexpected indentation (10) (should be 25)")
+                .isFormattedAs(formattedCode)
+        }
+    }
+
+    @Nested
     inner class `Issue 3362 - Given the WHERE keyword and tab indentation` {
         @Test
         fun `Given a well formed WHERE with multiple type constraints`() {
