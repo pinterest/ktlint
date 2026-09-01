@@ -112,6 +112,25 @@ class TypeParameterListSpacingRuleTest {
     }
 
     @Test
+    fun `Given a generic extension property with a type parameter list not preceded or followed by a space then add the missing space`() {
+        val code =
+            """
+            val<T>List<T>.head: T
+                get() = this[0]
+            """.trimIndent()
+        val formattedCode =
+            """
+            val <T> List<T>.head: T
+                get() = this[0]
+            """.trimIndent()
+        typeParameterListSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 4, "Expected a single space"),
+                LintViolation(1, 7, "Expected a single space"),
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
     fun `Given a class or interface definition with a type parameter list followed by multiple spaces then the redundant spaces are removed`() {
         val code =
             """
