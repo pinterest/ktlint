@@ -10,12 +10,12 @@ internal const val ALIAS_CHAR = "^"
 internal fun parseImportsLayout(importsLayout: String): List<PatternEntry> {
     val importsList = importsLayout.split(",").map { it.trim() }
 
-    if (importsList.first() == BLANK_LINE_CHAR || importsList.last() == BLANK_LINE_CHAR) {
-        throw IllegalArgumentException("Blank lines are not supported in the beginning or end of import list")
+    require(importsList.first() != BLANK_LINE_CHAR && importsList.last() != BLANK_LINE_CHAR) {
+        "Blank lines are not supported in the beginning or end of import list"
     }
 
-    if (WILDCARD_CHAR !in importsList) {
-        throw IllegalArgumentException("<all other imports> symbol (\"*\") must be present in the custom imports layout")
+    require(WILDCARD_CHAR in importsList) {
+        "<all other imports> symbol (\"*\") must be present in the custom imports layout"
     }
 
     return importsList.map {
