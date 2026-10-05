@@ -20,10 +20,6 @@ public class KtlintCliError(
     public val detail: String,
     public val status: Status,
 ) : Serializable {
-    private companion object {
-        private const val serialVersionUID: Long = 1L
-    }
-
     public enum class Status {
         /**
          * An error that was ignored previously by adding it to the baseline file so that it will not be reported again at later invocations
@@ -55,5 +51,10 @@ public class KtlintCliError(
          * An internal error which was not handled correctly in ktlint rule engine.
          */
         KTLINT_RULE_ENGINE_EXCEPTION,
+    }
+
+    private companion object {
+        @Suppress("unused")
+        private const val serialVersionUID: Long = 1L
     }
 }
