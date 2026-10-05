@@ -7,12 +7,10 @@ style:
   # See the note on the `complexity` section below - ReturnCount lives under `style` in detekt 2.x.
   ReturnCount:
     active: false
+  # Disallowing comments with keywords like "TODO" and "FIXME" is counterproductive for situations in which something cannot be done or
+  # fixed at the moment. Activating this rule could lead to writing same comment without the keyword.
   ForbiddenComment:
-    # @Suppress("ForbiddenComment") does not silence this rule for a TODO placed inside a Gradle Kotlin DSL script
-    # block (verified against ktlint-cli/build.gradle.kts and settings.gradle.kts). These are the only two `.gradle.kts`
-    # TODOs in the project; ordinary `.kt` source files are unaffected and still enforce this rule normally.
-    excludes:
-      - '**/*.gradle.kts'
+    active: false
 
 complexity:
   # This codebase deliberately keeps a rule's logic inside its own `RuleV2` subclass (plus shared helpers in

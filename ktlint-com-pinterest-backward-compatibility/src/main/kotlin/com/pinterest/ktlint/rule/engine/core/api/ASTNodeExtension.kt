@@ -987,7 +987,6 @@ public fun ASTNode.endOffset(): Int = endOffset20
 /**
  * Returns the end offset of the text of this [ASTNode]
  */
-@Suppress("ForbiddenComment")
 @Deprecated(message = "Provides backwards compatibility of custom ruleset JARs created for Ktlint 1.x. Don't use for RuleV2")
 public val ASTNode.endOffset20: Int // TODO: In Ktlint 2.0 replace with accessor without temporary suffix "20"
     get(): Int = textRange.endOffset
