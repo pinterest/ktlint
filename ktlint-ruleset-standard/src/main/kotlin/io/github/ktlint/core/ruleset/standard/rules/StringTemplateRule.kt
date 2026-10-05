@@ -81,7 +81,7 @@ public class StringTemplateRule : StandardRule("string-template") {
         return children
             .filter { it.isCode }
             .toList()
-            .also { require(it.size == RECEIVER_DOT_SELECTOR_CHILD_COUNT) }
+            .also { require(it.size == EXPECTED_NUMBER_OF_CODE_ELEMENTS_IN_DOT_QUALIFIED_EXPRESSION) }
             .let { Triple(it[0], it[1], it[2]) }
     }
 
@@ -135,6 +135,6 @@ public class StringTemplateRule : StandardRule("string-template") {
             ?: error("Cannot create short string template for string '$text")
 }
 
-private const val RECEIVER_DOT_SELECTOR_CHILD_COUNT = 3
+private const val EXPECTED_NUMBER_OF_CODE_ELEMENTS_IN_DOT_QUALIFIED_EXPRESSION = 3
 
 public val STRING_TEMPLATE_RULE_ID: RuleId = StringTemplateRule().ruleId
