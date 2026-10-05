@@ -216,7 +216,6 @@ class KtLintRuleEngineTest {
                 val actual =
                     ktLintRuleEngine.format(
                         code = Code.fromFile(File(filePath)),
-                        defaultAutocorrect = true,
                     ) { lintError ->
                         lintErrors.add(lintError)
                         ALLOW_AUTOCORRECT
@@ -256,7 +255,6 @@ class KtLintRuleEngineTest {
                 val actual =
                     ktLintRuleEngine.format(
                         code = Code.fromFile(File(filePath)),
-                        defaultAutocorrect = false,
                     ) { lintError ->
                         lintErrors.add(lintError)
                         ALLOW_AUTOCORRECT
@@ -325,7 +323,6 @@ class KtLintRuleEngineTest {
                                     }
                                 """.trimIndent(),
                             ),
-                        defaultAutocorrect = true,
                     ) { lintError ->
                         lintErrors.add(lintError)
                         ALLOW_AUTOCORRECT
@@ -358,7 +355,6 @@ class KtLintRuleEngineTest {
                                     }
                                 """.trimIndent(),
                             ),
-                        defaultAutocorrect = false,
                     ) { lintError ->
                         lintErrors.add(lintError)
                         ALLOW_AUTOCORRECT
@@ -429,7 +425,6 @@ class KtLintRuleEngineTest {
                                 """.trimIndent(),
                                 script = true,
                             ),
-                        defaultAutocorrect = true,
                     ) { lintError ->
                         lintErrors.add(lintError)
                         ALLOW_AUTOCORRECT
@@ -463,7 +458,6 @@ class KtLintRuleEngineTest {
                                 """.trimIndent(),
                                 script = true,
                             ),
-                        defaultAutocorrect = false,
                     ) { lintError ->
                         lintErrors.add(lintError)
                         ALLOW_AUTOCORRECT
@@ -559,7 +553,6 @@ class KtLintRuleEngineTest {
                     fileSystem = ktlintTestFileSystem.fileSystem,
                 ).format(
                     code = Code.fromFile(File(filePath)),
-                    defaultAutocorrect = true,
                 ) { lintError ->
                     lintErrors.add(lintError)
                     ALLOW_AUTOCORRECT
