@@ -435,7 +435,7 @@ public class KdocDelimiterRule :
                                         """.trimIndent(),
                                     )?.findChildByType(KDOC)
                                     ?.findChildByType(KDOC_END)
-                                    ?: throw IllegalStateException("Cannot create KdocEnd")
+                                    ?: error("Cannot create KdocEnd")
                             node.replaceWith(newKdocEnd)
                         }
                 }

@@ -132,7 +132,7 @@ public class StringTemplateRule : StandardRule("string-template") {
             )?.findChildByType(PROPERTY)
             ?.findChildByType(STRING_TEMPLATE)
             ?.findChildByType(SHORT_STRING_TEMPLATE_ENTRY)
-            ?: throw IllegalStateException("Cannot create short string template for string '$text")
+            ?: error("Cannot create short string template for string '$text")
 }
 
 private const val RECEIVER_DOT_SELECTOR_CHILD_COUNT = 3

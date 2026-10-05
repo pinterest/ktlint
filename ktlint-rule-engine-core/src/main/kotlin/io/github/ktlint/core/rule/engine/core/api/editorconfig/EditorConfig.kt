@@ -50,7 +50,7 @@ public class EditorConfig(
         }
         val property =
             properties.getOrElse(editorConfigProperty.name) {
-                throw IllegalStateException(
+                error(
                     "Property '${editorConfigProperty.name}' can not be retrieved from this EditorConfig. Note that the EditorConfig " +
                         "which is provided to class '${RuleV2::class.qualifiedName}' only contains the properties which are defined in " +
                         "the property '${RuleV2::usesEditorConfigProperties.name}'.",

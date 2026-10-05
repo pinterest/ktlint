@@ -322,7 +322,7 @@ private fun ASTNode.createFileAnnotation(
                 .createPsiFileFromText("file.kt", annotation)
                 .firstChild
                 ?.node
-                ?: throw IllegalStateException("Can not create annotation '$annotation'")
+                ?: error("Can not create annotation '$annotation'")
         }
 
 private fun ASTNode.createFileAnnotationList(annotation: ASTNode) {
@@ -358,7 +358,7 @@ private fun createModifierListWithAnnotationEntry(
                     """.trimIndent(),
                 )?.findChildByType(FUN)
                 ?.findChildByType(MODIFIER_LIST)
-                ?: throw IllegalStateException("Can not create annotation '$annotation'")
+                ?: error("Can not create annotation '$annotation'")
         }
 
 private fun ASTNode.createAnnotatedExpression(
@@ -377,7 +377,7 @@ private fun ASTNode.createAnnotatedExpression(
                     |${this.indentWithoutNewlinePrefix}${this.text}
                     """.trimMargin(),
                 )?.findChildByType(ANNOTATED_EXPRESSION)
-                ?: throw IllegalStateException("Can not create annotation '$annotation'")
+                ?: error("Can not create annotation '$annotation'")
         }
 
 private enum class SuppressAnnotationType(
