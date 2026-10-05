@@ -119,18 +119,19 @@ private fun createKotlinProjectEnvironment(disposable: Disposable): KotlinCorePr
 private class LoggerFactory : DiagnosticLogger.Factory {
     override fun getLoggerInstance(p: String): DiagnosticLogger =
         object : DefaultLogger(null) {
-            // Intentional no-op overrides: silences the embedded Kotlin compiler's default stderr logging.
-            @Suppress("EmptyFunctionBlock")
             override fun warn(
                 message: String?,
                 t: Throwable?,
-            ) {}
+            ) {
+                // Intentional no-op. Silences the embedded Kotlin compiler's default stderr logging.
+            }
 
-            @Suppress("EmptyFunctionBlock")
             override fun error(
                 message: String?,
                 vararg details: String?,
-            ) {}
+            ) {
+                // Intentional no-op. Silences the embedded Kotlin compiler's default stderr logging.
+            }
         }
 }
 
