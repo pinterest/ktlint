@@ -155,11 +155,7 @@ public class WrappingRule :
                 .getStartOfBlock()
                 ?.takeIf { it.elementType == LBRACE }
                 ?: return
-        if (lbrace.followedByNewline() ||
-            lbrace.followedByEolComment() ||
-            lbrace.followedByFunctionLiteralParameterList() ||
-            lbrace.isPartOf(LONG_STRING_TEMPLATE_ENTRY)
-        ) {
+        if (lbrace.lbraceStartsSpecialBlock()) {
             // String template inside raw string literal may exceed the maximum line length
             return
         }
@@ -191,6 +187,12 @@ public class WrappingRule :
             }
         }
     }
+
+    private fun ASTNode.lbraceStartsSpecialBlock() =
+        followedByNewline() ||
+            followedByEolComment() ||
+            followedByFunctionLiteralParameterList() ||
+            isPartOf(LONG_STRING_TEMPLATE_ENTRY)
 
     private fun ASTNode.followedByEolComment() =
         null !=
@@ -226,22 +228,22 @@ public class WrappingRule :
                 }
                 it.elementType == closingElementType
             }!!
-        if (
+        val canKeepOnOneLine =
             !newlineInBetween ||
-            // keep { p ->
-            // }
-            (node.elementType == LBRACE && parameterListInBetween) ||
-            // keep ({
-            // }) and (object : C {
-            // })
-            (
-                numberOfArgs == 1 &&
-                    firstArg
-                        ?.firstChildNode
-                        ?.elementType
-                        ?.let { it == OBJECT_LITERAL || it == LAMBDA_EXPRESSION } == true
-            )
-        ) {
+                // keep { p ->
+                // }
+                (node.elementType == LBRACE && parameterListInBetween) ||
+                // keep ({
+                // }) and (object : C {
+                // })
+                (
+                    numberOfArgs == 1 &&
+                        firstArg
+                            ?.firstChildNode
+                            ?.elementType
+                            ?.let { it == OBJECT_LITERAL || it == LAMBDA_EXPRESSION } == true
+                )
+        if (canKeepOnOneLine) {
             return
         }
         if (node.isPartOfForLoopConditionWithMultilineExpression()) {
@@ -259,25 +261,8 @@ public class WrappingRule :
             // ) { ... }
             return
         }
-        if (!node
-                .nextCodeLeaf
-                ?.prevLeaf {
-                    // Skip comments, whitespace, and empty nodes
-                    !it.isPartOfComment &&
-                        !it.isWhiteSpaceWithoutNewline &&
-                        it.textLength > 0
-                }.isWhiteSpaceWithNewline &&
-            // IDEA quirk:
-            // if (true &&
-            //     true
-            // ) {
-            // }
-            // instead of
-            // if (
-            //     true &&
-            //     true
-            // ) {
-            // }
+        if (!isFollowedByNewline(node) &&
+            // IDEA quirk: if (true && ... ) { } instead of if ( ... true && ... ) { }
             node.nextSibling?.elementType != CONDITION
         ) {
             requireNewlineAfterLeaf(node, emit)
@@ -287,31 +272,26 @@ public class WrappingRule :
         }
     }
 
+    private fun isFollowedByNewline(node: ASTNode): Boolean =
+        node
+            .nextCodeLeaf
+            ?.prevLeaf {
+                // Skip comments, whitespace, and empty nodes
+                !it.isPartOfComment && !it.isWhiteSpaceWithoutNewline && it.textLength > 0
+            }.isWhiteSpaceWithNewline
+
     private fun rearrangeSuperTypeList(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         val entries = (node.psi as KtSuperTypeList).entries
-        if (
-            node.textContains('\n') &&
-            entries.size > 1 &&
-            // e.g.
-            //
-            // class A : B, C,
-            //     D
-            // or
-            // class A : B, C({
-            // }), D
-            //
-            // but not
-            //
-            // class A : B, C, D({
-            // })
-            !(
-                entries.dropLast(1).all { it.iElementType == SUPER_TYPE_ENTRY } &&
-                    entries.last().iElementType == SUPER_TYPE_CALL_ENTRY
-            )
-        ) {
+        // e.g. class A : B, C, D (multi-line) but not class A : B, C, D({})
+        val isLastEntryACallButNotAllOthersAreEntries =
+            entries.dropLast(1).all { it.iElementType == SUPER_TYPE_ENTRY } &&
+                entries.last().iElementType == SUPER_TYPE_CALL_ENTRY
+        val requiresSuperTypeSeparation =
+            node.textContains('\n') && entries.size > 1 && !isLastEntryACallButNotAllOthersAreEntries
+        if (requiresSuperTypeSeparation) {
             // put space after :
             if (!node.prevLeaf.isWhiteSpaceWithNewline) {
                 val colon = node.prevCodeLeaf!!
@@ -378,15 +358,13 @@ public class WrappingRule :
                 val nextSibling = c.nextSibling { !it.isWhiteSpace }
                 val hasDestructuringDeclarationAsLastValueParameter =
                     c.isLastValueParameter() && c.firstChildNode.elementType == DESTRUCTURING_DECLARATION
-                if (
+                val needsNewlineAfterComma =
                     nextSibling?.elementType == COMMA &&
-                    !hasDestructuringDeclarationAsLastValueParameter &&
-                    !nextSibling.nextSibling.isWhiteSpaceWithNewline &&
-                    // value(
-                    // ), // a comment
-                    // c, d
-                    nextSibling.nextSibling?.nextSibling?.let { !TokenSets.COMMENTS.contains(it.elementType) } != false
-                ) {
+                        !hasDestructuringDeclarationAsLastValueParameter &&
+                        !nextSibling.nextSibling.isWhiteSpaceWithNewline &&
+                        // value( // ), // a comment // c, d
+                        nextSibling.nextSibling?.nextSibling?.let { !TokenSets.COMMENTS.contains(it.elementType) } != false
+                if (needsNewlineAfterComma) {
                     requireNewlineAfterLeaf(nextSibling, emit)
                 }
             }
@@ -575,29 +553,13 @@ public class WrappingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         val parent = node.parent!!
-        if (
-            // check
-            // `{ p -> ... }`
-            // and
-            // `when { m -> ... }`
-            // only
+        // Only check `{ p -> ... }` and `when { m -> ... }` that span multiple lines
+        val arrowDoesNotRequireNewlineRearrangement =
             parent.elementType.let { it != FUNCTION_LITERAL && it != WHEN_ENTRY } ||
-            // ... and only if expression after -> spans multiple lines
-            !parent.textContains('\n') ||
-            // permit
-            // when {
-            //     m -> 0 + d({
-            //     })
-            // }
-            (parent.elementType == WHEN_ENTRY && mustBeFollowedByNewline(node)) ||
-            // permit
-            // when (this) {
-            //     in 0x1F600..0x1F64F, // Emoticons
-            //     0x200D // Zero-width Joiner
-            //     -> true
-            // }
-            (parent.elementType == WHEN_ENTRY && node.prevLeaf.isWhiteSpaceWithNewline)
-        ) {
+                !parent.textContains('\n') ||
+                (parent.elementType == WHEN_ENTRY && mustBeFollowedByNewline(node)) ||
+                (parent.elementType == WHEN_ENTRY && node.prevLeaf.isWhiteSpaceWithNewline)
+        if (arrowDoesNotRequireNewlineRearrangement) {
             return
         }
         if (!node.nextCodeLeaf?.prevLeaf.isWhiteSpaceWithNewline) {

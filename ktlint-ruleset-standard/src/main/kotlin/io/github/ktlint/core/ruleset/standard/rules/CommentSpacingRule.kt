@@ -8,7 +8,6 @@ import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.prevLeaf
 import io.github.ktlint.core.rule.engine.core.api.remove
-import io.github.ktlint.core.rule.engine.core.api.replaceTextWith
 import io.github.ktlint.core.rule.engine.core.api.upsertWhitespaceBeforeMe
 import io.github.ktlint.core.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -30,13 +29,7 @@ public class CommentSpacingRule : StandardRule("comment-spacing") {
                     }
             }
             val text = node.text
-            if (text.length != 2 &&
-                !text.startsWith("// ") &&
-                !text.startsWith("//noinspection") &&
-                !text.startsWith("//region") &&
-                !text.startsWith("//endregion") &&
-                !text.startsWith("//language=")
-            ) {
+            if (text.isMissingSpaceAfterDoubleSlash()) {
                 emit(node.startOffset, "Missing space after //", true)
                     .ifAutocorrectAllowed {
                         // Simply replacing the text of node can result in a nullpointer exception in a rule that run after this rule as the
@@ -48,6 +41,14 @@ public class CommentSpacingRule : StandardRule("comment-spacing") {
             }
         }
     }
+
+    private fun String.isMissingSpaceAfterDoubleSlash() =
+        length != 2 &&
+            !startsWith("// ") &&
+            !startsWith("//noinspection") &&
+            !startsWith("//region") &&
+            !startsWith("//endregion") &&
+            !startsWith("//language=")
 }
 
 public val COMMENT_SPACING_RULE_ID: RuleId = CommentSpacingRule().ruleId

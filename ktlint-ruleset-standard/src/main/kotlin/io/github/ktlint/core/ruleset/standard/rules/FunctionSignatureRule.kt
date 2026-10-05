@@ -600,22 +600,24 @@ public class FunctionSignatureRule :
                                     .upsertWhitespaceBeforeMe(" ")
                             }
                         }
-                    } else if (
-                        (
-                            node.hasNoMaxLineLengthSuppression() &&
-                                firstLineOfBodyExpression.length + 1 > maxLengthRemainingForFirstLineOfBodyExpression
-                        ) ||
-                        (functionBodyExpressionWrapping == MULTILINE && functionBodyExpressionLines.size > 1) ||
-                        functionBodyExpressionWrapping == ALWAYS
-                    ) {
-                        emit(
-                            functionBodyExpressionNodes.first().startOffset,
-                            "Newline expected before expression body",
-                            true,
-                        ).ifAutocorrectAllowed {
-                            functionBodyExpressionNodes
-                                .first()
-                                .upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
+                    } else {
+                        val needsNewlineBeforeBodyExpression =
+                            functionBodyExpressionWrapping == ALWAYS ||
+                                (functionBodyExpressionWrapping == MULTILINE && functionBodyExpressionLines.size > 1) ||
+                                (
+                                    node.hasNoMaxLineLengthSuppression() &&
+                                        firstLineOfBodyExpression.length + 1 > maxLengthRemainingForFirstLineOfBodyExpression
+                                )
+                        if (needsNewlineBeforeBodyExpression) {
+                            emit(
+                                functionBodyExpressionNodes.first().startOffset,
+                                "Newline expected before expression body",
+                                true,
+                            ).ifAutocorrectAllowed {
+                                functionBodyExpressionNodes
+                                    .first()
+                                    .upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
+                            }
                         }
                     }
                 }

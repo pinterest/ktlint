@@ -53,10 +53,8 @@ public class NoSemicolonsRule :
                 .ifAutocorrectAllowed {
                     val prevLeaf = node.prevLeaf
                     node.remove()
-                    if ((prevLeaf != null && prevLeaf.isWhiteSpace) &&
-                        (nextLeaf == null || nextLeaf.isWhiteSpace)
-                    ) {
-                        prevLeaf.remove()
+                    if (prevLeaf.isNonNullWhitespace() && nextLeaf.isNonNullWhitespace()) {
+                        prevLeaf!!.remove()
                     }
                 }
         } else if (!nextLeaf.isWhiteSpace) {
@@ -70,6 +68,8 @@ public class NoSemicolonsRule :
                 }
         }
     }
+
+    private fun ASTNode?.isNonNullWhitespace(): Boolean = this != null && this.isWhiteSpace
 
     private fun ASTNode?.doesNotRequirePreSemi() =
         when {

@@ -139,11 +139,7 @@ public class ClassSignatureRule :
                 var currentNode: ASTNode
                 while (iterator.hasNext()) {
                     currentNode = iterator.next()
-                    if (currentNode.elementType != ANNOTATION &&
-                        currentNode.elementType != ANNOTATION_ENTRY &&
-                        currentNode.elementType != WHITE_SPACE &&
-                        currentNode.elementType != EOL_COMMENT
-                    ) {
+                    if (currentNode.isNotAnnotationOrWhitespaceOrComment()) {
                         return currentNode
                     }
                 }
@@ -151,6 +147,12 @@ public class ClassSignatureRule :
             }
         return nextCodeLeaf
     }
+
+    private fun ASTNode.isNotAnnotationOrWhitespaceOrComment() =
+        elementType != ANNOTATION &&
+            elementType != ANNOTATION_ENTRY &&
+            elementType != WHITE_SPACE &&
+            elementType != EOL_COMMENT
 
     private fun visitClass(
         node: ASTNode,

@@ -90,22 +90,23 @@ public class MultilineExpressionWrappingRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.elementType in CHAINABLE_EXPRESSION &&
-            !node.isPartOfSpreadOperatorExpression() &&
-            (node.parent?.elementType !in CHAINABLE_EXPRESSION || node.isRightHandSideOfBinaryExpression())
-        ) {
-            visitExpression(node, emit)
-        }
-        if (node.elementType == BINARY_EXPRESSION &&
-            node.parent?.elementType != BINARY_EXPRESSION
-        ) {
+        if (node.isChainableExpressionRequiringWrappingCheck() || isRootOfBinaryExpression(node)) {
             visitExpression(node, emit)
         }
     }
 
+    private fun ASTNode.isChainableExpressionRequiringWrappingCheck() =
+        elementType in CHAINABLE_EXPRESSION &&
+            !isPartOfSpreadOperatorExpression() &&
+            (parent?.elementType !in CHAINABLE_EXPRESSION || isRightHandSideOfBinaryExpression())
+
     private fun ASTNode.isPartOfSpreadOperatorExpression() =
         prevCodeLeaf?.elementType == MUL &&
             parent?.elementType == VALUE_ARGUMENT
+
+    private fun isRootOfBinaryExpression(node: ASTNode): Boolean =
+        node.elementType == BINARY_EXPRESSION &&
+            node.parent?.elementType != BINARY_EXPRESSION
 
     private fun visitExpression(
         node: ASTNode,

@@ -24,11 +24,7 @@ public class NoUnitReturnRule : StandardRule("no-unit-return") {
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.elementType == TYPE_REFERENCE &&
-            node.text == "Unit" &&
-            node.parent?.elementType == FUN &&
-            node.nextCodeSibling?.firstChildNode?.elementType == LBRACE
-        ) {
+        if (node.isUnitReturnTypeInFunWithBlockBody()) {
             emit(node.startOffset, "Unnecessary \"Unit\" return type", true)
                 .ifAutocorrectAllowed {
                     node
@@ -52,6 +48,12 @@ public class NoUnitReturnRule : StandardRule("no-unit-return") {
                 }
         }
     }
+
+    private fun ASTNode.isUnitReturnTypeInFunWithBlockBody() =
+        elementType == TYPE_REFERENCE &&
+            text == "Unit" &&
+            parent?.elementType == FUN &&
+            nextCodeSibling?.firstChildNode?.elementType == LBRACE
 }
 
 public val NO_UNIT_RETURN_RULE_ID: RuleId = NoUnitReturnRule().ruleId

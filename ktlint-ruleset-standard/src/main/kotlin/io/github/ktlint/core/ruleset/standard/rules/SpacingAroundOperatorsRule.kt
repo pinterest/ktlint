@@ -68,9 +68,7 @@ public class SpacingAroundOperatorsRule : StandardRule("op-spacing") {
             return
         }
 
-        if ((node.elementType == LT || node.elementType == GT || node.elementType == MUL) &&
-            node.parent?.elementType != OPERATION_REFERENCE
-        ) {
+        if (node.isTypeParameterOrSpreadOperator() && node.parent?.elementType != OPERATION_REFERENCE) {
             // Allow:
             //   <T> fun foo(...)
             //   class Foo<T> { ... }
@@ -108,6 +106,8 @@ public class SpacingAroundOperatorsRule : StandardRule("op-spacing") {
             }
         }
     }
+
+    private fun ASTNode.isTypeParameterOrSpreadOperator() = elementType == LT || elementType == GT || elementType == MUL
 
     private fun ASTNode.isUnaryOperator() =
         PREFIX_EXPRESSION ==

@@ -39,12 +39,7 @@ public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
 
             if (node.elementType == KDOC_TEXT &&
                 node.text.endsWith(" ") &&
-                (
-                    node.nextLeaf
-                        ?.takeIf { it.nextLeaf?.elementType == KDOC_LEADING_ASTERISK || it.nextLeaf?.elementType == KDOC_END }
-                        ?.text
-                        ?.startsWith("\n") == true
-                )
+                node.isFollowedByNewlineBeforeKdocEndOrAsterisk()
             ) {
                 node
                     .text
@@ -92,6 +87,13 @@ public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
             }
         }
     }
+
+    private fun ASTNode.isFollowedByNewlineBeforeKdocEndOrAsterisk() =
+        true ==
+            nextLeaf
+                ?.takeIf { it.nextLeaf?.elementType == KDOC_LEADING_ASTERISK || it.nextLeaf?.elementType == KDOC_END }
+                ?.text
+                ?.startsWith("\n")
 
     private fun ASTNode.isPartOfKDoc(): Boolean = isPartOf(KDOC)
 

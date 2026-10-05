@@ -496,11 +496,7 @@ class KtLintRuleEngineTest {
                             ),
                     ) { lintError ->
                         lintErrors.add(lintError)
-                        if (lintError.line == 2 &&
-                            lintError.col == 1 &&
-                            lintError.ruleId == DEMO_RULE_ID &&
-                            lintError.detail == "Bar comment"
-                        ) {
+                        if (lintError.line == 2 && lintError.col == 1) {
                             ALLOW_AUTOCORRECT
                         } else {
                             NO_AUTOCORRECT

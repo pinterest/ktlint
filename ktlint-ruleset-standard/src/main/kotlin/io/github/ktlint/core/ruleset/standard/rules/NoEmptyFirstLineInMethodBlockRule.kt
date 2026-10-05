@@ -24,13 +24,7 @@ public class NoEmptyFirstLineInMethodBlockRule : StandardRule("no-empty-first-li
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.isWhiteSpaceWithNewline &&
-            node.prevLeaf?.elementType == LBRACE &&
-            node.isPartOf(FUN) &&
-            // Allow:
-            //     fun fn() = object : Builder {\n\n fun stuff() = Unit }
-            node.parent?.elementType != CLASS_BODY
-        ) {
+        if (node.isWhiteSpaceAfterOpeningBraceOfFunBody()) {
             val split = node.text.split("\n")
             if (split.size > 2) {
                 emit(
@@ -43,6 +37,13 @@ public class NoEmptyFirstLineInMethodBlockRule : StandardRule("no-empty-first-li
             }
         }
     }
+
+    private fun ASTNode.isWhiteSpaceAfterOpeningBraceOfFunBody() =
+        isWhiteSpaceWithNewline &&
+            prevLeaf?.elementType == LBRACE &&
+            isPartOf(FUN) &&
+            // Allow: fun fn() = object : Builder {\n\n fun stuff() = Unit }
+            parent?.elementType != CLASS_BODY
 }
 
 public val NO_EMPTY_FIRST_LINE_IN_METHOD_BLOCK_RULE_ID: RuleId = NoEmptyFirstLineInMethodBlockRule().ruleId

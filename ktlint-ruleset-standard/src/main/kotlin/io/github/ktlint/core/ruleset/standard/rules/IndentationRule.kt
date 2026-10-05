@@ -331,11 +331,7 @@ public class IndentationRule :
             }
 
             node.elementType in CHAINABLE_EXPRESSION -> {
-                if (codeStyle == KTLINT_OFFICIAL &&
-                    node.elementType == DOT_QUALIFIED_EXPRESSION &&
-                    node.parent?.elementType == ARRAY_ACCESS_EXPRESSION &&
-                    node.parent?.parent?.elementType == CALL_EXPRESSION
-                ) {
+                if (codeStyle == KTLINT_OFFICIAL && node.isDotQualifiedExpressionInArrayAccessCall()) {
                     // Issue 1540: Deviate and fix from incorrect formatting in IntelliJ IDEA formatting and produce following:
                     // val fooBar2 = foo
                     //    .bar[0] {
@@ -1422,6 +1418,11 @@ public class IndentationRule :
         fun prevCodeLeaf() = fromASTNode.prevCodeLeaf!!
     }
 }
+
+private fun ASTNode.isDotQualifiedExpressionInArrayAccessCall() =
+    elementType == DOT_QUALIFIED_EXPRESSION &&
+        parent?.elementType == ARRAY_ACCESS_EXPRESSION &&
+        parent?.parent?.elementType == CALL_EXPRESSION
 
 private fun ASTNode.textWithEscapedTabAndNewline() = text.textWithEscapedTabAndNewline()
 

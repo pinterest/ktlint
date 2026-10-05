@@ -25,11 +25,7 @@ public class NoEmptyClassBodyRule : StandardRule("no-empty-class-body") {
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.elementType == CLASS_BODY &&
-            node.isEmptyBlockBody() &&
-            !node.isPartOf(OBJECT_LITERAL) &&
-            isNotCompanion(node)
-        ) {
+        if (node.isRemovableEmptyClassBody()) {
             emit(node.startOffset, "Unnecessary block (\"{}\")", true)
                 .ifAutocorrectAllowed {
                     // remove space between declaration and block
@@ -39,6 +35,12 @@ public class NoEmptyClassBodyRule : StandardRule("no-empty-class-body") {
                 }
         }
     }
+
+    private fun ASTNode.isRemovableEmptyClassBody() =
+        elementType == CLASS_BODY &&
+            isEmptyBlockBody() &&
+            !isPartOf(OBJECT_LITERAL) &&
+            isNotCompanion(this)
 
     private fun ASTNode.isEmptyBlockBody(): Boolean =
         firstChildNode != null &&

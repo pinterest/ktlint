@@ -119,23 +119,7 @@ private fun ASTNode.findParentDeclarationOrExpression(forceFileAnnotation: Boole
 
     var targetPsiElement = psi
     var isAnnotationForBinaryExpression = false
-    while (
-        forceFileAnnotation ||
-        targetPsiElement is KtClassInitializer ||
-        targetPsiElement is KtBinaryExpression ||
-        targetPsiElement is KtBlockExpression ||
-        targetPsiElement is KtPrimaryConstructor ||
-        targetPsiElement is KtFunctionLiteral ||
-        targetPsiElement is KtLambdaExpression ||
-        targetPsiElement.parent is KtStringTemplateExpression ||
-        (
-            targetPsiElement is KtExpression &&
-                targetPsiElement.parent is KtExpression &&
-                targetPsiElement.parent !is KtBlockExpression &&
-                targetPsiElement.parent !is KtDeclaration
-        ) ||
-        (targetPsiElement !is KtDeclaration && targetPsiElement !is KtExpression)
-    ) {
+    while (targetPsiElement.shouldInspectParentElement(forceFileAnnotation)) {
         if (targetPsiElement is KtBinaryExpression) {
             isAnnotationForBinaryExpression = true
         }
@@ -171,6 +155,23 @@ private fun ASTNode.findParentDeclarationOrExpression(forceFileAnnotation: Boole
     }
     return targetPsiElement.node
 }
+
+private fun PsiElement.shouldInspectParentElement(forceFileAnnotation: Boolean) =
+    forceFileAnnotation ||
+        this is KtClassInitializer ||
+        this is KtBinaryExpression ||
+        this is KtBlockExpression ||
+        this is KtPrimaryConstructor ||
+        this is KtFunctionLiteral ||
+        this is KtLambdaExpression ||
+        parent is KtStringTemplateExpression ||
+        (
+            this is KtExpression &&
+                parent is KtExpression &&
+                parent !is KtBlockExpression &&
+                parent !is KtDeclaration
+        ) ||
+        (this !is KtDeclaration && this !is KtExpression)
 
 private val listTypeTokenSet = TokenSet.create(TYPE_ARGUMENT_LIST, TYPE_PARAMETER_LIST, VALUE_ARGUMENT_LIST, VALUE_PARAMETER_LIST)
 private val listElementTypeTokenSet = TokenSet.create(TYPE_PROJECTION, TYPE_PARAMETER, VALUE_ARGUMENT, VALUE_PARAMETER)

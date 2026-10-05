@@ -72,8 +72,7 @@ public class EnumWrappingRule :
     ) {
         require(node.elementType == CLASS_BODY)
 
-        val commentBeforeFirstEnumEntry = wrapCommentBeforeFirstEnumEntry(node, emit)
-        if (commentBeforeFirstEnumEntry || node.isMultiline() || node.hasAnnotatedEnumEntry() || node.hasCommentedEnumEntry()) {
+        if (wrapCommentBeforeFirstEnumEntry(node, emit) || node.needsWrapping()) {
             wrapEnumEntries(node, emit)
             wrapClosingBrace(node, emit)
         }
@@ -104,6 +103,8 @@ public class EnumWrappingRule :
         }
         return false
     }
+
+    private fun ASTNode.needsWrapping() = isMultiline() || hasAnnotatedEnumEntry() || hasCommentedEnumEntry()
 
     private fun ASTNode.isMultiline() = text.contains('\n')
 
