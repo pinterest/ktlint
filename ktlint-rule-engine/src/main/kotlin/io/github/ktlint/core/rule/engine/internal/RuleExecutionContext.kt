@@ -133,10 +133,6 @@ internal class RuleExecutionContext private constructor(
         }
     }
 
-    // Each of the two try/catch blocks below (before- and after-visit) must catch Throwable, since a third-party rule
-    // implementation can throw anything, including Errors, and each has its own line/col-known vs. line/col-unknown
-    // throw site - hence four throw statements total, all load-bearing.
-    @Suppress("ThrowsCount")
     private fun executeRulesOnNodeRecursively(
         node: ASTNode,
         rules: List<RuleV2>,
@@ -144,48 +140,14 @@ internal class RuleExecutionContext private constructor(
         emitAndApprove: (offset: Int, ruleId: RuleId, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         rules.forEach { rule ->
-            if (node.parent == null && node.elementType != FILE) {
-                // In commit 729a0fe23c34a8d03fd06854484fe24571b92bd6 the rule execution order has been changed to process all rules on an
-                // ASTNode before proceeding to the next node. Only when testing the Ktlint 2.0 SNAPSHOT with the Ktlint Intellij Plugin it
-                // was found this in a particular case led to a regression error when running the plugin with an older Ktlint ruleset
-                // version. Similar problems could also occur with custom rulesets.
-                // In case the entire node has been replaced by a previous rule, for example by using function rawReplaceWithText(text) on a
-                // LeafElement then the reference to the parent element of that element is set to null. Also, other fields of the node may
-                // be initialized to a default value. This could result for example result in Null Pointer Exception whenever a next rule is
-                // inspecting the element type of the parent of the node. Normally this would be resolved by fixing that rule to check for a
-                // non-null parent. However, older Ktlint rulesets are not maintained, and can therefore not be fixed.
-                // Hack solution is to stop processing of the node once it is identified that it is likely that the node has been replaced.
-                return
-            }
-            try {
-                if (!suppressionLocator.suppress(rootNode, node.startOffset, rule)) {
+            val visitChildNodesResult =
+                visitChildNodes(node, rule, autocorrectHandler) {
                     rule.beforeVisitChildNodes(node) { offset, errorMessage, canBeAutoCorrected ->
                         emitAndApprove(offset, rule.ruleId, errorMessage, canBeAutoCorrected)
                     }
                 }
-            } catch (
-                @Suppress("TooGenericExceptionCaught") e: Throwable,
-            ) {
-                if (autocorrectHandler is NoneAutocorrectHandler) {
-                    val (line, col) = positionInTextLocator(node.startOffset)
-                    throw RuleExecutionException(
-                        rule,
-                        line,
-                        col,
-                        // Prevent extreme long stack trace caused by recursive call and only pass root cause
-                        e.cause ?: e,
-                    )
-                } else {
-                    // line/col cannot be reliably mapped as exception might originate from a node not present in the
-                    // original AST
-                    throw RuleExecutionException(
-                        rule,
-                        0,
-                        0,
-                        // Prevent extreme long stack trace caused by recursive call and only pass root cause
-                        e.cause ?: e,
-                    )
-                }
+            if (visitChildNodesResult == VisitChildNodesResult.STOP) {
+                return
             }
         }
         node
@@ -199,51 +161,63 @@ internal class RuleExecutionContext private constructor(
                 )
             }
         rules.forEach { rule ->
-            if (node.parent == null && node.elementType != FILE) {
-                // In commit 729a0fe23c34a8d03fd06854484fe24571b92bd6 the rule execution order has been changed to process all rules on an
-                // ASTNode before proceeding to the next node. Only when testing the Ktlint 2.0 SNAPSHOT with the Ktlint Intellij Plugin it
-                // was found this in a particular case led to a regression error when running the plugin with an older Ktlint ruleset
-                // version. Similar problems could also occur with custom rulesets.
-                // In case the entire node has been replaced by a previous rule, for example by using function rawReplaceWithText(text) on a
-                // LeafElement then the reference to the parent element of that element is set to null. Also, other fields of the node may
-                // be initialized to a default value. This could result for example result in Null Pointer Exception whenever a next rule is
-                // inspecting the element type of the parent of the node. Normally this would be resolved by fixing that rule to check for a
-                // non-null parent. However, older Ktlint rulesets are not maintained, and can therefore not be fixed.
-                // Hack solution is to stop processing of the node once it is identified that it is likely that the node has been replaced.
-                return
-            }
-            try {
-                if (!suppressionLocator.suppress(rootNode, node.startOffset, rule)) {
+            val visitChildNodesResult =
+                visitChildNodes(node, rule, autocorrectHandler) {
                     rule.afterVisitChildNodes(node) { offset, errorMessage, canBeAutoCorrected ->
                         emitAndApprove(offset, rule.ruleId, errorMessage, canBeAutoCorrected)
                     }
                 }
-            } catch (
-                @Suppress("TooGenericExceptionCaught") e: Throwable,
-            ) {
-                if (autocorrectHandler is NoneAutocorrectHandler) {
-                    val (line, col) = positionInTextLocator(node.startOffset)
-                    throw RuleExecutionException(
-                        rule,
-                        line,
-                        col,
-                        // Prevent extreme long stack trace caused by recursive call and only pass root cause
-                        e.cause ?: e,
-                    )
-                } else {
-                    // line/col cannot be reliably mapped as exception might originate from a node not present in the
-                    // original AST
-                    throw RuleExecutionException(
-                        rule,
-                        0,
-                        0,
-                        // Prevent extreme long stack trace caused by recursive call and only pass root cause
-                        e.cause ?: e,
-                    )
-                }
+            if (visitChildNodesResult == VisitChildNodesResult.STOP) {
+                return
             }
         }
     }
+
+    private fun visitChildNodes(
+        node: ASTNode,
+        rule: RuleV2,
+        autocorrectHandler: AutocorrectHandler,
+        childNodesVisitor: () -> Unit,
+    ): VisitChildNodesResult {
+        if (node.parent == null && node.elementType != FILE) {
+            // In commit 729a0fe23c34a8d03fd06854484fe24571b92bd6 the rule execution order has been changed to process all rules on an
+            // ASTNode before proceeding to the next node. Only when testing the Ktlint 2.0 SNAPSHOT with the Ktlint Intellij Plugin it
+            // was found this in a particular case led to a regression error when running the plugin with an older Ktlint ruleset
+            // version. Similar problems could also occur with custom rulesets.
+            // In case the entire node has been replaced by a previous rule, for example by using function rawReplaceWithText(text) on a
+            // LeafElement then the reference to the parent element of that element is set to null. Also, other fields of the node may
+            // be initialized to a default value. This could result for example result in Null Pointer Exception whenever a next rule is
+            // inspecting the element type of the parent of the node. Normally this would be resolved by fixing that rule to check for a
+            // non-null parent. However, older Ktlint rulesets are not maintained, and can therefore not be fixed.
+            // Hack solution is to stop processing of the node once it is identified that it is likely that the node has been replaced.
+            return VisitChildNodesResult.STOP
+        }
+        try {
+            if (!suppressionLocator.suppress(rootNode, node.startOffset, rule)) {
+                childNodesVisitor()
+            }
+        } catch (
+            @Suppress("TooGenericExceptionCaught") t: Throwable,
+        ) {
+            val (line, col) =
+                if (autocorrectHandler is NoneAutocorrectHandler) {
+                    positionInTextLocator(node.startOffset)
+                } else {
+                    // line/col cannot be reliably mapped as exception might originate from a node not present in the original AST
+                    Pair(0, 0)
+                }
+            throw RuleExecutionException(
+                rule,
+                line,
+                col,
+                // Prevent extreme long stack trace caused by recursive call and only pass root cause
+                t.cause ?: t,
+            )
+        }
+        return VisitChildNodesResult.CONTINUE
+    }
+
+    private enum class VisitChildNodesResult { STOP, CONTINUE }
 
     companion object {
         internal fun createRuleExecutionContext(
