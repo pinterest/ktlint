@@ -2,10 +2,11 @@ package io.github.ktlint.core.ruleset.standard.rules
 
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.CodeStyleValue
-import io.github.ktlint.core.rule.engine.core.api.editorconfig.CodeStyleValue.intellij_idea
-import io.github.ktlint.core.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
+import io.github.ktlint.core.rule.engine.core.api.editorconfig.CodeStyleValue.INTELLIJ_IDEA
+import io.github.ktlint.core.rule.engine.core.api.editorconfig.CodeStyleValue.KTLINT_OFFICIAL
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
+import io.github.ktlint.core.ruleset.standard.rules.IndentationRule.Companion.INDENT_EXPLICIT_CONSTRUCTOR_PROPERTY
 import io.github.ktlint.core.test.KtLintAssertThat.Companion.EOL_CHAR
 import io.github.ktlint.core.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
 import io.github.ktlint.core.test.KtLintAssertThat.Companion.assertThatRule
@@ -989,7 +990,7 @@ internal class IndentationRuleTest {
                 }
                 """.trimIndent()
             indentationRuleAssertThat(code)
-                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to KTLINT_OFFICIAL)
                 .hasLintViolations(
                     LintViolation(4, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(5, 1, "Unexpected indentation (0) (should be 8)"),
@@ -1015,7 +1016,7 @@ internal class IndentationRuleTest {
                 """.trimIndent()
             indentationRuleAssertThat(code)
                 .withEditorConfigOverride(INDENT_STYLE_TAB)
-                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to KTLINT_OFFICIAL)
                 .hasLintViolations(
                     LintViolation(4, 1, "Unexpected indentation (0) (should be 1)"),
                     LintViolation(5, 1, "Unexpected indentation (0) (should be 2)"),
@@ -1029,7 +1030,7 @@ internal class IndentationRuleTest {
         @EnumSource(
             value = CodeStyleValue::class,
             mode = EnumSource.Mode.EXCLUDE,
-            names = ["ktlint_official"],
+            names = ["KTLINT_OFFICIAL"],
         )
         fun `Given non-ktlint-official code style and a class declaration implementing a super type with generics`(
             codeStyleValue: CodeStyleValue,
@@ -1061,7 +1062,7 @@ internal class IndentationRuleTest {
         @EnumSource(
             value = CodeStyleValue::class,
             mode = EnumSource.Mode.EXCLUDE,
-            names = ["ktlint_official"],
+            names = ["KTLINT_OFFICIAL"],
         )
         fun `Given non-ktlint-official code style and a class declaration implementing a super type with generics (tab indentation)`(
             codeStyleValue: CodeStyleValue,
@@ -1598,7 +1599,7 @@ internal class IndentationRuleTest {
                             )
                 """.trimIndent()
             indentationRuleAssertThat(code)
-                .withEditorConfigOverride(CODE_STYLE_PROPERTY to intellij_idea)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to INTELLIJ_IDEA)
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),
@@ -1643,7 +1644,7 @@ internal class IndentationRuleTest {
                         false
                 """.trimIndent()
             indentationRuleAssertThat(code)
-                .withEditorConfigOverride(CODE_STYLE_PROPERTY to intellij_idea)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to INTELLIJ_IDEA)
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),
@@ -1705,7 +1706,7 @@ internal class IndentationRuleTest {
                 }
                 """.trimIndent()
             indentationRuleAssertThat(code)
-                .withEditorConfigOverride(CODE_STYLE_PROPERTY to intellij_idea)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to INTELLIJ_IDEA)
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),
@@ -1771,7 +1772,7 @@ internal class IndentationRuleTest {
                 }
                 """.trimIndent()
             indentationRuleAssertThat(code)
-                .withEditorConfigOverride(CODE_STYLE_PROPERTY to intellij_idea)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to INTELLIJ_IDEA)
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 8)"),
@@ -2267,7 +2268,7 @@ internal class IndentationRuleTest {
                 ) // IDEA quirk
             """.trimIndent()
         indentationRuleAssertThat(code)
-            .withEditorConfigOverride(CODE_STYLE_PROPERTY to intellij_idea)
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to INTELLIJ_IDEA)
             .hasNoLintViolations()
     }
 
@@ -2645,7 +2646,7 @@ internal class IndentationRuleTest {
                 }
                 """.trimIndent()
             indentationRuleAssertThat(code)
-                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to KTLINT_OFFICIAL)
                 .hasLintViolations(
                     LintViolation(4, 1, "Unexpected indentation (12) (should be 8)"),
                     LintViolation(5, 1, "Unexpected indentation (12) (should be 8)"),
@@ -2657,7 +2658,7 @@ internal class IndentationRuleTest {
         @EnumSource(
             value = CodeStyleValue::class,
             mode = EnumSource.Mode.EXCLUDE,
-            names = ["ktlint_official"],
+            names = ["KTLINT_OFFICIAL"],
         )
         fun `Given code style other than 'ktlint_official'`(codeStyleValue: CodeStyleValue) {
             val code =
@@ -3205,7 +3206,7 @@ internal class IndentationRuleTest {
                 ): List<Output>
                 """.trimIndent()
             indentationRuleAssertThat(code)
-                .withEditorConfigOverride(CODE_STYLE_PROPERTY to intellij_idea)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to INTELLIJ_IDEA)
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (8) (should be 4)"),
                     LintViolation(6, 1, "Unexpected indentation (8) (should be 4)"),
@@ -3235,7 +3236,7 @@ internal class IndentationRuleTest {
                 ): List<Output>
                 """.trimIndent()
             indentationRuleAssertThat(code)
-                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to KTLINT_OFFICIAL)
                 .hasLintViolation(2, 1, "Unexpected indentation (8) (should be 4)")
                 .isFormattedAs(formattedCode)
         }
@@ -3967,7 +3968,7 @@ internal class IndentationRuleTest {
                 Parent2
             """.trimIndent()
         indentationRuleAssertThat(code)
-            .withEditorConfigOverride(CODE_STYLE_PROPERTY to intellij_idea)
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to INTELLIJ_IDEA)
             .hasNoLintViolations()
     }
 
@@ -4837,7 +4838,7 @@ internal class IndentationRuleTest {
                 > {}
                 """.trimIndent()
             indentationRuleAssertThat(code)
-                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to KTLINT_OFFICIAL)
                 .isFormattedAs(formattedCode)
         }
 
@@ -4845,7 +4846,7 @@ internal class IndentationRuleTest {
         @EnumSource(
             value = CodeStyleValue::class,
             mode = EnumSource.Mode.EXCLUDE,
-            names = ["ktlint_official"],
+            names = ["KTLINT_OFFICIAL"],
         )
         fun `Given non-ktlint-official code style and a nested type parameter list`(codeStyleValue: CodeStyleValue) {
             val code =
@@ -5242,7 +5243,7 @@ internal class IndentationRuleTest {
                 """.trimIndent()
             indentationRuleAssertThat(code)
                 .addAdditionalRuleProvider { ParameterListWrappingRule() }
-                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to KTLINT_OFFICIAL)
                 .hasLintViolationForAdditionalRule(2, 20, "Parameter should start on a newline")
                 .isFormattedAs(formattedCode)
         }
@@ -5261,7 +5262,7 @@ internal class IndentationRuleTest {
                     }
                 """.trimIndent()
             indentationRuleAssertThat(code)
-                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to KTLINT_OFFICIAL)
                 .hasNoLintViolations()
         }
 
@@ -5287,14 +5288,14 @@ internal class IndentationRuleTest {
             indentationRuleAssertThat(code)
                 .addAdditionalRuleProvider { ParameterWrappingRule() }
                 .addAdditionalRuleProvider { MaxLineLengthRule() }
-                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to KTLINT_OFFICIAL)
                 .setMaxLineLength()
                 .isFormattedAs(formattedCode)
         }
     }
 
     @ParameterizedTest(name = "Description: {0}")
-    @ValueSource(strings = ["ktlint_official", "android_studio"])
+    @ValueSource(strings = ["KTLINT_OFFICIAL", "ANDROID_STUDIO"])
     fun `Issue 1217 & 3062 - Given a function parameter with a multiline expression starting on a new line`(
         codeStyleValue: CodeStyleValue,
     ) {
@@ -5384,9 +5385,27 @@ internal class IndentationRuleTest {
     }
 
     @Nested
-    inner class `Issue 1916, issue 2115 - Given the ktlint_official code style and a class declaration with an annotated constructor` {
+    inner class `Issue 1916, issue 2115 - Given a class declaration with an annotation before the constructor keyword` {
         @Test
-        fun `Issue 1916, issue 2115 - Given a class declaration with an annotation before the constructor keyword`() {
+        fun `Issue 1916, issue 2115 - Given indent explicit constructor is disabled`() {
+            val code =
+                """
+                class Foo
+                @Bar1 @Bar2
+                constructor(
+                    foo1: Foo1,
+                    foo2: Foo2,
+                ) {
+                    fun foo() = "foo"
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(INDENT_EXPLICIT_CONSTRUCTOR_PROPERTY to false)
+                .hasNoLintViolations()
+        }
+
+        @Test
+        fun `Issue 1916, issue 2115 - Given indent explicit constructor is enabled`() {
             val code =
                 """
                 class Foo
@@ -5410,8 +5429,7 @@ internal class IndentationRuleTest {
                     }
                 """.trimIndent()
             indentationRuleAssertThat(code)
-                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
-                .isFormattedAs(formattedCode)
+                .withEditorConfigOverride(INDENT_EXPLICIT_CONSTRUCTOR_PROPERTY to true)
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 4)"),
@@ -5422,9 +5440,12 @@ internal class IndentationRuleTest {
                     LintViolation(8, 1, "Unexpected indentation (0) (should be 4)"),
                 ).isFormattedAs(formattedCode)
         }
+    }
 
+    @Nested
+    inner class `Issue 1916, issue 2115 - Given a class declaration with an annotation before the constructor and having a single super type` {
         @Test
-        fun `Issue 1916, issue 2115 - Given a class declaration with an annotation before the constructor and having a single super type`() {
+        fun `Issue 1916, issue 2115 - Given indent explicit constructor is disabled`() {
             val code =
                 """
                 class Foo
@@ -5433,9 +5454,30 @@ internal class IndentationRuleTest {
                     foo1: Foo1,
                     foo2: Foo2,
                 ) : Foobar(
-                    "foobar1",
-                    "foobar2",
-                ) {
+                        "foobar1",
+                        "foobar2",
+                    ) {
+                    fun foo() = "foo"
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(INDENT_EXPLICIT_CONSTRUCTOR_PROPERTY to false)
+                .hasNoLintViolations()
+        }
+
+        @Test
+        fun `Issue 1916, issue 2115 - Given indent explicit constructor is enabled`() {
+            val code =
+                """
+                class Foo
+                @Bar1 @Bar2
+                constructor(
+                    foo1: Foo1,
+                    foo2: Foo2,
+                ) : Foobar(
+                        "foobar1",
+                        "foobar2",
+                    ) {
                     fun foo() = "foo"
                 }
                 """.trimIndent()
@@ -5454,23 +5496,27 @@ internal class IndentationRuleTest {
                     }
                 """.trimIndent()
             indentationRuleAssertThat(code)
-                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .withEditorConfigOverride(INDENT_EXPLICIT_CONSTRUCTOR_PROPERTY to true)
+                .isFormattedAs(formattedCode)
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(3, 1, "Unexpected indentation (0) (should be 4)"),
                     LintViolation(4, 1, "Unexpected indentation (4) (should be 8)"),
                     LintViolation(5, 1, "Unexpected indentation (4) (should be 8)"),
                     LintViolation(6, 1, "Unexpected indentation (0) (should be 4)"),
-                    LintViolation(7, 1, "Unexpected indentation (4) (should be 12)"),
-                    LintViolation(8, 1, "Unexpected indentation (4) (should be 12)"),
-                    LintViolation(9, 1, "Unexpected indentation (0) (should be 8)"),
+                    LintViolation(7, 1, "Unexpected indentation (8) (should be 12)"),
+                    LintViolation(8, 1, "Unexpected indentation (8) (should be 12)"),
+                    LintViolation(9, 1, "Unexpected indentation (4) (should be 8)"),
                     LintViolation(10, 1, "Unexpected indentation (4) (should be 8)"),
                     LintViolation(11, 1, "Unexpected indentation (0) (should be 4)"),
                 ).isFormattedAs(formattedCode)
         }
+    }
 
+    @Nested
+    inner class `Issue 1916, issue 2115 - Given a class declaration with an annotation before the constructor and having multiple super types` {
         @Test
-        fun `Issue 1916, issue 2115 - Given a class declaration with an annotation before the constructor and having multiple super types`() {
+        fun `Issue 1916, issue 2115 - Given indent explicit constructor is disabled`() {
             val code =
                 """
                 class Foo
@@ -5479,9 +5525,32 @@ internal class IndentationRuleTest {
                     foo1: Foo1,
                     foo2: Foo2,
                 ) : Foobar1(
-                    "foobar1",
-                    "foobar2",
-                ),
+                        "foobar1",
+                        "foobar2",
+                    ),
+                    FooBar2,
+                    FooBar3 {
+                    fun foo() = "foo"
+                }
+                """.trimIndent()
+            indentationRuleAssertThat(code)
+                .withEditorConfigOverride(INDENT_EXPLICIT_CONSTRUCTOR_PROPERTY to false)
+                .hasNoLintViolations()
+        }
+
+        @Test
+        fun `Issue 1916, issue 2115 - Given indent explicit constructor is enabled`() {
+            val code =
+                """
+                class Foo
+                @Bar1 @Bar2
+                constructor(
+                    foo1: Foo1,
+                    foo2: Foo2,
+                ) : Foobar1(
+                        "foobar1",
+                        "foobar2",
+                    ),
                     FooBar2,
                     FooBar3 {
                     fun foo() = "foo"
@@ -5504,7 +5573,7 @@ internal class IndentationRuleTest {
                     }
                 """.trimIndent()
             indentationRuleAssertThat(code)
-                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .withEditorConfigOverride(INDENT_EXPLICIT_CONSTRUCTOR_PROPERTY to true)
                 .isFormattedAs(formattedCode)
                 .hasLintViolations(
                     LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
@@ -5512,9 +5581,9 @@ internal class IndentationRuleTest {
                     LintViolation(4, 1, "Unexpected indentation (4) (should be 8)"),
                     LintViolation(5, 1, "Unexpected indentation (4) (should be 8)"),
                     LintViolation(6, 1, "Unexpected indentation (0) (should be 4)"),
-                    LintViolation(7, 1, "Unexpected indentation (4) (should be 12)"),
-                    LintViolation(8, 1, "Unexpected indentation (4) (should be 12)"),
-                    LintViolation(9, 1, "Unexpected indentation (0) (should be 8)"),
+                    LintViolation(7, 1, "Unexpected indentation (8) (should be 12)"),
+                    LintViolation(8, 1, "Unexpected indentation (8) (should be 12)"),
+                    LintViolation(9, 1, "Unexpected indentation (4) (should be 8)"),
                     LintViolation(10, 1, "Unexpected indentation (4) (should be 8)"),
                     LintViolation(11, 1, "Unexpected indentation (4) (should be 8)"),
                     LintViolation(12, 1, "Unexpected indentation (4) (should be 8)"),
@@ -5535,7 +5604,7 @@ internal class IndentationRuleTest {
                 }
                 """.trimIndent()
             indentationRuleAssertThat(code)
-                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to KTLINT_OFFICIAL)
                 .hasNoLintViolations()
         }
 
@@ -5552,7 +5621,7 @@ internal class IndentationRuleTest {
                 }
                 """.trimIndent()
             indentationRuleAssertThat(code)
-                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to KTLINT_OFFICIAL)
                 .hasNoLintViolations()
         }
 
@@ -5604,7 +5673,7 @@ internal class IndentationRuleTest {
 
         @Nested
         inner class `Given non-ktlint_official code style` {
-            private val nonKtlintOfficialCodeStyle = CodeStyleValue.android_studio
+            private val nonKtlintOfficialCodeStyle = CodeStyleValue.ANDROID_STUDIO
 
             @Test
             fun `As body expression on same line as equals and preceded by space`() {
@@ -5682,7 +5751,7 @@ internal class IndentationRuleTest {
                         $MULTILINE_STRING_QUOTE.trimIndent()
                     """.trimIndent()
                 indentationRuleAssertThat(code)
-                    .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                    .withEditorConfigOverride(CODE_STYLE_PROPERTY to KTLINT_OFFICIAL)
                     .hasNoLintViolations()
             }
 
@@ -5697,7 +5766,7 @@ internal class IndentationRuleTest {
                         $MULTILINE_STRING_QUOTE.trimIndent()
                     """.trimIndent()
                 indentationRuleAssertThat(code)
-                    .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                    .withEditorConfigOverride(CODE_STYLE_PROPERTY to KTLINT_OFFICIAL)
                     .hasNoLintViolations()
             }
 
@@ -5712,7 +5781,7 @@ internal class IndentationRuleTest {
                     }
                     """.trimIndent()
                 indentationRuleAssertThat(code)
-                    .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                    .withEditorConfigOverride(CODE_STYLE_PROPERTY to KTLINT_OFFICIAL)
                     .hasNoLintViolations()
             }
 
@@ -5729,7 +5798,7 @@ internal class IndentationRuleTest {
                     }
                     """.trimIndent()
                 indentationRuleAssertThat(code)
-                    .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                    .withEditorConfigOverride(CODE_STYLE_PROPERTY to KTLINT_OFFICIAL)
                     .hasNoLintViolations()
             }
         }
@@ -5775,7 +5844,7 @@ internal class IndentationRuleTest {
                 }
             """.trimIndent()
         indentationRuleAssertThat(code)
-            .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+            .withEditorConfigOverride(CODE_STYLE_PROPERTY to KTLINT_OFFICIAL)
             .hasNoLintViolations()
     }
 
@@ -5837,7 +5906,7 @@ internal class IndentationRuleTest {
     }
 
     @Test
-    fun `Given ktlint_official code style, a class with an explicit constructor and a super type entry`() {
+    fun `Given indent explicit constructor is enabled, a class with an explicit constructor and a super type entry`() {
         val code =
             """
             class Foo
@@ -5857,7 +5926,7 @@ internal class IndentationRuleTest {
                 }
             """.trimIndent()
         indentationRuleAssertThat(code)
-            .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+            .withEditorConfigOverride(INDENT_EXPLICIT_CONSTRUCTOR_PROPERTY to true)
             .isFormattedAs(formattedCode)
             .hasLintViolations(
                 LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
@@ -5869,7 +5938,7 @@ internal class IndentationRuleTest {
     }
 
     @Test
-    fun `Given ktlint_official code style, a class with an explicit constructor and multiple super types entry`() {
+    fun `Given explicit constructor indent is enabled, a class with an explicit constructor and multiple super types entry`() {
         val code =
             """
             class Foo
@@ -5891,7 +5960,7 @@ internal class IndentationRuleTest {
                 }
             """.trimIndent()
         indentationRuleAssertThat(code)
-            .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+            .withEditorConfigOverride(INDENT_EXPLICIT_CONSTRUCTOR_PROPERTY to true)
             .isFormattedAs(formattedCode)
             .hasLintViolations(
                 LintViolation(2, 1, "Unexpected indentation (0) (should be 4)"),
@@ -6028,7 +6097,7 @@ internal class IndentationRuleTest {
         @EnumSource(
             value = CodeStyleValue::class,
             mode = EnumSource.Mode.EXCLUDE,
-            names = ["ktlint_official"],
+            names = ["KTLINT_OFFICIAL"],
         )
         fun `Issue 2808 - Given non-ktlint_official code style, and property 'ij_kotlin_indent_before_arrow_on_new_line' is enabled`(
             codeStyleValue: CodeStyleValue,
@@ -6094,7 +6163,7 @@ internal class IndentationRuleTest {
                 """.trimIndent()
 
             indentationRuleAssertThat(code)
-                .withEditorConfigOverride(CODE_STYLE_PROPERTY to ktlint_official)
+                .withEditorConfigOverride(CODE_STYLE_PROPERTY to KTLINT_OFFICIAL)
                 .withEditorConfigOverride(IndentationRule.INDENT_WHEN_ARROW_ON_NEW_LINE to true)
                 .hasLintViolations(
                     LintViolation(4, 1, "Unexpected indentation (8) (should be 12)"),
@@ -6115,7 +6184,7 @@ internal class IndentationRuleTest {
         @EnumSource(
             value = CodeStyleValue::class,
             mode = EnumSource.Mode.EXCLUDE,
-            names = ["ktlint_official"],
+            names = ["KTLINT_OFFICIAL"],
         )
         fun `Issue 2808 - Given property 'ij_kotlin_indent_before_arrow_on_new_line' not set`(codeStyleValue: CodeStyleValue) {
             indentationRuleAssertThat(code)

@@ -24,7 +24,7 @@ version = "1.0-SNAPSHOT"
 // }
 
 // Remove when the Gradle task 'ktlintCheck' is not to be added to the project
-val ktlint: Configuration by configurations.creating
+val ktlint: Configuration = configurations.create("ktlint")
 
 // During development in the ktlint repository, substitute Maven coordinates with local projects.
 // External users who copy this template should remove this block and ensure mavenCentral() is in their repositories.
@@ -49,7 +49,7 @@ dependencies {
     // Since Gradle 8 the platform launcher needs explicitly be defined as runtime dependency to avoid classpath problems
     // https://docs.gradle.org/8.12/userguide/upgrading_version_8.html#test_framework_implementation_dependencies
     testImplementation("org.junit.platform:junit-platform-launcher:6.1.3")
-    testImplementation("org.slf4j:slf4j-simple:2.0.19")
+    testImplementation("org.slf4j:slf4j-simple:2.0.20")
     testImplementation("io.github.ktlint.core:ktlint-test:2.0.0-SNAPSHOT")
 }
 
@@ -90,14 +90,15 @@ publishing {
 }
 
 // Remove when the Gradle task 'ktlintCheck' is not to be added to the project
-val ktlintCheck by tasks.registering(JavaExec::class) {
-    dependsOn(tasks.classes)
-    group = LifecycleBasePlugin.VERIFICATION_GROUP
-    mainClass = "io.github.ktlint.core.Main"
-    // Adding compiled classes of this ruleset to the classpath so that ktlint validates the ruleset using its own ruleset
-    classpath(ktlint, sourceSets.main.map { it.output })
-    args("--log-level=debug", "src/**/*.kt")
-}
+val ktlintCheck =
+    tasks.register<JavaExec>("ktlintCheck") {
+        dependsOn(tasks.classes)
+        group = LifecycleBasePlugin.VERIFICATION_GROUP
+        mainClass = "io.github.ktlint.core.Main"
+        // Adding compiled classes of this ruleset to the classpath so that ktlint validates the ruleset using its own ruleset
+        classpath(ktlint, sourceSets.main.map { it.output })
+        args("--log-level=debug", "src/**/*.kt")
+    }
 
 // Remove when the Gradle task 'ktlintCheck' is not to be added to the project
 tasks.check {

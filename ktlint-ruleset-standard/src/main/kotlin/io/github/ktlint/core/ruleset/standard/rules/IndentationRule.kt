@@ -91,7 +91,7 @@ import io.github.ktlint.core.rule.engine.core.api.children
 import io.github.ktlint.core.rule.engine.core.api.column
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.CodeStyleValue
-import io.github.ktlint.core.rule.engine.core.api.editorconfig.CodeStyleValue.ktlint_official
+import io.github.ktlint.core.rule.engine.core.api.editorconfig.CodeStyleValue.KTLINT_OFFICIAL
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfigProperty
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
@@ -142,11 +142,13 @@ public class IndentationRule :
                 INDENT_SIZE_PROPERTY,
                 INDENT_STYLE_PROPERTY,
                 INDENT_WHEN_ARROW_ON_NEW_LINE,
+                INDENT_EXPLICIT_CONSTRUCTOR_PROPERTY,
             ),
     ) {
     private var codeStyle = CODE_STYLE_PROPERTY.defaultValue
     private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
     private var indentWhenArrowOnNewLine = INDENT_WHEN_ARROW_ON_NEW_LINE.defaultValue
+    private var identExplicitConstructor = INDENT_EXPLICIT_CONSTRUCTOR_PROPERTY.defaultValue
 
     private var line = 1
 
@@ -165,6 +167,7 @@ public class IndentationRule :
             stopTraversalOfAST()
         }
         indentWhenArrowOnNewLine = editorConfig[INDENT_WHEN_ARROW_ON_NEW_LINE]
+        identExplicitConstructor = editorConfig[INDENT_EXPLICIT_CONSTRUCTOR_PROPERTY]
     }
 
     override fun beforeVisitChildNodes(
@@ -207,7 +210,7 @@ public class IndentationRule :
 
             (node.elementType == SUPER_TYPE_LIST && !node.isPrecededByComment()) ||
                 (node.isPartOfComment && node.nextCodeSibling?.elementType == SUPER_TYPE_LIST) -> {
-                if (codeStyle == ktlint_official) {
+                if (codeStyle == KTLINT_OFFICIAL) {
                     val superTypeList =
                         if (node.isPartOfComment) {
                             node.nextCodeLeaf!!
@@ -242,7 +245,7 @@ public class IndentationRule :
             }
 
             node.elementType == PARENTHESIZED -> {
-                if (codeStyle == ktlint_official) {
+                if (codeStyle == KTLINT_OFFICIAL) {
                     // Contrary to the IntelliJ IDEA default formatter, do not indent the closing RPAR
                     startIndentContext(
                         fromAstNode = node,
@@ -255,7 +258,7 @@ public class IndentationRule :
 
             node.elementType == TYPE_ARGUMENT_LIST ||
                 node.elementType == TYPE_PARAMETER_LIST -> {
-                if (codeStyle == ktlint_official) {
+                if (codeStyle == KTLINT_OFFICIAL) {
                     // Contrary to the IntelliJ IDEA default formatter, do not indent the closing angle bracket
                     startIndentContext(
                         fromAstNode = node,
@@ -328,7 +331,7 @@ public class IndentationRule :
             }
 
             node.elementType in CHAINABLE_EXPRESSION -> {
-                if (codeStyle == ktlint_official &&
+                if (codeStyle == KTLINT_OFFICIAL &&
                     node.elementType == DOT_QUALIFIED_EXPRESSION &&
                     node.parent?.elementType == ARRAY_ACCESS_EXPRESSION &&
                     node.parent?.parent?.elementType == CALL_EXPRESSION
@@ -417,7 +420,7 @@ public class IndentationRule :
             ?.textContains('\n') == true
 
     private fun visitValueArgument(node: ASTNode) {
-        if (codeStyle == ktlint_official || codeStyle == CodeStyleValue.android_studio) {
+        if (codeStyle == KTLINT_OFFICIAL || codeStyle == CodeStyleValue.ANDROID_STUDIO) {
             // Deviate from standard IntelliJ IDEA formatting to allow formatting below:
             //     val foo = foo(
             //         parameterName =
@@ -529,7 +532,7 @@ public class IndentationRule :
 
     private fun ASTNode.calculateIndentOfFunctionLiteralParameters() =
         if (isFirstParameterOfFunctionLiteralPrecededByNewLine()) {
-            if (codeStyle == ktlint_official) {
+            if (codeStyle == KTLINT_OFFICIAL) {
                 // Indent with single indent as defined in Kotlin Coding conventions
                 indentConfig.indent
             } else {
@@ -600,7 +603,7 @@ public class IndentationRule :
                     ).prevCodeLeaf()
             }
 
-        if (codeStyle == ktlint_official) {
+        if (codeStyle == KTLINT_OFFICIAL) {
             // Deviate from standard IntelliJ IDEA formatting to allow formatting below:
             //     fun process(
             //         aVariableWithAVeryLongName:
@@ -723,12 +726,11 @@ public class IndentationRule :
 
         val primaryConstructor = node.findChildByType(PRIMARY_CONSTRUCTOR)
         val containsConstructorKeyword = primaryConstructor?.findChildByType(CONSTRUCTOR_KEYWORD) != null
-        if (codeStyle == ktlint_official && primaryConstructor != null && containsConstructorKeyword) {
+        if (identExplicitConstructor && primaryConstructor != null && containsConstructorKeyword) {
             nextToAstNode =
                 startIndentContext(
                     fromAstNode = primaryConstructor.getPrecedingLeadingCommentsAndWhitespaces(),
                     toAstNode = nextToAstNode,
-//                    activated = true,
                 ).prevCodeLeaf()
         } else {
             node
@@ -825,7 +827,7 @@ public class IndentationRule :
                     .prevSibling { !it.isPartOfComment }
                     .let { prevSibling ->
                         if (indentWhenArrowOnNewLine && prevSibling != null && prevSibling.isWhiteSpaceWithNewline) {
-                            if (arrow.nextCodeSibling?.elementType == BLOCK && codeStyle != ktlint_official) {
+                            if (arrow.nextCodeSibling?.elementType == BLOCK && codeStyle != KTLINT_OFFICIAL) {
                                 // Uglify the indentation to below to keep compatible with default formatting Intellij IDEA
                                 //     val foo =
                                 //        when (bar()) {
@@ -1343,6 +1345,21 @@ public class IndentationRule :
                 // versions.
                 defaultValue = false,
             )
+
+        public val INDENT_EXPLICIT_CONSTRUCTOR_PROPERTY: EditorConfigProperty<Boolean> =
+            EditorConfigProperty(
+                type =
+                    PropertyType.LowerCasingPropertyType(
+                        "ktlint_indent_explicit_constructor",
+                        "Indent an explicit constructor of a class. As side effect the entire class body will also be indented.",
+                        PropertyValueParser.BOOLEAN_VALUE_PARSER,
+                        setOf("true", "false"),
+                    ),
+                defaultValue = true,
+                androidStudioCodeStyleDefaultValue = false,
+                intellijIdeaCodeStyleDefaultValue = false,
+                ktlintOfficialCodeStyleDefaultValue = true,
+            )
     }
 
     private data class IndentContext(
@@ -1451,7 +1468,7 @@ private class StringTemplateIndenter(
 
                 val prevLeaf = node.prevLeaf
                 val correctedExpectedIndent =
-                    if (codeStyle == ktlint_official && node.isRawStringLiteralReturnInFunctionBodyBlock()) {
+                    if (codeStyle == KTLINT_OFFICIAL && node.isRawStringLiteralReturnInFunctionBodyBlock()) {
                         // Allow:
                         //   fun foo(): String {
                         //       return """
@@ -1461,7 +1478,7 @@ private class StringTemplateIndenter(
                         node
                             .indentWithoutNewlinePrefix
                             .plus(indentConfig.indent)
-                    } else if (codeStyle == ktlint_official && node.isRawStringLiteralFunctionBodyExpression()) {
+                    } else if (codeStyle == KTLINT_OFFICIAL && node.isRawStringLiteralFunctionBodyExpression()) {
                         // Allow:
                         //   fun foo(
                         //       bar: String

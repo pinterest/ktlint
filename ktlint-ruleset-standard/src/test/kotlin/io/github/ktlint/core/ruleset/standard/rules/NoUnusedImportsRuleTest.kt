@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 class NoUnusedImportsRuleTest {
     private val noUnusedImportsRuleAssertThat =
         assertThatRuleBuilder { NoUnusedImportsRule() }
-            .withEditorConfigOverride(NO_UNUSED_IMPORTS_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.enabled)
+            .withEditorConfigOverride(NO_UNUSED_IMPORTS_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.ENABLED)
             .assertThat()
 
     @Test
@@ -861,5 +861,31 @@ class NoUnusedImportsRuleTest {
             """.trimIndent()
         noUnusedImportsRuleAssertThat(code)
             .hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 3397 - Given an usage of an import in a function body that is replaced with a function expression`() {
+        val code =
+            """
+            package foo
+
+            import bar.Bar.Companion.FORTY_TWO
+
+            fun foo(): Int {
+                return FORTY_TWO
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            package foo
+
+            import bar.Bar.Companion.FORTY_TWO
+
+            fun foo(): Int = FORTY_TWO
+            """.trimIndent()
+        noUnusedImportsRuleAssertThat(code)
+            .addAdditionalRuleProvider { FunctionExpressionBodyRule() }
+            .hasLintViolationForAdditionalRule(5, 16, "Function body should be replaced with body expression")
+            .isFormattedAs(formattedCode)
     }
 }

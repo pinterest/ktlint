@@ -6,10 +6,9 @@ import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.RuleSetId
 import org.ec4j.core.model.PropertyType
 
-@Suppress("EnumEntryName")
 public enum class RuleExecution {
-    enabled,
-    disabled,
+    ENABLED,
+    DISABLED,
 }
 
 public val RULE_EXECUTION_PROPERTY_TYPE: PropertyType.LowerCasingPropertyType<RuleExecution> =
@@ -30,7 +29,7 @@ public val ALL_RULES_EXECUTION_PROPERTY: EditorConfigProperty<RuleExecution> =
         // Explicitly name the rule as multiple properties exists for this property type
         name = "ktlint",
         type = RULE_EXECUTION_PROPERTY_TYPE,
-        defaultValue = RuleExecution.enabled,
+        defaultValue = RuleExecution.ENABLED,
     )
 
 /**
@@ -41,14 +40,14 @@ public val EXPERIMENTAL_RULES_EXECUTION_PROPERTY: EditorConfigProperty<RuleExecu
         // Explicitly name the rule as multiple properties exists for this property type
         name = "ktlint_experimental",
         type = RULE_EXECUTION_PROPERTY_TYPE,
-        defaultValue = RuleExecution.disabled,
+        defaultValue = RuleExecution.DISABLED,
     )
 
 /**
  * Generates the rule execution '.editorconfig' property for the given [RuleSetId].
  */
 public fun RuleSetId.createRuleSetExecutionEditorConfigProperty(
-    ruleExecution: RuleExecution = RuleExecution.enabled,
+    ruleExecution: RuleExecution = RuleExecution.ENABLED,
 ): EditorConfigProperty<RuleExecution> =
     EditorConfigProperty(
         // Explicitly name the rule as multiple properties exists for this property type
@@ -61,7 +60,7 @@ public fun RuleSetId.createRuleSetExecutionEditorConfigProperty(
  * Generates the rule execution '.editorconfig' property for the given [RuleId].
  */
 public fun RuleId.createRuleExecutionEditorConfigProperty(
-    ruleExecution: RuleExecution = RuleExecution.enabled,
+    ruleExecution: RuleExecution = RuleExecution.ENABLED,
 ): EditorConfigProperty<RuleExecution> =
     EditorConfigProperty(
         name = ktLintRuleExecutionPropertyName(),
