@@ -273,13 +273,13 @@ private fun ASTNode.createSuppressAnnotation(
 
     when (psi) {
         is KtFile -> {
-            val fileAnnotation = targetNode.createFileAnnotation(suppressType, suppressions)
+            val fileAnnotation = createFileAnnotation(suppressType, suppressions)
             this.createFileAnnotationList(fileAnnotation)
         }
 
         is KtAnnotationEntry -> {
             if (psi.parent is KtFileAnnotationList) {
-                val fileAnnotation = targetNode.createFileAnnotation(suppressType, suppressions)
+                val fileAnnotation = createFileAnnotation(suppressType, suppressions)
                 this.replaceWith(fileAnnotation.firstChildNode)
             } else {
                 val modifierListWithAnnotation = createModifierListWithAnnotationEntry(suppressType, suppressions)
@@ -309,7 +309,7 @@ private fun ASTNode.createSuppressAnnotation(
     }
 }
 
-private fun ASTNode.createFileAnnotation(
+private fun createFileAnnotation(
     suppressType: SuppressAnnotationType,
     suppressions: Set<String>,
 ): ASTNode =
