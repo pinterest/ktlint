@@ -498,7 +498,7 @@ public final class io/github/ktlint/core/rule/engine/core/api/TokenSets {
 	public final fun getCONTROL_FLOW_KEYWORDS ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/TokenSet;
 }
 
-public final class io/github/ktlint/core/rule/engine/core/api/editorconfig/CodeStyleEditorConfigPropertyKt {
+public final class io/github/ktlint/core/rule/engine/core/api/editorconfig/CodeStyleEditorConfigPropertyKtKt {
 	public static final fun getCODE_STYLE_PROPERTY ()Lio/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfigProperty;
 	public static final fun getCODE_STYLE_PROPERTY_TYPE ()Lorg/ec4j/core/model/PropertyType$LowerCasingPropertyType;
 }
@@ -580,7 +580,7 @@ public final class io/github/ktlint/core/rule/engine/core/api/editorconfig/RuleE
 	public static fun values ()[Lio/github/ktlint/core/rule/engine/core/api/editorconfig/RuleExecution;
 }
 
-public final class io/github/ktlint/core/rule/engine/core/api/editorconfig/RuleExecutionEditorConfigPropertyKt {
+public final class io/github/ktlint/core/rule/engine/core/api/editorconfig/RuleExecutionEditorConfigPropertyKtKt {
 	public static final fun createRuleExecutionEditorConfigProperty (Lio/github/ktlint/core/rule/engine/core/api/RuleId;Lio/github/ktlint/core/rule/engine/core/api/editorconfig/RuleExecution;)Lio/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfigProperty;
 	public static synthetic fun createRuleExecutionEditorConfigProperty$default (Lio/github/ktlint/core/rule/engine/core/api/RuleId;Lio/github/ktlint/core/rule/engine/core/api/editorconfig/RuleExecution;ILjava/lang/Object;)Lio/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfigProperty;
 	public static final fun createRuleSetExecutionEditorConfigProperty (Lio/github/ktlint/core/rule/engine/core/api/RuleSetId;Lio/github/ktlint/core/rule/engine/core/api/editorconfig/RuleExecution;)Lio/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfigProperty;
