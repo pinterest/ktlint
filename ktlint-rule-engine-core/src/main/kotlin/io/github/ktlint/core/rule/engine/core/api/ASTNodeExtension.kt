@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package io.github.ktlint.core.rule.engine.core.api
 
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATED_EXPRESSION

@@ -23,7 +23,12 @@ complexity:
   LargeClass:
     active: false
   TooManyFunctions:
-    active: false
+    # Logic for rules is kept intentionally inside the Rule classes. Shared logic for traversing and manipulating the AST is stored in the
+    # `ASTNodeExtension.kt` only. As a result Rule classes can contain a lot of private functions.
+    ignorePrivate: true
+    excludes:
+      # Allow test classes to contain too many public functions
+      - '**/*Test.kt'
   LongMethod:
     active: false
     excludes:

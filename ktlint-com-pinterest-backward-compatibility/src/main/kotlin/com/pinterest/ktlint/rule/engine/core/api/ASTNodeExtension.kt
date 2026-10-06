@@ -1,4 +1,4 @@
-@file:Suppress("DEPRECATION")
+@file:Suppress("DEPRECATION", "TooManyFunctions")
 
 package com.pinterest.ktlint.rule.engine.core.api
 
