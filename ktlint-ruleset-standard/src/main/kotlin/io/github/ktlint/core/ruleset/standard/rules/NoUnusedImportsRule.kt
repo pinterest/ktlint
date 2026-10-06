@@ -166,60 +166,69 @@ public class NoUnusedImportsRule :
         }
 
         imports.forEach { (_, node) ->
-            val importDirective = node.psi as KtImportDirective
-            val name =
-                importDirective
-                    .importPath
-                    ?.importedName
-                    ?.asString()
-                    ?.removeBackticksAndTrim()
-            val importPath = importDirective.importPath?.pathStr?.removeBackticksAndTrim()!!
-            if (importDirective.aliasName == null &&
-                (packageName.isEmpty() || importPath.startsWith("$packageName.")) &&
-                importPath.substring(packageName.length + 1).indexOf('.') == -1
-            ) {
-                // Allow imports without alias for which the fully qualified path is equal to the package name. See
-                // https://github.com/ktlint/ktlint/issues/2821 for an example in which marking an import from the same package
-                // led to compile failure.
-            } else if (name != null &&
-                (!ref.map { it.text }.contains(name) || !isAValidImport(importPath)) &&
-                !OPERATOR_SET.contains(name) &&
-                !name.isComponentN() &&
-                !importPath.ignoreProvideDelegate()
-            ) {
-                emit(node.startOffset, "Unused import", true)
-                    .ifAutocorrectAllowed {
-                        val nextSibling = node.nextSibling
-                        if (nextSibling == null) {
-                            // Last import
-                            node
-                                .lastChildLeafOrSelf
-                                .nextLeaf
-                                ?.takeIf { it.isWhiteSpaceWithNewline }
-                                ?.let { whitespace ->
-                                    if (node.prevLeaf == null) {
-                                        // Also it was the first import, and it is not preceded by any other node containing some text. So
-                                        // all whitespace until the next is redundant
-                                        whitespace.remove()
-                                    } else {
-                                        val textAfterFirstNewline =
-                                            whitespace
-                                                .text
-                                                .substringAfter("\n")
-                                        if (textAfterFirstNewline.isNotBlank()) {
-                                            whitespace.replaceTextWith(textAfterFirstNewline)
-                                        }
+            node.visitImport(emit)
+        }
+    }
+
+    private fun ASTNode.visitImport(emit: (Int, String, Boolean) -> AutocorrectDecision) {
+        val importDirective = this.psi as KtImportDirective
+        if (importDirective.isUnaliasedImportFromSamePackage()) {
+            // Allow imports without alias for which the fully qualified path is equal to the package name. See
+            // https://github.com/ktlint/ktlint/issues/2821 for an example in which marking an import from the same package
+            // led to compile failure.
+        } else if (importDirective.isUnusedImport()) {
+            emit(this.startOffset, "Unused import", true)
+                .ifAutocorrectAllowed {
+                    val nextSibling = nextSibling
+                    if (nextSibling == null) {
+                        // Last import
+                        lastChildLeafOrSelf
+                            .nextLeaf
+                            ?.takeIf { it.isWhiteSpaceWithNewline }
+                            ?.let { whitespace ->
+                                if (prevLeaf == null) {
+                                    // Also it was the first import, and it is not preceded by any other node containing some text. So
+                                    // all whitespace until the next is redundant
+                                    whitespace.remove()
+                                } else {
+                                    val textAfterFirstNewline =
+                                        whitespace
+                                            .text
+                                            .substringAfter("\n")
+                                    if (textAfterFirstNewline.isNotBlank()) {
+                                        whitespace.replaceTextWith(textAfterFirstNewline)
                                     }
                                 }
-                        } else {
-                            nextSibling
-                                .takeIf { it.isWhiteSpaceWithNewline }
-                                ?.remove()
-                        }
-                        node.deleteImportDirective()
+                            }
+                    } else {
+                        nextSibling
+                            .takeIf { it.isWhiteSpaceWithNewline }
+                            ?.remove()
                     }
-            }
+                    deleteImportDirective()
+                }
         }
+    }
+
+    private fun KtImportDirective.isUnaliasedImportFromSamePackage(): Boolean {
+        val importPath = importPath?.pathStr?.removeBackticksAndTrim()!!
+        return aliasName == null &&
+            (packageName.isEmpty() || importPath.startsWith("$packageName.")) &&
+            importPath.substring(packageName.length + 1).indexOf('.') == -1
+    }
+
+    private fun KtImportDirective.isUnusedImport(): Boolean {
+        val importedName =
+            importPath
+                ?.importedName
+                ?.asString()
+                ?.removeBackticksAndTrim()
+        val importPath = importPath?.pathStr?.removeBackticksAndTrim()!!
+        return importedName != null &&
+            (!ref.map { it.text }.contains(importedName) || !isAValidImport(importPath)) &&
+            !OPERATOR_SET.contains(importedName) &&
+            !importedName.isComponentN() &&
+            !importPath.ignoreProvideDelegate()
     }
 
     private fun String.ignoreProvideDelegate() =
@@ -285,6 +294,7 @@ public class NoUnusedImportsRule :
     }
 
     private fun ASTNode.containsMethodCall() = text.split(".").last().contains("(")
+
 
     // Check if the import being checked is present in the filtered import list
     private fun isAValidImport(importPath: String) =
