@@ -119,7 +119,8 @@ public class FunctionSignatureRule :
     }
 
     private fun ASTNode.functionSignatureNodes(): List<ASTNode> {
-        // Find the signature including the element that has to be placed on the same line as the function signature
+        // Find the signature including the element that has to be placed on the same line as the function signature excluding the elements
+        // like the context parameter list, annotations and comments that have to placed on separate lines.
         //     fun foo(bar: String) {
         // or
         //     fun foo(bar: String) =
@@ -154,21 +155,9 @@ public class FunctionSignatureRule :
                         return currentNode
                             .lastChildLeafOrSelf
                             .nextLeaf
-                            .let { leafAfterCompositeContextReceiverList ->
-                                if (leafAfterCompositeContextReceiverList.isWhiteSpaceWithNewline) {
-                                    // Ignore context receiver when followed by newline or EOL comment. Also, ignore that newline or EOL
-                                    // comment.
-                                    //     context(Foo)
-                                    //     fun foo()
-                                    // or
-                                    //     context(_: Foo)
-                                    //     fun foo()
-                                    // Same when using context parameter instead of context receiver
-                                    leafAfterCompositeContextReceiverList?.nextLeaf
-                                } else {
-                                    currentNode
-                                }
-                            }
+                            .takeIf { it.isWhiteSpaceWithNewline }
+                            ?.nextLeaf
+                            ?: currentNode
                     } else if (currentNode.elementType != ANNOTATION &&
                         currentNode.elementType != ANNOTATION_ENTRY &&
                         currentNode.elementType != WHITE_SPACE
@@ -433,47 +422,70 @@ public class FunctionSignatureRule :
             .children
             .filter { it.elementType == VALUE_PARAMETER }
             .filter { it != firstParameterInList }
-            .forEach { valueParameter ->
-                val firstChildNodeInValueParameter = valueParameter.firstChildNode
-                firstChildNodeInValueParameter
-                    ?.prevLeaf
-                    ?.takeIf { it.isWhiteSpace }
-                    .let { whiteSpaceBeforeIdentifier ->
-                        if (multiline) {
-                            val expectedParameterIndent = indentConfig.childIndentOf(node)
-                            if (whiteSpaceBeforeIdentifier == null ||
-                                whiteSpaceBeforeIdentifier.text != expectedParameterIndent
-                            ) {
-                                if (!dryRun && valueParameterList.hasNoMaxLineLengthSuppression()) {
-                                    emit(
-                                        valueParameter.startOffset,
-                                        "Parameter should start on a newline",
-                                        true,
-                                    ).ifAutocorrectAllowed {
-                                        firstChildNodeInValueParameter.upsertWhitespaceBeforeMe(expectedParameterIndent)
-                                    }
-                                } else {
-                                    whiteSpaceCorrection += expectedParameterIndent.length - (whiteSpaceBeforeIdentifier?.textLength ?: 0)
-                                }
-                            }
-                        } else {
-                            if (whiteSpaceBeforeIdentifier == null || whiteSpaceBeforeIdentifier.text != " ") {
-                                if (!dryRun) {
-                                    emit(
-                                        firstChildNodeInValueParameter!!.startOffset,
-                                        "Single whitespace expected before parameter",
-                                        true,
-                                    ).ifAutocorrectAllowed {
-                                        firstChildNodeInValueParameter.upsertWhitespaceBeforeMe(" ")
-                                    }
-                                } else {
-                                    whiteSpaceCorrection += 1 - (whiteSpaceBeforeIdentifier?.textLength ?: 0)
-                                }
-                            }
-                        }
-                    }
-            }
+            .forEach { whiteSpaceCorrection += it.fixWhiteSpacesAroundValueParameter(emit, multiline, dryRun) }
 
+        return whiteSpaceCorrection
+    }
+
+    private fun ASTNode.fixWhiteSpacesAroundValueParameter(
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
+        multiline: Boolean,
+        dryRun: Boolean,
+    ): Int {
+        require(elementType == VALUE_PARAMETER)
+        return if (multiline) {
+            fixWhiteSpacesAroundValueParameterInMultilineParameterList(emit, dryRun)
+        } else {
+            this.fixWhiteSpacesAroundValueParameterInSingleLineParameterList(emit, dryRun)
+        }
+    }
+
+    private fun ASTNode.fixWhiteSpacesAroundValueParameterInMultilineParameterList(
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
+        dryRun: Boolean,
+    ): Int {
+        require(elementType == VALUE_PARAMETER)
+        var whiteSpaceCorrection = 0
+        val firstChildNodeInValueParameter = this.firstChildNode
+        firstChildNodeInValueParameter
+            ?.prevLeaf
+            ?.takeIf { it.isWhiteSpace }
+            .let { whiteSpaceBeforeIdentifier ->
+                val expectedParameterIndent = indentConfig.childIndentOf(this.parent { it.elementType == FUN }!!)
+                if (whiteSpaceBeforeIdentifier == null ||
+                    whiteSpaceBeforeIdentifier.text != expectedParameterIndent
+                ) {
+                    if (!dryRun && hasNoMaxLineLengthSuppression()) {
+                        emit(this.startOffset, "Parameter should start on a newline", true)
+                            .ifAutocorrectAllowed { firstChildNodeInValueParameter.upsertWhitespaceBeforeMe(expectedParameterIndent) }
+                    } else {
+                        whiteSpaceCorrection += expectedParameterIndent.length - (whiteSpaceBeforeIdentifier?.textLength ?: 0)
+                    }
+                }
+            }
+        return whiteSpaceCorrection
+    }
+
+    private fun ASTNode.fixWhiteSpacesAroundValueParameterInSingleLineParameterList(
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
+        dryRun: Boolean,
+    ): Int {
+        require(this.elementType == VALUE_PARAMETER)
+        var whiteSpaceCorrection = 0
+        val firstChildNodeInValueParameter = this.firstChildNode
+        firstChildNodeInValueParameter
+            ?.prevLeaf
+            ?.takeIf { it.isWhiteSpace }
+            .let { whiteSpaceBeforeIdentifier ->
+                if (whiteSpaceBeforeIdentifier == null || whiteSpaceBeforeIdentifier.text != " ") {
+                    if (!dryRun) {
+                        emit(firstChildNodeInValueParameter!!.startOffset, "Single whitespace expected before parameter", true)
+                            .ifAutocorrectAllowed { firstChildNodeInValueParameter.upsertWhitespaceBeforeMe(" ") }
+                    } else {
+                        whiteSpaceCorrection += 1 - (whiteSpaceBeforeIdentifier?.textLength ?: 0)
+                    }
+                }
+            }
         return whiteSpaceCorrection
     }
 

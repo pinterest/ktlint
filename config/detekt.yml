@@ -34,8 +34,6 @@ complexity:
     excludes:
       # Allow long methods in test classes as extracting logic from tests to functions might reduce readability
       - '**/*Test.kt'
-  NestedBlockDepth:
-    active: false
   CyclomaticComplexMethod:
     active: false
 

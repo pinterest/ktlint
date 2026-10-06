@@ -444,55 +444,68 @@ public class WrappingRule :
                 ?.children
                 ?.forEach { child ->
                     when (child.elementType) {
-                        COMMA -> {
-                            child
-                                .prevSibling
-                                ?.takeIf { it.isWhiteSpaceWithNewline }
-                                ?.let { whitespaceWithNewline ->
-                                    emit(child.startOffset, "No whitespace was expected before '${child.text}'", true)
-                                        .ifAutocorrectAllowed {
-                                            if (whitespaceWithNewline.prevLeaf?.elementType == EOL_COMMENT) {
-                                                // In case the comma was preceded by an EOL_COMMENT then move the comma before that comment
-                                                //        where T : CharSequence // Some comment
-                                                //            , T : Comparable<T>
-                                                val eolCommentBeforeComma = whitespaceWithNewline.prevLeaf!!
-                                                val insertCommaBefore =
-                                                    eolCommentBeforeComma
-                                                        .prevLeaf
-                                                        .takeIf { it.isWhiteSpace }
-                                                        ?: eolCommentBeforeComma
-                                                eolCommentBeforeComma.treeParent.addChild(LeafPsiElement(COMMA, ","), insertCommaBefore)
-                                                child
-                                                    .nextSibling
-                                                    ?.takeIf { it.isWhiteSpace }
-                                                    ?.remove()
-                                                child.remove()
-                                            } else {
-                                                whitespaceWithNewline.remove()
-                                            }
-                                        }
-                                }
-                        }
-
-                        TYPE_CONSTRAINT -> {
-                            child
-                                .prevSibling { !it.isPartOfComment }
-                                .let { prevSibling ->
-                                    if (prevSibling.isWhiteSpaceWithoutNewline) {
-                                        emit(child.startOffset, "A newline was expected before '${child.text}'", true)
-                                            .ifAutocorrectAllowed {
-                                                child.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
-                                            }
-                                    }
-                                }
-                        }
-
-                        else -> {
-                            // No-op
-                        }
+                        COMMA -> rearrangeCommaInTypeConstraintList(child, emit)
+                        TYPE_CONSTRAINT -> rearrangeTypeConstraintInTypeConstraintList(child, emit)
                     }
                 }
         }
+    }
+
+    private fun rearrangeCommaInTypeConstraintList(
+        child: ASTNode,
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
+    ) {
+        require(child.elementType == COMMA && child.parent!!.elementType == TYPE_CONSTRAINT_LIST)
+        child
+            .prevSibling
+            ?.takeIf { it.isWhiteSpaceWithNewline }
+            ?.let { whitespaceWithNewline ->
+                emit(child.startOffset, "No whitespace was expected before '${child.text}'", true)
+                    .ifAutocorrectAllowed {
+                        if (whitespaceWithNewline.prevLeaf?.elementType == EOL_COMMENT) {
+                            // In case the comma was preceded by an EOL_COMMENT then move the comma before that comment
+                            //        where T : CharSequence // Some comment
+                            //            , T : Comparable<T>
+                            val eolCommentBeforeComma = whitespaceWithNewline.prevLeaf!!
+                            val insertCommaBefore =
+                                eolCommentBeforeComma
+                                    .prevLeaf
+                                    .takeIf { it.isWhiteSpace }
+                                    ?: eolCommentBeforeComma
+                            eolCommentBeforeComma.treeParent.addChild(LeafPsiElement(COMMA, ","), insertCommaBefore)
+                            child
+                                .nextSibling
+                                ?.takeIf { it.isWhiteSpace }
+                                ?.remove()
+                            child.remove()
+                        } else {
+                            whitespaceWithNewline.remove()
+                        }
+                    }
+            }
+    }
+
+    private fun rearrangeTypeConstraintInTypeConstraintList(
+        child: ASTNode,
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
+    ) {
+        require(child.elementType == TYPE_CONSTRAINT)
+        child
+            .prevSibling { !it.isPartOfComment }
+            .let { prevSibling ->
+                if (prevSibling.isWhiteSpaceWithoutNewline) {
+                    emit(child.startOffset, "A newline was expected before '${child.text}'", true)
+                        .ifAutocorrectAllowed {
+                            child.upsertWhitespaceBeforeMe(
+                                indentConfig.siblingIndentOf(
+                                    child
+                                        .parent { it.elementType == FUN }
+                                        ?.findChildByType(WHERE_KEYWORD)!!,
+                                ),
+                            )
+                        }
+                }
+            }
     }
 
     private fun rearrangeClosingQuote(
