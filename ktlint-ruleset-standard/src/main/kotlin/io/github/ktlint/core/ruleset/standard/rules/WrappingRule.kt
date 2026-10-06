@@ -262,7 +262,14 @@ public class WrappingRule :
             return
         }
         if (!isFollowedByNewline(node) &&
-            // IDEA quirk: if (true && ... ) { } instead of if ( ... true && ... ) { }
+            // Allow:
+            //    if (foo(
+            //            "bar",
+            //            "baz",
+            //        )
+            //     ) {
+            //        // something
+            //
             node.nextSibling?.elementType != CONDITION
         ) {
             requireNewlineAfterLeaf(node, emit)

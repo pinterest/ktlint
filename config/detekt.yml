@@ -36,8 +36,6 @@ complexity:
       - '**/*Test.kt'
   NestedBlockDepth:
     active: false
-  ComplexCondition:
-    active: false
   CyclomaticComplexMethod:
     active: false
 
