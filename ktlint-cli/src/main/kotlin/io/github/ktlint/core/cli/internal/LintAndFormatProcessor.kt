@@ -66,44 +66,6 @@ internal class LintAndFormatProcessor(
             }.parallel({ (file, errList) -> report(file.location(relative), errList, reporter) })
     }
 
-    internal fun lintStdin(
-        ktLintRuleEngine: KtLintRuleEngine,
-        reporter: ReporterV2,
-        code: Code,
-    ) {
-        report(
-            KtLintRuleEngine.STDIN_FILE,
-            process(
-                ktLintRuleEngine = ktLintRuleEngine,
-                code = code,
-                baselineLintErrors = emptyList(),
-            ),
-            reporter,
-        )
-    }
-
-    private fun report(
-        relativeRoute: String,
-        ktlintCliErrors: List<KtlintCliError>,
-        reporter: ReporterV2,
-    ) {
-        fileNumber.incrementAndGet()
-        val errListLimit = minOf(ktlintCliErrors.size, maxOf(limit - errorNumber.get(), 0))
-        errorNumber.addAndGet(errListLimit)
-        if (!adviseToUseFormat.get() && ktlintCliErrors.containsErrorThatCanBeAutocorrected()) {
-            adviseToUseFormat.set(true)
-        }
-
-        reporter.before(relativeRoute)
-        ktlintCliErrors
-            .take(errListLimit)
-            .filterNot { ignoreAutocorrectFailures && it.status == LINT_CAN_NOT_BE_AUTOCORRECTED }
-            .forEach { reporter.onLintError(relativeRoute, it) }
-        reporter.after(relativeRoute)
-    }
-
-    private fun List<KtlintCliError>.containsErrorThatCanBeAutocorrected() = any { it.status == LINT_CAN_BE_AUTOCORRECTED }
-
     private fun process(
         ktLintRuleEngine: KtLintRuleEngine,
         code: Code,
@@ -260,6 +222,40 @@ internal class LintAndFormatProcessor(
         }
     }
 
+    private fun Throwable.toKtlintCliError(code: Code): KtlintCliError =
+        this.let { e ->
+            when (e) {
+                is KtLintParseException -> {
+                    KtlintCliError(
+                        line = e.line,
+                        col = e.col,
+                        ruleId = "",
+                        detail = "Not a valid Kotlin file (${e.message?.lowercase(Locale.getDefault())})",
+                        status = KOTLIN_PARSE_EXCEPTION,
+                    )
+                }
+
+                is KtLintRuleException -> {
+                    logger.debug(e) { "Internal Error (${e.ruleId}) in ${code.fileNameOrStdin()} at position '${e.line}:${e.col}" }
+                    KtlintCliError(
+                        line = e.line,
+                        col = e.col,
+                        ruleId = "",
+                        detail =
+                            "Internal Error (rule '${e.ruleId}') in ${code.fileNameOrStdin()} at position '${e.line}:${e.col}. Please " +
+                                "create a ticket at https://github.com/ktlint/ktlint/issues and provide the source code that " +
+                                "triggered an error.\n" +
+                                e.stackTraceToString(),
+                        status = KTLINT_RULE_ENGINE_EXCEPTION,
+                    )
+                }
+
+                else -> {
+                    throw e
+                }
+            }
+        }
+
     private fun lintCode(
         ktLintRuleEngine: KtLintRuleEngine,
         code: Code,
@@ -330,37 +326,41 @@ internal class LintAndFormatProcessor(
         return ktlintCliErrors.toList()
     }
 
-    private fun Throwable.toKtlintCliError(code: Code): KtlintCliError =
-        this.let { e ->
-            when (e) {
-                is KtLintParseException -> {
-                    KtlintCliError(
-                        line = e.line,
-                        col = e.col,
-                        ruleId = "",
-                        detail = "Not a valid Kotlin file (${e.message?.lowercase(Locale.getDefault())})",
-                        status = KOTLIN_PARSE_EXCEPTION,
-                    )
-                }
-
-                is KtLintRuleException -> {
-                    logger.debug(e) { "Internal Error (${e.ruleId}) in ${code.fileNameOrStdin()} at position '${e.line}:${e.col}" }
-                    KtlintCliError(
-                        line = e.line,
-                        col = e.col,
-                        ruleId = "",
-                        detail =
-                            "Internal Error (rule '${e.ruleId}') in ${code.fileNameOrStdin()} at position '${e.line}:${e.col}. Please " +
-                                "create a ticket at https://github.com/ktlint/ktlint/issues and provide the source code that " +
-                                "triggered an error.\n" +
-                                e.stackTraceToString(),
-                        status = KTLINT_RULE_ENGINE_EXCEPTION,
-                    )
-                }
-
-                else -> {
-                    throw e
-                }
-            }
+    private fun report(
+        relativeRoute: String,
+        ktlintCliErrors: List<KtlintCliError>,
+        reporter: ReporterV2,
+    ) {
+        fileNumber.incrementAndGet()
+        val errListLimit = minOf(ktlintCliErrors.size, maxOf(limit - errorNumber.get(), 0))
+        errorNumber.addAndGet(errListLimit)
+        if (!adviseToUseFormat.get() && ktlintCliErrors.containsErrorThatCanBeAutocorrected()) {
+            adviseToUseFormat.set(true)
         }
+
+        reporter.before(relativeRoute)
+        ktlintCliErrors
+            .take(errListLimit)
+            .filterNot { ignoreAutocorrectFailures && it.status == LINT_CAN_NOT_BE_AUTOCORRECTED }
+            .forEach { reporter.onLintError(relativeRoute, it) }
+        reporter.after(relativeRoute)
+    }
+
+    private fun List<KtlintCliError>.containsErrorThatCanBeAutocorrected() = any { it.status == LINT_CAN_BE_AUTOCORRECTED }
+
+    internal fun lintStdin(
+        ktLintRuleEngine: KtLintRuleEngine,
+        reporter: ReporterV2,
+        code: Code,
+    ) {
+        report(
+            KtLintRuleEngine.STDIN_FILE,
+            process(
+                ktLintRuleEngine = ktLintRuleEngine,
+                code = code,
+                baselineLintErrors = emptyList(),
+            ),
+            reporter,
+        )
+    }
 }
