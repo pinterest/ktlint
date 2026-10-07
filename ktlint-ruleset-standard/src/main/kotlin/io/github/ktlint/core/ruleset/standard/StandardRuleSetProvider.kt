@@ -111,6 +111,7 @@ import io.github.ktlint.core.ruleset.standard.rules.WhenEntryBracing
 import io.github.ktlint.core.ruleset.standard.rules.WrappingRule
 
 public class StandardRuleSetProvider : RuleSetV2Provider(RuleSetId.STANDARD) {
+    @Suppress("LongMethod")
     override fun getRuleProviders(): Set<RuleV2Provider> =
         setOf(
             RuleV2Provider { AnnotationRule() },

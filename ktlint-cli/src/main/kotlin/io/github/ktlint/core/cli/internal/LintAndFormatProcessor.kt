@@ -13,6 +13,8 @@ import io.github.ktlint.core.rule.engine.api.Code
 import io.github.ktlint.core.rule.engine.api.KtLintParseException
 import io.github.ktlint.core.rule.engine.api.KtLintRuleEngine
 import io.github.ktlint.core.rule.engine.api.KtLintRuleException
+import io.github.ktlint.core.rule.engine.api.LintError
+import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision.ALLOW_AUTOCORRECT
 import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision.NO_AUTOCORRECT
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
@@ -119,67 +121,10 @@ internal class LintAndFormatProcessor(
     ): List<KtlintCliError> {
         val ktlintCliErrors = mutableListOf<KtlintCliError>()
         try {
+            val formatAutocorrectDecisionHandler = createFormatAutocorrectDecisionHandler(baselineLintErrors, ktlintCliErrors)
             ktLintRuleEngine
-                .format(code) { lintError ->
-                    if (ignoreAutocorrectFailures && !lintError.canBeAutoCorrected) {
-                        NO_AUTOCORRECT
-                    } else {
-                        KtlintCliError(
-                            line = lintError.line,
-                            col = lintError.col,
-                            ruleId = lintError.ruleId.value,
-                            detail =
-                                lintError
-                                    .detail
-                                    .applyIf(!lintError.canBeAutoCorrected) { "$this (cannot be auto-corrected)" },
-                            status =
-                                if (lintError.canBeAutoCorrected) {
-                                    FORMAT_IS_AUTOCORRECTED
-                                } else {
-                                    LINT_CAN_NOT_BE_AUTOCORRECTED
-                                },
-                        ).takeIf { baselineLintErrors.doesNotContain(it) }
-                            ?.let { ktlintCliError ->
-                                ktlintCliErrors.add(ktlintCliError)
-                                if (lintError.canBeAutoCorrected) {
-                                    ALLOW_AUTOCORRECT
-                                } else {
-                                    containsUnfixedLintErrors.set(true)
-                                    NO_AUTOCORRECT
-                                }
-                            } ?: NO_AUTOCORRECT
-                    }
-                }.also { formattedFileContent ->
-                    if (ktlintCliErrors.isNotEmpty() && code.content == formattedFileContent) {
-                        // In very rare cases it is possible that Lint violations are detected but that they have opposite effects and the
-                        // file gets not altered at all. This is to be treated as unfixable error.
-                        containsUnfixedLintErrors.set(true)
-                    }
-                    if (forceLintAfterFormat && code.content != formattedFileContent) {
-                        // Rerun lint to check that the formatted code can still be successfully parsed.
-                        try {
-                            ktLintRuleEngine.lint(Code.fromSnippet(formattedFileContent, code.script))
-                        } catch (e: KtLintParseException) {
-                            logger.error(e) { "After formatting code in file '${code.filePath}' it cannot be successfully parsed anymore." }
-                            // Intentionally stop formatting other files. The '--force-lint-after-format' is only supposed to be used during
-                            // release testing of Ktlint CLI. An immediate exit forces to fix the issue immediately as release test can
-                            // otherwise not be completed.
-                            exitKtLintProcess(ExitCode.PARSE_EXCEPTION_AFTER_FORMAT)
-                        }
-                    }
-                    when {
-                        code.isStdIn -> {
-                            writeToStdout(formattedFileContent)
-                        }
-
-                        code.content != formattedFileContent -> {
-                            code
-                                .filePath
-                                ?.toFile()
-                                ?.writeText(formattedFileContent, UTF_8)
-                        }
-                    }
-                }
+                .format(code, callback = formatAutocorrectDecisionHandler)
+                .also { formattedCode -> processFormatResults(code, formattedCode, ktlintCliErrors) }
         } catch (e: KtLintParseException) {
             if (code.isStdIn) {
                 if (code.script) {
@@ -241,6 +186,79 @@ internal class LintAndFormatProcessor(
         return ktlintCliErrors.toList()
     }
 
+    private fun processFormatResults(
+        code: Code,
+        formattedFileContent: String,
+        ktlintCliErrors: List<KtlintCliError>,
+    ) {
+        if (ktlintCliErrors.isNotEmpty() && code.content == formattedFileContent) {
+            // In very rare cases it is possible that Lint violations are detected but that they have opposite effects and the
+            // file gets not altered at all. This is to be treated as unfixable error.
+            containsUnfixedLintErrors.set(true)
+        }
+        if (forceLintAfterFormat && code.content != formattedFileContent) {
+            // Rerun lint to check that the formatted code can still be successfully parsed.
+            try {
+                ktLintRuleEngine.lint(Code.fromSnippet(formattedFileContent, code.script))
+            } catch (e: KtLintParseException) {
+                logger.error(e) { "After formatting code in file '${code.filePath}' it cannot be successfully parsed anymore." }
+                // Intentionally stop formatting other files. The '--force-lint-after-format' is only supposed to be used during
+                // release testing of Ktlint CLI. An immediate exit forces to fix the issue immediately as release test can
+                // otherwise not be completed.
+                exitKtLintProcess(ExitCode.PARSE_EXCEPTION_AFTER_FORMAT)
+            }
+        }
+        when {
+            code.isStdIn -> {
+                writeToStdout(formattedFileContent)
+            }
+
+            code.content != formattedFileContent -> {
+                code
+                    .filePath
+                    ?.toFile()
+                    ?.writeText(formattedFileContent, UTF_8)
+            }
+        }
+    }
+
+    private fun createFormatAutocorrectDecisionHandler(
+        baselineLintErrors: List<KtlintCliError>,
+        ktlintCliErrors: MutableList<KtlintCliError>,
+    ): (LintError) -> AutocorrectDecision =
+        { lintError ->
+            if (ignoreAutocorrectFailures && !lintError.canBeAutoCorrected) {
+                NO_AUTOCORRECT
+            } else {
+                lintError
+                    .toFormatKtlintCliError()
+                    .takeIf { baselineLintErrors.doesNotContain(it) }
+                    ?.let { ktlintCliError ->
+                        ktlintCliErrors.add(ktlintCliError)
+                        if (lintError.canBeAutoCorrected) {
+                            ALLOW_AUTOCORRECT
+                        } else {
+                            containsUnfixedLintErrors.set(true)
+                            NO_AUTOCORRECT
+                        }
+                    } ?: NO_AUTOCORRECT
+            }
+        }
+
+    private fun LintError.toFormatKtlintCliError(): KtlintCliError =
+        KtlintCliError(
+            line = line,
+            col = col,
+            ruleId = ruleId.value,
+            detail = detail.applyIf(!canBeAutoCorrected) { "$this (cannot be auto-corrected)" },
+            status =
+                if (canBeAutoCorrected) {
+                    FORMAT_IS_AUTOCORRECTED
+                } else {
+                    LINT_CAN_NOT_BE_AUTOCORRECTED
+                },
+        )
+
     private fun writeToStdout(content: String) {
         // Avoid Unicode characters on Windows OS to be malformed as stdout does not default to UTF-8 (#3133).
         with(PrintWriter(OutputStreamWriter(System.out, UTF_8), true)) {
@@ -293,19 +311,7 @@ internal class LintAndFormatProcessor(
         val ktlintCliErrors = mutableListOf<KtlintCliError>()
         try {
             ktLintRuleEngine.lint(code) { lintError ->
-                val ktlintCliError =
-                    KtlintCliError(
-                        line = lintError.line,
-                        col = lintError.col,
-                        ruleId = lintError.ruleId.value,
-                        detail = lintError.detail,
-                        status =
-                            if (lintError.canBeAutoCorrected) {
-                                LINT_CAN_BE_AUTOCORRECTED
-                            } else {
-                                LINT_CAN_NOT_BE_AUTOCORRECTED
-                            },
-                    )
+                val ktlintCliError = toLintKtlintCliError(lintError)
                 if (baselineLintErrors.doesNotContain(ktlintCliError) && !ignoreAutocorrectFailures) {
                     ktlintCliErrors.add(ktlintCliError)
                     containsUnfixedLintErrors.set(true)
@@ -353,6 +359,20 @@ internal class LintAndFormatProcessor(
         }
         return ktlintCliErrors.toList()
     }
+
+    private fun toLintKtlintCliError(lintError: LintError): KtlintCliError =
+        KtlintCliError(
+            line = lintError.line,
+            col = lintError.col,
+            ruleId = lintError.ruleId.value,
+            detail = lintError.detail,
+            status =
+                if (lintError.canBeAutoCorrected) {
+                    LINT_CAN_BE_AUTOCORRECTED
+                } else {
+                    LINT_CAN_NOT_BE_AUTOCORRECTED
+                },
+        )
 
     private fun report(
         relativeRoute: String,
