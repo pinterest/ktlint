@@ -1,5 +1,6 @@
 package io.github.ktlint.core.cli.internal
 
+import io.github.ktlint.core.cli.reporter.baseline.Baseline
 import io.github.ktlint.core.cli.reporter.baseline.doesNotContain
 import io.github.ktlint.core.cli.reporter.core.api.KtlintCliError
 import io.github.ktlint.core.cli.reporter.core.api.KtlintCliError.Status.FORMAT_IS_AUTOCORRECTED
@@ -31,18 +32,50 @@ internal class LintAndFormatProcessor(
     private val forceLintAfterFormat: Boolean,
     private val relative: Boolean,
     private val limit: Int,
+    private val ktLintRuleEngine: KtLintRuleEngine,
+    private val baseline: Baseline,
+    private val reporter: ReporterV2,
 ) {
-    internal val containsUnfixedLintErrors = AtomicBoolean()
-    internal val fileNumber = AtomicInteger()
-    internal val errorNumber = AtomicInteger()
-    internal val adviseToUseFormat = AtomicBoolean()
+    private val containsUnfixedLintErrors = AtomicBoolean()
+    private val fileNumber = AtomicInteger()
+    private val errorNumber = AtomicInteger()
+    private val adviseToUseFormat = AtomicBoolean()
 
-    internal fun lintFiles(
+    internal fun run(
+        stdinCode: Code?,
         patterns: List<String>,
-        ktLintRuleEngine: KtLintRuleEngine,
-        lintErrorsPerFile: Map<String, List<KtlintCliError>>,
-        reporter: ReporterV2,
     ) {
+        val start = System.currentTimeMillis()
+        reporter.beforeAll()
+        if (stdinCode != null) {
+            lintStdin(stdinCode)
+        } else {
+            lintFiles(patterns)
+            if (adviseToUseFormat.get()) {
+                if (format) {
+                    logger.error { "Format was not able to autocorrect all errors that theoretically can be autocorrected." }
+                } else {
+                    logger.warn { "Lint has found errors than can be autocorrected using 'ktlint --format'" }
+                }
+            }
+        }
+        reporter.afterAll()
+        logger.debug {
+            "Finished processing in ${System.currentTimeMillis() - start}ms / ${fileNumber.get()} file(s) scanned / ${errorNumber.get()} error(s) found"
+        }
+        if (fileNumber.get() == 0) {
+            // Do not return an error as this would implicate that in a multi-module project, each module has to contain
+            // at least one kotlin file.
+            logger.warn { "No files matched $patterns" }
+        }
+        if (containsUnfixedLintErrors.get()) {
+            exitKtLintProcess(ExitCode.HAS_UNFIXED_LINT_ERRORS_AFTER_FORMAT)
+        } else {
+            exitKtLintProcess(ExitCode.OK)
+        }
+    }
+
+    private fun lintFiles(patterns: List<String>) {
         FileSystems
             .getDefault()
             .fileSequence(patterns)
@@ -52,10 +85,10 @@ internal class LintAndFormatProcessor(
                 Callable {
                     file to
                         process(
-                            ktLintRuleEngine = ktLintRuleEngine,
                             code = Code.fromFile(file),
                             baselineLintErrors =
-                                lintErrorsPerFile
+                                baseline
+                                    .lintErrorsPerFile
                                     .getOrDefault(
                                         // Baseline stores the lint violations as relative path to work dir
                                         file.location(true),
@@ -63,11 +96,10 @@ internal class LintAndFormatProcessor(
                                     ),
                         )
                 }
-            }.parallel({ (file, errList) -> report(file.location(relative), errList, reporter) })
+            }.parallel({ (file, errList) -> report(file.location(relative), errList) })
     }
 
     private fun process(
-        ktLintRuleEngine: KtLintRuleEngine,
         code: Code,
         baselineLintErrors: List<KtlintCliError>,
     ): List<KtlintCliError> {
@@ -75,14 +107,13 @@ internal class LintAndFormatProcessor(
             logger.trace { "Checking ${File(code.fileName!!).location(relative)}" }
         }
         return if (format) {
-            formatCode(ktLintRuleEngine, code, baselineLintErrors)
+            formatCode(code, baselineLintErrors)
         } else {
-            lintCode(ktLintRuleEngine, code, baselineLintErrors)
+            lintCode(code, baselineLintErrors)
         }
     }
 
     private fun formatCode(
-        ktLintRuleEngine: KtLintRuleEngine,
         code: Code,
         baselineLintErrors: List<KtlintCliError>,
     ): List<KtlintCliError> {
@@ -176,7 +207,6 @@ internal class LintAndFormatProcessor(
                         """.trimIndent()
                     }
                     return formatCode(
-                        ktLintRuleEngine = ktLintRuleEngine,
                         code = Code.fromSnippet(code.content, script = true),
                         baselineLintErrors = baselineLintErrors,
                     )
@@ -257,7 +287,6 @@ internal class LintAndFormatProcessor(
         }
 
     private fun lintCode(
-        ktLintRuleEngine: KtLintRuleEngine,
         code: Code,
         baselineLintErrors: List<KtlintCliError>,
     ): List<KtlintCliError> {
@@ -301,7 +330,6 @@ internal class LintAndFormatProcessor(
                         """.trimIndent()
                     }
                     return lintCode(
-                        ktLintRuleEngine = ktLintRuleEngine,
                         code = Code.fromSnippet(code.content, script = true),
                         baselineLintErrors = baselineLintErrors,
                     )
@@ -329,7 +357,6 @@ internal class LintAndFormatProcessor(
     private fun report(
         relativeRoute: String,
         ktlintCliErrors: List<KtlintCliError>,
-        reporter: ReporterV2,
     ) {
         fileNumber.incrementAndGet()
         val errListLimit = minOf(ktlintCliErrors.size, maxOf(limit - errorNumber.get(), 0))
@@ -348,19 +375,13 @@ internal class LintAndFormatProcessor(
 
     private fun List<KtlintCliError>.containsErrorThatCanBeAutocorrected() = any { it.status == LINT_CAN_BE_AUTOCORRECTED }
 
-    internal fun lintStdin(
-        ktLintRuleEngine: KtLintRuleEngine,
-        reporter: ReporterV2,
-        code: Code,
-    ) {
+    private fun lintStdin(code: Code) {
         report(
             KtLintRuleEngine.STDIN_FILE,
             process(
-                ktLintRuleEngine = ktLintRuleEngine,
                 code = code,
                 baselineLintErrors = emptyList(),
             ),
-            reporter,
         )
     }
 }

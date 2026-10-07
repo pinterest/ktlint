@@ -20,6 +20,7 @@ import com.github.ajalt.clikt.parameters.types.int
 import io.github.ktlint.core.cli.reporter.baseline.Baseline
 import io.github.ktlint.core.cli.reporter.baseline.BaselineErrorHandling
 import io.github.ktlint.core.cli.reporter.baseline.loadBaseline
+import io.github.ktlint.core.cli.reporter.core.api.ReporterV2
 import io.github.ktlint.core.cli.reporter.plain.Color
 import io.github.ktlint.core.logger.api.initKtLintKLogger
 import io.github.ktlint.core.logger.api.setDefaultLoggerModifier
@@ -200,8 +201,6 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
             }
         }.default(Level.INFO)
 
-    private lateinit var patterns: List<String>
-
     override fun run() {
         // Ensure the logger is configured for the subcommands as well
         logger = configureLogger()
@@ -215,86 +214,58 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
         if (stdin && patternsFromStdin != null) {
             throw MutuallyExclusiveGroupException(listOf("--stdin", "--patterns-from-stdin"))
         }
-        patterns = arguments.replaceWithPatternsFromStdinOrDefaultPatternsWhenEmpty()
-
-        val editorConfigOverride =
-            EditorConfigOverride
-                .EMPTY_EDITOR_CONFIG_OVERRIDE
-                .applyIf(stdin && stdinPath.isNullOrBlank()) {
-                    logger.debug {
-                        "Add editor config override to disable 'filename' rule which can not be used in combination with reading from " +
-                            "<stdin>"
-                    }
-                    plus(FILENAME_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.DISABLED)
-                }
-
-        val start = System.currentTimeMillis()
-
-        val ktLintRuleEngine =
-            KtLintRuleEngine(
-                ruleProviders = ruleProviders,
-                editorConfigDefaults = editorConfigDefaults(ruleProviders),
-                editorConfigOverride = editorConfigOverride,
-                isInvokedFromCli = true,
-            )
-
-        val baseline =
-            if (stdin || baselinePath.isBlank()) {
-                Baseline(status = Baseline.Status.DISABLED)
-            } else {
-                loadBaseline(baselinePath, BaselineErrorHandling.LOG)
-            }
-        val aggregatedReporter =
-            ReporterAggregator(
-                baseline,
-                reporterConfigurations,
-                color,
-                colorName,
-                stdin,
-                format,
-                relative,
-            ).aggregatedReporter()
-
-        val lintAndFormatProcessor = LintAndFormatProcessor(format, ignoreAutocorrectFailures, forceLintAfterFormat, relative, limit)
-
-        aggregatedReporter.beforeAll()
-        if (stdin) {
-            lintAndFormatProcessor.lintStdin(
-                ktLintRuleEngine,
-                aggregatedReporter,
-                buildStdinCode(),
-            )
-        } else {
-            lintAndFormatProcessor.lintFiles(
-                patterns,
-                ktLintRuleEngine,
-                baseline.lintErrorsPerFile,
-                aggregatedReporter,
-            )
-            if (lintAndFormatProcessor.adviseToUseFormat.get()) {
-                if (format) {
-                    logger.error { "Format was not able to autocorrect all errors that theoretically can be autocorrected." }
-                } else {
-                    logger.warn { "Lint has found errors than can be autocorrected using 'ktlint --format'" }
-                }
-            }
-        }
-        aggregatedReporter.afterAll()
-
-        logger.debug {
-            "Finished processing in ${System.currentTimeMillis() - start}ms / ${lintAndFormatProcessor.fileNumber.get()} file(s) scanned / ${lintAndFormatProcessor.errorNumber.get()} error(s) found"
-        }
-        if (lintAndFormatProcessor.fileNumber.get() == 0) {
-            // Do not return an error as this would implicate that in a multi-module project, each module has to contain
-            // at least one kotlin file.
-            logger.warn { "No files matched $patterns" }
-        }
-        if (lintAndFormatProcessor.containsUnfixedLintErrors.get()) {
-            exitKtLintProcess(ExitCode.HAS_UNFIXED_LINT_ERRORS_AFTER_FORMAT)
-        } else {
-            exitKtLintProcess(ExitCode.OK)
-        }
+        val baseline = buildBaseline()
+        LintAndFormatProcessor(
+            format = format,
+            ignoreAutocorrectFailures = ignoreAutocorrectFailures,
+            forceLintAfterFormat = forceLintAfterFormat,
+            relative = relative,
+            limit = limit,
+            ktLintRuleEngine = ktLintRuleEngine(),
+            baseline = baseline,
+            reporter = reporter(baseline),
+        ).run(
+            stdinCode = if (stdin) buildStdinCode() else null,
+            patterns = arguments.replaceWithPatternsFromStdinOrDefaultPatternsWhenEmpty(),
+        )
     }
+
+    private fun ktLintRuleEngine(): KtLintRuleEngine =
+        KtLintRuleEngine(
+            ruleProviders = ruleProviders,
+            editorConfigDefaults = editorConfigDefaults(ruleProviders),
+            editorConfigOverride = buildEditorConfigOverride(),
+            isInvokedFromCli = true,
+        )
+
+    private fun reporter(baseline: Baseline): ReporterV2 =
+        ReporterAggregator(
+            baseline,
+            reporterConfigurations,
+            color,
+            colorName,
+            stdin,
+            format,
+            relative,
+        ).aggregatedReporter()
+
+    private fun buildEditorConfigOverride(): EditorConfigOverride =
+        EditorConfigOverride
+            .EMPTY_EDITOR_CONFIG_OVERRIDE
+            .applyIf(stdin && stdinPath.isNullOrBlank()) {
+                logger.debug {
+                    "Add editor config override to disable 'filename' rule which can not be used in combination with reading from " +
+                        "<stdin>"
+                }
+                plus(FILENAME_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.DISABLED)
+            }
+
+    private fun buildBaseline(): Baseline =
+        if (stdin || baselinePath.isBlank()) {
+            Baseline(status = Baseline.Status.DISABLED)
+        } else {
+            loadBaseline(baselinePath, BaselineErrorHandling.LOG)
+        }
 
     private fun buildStdinCode(): Code =
         stdinPath

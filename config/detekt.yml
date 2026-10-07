@@ -13,15 +13,12 @@ style:
     active: false
 
 complexity:
-  # This codebase deliberately keeps a rule's logic inside its own `RuleV2` subclass (plus shared helpers in
-  # ASTNodeExtension.kt) instead of splitting it across additional classes/files - see the "Rule Definition" and
-  # "AST Traversal" sections of CLAUDE.md. That choice naturally produces large classes with many, and sometimes
-  # long or branchy, member functions across the rule engine, the standard ruleset and the CLI/reporters. These
-  # size/complexity metrics were checked against this project's actual architecture, not disabled reflexively:
-  # the findings span dozens of files across multiple modules (not just ktlint-ruleset-standard), all tracing back
-  # to this one, intentional design decision.
   LargeClass:
-    active: false
+    excludes:
+      # Logic for rules is kept intentionally inside the Rule classes. As a result Rule classes can be large.
+      - '**/*Rule.kt'
+      # Allow test classes to be large when there are many tests for the same (Rule) class
+      - '**/*Test.kt'
   TooManyFunctions:
     # Logic for rules is kept intentionally inside the Rule classes. Shared logic for traversing and manipulating the AST is stored in the
     # `ASTNodeExtension.kt` only. As a result Rule classes can contain a lot of private functions.
