@@ -9,6 +9,7 @@ import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTA
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
 import io.github.ktlint.core.rule.engine.core.api.endOffset
 import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
+import io.github.ktlint.core.rule.engine.core.api.isCode
 import io.github.ktlint.core.rule.engine.core.api.isPartOfComment
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
@@ -16,6 +17,7 @@ import io.github.ktlint.core.rule.engine.core.api.nextCodeSibling
 import io.github.ktlint.core.rule.engine.core.api.nextLeaf
 import io.github.ktlint.core.rule.engine.core.api.nextSibling
 import io.github.ktlint.core.rule.engine.core.api.parent
+import io.github.ktlint.core.rule.engine.core.api.prevCodeSibling
 import io.github.ktlint.core.rule.engine.core.api.prevSibling
 import io.github.ktlint.core.rule.engine.core.api.remove
 import io.github.ktlint.core.rule.engine.core.api.replaceTextWith
@@ -25,6 +27,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.psiUtil.children
 import org.jetbrains.kotlin.psi.psiUtil.leaves
+import org.jetbrains.kotlin.psi.psiUtil.siblings
 
 /**
  * Ensures annotations occur immediately prior to the annotated construct
@@ -50,55 +53,7 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
                 .ifEmpty { return }
 
         fixBlankLinesBetweenAnnotationsAndAnnotatedConstruct(annotations, node, emit)
-
-        val next =
-            node.nextSiblingWithAtLeastOneOf(
-                {
-                    !it.isWhiteSpace &&
-                        it.textLength > 0 &&
-                        !it.isCommentOnSameLineAsPrevLeaf()
-                },
-                {
-                    // Disallow multiple white spaces as well as comments
-                    if (it.isWhiteSpace) {
-                        val s = it.text
-                        // Ensure at least one occurrence of two line breaks
-                        s.indexOf("\n") != s.lastIndexOf("\n")
-                    } else {
-                        it.isPartOfComment && !it.isCommentOnSameLineAsPrevLeaf()
-                    }
-                },
-            )
-        if (next != null && next.isPartOfComment) {
-            emit(node.endOffset, "Annotations should occur immediately before the annotated construct", true)
-                .ifAutocorrectAllowed {
-                    // Special-case autocorrection when the annotation is separated from the annotated construct
-                    // by a comment: we need to swap the order of the comment and the annotation
-                    // Remove the annotation and the following whitespace
-                    val eolComment = node.nextSibling { it.isCommentOnSameLineAsPrevLeaf() }
-                    if (eolComment != null) {
-                        eolComment.prevSibling { it.isWhiteSpace }?.remove()
-                        eolComment.nextSibling { it.isWhiteSpace }?.remove()
-                        eolComment.remove()
-                    } else {
-                        node.nextSibling { it.isWhiteSpace }?.remove()
-                    }
-                    node.remove()
-
-                    // Insert the annotation prior to the annotated construct
-                    val beforeAnchor = next.nextCodeSibling
-                    next
-                        .parent!!
-                        .apply {
-                            addChild(node, beforeAnchor)
-                            if (eolComment != null) {
-                                addChild(PsiWhiteSpaceImpl(" "), beforeAnchor)
-                                addChild(eolComment, beforeAnchor)
-                            }
-                            addChild(PsiWhiteSpaceImpl("\n"), beforeAnchor)
-                        }
-                }
-        }
+        fixCommentsBetweenAnnotationsAndAnnotatedConstruct(node, emit)
     }
 
     private fun fixBlankLinesBetweenAnnotationsAndAnnotatedConstruct(
@@ -127,6 +82,35 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
                     .ifAutocorrectAllowed {
                         removeIntraLineBreaks(node, annotations.last())
                         removeExtraLineBreaks(node)
+                    }
+            }
+    }
+
+    private fun fixCommentsBetweenAnnotationsAndAnnotatedConstruct(
+        node: ASTNode,
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
+    ) {
+        require(node.elementType == MODIFIER_LIST)
+        // Collect all modifiers from the list itself
+        val modifiers = node.children()
+        val noneCodeElementsBetweenModifierListAndAnnotatedConstruct = node.siblings().takeWhile { !it.isCode }
+        (modifiers + noneCodeElementsBetweenModifierListAndAnnotatedConstruct)
+            .filter { it.isPartOfComment && !it.isCommentOnSameLineAsPrevLeaf() }
+            .toList()
+            .forEach { comment ->
+                emit(comment.startOffset, "No comment(s) expected between annotation and the annotated construct", true)
+                    .ifAutocorrectAllowed {
+                        // Remove the comment and whitespace preceding it from the modifier list
+                        comment.prevSibling { it.isWhiteSpace }?.remove()
+                        comment.remove()
+
+                        // Re-insert the comment and newline prior to the modifier list
+                        val beforeAnchor = node
+                        node.parent!!
+                            .apply {
+                                addChild(comment, beforeAnchor)
+                                addChild(PsiWhiteSpaceImpl("\n"), beforeAnchor)
+                            }
                     }
             }
     }

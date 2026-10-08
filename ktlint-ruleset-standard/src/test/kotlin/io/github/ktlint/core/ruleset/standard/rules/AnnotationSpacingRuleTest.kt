@@ -196,7 +196,7 @@ class AnnotationSpacingRuleTest {
             }
             """.trimIndent()
         annotationSpacingRuleAssertThat(code)
-            .hasLintViolation(1, 32, "Annotations should occur immediately before the annotated construct")
+            .hasLintViolation(2, 1, "No comment(s) expected between annotation and the annotated construct")
             .isFormattedAs(formattedCode)
     }
 
@@ -217,8 +217,42 @@ class AnnotationSpacingRuleTest {
             }
             """.trimIndent()
         annotationSpacingRuleAssertThat(code)
-            .hasLintViolation(1, 32, "Annotations should occur immediately before the annotated construct")
+            .hasLintViolation(2, 1, "No comment(s) expected between annotation and the annotated construct")
             .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given multiple comment blocks between annotations and the annotated construct then report each comment`() {
+        val code =
+            """
+            @Foo1
+            // comment 1
+            // comment 2
+            @Foo2
+            /*
+             * comment 3
+             */
+            class Foo {
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            // comment 1
+            // comment 2
+            /*
+             * comment 3
+             */
+            @Foo1
+            @Foo2
+            class Foo {
+            }
+            """.trimIndent()
+        annotationSpacingRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(2, 1, "No comment(s) expected between annotation and the annotated construct"),
+                LintViolation(3, 1, "No comment(s) expected between annotation and the annotated construct"),
+                LintViolation(5, 1, "No comment(s) expected between annotation and the annotated construct"),
+            ).isFormattedAs(formattedCode)
     }
 
     @Test
