@@ -2,7 +2,6 @@ package io.github.ktlint.core.ruleset.standard.rules
 
 import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
-import io.github.ktlint.core.rule.engine.core.api.ElementType.FILE_ANNOTATION_LIST
 import io.github.ktlint.core.rule.engine.core.api.ElementType.MODIFIER_LIST
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
@@ -10,7 +9,6 @@ import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTA
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
 import io.github.ktlint.core.rule.engine.core.api.endOffset
 import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
-import io.github.ktlint.core.rule.engine.core.api.isPartOf
 import io.github.ktlint.core.rule.engine.core.api.isPartOfComment
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
@@ -44,7 +42,7 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.elementType != MODIFIER_LIST && node.elementType != FILE_ANNOTATION_LIST) {
+        if (node.elementType != MODIFIER_LIST) {
             return
         }
 
@@ -53,9 +51,7 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
                 .children()
                 .filter { it.elementType == ANNOTATION_ENTRY }
                 .toList()
-        if (annotations.isEmpty()) {
-            return
-        }
+                .ifEmpty { return }
 
         // Join the nodes that immediately follow the annotations (whitespace), then add the final whitespace
         // if it's not a child of root. This happens when a new line separates the annotations from the annotated
@@ -77,7 +73,6 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
                 {
                     !it.isWhiteSpace &&
                         it.textLength > 0 &&
-                        !it.isPartOf(FILE_ANNOTATION_LIST) &&
                         !it.isCommentOnSameLineAsPrevLeaf()
                 },
                 {
@@ -92,7 +87,7 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
                 },
             )
         if (next != null) {
-            if (node.elementType != FILE_ANNOTATION_LIST && next.isPartOfComment) {
+            if (next.isPartOfComment) {
                 emit(node.endOffset, ERROR_MESSAGE, true)
                     .ifAutocorrectAllowed {
                         // Special-case autocorrection when the annotation is separated from the annotated construct
@@ -123,7 +118,7 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
                     }
             }
         }
-        if (node.elementType != FILE_ANNOTATION_LIST && whiteSpaces.any { it.containsMultipleNewlines() }) {
+        if (whiteSpaces.any { it.containsMultipleNewlines() }) {
             emit(node.endOffset, ERROR_MESSAGE, true)
                 .ifAutocorrectAllowed {
                     removeIntraLineBreaks(node, annotations.last())
